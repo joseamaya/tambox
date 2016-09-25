@@ -1,8 +1,7 @@
 {% extends "base_administracion.html" %} 
 {% block cuerpo %}
 <h3>Trabajadores / Nuevo</h3>
-<form role="form" action="{% url 'administracion:crear_trabajador' %}"
-	method="post" enctype="multipart/form-data">
+<form role="form" action="{% url 'administracion:crear_trabajador' %}" method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">

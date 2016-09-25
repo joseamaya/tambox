@@ -2,10 +2,10 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
-    Configuracion, FormaPago
+    Configuracion, FormaPago, Empresa
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
-    ImpuestoForm, ConfiguracionForm, FormaPagoForm
+    ImpuestoForm, ConfiguracionForm, FormaPagoForm, EmpresaForm
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
@@ -116,6 +116,17 @@ class CrearConfiguracion(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
+    
+class CrearEmpresa(CreateView):
+    template_name = 'crear_empresa.html'
+    form_class = EmpresaForm
+    
+    @method_decorator(permission_required('contabilidad.add_empresa',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearEmpresa, self).dispatch(*args, **kwargs)
+    
+    def get_success_url(self):
+        return reverse('contabilidad:detalle_empresa', args=[self.object.pk])
 
 class DetalleTipoDocumento(DetailView):
     model = TipoDocumento
@@ -258,6 +269,18 @@ class ModificarConfiguracion(UpdateView):
     
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
+    
+class ModificarEmpresa(UpdateView):
+    model = Empresa
+    template_name = 'crear_empresa.html'
+    form_class = EmpresaForm
+    
+    @method_decorator(permission_required('contabilidad.change_empresa',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ModificarEmpresa, self).dispatch(*args, **kwargs)
+    
+    def get_success_url(self):
+        return reverse('contabilidad:modificar_empresa', args=[self.object.pk])
 
 class ModificarImpuesto(UpdateView):
     model = Impuesto

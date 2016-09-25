@@ -9,6 +9,7 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('productos', '0001_initial'),
         ('compras', '0001_initial'),
         ('contabilidad', '0001_initial'),
         ('administracion', '0001_initial'),
@@ -38,7 +39,7 @@ class Migration(migrations.Migration):
                 ('stock', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
                 ('precio', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
                 ('almacen', models.ForeignKey(to='almacen.Almacen')),
-                ('producto', models.ForeignKey(to='compras.Producto')),
+                ('producto', models.ForeignKey(to='productos.Producto')),
             ],
             options={
                 'permissions': (('ver_reporte_stock_excel', 'Puede ver Reporte de Stock'),),
@@ -164,17 +165,12 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='kardex',
             name='producto',
-            field=models.ForeignKey(to='compras.Producto'),
+            field=models.ForeignKey(to='productos.Producto'),
         ),
         migrations.AddField(
             model_name='detallepedido',
             name='pedido',
             field=models.ForeignKey(to='almacen.Pedido'),
-        ),
-        migrations.AddField(
-            model_name='detallepedido',
-            name='producto',
-            field=models.ForeignKey(to='compras.Producto', null=True),
         ),
         migrations.AddField(
             model_name='detallemovimiento',
@@ -189,7 +185,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='detallemovimiento',
             name='producto',
-            field=models.ForeignKey(to='compras.Producto'),
+            field=models.ForeignKey(to='productos.Producto'),
         ),
         migrations.AlterUniqueTogether(
             name='detallemovimiento',

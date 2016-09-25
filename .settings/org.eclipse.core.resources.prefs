@@ -1,4 +1,6 @@
 eclipse.preferences.version=1
+encoding//administracion/forms.py=utf-8
+encoding//administracion/views.py=utf-8
 encoding//almacen/forms.py=utf-8
 encoding//almacen/models.py=utf-8
 encoding//almacen/views.py=utf-8

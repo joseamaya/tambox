@@ -9,8 +9,8 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('requerimientos', '0001_initial'),
         ('contabilidad', '0001_initial'),
-        ('administracion', '0001_initial'),
     ]
 
     operations = [
@@ -71,6 +71,7 @@ class Migration(migrations.Migration):
                 ('cantidad_comprada', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'ELEG', b'ELEGIDA'), (b'ELEG_PARC', b'ELEGIDA PARCIALMENTE'), (b'DESC', b'DESCARTADA'), (b'CANC', b'CANCELADO')])),
                 ('cotizacion', models.ForeignKey(to='compras.Cotizacion')),
+                ('detalle_requerimiento', models.ForeignKey(to='requerimientos.DetalleRequerimiento', null=True)),
             ],
             options={
                 'permissions': (('can_view', 'Can view Detalle Orden de Compra'),),
@@ -116,55 +117,6 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='DetalleRequerimiento',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('nro_detalle', models.IntegerField()),
-                ('otro', models.CharField(max_length=150, null=True)),
-                ('unidad', models.CharField(max_length=20, null=True)),
-                ('uso', models.CharField(max_length=50, null=True)),
-                ('cantidad', models.DecimalField(max_digits=15, decimal_places=5)),
-                ('cantidad_comprada', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
-                ('cantidad_atendida', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
-                ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'COTIZ', b'COTIZADO'), (b'COTIZ_PARC', b'COTIZADO PARCIALMENTE'), (b'PED', b'PEDIDO'), (b'PED_PARC', b'PEDIDO PARCIALMENTE'), (b'ATEN', b'ATENDIDO'), (b'ATEN_PARC', b'ATENDIDO PARCIALMENTE'), (b'CANC', b'CANCELADO')])),
-            ],
-            options={
-                'ordering': ['nro_detalle'],
-                'permissions': (('can_view', 'Can view Detalle Requerimiento'),),
-            },
-        ),
-        migrations.CreateModel(
-            name='FormaPago',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(unique=True, max_length=5)),
-                ('descripcion', models.CharField(max_length=50)),
-                ('dias_credito', models.IntegerField()),
-                ('estado', models.BooleanField(default=True)),
-            ],
-            options={
-                'permissions': (('cargar_formas_pago', 'Puede cargar Formas de Pago desde un archivo externo'), ('ver_detalle_forma_pago', 'Puede ver detalle de Forma de Pago'), ('ver_tabla_formas_pago', 'Puede ver tabla Formas de Pago'), ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel')),
-            },
-        ),
-        migrations.CreateModel(
-            name='GrupoProductos',
-            fields=[
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(max_length=6, serialize=False, primary_key=True)),
-                ('descripcion', models.CharField(max_length=100)),
-                ('estado', models.BooleanField(default=True)),
-                ('ctacontable', models.ForeignKey(to='contabilidad.CuentaContable')),
-            ],
-            options={
-                'permissions': (('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'), ('ver_tabla_grupos_productos', 'Puede ver tabla Grupos de Productos'), ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel')),
-            },
-        ),
-        migrations.CreateModel(
             name='OrdenCompra',
             fields=[
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
@@ -179,7 +131,7 @@ class Migration(migrations.Migration):
                 ('observaciones', models.TextField(default=b'')),
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'ING', b'INGRESADA'), (b'ING_PARC', b'INGRESADA PARCIALMENTE'), (b'CANC', b'CANCELADA')])),
                 ('cotizacion', models.ForeignKey(to='compras.Cotizacion', null=True)),
-                ('forma_pago', models.ForeignKey(to='compras.FormaPago')),
+                ('forma_pago', models.ForeignKey(to='contabilidad.FormaPago')),
             ],
             options={
                 'permissions': (('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'), ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'), ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'), ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra')),
@@ -200,32 +152,10 @@ class Migration(migrations.Migration):
                 ('observaciones', models.TextField(default=b'')),
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'CONF', b'CONFORME'), (b'CONF_PARC', b'CONFORME PARCIALMENTE'), (b'CANC', b'CANCELADA')])),
                 ('cotizacion', models.ForeignKey(to='compras.Cotizacion', null=True)),
-                ('forma_pago', models.ForeignKey(to='compras.FormaPago')),
+                ('forma_pago', models.ForeignKey(to='contabilidad.FormaPago')),
             ],
             options={
                 'permissions': (('ver_detalle_orden_servicios', 'Puede ver detalle de Orden de Servicios'), ('ver_tabla_ordenes_servicios', 'Puede ver tabla de Ordenes de Servicios'), ('ver_reporte_ordenes_servicios_excel', 'Puede ver Reporte de Ordenes de Servicios en excel')),
-            },
-        ),
-        migrations.CreateModel(
-            name='Producto',
-            fields=[
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(max_length=10, serialize=False, primary_key=True)),
-                ('descripcion', models.CharField(unique=True, max_length=100)),
-                ('desc_abreviada', models.CharField(max_length=40, blank=True)),
-                ('es_servicio', models.BooleanField(default=False)),
-                ('marca', models.CharField(max_length=40, blank=True)),
-                ('modelo', models.CharField(max_length=40, blank=True)),
-                ('precio', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
-                ('stock', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
-                ('stock_minimo', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
-                ('imagen', models.ImageField(default=b'productos/sinimagen.png', upload_to=b'productos')),
-                ('estado', models.BooleanField(default=True)),
-                ('grupo_productos', models.ForeignKey(to='compras.GrupoProductos')),
-            ],
-            options={
-                'permissions': (('cargar_productos', 'Puede cargar Productos desde un archivo externo'), ('ver_detalle_producto', 'Puede ver detalle de Productos'), ('ver_tabla_productos', 'Puede ver tabla Productos'), ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'), ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto')),
             },
         ),
         migrations.CreateModel(
@@ -263,80 +193,10 @@ class Migration(migrations.Migration):
                 'permissions': (('can_view', 'Can view Representante Legal'), ('can_view_listado', 'Can view Listado Representante Legal'), ('can_view_excel', 'Can view Representante Legal excel')),
             },
         ),
-        migrations.CreateModel(
-            name='Requerimiento',
-            fields=[
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(max_length=12, serialize=False, primary_key=True)),
-                ('motivo', models.CharField(max_length=100)),
-                ('mes', models.IntegerField(choices=[(1, b'ENERO'), (2, b'FEBRERO'), (3, b'MARZO'), (4, b'ABRIL'), (5, b'MAYO'), (6, b'JUNIO'), (7, b'JULIO'), (8, b'AGOSTO'), (9, b'SETIEMBRE'), (10, b'OCTUBRE'), (11, b'NOVIEMBRE'), (12, b'DICIEMBRE')])),
-                ('observaciones', models.TextField()),
-                ('informe', models.FileField(null=True, upload_to=b'informes')),
-                ('entrega_directa_solicitante', models.BooleanField(default=False)),
-                ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'COTIZ', b'COTIZADO'), (b'COTIZ_PARC', b'COTIZADO PARCIALMENTE'), (b'PED', b'PEDIDO'), (b'PED_PARC', b'PEDIDO PARCIALMENTE'), (b'ATEN', b'ATENDIDO'), (b'ATEN_PARC', b'ATENDIDO PARCIALMENTE'), (b'CANC', b'CANCELADO')])),
-            ],
-            options={
-                'permissions': (('ver_detalle_requerimiento', 'Puede ver detalle de Requerimiento'), ('ver_tabla_requerimientos', 'Puede ver tabla de Requerimientos'), ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'), ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento')),
-            },
-        ),
-        migrations.CreateModel(
-            name='UnidadMedida',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(unique=True, max_length=5)),
-                ('descripcion', models.CharField(max_length=50)),
-                ('estado', models.BooleanField(default=True)),
-            ],
-            options={
-                'ordering': ['codigo'],
-                'permissions': (('ver_detalle_unidad_medida', 'Puede ver detalle Unidad de Medida'), ('ver_tabla_unidades_medida', 'Puede ver tabla de unidades de medida'), ('ver_reporte_unidades_medida_excel', 'Puede ver Reporte Unidades de Medida en excel')),
-            },
-        ),
-        migrations.CreateModel(
-            name='AprobacionRequerimiento',
-            fields=[
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('requerimiento', models.OneToOneField(primary_key=True, serialize=False, to='compras.Requerimiento')),
-                ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'APROB_JEF', b'APROBADO JEFATURA'), (b'DESAP_JEF', b'DESAPROBADO JEFATURA'), (b'APROB_GER_INM', b'APROBADO GERENCIA INMEDIATA'), (b'DESAP_GER_INM', b'DESAPROBADO GERENCIA INMEDIATA'), (b'APROB_GER_ADM', b'APROBADO GERENCIA ADMINISTRACION'), (b'DESAP_GER_ADM', b'DESAPROBADO GERENCIA ADMINISTRACION'), (b'APROB_LOG', b'APROBADO LOGISTICA'), (b'DESAP_LOG', b'DESAPROBADO LOGISTICA'), (b'APROB_PRES', b'APROBADO PRESUPUESTO'), (b'DESAP_PRES', b'DESAPROBADO PRESUPUESTO')])),
-                ('motivo_desaprobacion', models.TextField(default=b'')),
-            ],
-            options={
-                'permissions': (('ver_tabla_aprobacion_requerimientos', 'Puede ver tabla de Aprobaci\xf3n de Requerimientos'), ('ver_reporte_aprobacion_requerimientos_excel', 'Puede ver Reporte de Aprobaci\xf3n de Requerimientos en excel')),
-            },
-        ),
-        migrations.AddField(
-            model_name='requerimiento',
-            name='oficina',
-            field=models.ForeignKey(to='administracion.Oficina'),
-        ),
-        migrations.AddField(
-            model_name='requerimiento',
-            name='solicitante',
-            field=models.ForeignKey(to='administracion.Trabajador'),
-        ),
         migrations.AddField(
             model_name='proveedor',
             name='representantes',
             field=models.ManyToManyField(to='compras.RepresentanteLegal'),
-        ),
-        migrations.AddField(
-            model_name='producto',
-            name='unidad_medida',
-            field=models.ForeignKey(to='compras.UnidadMedida', null=True),
-        ),
-        migrations.AddField(
-            model_name='detallerequerimiento',
-            name='producto',
-            field=models.ForeignKey(to='compras.Producto', null=True),
-        ),
-        migrations.AddField(
-            model_name='detallerequerimiento',
-            name='requerimiento',
-            field=models.ForeignKey(to='compras.Requerimiento'),
         ),
         migrations.AddField(
             model_name='detalleordenservicios',
@@ -347,11 +207,6 @@ class Migration(migrations.Migration):
             model_name='detalleordencompra',
             name='orden',
             field=models.ForeignKey(to='compras.OrdenCompra'),
-        ),
-        migrations.AddField(
-            model_name='detallecotizacion',
-            name='detalle_requerimiento',
-            field=models.ForeignKey(to='compras.DetalleRequerimiento', null=True),
         ),
         migrations.AddField(
             model_name='detalleconformidadservicio',
@@ -366,7 +221,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='cotizacion',
             name='requerimiento',
-            field=models.ForeignKey(to='compras.Requerimiento', null=True),
+            field=models.ForeignKey(to='requerimientos.Requerimiento', null=True),
         ),
         migrations.AddField(
             model_name='conformidadservicio',

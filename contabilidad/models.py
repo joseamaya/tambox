@@ -160,6 +160,11 @@ class Impuesto(TimeStampedModel):
 class Upload(TimeStampedModel):
     archivo = models.FileField(upload_to='archivos', storage=OverwriteStorage())
     
+class Empresa(TimeStampedModel):
+    nombre = models.CharField(max_length=150)
+    direccion = models.CharField(max_length=150)
+    logo = models.ImageField(upload_to='configuracion')
+    
 class Configuracion(TimeStampedModel):
     impuesto_compra = models.ForeignKey(Impuesto)
     administracion = models.ForeignKey(Oficina, related_name = 'administracion',null=True)

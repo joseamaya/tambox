@@ -9,7 +9,7 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('contabilidad', '0002_formapago'),
+        ('contabilidad', '0001_initial'),
     ]
 
     operations = [
