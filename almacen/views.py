@@ -1674,7 +1674,7 @@ class ReportePDFMovimiento(View):
         tabla_observaciones.drawOn(pdf, 40,y)
         if y<=80:
             pdf.setFont("Times-Roman", 8)
-            pdf.drawString(210, 20,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")
+            pdf.drawString(210, 20,"DIRECCION")
             pdf.showPage()            
             y=800
         return y  
@@ -1705,7 +1705,7 @@ class ReportePDFMovimiento(View):
             if not len(lista)<30:
                 if cont_listas < cant_listas:
                     pdf.setFont("Times-Roman", 8)
-                    pdf.drawString(210, 20,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")
+                    pdf.drawString(210, 20,"DIRECCION")
                     pdf.showPage()
                     y = 640
         return y
@@ -1730,7 +1730,7 @@ class ReportePDFMovimiento(View):
         y=self.cuadro_total(pdf, y, movimiento)
         y=self.cuadro_observaciones(pdf, y, movimiento)
         self.firmas(y, pdf)
-        pdf.drawString(210, 20,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")            
+        pdf.drawString(210, 20,"DIRECCIÓN")            
         pdf.save()
         pdf = buffer.getvalue()
         buffer.close()

@@ -963,7 +963,7 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. N° 20441554436")
+        pdf.drawString(455, 800, u"R.U.C. N° RUC")
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° "+orden.codigo)
         pdf.setFont("Times-Roman", 10)
@@ -1019,7 +1019,7 @@ class ReportePDFOrdenCompra(View):
         
     def otros(self,pdf,y,orden):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(u'LOCAL CENTRAL JR. LIBERTAD 543-567',u"INMEDIATA",orden.forma_pago.descripcion)]
+        otros = [(u'DIRECCION',u"INMEDIATA",orden.forma_pago.descripcion)]
         tabla_otros = Table([encabezados_otros] + otros,colWidths=[6 * cm, 3.5 * cm, 4.5 * cm], rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
             [
@@ -1075,8 +1075,8 @@ class ReportePDFOrdenCompra(View):
         p.fontName="Times-Roman"
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de SERVICIO DE ADMINISTRACIÓN TRIBUTARIA DE PIURA.""",p),
-                          Paragraph("""El SERVICIO DE ADMINISTRACIÓN TRIBUTARIA DE PIURA, se reserva el derecho de devolver 
+                          Facturar a nombre de NOMBRE EMPRESA.""",p),
+                          Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
                           Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""",p)
@@ -1132,7 +1132,7 @@ class ReportePDFOrdenCompra(View):
         pdf.drawString(430, y-250,"Autorizado por")
         pdf.line(70, y-240, 200, y-240)
         pdf.line(390, y-240, 520, y-240)
-        pdf.drawString(210, y-280,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")
+        pdf.drawString(210, y-280,"DIRECCION")
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
@@ -1148,7 +1148,7 @@ class ReportePDFOrdenServicios(View):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. N° 20441554436")
+        pdf.drawString(455, 800, u"R.U.C. N° RUC")
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°"+orden.codigo)
         pdf.setFont("Times-Roman", 10)
@@ -1270,8 +1270,8 @@ class ReportePDFOrdenServicios(View):
         p.fontName="Times-Roman"
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de SERVICIO DE ADMINISTRACIÓN TRIBUTARIA DE PIURA.""",p),
-                          Paragraph("""El SERVICIO DE ADMINISTRACIÓN TRIBUTARIA DE PIURA, se reserva el derecho de devolver 
+                          Facturar a nombre de NOMBRE EMPRESA.""",p),
+                          Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
                           Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""",p)
@@ -1327,7 +1327,7 @@ class ReportePDFOrdenServicios(View):
         pdf.drawString(430, y-250,"Autorizado por")
         pdf.line(70, y-240, 200, y-240)
         pdf.line(390, y-240, 520, y-240)
-        pdf.drawString(210, y-280,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")
+        pdf.drawString(210, y-280,"DIRECCION")
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
@@ -1414,7 +1414,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         self.firma(pdf, 330, y-50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y-40)
         self.firma(pdf, 130, y-150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y-140)
         self.firma(pdf, 350, y-150, "UNIDAD DE LOGÍSTICA", 320, 470, y-140)
-        pdf.drawString(210, y-280,"JR. LIBERTAD 543-567 - PIURA - TELÉFONO: 285400")
+        pdf.drawString(210, y-280,"DIRECCION")
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
