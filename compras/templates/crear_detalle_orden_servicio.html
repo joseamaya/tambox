@@ -1,0 +1,74 @@
+<script>
+$(".decimal").keydown(validar_decimales);
+
+$("#id_servicio").autocomplete({
+	source: function(request, response)
+	{
+	  	$.ajax({
+		    url: "{% url 'compras:busqueda_productos_descripcion' %}",
+		    data: {'descripcion': $("#id_servicio").val(),'tipo_busqueda': 'SERVICIOS'},
+			success: function( data ) 
+		    {
+		        response( data );
+		    }
+  		});
+	},
+	minLength: 2,
+	select: function( event, ui ) 
+	{
+		$("#id_codigo").val(ui.item.codigo);
+		$("#id_servicio").val(ui.item.descripcion);
+		$("#id_precio").val(ui.item.precio);
+		return false;
+	},
+});
+
+$("#id_cantidad").keyup(function() {
+	$("#id_valor").val(($("#id_cantidad").val()*$("#id_precio").val()).toFixed(5));
+});
+$("#id_precio").keyup(function() {
+	$("#id_valor").val(($("#id_cantidad").val()*$("#id_precio").val()).toFixed(5));
+});
+</script>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">			
+			<div class="panel-body">
+				<form role="form" action="#" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<div class="row">
+							{{ form.codigo }}
+							
+							<div class="col-md-12">
+								<label>Servicio:</label>		
+								{{ form.servicio }}								
+							</div>
+							
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Descripción:</label>		
+								{{ form.descripcion }}
+							</div>								
+						</div>
+						<div class="row">
+							<div class="col-md-4">	
+								<label>Cantidad:</label>		
+								{{ form.cantidad }}
+							</div>
+							<div class="col-md-4">
+								<label>Precio:</label>		
+								{{ form.precio }}								
+							</div>
+							<div class="col-md-4">
+								<label>Valor:</label>		
+								{{ form.valor }}								
+							</div>
+						</div>							
+					</div>					
+				</form>
+			</div>
+		</div>	
+	</div>
+</div>

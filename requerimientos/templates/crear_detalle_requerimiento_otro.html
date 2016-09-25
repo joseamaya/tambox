@@ -1,0 +1,36 @@
+<script>
+$(".decimal").keydown(validar_numeros);
+</script>
+<div class="row">
+	<div class="col-md-12">
+		<div class="panel panel-default">			
+			<div class="panel-body">
+				<form role="form" action="#" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-8">
+								<label>Nombre:</label>		
+								{{ form.nombre }}
+							</div>
+							<div class="col-md-2">
+								<label>Unidad:</label>		
+								{{ form.unidad }}
+							</div>
+							<div class="col-md-2">
+								<label>Cantidad:</label>		
+								{{ form.cantidad }}
+							</div>							
+						</div>
+						<div class="row">
+							<div class="col-md-5">
+								<label>Uso:</label>		
+								{{ form.uso }}
+							</div>												
+						</div>								
+					</div>					
+				</form>
+			</div>
+		</div>	
+	</div>
+</div>

@@ -1,0 +1,74 @@
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+			    Ordenes de Servicios
+			</div>
+			<div class="panel-body">
+				
+				<div class="row">
+					<div class="col-lg-12">
+						<table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
+							<thead>
+								<tr>
+									<th>CODIGO</th>
+									<th>PROVEEDOR</th>
+									<th>FECHA</th>																		
+								</tr>
+							</thead>
+							<tfoot>
+					            <tr>
+					                <th>CODIGO</th>
+									<th>PROVEEDOR</th>
+									<th>FECHA</th>
+					            </tr>
+					        </tfoot>
+							<tbody>
+							{% for orden in ordenes %}
+								<tr>
+									<td>{{ orden.codigo }}</td>
+									<td>{{ orden.cotizacion.proveedor }}</td>
+									<td>{{ orden.fecha }}</td>																		
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="row">
+					<input type="hidden" name="orden_servicios" id="id_orden_servicios">
+				</div>	
+			</div>
+		</div>
+	</div>
+</div>
+
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	var table = $('#example').dataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#example tbody').on( 'click', 'tr', function() 
+    {
+    	if ($(this).hasClass('selected') ) 
+        {        	
+        	$(this).removeClass('selected');
+            
+        }
+        else 
+        {
+	        table.$('tr.selected').removeClass('selected');
+	        $(this).addClass('selected');
+	        var orden_servicios = $(this).find('td.sorting_1').text();
+	        $('#id_orden_servicios').val(orden_servicios);           
+        }
+    }); 
+    
+});
+</script>
+{% endblock js %}

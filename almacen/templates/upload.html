@@ -1,0 +1,33 @@
+{% extends "base_almacen.html" %}
+{% block titulo_cuerpo %}
+Almacen
+{% endblock titulo_cuerpo %}
+{% block cuerpo %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Cargar Cuentas Contables</h1>
+    </div>    
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+			    Por favor ingrese todos los campos necesarios.
+			</div>
+			<div class="panel-body">
+				<form role="form" method="post" enctype="multipart/form-data">	
+					{% csrf_token %}
+					<div class="form-group">
+						<label>Selecciona un archivo:</label>
+						{{ form.docfile }}
+						<p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin encabezados, consignando la cuenta y la descripción de la misma</p>
+					</div>						
+					<div class='form-group'>
+						<input type="submit" class="btn btn-primary" name="submit" value="Guardar Datos">
+					</div>
+				</form>			
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock cuerpo %}

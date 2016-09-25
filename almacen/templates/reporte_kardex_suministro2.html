@@ -1,0 +1,84 @@
+{% extends "base_almacen.html" %}
+{% block cuerpo %}
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Periodo: {{ mes }} - {{ anio }}</h1>
+    </div>    
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-info">
+			<div class="panel-heading">
+			    <p>Codigo: {{ producto.codigo }} Denominación: {{ producto.descripcion }} Unidad: {{ producto.unidad_medida}}</p>
+			</div>
+			<div class="panel-body">
+				<table class="table table-bordered">
+				<tbhead>
+					<tr>
+						<th>FECHA</th>
+						<th>NRO DOCUMENTO</th>
+						<th>C/C</th>
+						<th>CANTIDAD</th>	
+						<th>P. UNITARIO</th>
+						<th>IMPORTE</th>
+						<th>CANTIDAD</th>	
+						<th>P. UNITARIO</th>
+						<th>IMPORTE</th>
+						<th>CANTIDAD</th>	
+						<th>P. UNITARIO</th>
+						<th>IMPORTE</th>
+					</tr>
+				</tbhead>
+				<tbody>
+					{% for k in listado_kardex %}
+					<tr>
+						<td>{{ k.fecha_operacion|date:"d/m/Y"}}</td>
+						<td>{{ k.id_movimiento.id_movimiento }}</td>
+						<td></td>
+						<td>{{ k.cantidad_ingreso }}</td>
+						<td>{{ k.precio_ingreso }}</td>		 
+						<td>{{ k.valor_ingreso }}</td>
+						<td>{{ k.cantidad_salida }}</td>
+						<td>{{ k.precio_salida }}</td>		 
+						<td>{{ k.valor_salida }}</td>
+						<td>{{ k.cantidad_total }}</td>
+						<td>{{ k.precio_total }}</td>		 
+						<td>{{ k.valor_total }}</td>			
+					</tr>	
+					{% endfor %}
+					<tr>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>{{ t_cantidad_i }}</td>
+						<td></td>
+						<td>{{ t_valor_i }}</td>
+						<td>{{ t_cantidad_s }}</td>
+						<td></td>
+						<td>{{ t_valor_s }}</td>
+						<td>{{ t_cantidad_t }}</td>
+						<td></td>
+						<td>{{ t_valor_t }}</td>
+					</tr>	
+				</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+{% if is_paginated %}
+    <div class="pagination">
+        <span class="page-links">
+            {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}">Anterior</a>
+            {% endif %}
+            <span class="page-current">
+                PÃ¡gina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}.
+            </span>
+            {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}">Siguiente</a>
+            {% endif %}
+        </span>
+    </div>
+{% endif %}
+{% endblock cuerpo %}

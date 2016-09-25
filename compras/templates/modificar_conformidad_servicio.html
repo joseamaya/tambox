@@ -1,0 +1,279 @@
+{% extends "base_compras.html" %}
+{% block cuerpo %}
+
+<form role="form" action="{% url 'compras:modificar_conformidad_servicios' conformidad.codigo %}" method="post">
+	<div class="row">
+	    <div class="col-lg-12">
+	    	<p></p>
+	    </div>    
+	</div>
+	<div class="row">
+		<div class="col-lg-12">
+			<div class="panel panel-primary">	
+				<div class="panel-heading">
+				    CONFORMIDAD DE SERVICIO
+				</div>			
+				<div class="panel-body">					
+					{% csrf_token %}
+					<div class="form-group">	
+						<div class="row">
+							<div class="col-md-3">
+								<label>CODIGO:</label>  
+								{{ form.cod_conformidad_servicio }}
+							</div>														
+						</div>
+						<div class="row">
+							<div class="col-md-3">			
+								<label>FECHA:</label> 
+								{{ form.fecha }}
+							</div>							
+							<div class="col-md-3">	
+								<label>Orden de Servicios:</label>
+								{{ form.orden_servicios }}
+							</div>
+							<div class="col-md-3">	
+								<label>Busq. de Orden:</label>
+								<button id="transferencia_orden_servicios" class="btn btn-info btn-block">
+									<span class="glyphicon glyphicon-search">BUSCAR</span>
+								</button>
+							</div>
+							<div class="col-md-3">	
+								<label>Doc. Sustento:</label>
+								{{ form.doc_sustento }}
+							</div>
+						</div>
+					</div>					
+					<hr>					
+					<div class="row">
+						<div class="col-lg-12">
+							<table id="detalles" class="table table-striped table-bordered table-hover">
+								<thead>
+									<tr>
+										<th>CANTIDAD</th>
+										<th>SERVICIO</th>
+										<th>DESCRIPCION</th>											
+										<th>PRECIO</th>
+										<th>VALOR</th>										
+									</tr>
+								</thead>
+								<tbody>
+									{% for detalle in detalles %}
+									<tr>
+										<input type='hidden' name="detalle_orden_servicios{{ detalle.nro_detalle }}" id="detalle_orden_servicios{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.pk}}"/>
+								  		<td>
+								  			<input class='form-control decimal' type='numeric' size=1 name="cantidad{{ detalle.nro_detalle }}" id="cantidad{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.cantidad }}"/>
+								  		</td>
+								  		<td>
+								  			<input class='form-control' type='text' size=50 readonly='readonly' name="servicio{{ detalle.nro_detalle }}" id="servicio{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.servicio.descripcion }}"/>
+								  		</td>
+								  		<td>
+								  			<input class='form-control' type='text' size=50 readonly='readonly' name="descripcion{{ detalle.nro_detalle }}" id="descripcion{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.servicio.descripcion }}"/>
+								  		</td>									  		
+								  		<td>
+								  			<input class='form-control precio decimal' type='numeric' size=10 name="precio{{ detalle.nro_detalle }}" id="precio{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.precio }}"/>
+								  		</td>
+								  		<td>
+								  			<input class='form-control valor decimal' type='numeric' size=5 readonly='readonly' name="valor{{ detalle.nro_detalle }}" id="valor{{ detalle.nro_detalle }}" value="{{ detalle.detalle_orden_servicios.valor }}"/>
+								  		</td>								  		
+									</tr>
+									{% endfor %}
+								</tbody>				
+							</table>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+							<table id="tabla_total" class="table table-striped table-hover">
+								<tbody>	
+									<tr>
+										<td WIDTH="50">	
+										SON										
+										</td>										
+										<td WIDTH="550">
+											{{ form.total_letras }}
+										</td>
+										<td WIDTH="50">
+											SUBTOTAL
+										</td>
+										<td>
+											{{ form.subtotal }}
+										</td>
+										<td WIDTH="60">
+										</td>
+									</tr>
+									<tr>
+										<td WIDTH="50">											
+										</td>
+										<td WIDTH="550">
+											
+										</td>
+										<td WIDTH="50">
+											IGV
+										</td>
+										<td>
+											{{ form.igv }}
+										</td>
+										<td WIDTH="60">
+										</td>
+									</tr>
+									<tr>
+										<td WIDTH="50">											
+										</td>
+										<td WIDTH="550">
+											
+										</td>
+										<td WIDTH="50">
+											TOTAL
+										</td>
+										<td>
+											{{ form.total }}
+										</td>
+										<td WIDTH="60">
+										</td>
+									</tr>		
+								</tbody>				
+							</table>
+						</div>
+					</div>															
+				</div>
+			</div>
+		</div>
+	</div>	
+	<div id="popup"></div>
+	<div class="row">
+		<div class="col-lg-4">
+			<input type="hidden" name="cdetalles" id="cdetalles" value={{ cant_detalles }}>
+		</div>		
+		<div class="col-lg-2">
+			<div class='form-group'>				 
+				<input class="btn btn-primary btn-block" type="submit" id="aceptar" name="aceptar" value="ACEPTAR">
+			</div>
+		</div>
+		<div class="col-lg-2">
+			<div class='form-group'>				 
+				<input class="btn btn-primary btn-block" type="button" onclick="location.href='{% url 'compras:ver_memorando_conformidad_servicio' conformidad.codigo %}';" id="pdf" name="limpiar" value="VER PDF">
+			</div>
+		</div>
+		<div class="col-lg-4"></div>
+	</div>
+</form>		
+
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	var mySpinner = null;
+	var contDetalles=parseInt($('#cdetalles').val());
+	var ultimo_item = parseInt($('#cdetalles').val());
+	var subtotal=parseFloat($('#id_subtotal').val());
+	var total=subtotal;
+	$("#id_fecha").datepicker();
+	$(".entero").keydown(validar_numeros);
+	
+	$('#transferencia_orden_servicios').click(function(e)
+	{
+	    e.preventDefault();
+	    $('#transferencia_orden_servicios').prop("disabled", true );
+		ventana_transferencia = $('#popup').dialog(
+		{
+			title: "Transferencia de Orden de Servicios",
+			width: 950,
+			open: function ()
+	        {
+				var url="{% url 'compras:transferencia_orden_servicios' %}";
+	            $(this).load(url);
+	        },
+			modal: true,
+			resizable: false,
+			position: { my: "center", at: "center", of: "#page-wrapper"},
+	      	buttons: {
+	          "Aceptar": transferirOrdenServicios,
+	          "Cancelar": cerrarTransferenciaOrdenServicios
+	        }
+		}).dialog('open').load(this.href)
+ 	});
+	
+	function transferirOrdenServicios()
+	{		
+		var orden_servicios = $("#id_orden_servicios").val();
+		var cont = 0;
+		ventana_transferencia.dialog("close");
+		$.ajax({
+			data : {'orden_servicios': orden_servicios},
+			url : "{% url 'compras:obtener_detalle_orden_servicios' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$.each(data, function(i,item){
+					cont = i+1;
+					$("#detalles tbody").append( 
+					"<tr>" +
+				  	"<input type='hidden'name='detalle_orden_compra"+cont+"' id='detalle_orden_compra"+cont+"' value='" + item.codigo_detalle + "'/>"+
+				  	"<td><input class='form-control decimal' type='numeric' size=1 name='cantidad"+cont+"' id='cantidad"+cont+"' value='" + item.cantidad + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='servicio"+cont+"' id='servicio"+cont+"' value='" + item.nombre_servicio + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='descripcion"+cont+"' id='descripcion"+cont+"' value='" + item.descripcion_servicio + "'/></td>" +				  	
+				  	"<td><input class='precio decimal form-control' type='numeric' size=5 name='precio"+cont+"' id='precio"+cont+"' value='" + item.precio + "'/></td>" +
+				  	"<td><input class='valor decimal form-control' type='numeric' size=5 name='valor"+cont+"' id='valor"+cont+"' value='" + item.valor + "'/></td>" +				  	
+					"</tr>");	
+					subtotal=subtotal+parseFloat(item.valor);					
+				});
+				contDetalles = cont;
+				ultimo_item = cont;
+				total = subtotal;
+				$("#id_subtotal").val(subtotal.toFixed(5));
+				$("#id_igv").val(0);
+				$("#id_total").val(total.toFixed(5));
+				$("#id_total_letras").val(NumeroALetras(total));
+				$(".decimal").keydown(validar_decimales);
+				$("#id_observaciones").val(observaciones);
+			}
+		});
+	}
+	
+	function cerrarTransferenciaOrdenServicios()
+	{
+		ventana_transferencia.dialog("close");
+	}
+	
+	$("form").submit(function(event) 
+	{
+		var cont=0;
+		$('#cdetalles').val(ultimo_item);
+		var fecha = $('#id_fecha').val().trim();
+		var orden_servicios = $('#id_orden_servicios').val().trim();
+		var doc_sustento = $('#id_doc_sustento').val().trim();
+		if(fecha != '')
+		{					
+			if(orden_servicios != '')
+			{
+				if(doc_sustento != '')
+				{
+					if (contDetalles > 0)
+					{
+						return			
+					}
+					else
+					{
+						alert("No ha ingresado ningún detalle");	
+					}
+				}
+				else
+				{
+					alert("No ha ingresado el documento de sustento");	
+				}
+			}
+			else
+			{
+				alert("No ha ingresado tiempo de entrega");
+			}
+		}
+		else
+		{
+			alert("No ha seleccionado fecha");
+		}
+		event.preventDefault();
+	});
+});
+</script>
+{% endblock js %}

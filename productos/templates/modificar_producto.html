@@ -1,0 +1,98 @@
+{% extends "base_productos.html" %} {% block cuerpo %}
+<h3>Productos / {{ object.descripcion }}</h3>
+<form role="form" action="{% url 'productos:modificar_producto' producto.pk %}" method="post">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+			<button type="button" class="btn btn-default" onclick="location.href='{% url 'productos:detalle_producto' object.pk %}'">
+				Cancelar</button>
+		</div>
+		<div class="col-lg-2 text-right">
+			<div class="btn-group">
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'productos:modificar_producto' producto.anterior %}';">
+					<span class="glyphicon glyphicon-step-backward"></span>
+				</button>
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'productos:modificar_producto' producto.siguiente %}';">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'productos:productos' %}';">
+					<span class="glyphicon glyphicon-th-list"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div id="dialog-confirm" title="Eliminar Producto"></div>
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-lg-2">
+					<a href="/media/{{ object.imagen.url }}" class="thumbnail"> <img
+						src="/media/{{ object.imagen.url }}" alt="Imagen Producto"
+						style="width: 120px; height: 90px">
+					</a>
+				</div>
+				<div class="col-lg-5">
+					<label>Descripción:</label>
+					<p>{{ form.descripcion }}</p>
+				</div>
+				<div class="col-lg-5">
+					<div class="btn-group">
+						<button class="btn btn-default" type="button">
+							<span class="fa fa-building fa-2x"></span> {{ object.stock }} <br>
+							Stock
+						</button>
+						<button class="btn btn-default" type="button">
+							<span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
+							Previsto
+						</button>
+						<button class="btn btn-default" type="button">
+							<span class="fa fa-shopping-cart fa-2x"></span> 
+							{{ object.stock }} <br> productos
+						</button>
+					</div>
+				</div>
+			</div>
+			<br>
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-toggle="tab" href="#general">Información
+						General</a></li>
+				<li><a data-toggle="tab" href="#contabilidad">Contabilidad</a></li>
+			</ul>
+			<div class="tab-content">
+				<div id="general" class="tab-pane fade in active">
+					<br>
+					<div class="row">
+						<div class="col-lg-4">
+							<label>CODIGO:</label>
+							<p>{{ object.codigo }}</p>
+							<label>GRUPO PRODUCTOS:</label>
+							<p>{{ form.grupo_productos }}</p>
+							<label>DESCRIPCION ABREVIADA: </label>
+							<p>{{ form.desc_abreviada }}</p>
+							<label>UNIDAD DE MEDIDA: </label>
+							<p>{{ form.unidad_medida }}</p>
+						</div>
+						<div class="col-lg-4">
+							<label>MARCA: </label>
+							<p>{{ form.marca }}</p>
+							<label>MODELO: </label>
+							<p>{{ form.modelo }}</p>
+							<label>PRECIO: </label>
+							<p>{{ form.precio }}</p>
+						</div>
+						<div class="col-lg-4"></div>
+					</div>
+				</div>
+				<div id="contabilidad" class="tab-pane fade">
+					<br>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% endblock cuerpo %}

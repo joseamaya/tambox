@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block menu %}
+<div class="navbar-default sidebar" role="navigation">
+   	<div class="sidebar-nav navbar-collapse">
+		<ul class="nav" id="side-menu">
+			<li>
+		        <a href="#"><i class="fa fa-user fa-lg"></i>Cuenta<span class="fa arrow"></span></a>
+		        <ul class="nav nav-second-level">
+		            <li><a href="{% url 'seguridad:cambiar_password' %}">Cambiar Contraseña</a></li>			   		 
+		        </ul>	                
+		    </li>
+    	</ul>	               
+	</div>                
+</div>
+{% endblock menu %}

@@ -1,0 +1,88 @@
+{% extends "base_almacen.html" %}
+{% block cuerpo %}
+<h3>Tipos de Movimientos</h3>
+<div class="row">					
+	<div class="col-lg-10">	
+		{% if perms.almacen.add_tipo_movimiento %}
+		<a href="{% url 'almacen:crear_tipo_movimiento' %}" class="btn btn-primary">
+			Crear
+		</a>												
+		{% endif %}
+		{% if perms.almacen.cargar_tipos_movimientos %}
+		<a href="#" class="btn btn-default">
+			Importar
+		</a>						
+		{% endif %}									
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">    					   
+			{% if perms.almacen.ver_reporte_tipos_movimientos_excel %}						
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:maestro_tipos_movimientos_excel' %}';">
+                   	<span class="glyphicon glyphicon-list-alt"></span>
+                    </button>
+			{% endif %}	
+		</div>
+	</div>				
+</div>
+<hr/>
+<div class="row">
+	<div class="col-lg-12">
+		<table id="tabla" class="display" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th class="text-center">CODIGO</th>
+					<th class="text-center">DESCRIPCION</th>
+					<th class="text-center">INCREMENTO</th>
+					<th class="text-center">PIDE REFERENCIA</th>
+					<th class="text-center">ACTIVO</th>														
+				</tr>
+			</thead>
+			<tbody>
+			{% for tipo in tipos_movimiento %}
+				{% if perms.almacen.ver_detalle_tipo_movimiento %}
+				<tr onclick="location.href='{% url 'almacen:detalle_tipo_movimiento' tipo.pk %}';">
+				{% else %}
+				<tr>
+				{% endif %}
+					<td>{{ tipo.codigo }}</td>
+					<td>{{ tipo.descripcion }}</td>									
+					{% if tipo.incrementa %}
+						<td>SI</td>
+					{% else %}
+						<td>NO</td>
+					{% endif %}
+					{% if tipo.pide_referencia %}
+						<td>SI</td>
+					{% else %}
+						<td>NO</td>
+					{% endif %}
+					{% if tipo.estado %}
+						<td>SI</td>
+					{% else %}
+						<td>NO</td>
+					{% endif %}				        									
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>		
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#tabla').DataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	}); 
+    
+});
+</script>
+{% endblock js %}

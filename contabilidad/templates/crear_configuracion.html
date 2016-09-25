@@ -1,0 +1,35 @@
+{% extends "base_contabilidad.html" %}
+{% block cuerpo %}
+<br>
+<form role="form" action="#" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10"> 
+            <input type="submit" class="btn btn-primary" name="submit" value="Aplicar">            
+        </div>        
+    </div>
+    <hr/>
+	<div class="panel panel-default">               
+		<div class="panel-body">
+			<h3>Impuestos</h3>
+			<div class="row">
+			    <div class="col-lg-4">
+			        <label>Impuesto para Compras:</label>
+			        <h3>{{ form.impuesto_compra }}</h3>
+			        <label>Oficina de Administración:</label>
+			        <h3>{{ form.administracion }}</h3>
+			        <label>Oficina de Presupuesto:</label>
+			        <h3>{{ form.presupuesto }}</h3>
+			        <label>Oficina de Logistica:</label>
+			        <h3>{{ form.logistica }}</h3>			             
+			    </div>			                      
+			</div>			
+		</div>                      
+	</div>        
+</form>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+
+</script>
+{% endblock js %}

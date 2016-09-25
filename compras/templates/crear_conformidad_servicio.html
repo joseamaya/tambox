@@ -1,0 +1,346 @@
+{% extends "base_compras.html" %}
+{% block cuerpo %}
+<h3>Conformidades de Servicio / Nuevo</h3>
+<form role="form" action="{% url 'compras:crear_conformidad_servicio' %}" method="post">
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit"
+				value="Guardar">
+			<button type="button" class="btn btn-default"
+				onclick="location.href='{% url 'compras:conformidades_servicio' %}'">
+				Cancelar</button>
+		</div>
+		<div class="col-lg-2 text-right">
+			<div class="btn-group">
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'compras:conformidades_servicio' %}';">
+					<span class="glyphicon glyphicon-th-list"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="panel panel-primary">	
+		<div class="panel-body">					
+			{% csrf_token %}
+			<div class="form-group">	
+				<div class="row">
+					<div class="col-md-3">			
+						<label>FECHA:</label>
+						{% if form.fecha.errors %}
+							{% for error in form.fecha.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %} 
+						{{ form.fecha }}
+					</div>							
+					<div class="col-md-3">	
+						<label>Orden de Servicios:</label>
+						{% if form.referencia.errors %}
+							{% for error in form.referencia.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.referencia }}
+					</div>
+					<div class="col-md-3">	
+						<label>Busq. de Orden:</label>
+						<button id="transferencia_orden_servicios" class="btn btn-info btn-block">
+							<span class="glyphicon glyphicon-search">BUSCAR</span>
+						</button>
+					</div>
+					<div class="col-md-3">	
+						<label>Doc. Sustento:</label>
+						{% if form.doc_sustento.errors %}
+							{% for error in form.doc_sustento.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.doc_sustento }}
+					</div>
+				</div>
+			</div>					
+			<hr>					
+			<div class="row">
+				<div class="col-lg-12">
+					<table id="detalles" class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>CANTIDAD</th>
+								<th>SERVICIO</th>
+								<th>DESCRIPCION</th>											
+								<th>PRECIO</th>
+								<th>VALOR</th>
+								<th>BORRAR</th>
+							</tr>
+						</thead>
+						<tbody>
+							{{ detalle_conformidad_servicio_formset.management_form }}
+						    {% for detalle_conformidad_servicio_form in detalle_conformidad_servicio_formset %}					        
+					            <tr class="detalle_conformidad_servicio_formset">
+					            	{{ detalle_conformidad_servicio_form.cotizacion }}					            	
+					            	<td>
+						            	{% if detalle_conformidad_servicio_form.nombre.errors %}
+											{% for error in detalle_conformidad_servicio_form.nombre.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							            {{ detalle_conformidad_servicio_form.nombre }}
+						            </td>
+						            <td>
+							            {% if detalle_conformidad_servicio_form.unidad.errors %}
+											{% for error in detalle_conformidad_servicio_form.unidad.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							            {{ detalle_conformidad_servicio_form.unidad }}
+						            </td>
+						            <td>
+							            {% if detalle_conformidad_servicio_form.cantidad.errors %}
+											{% for error in detalle_conformidad_servicio_form.cantidad.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							            {{ detalle_conformidad_servicio_form.cantidad }}
+						            </td>
+						            <td>
+							            {% if detalle_conformidad_servicio_form.precio.errors %}
+											{% for error in detalle_conformidad_servicio_form.precio.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							           	{{ detalle_conformidad_servicio_form.precio }}
+						           	</td>						           		
+						           	<td>
+							            {% if detalle_conformidad_servicio_form.valor.errors %}
+											{% for error in detalle_conformidad_servicio_form.valor.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							           	{{ detalle_conformidad_servicio_form.valor }}
+						           	</td>					           	
+						           	<td>
+						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
+						           			<span class='glyphicon glyphicon-remove'></span>
+						           		</button>
+						           	</td>					           	
+					           	</tr>
+					           	
+						    {% endfor %}		
+						</tbody>				
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<table id="tabla_total" class="table table-striped table-hover">
+						<tbody>	
+							<tr>
+								<td WIDTH="50">	
+								SON										
+								</td>										
+								<td WIDTH="550">
+									{{ form.total_letras }}
+								</td>
+								<td WIDTH="50">
+									SUBTOTAL
+								</td>
+								<td>
+									{{ form.subtotal }}
+								</td>
+								<td WIDTH="60">
+								</td>
+							</tr>
+							<tr>
+								<td WIDTH="50">											
+								</td>
+								<td WIDTH="550">
+									
+								</td>
+								<td WIDTH="50">
+									TOTAL
+								</td>
+								<td>
+									{{ form.total }}
+								</td>
+								<td WIDTH="60">
+								</td>
+							</tr>		
+						</tbody>				
+					</table>
+				</div>
+			</div>															
+		</div>
+	</div>
+	<div id="popup"></div>
+	<div class="row">
+		<div class="col-lg-4">
+			{{ form.cdetalles }}
+		</div>
+	</div>
+</form>		
+
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	var mySpinner = null;
+	var contDetalles=0;
+	var total=0;
+	var subtotal=0;
+	var ultimo_item = 0;
+	$("#id_fecha").datepicker();
+	$(".entero").keydown(validar_numeros);
+	
+	$('#transferencia_orden_servicios').click(function(e)
+	{
+	    e.preventDefault();
+	    $('#transferencia_orden_servicios').prop("disabled", true );
+		ventana_transferencia = $('#popup').dialog(
+		{
+			title: "Transferencia de Orden de Servicios",
+			width: 950,
+			open: function ()
+	        {
+				var url="{% url 'compras:transferencia_orden_servicios' %}";
+	            $(this).load(url);
+	        },
+			modal: true,
+			resizable: false,
+			position: { my: "center", at: "center", of: "#page-wrapper"},
+	      	buttons: {
+	          "Aceptar": transferirOrdenServicios,
+	          "Cancelar": cerrarTransferenciaOrdenServicios
+	        }
+		}).dialog('open').load(this.href)
+ 	});
+	
+	function transferirOrdenServicios()
+	{		
+		var orden_servicios = $("#id_orden_servicios").val();
+		var cont = 0;
+		ventana_transferencia.dialog("close");
+		
+		$.ajax({
+			data : {'orden_servicios': orden_servicios},
+			url : "{% url 'compras:obtener_detalle_orden_servicios' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$.each(data, function(i,item){
+					$("#detalles tbody").append( 
+					"<tr class='detalle_conformidad_servicio_formset'>" +
+						item.orden_servicios +
+						"<td>" + item.servicio + "</td>" +
+						"<td>" + item.uso + "</td>" +
+						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.precio + "</td>" +
+						"<td>" + item.valor + "</td>" +
+				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");
+					cont = cont + 1;
+					var val_temp = $("#id_form-"+i+"-valor").val()
+					subtotal=subtotal+parseFloat(val_temp);								
+				});
+				contDetalles = cont;
+				ultimo_item = cont;
+				total = subtotal;
+				$("#id_form-TOTAL_FORMS").val(cont);
+				total = subtotal;
+				$("#id_referencia").val(orden_servicios);
+				$("#id_subtotal").val(subtotal.toFixed(5));
+				$("#id_total").val(total.toFixed(5));
+				$("#id_total_letras").val(NumeroALetras(total));
+				$(".decimal").keydown(validar_decimales);
+				$("#id_observaciones").val(observaciones);
+			}
+		});
+	}
+	
+	function cerrarTransferenciaOrdenServicios()
+	{
+		ventana_transferencia.dialog("close");
+	}
+	
+	$("form").submit(function(event) 
+	{
+		var cont=0;
+		$('#id_cdetalles').val(ultimo_item);
+		var fecha = $('#id_fecha').val().trim();
+		var orden_servicios = $('#id_referencia').val().trim();
+		var doc_sustento = $('#id_doc_sustento').val().trim();
+		if(fecha != '')
+		{					
+			if(orden_servicios != '')
+			{
+				if(doc_sustento != '')
+				{
+					if (contDetalles > 0)
+					{
+						return			
+					}
+					else
+					{
+						alert("No ha ingresado ningún detalle");	
+					}
+				}
+				else
+				{
+					alert("No ha ingresado el documento de sustento");	
+				}
+			}
+			else
+			{
+				alert("No ha ingresado tiempo de entrega");
+			}
+		}
+		else
+		{
+			alert("No ha seleccionado fecha");
+		}
+		event.preventDefault();
+	});
+});
+</script>
+{% endblock js %}

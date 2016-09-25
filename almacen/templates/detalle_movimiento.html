@@ -1,0 +1,379 @@
+{% extends "base_almacen.html" %}
+{% block cuerpo %}
+<h3>Movimientos / {{ object.pk }}</h3>
+<div class="row">
+	<div class="col-lg-10">
+		<button class="btn btn-info" type="button" onclick="location.href='{% url 'almacen:movimiento_pdf' object.pk %}';">Ver PDF</button>
+		<a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a> 
+		{% if perms.almacen.delete_movimiento %}
+			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+		{% endif %}
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.anterior %}';">
+				<span class="glyphicon glyphicon-step-backward"></span>
+			</button>
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.siguiente %}';">
+				<span class="glyphicon glyphicon-step-forward"></span>
+			</button>
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'almacen:movimientos' %}';">
+				<span class="glyphicon glyphicon-th-list"></span>
+			</button>
+		</div>
+	</div>
+</div>
+<hr />
+<div class="panel panel-primary">
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-md-3">
+				<label>ID MOVIMIENTO:</label>  
+				<p>{{ object.id_movimiento }}</p>
+			</div>														
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<label>Tipo de Ingreso:</label>  
+				<p>{{ object.tipo_movimiento }}</p>
+			</div>
+			<div class="col-md-6">
+				<label>Almacen:</label> 
+				<p>{{ object.almacen }}</p>
+			</div>
+		</div>						
+		<div class="row">
+			<div class="col-md-3">			
+				<label>Fecha:</label> 
+				<p>{{ object.fecha_operacion|date:"d/m/Y" }}</p>
+			</div>
+			<div class="col-md-3">	
+				<label>Hora:</label> 
+				<p>{{ object.fecha_operacion|date:"H:i:s" }}</p>
+			</div>
+			<div class="col-md-3">	
+				<label>Referencia:</label>
+				{% if object.referencia %}
+				<p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a></p>
+				{% else %}
+				<p>NINGUNA</p>
+				{% endif %}
+			</div>				
+		</div>
+		<div class="row">
+			<div class="col-md-3">	
+				<label>DOC. REFER:</label>  
+				{% if object.tipo_documento %}
+				<p>{{ object.tipo_documento }}</p>
+				{% else %}
+				<p>-</p>
+				{% endif %}
+			</div>
+			<div class="col-md-3">
+				<label>SERIE:</label>
+				{% if object.serie %}
+				<p>{{ object.serie }}</p>
+				{% else %}
+				<p>-</p>
+				{% endif %}
+			</div>
+			<div class="col-md-3">
+				<label>NUMERO:</label>				
+				{% if object.numero %}
+				<p>{{ object.numero }}</p>
+				{% else %}
+				<p>-</p>
+				{% endif %}
+			</div>
+		</div>		
+		<div class="row">
+			<div class="col-lg-12">
+				<table id="detalles" class="table table-striped table-bordered table-hover">
+					<thead>
+						<tr>
+							<th>ID Producto</th>
+							<th>Producto</th>
+							<th>Unidad</th>	
+							<th>Cantidad</th>	
+							<th>Precio</th>
+							<th>Valor</th>							
+						</tr>
+					</thead>
+					<tbody>	
+					{% for detalle in object.detallemovimiento_set.all %}
+						<tr>
+							<td>{{ detalle.producto.codigo }}</td>
+					  		<td>{{ detalle.producto.descripcion }}</td>
+					  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
+					  		<td>{{ detalle.cantidad }}</td>
+					  		<td>{{ detalle.precio }}</td>
+					  		<td>{{ detalle.valor }}</td>					  		
+						</tr>							
+					{% endfor %}						
+					</tbody>				
+				</table>
+			</div>
+		</div>		
+		<div class="row">
+			<div class="col-lg-12">
+				<table id="tabla_total" class="table table-striped table-hover">
+					<tbody>	
+						<tr>
+							<td WIDTH="50">
+							</td>
+							<td WIDTH="950">
+								
+							</td>
+							<td WIDTH="50">
+								TOTAL
+							</td>
+							<td>
+								<p>{{ object.total }}</p>
+							</td>
+							<td WIDTH="80">
+							</td>
+						</tr>		
+					</tbody>				
+				</table>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-12">
+				<label>OBSERVACIONES:</label>	
+				<textarea cols="141" id="id_observaciones" name="observaciones" rows="5">
+				{{ object.observacion }}
+				</textarea>	
+			</div>
+		</div>	
+	</div>
+</form>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	var total=parseInt($('#id_total').val());
+	var contDetalles = parseInt($('#cdetalles').val());
+	var ultimo_item = contDetalles;
+	$('#id_hora').wickedpicker({now: "{{ movimiento.fecha_operacion|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});	
+	$("#id_fecha").datepicker();
+	$("#id_tipos_ingreso").on('change',verificar_pide_referencia);
+	
+	$(document).on("click",".eliminar",function()
+	{
+		var parent = $(this).parent().parent();	
+		var id_boton= $(this).prop('id');
+		var id = id_boton.replace("btnBorrar","");
+		var valor = $("#valor"+id).val();
+		$(parent).remove();
+		total=parseFloat(total-valor);
+		$("#id_total").val(total.toFixed(5));
+		contDetalles = contDetalles - 1;
+	});	
+	
+	function verificar_pide_referencia()
+	{
+		$("#detalles tbody > tr").remove();
+		tipo_ingreso = $('#id_tipos_ingreso').val();
+		$.ajax({
+			data : {'tipo': tipo_ingreso},
+			url : "{% url 'almacen:verificar_pide_referencia' %}",
+			type : 'get',
+			success : function(data)
+			{
+				if(data.pide_refencia)
+				{
+					$('#id_transferencia_referencia').prop("disabled", false);
+					$('#id_crear_detalle').prop("disabled", true);
+				}
+				else
+				{
+					$('#id_transferencia_referencia').prop("disabled", true);
+					total=0;
+					$("#id_total").val(total);
+					$("#id_referencia").val("");
+					$('#id_crear_detalle').prop("disabled", false);
+				}
+			}
+		});
+	}
+	   
+	$('#id_crear_detalle').click(function(e)
+	{
+		e.preventDefault();
+		var alm=$('#id_almacenes').val().trim();
+		if(alm != '') 
+		{			
+			ventana = $('#popup').dialog(
+			{
+				title: "Agregar Detalle",
+				open: function ()
+		        {
+					var url="{% url 'almacen:crear_detalle_ingreso' 'cod_alm' %}".replace('cod_alm', alm);
+					$(this).load(url);
+		        },
+				width: 950,
+				modal: true,
+				resizable: false,
+				position: { my: "center", at: "center", of: "#page-wrapper"},
+		      	buttons: {
+		          "Aceptar": agregarDetalle,
+		          "Cancelar": cerrarDetalle
+		        }
+			}).dialog('open').load(this.href)
+		}
+		else
+		{
+			alert("Previamente debe haber seleccionado el almacén");
+		}		
+ 	});
+	
+	
+	$('#id_transferencia_referencia').click(function(e)
+	{
+	    e.preventDefault();
+	    $('#id_transferencia_referencia').prop("disabled", true );
+		ventana_transferencia = $('#popup').dialog(
+		{
+			title: "Transferencia de Orden de Compra",
+			width: 950,
+			open: function ()
+	        {
+				var url="{% url 'compras:transferencia_orden_compra' %}";
+	            $(this).load(url);
+	        },
+			modal: true,
+			resizable: false,
+			position: { my: "center", at: "center", of: "#page-wrapper"},
+	      	buttons: {
+	          "Aceptar": transferirOrden,
+	          "Cancelar": cerrarTransferencia
+	        }
+		}).dialog('open').load(this.href)
+ 	});
+	
+	function transferirOrden()
+	{		
+		var orden_compra = $("#orden_compra").val();
+		var cont = 0;
+		ventana_transferencia.dialog( "close" );
+		$('#detalles td').parent().remove();
+		$.ajax({
+			data : {'orden_compra': orden_compra},
+			url : "{% url 'compras:obtener_detalle_orden_compra' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$.each(data, function(i,item){
+					cont = i+1;
+					$("#detalles tbody").append( 
+					"<tr>" +
+				  	"<input type='hidden'name='detalle_orden_compra"+cont+"' id='detalle_orden_compra"+cont+"' value='" + item.codigo_detalle + "'/>"+
+					"<td><input class='form-control' type='text' size=14 readonly='readonly' name='codigo"+cont+"' id='codigo"+cont+"' value='" + item.codigo_producto + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=25 readonly='readonly' name='nombre"+cont+"' id='nombre"+cont+"' value='" + item.nombre_producto + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=10 readonly='readonly' name='unidad"+cont+"' id='unidad"+cont+"' value='" + item.unidad_producto + "'/></td>" +
+				  	"<td><input class='form-control decimal' type='numeric' size=5 name='cantidad"+cont+"' id='cantidad"+cont+"' value='" + item.cantidad + "'/></td>" +
+				  	"<td><input class='form-control decimal' type='numeric' readonly='readonly' size=10 name='precio"+cont+"' id='precio"+cont+"' value='" + item.precio + "'/></td>" +
+				  	"<td><input class='form-control' type='text' readonly='readonly' size=14 name='valor"+cont+"' id='valor"+cont+"' value='" + item.valor + "'/></td>" +
+				  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+cont+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");	
+					contDetalles=i+1;
+					total = total + parseFloat(item.valor);
+				});
+				contDetalles = cont;
+				ultimo_item = cont;
+				$("#id_referencia").val(orden_compra);
+				$("#id_total").val(total.toFixed(5));
+				$('#id_crear_detalle').prop("disabled", true );
+				$(".decimal").keydown(validar_decimales);	
+			}
+		});
+	}
+		
+	function agregarDetalle() 
+	{
+		cantidad = $("#id_cantidad").val();
+		if(cantidad>0)
+		{
+			contDetalles = contDetalles + 1;
+			ultimo_item = ultimo_item + 1;
+			codigo = $("#id_codigo").val(),
+		    nombre = $("#id_nombre").val(),
+		    unidad = $("#id_unidad").val(),	    
+			precio = $("#id_precio").val();
+			valor = $("#id_valor").val();
+			$("#detalles tbody").append( 
+			"<tr>" +
+		  	"<td><input class='form-control' type='text' size=14 readonly='readonly' name='codigo"+ultimo_item+"' id='codigo"+ultimo_item+"' value='" + codigo + "'/></td>" +
+		  	"<td><input class='form-control' type='text' size=25 readonly='readonly' name='nombre"+ultimo_item+"' id='nombre"+ultimo_item+"' value='" + nombre + "'/></td>" +
+		  	"<td><input class='form-control' type='text' size=10 readonly='readonly' name='unidad"+ultimo_item+"' id='unidad"+ultimo_item+"' value='" + unidad + "'/></td>" +
+		  	"<td><input class='form-control cantidad' type='numeric' size=5 name='cantidad"+ultimo_item+"' id='cantidad"+ultimo_item+"' value='" + cantidad + "'/></td>" +
+		  	"<td><input class='form-control' type='numeric' readonly='readonly' size=10 name='precio"+ultimo_item+"' id='precio"+ultimo_item+"' value='" + precio + "'/></td>" +
+		  	"<td><input class='form-control' type='text' readonly='readonly' size=14 name='valor"+ultimo_item+"' id='valor"+ultimo_item+"' value='" + valor + "'/></td>" +
+		  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+ultimo_item+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+			"</tr>");
+			total = total+parseFloat(valor);
+			$("#id_total").val(total.toFixed(5));
+			$(".decimal").keydown(validar_decimales);
+		}
+		ventana.dialog("close");
+    }
+	
+	function cerrarDetalle()
+	{
+		ventana.dialog("close");
+	}
+	
+	function cerrarTransferencia()
+	{
+		ventana_transferencia.dialog("close");
+	}
+	
+	$("form").submit(function( event ) 
+	{
+		var cont=0;
+		tipo_ingreso = $('#id_tipos_ingreso').val();
+		$('#cdetalles').val(ultimo_item);
+		var almacen = $('#id_almacenes').val().trim();
+		var fecha = $('#id_fecha').val().trim();
+		var solicita_documento = $('#id_tipos_documento').is(':enabled');
+		var tipo_documento;
+		var serie;
+		var numero;
+		if(tipo_ingreso != '') 
+		{			
+			if(almacen != '') 
+			{			
+				if(fecha != '')
+				{					
+					if (contDetalles > 0)
+					{
+						return;
+					}
+					else
+					{
+						alert("No ha ingresado ningún detalle")	
+					}
+				}
+				else
+				{
+					alert("No ha seleccionado fecha")
+				}
+			}
+			else
+			{
+				alert("No ha seleccionado almacén");
+			}
+		}
+		else
+		{
+			alert("No ha seleccionado tipo de ingreso")
+		}		
+		event.preventDefault();
+	});
+});
+</script>
+{% endblock js %}

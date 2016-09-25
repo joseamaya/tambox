@@ -1,0 +1,84 @@
+{% extends "base_requerimientos.html" %}
+{% block cuerpo %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">Aprobar Requerimiento</h1>
+    </div>    
+</div>
+<div class="row">
+	<div class="col-lg-12">
+		<div class="panel panel-default">
+			<div class="panel-body">
+				<form role="form" action="{% url 'requerimientos:aprobar_requerimiento' aprobacionrequerimiento.pk %}" method="post">
+					{% csrf_token %}
+					<div class="form-group">
+						<div class="row">
+							<div class="col-md-3">			
+								<label>ESTADO:</label>
+								{% if form.estado.errors %}
+									{% for error in form.estado.errors %}
+									<div class="alert alert-danger alert-dismissible" role="alert">							
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>							
+							            <strong>Error: </strong> {{ error|escape }}					        
+									</div>
+							        {% endfor %}
+							    {% endif %}
+								{{ form.estado }}
+							</div>
+						</div>
+					</div>			
+					<div class="form-group">	
+						<div class="row">
+							<div class="col-md-3">			
+								<label>MOTIVO DESAPROBACION:</label>
+								{% if form.motivo_desaprobacion.errors %}
+									{% for error in form.motivo_desaprobacion.errors %}
+									<div class="alert alert-danger alert-dismissible" role="alert">							
+										<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+											<span aria-hidden="true">&times;</span>
+										</button>							
+							            <strong>Error: </strong> {{ error|escape }}					        
+									</div>
+							        {% endfor %}
+							    {% endif %}
+								{{ form.motivo_desaprobacion }}
+							</div>
+						</div>					
+					</div>	
+					<div class='form-group'>
+						<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+						<button type="reset" class="btn btn-primary" onclick="location.href='{% url 'requerimientos:listado_aprobacion_requerimientos' %}'">
+						    Cancelar
+						</button>
+					</div>
+				</form>			
+			</div>
+		</div>
+	</div>
+</div>
+<div id="popup"></div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	$("#id_estado").on('change',verificar_estado);
+	function verificar_estado()
+	{
+		var estado = $('#id_estado').val();
+		if(estado=='DESAP_JEF')
+		{
+			$("#id_motivo_desaprobacion").attr("readonly", false);
+		}
+		else if(estado=='APROB_JEF')
+		{
+			$("#id_motivo_desaprobacion").val('');
+			$("#id_motivo_desaprobacion").attr("readonly", true);
+		}	
+	}
+});
+</script>
+{% endblock js %}
