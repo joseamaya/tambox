@@ -1,0 +1,103 @@
+{% extends "almacen/base_almacen.html" %}
+{% block cuerpo %}
+<h3>Movimientos</h3>
+<div class="row">					
+	<div class="col-lg-10">
+											
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">    					   
+			{% if perms.almacen.ver_reporte_movimientos_excel %}						
+			<button class="btn btn-default" type="button"">
+            	<span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+			{% endif %}	
+		</div>
+	</div>				
+</div>
+<hr/>
+<div class="row">
+	<div class="col-lg-12">
+		<table id="tabla" class="table table-striped table-bordered" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th class="text-center">ID_MOVIMIENTO</th>
+					<th class="text-center">TIPO_MOVIMIENTO</th>
+					<th class="text-center">FEC_OPER.</th>
+					<th class="text-center">ALMACEN</th>																																															
+				</tr>
+			</thead>							
+			<tbody>
+			{% for movimiento in movimientos %}
+				{% if perms.almacen.ver_detalle_movimiento %}
+				<tr onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.pk %}';">
+				{% else %}
+				<tr>
+				{% endif %}
+					<td>{{ movimiento.id_movimiento }}</td>
+					<td>{{ movimiento.tipo_movimiento }}</td>
+					<td>{{ movimiento.fecha_operacion|date:"d/m/y" }}</td>
+					<td>{{ movimiento.almacen  }}</td>					
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var borrarSeleccionado;
+    var table = $('#tabla').DataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 	
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	});
+    
+    $(document).on("click",".eliminar",function()
+	{
+		borrarSeleccionado = $(this);		
+		ventana = $( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons: 
+		  {
+			"Borrar": borrarMovimiento,
+		    "Cancelar": cerrarBorrarMovimiento
+		  }
+		});		
+	});	
+    
+    function borrarMovimiento()
+	{
+    	var id_boton= $(borrarSeleccionado).prop('id');
+    	var id_movimiento = id_boton.replace("elim_","");
+    	$.ajax({
+    		data : {'id_movimiento': id_movimiento},
+    		url : "{% url 'almacen:eliminar_movimiento' %}",
+    		type : 'get',
+    		success : function(data)
+    		{
+    			alert("Movimiento "+data.id_movimiento+ " eliminado");
+    			table.row('.selected').remove().draw(false);
+    		}
+    	});
+		ventana.dialog("close");
+	}
+    
+    function cerrarBorrarMovimiento()
+	{
+		ventana.dialog("close");
+	}
+    
+});
+</script>
+{% endblock js %}

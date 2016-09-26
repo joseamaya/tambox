@@ -1,0 +1,33 @@
+{% extends "contabilidad/base_contabilidad.html" %}
+{% block cuerpo %}
+<h3>Empresa</h3>
+<form role="form" action="#" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10"> 
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">            
+        </div>        
+    </div>
+    <hr/>
+	<div class="panel panel-default">               
+		<div class="panel-body">
+			
+			<div class="row">
+			    <div class="col-lg-4">
+			        <label>Razón Social:</label>
+			        <h3>{{ form.nombre }}</h3>
+			        <label>Dirección:</label>
+			        <h3>{{ form.direccion }}</h3>
+			        <label>Logo:</label>
+			        <h3>{{ form.logo }}</h3>			        			             
+			    </div>			                      
+			</div>			
+		</div>                      
+	</div>        
+</form>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+
+</script>
+{% endblock js %}

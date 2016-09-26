@@ -39,10 +39,10 @@ class Tablero(View):
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")        
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_administracion.html', context)
+        return render(request, 'administracion/tablero_administracion.html', context)
     
 class CargarOficinas(FormView):
-    template_name = 'cargar_oficinas.html'
+    template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -61,7 +61,7 @@ class CargarOficinas(FormView):
         return HttpResponseRedirect(reverse('administracion:maestro_oficinas'))
     
 class CargarTrabajadores(FormView):
-    template_name = 'cargar_trabajadores.html'
+    template_name = 'administracion/cargar_trabajadores.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -84,7 +84,7 @@ class CargarTrabajadores(FormView):
         return HttpResponseRedirect(reverse('administracion:maestro_trabajadores'))
     
 class CargarPuestos(FormView):
-    template_name = 'cargar_puestos.html'
+    template_name = 'administracion/cargar_puestos.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -113,7 +113,7 @@ class CargarPuestos(FormView):
         return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
 
 class CrearProfesion(CreateView):
-    template_name = 'crear_profesion.html'
+    template_name = 'administracion/crear_profesion.html'
     form_class = ProfesionForm
     
     @method_decorator(permission_required('administracion.add_profesion',reverse_lazy('seguridad:permiso_denegado')))
@@ -124,7 +124,7 @@ class CrearProfesion(CreateView):
         return reverse('administracion:detalle_profesion', args=[self.object.pk])
 
 class CrearOficina(CreateView):
-    template_name = 'crear_oficina.html'
+    template_name = 'administracion/crear_oficina.html'
     form_class = OficinaForm
     
     @method_decorator(permission_required('administracion.add_oficina',reverse_lazy('seguridad:permiso_denegado')))
@@ -135,7 +135,7 @@ class CrearOficina(CreateView):
         return reverse('administracion:detalle_oficina', args=[self.object.pk])
     
 class CrearTrabajador(CreateView):
-    template_name = 'crear_trabajador.html'
+    template_name = 'administracion/crear_trabajador.html'
     form_class = TrabajadorForm
     
     @method_decorator(permission_required('administracion.add_trabajador',reverse_lazy('seguridad:permiso_denegado')))
@@ -146,7 +146,7 @@ class CrearTrabajador(CreateView):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
             
 class CrearPuesto(CreateView):
-    template_name = 'crear_puesto.html'
+    template_name = 'administracion/crear_puesto.html'
     form_class = PuestoForm
     
     @method_decorator(permission_required('administracion.add_puesto',reverse_lazy('seguridad:permiso_denegado')))
@@ -158,45 +158,45 @@ class CrearPuesto(CreateView):
         
 class DetalleOficina(DetailView):
     model = Oficina
-    template_name = 'detalle_oficina.html'
+    template_name = 'administracion/detalle_oficina.html'
     
 class DetalleTrabajador(DetailView):
     model = Trabajador
-    template_name = 'detalle_trabajador.html'
+    template_name = 'administracion/detalle_trabajador.html'
 
 class DetallePuesto(DetailView):
     model = Puesto
-    template_name = 'detalle_puesto.html'    
+    template_name = 'administracion/detalle_puesto.html'    
 
 class DetalleProfesion(DetailView):
     model = Profesion
-    template_name = 'detalle_profesion.html'
+    template_name = 'administracion/detalle_profesion.html'
     
 class ListadoOficinas(ListView):
     model = Oficina
-    template_name = 'oficinas.html'
+    template_name = 'administracion/oficinas.html'
     context_object_name = 'oficinas'
     queryset = Oficina.objects.all().order_by('nombre')
     
 class ListadoTrabajadores(ListView):
     model = Trabajador
-    template_name = 'trabajadores.html'
+    template_name = 'administracion/trabajadores.html'
     context_object_name = 'trabajadores'
     
 class ListadoPuestos(ListView):
     model = Puesto
-    template_name = 'puestos.html'
+    template_name = 'administracion/puestos.html'
     context_object_name = 'puestos'
     queryset = Puesto.objects.filter(estado=True)
     
 class ListadoProfesiones(ListView):
     model = Profesion
-    template_name = 'profesiones.html'
+    template_name = 'administracion/profesiones.html'
     context_object_name = 'profesiones' 
 
 class ModificarProfesion(UpdateView):
     model = Profesion
-    template_name = 'modificar_profesion.html'
+    template_name = 'administracion/modificar_profesion.html'
     form_class = ProfesionForm
     
     @method_decorator(permission_required('administracion.change_profesion',reverse_lazy('seguridad:permiso_denegado')))
@@ -208,7 +208,7 @@ class ModificarProfesion(UpdateView):
 
 class ModificarOficina(UpdateView):
     model = Oficina
-    template_name = 'modificar_oficina.html'
+    template_name = 'administracion/modificar_oficina.html'
     form_class = OficinaForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
     
@@ -221,7 +221,7 @@ class ModificarOficina(UpdateView):
     
 class ModificarTrabajador(UpdateView):
     model = Trabajador
-    template_name = 'modificar_trabajador.html'
+    template_name = 'administracion/modificar_trabajador.html'
     form_class = TrabajadorForm    
     
     @method_decorator(permission_required('administracion.change_trabajador',reverse_lazy('seguridad:permiso_denegado')))
@@ -233,7 +233,7 @@ class ModificarTrabajador(UpdateView):
     
 class ModificarPuesto(UpdateView):
     model = Puesto
-    template_name = 'modificar_puesto.html'
+    template_name = 'administracion/modificar_puesto.html'
     form_class = ModificacionPuestoForm
     
     @method_decorator(permission_required('administracion.change_puesto',reverse_lazy('seguridad:permiso_denegado')))

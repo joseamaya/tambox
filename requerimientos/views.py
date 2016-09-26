@@ -44,11 +44,11 @@ class Tablero(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_requerimientos.html', context)
+        return render(request, 'requerimientos/tablero_requerimientos.html', context)
 
 class AprobarRequerimiento(UpdateView):
     model = AprobacionRequerimiento
-    template_name = 'aprobar_requerimiento.html'
+    template_name = 'requerimientos/aprobar_requerimiento.html'
     form_class = AprobacionRequerimientoForm
     success_url = reverse_lazy('requerimientos:listado_aprobacion_requerimientos')
     
@@ -85,11 +85,11 @@ class AprobarRequerimiento(UpdateView):
         return kwargs
     
 class CrearDetalleRequerimiento(FormView):
-    template_name = 'crear_detalle_requerimiento.html'
+    template_name = 'requerimientos/crear_detalle_requerimiento.html'
     form_class = FormularioDetalleRequerimiento
 
 class CrearRequerimiento(CreateView):
-    template_name = 'requerimiento.html'
+    template_name = 'requerimientos/requerimiento.html'
     form_class = RequerimientoForm
     model = Requerimiento
         
@@ -163,7 +163,7 @@ class CrearRequerimiento(CreateView):
 
 class DetalleOperacionRequerimiento(DetailView):
     model = Requerimiento
-    template_name = 'detalle_requerimiento.html'
+    template_name = 'requerimientos/detalle_requerimiento.html'
     
 class EliminarRequerimiento(TemplateView):
     
@@ -185,7 +185,7 @@ class EliminarRequerimiento(TemplateView):
         
 class ListadoAprobacionRequerimientos(ListView):
     model = AprobacionRequerimiento
-    template_name = 'aprobacion_requerimientos.html'
+    template_name = 'requerimientos/aprobacion_requerimientos.html'
     context_object_name = 'aprobacion_requerimientos'    
     
     @method_decorator(permission_required('compras.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
@@ -229,7 +229,7 @@ class ListadoAprobacionRequerimientos(ListView):
     
 class ListadoCotizacionesPorRequerimiento(ListView):
     model = Cotizacion
-    template_name = 'cotizaciones.html'
+    template_name = 'requerimientos/cotizaciones.html'
     context_object_name = 'cotizaciones'    
     
     @method_decorator(permission_required('compras.ver_tabla_cotizaciones',reverse_lazy('seguridad:permiso_denegado')))
@@ -243,7 +243,7 @@ class ListadoCotizacionesPorRequerimiento(ListView):
     
 class ListadoRequerimientos(ListView):
     model = Requerimiento
-    template_name = 'requerimientos.html'
+    template_name = 'requerimientos/requerimientos.html'
     context_object_name = 'requerimientos'
     queryset = Requerimiento.objects.exclude(estado=Requerimiento.STATUS.CANC).order_by('codigo')
     
@@ -252,7 +252,7 @@ class ListadoRequerimientos(ListView):
         return super(ListadoRequerimientos, self).dispatch(*args, **kwargs)
     
 class ModificarRequerimiento(UpdateView):    
-    template_name = 'requerimiento.html'
+    template_name = 'requerimientos/requerimiento.html'
     model = Requerimiento
     form_class = RequerimientoForm
     
@@ -375,7 +375,7 @@ class ObtenerDetalleRequerimiento(TemplateView):
             return HttpResponse(data, 'application/json')
 
 class TransferenciaRequerimiento(TemplateView):
-    template_name = 'transferencia_requerimiento.html'   
+    template_name = 'requerimientos/transferencia_requerimiento.html'   
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaRequerimiento, self).get_context_data(**kwargs)

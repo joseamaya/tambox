@@ -1,0 +1,61 @@
+{% extends "administracion/base_administracion.html" %} 
+{% block cuerpo %}
+<h3>Oficinas / Nuevo</h3>
+<form role="form" action="{% url 'administracion:crear_oficina' %}"
+	method="post">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit"
+				value="Guardar">
+			<button type="button" class="btn btn-default"
+				onclick="location.href='{% url 'administracion:maestro_oficinas' %}'">
+				Cancelar</button>
+		</div>
+		<div class="col-lg-2 text-right">
+			<div class="btn-group">
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'administracion:maestro_oficinas' %}';">
+					<span class="glyphicon glyphicon-th-list"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-lg-7">
+					<label>Descripción:</label>
+					<h3>{{ form.nombre }}</h3>
+				</div>
+				<div class="col-lg-5">
+					<div class="btn-group"></div>
+				</div>
+			</div>
+			<br>
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-toggle="tab" href="#general">Información
+						General</a></li>
+			</ul>
+			<div class="tab-content">
+				<div id="general" class="tab-pane fade in active">
+					<br>
+					<div class="row">
+						<div class="col-lg-4">
+							<label>CÓDIGO:</label>
+							<p>{{ form.codigo }}</p>
+							<label>DEPENDENCIA:</label>
+							<p>{{ form.dependencia }}</p>
+							<label>GERENCIA:</label>
+							<p>{{ form.gerencia }}</p>
+						</div>
+						<div class="col-lg-4"></div>
+						<div class="col-lg-4"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% endblock cuerpo %}

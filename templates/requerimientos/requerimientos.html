@@ -1,0 +1,69 @@
+{% extends "requerimientos/base_requerimientos.html" %} {% block cuerpo %}
+<h3>Requerimientos</h3>
+<div class="row">
+	<div class="col-lg-10">
+		{% if perms.requerimientos.add_proveedor %} <a
+			href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary">
+			Crear </a> {% endif %} {% if perms.requerimientos.cargar_proveedores %} <a
+			href="#" class="btn btn-default">
+			Importar </a> 
+		{% endif %}
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">
+			{% if perms.requerimientos.ver_reporte_proveedores_excel %}
+			<button class="btn btn-default" type="button">
+				<span class="glyphicon glyphicon-list-alt"></span>
+			</button>
+			{% endif %}
+		</div>
+	</div>
+</div>
+<hr />
+<div class="row">
+	<div class="col-lg-12">
+		<table id="tabla" class="display" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th class="text-center">CODIGO</th>
+					<th class="text-center">OFICINA SOLICITA</th>
+					<th class="text-center">APROBACION.</th>
+					<th class="text-center">ESTADO.</th>
+					<th class="text-center">FEC_OPER.</th>					
+				</tr>
+			</thead>
+			<tbody>
+				{% for requerimiento in requerimientos %}
+				{% if perms.requerimientos.ver_detalle_requerimiento %}
+				<tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.pk %}';">
+				{% else %}
+				<tr>
+				{% endif %}
+					<td>{{ requerimiento.codigo }}</td>
+					<td>{{ requerimiento.oficina }}</td>
+					<td>{{ requerimiento.aprobacionrequerimiento.get_estado_display }}</td>
+					<td>{{ requerimiento.get_estado_display }}</td>
+					<td>{{ requerimiento.created|date:"d/m/y" }}</td>					
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock cuerpo %} {% block js %}
+<script>
+$(document).ready(function() 
+{
+	var table = $('#tabla').DataTable({
+		"language" : {
+			url : "/static/localizacion/es_ES.json"
+		}
+	});
+
+	$('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	});
+});
+</script>
+{% endblock js %}

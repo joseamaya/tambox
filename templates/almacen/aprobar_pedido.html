@@ -1,0 +1,280 @@
+{% extends "almacen/base_almacen.html" %}
+{% block cuerpo %}
+<h3>Pedidos / {{ pedido.codigo }}</h3>
+<form role="form" action="{% url 'almacen:aprobar_pedido' pedido.codigo %}" method="post">			
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+			<button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}'">
+				Cancelar
+			</button>
+		</div>
+		<div class="col-lg-2 text-right">
+			<div class="btn-group">
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'almacen:modificar_pedido' pedido.anterior %}';">
+					<span class="glyphicon glyphicon-step-backward"></span>
+				</button>
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'almacen:modificar_pedido' pedido.siguiente %}';">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				<button class="btn btn-default" type="button"
+					onclick="location.href='{% url 'almacen:pedidos' %}';">
+					<span class="glyphicon glyphicon-th-list"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="panel panel-primary">
+		<div class="panel-body">					
+			{% csrf_token %}
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-3">
+						<label>Código:</label> 
+						{{ form.cod_pedido }}
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-3">
+						<label>Almacén:</label> 
+						{{ form.almacenes }}
+					</div>						
+					<div class="col-md-3">			
+						<label>Fecha:</label> 
+						{{ form.fecha }}
+					</div>
+					<div class="col-md-3">	
+						<label>Hora:</label> 
+						{{ form.hora }}
+					</div>							
+				</div>						
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<table id="detalles" class="table table-striped table-bordered table-hover">
+						<thead>
+							<tr>
+								<th>ID Producto</th>
+								<th>Producto</th>
+								<th>Unidad</th>	
+								<th>Cantidad</th>	
+								<th>Precio</th>
+								<th>Valor</th>
+								<th>Acción</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for detalle in detalles %}
+							<tr>
+								<input type='hidden' name="cod_detalle{{ detalle.nro_detalle }}" id="cod_detalle{{ detalle.nro_detalle }}" value="{{ detalle.nro_detalle }}"/>
+						  		<td>
+						  			<input class='form-control' type='text' size=14 readonly='readonly' name="codigo{{ detalle.nro_detalle }}" id="codigo{{ detalle.nro_detalle }}" value="{{ detalle.producto.codigo }}"/>
+						  		</td>
+						  		<td>
+						  			<input class='form-control' type='text' size=25 readonly='readonly' name="nombre{{ detalle.nro_detalle }}" id="nombre{{ detalle.nro_detalle }}" value="{{ detalle.producto.descripcion }}"/>
+						  		</td>
+						  		<td>
+						  			<input class='form-control' type='text' size=10 readonly='readonly' name="unidad{{ detalle.nro_detalle }}" id="unidad{{ detalle.nro_detalle }}" value="{{ detalle.producto.unidad_medida.descripcion }}"/>
+						  		</td>
+						  		<td>
+						  			<input class='form-control' type='numeric' size=5 readonly='readonly' name="cantidad{{ detalle.nro_detalle }}" id="cantidad{{ detalle.nro_detalle }}" value="{{ detalle.cantidad_por_atender }}"/>
+						  		</td>
+						  		<td>
+						  			<input class='form-control' type='numeric' readonly='readonly' size=10 name="precio{{ detalle.nro_detalle }}" id="precio{{ detalle.nro_detalle }}" value="{{ detalle.precio }}"/>
+						  		</td>
+						  		<td>
+						  			<input class='form-control' type='text' readonly='readonly' size=14 name="valor{{ detalle.nro_detalle }}" id="valor{{ detalle.nro_detalle }}" value="{{ detalle.valor }}"/>
+						  		</td>
+						  		<td>
+						  			<button class='eliminar btn btn-small btn-danger' type='button' id="btnBorrar{{ detalle.nro_detalle }}" name='guardar'><span class='glyphicon glyphicon-remove'></span>
+						  			</button>
+						  		</td>
+							</tr>
+							{% endfor %}		
+						</tbody>				
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<table id="tabla_total" class="table table-striped table-hover">
+						<tbody>	
+							<tr>
+								<td WIDTH="50">											
+								</td>
+								<td WIDTH="590">
+									
+								</td>
+								<td WIDTH="50">
+									TOTAL
+								</td>
+								<td>
+									{{ form.total }}
+								</td>
+								<td WIDTH="80">
+								</td>
+							</tr>		
+						</tbody>				
+					</table>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-12">
+					<label>OBSERVACIONES:</label>	
+					{{ form.observaciones }}
+				</div>
+			</div>
+			<div id="popup"></div>
+			<div class="row">
+				<div class="col-lg-4">
+					<input type="hidden" name="cdetalles" id="cdetalles" value={{ cant_detalles }}>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% endblock cuerpo %}
+
+{% block js %}
+<script>
+	var total=0;
+	var contDetalles = parseInt($('#cdetalles').val());
+	var ultimo_item = contDetalles;
+	var tipo_salida;	
+	$("#id_fecha").datepicker();
+	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$('#id_hora').val(mostrarhora());
+	$("#id_almacenes").on('change',verificar_stock_para_pedido);
+	
+	function agregarCero(n)
+	{
+	  if(n>9)
+	  {
+	    return n
+	  }
+	  else{
+	    return "0"+n;
+	  }
+	}
+	
+	function verificar_stock_para_pedido()
+	{	
+		var almacen = $('#id_almacenes').val();
+		$.ajax({			
+			data : {'almacen': almacen, 'pedido': "{{ pedido.codigo }}" },
+			url : "{% url 'almacen:verificar_stock_para_pedido' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$('#detalles td').parent().remove();
+				contDetalles = 0;
+				if(data=='')
+				{
+					alert("No se puede atender el pedido, no hay stock en el almacén seleccionado");
+				}
+				$.each(data, function(i,item)
+				{
+					cont = i+1;
+					$("#detalles tbody").append( 
+					"<tr>" +
+				  	"<input type='hidden'name='detalle_pedido"+cont+"' id='id_detalle_pedido"+cont+"' value='" + item.codigo_detalle + "'/>"+
+					"<td><input class='form-control' type='text' size=14 readonly='readonly' name='codigo"+cont+"' id='codigo"+cont+"' value='" + item.codigo_producto + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=25 readonly='readonly' name='nombre"+cont+"' id='nombre"+cont+"' value='" + item.nombre_producto + "'/></td>" +
+				  	"<td><input class='form-control' type='text' size=10 readonly='readonly' name='unidad"+cont+"' id='unidad"+cont+"' value='" + item.unidad_producto + "'/></td>" +
+				  	"<td><input class='form-control decimal cantidad' type='numeric' size=5 name='cantidad"+cont+"' id='cantidad"+cont+"' value='" + item.cantidad + "'/></td>" +
+				  	"<td><input class='form-control decimal' type='numeric' readonly='readonly' size=10 name='precio"+cont+"' id='precio"+cont+"' value='" + item.precio + "'/></td>" +
+				  	"<td><input class='form-control' type='text' readonly='readonly' size=14 name='valor"+cont+"' id='valor"+cont+"' value='" + item.valor + "'/></td>" +
+				  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+cont+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");	
+					contDetalles=i+1;
+					total = total + parseFloat(item.valor);
+				});
+				contDetalles = cont;
+				ultimo_item = cont;
+				$("#id_total").val(total.toFixed(5));
+				$(".decimal").keydown(validar_decimales);
+			}
+		});
+	}
+	
+	function mostrarhora()
+	{
+		var f=new Date();
+		cad=agregarCero(f.getHours())+" : "+agregarCero(f.getMinutes())+" : "+agregarCero(f.getSeconds());
+		return cad;
+	}
+		
+	$(document).on("click",".eliminar",function()
+	{
+		var parent = $(this).parent().parent();	
+		var id_boton= $(this).prop('id');
+		var id = id_boton.replace("btnBorrar","");
+		var valor = $("#valor"+id).val();
+		$(parent).remove();
+		total=parseFloat(total-valor);
+		$("#id_total").val(total.toFixed(5));
+		contDetalles = contDetalles - 1;
+	});
+	
+	$(document).on("keyup",".cantidad",function()
+	{
+		var id_cantidad= $(this).prop('id');
+		var cantidad = $(this).val();
+		var id = id_cantidad.replace("cantidad","");
+		var codigo = $("#codigo"+id).val();
+		var almacen = $('#id_almacenes').val();
+		$.ajax({
+	      url: "{% url 'almacen:consulta_stock' %}",
+	      data: {
+	    	  'almacen': almacen,
+	    	  'codigo': codigo
+	   	  },
+	      success: function(data) 
+	      {
+			  if(cantidad>data.stock)
+	          {
+				  alert("La cantidad ingresada es mayor que el stock");
+				  $("#cantidad"+id).val(data.stock);
+				  $("#valor"+id).val($("#cantidad"+id).val()*$("#precio"+id).val());				  
+	          }
+	      }
+	    });
+		
+	});
+	
+	$("form").submit(function(event) 
+	{
+		var cont=0;
+		$('#cdetalles').val(ultimo_item);
+		var almacen = $('#id_almacenes').val().trim();
+		var fecha = $('#id_fecha').val().trim();
+		if(almacen != '') 
+		{			
+			if(fecha != '')
+			{					
+				if (contDetalles > 0)
+				{
+					return;
+				}
+				else
+				{
+					alert("No ha ingresado ningún detalle");	
+				}
+			}
+			else
+			{
+				alert("No ha seleccionado fecha");
+			}
+		}
+		else
+		{
+			alert("No ha seleccionado almacén");
+		}
+		event.preventDefault();
+	});
+   	
+	</script>
+{% endblock js %}

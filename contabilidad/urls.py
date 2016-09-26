@@ -7,7 +7,7 @@ from contabilidad.views import Tablero, ListadoCuentasContables,\
     DetalleCuentaContable, CrearImpuesto, DetalleImpuesto, ListadoImpuestos,\
     ModificarImpuesto, CrearConfiguracion, ModificarConfiguracion,\
     ListadoFormasPago, CrearFormaPago, ModificarFormaPago, DetalleFormaPago,\
-    ReporteExcelFormasPago, EliminarFormaPago, CrearEmpresa
+    ReporteExcelFormasPago, EliminarFormaPago
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -18,8 +18,7 @@ urlpatterns = patterns('',
     url(r'^maestro_formas_pago_excel/$',login_required(ReporteExcelFormasPago.as_view()), name="maestro_formas_pago_excel"),
     url(r'^eliminar_forma_pago/$',login_required(EliminarFormaPago.as_view()), name="eliminar_forma_pago"),   
     url(r'^cuentas_contables/$',(ListadoCuentasContables.as_view()), name="cuentas_contables"),
-    url(r'^configuracion/$',(CrearConfiguracion.as_view()), name="configuracion"),
-    url(r'^crear_empresa/$',(CrearEmpresa.as_view()), name="crear_empresa"),
+    url(r'^configuracion/$',(CrearConfiguracion.as_view()), name="configuracion"),    
     url(r'^tipos_documentos/$', (ListadoTiposDocumentos.as_view()), name="tipos_documentos"),
     url(r'^impuestos/$', (ListadoImpuestos.as_view()), name="impuestos"),
     url(r'^detalle_tipo_documento/(?P<pk>.+)/$', (DetalleTipoDocumento.as_view()), name="detalle_tipo_documento"),

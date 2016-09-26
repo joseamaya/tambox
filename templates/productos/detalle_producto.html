@@ -1,0 +1,150 @@
+{% extends "productos/base_productos.html" %} {% block cuerpo %}
+<h3>Productos / {{ object.descripcion }}</h3>
+<div class="row">
+	<div class="col-lg-10">
+		{% if perms.productos.change_producto %} 
+		<a class="btn btn-primary" href="{% url 'productos:modificar_producto' object.pk %}"> Editar </a>
+		{% endif %} 
+		{% if perms.productos.delete_producto %}
+		<button class="btn btn-danger" type="button" id="id_eliminar">
+			Eliminar
+		</button>
+		{% endif %}
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'productos:detalle_producto' object.anterior %}';">
+				<span class="glyphicon glyphicon-step-backward"></span>
+			</button>
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'productos:detalle_producto' object.siguiente %}';">
+				<span class="glyphicon glyphicon-step-forward"></span>
+			</button>
+			<button class="btn btn-default" type="button"
+				onclick="location.href='{% url 'productos:productos' %}';">
+				<span class="glyphicon glyphicon-th-list"></span>
+			</button>
+		</div>
+	</div>
+</div>
+<hr />
+<div id="dialog-confirm" title="Eliminar Producto"></div>
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-lg-2">
+				<a href="{{ object.imagen.url }}" class="thumbnail"> <img
+					src="{{ object.imagen.url }}" alt="Imagen Producto"
+					style="width: 120px; height: 90px">
+				</a>
+			</div>
+			<div class="col-lg-5">
+				<h3>{{ object.descripcion }}</h3>
+			</div>
+			<div class="col-lg-5">
+				<div class="btn-group">
+					<button class="btn btn-default" type="button">
+						<span class="fa fa-building fa-2x"></span> {{ object.stock }} <br>
+						Stock
+					</button>
+					<button class="btn btn-default" type="button">
+						<span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
+						Previsto
+					</button>
+					<button class="btn btn-default" type="button">
+						<span class="fa fa-shopping-cart fa-2x"></span> {{ object.stock }}
+						<br> productos
+					</button>
+				</div>
+			</div>
+		</div>
+		<br>
+		<ul class="nav nav-tabs">
+			<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+			<li><a data-toggle="tab" href="#contabilidad">Contabilidad</a></li>
+		</ul>
+		<div class="tab-content">
+			<div id="general" class="tab-pane fade in active">
+				<br>
+				<div class="row">
+					<div class="col-lg-4">
+						<label>CODIGO:</label>
+						<p>{{ object.codigo }}</p>
+						<label>GRUPO PRODUCTOS:</label>
+						<p>{{ object.grupo_productos }}</p>
+						<label>DESCRIPCION ABREVIADA: </label>
+						<p>{{ object.desc_abreviada }}</p>
+						<label>UNIDAD DE MEDIDA: </label>
+						<p>{{ object.unidad_medida }}</p>
+					</div>
+					<div class="col-lg-4">
+						<label>MARCA: </label>
+						<p>{{ object.marca }}</p>
+						<label>MODELO: </label>
+						<p>{{ object.modelo }}</p>
+						<label>PRECIO: </label>
+						<p>{{ object.precio }}</p>
+					</div>
+					<div class="col-lg-4">
+						<label>FECHA REGISTRO: </label>
+						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+						<label>FECHA MODIFICACIÓN: </label>
+						<p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+						<label>ESTADO: </label> {% if object.estado %}
+						<p>ACTIVO</p>
+						{% else %}
+						<p>INACTIVO</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>
+			<div id="contabilidad" class="tab-pane fade">
+				<br>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock cuerpo %} {% block js %}
+<script>
+	$(document).ready(
+			function() {
+				$('#id_eliminar').click(function(e) {
+					e.preventDefault();
+					ventana = $("#dialog-confirm").dialog({
+						resizable : false,
+						height : 140,
+						modal : true,
+						buttons : {
+							"Borrar" : borrarProducto,
+							"Cancelar" : cerrarBorrarProducto
+						}
+					});
+				});
+
+				function borrarProducto() {
+					$.ajax({
+						data : {
+							'codigo' : "{{ object.codigo }}"
+						},
+						url : "{% url 'productos:eliminar_producto' %}",
+						type : 'get',
+						success : function(data) {
+							if (data.relaciones == 'NO') {
+								alert("Producto " + data.descripcion
+										+ " eliminado");
+							} else if (data.relaciones == 'SI') {
+								alert("Producto " + data.descripcion
+										+ " no puede eliminarse");
+							}
+						}
+					});
+					ventana.dialog("close");
+				}
+
+				function cerrarBorrarProducto() {
+					ventana.dialog("close");
+				}
+			});
+</script>
+{% endblock js %}

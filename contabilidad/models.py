@@ -2,7 +2,7 @@
 import os
 from django.conf import settings
 from django.db import models
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, python_2_unicode_compatible
 from model_utils.models import TimeStampedModel
 from django.core.files.storage import FileSystemStorage
 from model_utils.choices import Choices
@@ -15,6 +15,23 @@ class OverwriteStorage(FileSystemStorage):
         if self.exists(name):
             os.remove(os.path.join(settings.MEDIA_ROOT, name))
         return name
+    
+class SingletonModel(models.Model):
+    
+    class Meta:
+        abstract = True
+    
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+        
+    def delete(self, *args, **kwargs):
+        pass
+    
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
     
 class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True,max_length=12)
@@ -160,21 +177,19 @@ class Impuesto(TimeStampedModel):
 class Upload(TimeStampedModel):
     archivo = models.FileField(upload_to='archivos', storage=OverwriteStorage())
     
-class Direccion(TimeStampedModel):
-    lugar = models.CharField(max_length=150)
-    calle = models.CharField(max_length=150)
+@python_2_unicode_compatible
+class Empresa(SingletonModel):
+    razon_social = models.CharField(max_length=150)
+    ruc = models.CharField(max_length=11)
+    logo = models.ImageField(upload_to='configuracion')
+    lugar = models.CharField(max_length=150,default='')
+    calle = models.CharField(max_length=150,default='')
     distrito = models.CharField(max_length=100)
     provincia = models.CharField(max_length=100)
     departamento = models.CharField(max_length=100)
     
     def __str__(self):
-        return self.lugar + ' ' + self.calle + ' ' + self.distrito + ' ' + self.provincia + ' ' + self.departamento 
-    
-class Empresa(TimeStampedModel):
-    razon_social = models.CharField(max_length=150)
-    ruc = models.CharField(max_length=11)
-    #direccion = models.ForeignKey(Direccion)
-    logo = models.ImageField(upload_to='configuracion')
+        return u'%s' % self.razon_social
     
 class Configuracion(TimeStampedModel):
     impuesto_compra = models.ForeignKey(Impuesto)

@@ -10,10 +10,10 @@ from django.views.generic.base import TemplateView
 class Inicio(View):
     
     def get(self, request, *args, **kwargs):        
-        return render(request,'bienvenida.html')
+        return render(request,'seguridad/bienvenida.html')
     
 class Login(FormView):
-    template_name = 'login.html'
+    template_name = 'seguridad/login.html'
     form_class = FormularioLogin
     success_url =  reverse_lazy("seguridad:inicio")
     
@@ -28,7 +28,7 @@ class Login(FormView):
         return super(Login, self).form_valid(form)   
 
 class ModificarPassword(FormView):
-    template_name = 'cambiar_password.html'
+    template_name = 'seguridad/cambiar_password.html'
     form_class = FormularioCambioPassword
     success_url =  reverse_lazy("seguridad:login")
     
@@ -50,4 +50,4 @@ class Permisos(View):
         return render(request,'bienvenida_permisos.html')
     
 class PermisoDenegado(TemplateView):    
-    template_name = 'permiso_denegado.html'
+    template_name = 'seguridad/permiso_denegado.html'

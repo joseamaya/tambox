@@ -37,11 +37,12 @@ from django.db import transaction, IntegrityError
 from contabilidad.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
-from contabilidad.models import Configuracion
+from contabilidad.models import Configuracion, Empresa
 from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
 
 locale.setlocale(locale.LC_ALL,"")
+empresa = Empresa.load()
 
 class Tablero(View):
     
@@ -51,7 +52,7 @@ class Tablero(View):
         if cant_proveedores == 0:
             lista_notificaciones.append("No se ha creado ningún proveedor")
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_compras.html', context)
+        return render(request, 'compras/tablero_compras.html', context)
     
 class BusquedaCotizacion(TemplateView):
     
@@ -95,7 +96,7 @@ class BusquedaProveedoresRUC(TemplateView):
             return HttpResponse(data, 'application/json')            
         
 class CargarProveedores(FormView):
-    template_name = 'cargar_proveedores.html'
+    template_name = 'compras/cargar_proveedores.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -116,7 +117,7 @@ class CargarProveedores(FormView):
     
 class CrearProveedor(CreateView):
     model = Proveedor
-    template_name = 'crear_proveedor.html'
+    template_name = 'compras/crear_proveedor.html'
     form_class = ProveedorForm
     
     @method_decorator(permission_required('compras.add_proveedor',reverse_lazy('seguridad:permiso_denegado')))
@@ -132,15 +133,15 @@ class CrearProveedor(CreateView):
 
 
 class CrearDetalleCotizacion(FormView):
-    template_name = 'crear_detalle_cotizacion.html'
+    template_name = 'compras/crear_detalle_cotizacion.html'
     form_class = DetalleCotizacionForm
     
 class CrearDetalleOrdenCompra(FormView):
-    template_name = 'crear_detalle_orden_compra.html'
+    template_name = 'compras/crear_detalle_orden_compra.html'
     form_class = DetalleOrdenCompraForm
     
 class CrearDetalleOrdenServicio(FormView):
-    template_name = 'crear_detalle_orden_servicio.html'
+    template_name = 'compras/crear_detalle_orden_servicio.html'
     form_class = DetalleOrdenServicioForm
     
 class CrearCotizacion(CreateView):
@@ -388,23 +389,23 @@ class CrearConformidadServicio(CreateView):
     
 class DetalleProveedor(DetailView):
     model = Proveedor
-    template_name = 'detalle_proveedor.html'
+    template_name = 'compras/detalle_proveedor.html'
     
 class DetalleOperacionCotizacion(DetailView):
     model = Cotizacion
-    template_name = 'detalle_cotizacion.html'
+    template_name = 'compras/detalle_cotizacion.html'
     
 class DetalleOperacionOrdenCompra(DetailView):
     model = OrdenCompra
-    template_name = 'detalle_orden_compra.html'
+    template_name = 'compras/detalle_orden_compra.html'
 
 class DetalleOperacionOrdenServicios(DetailView):
     model = OrdenServicios
-    template_name = 'detalle_orden_servicios.html'
+    template_name = 'compras/detalle_orden_servicios.html'
     
 class DetalleOperacionConformidadServicios(DetailView):
     model = ConformidadServicio
-    template_name = 'detalle_conformidad_servicios.html'
+    template_name = 'compras/detalle_conformidad_servicios.html'
     
 class EliminarOrdenCompra(TemplateView):
     
@@ -438,7 +439,7 @@ class EliminarProveedor(TemplateView):
         
 class ListadoProveedores(ListView):
     model = Proveedor
-    template_name = 'proveedores.html'
+    template_name = 'compras/proveedores.html'
     context_object_name = 'proveedores'
     queryset = Proveedor.objects.filter(estado=True).order_by('razon_social')
     
@@ -448,7 +449,7 @@ class ListadoProveedores(ListView):
     
 class ListadoCotizaciones(ListView):
     model = Cotizacion
-    template_name = 'cotizaciones.html'
+    template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
     queryset = Cotizacion.objects.exclude(estado=Cotizacion.STATUS.CANC).order_by('codigo')
     
@@ -458,7 +459,7 @@ class ListadoCotizaciones(ListView):
     
 class ListadoOrdenesCompra(ListView):
     model = OrdenCompra
-    template_name = 'ordenes_compra.html'
+    template_name = 'compras/ordenes_compra.html'
     context_object_name = 'ordenes_compra'
     queryset = OrdenCompra.objects.exclude(estado=OrdenCompra.STATUS.CANC).order_by('codigo')
     
@@ -468,7 +469,7 @@ class ListadoOrdenesCompra(ListView):
     
 class ListadoOrdenesServicios(ListView):
     model = OrdenServicios
-    template_name = 'ordenes_servicios.html'
+    template_name = 'compras/ordenes_servicios.html'
     context_object_name = 'ordenes_servicios'
     queryset = OrdenServicios.objects.filter().order_by('codigo')
     
@@ -478,7 +479,7 @@ class ListadoOrdenesServicios(ListView):
     
 class ListadoOrdenesCompraPorCotizacion(ListView):
     model = OrdenCompra
-    template_name = 'ordenes_compra.html'
+    template_name = 'compras/ordenes_compra.html'
     context_object_name = 'ordenes_compra'    
     
     @method_decorator(permission_required('compras.ver_tabla_ordenes_compra',reverse_lazy('seguridad:permiso_denegado')))
@@ -492,7 +493,7 @@ class ListadoOrdenesCompraPorCotizacion(ListView):
     
 class ListadoConformidadesServicio(ListView):
     model = ConformidadServicio
-    template_name = 'conformidades_servicio.html'
+    template_name = 'compras/conformidades_servicio.html'
     context_object_name = 'conformidades'
     queryset = ConformidadServicio.objects.filter(estado=True).order_by('codigo')
     
@@ -502,7 +503,7 @@ class ListadoConformidadesServicio(ListView):
         
 class ModificarProveedor(UpdateView):
     model = Proveedor
-    template_name = 'modificar_proveedor.html'
+    template_name = 'compras/modificar_proveedor.html'
     form_class = ProveedorForm
         
     @method_decorator(permission_required('compras.change_proveedor',reverse_lazy('seguridad:permiso_denegado')))
@@ -596,7 +597,7 @@ class ModificarCotizacion(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
     
 class ModificarConformidadServicio(UpdateView):
-    template_name = 'modificar_conformidad_servicio.html'
+    template_name = 'compras/modificar_conformidad_servicio.html'
     form_class = ConformidadServicioForm
     model = ConformidadServicio
     
@@ -644,7 +645,7 @@ class ModificarConformidadServicio(UpdateView):
             messages.error(self.request, 'Error guardando el requerimiento.')
 
 class ModificarOrdenCompra(UpdateView):
-    template_name = 'orden_compra.html'
+    template_name = 'compras/orden_compra.html'
     form_class = OrdenCompraForm
     model = OrdenCompra
     
@@ -740,7 +741,7 @@ class ModificarOrdenCompra(UpdateView):
                                                              detalle_requerimiento_formset=detalle_orden_compra_formset))
     
 class ModificarOrdenServicios(UpdateView):
-    template_name = 'orden_servicio.html'
+    template_name = 'compras/orden_servicio.html'
     form_class = OrdenServiciosForm
     model = OrdenServicios
     
@@ -963,7 +964,7 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. N° RUC")
+        pdf.drawString(455, 800, u"R.U.C. " + empresa.ruc)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° "+orden.codigo)
         pdf.setFont("Times-Roman", 10)
@@ -1075,7 +1076,7 @@ class ReportePDFOrdenCompra(View):
         p.fontName="Times-Roman"
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de NOMBRE EMPRESA.""",p),
+                          Facturar a nombre de """ + empresa.razon_social,p),
                           Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
@@ -1632,7 +1633,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         return response
 
 class TransferenciaCotizacion(TemplateView):
-    template_name = 'transferencia_cotizacion.html'   
+    template_name = 'compras/transferencia_cotizacion.html'   
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaCotizacion, self).get_context_data(**kwargs)
@@ -1640,7 +1641,7 @@ class TransferenciaCotizacion(TemplateView):
         return context
     
 class TransferenciaOrdenCompra(TemplateView):
-    template_name = 'transferencia_orden_compra.html'   
+    template_name = 'compras/transferencia_orden_compra.html'   
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaOrdenCompra, self).get_context_data(**kwargs)
@@ -1648,7 +1649,7 @@ class TransferenciaOrdenCompra(TemplateView):
         return context
     
 class TransferenciaOrdenServicios(TemplateView):
-    template_name = 'transferencia_orden_servicios.html'   
+    template_name = 'compras/transferencia_orden_servicios.html'   
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaOrdenServicios, self).get_context_data(**kwargs)

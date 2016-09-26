@@ -5,8 +5,7 @@ from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
     Configuracion, FormaPago, Empresa
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
-    ImpuestoForm, ConfiguracionForm, FormaPagoForm, EmpresaForm,\
-    DireccionFormset
+    ImpuestoForm, ConfiguracionForm, FormaPagoForm 
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
@@ -33,10 +32,10 @@ class Tablero(View):
         if cant_tipos_documentos == 0:
             lista_notificaciones.append("No se ha creado ningun tipo de documento")        
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_contabilidad.html', context)
+        return render(request, 'contabilidad/tablero_contabilidad.html', context)
     
 class CargarCuentasContables(FormView):
-    template_name = 'cargar_cuentas_contables.html'
+    template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -52,7 +51,7 @@ class CargarCuentasContables(FormView):
     
 class CrearFormaPago(CreateView):
     model = FormaPago
-    template_name = 'crear_forma_pago.html'
+    template_name = 'contabilidad/crear_forma_pago.html'
     form_class = FormaPagoForm
     
     @method_decorator(permission_required('compras.add_formapago',reverse_lazy('seguridad:permiso_denegado')))
@@ -64,7 +63,7 @@ class CrearFormaPago(CreateView):
 
 class CrearTipoDocumento(CreateView):
     model = TipoDocumento
-    template_name = 'crear_tipo_documento.html'
+    template_name = 'contabilidad/crear_tipo_documento.html'
     form_class = TipoDocumentoForm
     
     @method_decorator(permission_required('contabilidad.add_tipodocumento',reverse_lazy('seguridad:permiso_denegado')))
@@ -76,7 +75,7 @@ class CrearTipoDocumento(CreateView):
     
 class CrearCuentaContable(CreateView):
     model = CuentaContable
-    template_name = 'crear_cuenta_contable.html'
+    template_name = 'contabilidad/crear_cuenta_contable.html'
     form_class = CuentaContableForm
         
     @method_decorator(permission_required('contabilidad.add_cuenta_contable',reverse_lazy('seguridad:permiso_denegado')))
@@ -88,7 +87,7 @@ class CrearCuentaContable(CreateView):
     
 class CrearImpuesto(CreateView):
     model = Impuesto
-    template_name = 'crear_impuesto.html'
+    template_name = 'contabilidad/crear_impuesto.html'
     form_class = ImpuestoForm
         
     @method_decorator(permission_required('contabilidad.add_impuesto',reverse_lazy('seguridad:permiso_denegado')))
@@ -100,7 +99,7 @@ class CrearImpuesto(CreateView):
     
 class CrearConfiguracion(CreateView):
     model = Configuracion
-    template_name = 'crear_configuracion.html'
+    template_name = 'contabilidad/crear_configuracion.html'
     form_class = ConfiguracionForm
         
     @method_decorator(permission_required('contabilidad.add_configuracion',reverse_lazy('seguridad:permiso_denegado')))
@@ -118,44 +117,25 @@ class CrearConfiguracion(CreateView):
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
     
-class CrearEmpresa(CreateView):
-    template_name = 'crear_empresa.html'
-    form_class = EmpresaForm
-    
-    @method_decorator(permission_required('contabilidad.add_empresa',reverse_lazy('seguridad:permiso_denegado')))
-    def dispatch(self, *args, **kwargs):
-        return super(CrearEmpresa, self).dispatch(*args, **kwargs)
-    
-    def get(self, request, *args, **kwargs):
-        self.object = None        
-        form_class = self.get_form_class()
-        form = self.get_form(form_class)
-        direccion_form = DireccionFormset()
-        return self.render_to_response(self.get_context_data(form = form,
-                                                             direccion_form = direccion_form))                    
-    
-    def get_success_url(self):
-        return reverse('contabilidad:detalle_empresa', args=[self.object.pk])
-
 class DetalleTipoDocumento(DetailView):
     model = TipoDocumento
-    template_name = 'detalle_tipo_documento.html'
+    template_name = 'contabilidad/detalle_tipo_documento.html'
     
 class DetalleCuentaContable(DetailView):
     model = CuentaContable
-    template_name = 'detalle_cuenta_contable.html'
+    template_name = 'contabilidad/detalle_cuenta_contable.html'
     
 class DetalleImpuesto(DetailView):
     model = Impuesto
-    template_name = 'detalle_impuesto.html'
+    template_name = 'contabilidad/detalle_impuesto.html'
     
 class DetalleEmpresa(DetailView):
     model = Empresa
-    template_name = 'detalle_empresa.html'
+    template_name = 'contabilidad/detalle_empresa.html'
     
 class DetalleFormaPago(DetailView):
     model = FormaPago
-    template_name = 'detalle_forma_pago.html'
+    template_name = 'contabilidad/detalle_forma_pago.html'
     
 class EliminarFormaPago(TemplateView):
     
@@ -197,7 +177,7 @@ class EliminarTipoDocumento(TemplateView):
         
 class ListadoTiposDocumentos(ListView):
     model = TipoDocumento
-    template_name = 'tipos_documento.html'
+    template_name = 'contabilidad/tipos_documento.html'
     context_object_name = 'tipos'
     queryset = TipoDocumento.objects.filter(estado=True).order_by('nombre')
     
@@ -207,7 +187,7 @@ class ListadoTiposDocumentos(ListView):
     
 class ListadoCuentasContables(ListView):
     model = CuentaContable
-    template_name = 'cuentas_contables.html'
+    template_name = 'contabilidad/cuentas_contables.html'
     context_object_name = 'cuentas_contables'
     queryset = CuentaContable.objects.all().order_by('cuenta')
     
@@ -217,7 +197,7 @@ class ListadoCuentasContables(ListView):
     
 class ListadoFormasPago(ListView):
     model = FormaPago
-    template_name = 'formas_pago.html'
+    template_name = 'contabilidad/formas_pago.html'
     context_object_name = 'formas_pago'
     paginate_by = 10
     queryset = FormaPago.objects.order_by('codigo')
@@ -228,7 +208,7 @@ class ListadoFormasPago(ListView):
     
 class ListadoImpuestos(ListView):
     model = Impuesto
-    template_name = 'impuestos.html'
+    template_name = 'contabilidad/impuestos.html'
     context_object_name = 'impuestos'    
     
     @method_decorator(permission_required('contabilidad.ver_tabla_impuestos',reverse_lazy('seguridad:permiso_denegado')))
@@ -237,7 +217,7 @@ class ListadoImpuestos(ListView):
     
 class ModificarFormaPago(UpdateView):
     model = FormaPago
-    template_name = 'modificar_forma_pago.html'
+    template_name = 'contabilidad/modificar_forma_pago.html'
     form_class = FormaPagoForm
     
     @method_decorator(permission_required('compras.change_formapago',reverse_lazy('seguridad:permiso_denegado')))
@@ -249,7 +229,7 @@ class ModificarFormaPago(UpdateView):
     
 class ModificarTipoDocumento(UpdateView):
     model = TipoDocumento
-    template_name = 'modificar_tipo_documento.html'
+    template_name = 'contabilidad/modificar_tipo_documento.html'
     form_class = TipoDocumentoForm    
 
     @method_decorator(permission_required('contabilidad.change_tipo_documento',reverse_lazy('seguridad:permiso_denegado')))
@@ -261,7 +241,7 @@ class ModificarTipoDocumento(UpdateView):
     
 class ModificarCuentaContable(UpdateView):
     model = CuentaContable
-    template_name = 'modificar_cuenta_contable.html'
+    template_name = 'contabilidad/modificar_cuenta_contable.html'
     form_class = CuentaContableForm
     
     @method_decorator(permission_required('contabilidad.change_cuenta_contable',reverse_lazy('seguridad:permiso_denegado')))
@@ -273,7 +253,7 @@ class ModificarCuentaContable(UpdateView):
 
 class ModificarConfiguracion(UpdateView):
     model = Configuracion
-    template_name = 'crear_configuracion.html'
+    template_name = 'contabilidad/crear_configuracion.html'
     form_class = ConfiguracionForm
     
     @method_decorator(permission_required('contabilidad.change_configuracion',reverse_lazy('seguridad:permiso_denegado')))
@@ -283,21 +263,9 @@ class ModificarConfiguracion(UpdateView):
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
     
-class ModificarEmpresa(UpdateView):
-    model = Empresa
-    template_name = 'crear_empresa.html'
-    form_class = EmpresaForm
-    
-    @method_decorator(permission_required('contabilidad.change_empresa',reverse_lazy('seguridad:permiso_denegado')))
-    def dispatch(self, *args, **kwargs):
-        return super(ModificarEmpresa, self).dispatch(*args, **kwargs)
-    
-    def get_success_url(self):
-        return reverse('contabilidad:modificar_empresa', args=[self.object.pk])
-
 class ModificarImpuesto(UpdateView):
     model = Impuesto
-    template_name = 'modificar_impuesto.html'
+    template_name = 'contabilidad/modificar_impuesto.html'
     form_class = ImpuestoForm
     
     @method_decorator(permission_required('contabilidad.change_impuesto',reverse_lazy('seguridad:permiso_denegado')))

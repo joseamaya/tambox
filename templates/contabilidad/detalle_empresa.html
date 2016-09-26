@@ -1,0 +1,75 @@
+{% extends "contabilidad/base_contabilidad.html" %}
+{% block cuerpo %}
+<h3>Empresa</h3>
+<div class="row">
+	<div class="col-lg-10">	
+		{% if perms.contabilidad.change_empresa %}
+		<a class="btn btn-primary" href="{% url 'contabilidad:modificar_empresa' object.pk %}">
+		    Editar
+		</a>
+		{% endif %}		
+	</div>	
+</div>
+<hr/>
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="row">
+			<div class="col-lg-7">
+				<h3>{{ object.descripcion }}</h3>							
+			</div>
+			<div class="col-lg-5">
+				<div class="btn-group">    					   
+								
+				</div>
+			</div>					
+		</div>
+		<br>	
+		<ul class="nav nav-tabs">
+		  <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>				  					  
+		</ul>					
+		<div class="tab-content">
+			<div id="general" class="tab-pane fade in active">
+				<br>
+				<div class="row">
+					<div class="col-lg-4">									
+						<label>ABREVIATURA:</label>
+						<p>{{ object.abreviatura }}</p>
+						<label>MONTO: </label>
+						<p>{{ object.monto }}</p>
+						<label>FECHA INICIO: </label>
+						<p>{{ object.fecha_inicio|date:"d/m/y" }}</p>								
+					</div>
+					<div class="col-lg-4">
+						<label>FECHA FIN:</label> 
+						{% if object.fecha_fin %}
+						<p>{{ object.fecha_fin|date:"d/m/y" }}</p>
+						{% else %}
+						<p>--</p>
+						{% endif %}
+					</div>
+					<div class="col-lg-4">
+						<label>FECHA REGISTRO: </label>
+						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+						<label>FECHA MODIFICACIÓN: </label>
+						<p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+						<label>ESTADO: </label>
+						{% if object.estado %}
+						<p>ACTIVO</p>
+						{% else %}
+						<p>INACTIVO</p>
+						{% endif %}
+					</div>
+				</div>
+			</div>					
+		</div>
+	</div>				
+</div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{
+	
+});
+</script>
+{% endblock js %}

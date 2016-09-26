@@ -44,7 +44,7 @@ class Tablero(View):
         if cant_servicios == 0:
             lista_notificaciones.append("No se ha creado ningún servicio")
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_productos.html', context)
+        return render(request, 'productos/tablero_productos.html', context)
     
 class BusquedaProductosDescripcion(TemplateView):
     
@@ -90,7 +90,7 @@ class BusquedaProductosCodigo(TemplateView):
             return HttpResponse(data, 'application/json')
         
 class CargarServicios(FormView):
-    template_name = 'cargar_servicios.html'
+    template_name = 'productos/cargar_servicios.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -110,7 +110,7 @@ class CargarServicios(FormView):
             return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
         
 class CargarProductos(FormView):
-    template_name = 'cargar_productos.html'
+    template_name = 'productos/cargar_productos.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -141,7 +141,7 @@ class CargarProductos(FormView):
         
 class CrearGrupoProductos(CreateView):
     model = GrupoProductos
-    template_name = 'crear_grupo_productos.html'
+    template_name = 'productos/crear_grupo_productos.html'
     form_class = GrupoProductosForm
     success_url = reverse_lazy('productos:grupos_productos')
     
@@ -154,7 +154,7 @@ class CrearGrupoProductos(CreateView):
 
 class CrearProducto(CreateView):
     model = Producto
-    template_name = 'crear_producto.html'
+    template_name = 'productos/crear_producto.html'
     form_class = ProductoForm
     
     @method_decorator(permission_required('productos.add_producto',reverse_lazy('seguridad:permiso_denegado')))
@@ -165,7 +165,7 @@ class CrearProducto(CreateView):
         return reverse('productos:detalle_producto', args=[self.object.pk])
     
 class CrearUnidadMedida(CreateView):
-    template_name = 'crear_unidad_medida.html'
+    template_name = 'productos/crear_unidad_medida.html'
     form_class = UnidadMedidaForm
         
     @method_decorator(permission_required('productos.add_unidadmedida',reverse_lazy('seguridad:permiso_denegado')))
@@ -182,7 +182,7 @@ class CrearUnidadMedida(CreateView):
         return reverse('productos:detalle_unidad_medida', args=[self.object.pk])
     
 class CrearServicio(CreateView):
-    template_name = 'crear_servicio.html'
+    template_name = 'productos/crear_servicio.html'
     form_class = ServicioForm
         
     @method_decorator(permission_required('productos.add_producto',reverse_lazy('seguridad:permiso_denegado')))
@@ -194,19 +194,19 @@ class CrearServicio(CreateView):
     
 class DetalleProducto(DetailView):
     model = Producto
-    template_name = 'detalle_producto.html'
+    template_name = 'productos/detalle_producto.html'
     
 class DetalleGrupoProductos(DetailView):
     model = GrupoProductos
-    template_name = 'detalle_grupo_productos.html'
+    template_name = 'productos/detalle_grupo_productos.html'
     
 class DetalleUnidadMedida(DetailView):
     model = UnidadMedida
-    template_name = 'detalle_unidad_medida.html'
+    template_name = 'productos/detalle_unidad_medida.html'
 
 class DetalleServicio(DetailView):
     model = Producto
-    template_name = 'detalle_servicio.html'
+    template_name = 'productos/detalle_servicio.html'
     
 class EliminarUnidadMedida(TemplateView):
     
@@ -278,7 +278,7 @@ class EliminarServicio(TemplateView):
         
 class ListadoUnidadesMedida(ListView):
     model = UnidadMedida
-    template_name = 'unidades_medida.html'
+    template_name = 'productos/unidades_medida.html'
     context_object_name = 'unidades'
     queryset = UnidadMedida.objects.filter(estado=True).order_by('descripcion')
     
@@ -288,7 +288,7 @@ class ListadoUnidadesMedida(ListView):
     
 class ListadoServicios(ListView):
     model = Producto
-    template_name = 'servicios.html'
+    template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
     queryset = Producto.objects.filter(estado=True,es_servicio=True).order_by('descripcion')
     
@@ -298,7 +298,7 @@ class ListadoServicios(ListView):
     
 class ListadoGruposProductos(ListView):
     model = GrupoProductos
-    template_name = 'grupos_productos.html'
+    template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
     paginate_by = 10
     queryset = GrupoProductos.objects.filter(estado=True).order_by('codigo')
@@ -309,7 +309,7 @@ class ListadoGruposProductos(ListView):
     
 class ListadoProductos(ListView):
     model = Producto
-    template_name = 'productos.html'
+    template_name = 'productos/productos.html'
     context_object_name = 'productos'
     queryset = Producto.objects.filter(es_servicio=False,estado=True).order_by('codigo')
     
@@ -319,7 +319,7 @@ class ListadoProductos(ListView):
     
 class ModificarProducto(UpdateView):
     model = Producto
-    template_name = 'modificar_producto.html'
+    template_name = 'productos/modificar_producto.html'
     form_class = ProductoForm    
         
     @method_decorator(permission_required('productos.change_producto',reverse_lazy('seguridad:permiso_denegado')))
@@ -331,7 +331,7 @@ class ModificarProducto(UpdateView):
 
 class ModificarUnidadMedida(UpdateView):
     model = UnidadMedida
-    template_name = 'modificar_unidad_medida.html'
+    template_name = 'productos/modificar_unidad_medida.html'
     form_class = UnidadMedidaForm
     
     @method_decorator(permission_required('productos.change_unidadmedida',reverse_lazy('seguridad:permiso_denegado')))
@@ -343,7 +343,7 @@ class ModificarUnidadMedida(UpdateView):
     
 class ModificarGrupoProductos(UpdateView):
     model = GrupoProductos
-    template_name = 'modificar_grupo_productos.html'
+    template_name = 'productos/modificar_grupo_productos.html'
     form_class = GrupoProductosForm
     success_url = reverse_lazy('productos:grupos_productos')
     
@@ -356,7 +356,7 @@ class ModificarGrupoProductos(UpdateView):
     
 class ModificarServicio(UpdateView):
     model = Producto
-    template_name = 'modificar_servicio.html'
+    template_name = 'productos/modificar_servicio.html'
     form_class = ServicioForm
     
     @method_decorator(permission_required('productos.change_servicio',reverse_lazy('seguridad:permiso_denegado')))

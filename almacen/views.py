@@ -89,10 +89,10 @@ class Tablero(View):
         if inventario_inicial == 0:
             lista_notificaciones.append("No se ha realizado el inventario inicial")            
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'tablero_almacen.html', context)
+        return render(request, 'almacen/tablero_almacen.html', context)
     
 class AprobarPedido(FormView):
-    template_name = 'aprobar_pedido.html'
+    template_name = 'almacen/aprobar_pedido.html'
     form_class = FormularioAprobacionPedido
     
     @method_decorator(permission_required('almacen.aprobar_pedido',reverse_lazy('seguridad:permiso_denegado')))
@@ -240,7 +240,7 @@ class BusquedaProductosAlmacen(TemplateView):
             return HttpResponse(data, 'application/json')
 
 class CargarAlmacenes(FormView):
-    template_name = 'cargar_almacenes.html'
+    template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
     
     def form_valid(self, form):
@@ -255,7 +255,7 @@ class CargarAlmacenes(FormView):
         return HttpResponseRedirect(reverse('almacen:almacenes'))
     
 class CargarInventarioInicial(FormView):
-    template_name = 'cargar_inventario_inicial.html'
+    template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = CargarInventarioInicialForm
     
     def obtener_fecha_hora(self,r_fecha,r_hora):
@@ -307,7 +307,7 @@ class CargarInventarioInicial(FormView):
         return HttpResponseRedirect(reverse('almacen:modificar_movimiento', args=[movimiento.id_movimiento]))
     
 class CrearTipoMovimiento(CreateView):
-    template_name = 'crear_tipo_movimiento.html'
+    template_name = 'almacen/crear_tipo_movimiento.html'
     form_class = TipoMovimientoForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
@@ -319,7 +319,7 @@ class CrearTipoMovimiento(CreateView):
         return reverse('almacen:detalle_tipo_movimiento', args=[self.object.pk])
     
 class CrearTipoSalida(FormView):
-    template_name = 'crear_tipo_salida.html'
+    template_name = 'almacen/crear_tipo_salida.html'
     form_class = TipoSalidaForm
     success_url = reverse_lazy('almacen:crear_tipo_salida')
 
@@ -333,7 +333,7 @@ class CrearTipoStock(View):
         form = TipoStockForm()        
         return render(request, 'crear_tipo_stock.html', {'form': form})
     
-    '''template_name = 'crear_tipo_stock.html'
+    '''template_name = 'almacen/crear_tipo_stock.html'
     form_class = TipoStockForm
     success_url = reverse_lazy('almacen:crear_tipo_stock')
 
@@ -342,7 +342,7 @@ class CrearTipoStock(View):
         return super(CrearTipoStock, self).form_valid(form)'''
 
 class CrearAlmacen(FormView):
-    template_name = 'crear_almacen.html'
+    template_name = 'almacen/crear_almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
 
@@ -351,7 +351,7 @@ class CrearAlmacen(FormView):
         return super(CrearAlmacen, self).form_valid(form)
     
 '''class CrearDetalleSalida(FormView):
-    template_name = 'crear_detalle_salida.html'
+    template_name = 'almacen/crear_detalle_salida.html'
     form_class = FormularioDetalleMovimiento
     success_url = reverse_lazy('almacen:crear_detalle_salida')
     
@@ -419,7 +419,7 @@ class CrearDetallePedido(TemplateView):
             return HttpResponse(data, 'application/json')
 
 class CrearDetalleIngreso(FormView):
-    template_name = 'crear_detalle_ingreso.html'
+    template_name = 'almacen/crear_detalle_ingreso.html'
     form_class = FormularioDetalleMovimiento
     success_url = reverse_lazy('almacen:crear_detalle_ingreso')
 
@@ -437,7 +437,7 @@ class CrearDetalleIngreso(FormView):
         return super(CrearDetalleIngreso, self).form_valid(form)
     
 class CrearPedido(CreateView):
-    template_name = 'crear_pedido.html'
+    template_name = 'almacen/crear_pedido.html'
     form_class = PedidoForm
     model = Pedido
     
@@ -517,19 +517,19 @@ class ConsultaStock(TemplateView):
 
 class DetalleAlmacen(DetailView):
     model = Almacen
-    template_name = 'detalle_almacen.html'
+    template_name = 'almacen/detalle_almacen.html'
     
 class DetalleTipoMovimiento(DetailView):
     model = TipoMovimiento
-    template_name = 'detalle_tipo_movimiento.html'
+    template_name = 'almacen/detalle_tipo_movimiento.html'
 
 class DetalleOperacionPedido(DetailView):
     model = Pedido
-    template_name = 'detalle_pedido.html'    
+    template_name = 'almacen/detalle_pedido.html'    
     
 class DetalleOperacionMovimiento(DetailView):
     model = Movimiento
-    template_name = 'detalle_movimiento.html'
+    template_name = 'almacen/detalle_movimiento.html'
 
 class EliminarAlmacen(TemplateView):
     
@@ -586,7 +586,7 @@ class InicioOperaciones(TemplateView):
     
 class ListadoAprobacionPedidos(ListView):
     model = Pedido
-    template_name = 'listado_pedidos.html'
+    template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'    
     
     @method_decorator(permission_required('almacen.ver_tabla_aprobacion_pedidos',reverse_lazy('seguridad:permiso_denegado')))
@@ -614,19 +614,19 @@ class ListadoAprobacionPedidos(ListView):
     
 class ListadoAlmacenes(ListView):
     model = Almacen
-    template_name = 'almacenes.html'
+    template_name = 'almacen/almacenes.html'
     context_object_name = 'almacenes'
     queryset = Almacen.objects.all().order_by('descripcion')
 
 class ListadoPedidos(ListView):
     model = Pedido
-    template_name = 'listado_pedidos.html'
+    template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
     queryset = Pedido.objects.all().order_by('codigo')
     
 class ListadoTiposUnidadMedida(ListView):
     model = Tipo
-    template_name = 'tipos.html'
+    template_name = 'almacen/tipos.html'
     context_object_name = 'tipos'
     paginate_by = 10
     queryset = Tipo.objects.filter(tabla="tipo_unidad_medida",descripcion_campo="tipo_unidad_medida").order_by('descripcion_valor')
@@ -638,7 +638,7 @@ class ListadoTiposUnidadMedida(ListView):
     
 class ListadoTiposStock(ListView):
     model = Tipo
-    template_name = 'tipos.html'
+    template_name = 'almacen/tipos.html'
     context_object_name = 'tipos'
     paginate_by = 10
     queryset = Tipo.objects.filter(tabla="tipo_stock",descripcion_campo="tipo_stock").order_by('descripcion_valor')
@@ -650,26 +650,26 @@ class ListadoTiposStock(ListView):
 
 class ListadoTiposMovimiento(ListView):
     model = TipoMovimiento
-    template_name = 'tipos_movimiento.html'
+    template_name = 'almacen/tipos_movimiento.html'
     context_object_name = 'tipos_movimiento'
     paginate_by = 10
     queryset = TipoMovimiento.objects.all().order_by('codigo')
     
 class ListadoMovimientos(ListView):
     model = Movimiento
-    template_name = 'movimientos.html'
+    template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
     queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT)    
 
 class ListadoIngresos(ListView):
     model = Movimiento
-    template_name = 'listado_ingresos.html'
+    template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
     queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True) 
     
 class ListadoSalidas(ListView):
     model = Movimiento
-    template_name = 'listado_salidas.html'
+    template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
     queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False) 
 
@@ -685,7 +685,7 @@ class ModificarMovimiento(TemplateView):
             return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movimiento.id_movimiento]))   
     
 class ModificarIngresoAlmacen(UpdateView):
-    template_name = 'ingreso_almacen.html'
+    template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
     
@@ -784,7 +784,7 @@ class ModificarIngresoAlmacen(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
     
 class ModificarSalidaAlmacen(UpdateView):
-    template_name = 'salida_almacen.html'
+    template_name = 'almacen/salida_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
     
@@ -882,12 +882,12 @@ class ModificarSalidaAlmacen(UpdateView):
     
 class ModificarAlmacen(UpdateView):
     model = Almacen
-    template_name = 'modificar_almacen.html'
+    template_name = 'almacen/modificar_almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
     
 class ModificarPedido(UpdateView):    
-    template_name = 'modificar_pedido.html'
+    template_name = 'almacen/modificar_pedido.html'
     form_class = PedidoForm
     model = Pedido
     
@@ -966,7 +966,7 @@ class ModificarPedido(UpdateView):
                                                              detalle_pedido_formset = detalle_pedido_formset))
     
 class RegistrarIngresoAlmacen(CreateView):
-    template_name = 'ingreso_almacen.html'
+    template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
     
@@ -1154,7 +1154,7 @@ class ReporteExcelTiposMovimientos(TemplateView):
         return response
 
 class ReporteExcelKardexProducto(FormView):
-    template_name = 'reporte_kardex_producto.html'
+    template_name = 'almacen/reporte_kardex_producto.html'
     form_class = FormularioKardexProducto
     
     def obtener_mes_anterior(self,mes,anio):
@@ -1290,7 +1290,7 @@ class ReporteExcelKardexProducto(FormView):
         return response
     
 class ReporteExcelKardex(FormView):
-    template_name = 'reporte_kardex.html'
+    template_name = 'almacen/reporte_kardex.html'
     form_class = FormularioKardexProducto
 
     def obtener_mes_anterior(self,mes,anio):
@@ -1427,7 +1427,7 @@ class ReporteExcelKardex(FormView):
         return response
 
 class ReporteStock(FormView):
-    template_name = 'reporte_stock.html'
+    template_name = 'almacen/reporte_stock.html'
     form_class = FormularioReporteStock
     
     def post(self, request, *args, **kwargs):
@@ -1774,7 +1774,7 @@ class ReportePDFProductos(View):
         return response
 
 class PopupCrearTipoStock(FormView):
-    template_name = 'popup_crear_tipo_stock.html'
+    template_name = 'almacen/popup_crear_tipo_stock.html'
     form_class = TipoStockForm
     success_url = reverse_lazy('almacen:crear_suministro')
 

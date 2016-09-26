@@ -1,0 +1,52 @@
+{% extends "almacen/base_almacen.html" %}
+{% block cuerpo %}
+<h3>Movimientos / Reporte por Fechas</h3>
+<form action="{% url 'almacen:reporte_movimientos' %}" method="post" role="form">
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit" value="Generar">			
+		</div>		
+	</div>
+	<hr />
+	<div class="panel panel-default">		
+		<div class="panel-body">			
+			{% csrf_token %}
+			<div class="form-group">
+				{{ form.as_p }}
+			</div>			
+		</div>
+	</div>
+</form>	
+
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$("#id_fecha_inicio").datepicker();   
+$("#id_fecha_fin").datepicker();        
+$("input[name=tipo_busqueda]").change(function () 
+{	 
+	if($(this).val()=='F')
+	{
+		$("#id_fecha_inicio").attr("disabled",false);
+		$("#id_fecha_fin").attr("disabled",false);
+		$("#id_mes").attr("disabled",true);
+		$("#id_annio").attr("disabled",true);
+	}
+	else if($(this).val()=='M')
+	{
+		$("#id_fecha_inicio").attr("disabled",true);
+		$("#id_fecha_fin").attr("disabled",true);
+		$("#id_mes").attr("disabled",false);
+		$("#id_annio").attr("disabled",false);	
+	}
+	else if($(this).val()=='A')
+	{
+		$("#id_fecha_inicio").attr("disabled",true);
+		$("#id_fecha_fin").attr("disabled",true);
+		$("#id_mes").attr("disabled",true);
+		$("#id_annio").attr("disabled",false);	
+	}
+});	 
+
+</script>
+{% endblock js %}

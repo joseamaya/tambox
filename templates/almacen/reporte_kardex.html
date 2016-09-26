@@ -1,0 +1,37 @@
+{% extends "almacen/base_almacen.html" %}
+{% block cuerpo %}
+<h3>Kardex</h3>	
+<form role="form" action="{% url 'almacen:reporte_kardex' %}" method="post">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit" value="Generar">			
+		</div>		
+	</div>
+	<hr />
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="form-group">
+			 	<div class="row">
+			 		<div class="col-md-4">
+			 			<label>Almacén:</label>
+						{{ form.almacenes }}
+					</div>
+			 		<div class="col-md-4">
+			 			<label>Mes:</label>
+						{{ form.meses }}
+					</div>
+					<div class="col-md-4">
+						<label>Año:</label>				
+						{{ form.anios }}
+					</div>
+			 	</div>						
+			</div>			
+		</div>
+	</div>	
+</form>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+</script>
+{% endblock js %}
