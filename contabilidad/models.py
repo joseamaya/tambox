@@ -160,9 +160,20 @@ class Impuesto(TimeStampedModel):
 class Upload(TimeStampedModel):
     archivo = models.FileField(upload_to='archivos', storage=OverwriteStorage())
     
+class Direccion(TimeStampedModel):
+    lugar = models.CharField(max_length=150)
+    calle = models.CharField(max_length=150)
+    distrito = models.CharField(max_length=100)
+    provincia = models.CharField(max_length=100)
+    departamento = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return self.lugar + ' ' + self.calle + ' ' + self.distrito + ' ' + self.provincia + ' ' + self.departamento 
+    
 class Empresa(TimeStampedModel):
-    nombre = models.CharField(max_length=150)
-    direccion = models.CharField(max_length=150)
+    razon_social = models.CharField(max_length=150)
+    ruc = models.CharField(max_length=11)
+    #direccion = models.ForeignKey(Direccion)
     logo = models.ImageField(upload_to='configuracion')
     
 class Configuracion(TimeStampedModel):

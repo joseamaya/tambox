@@ -5,7 +5,8 @@ from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
     Configuracion, FormaPago, Empresa
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
-    ImpuestoForm, ConfiguracionForm, FormaPagoForm, EmpresaForm
+    ImpuestoForm, ConfiguracionForm, FormaPagoForm, EmpresaForm,\
+    DireccionFormset
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
@@ -125,6 +126,14 @@ class CrearEmpresa(CreateView):
     def dispatch(self, *args, **kwargs):
         return super(CrearEmpresa, self).dispatch(*args, **kwargs)
     
+    def get(self, request, *args, **kwargs):
+        self.object = None        
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        direccion_form = DireccionFormset()
+        return self.render_to_response(self.get_context_data(form = form,
+                                                             direccion_form = direccion_form))                    
+    
     def get_success_url(self):
         return reverse('contabilidad:detalle_empresa', args=[self.object.pk])
 
@@ -139,6 +148,10 @@ class DetalleCuentaContable(DetailView):
 class DetalleImpuesto(DetailView):
     model = Impuesto
     template_name = 'detalle_impuesto.html'
+    
+class DetalleEmpresa(DetailView):
+    model = Empresa
+    template_name = 'detalle_empresa.html'
     
 class DetalleFormaPago(DetailView):
     model = FormaPago

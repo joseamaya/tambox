@@ -1,6 +1,7 @@
 from django import forms
 from contabilidad.models import TipoDocumento, CuentaContable, Upload,\
-    Impuesto, Configuracion, FormaPago, Empresa
+    Impuesto, Configuracion, FormaPago, Empresa, Direccion
+from django.forms.models import inlineformset_factory
     
 class FormaPagoForm(forms.ModelForm):
 
@@ -37,6 +38,19 @@ class TipoDocumentoForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
         })  
+            
+class DireccionForm(forms.ModelForm):
+
+    class Meta:
+        model = Direccion
+        fields =['lugar','calle','distrito','provincia','departamento']
+
+    def __init__(self, *args, **kwargs):
+        super(DireccionForm, self).__init__(*args, **kwargs)
+        for field in iter(self.fields):
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control'
+        })
             
 class EmpresaForm(forms.ModelForm):
 
@@ -89,4 +103,6 @@ class CuentaContableForm(forms.ModelForm):
         super(CuentaContableForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             if field<>'divisionaria':
-                self.fields[field].widget.attrs.update({'class': 'form-control'}) 
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
+                
+DireccionFormset = inlineformset_factory(Empresa, Direccion) 
