@@ -40,6 +40,8 @@ from django.contrib import messages
 from contabilidad.models import Configuracion, Empresa
 from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
+from productos.models import Producto
+from django.utils.encoding import smart_str
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -136,9 +138,36 @@ class CrearDetalleCotizacion(FormView):
     template_name = 'compras/crear_detalle_cotizacion.html'
     form_class = DetalleCotizacionForm
     
-class CrearDetalleOrdenCompra(FormView):
-    template_name = 'compras/crear_detalle_orden_compra.html'
-    form_class = DetalleOrdenCompraForm
+class CrearDetalleOrdenCompra(TemplateView):
+        
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            lista_detalles = []            
+            det = {}
+            det['cotizacion'] = '0'
+            det['codigo'] = ''               
+            det['nombre'] = ''                    
+            det['unidad'] = ''
+            det['cantidad'] = '0'
+            det['precio'] = '0'
+            det['impuesto'] = '0'            
+            det['valor'] = '0'
+            lista_detalles.append(det)
+            formset = DetalleOrdenCompraFormSet(initial=lista_detalles)
+            lista_json = []
+            for form in formset:
+                detalle_json = {}    
+                detalle_json['cotizacion'] = str(form['cotizacion'])
+                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['cantidad'] = str(form['cantidad'])
+                detalle_json['precio'] = str(form['precio'])
+                detalle_json['impuesto'] = str(form['impuesto'])                
+                detalle_json['valor'] = str(form['valor'])
+                lista_json.append(detalle_json)                                
+            data = json.dumps(lista_json)
+            return HttpResponse(data, 'application/json')
     
 class CrearDetalleOrdenServicio(FormView):
     template_name = 'compras/crear_detalle_orden_servicio.html'
@@ -146,7 +175,7 @@ class CrearDetalleOrdenServicio(FormView):
     
 class CrearCotizacion(CreateView):
     form_class = CotizacionForm
-    template_name = "cotizacion.html"
+    template_name = "compras/cotizacion.html"
     model = Cotizacion
     
     def get(self, request, *args, **kwargs):
@@ -201,7 +230,7 @@ class CrearCotizacion(CreateView):
 
 class CrearOrdenCompra(CreateView):
     form_class = OrdenCompraForm
-    template_name = "orden_compra.html"
+    template_name = "compras/orden_compra.html"
     model = OrdenCompra
     
     def get_initial(self):
@@ -243,33 +272,45 @@ class CrearOrdenCompra(CreateView):
                 cont = 1                
                 for detalle_orden_compra_form in detalle_orden_compra_formset:
                     cotizacion = detalle_orden_compra_form.cleaned_data.get('cotizacion')
+                    codigo = detalle_orden_compra_form.cleaned_data.get('codigo')
                     cantidad = detalle_orden_compra_form.cleaned_data.get('cantidad')
                     precio = detalle_orden_compra_form.cleaned_data.get('precio')
                     valor = detalle_orden_compra_form.cleaned_data.get('valor')
                     impuesto = detalle_orden_compra_form.cleaned_data.get('impuesto')
-                    detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                     if cantidad and precio and valor and impuesto:
-                        detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion = detalle_cotizacion,
-                                                                  nro_detalle = cont,
-                                                                  orden = self.object,
-                                                                  cantidad = cantidad,
-                                                                  precio = precio,
-                                                                  valor = valor,
-                                                                  impuesto = impuesto) 
+                        try:
+                            detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
+                            detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion = detalle_cotizacion,
+                                                                      nro_detalle = cont,
+                                                                      orden = self.object,
+                                                                      cantidad = cantidad,
+                                                                      precio = precio,
+                                                                      valor = valor,
+                                                                      impuesto = impuesto) 
+                        except DetalleCotizacion.DoesNotExist:
+                            producto = Producto.objects.get(pk = codigo)
+                            detalle_orden_compra = DetalleOrdenCompra(producto = producto,
+                                                                      nro_detalle = cont,
+                                                                      orden = self.object,
+                                                                      cantidad = cantidad,
+                                                                      precio = precio,
+                                                                      valor = valor,
+                                                                      impuesto = impuesto)
                         detalles.append(detalle_orden_compra)                        
                         cont = cont + 1
-                if cont>1:
-                    DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
+                        if cont>1:
+                            DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
                 return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.codigo]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_orden_compra_formset):
+        print detalle_orden_compra_formset
         return self.render_to_response(self.get_context_data(form=form))
 
 class CrearOrdenServicios(CreateView):
     form_class = OrdenServiciosForm
-    template_name = "orden_servicio.html"
+    template_name = "compras/orden_servicio.html"
     model = OrdenServicios
     
     def get_initial(self):
@@ -334,7 +375,7 @@ class CrearOrdenServicios(CreateView):
     
 class CrearConformidadServicio(CreateView):
     form_class = ConformidadServicioForm
-    template_name = "crear_conformidad_servicio.html"
+    template_name = "compras/crear_conformidad_servicio.html"
     model = ConformidadServicio
     
     def get(self, request, *args, **kwargs):
@@ -515,7 +556,7 @@ class ModificarProveedor(UpdateView):
 
 class ModificarCotizacion(UpdateView):
     form_class = CotizacionForm
-    template_name = "cotizacion.html"
+    template_name = "compras/cotizacion.html"
     model = Cotizacion
     
     def get_initial(self):
@@ -675,10 +716,15 @@ class ModificarOrdenCompra(UpdateView):
     def get_initial(self):
         initial = super(ModificarOrdenCompra, self).get_initial()
         orden = self.object
+        cotizacion = orden.cotizacion
+        if cotizacion is None:
+            proveedor = orden.proveedor
+        else:
+            proveedor = orden.cotizacion.proveedor
         initial['codigo'] = orden.codigo
-        initial['ruc'] = orden.cotizacion.proveedor.ruc
-        initial['razon_social'] = orden.cotizacion.proveedor.razon_social
-        initial['direccion'] = orden.cotizacion.proveedor.direccion
+        initial['ruc'] = proveedor.ruc
+        initial['razon_social'] = proveedor.razon_social
+        initial['direccion'] = proveedor.direccion
         initial['fecha'] = orden.fecha.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago        
         initial['referencia'] = orden.cotizacion
@@ -959,7 +1005,7 @@ class ObtenerDetalleOrdenServicios(TemplateView):
 class ReportePDFOrdenCompra(View):  
     
     def cabecera(self,pdf,orden):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 40, 750, 120, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
@@ -970,16 +1016,21 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(430, 780, "PIURA "+orden.fecha.strftime('%d de %B de %Y'))
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(40, 750, u"SEÑOR(ES): "+orden.cotizacion.proveedor.razon_social)
-        pdf.drawString(440, 750, u"R.U.C.: "+orden.cotizacion.proveedor.ruc)
-        direccion = orden.cotizacion.proveedor.direccion
+        cotizacion = orden.cotizacion
+        if cotizacion is None:
+            proveedor = orden.proveedor
+        else:
+            proveedor = orden.cotizacion.proveedor
+        pdf.drawString(40, 750, u"SEÑOR(ES): "+ proveedor.razon_social)
+        pdf.drawString(440, 750, u"R.U.C.: "+ proveedor.ruc)
+        direccion = proveedor.direccion
         if len(direccion)>60:
             pdf.drawString(40,730,u"DIRECCIÓN: "+direccion[0:60])
             pdf.drawString(105, 720,direccion[60:])
         else:            
             pdf.drawString(40,730,u"DIRECCIÓN: "+direccion)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: "+orden.cotizacion.proveedor.telefono)
+            pdf.drawString(440, 730, u"TELÉFONO: "+ proveedor.telefono)
         except:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
@@ -992,7 +1043,10 @@ class ReportePDFOrdenCompra(View):
         
     def detalle(self,pdf,y,orden):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción','Precio','Total')
-        detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion, detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,detalle.valor) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+        try:
+            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion, detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,detalle.valor) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+        except:
+            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.precio,detalle.valor) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         adicionales = [('','','','','','')]*(15-len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,colWidths=[0.8 * cm, 1.9 * cm, 2 * cm,9.3* cm, 2 * cm, 2.5 * cm])
         detalle_orden.setStyle(TableStyle(
@@ -1076,7 +1130,7 @@ class ReportePDFOrdenCompra(View):
         p.fontName="Times-Roman"
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + empresa.razon_social,p),
+                          Facturar a nombre de """ + smart_str(empresa.razon_social),p),
                           Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
@@ -1133,7 +1187,7 @@ class ReportePDFOrdenCompra(View):
         pdf.drawString(430, y-250,"Autorizado por")
         pdf.line(70, y-240, 200, y-240)
         pdf.line(390, y-240, 520, y-240)
-        pdf.drawString(210, y-280,"DIRECCION")
+        pdf.drawString(210, y-280, empresa.direccion())
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
@@ -1559,7 +1613,7 @@ class ReporteExcelProveedores(TemplateView):
     
 class ReporteExcelOrdenesCompraFecha(FormView):
     form_class = FormularioReporteOrdenesCompraFecha
-    template_name = "reporte_ordenes_compra.html"    
+    template_name = "compras/reporte_ordenes_compra.html"    
 
     def form_valid(self, form):
         data = form.cleaned_data

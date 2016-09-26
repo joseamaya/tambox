@@ -114,7 +114,7 @@ class CotizacionForm(forms.ModelForm):
         fields =['codigo','fecha','observaciones']
         
 class OrdenCompraForm(forms.ModelForm):
-    ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly",'class': 'entero form-control'})) 
+    ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 
     razon_social = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     direccion = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
@@ -125,6 +125,7 @@ class OrdenCompraForm(forms.ModelForm):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
         self.fields['codigo'].required = False
         self.fields['proceso'].required = False
+        self.fields['referencia'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
         for field in iter(self.fields):
@@ -134,10 +135,14 @@ class OrdenCompraForm(forms.ModelForm):
             if field=='igv' or field=='total' or field=='subtotal' or field=='total_letras':
                 self.fields[field].widget.attrs.update({
                     'readonly':"readonly"
-                })                 
+                })
             
     def save(self, *args, **kwargs):
-        self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+        try:
+            self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+        except Cotizacion.DoesNotExist:
+            self.instance.cotizacion = None
+            self.instance.proveedor = Proveedor.objects.get(ruc = self.cleaned_data['ruc'])
         return super(OrdenCompraForm, self).save(*args, **kwargs)
                 
     class Meta:
@@ -210,7 +215,7 @@ class FormularioDetalleCotizacion(forms.Form):
 class FormularioDetalleOrdenCompra(forms.Form):
     cotizacion = forms.CharField(widget=forms.HiddenInput())
     codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17,'readonly':"readonly",'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35,'readonly':"readonly", 'class': 'form-control'}))
+    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))

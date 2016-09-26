@@ -7,10 +7,17 @@ from requerimientos.models import Requerimiento, DetalleRequerimiento
 from model_utils.models import TimeStampedModel, StatusModel
 from django.db.models import Max
 from contabilidad.models import FormaPago
+from productos.models import Producto
 
 class DetalleOrdenCompraManager(models.Manager):
     
     def bulk_create(self, objs, cotizacion):
+        if cotizacion is not None:
+            self.guardar_detalles_con_referencia(objs, cotizacion)
+        else:
+            self.guardar_detalles_sin_referencia(objs)
+        
+    def guardar_detalles_con_referencia(self, objs, cotizacion):
         requerimiento = cotizacion.requerimiento
         for detalle in objs:
             detalle_cotizacion = detalle.detalle_cotizacion
@@ -28,6 +35,10 @@ class DetalleOrdenCompraManager(models.Manager):
         cotizaciones = Cotizacion.objects.filter(estado = Cotizacion.STATUS.PEND)
         for cot in cotizaciones:
             cot.establecer_estado()
+    
+    def guardar_detalles_sin_referencia(self, objs):
+        for detalle in objs:
+            detalle.save()
         
 class DetalleOrdenServiciosManager(models.Manager):
     
@@ -242,6 +253,7 @@ class DetalleCotizacion(TimeStampedModel, StatusModel):
 class OrdenCompra(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
+    proveedor = models.ForeignKey(Proveedor, null=True)
     proceso = models.CharField(max_length=50, default='')
     fecha = models.DateField()    
     forma_pago = models.ForeignKey(FormaPago)
@@ -322,6 +334,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     nro_detalle = models.IntegerField()
     orden = models.ForeignKey(OrdenCompra)
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True)
+    producto = models.ForeignKey(Producto, null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_ingresada = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     precio = models.DecimalField(max_digits=15, decimal_places=5)

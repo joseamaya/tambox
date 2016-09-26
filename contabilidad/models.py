@@ -191,6 +191,9 @@ class Empresa(SingletonModel):
     def __str__(self):
         return u'%s' % self.razon_social
     
+    def direccion(self):
+        return self.lugar + ' ' + self.calle + ' ' + self.distrito
+    
 class Configuracion(TimeStampedModel):
     impuesto_compra = models.ForeignKey(Impuesto)
     administracion = models.ForeignKey(Oficina, related_name = 'administracion',null=True)

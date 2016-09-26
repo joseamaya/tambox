@@ -26,7 +26,7 @@ import os
 from django.db import transaction, IntegrityError
 from django.db.models import Q
 from django.contrib import messages
-from contabilidad.models import Configuracion
+from contabilidad.models import Configuracion, Empresa
 from requerimientos.models import AprobacionRequerimiento, Requerimiento,\
     DetalleRequerimiento
 from requerimientos.forms import AprobacionRequerimientoForm,\
@@ -37,7 +37,7 @@ from compras.models import Cotizacion
 from productos.models import Producto
 
 locale.setlocale(locale.LC_ALL,"")
-
+empresa = Empresa.load()
 # Create your views here.
 class Tablero(View):
     
@@ -386,7 +386,7 @@ class TransferenciaRequerimiento(TemplateView):
 class ReportePDFRequerimiento(View):
     
     def cabecera(self,pdf,requerimiento):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 20, 750, 120, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"REQUERIMIENTO DE BIENES Y SERVICIOS"]]

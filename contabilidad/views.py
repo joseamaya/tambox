@@ -59,7 +59,7 @@ class CrearFormaPago(CreateView):
         return super(CrearFormaPago, self).dispatch(*args, **kwargs)
     
     def get_success_url(self):
-        return reverse('compras:detalle_forma_pago', args=[self.object.pk])
+        return reverse('contabilidad:detalle_forma_pago', args=[self.object.pk])
 
 class CrearTipoDocumento(CreateView):
     model = TipoDocumento

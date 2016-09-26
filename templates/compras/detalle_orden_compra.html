@@ -68,7 +68,11 @@
 				</div>
 				<div class="col-md-3">	
 					<label>Referencia:</label>
-					<p><a href="{% url 'compras:detalle_cotizacion' object.cotizacion.pk %}">{{ object.cotizacion }}</a></p>										
+					{% if object.cotizacion %}
+					<p><a href="{% url 'compras:detalle_cotizacion' object.cotizacion.pk %}">{{ object.cotizacion }}</a></p>
+					{% else %}
+					<p>Ninguna</p>
+					{% endif %}
 				</div>
 			</div>
 			<div class="row">
@@ -92,18 +96,32 @@
 							<th>Subtotal</th>							
 						</tr>
 					</thead>
-					<tbody>									
-						{% for detalle in object.detalleordencompra_set.all %}
-						<tr>
-							<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo }}</td>
-					  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
-					  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
-					  		<td>{{ detalle.cantidad }}</td>
-					  		<td>{{ detalle.precio }}</td>
-					  		<td>{{ detalle.impuesto }}</td>
-					  		<td>{{ detalle.valor }}</td>					  		
-						</tr>
-						{% endfor %}										
+					<tbody>
+						{% if object.cotizacion %}
+							{% for detalle in object.detalleordencompra_set.all %}
+							<tr>
+								<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo }}</td>
+						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
+						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
+						  		<td>{{ detalle.cantidad }}</td>
+						  		<td>{{ detalle.precio }}</td>
+						  		<td>{{ detalle.impuesto }}</td>
+						  		<td>{{ detalle.valor }}</td>					  		
+							</tr>
+							{% endfor %}
+						{% else %}
+							{% for detalle in object.detalleordencompra_set.all %}
+							<tr>
+								<td>{{ detalle.producto.codigo }}</td>
+						  		<td>{{ detalle.producto.descripcion }}</td>
+						  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
+						  		<td>{{ detalle.cantidad }}</td>
+						  		<td>{{ detalle.precio }}</td>
+						  		<td>{{ detalle.impuesto }}</td>
+						  		<td>{{ detalle.valor }}</td>					  		
+							</tr>
+							{% endfor %}
+						{% endif %}										
 					</tbody>				
 				</table>
 			</div>
