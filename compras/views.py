@@ -790,7 +790,6 @@ class ModificarOrdenCompra(UpdateView):
                                                                       valor = valor,
                                                                       impuesto = impuesto) 
                         except DetalleCotizacion.DoesNotExist:
-                            print "Ingresa"
                             producto = Producto.objects.get(pk = codigo)
                             detalle_orden_compra = DetalleOrdenCompra(producto = producto,
                                                                       nro_detalle = cont,

@@ -50,8 +50,8 @@
 $("#id_desc_producto").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'compras:busqueda_productos_descripcion' %}",
-      data: {'descripcion': $("#id_desc_producto").val()},
+      url: "{% url 'productos:busqueda_productos_descripcion' %}",
+      data: {'descripcion': $("#id_desc_producto").val(), 'tipo_busqueda': 'PRODUCTOS'},
       success: function( data ) 
       {
           response( data );

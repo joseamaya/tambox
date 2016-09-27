@@ -106,15 +106,9 @@
 				</div>	
 				<div class="col-lg-2">
 					<div class='form-group'>
-						{% if movimiento.referencia %}
 						<button id="id_crear_detalle" href="#" class="btn btn-info btn-block" disabled="false">
 							<span class="glyphicon glyphicon-plus">AGREGAR</span>
-						</button>
-						{% else %}
-						<button id="id_crear_detalle" href="#" class="btn btn-info btn-block">
-							<span class="glyphicon glyphicon-plus">AGREGAR</span>
-						</button>
-						{% endif %}	
+						</button>						
 					</div>
 				</div>	
 			</div>
@@ -296,6 +290,32 @@ $(document).ready(function()
 		updateFormElementIndices('detalle_ingreso_formset');
 	});
 	
+	$(document).on("keyup",".cantidad",function()
+	{
+		var id_input= $(this).prop('id');
+		var id = id_input.replace("cantidad","");
+		var cantidad = $("#"+id+"cantidad").val();
+		var precio = $("#"+id+"precio").val();
+		var valorAnt = $("#"+id+"valor").val();
+		var valor=parseFloat(cantidad)*parseFloat(precio);
+		$("#"+id+"valor").val(valor.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(valor);
+		$("#id_total").val(total.toFixed(5));		
+	});
+	
+	$(document).on("keyup",".precio",function()
+	{
+		var id_input= $(this).prop('id');
+		var id = id_input.replace("precio","");
+		var cantidad = $("#"+id+"cantidad").val();
+		var precio = $("#"+id+"precio").val();
+		var valorAnt = $("#"+id+"valor").val();
+		var valor=parseFloat(cantidad)*parseFloat(precio);
+		$("#"+id+"valor").val(valor.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(valor);
+		$("#id_total").val(total.toFixed(5));	
+	});
+	
 	function verificar_pide_referencia()
 	{
 		$("#detalles tbody > tr").remove();
@@ -326,32 +346,58 @@ $(document).ready(function()
 	$('#id_crear_detalle').click(function(e)
 	{
 		e.preventDefault();
-		var alm=$('#id_almacen').val().trim();
-		if(alm != '') 
-		{			
-			ventana = $('#popup').dialog(
+		$.ajax({
+			url : "{% url 'almacen:crear_detalle_ingreso' %}",
+			type : 'get',
+			success : function(data)
 			{
-				title: "Agregar Detalle",
-				open: function ()
-		        {
-					var url="{% url 'almacen:crear_detalle_ingreso' 'cod_alm' %}".replace('cod_alm', alm);
-					$(this).load(url);
-		        },
-				width: 950,
-				modal: true,
-				resizable: false,
-				position: { my: "center", at: "center", of: "#page-wrapper"},
-		      	buttons: {
-		          "Aceptar": agregarDetalle,
-		          "Cancelar": cerrarDetalle
-		        }
-			}).dialog('open').load(this.href)
-		}
-		else
-		{
-			alert("Previamente debe haber seleccionado el almacén");
-		}		
+				$.each(data, function(i,item){
+					$("#detalles tbody").append( 
+					"<tr class='detalle_ingreso_formset'>" +
+						"<td>" + item.orden_compra + item.codigo + "</td>" +
+						"<td>" + item.nombre + "</td>" +
+						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.precio + "</td>" +
+						"<td>" + item.valor + "</td>" +
+				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");
+					contDetalles = parseInt(contDetalles) + 1;											
+				});
+				$("#id_form-TOTAL_FORMS").val(contDetalles);
+				updateFormElementIndices('detalle_ingreso_formset');
+				bindAutoComplete('productos');					
+			}
+		});
  	});
+	
+	function bindAutoComplete(classname)
+	{
+		$("."+classname).autocomplete({
+			source: function( request, response ) 
+			{
+				$.ajax({
+				  url: "{% url 'productos:busqueda_productos_descripcion' %}",
+				  data: {'descripcion': request.term,'tipo_busqueda': 'PRODUCTOS' },
+			      success: function( data ) 
+			      {
+			          response( data );
+			      }
+			    });
+			},
+		    minLength: 2,
+		    select: function( event, ui ) 
+		    {
+		    	var id_producto = $(this).prop('id');
+				var id = id_producto.replace("nombre", "");
+				$("#"+id+"codigo").val(ui.item.codigo);
+				$("#"+id+"nombre").val(ui.item.descripcion);
+				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"precio").val(ui.item.precio);
+				return false;
+		    },
+		});
+	}
 		
 	$('#id_transferencia_referencia').click(function(e)
 	{
@@ -390,9 +436,8 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					cont = i+1;
 					$("#detalles tbody").append( 
-					"<tr>" +
-						item.orden_compra +
-						"<td>" + item.codigo + "</td>" +
+					"<tr class='detalle_ingreso_formset'>" +						
+						"<td>" + item.orden_compra + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
@@ -415,40 +460,6 @@ $(document).ready(function()
 		});
 	}
 		
-	function agregarDetalle() 
-	{
-		cantidad = $("#id_cantidad").val();
-		if(cantidad>0)
-		{
-			contDetalles = contDetalles + 1;
-			ultimo_item = ultimo_item + 1;
-			codigo = $("#id_codigo").val(),
-		    nombre = $("#id_nombre").val(),
-		    unidad = $("#id_unidad").val(),	    
-			precio = $("#id_precio").val();
-			valor = $("#id_valor").val();
-			$("#detalles tbody").append( 
-			"<tr>" +
-		  	"<td><input class='form-control' type='text' size=14 readonly='readonly' name='codigo"+ultimo_item+"' id='codigo"+ultimo_item+"' value='" + codigo + "'/></td>" +
-		  	"<td><input class='form-control' type='text' size=25 readonly='readonly' name='nombre"+ultimo_item+"' id='nombre"+ultimo_item+"' value='" + nombre + "'/></td>" +
-		  	"<td><input class='form-control' type='text' size=10 readonly='readonly' name='unidad"+ultimo_item+"' id='unidad"+ultimo_item+"' value='" + unidad + "'/></td>" +
-		  	"<td><input class='form-control cantidad' type='numeric' size=5 name='cantidad"+ultimo_item+"' id='cantidad"+ultimo_item+"' value='" + cantidad + "'/></td>" +
-		  	"<td><input class='form-control' type='numeric' readonly='readonly' size=10 name='precio"+ultimo_item+"' id='precio"+ultimo_item+"' value='" + precio + "'/></td>" +
-		  	"<td><input class='form-control' type='text' readonly='readonly' size=14 name='valor"+ultimo_item+"' id='valor"+ultimo_item+"' value='" + valor + "'/></td>" +
-		  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+ultimo_item+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-			"</tr>");
-			total = total+parseFloat(valor);
-			$("#id_total").val(total.toFixed(5));
-			$(".decimal").keydown(validar_decimales);
-		}
-		ventana.dialog("close");
-    }
-	
-	function cerrarDetalle()
-	{
-		ventana.dialog("close");
-	}
-	
 	function cerrarTransferencia()
 	{
 		ventana_transferencia.dialog("close");
