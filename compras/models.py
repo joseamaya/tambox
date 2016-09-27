@@ -294,8 +294,7 @@ class OrdenCompra(TimeStampedModel):
                 detalle_requerimiento.estado = DetalleCotizacion.STATUS.PEND 
                 detalle_requerimiento.save()
             except DetalleRequerimiento.DoesNotExist:
-                pass
-        DetalleOrdenCompra.objects.filter(orden = self).delete()
+                pass        
         
     def establecer_estado(self):
         estado_orden = OrdenCompra.STATUS.ING

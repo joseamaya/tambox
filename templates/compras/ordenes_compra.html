@@ -3,8 +3,8 @@
 <h3>Órdenes de Compra</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.compras.add_ordencompra %} <a
-			href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
+		{% if perms.compras.add_ordencompra %} 
+		<a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
 		{% endif %} 
 		{% if perms.compras.cargar_ordenes_compra %} 
 			<a href="#" class="btn btn-default">Importar</a> 
@@ -41,7 +41,11 @@
 				<tr>
 				{% endif %}
 					<td>{{ orden_compra.codigo }}</td>
-					<td>{{ orden_compra.cotizacion }}</td>									
+					{% if orden_compra.cotizacion %}
+					<td>{{ orden_compra.cotizacion }}</td>
+					{% else %}
+					<td>Ninguna</td>
+					{% endif %}
 					<td>{{ orden_compra.fecha|date:"d/m/y" }}</td>
 					<td>{{ orden_compra.created|date:"d/m/y" }}</td> 
 					<td>{{ orden_compra.get_estado_display }}</td>					

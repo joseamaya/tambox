@@ -698,14 +698,24 @@ class ModificarOrdenCompra(UpdateView):
             detalles = DetalleOrdenCompra.objects.filter(orden=self.object).order_by('nro_detalle')
             detalles_data = []
             for detalle in detalles:
-                d = {'cotizacion': detalle.detalle_cotizacion.pk,
-                     'codigo': detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo,
-                     'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
-                     'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
-                     'cantidad': detalle.cantidad,
-                     'precio': detalle.precio,
-                     'impuesto': detalle.impuesto,
-                     'valor': detalle.valor }
+                try:
+                    d = {'cotizacion': detalle.detalle_cotizacion.pk,
+                         'codigo': detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo,
+                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                         'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'impuesto': detalle.impuesto,
+                         'valor': detalle.valor }
+                except:
+                    d = {'cotizacion': '0',
+                         'codigo': detalle.producto.codigo,
+                         'nombre': detalle.producto.descripcion,
+                         'unidad': detalle.producto.unidad_medida.codigo,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'impuesto': detalle.impuesto,
+                         'valor': detalle.valor }
                 detalles_data.append(d)
             detalle_orden_compra_formset=DetalleOrdenCompraFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
@@ -755,29 +765,44 @@ class ModificarOrdenCompra(UpdateView):
     def form_valid(self, form, detalle_orden_compra_formset):
         try:
             with transaction.atomic():
-                self.object.eliminar_referencia()
+                if self.object.cotizacion is not None:
+                    self.object.eliminar_referencia()
+                DetalleOrdenCompra.objects.filter(orden = self.object).delete()
                 self.object = form.save()
                 referencia = self.object.cotizacion
                 detalles = []
                 cont = 1                
                 for detalle_orden_compra_form in detalle_orden_compra_formset:
                     cotizacion = detalle_orden_compra_form.cleaned_data.get('cotizacion')
+                    codigo = detalle_orden_compra_form.cleaned_data.get('codigo')
                     cantidad = detalle_orden_compra_form.cleaned_data.get('cantidad')
                     precio = detalle_orden_compra_form.cleaned_data.get('precio')
                     valor = detalle_orden_compra_form.cleaned_data.get('valor')
                     impuesto = detalle_orden_compra_form.cleaned_data.get('impuesto')
-                    detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                     if cantidad and precio and valor and impuesto:
-                        detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion = detalle_cotizacion,
-                                                                  nro_detalle = cont,
-                                                                  orden = self.object,
-                                                                  cantidad = cantidad,
-                                                                  precio = precio,
-                                                                  valor = valor,
-                                                                  impuesto = impuesto) 
+                        try:
+                            detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
+                            detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion = detalle_cotizacion,
+                                                                      nro_detalle = cont,
+                                                                      orden = self.object,
+                                                                      cantidad = cantidad,
+                                                                      precio = precio,
+                                                                      valor = valor,
+                                                                      impuesto = impuesto) 
+                        except DetalleCotizacion.DoesNotExist:
+                            print "Ingresa"
+                            producto = Producto.objects.get(pk = codigo)
+                            detalle_orden_compra = DetalleOrdenCompra(producto = producto,
+                                                                      nro_detalle = cont,
+                                                                      orden = self.object,
+                                                                      cantidad = cantidad,
+                                                                      precio = precio,
+                                                                      valor = valor,
+                                                                      impuesto = impuesto)
                         detalles.append(detalle_orden_compra)                        
                         cont = cont + 1
-                DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
+                        if cont>1:
+                            DetalleOrdenCompra.objects.bulk_create(detalles,referencia)               
                 return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.codigo]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando la cotizacion.')
@@ -953,10 +978,15 @@ class ObtenerDetalleOrdenCompra(TemplateView):
                     det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
                     det['precio'] = str(detalle.precio)
                     det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor)
-                    lista_detalles.append(det)                    
+                    det['valor'] = str(detalle.valor)                                        
                 except:
-                    pass
+                    det['codigo'] = detalle.producto.codigo
+                    det['nombre'] = detalle.producto.descripcion                    
+                    det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
+                    det['precio'] = str(detalle.precio)
+                    det['unidad'] = detalle.producto.unidad_medida.codigo
+                    det['valor'] = str(detalle.valor)
+                lista_detalles.append(det)
             formset = DetalleIngresoFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:

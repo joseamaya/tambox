@@ -15,16 +15,25 @@ from productos.models import Producto
 class DetalleMovimientoManager(models.Manager):
     
     def guardar_detalles_con_referencia(self, objs, orden):
-        requerimiento = orden.cotizacion.requerimiento
+        try:
+            requerimiento = orden.cotizacion.requerimiento
+        except:
+            requerimiento = None
         for detalle in objs:
             detalle_orden = detalle.detalle_orden_compra
-            detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento 
+            try:
+                detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
+            except:
+                detalle_requerimiento = None                 
             detalle_orden.cantidad_ingresada = detalle_orden.cantidad_ingresada + detalle.cantidad
-            detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle_orden.cantidad_ingresada            
+            if detalle_requerimiento is not None:
+                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle_orden.cantidad_ingresada            
             detalle_orden.establecer_estado()
-            detalle_requerimiento.establecer_estado_atendido()
+            if detalle_requerimiento is not None: 
+                detalle_requerimiento.establecer_estado_atendido()
             detalle.save()                        
-        requerimiento.establecer_estado_atendido()
+        if requerimiento is not None:
+            requerimiento.establecer_estado_atendido()
         orden.establecer_estado()
         
     def guardar_detalles_sin_referencia(self, objs):
