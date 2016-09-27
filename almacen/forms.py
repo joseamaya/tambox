@@ -156,7 +156,10 @@ class MovimientoForm(forms.ModelForm):
                 
     def save(self, *args, **kwargs):
         if self.tipo_movimiento=='I':
-            self.instance.referencia = OrdenCompra.objects.get(pk=self.cleaned_data['doc_referencia'])
+            try:
+                self.instance.referencia = OrdenCompra.objects.get(pk=self.cleaned_data['doc_referencia'])
+            except:
+                self.instance.referencia = None
         self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'],self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
     
@@ -241,10 +244,10 @@ class FormularioReporteStock(forms.Form):
 class FormularioDetalleIngreso(forms.Form):
     orden_compra = forms.CharField(widget=forms.HiddenInput())
     codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'readonly':"readonly", 'class': 'form-control'}))
+    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'cantidad decimal form-control'}))
-    precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'precio decimal form-control'}))
+    cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+    precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
 class BaseDetalleIngresoFormSet(formsets.BaseFormSet):

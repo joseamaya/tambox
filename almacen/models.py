@@ -37,8 +37,11 @@ class DetalleMovimientoManager(models.Manager):
         orden.establecer_estado()
         
     def guardar_detalles_sin_referencia(self, objs):
+        cont = 1
         for detalle in objs:
+            print "Detalle:" + str(cont) + "Producto:" + str(detalle.producto) 
             detalle.save()
+            cont = cont + 1
         
     def bulk_create(self, objs, referencia):
         if referencia is not None:
@@ -75,6 +78,7 @@ class Almacen(TimeStampedModel):
     def __str__(self):
         return self.descripcion
 
+#Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
     codigo = models.CharField(primary_key=True,max_length=10)
     descripcion = models.CharField(max_length=25)
@@ -277,8 +281,7 @@ class Movimiento(TimeStampedModel):
                 detalle_orden_compra.estado = DetalleOrdenCompra.STATUS.PEND
             if detalle_requerimiento.cantidad_atendida==0: 
                 detalle_requerimiento.estado = DetalleRequerimiento.STATUS.PEND 
-            detalle_orden_compra.save()
-        DetalleMovimiento.objects.filter(movimiento=self).delete()
+            detalle_orden_compra.save()        
         
     def eliminar_detalles(self):
         DetalleMovimiento.objects.filter(movimiento=self).delete()
@@ -382,6 +385,7 @@ class DetalleMovimiento(TimeStampedModel):
             defaults={'stock': kardex.cantidad_total,'precio':precio_control}
         )
         super(DetalleMovimiento, self).save()
+        print kardex
         kardex.save()        
 
     class Meta:

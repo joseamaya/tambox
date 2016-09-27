@@ -30,11 +30,10 @@ from reportlab.lib.pagesizes import cm
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
 from reportlab.lib.enums import TA_JUSTIFY
-from administracion.models import Oficina, Puesto
+from administracion.models import Puesto
 import locale
-from contabilidad.models import Tipo, Configuracion
+from contabilidad.models import Tipo, Configuracion, Empresa
 import csv
-from django.db import transaction
 from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
@@ -45,6 +44,7 @@ from django.contrib import messages
 from productos.models import Producto
 
 locale.setlocale(locale.LC_ALL,"")
+empresa = Empresa.load()
 
 class Tablero(View):
     
@@ -226,17 +226,23 @@ class BusquedaProductosAlmacen(TemplateView):
         if request.is_ajax():
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
+            print descripcion
+            print almacen
             control_productos = ControlProductoAlmacen.objects.filter(almacen__codigo=almacen,producto__descripcion__icontains = descripcion)[:20]    
             lista_productos = []
             for control in control_productos:
+                print control.producto.descripcion
                 producto_json = {}                
                 producto_json['label'] = control.producto.descripcion
                 producto_json['codigo'] = control.producto.codigo
                 producto_json['descripcion'] = control.producto.descripcion
                 producto_json['unidad'] = control.producto.unidad_medida.descripcion
                 producto_json['precio'] = str(control.precio)
+                print producto_json
                 lista_productos.append(producto_json)                            
+            print lista_productos
             data = json.dumps(lista_productos)
+            print data
             return HttpResponse(data, 'application/json')
 
 class CargarAlmacenes(FormView):
@@ -259,6 +265,7 @@ class CargarInventarioInicial(FormView):
     form_class = CargarInventarioInicialForm
     
     def obtener_fecha_hora(self,r_fecha,r_hora):
+        r_hora = r_hora.replace(" ","")
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
         dia = int(r_fecha[0:2])
@@ -272,7 +279,7 @@ class CargarInventarioInicial(FormView):
         data = form.cleaned_data
         docfile = data['archivo']
         fecha = data['fecha']
-        hora = data['fecha']
+        hora = data['hora']
         almacen = data['almacenes']
         form.save()
         fecha_operacion = self.obtener_fecha_hora(fecha, hora)
@@ -285,25 +292,28 @@ class CargarInventarioInicial(FormView):
                                                    almacen = almacen,
                                                    fecha_operacion=fecha_operacion,
                                                    total = 0,
-                                                   observacion = 'INVENTARIO INICIAL')
+                                                   observaciones = 'INVENTARIO INICIAL')
             
             cont_detalles = 1
+            detalles = []
             total = 0
             for fila in dataReader:
                 producto = Producto.objects.get(descripcion=unicode(fila[0], errors='ignore'))
                 cantidad = Decimal(fila[1])
                 precio = Decimal(fila[2])
                 valor = cantidad * precio
-                DetalleMovimiento.objects.create(nro_detalle=cont_detalles,
-                                                 movimiento=movimiento,
-                                                 producto=producto,
-                                                 cantidad=cantidad,
-                                                 precio=precio,
-                                                 valor = valor)
+                detalle_movimiento = DetalleMovimiento(nro_detalle=cont_detalles,
+                                                       movimiento=movimiento,
+                                                       producto=producto,
+                                                       cantidad=cantidad,
+                                                       precio=precio,
+                                                       valor = valor)
+                detalles.append(detalle_movimiento) 
                 total = total + valor
                 cont_detalles = cont_detalles + 1
+                DetalleMovimiento.objects.bulk_create(detalles,None)
             movimiento.total = total
-            movimiento.save()            
+            movimiento.save()
         return HttpResponseRedirect(reverse('almacen:modificar_movimiento', args=[movimiento.id_movimiento]))
     
 class CrearTipoMovimiento(CreateView):
@@ -418,23 +428,34 @@ class CrearDetallePedido(TemplateView):
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
-class CrearDetalleIngreso(FormView):
-    template_name = 'almacen/crear_detalle_ingreso.html'
-    form_class = FormularioDetalleMovimiento
-    success_url = reverse_lazy('almacen:crear_detalle_ingreso')
-
+class CrearDetalleIngreso(TemplateView):
+        
     def get(self, request, *args, **kwargs):
-        self.almacen = kwargs['almacen']
-        return super(CrearDetalleIngreso, self).get(request, *args, **kwargs)
-    
-    def get_initial(self):
-        initial = super(CrearDetalleIngreso, self).get_initial()        
-        initial['almacen'] = self.almacen       
-        return initial
-
-    def form_valid(self, form):
-        form.save()
-        return super(CrearDetalleIngreso, self).form_valid(form)
+        if request.is_ajax():
+            lista_detalles = []            
+            det = {}
+            det['orden_compra'] = '0'
+            det['codigo'] = ''               
+            det['nombre'] = ''                    
+            det['cantidad'] = '0'
+            det['precio'] = '0'
+            det['unidad'] = ''
+            det['valor'] = '0'
+            lista_detalles.append(det)
+            formset = DetalleIngresoFormSet(initial=lista_detalles)
+            lista_json = []
+            for form in formset:
+                detalle_json = {}    
+                detalle_json['orden_compra'] = str(form['orden_compra'])
+                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['cantidad'] = str(form['cantidad'])
+                detalle_json['precio'] = str(form['precio'])
+                detalle_json['unidad'] = str(form['unidad'])                
+                detalle_json['valor'] = str(form['valor'])
+                lista_json.append(detalle_json)                                
+            data = json.dumps(lista_json)
+            return HttpResponse(data, 'application/json')
     
 class CrearPedido(CreateView):
     template_name = 'almacen/crear_pedido.html'
@@ -574,7 +595,7 @@ class EliminarMovimiento(TemplateView):
                     control.stock = control.stock + kardex.cantidad_salida
                 control.save()
                 kardex.delete()             
-            Movimiento.objects.filter(id_movimiento=id_movimiento).update(estado = False, referencia=None)
+            Movimiento.objects.filter(id_movimiento=id_movimiento).update(estado = Movimiento.STATUS.CANC, referencia=None)
             DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
             movimiento_json = {}
             movimiento_json['id_movimiento'] = id_movimiento
@@ -702,13 +723,22 @@ class ModificarIngresoAlmacen(UpdateView):
             detalles = DetalleMovimiento.objects.filter(movimiento=self.object).order_by('nro_detalle')
             detalles_data = []
             for detalle in detalles:
-                d = {'orden_compra': detalle.detalle_orden_compra.pk,
-                     'codigo': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.codigo,
-                     'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
-                     'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
-                     'cantidad': detalle.cantidad,
-                     'precio': detalle.precio,
-                     'valor': detalle.valor }
+                try:
+                    d = {'orden_compra': detalle.detalle_orden_compra.pk,
+                         'codigo': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.codigo,
+                         'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                         'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'valor': detalle.valor }
+                except:
+                    d = {'orden_compra': '0',
+                         'codigo': detalle.producto.codigo,
+                         'nombre': detalle.producto.descripcion,
+                         'unidad': detalle.producto.unidad_medida.codigo,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'valor': detalle.valor }
                 detalles_data.append(d)
             detalle_ingreso_formset = DetalleIngresoFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
@@ -754,6 +784,7 @@ class ModificarIngresoAlmacen(UpdateView):
                 if self.object.referencia:
                     self.object.eliminar_referencia()
                 self.object.eliminar_kardex()
+                self.object.eliminar_detalles()
                 self.object = form.save()
                 referencia = self.object.referencia
                 detalles = []
@@ -763,16 +794,24 @@ class ModificarIngresoAlmacen(UpdateView):
                     codigo = detalle_ingreso_form.cleaned_data.get('codigo') 
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
-                    valor = detalle_ingreso_form.cleaned_data.get('valor')
-                    detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
+                    valor = detalle_ingreso_form.cleaned_data.get('valor')                    
                     if cantidad and precio and valor:
-                        detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
-                                                               nro_detalle=cont,
-                                                               movimiento=self.object,
-                                                               producto=Producto.objects.get(pk=codigo),
-                                                               cantidad=cantidad,
-                                                               precio=precio,
-                                                               valor = valor) 
+                        try:
+                            detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
+                            detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
+                                                                   nro_detalle=cont,
+                                                                   movimiento=self.object,
+                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   cantidad=cantidad,
+                                                                   precio=precio,
+                                                                   valor = valor) 
+                        except:
+                            detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                                                                   movimiento=self.object,
+                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   cantidad=cantidad,
+                                                                   precio=precio,
+                                                                   valor = valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia) 
@@ -1020,15 +1059,23 @@ class RegistrarIngresoAlmacen(CreateView):
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
                     valor = detalle_ingreso_form.cleaned_data.get('valor')
-                    detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
                     if cantidad and precio and valor:
-                        detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
-                                                               nro_detalle=cont,
-                                                               movimiento=self.object,
-                                                               producto=Producto.objects.get(pk=codigo),
-                                                               cantidad=cantidad,
-                                                               precio=precio,
-                                                               valor = valor) 
+                        try:
+                            detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
+                            detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
+                                                                   nro_detalle=cont,
+                                                                   movimiento=self.object,
+                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   cantidad=cantidad,
+                                                                   precio=precio,
+                                                                   valor = valor)
+                        except:
+                            detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                                                                   movimiento=self.object,
+                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   cantidad=cantidad,
+                                                                   precio=precio,
+                                                                   valor = valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles,referencia) 
@@ -1037,11 +1084,12 @@ class RegistrarIngresoAlmacen(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_ingreso_formset):
+        print detalle_ingreso_formset
         return self.render_to_response(self.get_context_data(form=form))
         
 class RegistrarSalidaAlmacen(CreateView):
     form_class = MovimientoForm
-    template_name = "salida_almacen.html"
+    template_name = "almacen/salida_almacen.html"
     model = Movimiento
     
     def get_form_kwargs(self):
@@ -1611,7 +1659,7 @@ class ReporteExcelMovimientosPorFecha(View):
 class ReportePDFMovimiento(View):
     
     def cabecera(self,pdf,movimiento,y):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 40, y-50, 120, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         if movimiento.tipo_movimiento.incrementa:
@@ -1624,7 +1672,10 @@ class ReportePDFMovimiento(View):
         pdf.drawString(420, y-20, "FECHA: "+movimiento.fecha_operacion.strftime('%d/%m/%y'))
         pdf.setFont("Times-Roman", 10)
         try:
-            pdf.drawString(40, y-50, u"PROVEEDOR: "+movimiento.referencia.cotizacion.proveedor.razon_social)
+            if movimiento.referencia.cotizacion is not None:
+                pdf.drawString(40, y-50, u"PROVEEDOR: "+movimiento.referencia.cotizacion.proveedor.razon_social)
+            else:
+                pdf.drawString(40, y-50, u"PROVEEDOR: "+movimiento.referencia.proveedor.razon_social)
             y = y - 70
         except:
             y = y - 50
@@ -1711,11 +1762,15 @@ class ReportePDFMovimiento(View):
         return y
     
     def firmas(self,y,pdf):
+        configuracion = Configuracion.objects.first()
+        oficina_administracion = configuracion.administracion
+        presupuesto = configuracion.presupuesto
+        logistica = configuracion.logistica
         pdf.line(70, y-80, 200, y-80)
         pdf.line(390, y-80, 520, y-80)
         pdf.setFont("Times-Roman", 8)
-        pdf.drawString(73, y-90,"GERENCIA DE ADMINISTRACIÓN")
-        pdf.drawString(415, y-90,"UNIDAD DE LOGÍSTICA")
+        pdf.drawString(73, y-90,oficina_administracion.nombre)
+        pdf.drawString(415, y-90,logistica.nombre)
     
     def get(self, request, *args, **kwargs):         
         id_movimiento = kwargs['id_movimiento']
@@ -1730,7 +1785,7 @@ class ReportePDFMovimiento(View):
         y=self.cuadro_total(pdf, y, movimiento)
         y=self.cuadro_observaciones(pdf, y, movimiento)
         self.firmas(y, pdf)
-        pdf.drawString(210, 20,"DIRECCIÓN")            
+        pdf.drawString(210, 20,empresa.direccion())            
         pdf.save()
         pdf = buffer.getvalue()
         buffer.close()
