@@ -8,7 +8,8 @@ from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios,\
     DetalleProducto, DetalleGrupoProductos, DetalleUnidadMedida, DetalleServicio,\
     ReporteExcelProductos, ReporteExcelGruposProductos,\
     ReporteExcelUnidadesMedida, ReporteExcelServicios, EliminarUnidadMedida,\
-    EliminarGrupoProductos, EliminarProducto, EliminarServicio
+    EliminarGrupoProductos, EliminarProducto, EliminarServicio,\
+    CargarGrupoProductos
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -20,6 +21,7 @@ urlpatterns = patterns('',
     url(r'^crear_unidad_medida/$',login_required(CrearUnidadMedida.as_view()), name="crear_unidad_medida"),
     url(r'^crear_grupo_productos/$',login_required(CrearGrupoProductos.as_view()), name="crear_grupo_productos"),
     url(r'^crear_producto/$',login_required(CrearProducto.as_view()), name="crear_producto"),    
+    url(r'^cargar_grupo_productos/$',login_required(CargarGrupoProductos.as_view()), name="cargar_grupo_productos"),
     url(r'^cargar_productos/$',login_required(CargarProductos.as_view()), name="cargar_productos"),
     url(r'^cargar_servicios/$',login_required(CargarServicios.as_view()), name="cargar_servicios"),
     url(r'^modificar_producto/(?P<pk>\d+)/$',login_required(ModificarProducto.as_view()), name="modificar_producto"),

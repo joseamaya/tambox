@@ -19,6 +19,7 @@ from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm,\
     UnidadMedidaForm
+from contabilidad.models import CuentaContable
 
 # Create your views here.
 class Tablero(View):
@@ -88,6 +89,24 @@ class BusquedaProductosCodigo(TemplateView):
                 lista_productos.append(producto_json)                            
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
+        
+class CargarGrupoProductos(FormView):
+    template_name = 'productos/cargar_grupo_productos.html'
+    form_class = UploadForm
+    
+    def form_valid(self, form):
+        data = form.cleaned_data
+        docfile = data['archivo']            
+        form.save()
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
+        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        for fila in dataReader:
+            cuenta = CuentaContable.objects.get(cuenta=fila[0])
+            descripcion = fila[1] 
+            grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=unicode(descripcion, errors='ignore'),
+                                                                           defaults={'ctacontable' : cuenta
+                                                                                    })           
+        return HttpResponseRedirect(reverse('productos:grupos_productos'))
         
 class CargarServicios(FormView):
     template_name = 'productos/cargar_servicios.html'

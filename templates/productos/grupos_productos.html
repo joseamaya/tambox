@@ -9,7 +9,7 @@
 		</a>												
 		{% endif %}
 		{% if perms.productos.cargar_grupo_productos %}
-		<a href="#" class="btn btn-default">
+		<a href="{% url 'productos:cargar_grupo_productos' %}" class="btn btn-default">
 			Importar
 		</a>						
 		{% endif %}									
