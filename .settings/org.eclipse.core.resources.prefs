@@ -15,7 +15,10 @@ encoding//productos/views.py=utf-8
 encoding//requerimientos/forms.py=utf-8
 encoding//requerimientos/models.py=utf-8
 encoding//requerimientos/views.py=utf-8
+<<<<<<< HEAD
 encoding//templates/almacen/detalle_movimiento.html=UTF-8
+=======
+>>>>>>> branch 'master' of https://github.com/joseamaya/tambox
 encoding//templates/almacen/detalle_pedido.html=UTF-8
 encoding//templates/almacen/ingreso_almacen.html=UTF-8
 encoding//templates/almacen/registrar_ingreso_almacen.html=UTF-8

@@ -595,6 +595,7 @@ class EliminarMovimiento(TemplateView):
                     control.stock = control.stock + kardex.cantidad_salida
                 control.save()
                 kardex.delete()
+                kardex.delete()
             Movimiento.objects.filter(id_movimiento=id_movimiento).update(estado = Movimiento.STATUS.CANC, referencia=None)
             DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
             movimiento_json = {}
