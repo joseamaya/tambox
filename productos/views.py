@@ -138,25 +138,22 @@ class CargarProductos(FormView):
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        try:            
-            grupo = GrupoProductos.objects.get(codigo = '000001')
-            for fila in dataReader:
-                cod_und = fila[2][0:5]
-                und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
-                                                                 defaults={'codigo': cod_und,
-                                                                           'descripcion' : fila[2]})            
-                if fila[3]<>'':
-                    precio = fila[3]
-                else:
-                    precio = 0             
-                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1], errors='ignore'),
-                                                                  defaults={'unidad_medida' : und,
-                                                                            'grupo_productos' : grupo,
-                                                                            'precio' : precio,
-                                                                            'desc_abreviada' : unicode(fila[4], errors='ignore')})           
-            return HttpResponseRedirect(reverse('productos:productos'))
-        except GrupoProductos.DoesNotExist:
-            return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
+        for fila in dataReader:
+            grupo = GrupoProductos.objects.get(codigo = fila[0])
+            cod_und = fila[2][0:5]
+            und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
+                                                             defaults={'codigo': cod_und,
+                                                                       'descripcion' : fila[2]})            
+            if fila[3]<>'':
+                precio = fila[3]
+            else:
+                precio = 0             
+            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1], errors='ignore'),
+                                                              defaults={'unidad_medida' : und,
+                                                                        'grupo_productos' : grupo,
+                                                                        'precio' : precio,
+                                                                        'desc_abreviada' : unicode(fila[4], errors='ignore')})           
+        return HttpResponseRedirect(reverse('productos:productos'))        
         
 class CrearGrupoProductos(CreateView):
     model = GrupoProductos
@@ -319,7 +316,6 @@ class ListadoGruposProductos(ListView):
     model = GrupoProductos
     template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
-    paginate_by = 10
     queryset = GrupoProductos.objects.filter(estado=True).order_by('codigo')
     
     @method_decorator(permission_required('productos.ver_tabla_grupos_productos',reverse_lazy('seguridad:permiso_denegado')))
@@ -335,6 +331,20 @@ class ListadoProductos(ListView):
     @method_decorator(permission_required('productos.ver_tabla_productos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoProductos, self).dispatch(*args, **kwargs)
+    
+class ListadoProductosPorGrupo(ListView):
+    model = Producto
+    template_name = 'productos/productos.html'
+    context_object_name = 'productos'    
+    
+    @method_decorator(permission_required('productos.ver_tabla_productos',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ListadoProductosPorGrupo, self).dispatch(*args, **kwargs)
+    
+    def get_queryset(self):
+        grupo = GrupoProductos.objects.get(pk=self.kwargs['grupo'])
+        queryset = grupo.producto_set.all()
+        return queryset
     
 class ModificarProducto(UpdateView):
     model = Producto
@@ -434,7 +444,7 @@ class ReporteExcelGruposProductos(TemplateView):
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'CTA_CONTABLE'
-        ws['E3'] = 'created'
+        ws['E3'] = 'CREADO'
         cont=4
         for grupo_productos in grupos_productos:
             ws.cell(row=cont,column=2).value = grupo_productos.codigo

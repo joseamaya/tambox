@@ -1200,6 +1200,96 @@ class ReporteExcelTiposMovimientos(TemplateView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
+    
+class ReporteConsolidadoKardexExcel(FormView):
+    template_name = 'almacen/reporte_kardex.html'
+    form_class = FormularioKardexProducto
+
+    def obtener_mes_anterior(self,mes,anio):
+        if(mes<1):
+            mes = 12
+            anio = int(anio) - 1
+        else:
+            mes = int(mes) - 1
+        return mes,anio
+
+    def post(self, request, *args, **kwargs):
+        mes = request.POST['meses']
+        anio = request.POST['anios']
+        almacen = request.POST['almacenes']
+        productos = Producto.objects.filter(estado = True)
+        wb = Workbook()
+        ws = wb.active
+        ws['B1'] = u'Almacén: '+ almacen
+        ws['E1'] = 'Periodo: '+ mes+'-'+ anio
+        ws['B3'] = 'CODIGO'
+        ws['C3'] = 'NOMBRE'
+        ws['D3'] = 'CANT INICIAL'
+        ws['E3'] = 'VALOR INICIAL'
+        ws['F3'] = 'CANT. ENT'
+        ws['G3'] = 'VALOR. ENT'
+        ws['H3'] = 'CANT. SAL'
+        ws['I3'] = 'VALOR. SAL'
+        ws['J3'] = 'CANT. TOT'
+        ws['K3'] = 'VALOR. TOT'
+        cont = 4
+        for producto in productos:        
+            ws.cell(row=cont,column=2).value = producto.codigo
+            ws.cell(row=cont,column=3).value = producto.descripcion
+            mes_ant, anio_ant = self.obtener_mes_anterior(mes, anio)
+            listado_kardex_ant = Kardex.objects.filter(almacen__codigo =  almacen,fecha_operacion__year=anio_ant,fecha_operacion__month=mes_ant,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+            if len(listado_kardex_ant)>0:
+                c_s_i = listado_kardex_ant.aggregate(Sum('cantidad_total'))
+                cant_saldo_inicial=c_s_i['cantidad_total__sum']
+                v_s_i = listado_kardex_ant.aggregate(Sum('valor_total'))
+                valor_saldo_inicial=v_s_i['valor_total__sum']
+            else:
+                cant_saldo_inicial = 0
+                valor_saldo_inicial = 0
+            ws.cell(row=cont,column=4).value = cant_saldo_inicial
+            ws.cell(row=cont,column=4).number_format = '#.00000'
+            ws.cell(row=cont,column=5).value = valor_saldo_inicial
+            ws.cell(row=cont,column=5).number_format = '#.00000'
+            listado_kardex = Kardex.objects.filter(almacen__codigo =  almacen,fecha_operacion__year=anio,fecha_operacion__month=mes,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+            if len(listado_kardex)>0:
+                cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
+                cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+                cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
+                valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
+                valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
+                valor_total = listado_kardex.aggregate(Sum('valor_total'))
+                t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
+                t_cantidad_s= cantidad_salida['cantidad_salida__sum']
+                t_cantidad_t= cantidad_total['cantidad_total__sum']
+                t_valor_i= valor_ingreso['valor_ingreso__sum']
+                t_valor_s= valor_salida['valor_salida__sum']
+                t_valor_t= valor_total['valor_total__sum']
+                ws.cell(row=cont,column=6).value = t_cantidad_i
+                ws.cell(row=cont,column=7).value = t_valor_i
+                ws.cell(row=cont,column=7).number_format = '#.00000'
+                ws.cell(row=cont,column=8).value = t_cantidad_s
+                ws.cell(row=cont,column=9).value = t_valor_s
+                ws.cell(row=cont,column=9).number_format = '#.00000'
+                ws.cell(row=cont,column=10).value = t_cantidad_t
+                ws.cell(row=cont,column=11).value = t_valor_t
+                ws.cell(row=cont,column=11).number_format = '#.00000'                
+            else:
+                ws.cell(row=cont,column=6).value = 0
+                ws.cell(row=cont,column=7).value = 0
+                ws.cell(row=cont,column=7).number_format = '#.00000'
+                ws.cell(row=cont,column=8).value = 0
+                ws.cell(row=cont,column=9).value = 0
+                ws.cell(row=cont,column=9).number_format = '#.00000'
+                ws.cell(row=cont,column=10).value = 0
+                ws.cell(row=cont,column=11).value = 0
+                ws.cell(row=cont,column=12).number_format = '#.00000' 
+            cont = cont + 1               
+        nombre_archivo ="ReporteConsolidadoKardexExcel.xlsx" 
+        response = HttpResponse(content_type="application/ms-excel") 
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
 
 class ReporteExcelKardexProducto(FormView):
     template_name = 'almacen/reporte_kardex_producto.html'

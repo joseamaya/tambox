@@ -12,16 +12,13 @@
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'productos:detalle_grupo_productos' object.anterior %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_grupo_productos' object.anterior %}';">
 				<span class="glyphicon glyphicon-step-backward"></span>
 			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'productos:detalle_grupo_productos' object.siguiente %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_grupo_productos' object.siguiente %}';">
 				<span class="glyphicon glyphicon-step-forward"></span>
 			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'productos:grupos_productos' %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:grupos_productos' %}';">
 				<span class="glyphicon glyphicon-th-list"></span>
 			</button>
 		</div>
@@ -45,9 +42,9 @@
 						<span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
 						Previsto
 					</button>
-					<button class="btn btn-default" type="button">
+					<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:listado_productos_grupo' object.pk %}';">
 						<span class="fa fa-shopping-cart fa-2x"></span> {{ object.stock }}
-						<br> productos
+						<br> Productos
 					</button>
 				</div>
 			</div>

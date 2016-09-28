@@ -9,7 +9,7 @@ from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios,\
     ReporteExcelProductos, ReporteExcelGruposProductos,\
     ReporteExcelUnidadesMedida, ReporteExcelServicios, EliminarUnidadMedida,\
     EliminarGrupoProductos, EliminarProducto, EliminarServicio,\
-    CargarGrupoProductos
+    CargarGrupoProductos, ListadoProductosPorGrupo
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -33,7 +33,8 @@ urlpatterns = patterns('',
     url(r'^detalle_producto/(?P<pk>\d+)/$', login_required(DetalleProducto.as_view()), name="detalle_producto"),    
     url(r'^detalle_grupo_productos/(?P<pk>\d+)/$', login_required(DetalleGrupoProductos.as_view()), name="detalle_grupo_productos"),
     url(r'^detalle_unidad_medida/(?P<pk>\d+)/$', login_required(DetalleUnidadMedida.as_view()), name="detalle_unidad_medida"),
-    url(r'^detalle_servicio/(?P<pk>.+)/$', login_required(DetalleServicio.as_view()), name="detalle_servicio"),    
+    url(r'^detalle_servicio/(?P<pk>.+)/$', login_required(DetalleServicio.as_view()), name="detalle_servicio"),
+    url(r'^listado_productos_grupo/(?P<grupo>.+)/$',login_required(ListadoProductosPorGrupo.as_view()), name="listado_productos_grupo"),    
     url(r'^maestro_productos_excel/$',login_required(ReporteExcelProductos.as_view()), name="maestro_productos_excel"),   
     url(r'^maestro_grupos_productos_excel/$',login_required(ReporteExcelGruposProductos.as_view()), name="maestro_grupos_productos_excel"),
     url(r'^maestro_unidades_medida_excel/$',login_required(ReporteExcelUnidadesMedida.as_view()), name="maestro_unidades_medida_excel"),    

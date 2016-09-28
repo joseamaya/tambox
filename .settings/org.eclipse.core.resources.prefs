@@ -19,6 +19,7 @@ encoding//templates/almacen/detalle_movimiento.html=UTF-8
 encoding//templates/almacen/detalle_pedido.html=UTF-8
 encoding//templates/almacen/ingreso_almacen.html=UTF-8
 encoding//templates/almacen/registrar_ingreso_almacen.html=UTF-8
+encoding//templates/almacen/reporte_kardex.html=UTF-8
 encoding//templates/almacen/reporte_kardex_producto.html=UTF-8
 encoding//templates/almacen/salida_almacen.html=UTF-8
 encoding//templates/compras/cotizacion.html=UTF-8

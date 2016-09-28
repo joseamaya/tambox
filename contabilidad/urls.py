@@ -7,7 +7,8 @@ from contabilidad.views import Tablero, ListadoCuentasContables,\
     DetalleCuentaContable, CrearImpuesto, DetalleImpuesto, ListadoImpuestos,\
     ModificarImpuesto, CrearConfiguracion, ModificarConfiguracion,\
     ListadoFormasPago, CrearFormaPago, ModificarFormaPago, DetalleFormaPago,\
-    ReporteExcelFormasPago, EliminarFormaPago
+    ReporteExcelFormasPago, EliminarFormaPago,\
+    ReporteConsolidadoCuentasContablesAlmacenExcel
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -33,5 +34,6 @@ urlpatterns = patterns('',
     url(r'^modificar_cuenta_contable/(?P<pk>.+)/$',(ModificarCuentaContable.as_view()), name="modificar_cuenta_contable"),
     url(r'^modificar_impuesto/(?P<pk>.+)/$',(ModificarImpuesto.as_view()), name="modificar_impuesto"),
     url(r'^modificar_configuracion/(?P<pk>.+)/$',(ModificarConfiguracion.as_view()), name="modificar_configuracion"),
-    url(r'^maestro_cuentas_contables_excel/$',(ReporteExcelCuentasContables.as_view()), name="maestro_cuentas_contables_excel"),    
+    url(r'^maestro_cuentas_contables_excel/$',(ReporteExcelCuentasContables.as_view()), name="maestro_cuentas_contables_excel"), 
+    url(r'^reporte_consolidado_cuentas_contables_almacen_excel/$', (ReporteConsolidadoCuentasContablesAlmacenExcel.as_view()), name="reporte_consolidado_cuentas_contables_almacen_excel"),   
 )

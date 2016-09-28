@@ -10,7 +10,7 @@ from almacen.views import CrearAlmacen, CrearTipoStock, ReporteExcelKardexProduc
     ReporteExcelAlmacenes, ModificarIngresoAlmacen,ModificarSalidaAlmacen, VerificarPideReferencia, ReporteExcelTiposMovimientos, CrearPedido,\
     CargarAlmacenes, CargarInventarioInicial, CrearDetallePedido,ModificarPedido, ListadoPedidos, AprobarPedido, ListadoAprobacionPedidos, VerificarStockParaPedido,\
     DetalleOperacionPedido, DetalleOperacionMovimiento, ReporteExcelStock,\
-    ListadoIngresos, ListadoSalidas
+    ListadoIngresos, ListadoSalidas, ReporteConsolidadoKardexExcel
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -50,6 +50,7 @@ urlpatterns = patterns('',
     url(r'^movimiento_pdf/(?P<id_movimiento>.+)/$', login_required(ReportePDFMovimiento.as_view()), name="movimiento_pdf"),
     url(r'^reporte_stock/$',login_required(ReporteStock.as_view()), name="reporte_stock"),
     url(r'^reporte_kardex/$',login_required(ReporteExcelKardex.as_view()), name="reporte_kardex"),
+    url(r'^reporte_consolidado_kardex/$',login_required(ReporteConsolidadoKardexExcel.as_view()), name="reporte_consolidado_kardex"),
     url(r'^eliminar_movimiento/$',login_required(EliminarMovimiento.as_view()), name="eliminar_movimiento"),
     url(r'^eliminar_almacen/$',login_required(EliminarAlmacen.as_view()), name="eliminar_almacen"),
     url(r'^detalle_almacen/(?P<pk>.+)/$', login_required(DetalleAlmacen.as_view()), name="detalle_almacen"),
