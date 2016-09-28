@@ -29,10 +29,7 @@
 		    </li>
 		    <li>
 		    	<a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
-			    <ul class="nav nav-second-level">
-			    	{% if perms.almacen.ver_tabla_movimientos %}
-			   		<li><a href="{% url 'contabilidad:reporte_consolidado_cuentas_contables_almacen_excel' %}">Reporte Consolidado Cuentas Contables Almacén</a></li>
-			   		{% endif %}
+			    <ul class="nav nav-second-level">			    	
 				</ul>
 		    </li>
     	</ul>	               
