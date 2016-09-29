@@ -1,0 +1,1 @@
+web: gunicorn tambox.wsgiheroku --log-file -

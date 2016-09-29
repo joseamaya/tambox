@@ -1,0 +1,17 @@
+dj-database-url==0.4.0
+gunicorn==19.4.5
+whitenoise==2.0.6
+Django==1.8
+django-simple-history==1.8.1
+et-xmlfile==1.0.1
+jdcal==1.2
+openpyxl==2.3.4
+Pillow==3.2.0
+psycopg2==2.6.1
+reportlab==3.3.0
+simplejson==3.8.2
+suds==0.4
+wheel==0.26.0
+django-model-utils==2.5
+django-extensions
+django-suit==0.2.18
