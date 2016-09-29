@@ -101,11 +101,14 @@ class CargarGrupoProductos(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            cuenta = CuentaContable.objects.get(cuenta=fila[0])
-            descripcion = fila[1] 
-            grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=unicode(descripcion, errors='ignore'),
-                                                                           defaults={'ctacontable' : cuenta
-                                                                                    })           
+            try:
+                cuenta = CuentaContable.objects.get(cuenta=fila[0])
+                descripcion = fila[1] 
+                grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=unicode(descripcion, errors='ignore'),
+                                                                               defaults={'ctacontable' : cuenta
+                                                                                        })
+            except CuentaContable.DoesNotExist:
+                pass                       
         return HttpResponseRedirect(reverse('productos:grupos_productos'))
         
 class CargarServicios(FormView):
@@ -139,20 +142,20 @@ class CargarProductos(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            grupo = GrupoProductos.objects.get(codigo = fila[0])
+            grupo = GrupoProductos.objects.get(codigo = fila[0].strip())
             cod_und = fila[2][0:5]
             und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
                                                              defaults={'codigo': cod_und,
-                                                                       'descripcion' : fila[2]})            
+                                                                       'descripcion' : fila[2].strip()})            
             if fila[3]<>'':
                 precio = fila[3]
             else:
                 precio = 0             
-            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1], errors='ignore'),
+            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
                                                               defaults={'unidad_medida' : und,
                                                                         'grupo_productos' : grupo,
                                                                         'precio' : precio,
-                                                                        'desc_abreviada' : unicode(fila[4], errors='ignore')})           
+                                                                        'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})           
         return HttpResponseRedirect(reverse('productos:productos'))        
         
 class CrearGrupoProductos(CreateView):
