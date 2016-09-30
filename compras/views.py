@@ -247,11 +247,15 @@ class CrearOrdenCompra(CreateView):
         if not formas_pago:
             return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
-            form_class = self.get_form_class()
-            form = self.get_form(form_class)
-            detalle_orden_compra_formset=DetalleOrdenCompraFormSet()
-            return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_orden_compra_formset=detalle_orden_compra_formset))
+            try:
+                Configuracion.objects.first()
+                form_class = self.get_form_class()
+                form = self.get_form(form_class)
+                detalle_orden_compra_formset=DetalleOrdenCompraFormSet()
+                return self.render_to_response(self.get_context_data(form=form,
+                                                                     detalle_orden_compra_formset=detalle_orden_compra_formset))
+            except Configuracion.DoesNotExist:
+                return HttpResponseRedirect(reverse('contabilidad:configuracion'))            
         
     def post(self, request, *args, **kwargs):
         self.object = None
