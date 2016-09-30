@@ -36,6 +36,7 @@ class GrupoProductos(TimeStampedModel):
     codigo = models.CharField(primary_key=True,max_length=6)
     descripcion = models.CharField(max_length=100)
     ctacontable = models.ForeignKey(CuentaContable)
+    son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
     
     class Meta:

@@ -1219,8 +1219,7 @@ class ReporteConsolidadoGruposKardexExcel(FormView):
         anio = request.POST['anios']
         almacen = request.POST['almacenes']
         Kardex
-        grupos = GrupoProductos.objects.filter(estado = True)
-        productos = Kardex.objects.filter(almacen__codigo=almacen).order_by('producto').distinct('producto__codigo')
+        grupos = GrupoProductos.objects.filter(estado = True, son_productos=True)        
         wb = Workbook()
         ws = wb.active
         ws['B1'] = u'Almacén: '+ almacen

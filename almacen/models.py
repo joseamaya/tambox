@@ -11,6 +11,7 @@ from django.core.mail.message import EmailMessage
 from django.utils.translation import gettext as _
 from requerimientos.models import DetalleRequerimiento
 from productos.models import Producto
+from almacen.mail import correo_creacion_pedido
 
 class DetalleMovimientoManager(models.Manager):
     
@@ -167,31 +168,6 @@ class Pedido(TimeStampedModel):
     def __str__(self):
         return self.codigo
     
-    def enviar_correo_logistica(self):
-        remitente = 'correo@dominio'
-        puesto_jefe_logistica = Puesto.objects.get(oficina__codigo="ULOG",es_jefatura=True,estado=True)
-        jefe_logistica = puesto_jefe_logistica.trabajador
-        destinatario = [jefe_logistica.usuario.email]
-        asunto = u'TAMBOX - Pedido Pendiente de Aprobar - Logística'
-        cuerpo = u'''Tiene un pedido pendiente de aprobar:\n
-        Nro: %s \n
-        Solicitante: %s \n
-        Fecha: %s \n
-        Por favor ingrese a TAMBOX para hacer la aprobación correspondiente.\n
-        http://IP/tambox \n
-        Saludos. 
-        ''' % (self.codigo, self.solicitante.nombre_completo(),self.fecha.strftime('%d/%m/%Y'))
-        self.enviar_correo(remitente, destinatario, asunto, cuerpo)
-        
-    def enviar_correo(self,remitente, destinatario, asunto, cuerpo):
-        email = EmailMessage()
-        email.from_email = remitente
-        email.subject = asunto
-        email.body = cuerpo
-        email.to = destinatario
-        email.bcc = ['copia@dominio']
-        email.send()
-    
     def save(self, *args, **kwargs):
         if self.codigo == '':
             anio = self.fecha.year
@@ -204,7 +180,10 @@ class Pedido(TimeStampedModel):
             correlativo = str(aux).zfill(6)
             codigo = 'PE'+str(anio)+correlativo
             self.codigo = codigo
-            self.enviar_correo_logistica()
+            puesto_jefe_logistica = Puesto.objects.get(oficina__codigo="ULOG",es_jefatura=True,estado=True)
+            jefe_logistica = puesto_jefe_logistica.trabajador
+            destinatario = [jefe_logistica.usuario.email]
+            correo_creacion_pedido(destinatario,self)
             super(Pedido, self).save()            
         else:            
             super(Pedido, self).save()
@@ -212,7 +191,7 @@ class Pedido(TimeStampedModel):
 class DetallePedido(TimeStampedModel):
     nro_detalle = models.IntegerField()
     pedido = models.ForeignKey(Pedido)
-    #producto = models.ForeignKey(Producto, null=True)
+    producto = models.ForeignKey(Producto, null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),

@@ -1,7 +1,11 @@
+=\=\=\=\=\=\=
+<<<<<<<=HEAD
+>>>>>>>=branch 'master' of https\://github.com/joseamaya/tambox
 eclipse.preferences.version=1
 encoding//administracion/forms.py=utf-8
 encoding//administracion/views.py=utf-8
 encoding//almacen/forms.py=utf-8
+encoding//almacen/mail.py=utf-8
 encoding//almacen/models.py=utf-8
 encoding//almacen/views.py=utf-8
 encoding//compras/forms.py=utf-8
@@ -13,12 +17,10 @@ encoding//contabilidad/views.py=utf-8
 encoding//productos/forms.py=utf-8
 encoding//productos/views.py=utf-8
 encoding//requerimientos/forms.py=utf-8
+encoding//requerimientos/mail.py=utf-8
 encoding//requerimientos/models.py=utf-8
 encoding//requerimientos/views.py=utf-8
-<<<<<<< HEAD
 encoding//templates/almacen/detalle_movimiento.html=UTF-8
-=======
->>>>>>> branch 'master' of https://github.com/joseamaya/tambox
 encoding//templates/almacen/detalle_pedido.html=UTF-8
 encoding//templates/almacen/ingreso_almacen.html=UTF-8
 encoding//templates/almacen/registrar_ingreso_almacen.html=UTF-8

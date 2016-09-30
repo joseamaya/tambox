@@ -34,8 +34,6 @@ class Tablero(View):
                                                                    defaults = {'descripcion':'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
-        if creado:
-            lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         if cant_productos == 0:
             lista_notificaciones.append("No se ha creado ningún producto")
         if cant_tipos_unidad_medida == 0:
@@ -121,10 +119,10 @@ class CargarServicios(FormView):
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        try:
-            grupo = GrupoProductos.objects.get(descripcion = 'SERVICIOS')
-            for fila in dataReader:            
-                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[0], errors='ignore'),
+        try:            
+            for fila in dataReader:
+                grupo = GrupoProductos.objects.get(codigo = fila[0].strip()) 
+                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1], errors='ignore'),
                                                                   defaults={'grupo_productos' : grupo,
                                                                             'es_servicio' : True})                                    
             return HttpResponseRedirect(reverse('productos:servicios'))
