@@ -26,7 +26,7 @@ class GrupoProductosForm(forms.ModelForm):
 
     class Meta:
         model = GrupoProductos
-        fields = ['descripcion','ctacontable']        
+        fields = ['descripcion','ctacontable','son_productos']        
 
 class ProductoForm(forms.ModelForm):
 

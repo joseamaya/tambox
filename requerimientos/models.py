@@ -6,8 +6,8 @@ from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Trabajador, Oficina, Puesto
-from django.core.mail.message import EmailMessage
 from productos.models import Producto
+from requerimientos.mail import correo_creacion_requerimiento
 
 # Create your models here.
 class Requerimiento(TimeStampedModel):
@@ -49,22 +49,6 @@ class Requerimiento(TimeStampedModel):
                        ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'),
                        ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento'),)
     
-    @property
-    def asunto(self):
-        return u'Tambox - Requerimiento Pendiente de Aprobar'
-    
-    @property
-    def cuerpo(self):
-        texto = u'''Tiene un requerimiento pendiente de aprobar:\n
-        Nro: %s \n
-        Solicitante: %s \n
-        Fecha: %s \n
-        Por favor ingrese a Tambox para hacer la aprobación correspondiente.\n
-        http://IP/tambox \n
-        Saludos. 
-        ''' % (self.codigo, self.solicitante.nombre_completo(),self.created.strftime('%d/%m/%Y'))
-        return texto
-
     def anterior(self):
         try:
             sig = Requerimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
@@ -117,20 +101,11 @@ class Requerimiento(TimeStampedModel):
             puesto_jefe = Puesto.objects.get(oficina=self.oficina,es_jefatura=True,estado=True)
             jefe = puesto_jefe.trabajador
             destinatario = [jefe.usuario.email]
-            #self.enviar_correo(destinatario)
+            correo_creacion_requerimiento(destinatario,self)
             super(Requerimiento, self).save()
             AprobacionRequerimiento.objects.create(requerimiento = self)
         else:
             super(Requerimiento, self).save()
-        
-    def enviar_correo(self, destinatario):
-        email = EmailMessage()
-        email.from_email = 'correo@dominio'
-        email.subject = self.asunto
-        email.body = self.cuerpo
-        email.to = destinatario
-        email.bcc = ['administrador@dominio']
-        email.send()
             
 class DetalleRequerimiento(TimeStampedModel):
     nro_detalle = models.IntegerField()
