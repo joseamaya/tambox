@@ -65,8 +65,9 @@
 			        </button>
 			        <a class="navbar-brand" href="{% url 'seguridad:inicio' %}">
 						<span class="fa fa-home fa-lg"></span> 
-					</a>					
+					</a>
 					{% if perms.administracion.ver_bienvenida %}
+
 					<a class="navbar-brand" href="{% url 'administracion:tablero' %}">
 						<span class="fa fa-area-chart fa-lg"></span> Administración	
 					</a>
