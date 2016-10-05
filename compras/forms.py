@@ -5,11 +5,6 @@ from contabilidad.models import Tipo, Configuracion
 from django.forms import formsets
 from requerimientos.models import Requerimiento
 
-try:
-    monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
-except:
-    monto_impuesto = 0
-    
 parametros = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 meses = (
     (1, 'ENERO'),
@@ -118,7 +113,7 @@ class OrdenCompraForm(forms.ModelForm):
     razon_social = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     direccion = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
-    impuesto = forms.CharField(widget=forms.HiddenInput(),initial=monto_impuesto)
+    impuesto = forms.CharField(widget=forms.HiddenInput())
     cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
     
     def __init__(self, *args, **kwargs):

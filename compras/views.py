@@ -235,6 +235,11 @@ class CrearOrdenCompra(CreateView):
     
     def get_initial(self):
         initial = super(CrearOrdenCompra, self).get_initial()
+        try:
+            monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
+        except:
+            monto_impuesto = 0
+        initial['impuesto'] = monto_impuesto
         initial['total'] = 0
         initial['subtotal'] = 0
         initial['igv'] = 0
