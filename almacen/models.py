@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Max
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
-from django.utils.encoding import smart_str
+from django.utils.encoding import smart_str, python_2_unicode_compatible
 from administracion.models import Oficina, Trabajador, Puesto
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
@@ -50,6 +50,7 @@ class DetalleMovimientoManager(models.Manager):
         else:
             self.guardar_detalles_sin_referencia(objs)
 
+@python_2_unicode_compatible
 class Almacen(TimeStampedModel):
     codigo = models.CharField(primary_key=True,max_length=4)
     descripcion = models.CharField(max_length=30)

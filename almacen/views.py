@@ -1846,7 +1846,7 @@ class ReportePDFMovimiento(View):
     
     def cabecera(self,pdf,movimiento,y):
         archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 40, y-50, 120, 90,preserveAspectRatio=True)  
+        pdf.drawImage(archivo_imagen, 40, y-50, 100, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         if movimiento.tipo_movimiento.incrementa:
             pdf.drawString(220, y, u"NOTA DE INGRESO N°")
@@ -1954,8 +1954,8 @@ class ReportePDFMovimiento(View):
         pdf.line(70, y-80, 200, y-80)
         pdf.line(390, y-80, 520, y-80)
         pdf.setFont("Times-Roman", 8)
-        pdf.drawString(73, y-90,oficina_administracion.nombre)
-        pdf.drawString(415, y-90,logistica.nombre)
+        pdf.drawCentredString(135, y-90,oficina_administracion.nombre)
+        pdf.drawCentredString(455, y-90,logistica.nombre)
     
     def get(self, request, *args, **kwargs):         
         id_movimiento = kwargs['id_movimiento']
@@ -1970,7 +1970,7 @@ class ReportePDFMovimiento(View):
         y=self.cuadro_total(pdf, y, movimiento)
         y=self.cuadro_observaciones(pdf, y, movimiento)
         self.firmas(y, pdf)
-        pdf.drawString(210, 20,empresa.direccion())            
+        pdf.drawCentredString(300, 20,empresa.direccion())            
         pdf.save()
         pdf = buffer.getvalue()
         buffer.close()

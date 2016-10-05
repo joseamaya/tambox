@@ -7,10 +7,8 @@ from django.views.generic import View
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
-class Inicio(View):
-    
-    def get(self, request, *args, **kwargs):        
-        return render(request,'seguridad/bienvenida.html')
+class Inicio(TemplateView):
+    template_name ='seguridad/bienvenida.html'
     
 class Login(FormView):
     template_name = 'seguridad/login.html'

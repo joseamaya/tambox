@@ -238,7 +238,7 @@ class CrearOrdenCompra(CreateView):
         try:
             monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
         except:
-            monto_impuesto = 0
+            return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['impuesto'] = monto_impuesto
         initial['total'] = 0
         initial['subtotal'] = 0
@@ -314,7 +314,6 @@ class CrearOrdenCompra(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_orden_compra_formset):
-        print detalle_orden_compra_formset
         return self.render_to_response(self.get_context_data(form=form))
 
 class CrearOrdenServicios(CreateView):
@@ -1044,7 +1043,7 @@ class ReportePDFOrdenCompra(View):
     
     def cabecera(self,pdf,orden):
         archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 40, 750, 120, 90,preserveAspectRatio=True)  
+        pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
@@ -1052,7 +1051,7 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° "+orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, "PIURA "+orden.fecha.strftime('%d de %B de %Y'))
+        pdf.drawString(430, 780, empresa.distrito+" "+orden.fecha.strftime('%d de %B de %Y'))
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -1225,7 +1224,7 @@ class ReportePDFOrdenCompra(View):
         pdf.drawString(430, y-250,"Autorizado por")
         pdf.line(70, y-240, 200, y-240)
         pdf.line(390, y-240, 520, y-240)
-        pdf.drawString(210, y-280, empresa.direccion())
+        pdf.drawCentredString(300, y-280, empresa.direccion())
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
