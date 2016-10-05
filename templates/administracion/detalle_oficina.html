@@ -81,44 +81,5 @@
 
 {% endblock cuerpo %} {% block js %}
 <script>
-	$(document).ready(
-			function() {
-				$('#id_eliminar').click(function(e) {
-					e.preventDefault();
-					ventana = $("#dialog-confirm").dialog({
-						resizable : false,
-						height : 140,
-						modal : true,
-						buttons : {
-							"Borrar" : borrarProducto,
-							"Cancelar" : cerrarBorrarProducto
-						}
-					});
-				});
-
-				function borrarProducto() {
-					$.ajax({
-						data : {
-							'codigo' : "{{ object.codigo }}"
-						},
-						url : "{% url 'compras:eliminar_producto' %}",
-						type : 'get',
-						success : function(data) {
-							if (data.relaciones == 'NO') {
-								alert("Producto " + data.descripcion
-										+ " eliminado");
-							} else if (data.relaciones == 'SI') {
-								alert("Producto " + data.descripcion
-										+ " no puede eliminarse");
-							}
-						}
-					});
-					ventana.dialog("close");
-				}
-
-				function cerrarBorrarProducto() {
-					ventana.dialog("close");
-				}
-			});
 </script>
 {% endblock js %}

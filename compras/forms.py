@@ -5,7 +5,10 @@ from contabilidad.models import Tipo, Configuracion
 from django.forms import formsets
 from requerimientos.models import Requerimiento
 
-monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
+try:
+    monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
+except:
+    monto_impuesto = 0
     
 parametros = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 meses = (

@@ -261,6 +261,7 @@ $(document).ready(function()
 			var id_producto = $(this).prop('id');
 			var id = id_producto.replace("producto", "");
 			$("#"+id+"codigo").val(ui.item.codigo);
+			$("#"+id+"nombre").val(ui.item.descripcion);
 			$("#"+id+"unidad").val(ui.item.unidad);
 			return false;
 		  },

@@ -104,8 +104,8 @@ class CargarPuestos(FormView):
                 es_jefatura = False
             try:
                 puesto, creado = Puesto.objects.get_or_create(nombre = unicode(fila[0], errors='ignore'),
-                                                              defaults={'oficina' : Oficina.objects.get(codigo=fila[1]),
-                                                                        'trabajador' : Trabajador.objects.get(dni=fila[2]),
+                                                              defaults={'oficina' : Oficina.objects.get(codigo=fila[1].strip()),
+                                                                        'trabajador' : Trabajador.objects.get(dni=fila[2].strip()),
                                                                         'fecha_inicio' : fecha,
                                                                         'es_jefatura' : es_jefatura})
             except:
@@ -135,7 +135,7 @@ class CrearOficina(CreateView):
         return reverse('administracion:detalle_oficina', args=[self.object.pk])
     
 class CrearTrabajador(CreateView):
-    template_name = 'administracion/crear_trabajador.html'
+    template_name = 'administracion/trabajador.html'
     form_class = TrabajadorForm
     
     @method_decorator(permission_required('administracion.add_trabajador',reverse_lazy('seguridad:permiso_denegado')))
@@ -221,7 +221,7 @@ class ModificarOficina(UpdateView):
     
 class ModificarTrabajador(UpdateView):
     model = Trabajador
-    template_name = 'administracion/modificar_trabajador.html'
+    template_name = 'administracion/trabajador.html'
     form_class = TrabajadorForm    
     
     @method_decorator(permission_required('administracion.change_trabajador',reverse_lazy('seguridad:permiso_denegado')))

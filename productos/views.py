@@ -508,6 +508,3 @@ class ReporteExcelServicios(TemplateView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
-    
-
-    
