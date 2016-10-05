@@ -44,7 +44,8 @@ class Requerimiento(TimeStampedModel):
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     
     class Meta:
-        permissions = (('ver_detalle_requerimiento', 'Puede ver detalle de Requerimiento'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('ver_detalle_requerimiento', 'Puede ver detalle de Requerimiento'),
                        ('ver_tabla_requerimientos', 'Puede ver tabla de Requerimientos'),
                        ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'),
                        ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento'),)

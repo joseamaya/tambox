@@ -57,7 +57,8 @@ class Almacen(TimeStampedModel):
     estado = models.BooleanField(default=True)
     
     class Meta:
-        permissions = (('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'),
                        ('ver_detalle_almacen', 'Puede ver detalle Almacén'),
                        ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'),
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)

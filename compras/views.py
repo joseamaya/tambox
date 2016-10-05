@@ -1046,7 +1046,7 @@ class ReportePDFOrdenCompra(View):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
         except:
-            pdf.drawString(40,750,"SIN LOGO")
+            pdf.drawString(40,800,str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
