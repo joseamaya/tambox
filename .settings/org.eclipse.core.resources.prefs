@@ -3,6 +3,7 @@
 >>>>>>>=branch 'master' of https\://github.com/joseamaya/tambox
 eclipse.preferences.version=1
 encoding//administracion/forms.py=utf-8
+encoding//administracion/models.py=utf-8
 encoding//administracion/views.py=utf-8
 encoding//almacen/forms.py=utf-8
 encoding//almacen/mail.py=utf-8
@@ -15,6 +16,7 @@ encoding//contabilidad/admin.py=utf-8
 encoding//contabilidad/models.py=utf-8
 encoding//contabilidad/views.py=utf-8
 encoding//productos/forms.py=utf-8
+encoding//productos/models.py=utf-8
 encoding//productos/views.py=utf-8
 encoding//requerimientos/forms.py=utf-8
 encoding//requerimientos/mail.py=utf-8

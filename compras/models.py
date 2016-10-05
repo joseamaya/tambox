@@ -307,7 +307,8 @@ class OrdenCompra(TimeStampedModel):
         self.save()
     
     class Meta:
-        permissions = (('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'),
                        ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'),
                        ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'),
                        ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra'),)

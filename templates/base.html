@@ -65,25 +65,37 @@
 			        </button>
 			        <a class="navbar-brand" href="{% url 'seguridad:inicio' %}">
 						<span class="fa fa-home fa-lg"></span> 
-					</a>
+					</a>					
+					{% if perms.administracion.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'administracion:tablero' %}">
 						<span class="fa fa-area-chart fa-lg"></span> Administración	
 					</a>
+					{% endif %}
+					{% if perms.almacen.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'almacen:tablero' %}">
 						<span class="fa fa-building fa-lg"></span> Almacén	
 					</a>
+					{% endif %}
+					{% if perms.compras.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'compras:tablero' %}">
 						<span class="fa fa-shopping-cart fa-lg"></span> Compras	
 					</a>
+					{% endif %}
+					{% if perms.contabilidad.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'contabilidad:tablero' %}">
 						<span class="fa fa-calculator fa-lg"></span> Contabilidad	
 					</a>
+					{% endif %}
+					{% if perms.productos.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'productos:tablero' %}">
 						<span class="fa fa-wrench fa-lg"></span> Productos	
 					</a>
+					{% endif %}
+					{% if perms.requerimientos.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
 						<span class="fa fa-newspaper-o fa-lg"></span> Requerimientos	
-					</a>					
+					</a>
+					{% endif %}											
 			    </div>
 				<ul class="nav navbar-top-links navbar-right">
 					<li class="dropdown">

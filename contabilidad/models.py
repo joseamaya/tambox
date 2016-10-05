@@ -41,7 +41,8 @@ class CuentaContable(TimeStampedModel):
     estado = models.BooleanField(default = True)
     
     class Meta:
-        permissions = (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
                        ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'),
                        ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'),
                        ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel'),)

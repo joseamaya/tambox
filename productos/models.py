@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 from django.db import models
 from model_utils.models import TimeStampedModel
 from contabilidad.models import CuentaContable
@@ -90,7 +91,8 @@ class Producto(TimeStampedModel):
     estado = models.BooleanField(default=True)    
     
     class Meta:
-        permissions = (('cargar_productos', 'Puede cargar Productos desde un archivo externo'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('cargar_productos', 'Puede cargar Productos desde un archivo externo'),
                        ('ver_detalle_producto', 'Puede ver detalle de Productos'),
                        ('ver_tabla_productos', 'Puede ver tabla Productos'),
                        ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'),

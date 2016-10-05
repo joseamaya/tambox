@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*- 
 from django.db import models
 from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
@@ -80,7 +81,8 @@ class Oficina(TimeStampedModel):
     estado = models.BooleanField(default=True)
     
     class Meta:
-        permissions = (('ver_detalle_oficina', 'Puede ver detalle de Oficina'),
+        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('ver_detalle_oficina', 'Puede ver detalle de Oficina'),
                        ('ver_tabla_oficinas', 'Puede ver tabla de Oficinas'),
                        ('ver_reporte_oficinas_excel', 'Puede ver Reporte de Oficinas en excel'),)
         ordering = ['nombre']
