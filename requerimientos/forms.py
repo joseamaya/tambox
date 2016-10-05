@@ -105,4 +105,4 @@ class RequerimientoForm(forms.ModelForm):
         model = Requerimiento
         fields =['codigo','motivo','mes','observaciones','informe','entrega_directa_solicitante'] 
         
-DetalleRequerimientoFormSet = formsets.formset_factory(FormularioDetalleRequerimiento, BaseDetalleRequerimientoFormSet)
+DetalleRequerimientoFormSet = formsets.formset_factory(FormularioDetalleRequerimiento, BaseDetalleRequerimientoFormSet, 0)

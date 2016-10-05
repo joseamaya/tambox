@@ -1,9 +1,9 @@
 {% extends "administracion/base_administracion.html" %} 
 {% block cuerpo %}
 {% if object %}
-<h3>Trabajadores / Nuevo</h3>
-{% else %}
 <h3>Trabajadores / {{ object.nombre_completo }}</h3>
+{% else %}
+<h3>Trabajadores / Nuevo</h3>
 {% endif %}
 <form role="form" action="#" method="post" enctype="multipart/form-data">
 	{% csrf_token %}

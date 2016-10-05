@@ -6,11 +6,11 @@
 			<li>
 		        <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
 		        <ul class="nav nav-second-level">
+		        	{% if perms.contabilidad.add_configuracion %}		
+		            <li><a href="{% url 'contabilidad:configuracion' %}">Configuración</a></li>
+		            {% endif %}	
 		        	{% if perms.contabilidad.ver_tabla_cuentas_contables %}
 		            <li><a href="{% url 'contabilidad:cuentas_contables' %}">Cuentas Contables</a></li>
-		            {% endif %}
-		            {% if perms.contabilidad.ver_tabla_tipos_documentos %}
-		            <li><a href="{% url 'contabilidad:tipos_documentos' %}">Tipos de Documentos</a></li>
 		            {% endif %}
 		            {% if perms.contabilidad.ver_tabla_formas_pago %} 
 			   		<li><a href="{% url 'contabilidad:formas_pago' %}">Formas de Pago</a></li>
@@ -18,7 +18,10 @@
 		            {% if perms.contabilidad.ver_tabla_impuestos %}
 		            <li><a href="{% url 'contabilidad:impuestos' %}">Impuestos</a></li>
 		            {% endif %}
-		            <li><a href="{% url 'contabilidad:configuracion' %}">Configuración</a></li>		            
+		            {% if perms.contabilidad.ver_tabla_tipos_documentos %}
+		            <li><a href="{% url 'contabilidad:tipos_documentos' %}">Tipos de Documentos</a></li>
+		            {% endif %}		            
+		            	                        
 		        </ul>	                
 		    </li>			    
 		    <li>

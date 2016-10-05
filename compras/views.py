@@ -40,7 +40,7 @@ from django.contrib import messages
 from contabilidad.models import Configuracion, Empresa
 from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
-from productos.models import Producto
+from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
 
 locale.setlocale(locale.LC_ALL,"")
@@ -50,9 +50,25 @@ class Tablero(View):
     
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_proveedores = Proveedor.objects.count()
+        cant_proveedores = Proveedor.objects.count()        
+        cant_productos = Producto.objects.filter(es_servicio=False).count()
+        cant_tipos_unidad_medida = UnidadMedida.objects.count()
+        cant_grupos_suministros = GrupoProductos.objects.count()
+        cant_servicios = Producto.objects.filter(es_servicio=True).count()
+        unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo = 'SERV',
+                                                                   defaults = {'descripcion':'SERVICIO'})
         if cant_proveedores == 0:
             lista_notificaciones.append("No se ha creado ningún proveedor")
+        if creado:
+            lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
+        if cant_productos == 0:
+            lista_notificaciones.append("No se ha creado ningún producto")
+        if cant_tipos_unidad_medida == 0:
+            lista_notificaciones.append("No se ha creado ningún tipo de unidad de medida")
+        if cant_grupos_suministros == 0:
+            lista_notificaciones.append("No se ha creado ningún grupo de productos")
+        if cant_servicios == 0:
+            lista_notificaciones.append("No se ha creado ningún servicio")
         context = {'notificaciones':lista_notificaciones}
         return render(request, 'compras/tablero_compras.html', context)
     
@@ -333,7 +349,7 @@ class CrearOrdenServicios(CreateView):
         self.object = None
         formas_pago = FormaPago.objects.all().order_by('descripcion')        
         if not formas_pago:
-            return HttpResponseRedirect(reverse('compras:crear_forma_pago'))
+            return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)

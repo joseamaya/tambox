@@ -84,9 +84,30 @@ class AprobarRequerimiento(UpdateView):
         kwargs['request'] = self.request
         return kwargs
     
-class CrearDetalleRequerimiento(FormView):
-    template_name = 'requerimientos/crear_detalle_requerimiento.html'
-    form_class = FormularioDetalleRequerimiento
+class CrearDetalleRequerimiento(FormView):    
+        
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            lista_detalles = []            
+            det = {}
+            det['codigo'] = ''               
+            det['producto'] = ''                    
+            det['unidad'] = ''
+            det['cantidad'] = '0'
+            det['uso'] = '0'
+            lista_detalles.append(det)
+            formset = DetalleRequerimientoFormSet(initial=lista_detalles)
+            lista_json = []
+            for form in formset:
+                detalle_json = {}    
+                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['producto'] = str(form['producto'])
+                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['cantidad'] = str(form['cantidad'])
+                detalle_json['uso'] = str(form['uso'])
+                lista_json.append(detalle_json)                                
+            data = json.dumps(lista_json)
+            return HttpResponse(data, 'application/json')
 
 class CrearRequerimiento(CreateView):
     template_name = 'requerimientos/requerimiento.html'

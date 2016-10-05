@@ -65,8 +65,9 @@
 			        </button>
 			        <a class="navbar-brand" href="{% url 'seguridad:inicio' %}">
 						<span class="fa fa-home fa-lg"></span> 
-					</a>					
+					</a>
 					{% if perms.administracion.ver_bienvenida %}
+
 					<a class="navbar-brand" href="{% url 'administracion:tablero' %}">
 						<span class="fa fa-area-chart fa-lg"></span> Administración	
 					</a>
@@ -85,12 +86,7 @@
 					<a class="navbar-brand" href="{% url 'contabilidad:tablero' %}">
 						<span class="fa fa-calculator fa-lg"></span> Contabilidad	
 					</a>
-					{% endif %}
-					{% if perms.productos.ver_bienvenida %}
-					<a class="navbar-brand" href="{% url 'productos:tablero' %}">
-						<span class="fa fa-wrench fa-lg"></span> Productos	
-					</a>
-					{% endif %}
+					{% endif %}					
 					{% if perms.requerimientos.ver_bienvenida %}
 					<a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
 						<span class="fa fa-newspaper-o fa-lg"></span> Requerimientos	

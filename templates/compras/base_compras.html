@@ -6,9 +6,21 @@
 			<li>
 		        <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
 		        <ul class="nav nav-second-level">
-		        	{% if perms.compras.ver_tabla_proveedores %}
+		        	{% if perms.productos.ver_tabla_grupos_productos %}
+			   		<li><a href="{% url 'productos:grupos_productos' %}">Grupos de Productos</a></li>
+			   		{% endif %}
+			   		{% if perms.compras.ver_tabla_proveedores %}			   		
 			   		<li><a href="{% url 'compras:proveedores' %}">Proveedores</a></li>
-			   		{% endif %}			   					   		
+			   		{% endif %}	
+		        	{% if perms.productos.ver_tabla_productos %}
+			   		<li><a href="{% url 'productos:productos' %}">Productos</a></li>
+			   		{% endif %}
+		            {% if perms.productos.ver_tabla_productos %}
+		            <li><a href="{% url 'productos:servicios' %}">Servicios</a></li>
+		            {% endif %}
+			   		{% if perms.productos.ver_tabla_unidades_medida %}
+		            <li><a href="{% url 'productos:unidades_medida' %}">Unidades de Medida</a></li>
+		            {% endif %}			        			   					   		
 		        </ul>	                
 		    </li>			    
 		    <li>
