@@ -35,7 +35,7 @@
 			</thead>							
 			<tbody>
 			{% for orden_compra in ordenes_compra %}
-				{% if perms.compras.ver_detalle_requerimiento %}
+				{% if perms.compras.ver_detalle_orden_compra %}
 				<tr onclick="location.href='{% url 'compras:detalle_orden_compra' orden_compra.pk %}';">
 				{% else %}
 				<tr>

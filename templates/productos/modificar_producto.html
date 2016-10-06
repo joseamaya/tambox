@@ -1,4 +1,5 @@
-{% extends "productos/base_productos.html" %} {% block cuerpo %}
+{% extends "compras/base_productos.html" %} 
+{% block cuerpo %}
 <h3>Productos / {{ object.descripcion }}</h3>
 <form role="form" action="{% url 'productos:modificar_producto' producto.pk %}" method="post">
 	{% csrf_token %}
