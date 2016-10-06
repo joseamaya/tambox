@@ -225,7 +225,8 @@
 			</div>
 			<div class="row">
 				<div class="col-lg-12">
-					<label>OBSERVACIONES:</label> {{ form.observaciones }}
+					<label>OBSERVACIONES:</label> 
+					{{ form.observaciones }}
 				</div>
 			</div>
 		</div>
@@ -237,9 +238,7 @@
 <script>
 $(document).ready(function() 
 {
-	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());
-	$("#id_fecha").datepicker();
-	$("#fecha_necesita").datepicker();
+	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
 	
 	$('#id_crear_detalle').click(function(e)
 		{
@@ -251,7 +250,7 @@ $(document).ready(function()
 				{
 					$.each(data, function(i,item){
 						$("#detalles tbody").append( 
-							"<tr class='detalle_requerimiento_formset'>" +
+						"<tr class='detalle_requerimiento_formset'>" +
 							"<td>" + item.codigo + "</td>" +
 							"<td>" + item.producto + "</td>" +
 							"<td>" + item.unidad + "</td>" +
@@ -325,6 +324,19 @@ $(document).ready(function()
 
 		return control_ceros;
 	}	
+	
+	$("form").submit(function(event) 
+	{
+		if (contDetalles > 0)
+		{
+			return;	
+		}
+		else
+		{
+			alert("No ha ingresado ningún detalle");	
+		}
+		event.preventDefault();
+	});	
 });
 </script>
 {% endblock js %}

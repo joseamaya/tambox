@@ -94,7 +94,7 @@ class CrearDetalleRequerimiento(FormView):
             det['producto'] = ''                    
             det['unidad'] = ''
             det['cantidad'] = '0'
-            det['uso'] = '0'
+            det['uso'] = ''
             lista_detalles.append(det)
             formset = DetalleRequerimientoFormSet(initial=lista_detalles)
             lista_json = []
@@ -127,8 +127,9 @@ class CrearRequerimiento(CreateView):
         try:
             trabajador = request.user.trabajador
             try:
-                Puesto.objects.get(trabajador=trabajador)
+                puesto = Puesto.objects.get(trabajador=trabajador)
                 if trabajador.firma:
+                    puesto_jefe = Puesto.objects.get(oficina=puesto.oficina,es_jefatura=True,estado=True)
                     configuracion = Configuracion.objects.first()
                     if configuracion is not None:
                         form_class = self.get_form_class()
@@ -408,7 +409,7 @@ class ReportePDFRequerimiento(View):
     
     def cabecera(self,pdf,requerimiento):
         archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 20, 750, 120, 90,preserveAspectRatio=True)  
+        pdf.drawImage(archivo_imagen, 20, 750, 100, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"REQUERIMIENTO DE BIENES Y SERVICIOS"]]
         tabla_encabezado = Table(encabezado,colWidths=[8 * cm])

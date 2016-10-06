@@ -55,7 +55,7 @@ function validar_numeros(event)
 function updateFormElementIndices(formClass) {
   var forms = $('.' + formClass);	  
   forms.each(function(i, el) {
-	  $(el).find("td input, button").each(function(ind,elem) {
+	  $(el).find("td input, button, textarea").each(function(ind,elem) {
 		  var curIndex = $(elem).attr('id').match(/\d+/);
 		  $(elem).attr('id', $(elem).attr('id').replace(curIndex, i));
 		  $(elem).attr('name', $(elem).attr('name').replace(curIndex, i));
