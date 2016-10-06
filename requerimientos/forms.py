@@ -76,9 +76,8 @@ class FormularioDetalleRequerimiento(forms.Form):
     uso = forms.CharField(required=False,widget= forms.Textarea(attrs={'cols': 30, 'rows': 2}))
     
     def clean_cantidad(self):
-        print "Está validando"
         if not self.cleaned_data.get('cantidad'):
-            raise ValidationError("Invalid email address.")
+            raise ValidationError("La cantidad no es válida.")
         return self.cleaned_data['cantidad']
     
 class RequerimientoForm(forms.ModelForm):

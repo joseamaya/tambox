@@ -1254,12 +1254,12 @@ class ReportePDFOrdenCompra(View):
 class ReportePDFOrdenServicios(View):  
     
     def cabecera(self,pdf,orden):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 40, 750, 120, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. N° RUC")
+        pdf.drawString(455, 800, u"R.U.C. " + empresa.ruc)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°"+orden.codigo)
         pdf.setFont("Times-Roman", 10)
@@ -1294,7 +1294,7 @@ class ReportePDFOrdenServicios(View):
         detalles = []
         cont = 0
         for detalle in DetalleOrdenServicios.objects.filter(orden=orden):
-            descripcion = detalle.servicio.descripcion+'-'+detalle.descripcion
+            descripcion = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion+'-'+detalle.detalle_cotizacion.detalle_requerimiento.uso
             if len(descripcion)>58:
                 cont = cont + 1
             detalles.append((detalle.nro_detalle, detalle.cantidad, Paragraph(descripcion,p), detalle.precio,detalle.valor))
@@ -1438,7 +1438,7 @@ class ReportePDFOrdenServicios(View):
         pdf.drawString(430, y-250,"Autorizado por")
         pdf.line(70, y-240, 200, y-240)
         pdf.line(390, y-240, 520, y-240)
-        pdf.drawString(210, y-280,"DIRECCION")
+        pdf.drawCentredString(300, y-280, empresa.direccion())
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
@@ -1449,7 +1449,7 @@ class ReportePDFOrdenServicios(View):
 class ReportePDFMemorandoConformidadServicio(View):  
     
     def cabecera(self,pdf,conformidad):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 40, 750, 100, 70,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(130, 750, u"MEMORANDO DE CONFORMIDAD DEL SERVICIO")
@@ -1525,7 +1525,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         self.firma(pdf, 330, y-50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y-40)
         self.firma(pdf, 130, y-150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y-140)
         self.firma(pdf, 350, y-150, "UNIDAD DE LOGÍSTICA", 320, 470, y-140)
-        pdf.drawString(210, y-280,"DIRECCION")
+        pdf.drawCentredString(300, y-280, empresa.direccion())
         pdf.showPage()    
         pdf.save()
         pdf = buffer.getvalue()
@@ -1536,7 +1536,7 @@ class ReportePDFMemorandoConformidadServicio(View):
 class ReportePDFSolicitudCotizacion(View):
     
     def cabecera(self,pdf,cotizacion):
-        archivo_imagen = settings.MEDIA_ROOT+'/imagenes/logo_empresa.jpg'
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
         pdf.drawImage(archivo_imagen, 20, 750, 120, 90,preserveAspectRatio=True)  
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"SOLICITUD DE COTIZACIÓN"]]

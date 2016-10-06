@@ -226,23 +226,17 @@ class BusquedaProductosAlmacen(TemplateView):
         if request.is_ajax():
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
-            print descripcion
-            print almacen
             control_productos = ControlProductoAlmacen.objects.filter(almacen__codigo=almacen,producto__descripcion__icontains = descripcion)[:20]    
             lista_productos = []
             for control in control_productos:
-                print control.producto.descripcion
                 producto_json = {}                
                 producto_json['label'] = control.producto.descripcion
                 producto_json['codigo'] = control.producto.codigo
                 producto_json['descripcion'] = control.producto.descripcion
                 producto_json['unidad'] = control.producto.unidad_medida.descripcion
                 producto_json['precio'] = str(control.precio)
-                print producto_json
                 lista_productos.append(producto_json)                            
-            print lista_productos
             data = json.dumps(lista_productos)
-            print data
             return HttpResponse(data, 'application/json')
 
 class CargarAlmacenes(FormView):
@@ -1085,7 +1079,6 @@ class RegistrarIngresoAlmacen(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_ingreso_formset):
-        print detalle_ingreso_formset
         return self.render_to_response(self.get_context_data(form=form))
         
 class RegistrarSalidaAlmacen(CreateView):
