@@ -308,7 +308,7 @@ class CargarInventarioInicial(FormView):
             DetalleMovimiento.objects.bulk_create(detalles,None)
             movimiento.total = total
             movimiento.save()
-        return HttpResponseRedirect(reverse('almacen:modificar_movimiento', args=[movimiento.id_movimiento]))
+        return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[movimiento.id_movimiento]))
     
 class CrearTipoMovimiento(CreateView):
     template_name = 'almacen/crear_tipo_movimiento.html'

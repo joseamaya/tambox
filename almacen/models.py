@@ -40,7 +40,6 @@ class DetalleMovimientoManager(models.Manager):
     def guardar_detalles_sin_referencia(self, objs):
         cont = 1
         for detalle in objs:
-            print "Detalle:" + str(cont) + "Producto:" + str(detalle.producto) 
             detalle.save()
             cont = cont + 1
         
@@ -366,7 +365,6 @@ class DetalleMovimiento(TimeStampedModel):
             defaults={'stock': kardex.cantidad_total,'precio':precio_control}
         )
         super(DetalleMovimiento, self).save()
-        print kardex
         kardex.save()        
 
     class Meta:

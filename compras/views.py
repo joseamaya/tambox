@@ -5,7 +5,7 @@ from compras.models import Proveedor, OrdenCompra, FormaPago, DetalleOrdenCompra
     DetalleOrdenServicios, ConformidadServicio,\
     DetalleConformidadServicio, DetalleCotizacion, Cotizacion
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from compras.forms import ProveedorForm, DetalleOrdenCompraForm,FormularioReporteOrdenesCompraFecha, DetalleOrdenServicioForm, \
+from compras.forms import ProveedorForm, FormularioReporteOrdenesCompraFecha, DetalleOrdenServicioForm, \
     DetalleCotizacionForm, CotizacionForm, OrdenCompraForm,\
     OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet,\
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet
@@ -43,7 +43,7 @@ from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
 
-locale.setlocale(locale.LC_ALL,"")
+#locale.setlocale(locale.LC_ALL,"es_PE.UTF-8")
 empresa = Empresa.load()
 
 class Tablero(View):
@@ -1062,7 +1062,7 @@ class ReportePDFOrdenCompra(View):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
         except:
-            pdf.drawString(40,800,str(archivo_imagen))
+            pdf.drawString(40,800,str(""))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
