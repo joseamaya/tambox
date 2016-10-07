@@ -43,6 +43,7 @@
 					<p>{{ object.get_estado_display }}</p>
 				</div>
 			</div>
+			{% if object.cotizacion %}
 			<div class="row">
 				<div class="col-md-2">
 					<label>RUC:</label>  
@@ -56,7 +57,23 @@
 					<label>DIRECCIÓN:</label>  
 					<p>{{ object.cotizacion.proveedor.direccion }}</p>
 				</div>							
+			</div>
+			{% else %}
+			<div class="row">
+				<div class="col-md-2">
+					<label>RUC:</label>  
+					<p>{{ object.proveedor.ruc }}</p>
+				</div>
+				<div class="col-md-4">
+					<label>Razón Social:</label>  
+					<p>{{ object.proveedor.razon_social }}</p>
+				</div>
+				<div class="col-md-6">	
+					<label>DIRECCIÓN:</label>  
+					<p>{{ object.proveedor.direccion }}</p>
+				</div>							
 			</div>						
+			{% endif %}
 			<div class="row">
 				<div class="col-md-2">			
 					<label>FECHA:</label> 
