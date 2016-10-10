@@ -3,7 +3,7 @@
 <h3>Cuentas Contables</h3>
 <div class="row">					
 	<div class="col-lg-10">	
-		{% if perms.contabilidad.add_cuenta_contable %}
+		{% if perms.contabilidad.add_cuentacontable %}
 		<a href="{% url 'contabilidad:crear_cuenta_contable' %}" class="btn btn-primary">Crear</a>												
 		{% endif %}
 		{% if perms.contabilidad.cargar_cuentas_contables %}

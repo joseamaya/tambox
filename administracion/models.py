@@ -26,6 +26,7 @@ class Profesion(TimeStampedModel):
     
     class Meta:
         permissions = (('ver_detalle_profesion', 'Puede ver detalle de Profesion'),
+                       ('cargar_profesiones', 'Puede cargar profesiones desde un archivo externo'),
                        ('ver_tabla_profesiones', 'Puede ver tabla de Profesiones'),
                        ('ver_reporte_profesiones_excel', 'Puede ver Reporte de Profesiones en excel'),)
         ordering = ['descripcion']
@@ -69,6 +70,7 @@ class Trabajador(TimeStampedModel):
     
     class Meta:
         permissions = (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'),
+                       ('cargar_trabajadores', 'Puede cargar trabajadores desde un archivo externo'),
                        ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'),
                        ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel'),)
         ordering = ['dni']
@@ -82,6 +84,7 @@ class Oficina(TimeStampedModel):
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
+                       ('cargar_oficinas', 'Puede cargar oficinas desde un archivo externo'),
                        ('ver_detalle_oficina', 'Puede ver detalle de Oficina'),
                        ('ver_tabla_oficinas', 'Puede ver tabla de Oficinas'),
                        ('ver_reporte_oficinas_excel', 'Puede ver Reporte de Oficinas en excel'),)
@@ -129,6 +132,7 @@ class Puesto(TimeStampedModel):
     
     class Meta:
         permissions = (('ver_detalle_puesto', 'Puede ver detalle de Puesto'),
+                       ('cargar_puestos', 'Puede cargar puestos desde un archivo externo'),
                        ('ver_tabla_puestos', 'Puede ver tabla de Puestos'),
                        ('ver_reporte_puestos_excel', 'Puede ver Reporte de Puestos en excel'),)
         ordering = ['nombre']
