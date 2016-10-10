@@ -41,7 +41,8 @@ class GrupoProductos(TimeStampedModel):
     estado = models.BooleanField(default=True)
     
     class Meta:
-        permissions = (('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'),
+        permissions = (('cargar_grupo_productos', 'Puede cargar Grupos de Productos desde un archivo externo'),
+                       ('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'),
                        ('ver_tabla_grupos_productos', 'Puede ver tabla Grupos de Productos'),
                        ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel'),)
 
@@ -72,8 +73,6 @@ class GrupoProductos(TimeStampedModel):
 
     def __str__(self):
         return self.descripcion
-    
-
 
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)

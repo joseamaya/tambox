@@ -203,10 +203,9 @@ class ListadoFormasPago(ListView):
     model = FormaPago
     template_name = 'contabilidad/formas_pago.html'
     context_object_name = 'formas_pago'
-    paginate_by = 10
     queryset = FormaPago.objects.order_by('codigo')
     
-    @method_decorator(permission_required('compras.ver_tabla_formas_pago',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.ver_tabla_formas_pago',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoFormasPago, self).dispatch(*args, **kwargs)
     

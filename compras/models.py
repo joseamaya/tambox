@@ -114,7 +114,8 @@ class Proveedor(TimeStampedModel):
     estado = models.BooleanField(default=True)
     
     class Meta:
-        permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
+        permissions = (('cargar_proveedores', 'Puede cargar Proveedores desde un archivo externo'),
+                       ('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
                        ('ver_tabla_proveedores', 'Puede ver tabla de Proveedores'),
                        ('ver_reporte_proveedores_excel', 'Puede ver Reporte Proveedores en excel'),)
         ordering = ['ruc']

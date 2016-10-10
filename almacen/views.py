@@ -1838,8 +1838,11 @@ class ReporteExcelMovimientosPorFecha(View):
 class ReportePDFMovimiento(View):
     
     def cabecera(self,pdf,movimiento,y):
-        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 40, y-50, 100, 90,preserveAspectRatio=True)  
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
+            pdf.drawImage(archivo_imagen, 40, y-50, 100, 90,preserveAspectRatio=True)
+        except:
+            pdf.drawString(40,y-50,str(""))          
         pdf.setFont("Times-Roman", 14)
         if movimiento.tipo_movimiento.incrementa:
             pdf.drawString(220, y, u"NOTA DE INGRESO N°")
