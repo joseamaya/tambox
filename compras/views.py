@@ -5,7 +5,7 @@ from compras.models import Proveedor, OrdenCompra, FormaPago, DetalleOrdenCompra
     DetalleOrdenServicios, ConformidadServicio,\
     DetalleConformidadServicio, DetalleCotizacion, Cotizacion
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from compras.forms import ProveedorForm, FormularioReporteOrdenesCompraFecha, DetalleOrdenServicioForm, \
+from compras.forms import ProveedorForm, DetalleOrdenCompraForm,FormularioReporteOrdenesCompraFecha, DetalleOrdenServicioForm, \
     DetalleCotizacionForm, CotizacionForm, OrdenCompraForm,\
     OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet,\
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet
@@ -42,8 +42,9 @@ from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
+from django.template.defaultfilters import date as _date
 
-#locale.setlocale(locale.LC_ALL,"es_PE.UTF-8")
+locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
 
 class Tablero(View):
@@ -220,6 +221,7 @@ class CrearCotizacion(CreateView):
         try:
             with transaction.atomic():
                 self.object = form.save()
+                referencia = self.object.requerimiento
                 detalles = []
                 cont = 1                
                 for detalle_cotizacion_form in detalle_cotizacion_formset:
@@ -236,7 +238,7 @@ class CrearCotizacion(CreateView):
                                                                cantidad = cantidad) 
                         detalles.append(detalle_cotizacion)                        
                         cont = cont + 1
-                DetalleCotizacion.objects.bulk_create(detalles)
+                DetalleCotizacion.objects.bulk_create(detalles, referencia)
                 return HttpResponseRedirect(reverse('compras:detalle_cotizacion', args=[self.object.codigo]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -1062,7 +1064,7 @@ class ReportePDFOrdenCompra(View):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
         except:
-            pdf.drawString(40,800,str(""))
+            pdf.drawString(40,800,str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
@@ -1070,7 +1072,7 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° "+orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa.distrito+" "+orden.fecha.strftime('%d de %B de %Y'))
+        pdf.drawString(430, 780, empresa.distrito + " " + orden.fecha.strftime('%d/%m/%Y'))#orden.fecha.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:

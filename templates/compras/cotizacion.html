@@ -23,8 +23,7 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
 				<button class="btn btn-default" type="button"
@@ -152,10 +151,12 @@
 					<table id="detalles" class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
+								<th>Nro</th>
 								<th>Codigo</th>
 								<th>Nombre</th>
 								<th>Unidad</th>	
 								<th>Cantidad</th>
+								<th>Borrar</th>
 							</tr>
 						</thead>
 						<tbody>									
@@ -214,7 +215,12 @@
 									        {% endfor %}
 									    {% endif %}
 							            {{ detalle_cotizacion_form.cantidad }}
-						            </td>				           	
+						            </td>	
+						            <td>
+						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
+						           			<span class='glyphicon glyphicon-remove'></span>
+						           		</button>
+						           	</td>			           	
 					           	</tr>
 					           	
 						    {% endfor %}									
@@ -230,12 +236,7 @@
 			</div>										
 		</div>
 	</div>			
-	<div id="popup"></div>
-	<div class="row">
-		<div class="col-lg-4">
-			<input type="hidden" name="cdetalles" id="cdetalles" value={{ cant_detalles }}>
-		</div>
-	</div>
+	<div id="popup"></div>	
 </form>		
 
 {% endblock cuerpo %}
@@ -272,7 +273,6 @@ $(document).ready(function()
 		var ruc=$("#id_ruc").val();
 		if(ruc.length==11)
 		{
-			setupLoading();
 			$.ajax({
 		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
 		      data: {'ruc': ruc},
@@ -280,7 +280,6 @@ $(document).ready(function()
 		      {
 		    	  $("#id_razon_social").val(data.razon_social);
 		    	  $("#id_direccion").val(data.direccion);
-		    	  removeLoading();
 		    	  event.preventDefault();
 		      }
 		    });
@@ -327,12 +326,13 @@ $(document).ready(function()
 				{
 					cont = i + 1;
 					$("#detalles tbody").append(
-					"<tr class='detalle_cotizacion_formset'>" +
-						item.requerimiento +
-						"<td>" + item.codigo + "</td>" +
+					"<tr class='detalle_cotizacion_formset'>" +				
+						"<td>" + cont + "</td>" +
+						"<td>" + item.requerimiento + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +						
+						"<td>" + item.cantidad + "</td>" +	
+						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 				});
 				contDetalles = cont;
@@ -343,6 +343,17 @@ $(document).ready(function()
 			}
 		});
 	}
+	
+	$(document).on("click",".eliminar",function()
+	{
+		var parent = $(this).parent().parent();
+		var id_boton= $(this).prop('id');
+		var id = id_boton.replace("btn-borrar","");
+		$(parent).remove();
+		contDetalles = contDetalles - 1;
+		$("#id_form-TOTAL_FORMS").val(contDetalles);
+		updateFormElementIndices('detalle_cotizacion_formset');
+	});
 	
 	function cerrarTransferencia()
 	{

@@ -4,11 +4,10 @@
 <form role="form" action="{% url 'almacen:crear_pedido' %}" method="post">	
 	<div class="row">
 		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit"
-				value="Guardar">
-			<button type="button" class="btn btn-default"
-				onclick="location.href='{% url 'almacen:pedidos' %}'">
-				Cancelar</button>
+			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+			<button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:pedidos' %}'">
+				Cancelar
+			</button>
 		</div>
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
@@ -189,7 +188,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'compras:busqueda_productos_descripcion' %}",
+				  url: "{% url 'productos:busqueda_productos_descripcion' %}",
 				  data: {'descripcion': request.term, 'tipo_busqueda': 'PRODUCTOS' },
 				  success: function( data ) 
 			      {

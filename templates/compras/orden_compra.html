@@ -419,7 +419,7 @@
 <script>
 $(document).ready(function() 
 {
-	var porc_impuesto = $("#id_impuesto").val();
+	var porc_impuesto = parseFloat($("#id_impuesto").val());
 	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
 	var subtotal=parseFloat($('#id_subtotal').val());
 	var impuesto_total = parseFloat($('#id_igv').val());
@@ -475,9 +475,9 @@ $(document).ready(function()
 		var precio = $("#"+id+"precio").val();
 		var valorAnt = $("#"+id+"valor").val();
 		var impAnt = $("#"+id+"impuesto").val();
-		var valorConIGV=parseFloat(cantidad)*parseFloat(precio);
-		var imp = valorConIGV*porc_impuesto;
-		var valorSinIGV= parseFloat(valorConIGV-imp)
+		var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+		var valorSinIGV = valorConIGV / (porc_impuesto+1);
+		var imp = parseFloat(valorConIGV - valorSinIGV)
 		$("#"+id+"valor").val(valorSinIGV.toFixed(5));
 		$("#"+id+"impuesto").val(imp.toFixed(5));
 		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valorSinIGV);
@@ -497,9 +497,9 @@ $(document).ready(function()
 		var precio = $("#"+id+"precio").val();
 		var valorAnt = $("#"+id+"valor").val();
 		var impAnt = $("#"+id+"impuesto").val();
-		var valorConIGV=parseFloat(cantidad)*parseFloat(precio);
-		var imp = valorConIGV*porc_impuesto;
-		var valorSinIGV= parseFloat(valorConIGV-imp)
+		var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+		var valorSinIGV = valorConIGV / (porc_impuesto+1);
+		var imp = parseFloat(valorConIGV - valorSinIGV)
 		$("#"+id+"valor").val(valorSinIGV.toFixed(5));
 		$("#"+id+"impuesto").val(imp.toFixed(5));
 		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valorSinIGV);

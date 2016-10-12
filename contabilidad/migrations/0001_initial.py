@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import contabilidad.models
 import django.utils.timezone
 import model_utils.fields
@@ -40,34 +40,26 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['cuenta'],
-                'permissions': (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'), ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'), ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'), ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel')),
-            },
-        ),
-        migrations.CreateModel(
-            name='Direccion',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('lugar', models.CharField(max_length=150)),
-                ('calle', models.CharField(max_length=150)),
-                ('distrito', models.CharField(max_length=100)),
-                ('provincia', models.CharField(max_length=100)),
-                ('departamento', models.CharField(max_length=100)),
-            ],
-            options={
-                'abstract': False,
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'), ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'), ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'), ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel')),
             },
         ),
         migrations.CreateModel(
             name='Empresa',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
                 ('razon_social', models.CharField(max_length=150)),
                 ('ruc', models.CharField(max_length=11)),
                 ('logo', models.ImageField(upload_to=b'configuracion')),
+                ('lugar', models.CharField(default=b'', max_length=150)),
+                ('calle', models.CharField(default=b'', max_length=150)),
+                ('distrito', models.CharField(max_length=100)),
+                ('provincia', models.CharField(max_length=100)),
+                ('departamento', models.CharField(max_length=100)),
+                ('host_correo', models.CharField(max_length=70)),
+                ('puerto_correo', models.IntegerField(default=25)),
+                ('usuario', models.EmailField(max_length=254)),
+                ('password', models.CharField(max_length=20)),
+                ('usa_tls', models.BooleanField(default=True)),
             ],
             options={
                 'abstract': False,

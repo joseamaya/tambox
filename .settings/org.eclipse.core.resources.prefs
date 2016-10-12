@@ -20,6 +20,7 @@ encoding//requerimientos/mail.py=utf-8
 encoding//requerimientos/models.py=utf-8
 encoding//requerimientos/views.py=utf-8
 encoding//templates/administracion/trabajador.html=UTF-8
+encoding//templates/almacen/crear_pedido.html=UTF-8
 encoding//templates/almacen/detalle_movimiento.html=UTF-8
 encoding//templates/almacen/detalle_pedido.html=UTF-8
 encoding//templates/almacen/ingreso_almacen.html=UTF-8

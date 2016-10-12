@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.utils.timezone
 import model_utils.fields
 
@@ -49,7 +49,7 @@ class Migration(migrations.Migration):
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'COTIZ', b'COTIZADO'), (b'COTIZ_PARC', b'COTIZADO PARCIALMENTE'), (b'PED', b'PEDIDO'), (b'PED_PARC', b'PEDIDO PARCIALMENTE'), (b'ATEN', b'ATENDIDO'), (b'ATEN_PARC', b'ATENDIDO PARCIALMENTE'), (b'CANC', b'CANCELADO')])),
             ],
             options={
-                'permissions': (('ver_detalle_requerimiento', 'Puede ver detalle de Requerimiento'), ('ver_tabla_requerimientos', 'Puede ver tabla de Requerimientos'), ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'), ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('ver_detalle_requerimiento', 'Puede ver detalle de Requerimiento'), ('ver_tabla_requerimientos', 'Puede ver tabla de Requerimientos'), ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'), ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento')),
             },
         ),
         migrations.CreateModel(

@@ -67,6 +67,16 @@ class Requerimiento(TimeStampedModel):
     def __str__(self):
         return self.codigo
     
+    def establecer_estado_cotizado(self):
+        estado_requerimiento = Requerimiento.STATUS.COTIZ
+        detalles_requerimiento = DetalleRequerimiento.objects.filter(requerimiento = self)
+        for detalle in detalles_requerimiento:
+            if detalle.estado == DetalleRequerimiento.STATUS.COTIZ_PARC or detalle.estado == DetalleRequerimiento.STATUS.PEND:
+                estado_requerimiento = Requerimiento.STATUS.COTIZ_PARC
+                break
+        self.estado = estado_requerimiento
+        self.save()
+    
     def establecer_estado(self):
         estado_requerimiento = Requerimiento.STATUS.PED
         detalles_requerimiento = DetalleRequerimiento.objects.filter(requerimiento = self)
@@ -189,7 +199,7 @@ class AprobacionRequerimiento(TimeStampedModel):
             puesto_jefe = Puesto.objects.get(oficina=oficina,es_jefatura=True,estado=True)
             jefe = puesto_jefe.trabajador
             destinatario = [jefe.usuario.email]
-            self.requerimiento.enviar_correo(destinatario)
+            correo_creacion_requerimiento(destinatario, self.requerimiento)
         super(AprobacionRequerimiento, self).save()
         
     def __str__(self):

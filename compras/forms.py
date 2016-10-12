@@ -22,6 +22,7 @@ meses = (
 )
 
 class ProveedorForm(forms.ModelForm):
+    
     class Meta:
         model = Proveedor
         fields = ['ruc','razon_social','direccion','telefono','correo','estado_sunat','condicion','ciiu','fecha_alta']   
@@ -56,8 +57,8 @@ class TipoStockForm(forms.ModelForm):
         super(TipoStockForm, self).save(*args, **kwargs)  
 
 class DetalleCotizacionForm(forms.Form):
-    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17,'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 10,'class': 'entero form-control'}))    
+    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 140, 'class': 'form-control'}))
     unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.IntegerField(6, widget= forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))    
 
@@ -202,8 +203,8 @@ class ConformidadServicioForm(forms.ModelForm):
 
 class FormularioDetalleCotizacion(forms.Form):
     requerimiento = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17,'readonly':"readonly",'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35,'readonly':"readonly", 'class': 'form-control'}))
+    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 14,'readonly':"readonly",'class': 'entero form-control'}))    
+    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 120,'readonly':"readonly", 'class': 'form-control'}))
     unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'cantidad decimal form-control'}))
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.utils.timezone
 import model_utils.fields
 
@@ -9,6 +9,7 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
+        ('productos', '0001_initial'),
         ('requerimientos', '0001_initial'),
         ('contabilidad', '0001_initial'),
     ]
@@ -134,7 +135,7 @@ class Migration(migrations.Migration):
                 ('forma_pago', models.ForeignKey(to='contabilidad.FormaPago')),
             ],
             options={
-                'permissions': (('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'), ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'), ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'), ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'), ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'), ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'), ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra')),
             },
         ),
         migrations.CreateModel(
@@ -199,6 +200,11 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(to='compras.RepresentanteLegal'),
         ),
         migrations.AddField(
+            model_name='ordencompra',
+            name='proveedor',
+            field=models.ForeignKey(to='compras.Proveedor', null=True),
+        ),
+        migrations.AddField(
             model_name='detalleordenservicios',
             name='orden',
             field=models.ForeignKey(to='compras.OrdenServicios'),
@@ -207,6 +213,11 @@ class Migration(migrations.Migration):
             model_name='detalleordencompra',
             name='orden',
             field=models.ForeignKey(to='compras.OrdenCompra'),
+        ),
+        migrations.AddField(
+            model_name='detalleordencompra',
+            name='producto',
+            field=models.ForeignKey(to='productos.Producto', null=True),
         ),
         migrations.AddField(
             model_name='detalleconformidadservicio',

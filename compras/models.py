@@ -9,6 +9,26 @@ from django.db.models import Max
 from contabilidad.models import FormaPago
 from productos.models import Producto
 
+class DetalleCotizacionManager(models.Manager):
+    
+    def bulk_create(self, objs, requerimiento):
+        if requerimiento is not None:
+            self.guardar_detalles_con_referencia(objs, requerimiento)
+        else:
+            self.guardar_detalles_sin_referencia(objs)
+        
+    def guardar_detalles_con_referencia(self, objs, requerimiento):
+        for detalle in objs:
+            detalle_requerimiento = detalle.detalle_requerimiento 
+            detalle_requerimiento.estado = DetalleRequerimiento.STATUS.COTIZ
+            detalle_requerimiento.save()
+            detalle.save()                        
+        requerimiento.establecer_estado_cotizado()        
+    
+    def guardar_detalles_sin_referencia(self, objs):
+        for detalle in objs:
+            detalle.save()
+
 class DetalleOrdenCompraManager(models.Manager):
     
     def bulk_create(self, objs, cotizacion):
@@ -114,8 +134,7 @@ class Proveedor(TimeStampedModel):
     estado = models.BooleanField(default=True)
     
     class Meta:
-        permissions = (('cargar_proveedores', 'Puede cargar Proveedores desde un archivo externo'),
-                       ('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
+        permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
                        ('ver_tabla_proveedores', 'Puede ver tabla de Proveedores'),
                        ('ver_reporte_proveedores_excel', 'Puede ver Reporte Proveedores en excel'),)
         ordering = ['ruc']
@@ -218,17 +237,14 @@ class Cotizacion(TimeStampedModel):
             else:            
                 aux=int(id_ant[-6:])+1            
             correlativo = str(aux).zfill(6)
-            self.codigo = 'CO'+str(anio)+correlativo
-            self.requerimiento.estado = Requerimiento.STATUS.COTIZ
-            self.requerimiento.save()
-            DetalleRequerimiento.objects.filter(estado=self.STATUS.PEND,
-                                                requerimiento=self.requerimiento).update(estado = DetalleRequerimiento.STATUS.COTIZ)
+            self.codigo = 'CO'+str(anio)+correlativo            
         super(Cotizacion, self).save()        
     
     def __str__(self):
         return self.codigo
     
 class DetalleCotizacion(TimeStampedModel, StatusModel):
+    objects = DetalleCotizacionManager()
     nro_detalle = models.IntegerField()
     cotizacion = models.ForeignKey(Cotizacion)
     detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, null=True)

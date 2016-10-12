@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.utils.timezone
 import model_utils.fields
 
@@ -9,10 +9,10 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('productos', '0001_initial'),
         ('compras', '0001_initial'),
-        ('contabilidad', '0001_initial'),
+        ('productos', '0001_initial'),
         ('administracion', '0001_initial'),
+        ('contabilidad', '0001_initial'),
     ]
 
     operations = [
@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['codigo'],
-                'permissions': (('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'), ('ver_detalle_almacen', 'Puede ver detalle Almac\xe9n'), ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'), ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'), ('ver_detalle_almacen', 'Puede ver detalle Almac\xe9n'), ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'), ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel')),
             },
         ),
         migrations.CreateModel(
@@ -171,6 +171,11 @@ class Migration(migrations.Migration):
             model_name='detallepedido',
             name='pedido',
             field=models.ForeignKey(to='almacen.Pedido'),
+        ),
+        migrations.AddField(
+            model_name='detallepedido',
+            name='producto',
+            field=models.ForeignKey(to='productos.Producto', null=True),
         ),
         migrations.AddField(
             model_name='detallemovimiento',

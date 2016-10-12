@@ -188,6 +188,11 @@ class Empresa(SingletonModel):
     distrito = models.CharField(max_length=100)
     provincia = models.CharField(max_length=100)
     departamento = models.CharField(max_length=100)
+    host_correo = models.CharField(max_length=70)
+    puerto_correo = models.IntegerField(default=25)
+    usuario = models.EmailField()
+    password = models.CharField(max_length=20)
+    usa_tls = models.BooleanField(default=True)
     
     def __str__(self):
         return u'%s' % self.razon_social

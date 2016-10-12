@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.utils.timezone
 from django.conf import settings
 import model_utils.fields
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['nombre'],
-                'permissions': (('ver_detalle_oficina', 'Puede ver detalle de Oficina'), ('ver_tabla_oficinas', 'Puede ver tabla de Oficinas'), ('ver_reporte_oficinas_excel', 'Puede ver Reporte de Oficinas en excel')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_oficinas', 'Puede cargar oficinas desde un archivo externo'), ('ver_detalle_oficina', 'Puede ver detalle de Oficina'), ('ver_tabla_oficinas', 'Puede ver tabla de Oficinas'), ('ver_reporte_oficinas_excel', 'Puede ver Reporte de Oficinas en excel')),
             },
         ),
         migrations.CreateModel(
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['descripcion'],
-                'permissions': (('ver_detalle_profesion', 'Puede ver detalle de Profesion'), ('ver_tabla_profesiones', 'Puede ver tabla de Profesiones'), ('ver_reporte_profesiones_excel', 'Puede ver Reporte de Profesiones en excel')),
+                'permissions': (('ver_detalle_profesion', 'Puede ver detalle de Profesion'), ('cargar_profesiones', 'Puede cargar profesiones desde un archivo externo'), ('ver_tabla_profesiones', 'Puede ver tabla de Profesiones'), ('ver_reporte_profesiones_excel', 'Puede ver Reporte de Profesiones en excel')),
             },
         ),
         migrations.CreateModel(
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['nombre'],
-                'permissions': (('ver_detalle_puesto', 'Puede ver detalle de Puesto'), ('ver_tabla_puestos', 'Puede ver tabla de Puestos'), ('ver_reporte_puestos_excel', 'Puede ver Reporte de Puestos en excel')),
+                'permissions': (('ver_detalle_puesto', 'Puede ver detalle de Puesto'), ('cargar_puestos', 'Puede cargar puestos desde un archivo externo'), ('ver_tabla_puestos', 'Puede ver tabla de Puestos'), ('ver_reporte_puestos_excel', 'Puede ver Reporte de Puestos en excel')),
             },
         ),
         migrations.CreateModel(
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['dni'],
-                'permissions': (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'), ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'), ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel')),
+                'permissions': (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'), ('cargar_trabajadores', 'Puede cargar trabajadores desde un archivo externo'), ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'), ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel')),
             },
         ),
         migrations.AddField(
