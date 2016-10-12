@@ -28,8 +28,8 @@
 				<tr>
 					<th class="text-center">PEDIDO</th>
 					<th class="text-center">OFICINA</th>
-					<th class="text-center">FEC_OPERACION</th>
-					<th class="text-center">APROBACION</th>
+					<th class="text-center">FEC OPERACION</th>
+					<th class="text-center">FEC REGISTRO</th>										
 					<th class="text-center">ESTADO</th>																																																			
 				</tr>
 			</thead>							
@@ -38,8 +38,8 @@
 				<tr onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}';">				
 					<td>{{ pedido.codigo }}</td>
 					<td>{{ pedido.oficina }}</td>
-					<td>{{ pedido.fecha|date:"d/m/y" }}</td>									
-					<td>{{ pedido.status }}</td>
+					<td>{{ pedido.fecha|date:"d/m/y" }}</td>
+					<td>{{ pedido.created|date:"d/m/y H:i:s" }}</td>
 					<td>{{ pedido.get_estado_display }}</td>												        
 				</tr>
 			{% endfor %}

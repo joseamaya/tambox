@@ -227,7 +227,7 @@ class FormularioPedido(forms.Form):
 class FormularioDetallePedido(forms.Form):
     codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
     nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
+    unidad = forms.CharField(20, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     
 class FormularioAprobacionPedido(forms.Form):
@@ -236,7 +236,7 @@ class FormularioAprobacionPedido(forms.Form):
     fecha = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     observaciones = forms.CharField(widget=forms.Textarea(attrs={'cols': 146, 'rows': 5}))
-    total = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    total = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'readonly':"readonly", 'class': 'form-control'}))
     
 class FormularioReporteStock(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))

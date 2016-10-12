@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import contabilidad.models
 import django.utils.timezone
 import model_utils.fields
@@ -44,30 +44,17 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='Direccion',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('lugar', models.CharField(max_length=150)),
-                ('calle', models.CharField(max_length=150)),
-                ('distrito', models.CharField(max_length=100)),
-                ('provincia', models.CharField(max_length=100)),
-                ('departamento', models.CharField(max_length=100)),
-            ],
-            options={
-                'abstract': False,
-            },
-        ),
-        migrations.CreateModel(
             name='Empresa',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
-                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
                 ('razon_social', models.CharField(max_length=150)),
                 ('ruc', models.CharField(max_length=11)),
                 ('logo', models.ImageField(upload_to=b'configuracion')),
+                ('lugar', models.CharField(default=b'', max_length=150)),
+                ('calle', models.CharField(default=b'', max_length=150)),
+                ('distrito', models.CharField(max_length=100)),
+                ('provincia', models.CharField(max_length=100)),
+                ('departamento', models.CharField(max_length=100)),
             ],
             options={
                 'abstract': False,

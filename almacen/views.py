@@ -6,11 +6,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm,FormularioDetalleMovimiento, TipoMovimientoForm, FormularioReporteMovimientos,\
-    FormularioKardexProducto, CargarInventarioInicialForm, FormularioPedido, FormularioDetallePedido,\
-    FormularioAprobacionPedido, FormularioReporteStock, MovimientoForm,\
-    DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm,\
-    DetallePedidoFormSet
+from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos,\
+    FormularioKardexProducto, CargarInventarioInicialForm, FormularioAprobacionPedido, FormularioReporteStock, MovimientoForm,\
+    DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet
 from django.db.models import Sum
 from decimal import Decimal
 from io import BytesIO
@@ -20,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Table
 from django.http import JsonResponse
-from compras.models import DetalleOrdenCompra,OrdenCompra
+from compras.models import DetalleOrdenCompra
 from openpyxl import Workbook
 import simplejson
 import json
@@ -42,6 +40,7 @@ from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.contrib import messages
 from productos.models import Producto, GrupoProductos
+from almacen.mail import correo_creacion_pedido
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -97,6 +96,15 @@ class AprobarPedido(FormView):
     
     @method_decorator(permission_required('almacen.aprobar_pedido',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
+        return super(AprobarPedido, self).dispatch(*args, **kwargs)
+    
+    def get_initial(self):
+        initial = super(AprobarPedido, self).get_initial()
+        initial['cod_pedido'] = self.codigo
+        return initial
+    
+    def get(self, request, *args, **kwargs):
+        self.codigo = kwargs['codigo']
         try:
             trabajador = self.request.user.trabajador
         except:
@@ -108,20 +116,11 @@ class AprobarPedido(FormView):
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == logistica:
-                return super(AprobarPedido, self).dispatch(*args, **kwargs)
+                return super(AprobarPedido, self).get(request, *args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         except:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-    
-    def get_initial(self):
-        initial = super(AprobarPedido, self).get_initial()
-        initial['cod_pedido'] = self.codigo
-        return initial
-    
-    def get(self, request, *args, **kwargs):
-        self.codigo = kwargs['codigo']  
-        return super(AprobarPedido, self).get(request, *args, **kwargs)
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))        
     
     def get_context_data(self, **kwargs):
         pedido = Pedido.objects.get(codigo = self.codigo)
@@ -150,7 +149,7 @@ class AprobarPedido(FormView):
                                                fecha_operacion = fecha_operacion,
                                                total = total,
                                                oficina = oficina,
-                                               observacion = observaciones)
+                                               observaciones = observaciones)
         return movimiento
         
     def guardar_detalle_con_referencia(self,cdetalles,referencia, movimiento):
@@ -311,7 +310,7 @@ class CargarInventarioInicial(FormView):
         return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[movimiento.id_movimiento]))
     
 class CrearTipoMovimiento(CreateView):
-    template_name = 'almacen/crear_tipo_movimiento.html'
+    template_name = 'almacen/tipo_movimiento.html'
     form_class = TipoMovimientoForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
@@ -346,7 +345,7 @@ class CrearTipoStock(View):
         return super(CrearTipoStock, self).form_valid(form)'''
 
 class CrearAlmacen(FormView):
-    template_name = 'almacen/crear_almacen.html'
+    template_name = 'almacen/almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
 
@@ -452,7 +451,7 @@ class CrearDetalleIngreso(TemplateView):
             return HttpResponse(data, 'application/json')
     
 class CrearPedido(CreateView):
-    template_name = 'almacen/crear_pedido.html'
+    template_name = 'almacen/pedido.html'
     form_class = PedidoForm
     model = Pedido
     
@@ -464,7 +463,7 @@ class CrearPedido(CreateView):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         try:
             puesto_usuario = Puesto.objects.get(trabajador = trabajador)
-            if puesto_usuario.es_jefatura:                
+            if puesto_usuario.es_jefatura or puesto_usuario.es_asistente:                
                 if trabajador.firma:
                     return super(CrearPedido, self).dispatch(*args, **kwargs)
                 else:
@@ -511,6 +510,12 @@ class CrearPedido(CreateView):
                         detalles.append(DetallePedido(pedido=self.object, nro_detalle=cont, producto=producto, cantidad=cantidad))
                         cont = cont + 1                    
                 DetallePedido.objects.bulk_create(detalles)
+                configuracion = Configuracion.objects.first()
+                logistica = configuracion.logistica  
+                puesto_jefe_logistica = Puesto.objects.get(oficina = logistica, es_jefatura = True, estado = True)
+                jefe_logistica = puesto_jefe_logistica.trabajador
+                destinatario = [jefe_logistica.usuario.email]
+                correo_creacion_pedido(destinatario,self)
                 return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.pk]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando el pedido.')
@@ -916,12 +921,12 @@ class ModificarSalidaAlmacen(UpdateView):
     
 class ModificarAlmacen(UpdateView):
     model = Almacen
-    template_name = 'almacen/modificar_almacen.html'
+    template_name = 'almacen/almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
     
 class ModificarPedido(UpdateView):    
-    template_name = 'almacen/modificar_pedido.html'
+    template_name = 'almacen/pedido.html'
     form_class = PedidoForm
     model = Pedido
     

@@ -9,17 +9,17 @@
 		</a>												
 		{% endif %}
 		{% if perms.contabilidad.cargar_tipos_documento %}
-		<a href="#" class="btn btn-default">
+		<a href="{% url 'contabilidad:cargar_tipos_documento' %}" class="btn btn-default">
 			Importar
 		</a>						
 		{% endif %}									
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">    					   
-			{% if perms.contabilidad.ver_reporte_cuentas_contables_excel %}						
-			<button class="btn btn-default" type="button">
-                   	<span class="glyphicon glyphicon-list-alt"></span>
-                    </button>
+			{% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}						
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:maestro_tipos_documentos_excel' %}';">
+            	<span class="glyphicon glyphicon-list-alt"></span>
+            </button>
 			{% endif %}	
 		</div>
 	</div>				

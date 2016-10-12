@@ -113,7 +113,7 @@ class CargarPuestos(FormView):
         return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
 
 class CrearProfesion(CreateView):
-    template_name = 'administracion/crear_profesion.html'
+    template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
     
     @method_decorator(permission_required('administracion.add_profesion',reverse_lazy('seguridad:permiso_denegado')))
@@ -124,7 +124,7 @@ class CrearProfesion(CreateView):
         return reverse('administracion:detalle_profesion', args=[self.object.pk])
 
 class CrearOficina(CreateView):
-    template_name = 'administracion/crear_oficina.html'
+    template_name = 'administracion/oficina.html'
     form_class = OficinaForm
     
     @method_decorator(permission_required('administracion.add_oficina',reverse_lazy('seguridad:permiso_denegado')))
@@ -146,7 +146,7 @@ class CrearTrabajador(CreateView):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
             
 class CrearPuesto(CreateView):
-    template_name = 'administracion/crear_puesto.html'
+    template_name = 'administracion/puesto.html'
     form_class = PuestoForm
     
     @method_decorator(permission_required('administracion.add_puesto',reverse_lazy('seguridad:permiso_denegado')))
@@ -196,7 +196,7 @@ class ListadoProfesiones(ListView):
 
 class ModificarProfesion(UpdateView):
     model = Profesion
-    template_name = 'administracion/modificar_profesion.html'
+    template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
     
     @method_decorator(permission_required('administracion.change_profesion',reverse_lazy('seguridad:permiso_denegado')))
@@ -208,7 +208,7 @@ class ModificarProfesion(UpdateView):
 
 class ModificarOficina(UpdateView):
     model = Oficina
-    template_name = 'administracion/modificar_oficina.html'
+    template_name = 'administracion/oficina.html'
     form_class = OficinaForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
     
@@ -233,7 +233,7 @@ class ModificarTrabajador(UpdateView):
     
 class ModificarPuesto(UpdateView):
     model = Puesto
-    template_name = 'administracion/modificar_puesto.html'
+    template_name = 'administracion/puesto.html'
     form_class = ModificacionPuestoForm
     
     @method_decorator(permission_required('administracion.change_puesto',reverse_lazy('seguridad:permiso_denegado')))

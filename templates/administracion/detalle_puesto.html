@@ -2,9 +2,11 @@
 <h3>Puestos / {{ object.nombre }}</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.administracion.change_puesto %} <a class="btn btn-primary"
-			href="{% url 'administracion:modificar_puesto' object.pk %}">
-			Editar </a> {% endif %} {% if perms.administracion.delete_puesto %}
+		{% if perms.administracion.change_puesto %} 
+		<a class="btn btn-primary" href="{% url 'administracion:modificar_puesto' object.pk %}">
+			Editar </a> 
+		{% endif %} 
+		{% if perms.administracion.delete_puesto %}
 		<button class="btn btn-danger" type="button" id="id_eliminar">
 			Eliminar</button>
 		{% endif %}
@@ -31,16 +33,27 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-lg-7">
-				<h3>{{ object.nombre }}</h3>
+				<h3>{{ object.nombre }}</h3>				
+			</div>
+			<div class="col-lg-5">
+				<div class="btn-group"></div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-2">
 				{% if object.es_jefatura %}
 				<p>ES JEFATURA</p>
 				{% else %}
 				<p>NO ES JEFATURA</p>
 				{% endif %}
 			</div>
-			<div class="col-lg-5">
-				<div class="btn-group"></div>
-			</div>
+			<div class="col-lg-3">
+				{% if object.es_asistente %}
+				<p>ES ASISTENTE</p>
+				{% else %}
+				<p>NO ES ASISTENTE</p>
+				{% endif %}
+			</div>				
 		</div>
 		<br>
 		<ul class="nav nav-tabs">

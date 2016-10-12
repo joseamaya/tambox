@@ -46,11 +46,11 @@
 				<label>CODIGO:</label> 
 				<p>{{ object.pk }}</p>
 			</div>
-			<div class="col-md-2">
+			<div class="col-md-1">
 				<label>Fecha:</label> 
 				<p>{{ object.created|date:"d/m/Y" }}</p>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-4">
 				<label>Solicitante:</label> 
 				<p>{{ object.solicitante }}</p>
 			</div>
@@ -112,10 +112,11 @@
 							<td>{{ detalle.cantidad }}</td>
 							<td>{{ detalle.cantidad_comprada }}</td>							
 							{% else %}
-							<td>{{ detalle.cantidad }}</td>
-							<td>{{ detalle.unidad }}</td>
 							<td>{{ detalle.otro }}</td>
 							<td>{{ detalle.uso }}</td>
+							<td>-</td>
+							<td>{{ detalle.cantidad }}</td>							
+							<td>{{ detalle.cantidad_comprada }}</td>
 							{% endif %}
 						</tr>
 						{% endfor %}

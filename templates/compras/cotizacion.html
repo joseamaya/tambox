@@ -23,8 +23,7 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
 				<button class="btn btn-default" type="button"
@@ -46,8 +45,8 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>CODIGO:</label>
-						{% if detalle_cotizacion_form.codigo.errors %}
-							{% for error in detalle_cotizacion_form.codigo.errors %}
+						{% if form.codigo.errors %}
+							{% for error in form.codigo.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -65,8 +64,8 @@
 				<div class="row">
 					<div class="col-md-2">
 						<label>RUC:</label>
-						{% if detalle_cotizacion_form.ruc.errors %}
-							{% for error in detalle_cotizacion_form.ruc.errors %}
+						{% if form.ruc.errors %}
+							{% for error in form.ruc.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -79,8 +78,8 @@
 					</div>
 					<div class="col-md-4">
 						<label>Razón Social:</label>
-						{% if detalle_cotizacion_form.razon_social.errors %}
-							{% for error in detalle_cotizacion_form.razon_social.errors %}
+						{% if form.razon_social.errors %}
+							{% for error in form.razon_social.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -93,8 +92,8 @@
 					</div>
 					<div class="col-md-6">	
 						<label>Dirección:</label>
-						{% if detalle_cotizacion_form.direccion.errors %}
-							{% for error in detalle_cotizacion_form.direccion.errors %}
+						{% if form.direccion.errors %}
+							{% for error in form.direccion.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -111,8 +110,8 @@
 				<div class="row">
 					<div class="col-md-3">			
 						<label>FECHA:</label>
-						{% if detalle_cotizacion_form.fecha.errors %}
-							{% for error in detalle_cotizacion_form.fecha.errors %}
+						{% if form.fecha.errors %}
+							{% for error in form.fecha.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -125,8 +124,8 @@
 					</div>				
 					<div class="col-md-3">	
 						<label>Referencia:</label>
-						{% if detalle_cotizacion_form.referencia.errors %}
-							{% for error in detalle_cotizacion_form.referencia.errors %}
+						{% if form.referencia.errors %}
+							{% for error in form.referencia.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -152,20 +151,22 @@
 					<table id="detalles" class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
+								<th>Nro</th>
 								<th>Codigo</th>
 								<th>Nombre</th>
 								<th>Unidad</th>	
 								<th>Cantidad</th>
+								<th>Borrar</th>
 							</tr>
 						</thead>
 						<tbody>									
 							{{ detalle_cotizacion_formset.management_form }}
-						    {% for detalle_cotizacion_form in detalle_cotizacion_formset %}					        
+						    {% for form in detalle_cotizacion_formset %}					        
 					            <tr class="detalle_cotizacion_formset">
 					            	<td>
-					            		{{ detalle_cotizacion_form.requerimiento }}
-						            	{% if detalle_cotizacion_form.codigo.errors %}
-											{% for error in detalle_cotizacion_form.codigo.errors %}
+					            		{{ form.requerimiento }}
+						            	{% if form.codigo.errors %}
+											{% for error in form.codigo.errors %}
 											<div class="alert alert-danger alert-dismissible" role="alert">							
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
@@ -174,11 +175,11 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
-						            	{{ detalle_cotizacion_form.codigo }}
+						            	{{ form.codigo }}
 					            	</td>
 					            	<td>
-						            	{% if detalle_cotizacion_form.nombre.errors %}
-											{% for error in detalle_cotizacion_form.nombre.errors %}
+						            	{% if form.nombre.errors %}
+											{% for error in form.nombre.errors %}
 											<div class="alert alert-danger alert-dismissible" role="alert">							
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
@@ -187,11 +188,11 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
-							            {{ detalle_cotizacion_form.nombre }}
+							            {{ form.nombre }}
 						            </td>
 						            <td>
-							            {% if detalle_cotizacion_form.unidad.errors %}
-											{% for error in detalle_cotizacion_form.unidad.errors %}
+							            {% if form.unidad.errors %}
+											{% for error in form.unidad.errors %}
 											<div class="alert alert-danger alert-dismissible" role="alert">							
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
@@ -200,11 +201,11 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
-							            {{ detalle_cotizacion_form.unidad }}
+							            {{ form.unidad }}
 						            </td>
 						            <td>
-							            {% if detalle_cotizacion_form.cantidad.errors %}
-											{% for error in detalle_cotizacion_form.cantidad.errors %}
+							            {% if form.cantidad.errors %}
+											{% for error in form.cantidad.errors %}
 											<div class="alert alert-danger alert-dismissible" role="alert">							
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
@@ -213,8 +214,13 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
-							            {{ detalle_cotizacion_form.cantidad }}
-						            </td>				           	
+							            {{ form.cantidad }}
+						            </td>	
+						            <td>
+						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
+						           			<span class='glyphicon glyphicon-remove'></span>
+						           		</button>
+						           	</td>			           	
 					           	</tr>
 					           	
 						    {% endfor %}									
@@ -230,12 +236,7 @@
 			</div>										
 		</div>
 	</div>			
-	<div id="popup"></div>
-	<div class="row">
-		<div class="col-lg-4">
-			<input type="hidden" name="cdetalles" id="cdetalles" value={{ cant_detalles }}>
-		</div>
-	</div>
+	<div id="popup"></div>	
 </form>		
 
 {% endblock cuerpo %}
@@ -245,8 +246,7 @@
 $(document).ready(function() 
 {
 	var mySpinner = null;
-	var contDetalles=parseInt($('#cdetalles').val());
-	var ultimo_item = parseInt($('#cdetalles').val());
+	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
 	$("#id_fecha").datepicker();
 		
 	$("#id_razon_social").autocomplete({
@@ -272,7 +272,6 @@ $(document).ready(function()
 		var ruc=$("#id_ruc").val();
 		if(ruc.length==11)
 		{
-			setupLoading();
 			$.ajax({
 		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
 		      data: {'ruc': ruc},
@@ -280,7 +279,6 @@ $(document).ready(function()
 		      {
 		    	  $("#id_razon_social").val(data.razon_social);
 		    	  $("#id_direccion").val(data.direccion);
-		    	  removeLoading();
 		    	  event.preventDefault();
 		      }
 		    });
@@ -327,12 +325,13 @@ $(document).ready(function()
 				{
 					cont = i + 1;
 					$("#detalles tbody").append(
-					"<tr class='detalle_cotizacion_formset'>" +
-						item.requerimiento +
-						"<td>" + item.codigo + "</td>" +
+					"<tr class='formset'>" +				
+						"<td>" + cont + "</td>" +
+						"<td>" + item.requerimiento + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +						
+						"<td>" + item.cantidad + "</td>" +	
+						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 				});
 				contDetalles = cont;
@@ -344,6 +343,17 @@ $(document).ready(function()
 		});
 	}
 	
+	$(document).on("click",".eliminar",function()
+	{
+		var parent = $(this).parent().parent();
+		var id_boton= $(this).prop('id');
+		var id = id_boton.replace("btn-borrar","");
+		$(parent).remove();
+		contDetalles = contDetalles - 1;
+		$("#id_form-TOTAL_FORMS").val(contDetalles);
+		updateFormElementIndices('detalle_cotizacion_formset');
+	});
+	
 	function cerrarTransferencia()
 	{
 		ventana_transferencia.dialog("close");
@@ -351,30 +361,20 @@ $(document).ready(function()
 	
 	$("form").submit(function(event) 
 	{
-		var cont=0;
-		$('#cdetalles').val(ultimo_item);
 		var ruc = $('#id_ruc').val();
 		var fecha = $('#id_fecha').val().trim();
-		var fecha_entrega = $('#id_fecha_entrega').val().trim();
 		if(ruc != '')
 		{					
 			if(fecha != '')
 			{					
-				if(fecha_entrega != '')
+				if (contDetalles > 0)
 				{
-					if (contDetalles > 0)
-					{
-						return;
-					}
-					else
-					{
-						alert("No ha ingresado ningún detalle");	
-					}
+					return;
 				}
 				else
 				{
-					alert("No ha ingresado fecha de entrega");
-				}
+					alert("No ha ingresado ningún detalle");	
+				}				
 			}
 			else
 			{

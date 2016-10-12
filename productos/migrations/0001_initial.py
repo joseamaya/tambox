@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 import django.utils.timezone
 import model_utils.fields
 
@@ -20,11 +20,12 @@ class Migration(migrations.Migration):
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
                 ('codigo', models.CharField(max_length=6, serialize=False, primary_key=True)),
                 ('descripcion', models.CharField(max_length=100)),
+                ('son_productos', models.BooleanField(default=True)),
                 ('estado', models.BooleanField(default=True)),
                 ('ctacontable', models.ForeignKey(to='contabilidad.CuentaContable')),
             ],
             options={
-                'permissions': (('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'), ('ver_tabla_grupos_productos', 'Puede ver tabla Grupos de Productos'), ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel')),
+                'permissions': (('cargar_grupo_productos', 'Puede cargar Grupos de Productos desde un archivo externo'), ('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'), ('ver_tabla_grupos_productos', 'Puede ver tabla Grupos de Productos'), ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel')),
             },
         ),
         migrations.CreateModel(
@@ -46,7 +47,7 @@ class Migration(migrations.Migration):
                 ('grupo_productos', models.ForeignKey(to='productos.GrupoProductos')),
             ],
             options={
-                'permissions': (('cargar_productos', 'Puede cargar Productos desde un archivo externo'), ('ver_detalle_producto', 'Puede ver detalle de Productos'), ('ver_tabla_productos', 'Puede ver tabla Productos'), ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'), ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_productos', 'Puede cargar Productos desde un archivo externo'), ('ver_detalle_producto', 'Puede ver detalle de Productos'), ('ver_tabla_productos', 'Puede ver tabla Productos'), ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'), ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto')),
             },
         ),
         migrations.CreateModel(

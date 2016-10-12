@@ -4,14 +4,12 @@ from django.db.models import Max
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
 from django.utils.encoding import smart_str, python_2_unicode_compatible
-from administracion.models import Oficina, Trabajador, Puesto
+from administracion.models import Oficina, Trabajador
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
-from django.core.mail.message import EmailMessage
 from django.utils.translation import gettext as _
 from requerimientos.models import DetalleRequerimiento
 from productos.models import Producto
-from almacen.mail import correo_creacion_pedido
 
 class DetalleMovimientoManager(models.Manager):
     
@@ -180,11 +178,7 @@ class Pedido(TimeStampedModel):
                 aux=int(id_ant[-6:])+1
             correlativo = str(aux).zfill(6)
             codigo = 'PE'+str(anio)+correlativo
-            self.codigo = codigo
-            puesto_jefe_logistica = Puesto.objects.get(oficina__codigo="ULOG",es_jefatura=True,estado=True)
-            jefe_logistica = puesto_jefe_logistica.trabajador
-            destinatario = [jefe_logistica.usuario.email]
-            correo_creacion_pedido(destinatario,self)
+            self.codigo = codigo            
             super(Pedido, self).save()            
         else:            
             super(Pedido, self).save()
@@ -255,9 +249,9 @@ class Movimiento(TimeStampedModel):
         for detalle in detalles:
             detalle_orden_compra = detalle.detalle_orden_compra
             detalle_requerimiento = detalle_orden_compra.detalle_cotizacion.detalle_requerimiento
-            detalle_orden_compra.cantidad_atendida = detalle_orden_compra.cantidad_atendida - detalle.cantidad
+            detalle_orden_compra.cantidad_ingresada = detalle_orden_compra.cantidad_ingresada - detalle.cantidad
             detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.cantidad
-            if detalle_orden_compra.cantidad_atendida==0: 
+            if detalle_orden_compra.cantidad_ingresada==0: 
                 detalle_orden_compra.estado = DetalleOrdenCompra.STATUS.PEND
             if detalle_requerimiento.cantidad_atendida==0: 
                 detalle_requerimiento.estado = DetalleRequerimiento.STATUS.PEND 

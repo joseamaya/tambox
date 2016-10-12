@@ -6,6 +6,8 @@ from model_utils.choices import Choices
 from django.forms import formsets
 from django.core.exceptions import ValidationError
 from requerimientos.models import AprobacionRequerimiento, Requerimiento
+from administracion.models import Puesto
+from requerimientos.mail import correo_creacion_requerimiento
 
 class AprobacionRequerimientoForm(forms.ModelForm):
     
@@ -43,6 +45,28 @@ class AprobacionRequerimientoForm(forms.ModelForm):
                                                     ('DESAP_PRES', _('DESAPROBADO PRESUPUESTO')))
         else:
             self.fields['estado'].choices = Choices()
+            
+    def save(self, *args, **kwargs):
+        configuracion = Configuracion.objects.first()
+        oficina_administracion = configuracion.administracion
+        presupuesto = configuracion.presupuesto
+        logistica = configuracion.logistica
+        if self.instance.estado==AprobacionRequerimiento.STATUS.APROB_LOG:
+            oficina = presupuesto            
+        elif self.instance.estado==AprobacionRequerimiento.STATUS.APROB_GER_INM:
+            oficina = oficina_administracion
+        elif self.instance.estado==AprobacionRequerimiento.STATUS.APROB_GER_ADM:
+            oficina = logistica        
+        elif self.instance.estado==AprobacionRequerimiento.STATUS.APROB_JEF:
+            oficina = self.instance.requerimiento.oficina.gerencia
+        else:
+            oficina = None
+        if oficina is not None:
+            puesto_jefe = Puesto.objects.get(oficina=oficina,es_jefatura=True,estado=True)
+            jefe = puesto_jefe.trabajador
+            destinatario = [jefe.usuario.email]
+            correo_creacion_requerimiento(destinatario, self.instance.requerimiento)
+        return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
             
 class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
     

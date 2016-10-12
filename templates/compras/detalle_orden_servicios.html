@@ -72,7 +72,11 @@
 				</div>							
 				<div class="col-md-3">	
 					<label>Referencia:</label>
-					<p>{{ object.cotizacion }}</p>
+					{% if object.cotizacion %}
+					<p><a href="{% url 'compras:detalle_cotizacion' object.cotizacion.pk %}">{{ object.cotizacion }}</a></p>
+					{% else %}
+					<p>Ninguna</p>
+					{% endif %}
 				</div>				
 			</div>
 		</div>

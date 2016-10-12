@@ -41,8 +41,7 @@ class CuentaContable(TimeStampedModel):
     estado = models.BooleanField(default = True)
     
     class Meta:
-        permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
-                       ('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
+        permissions = (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
                        ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'),
                        ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'),
                        ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel'),)
@@ -188,6 +187,11 @@ class Empresa(SingletonModel):
     distrito = models.CharField(max_length=100)
     provincia = models.CharField(max_length=100)
     departamento = models.CharField(max_length=100)
+    host_correo = models.CharField(max_length=70)
+    puerto_correo = models.IntegerField(default=25)
+    usuario = models.EmailField()
+    password = models.CharField(max_length=20)
+    usa_tls = models.BooleanField(default=True)
     
     def __str__(self):
         return u'%s' % self.razon_social

@@ -114,6 +114,7 @@ class Puesto(TimeStampedModel):
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)
+    es_asistente = models.BooleanField(default=False)
     estado = models.BooleanField(default=True)
     
     def anterior(self):

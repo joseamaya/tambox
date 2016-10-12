@@ -49,13 +49,29 @@ class CargarCuentasContables(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            CuentaContable.objects.create(cuenta = fila[0].strip(),
-                                          descripcion= unicode(fila[1].strip(), errors='ignore'))                
-        return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))   
+            CuentaContable.objects.create(cuenta = fila[0],
+                                          descripcion= unicode(fila[1], errors='ignore'))                
+        return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
+    
+class CargarTiposDocumentos(FormView):
+    template_name = 'contabilidad/cargar_tipos_documentos.html'
+    form_class = UploadForm
+    
+    def form_valid(self, form):
+        data = form.cleaned_data
+        docfile = data['archivo']            
+        form.save()
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
+        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        for fila in dataReader:
+            TipoDocumento.objects.create(codigo_sunat = fila[0],
+                                         nombre = unicode(fila[1], errors='ignore'),
+                                         descripcion = unicode(fila[1], errors='ignore'))
+        return HttpResponseRedirect(reverse('contabilidad:tipos_documentos'))   
     
 class CrearFormaPago(CreateView):
     model = FormaPago
-    template_name = 'contabilidad/crear_forma_pago.html'
+    template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
     
     @method_decorator(permission_required('compras.add_formapago',reverse_lazy('seguridad:permiso_denegado')))
@@ -67,7 +83,7 @@ class CrearFormaPago(CreateView):
 
 class CrearTipoDocumento(CreateView):
     model = TipoDocumento
-    template_name = 'contabilidad/crear_tipo_documento.html'
+    template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm
     
     @method_decorator(permission_required('contabilidad.add_tipodocumento',reverse_lazy('seguridad:permiso_denegado')))
@@ -79,7 +95,7 @@ class CrearTipoDocumento(CreateView):
     
 class CrearCuentaContable(CreateView):
     model = CuentaContable
-    template_name = 'contabilidad/crear_cuenta_contable.html'
+    template_name = 'contabilidad/cuenta_contable.html'
     form_class = CuentaContableForm
         
     @method_decorator(permission_required('contabilidad.add_cuenta_contable',reverse_lazy('seguridad:permiso_denegado')))
@@ -91,7 +107,7 @@ class CrearCuentaContable(CreateView):
     
 class CrearImpuesto(CreateView):
     model = Impuesto
-    template_name = 'contabilidad/crear_impuesto.html'
+    template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
         
     @method_decorator(permission_required('contabilidad.add_impuesto',reverse_lazy('seguridad:permiso_denegado')))
@@ -103,7 +119,7 @@ class CrearImpuesto(CreateView):
     
 class CrearConfiguracion(CreateView):
     model = Configuracion
-    template_name = 'contabilidad/crear_configuracion.html'
+    template_name = 'contabilidad/configuracion.html'
     form_class = ConfiguracionForm
         
     @method_decorator(permission_required('contabilidad.add_configuracion',reverse_lazy('seguridad:permiso_denegado')))
@@ -203,9 +219,10 @@ class ListadoFormasPago(ListView):
     model = FormaPago
     template_name = 'contabilidad/formas_pago.html'
     context_object_name = 'formas_pago'
+    paginate_by = 10
     queryset = FormaPago.objects.order_by('codigo')
     
-    @method_decorator(permission_required('contabilidad.ver_tabla_formas_pago',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('compras.ver_tabla_formas_pago',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoFormasPago, self).dispatch(*args, **kwargs)
     
@@ -220,7 +237,7 @@ class ListadoImpuestos(ListView):
     
 class ModificarFormaPago(UpdateView):
     model = FormaPago
-    template_name = 'contabilidad/modificar_forma_pago.html'
+    template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
     
     @method_decorator(permission_required('compras.change_formapago',reverse_lazy('seguridad:permiso_denegado')))
@@ -232,7 +249,7 @@ class ModificarFormaPago(UpdateView):
     
 class ModificarTipoDocumento(UpdateView):
     model = TipoDocumento
-    template_name = 'contabilidad/modificar_tipo_documento.html'
+    template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm    
 
     @method_decorator(permission_required('contabilidad.change_tipo_documento',reverse_lazy('seguridad:permiso_denegado')))
@@ -244,7 +261,7 @@ class ModificarTipoDocumento(UpdateView):
     
 class ModificarCuentaContable(UpdateView):
     model = CuentaContable
-    template_name = 'contabilidad/modificar_cuenta_contable.html'
+    template_name = 'contabilidad/cuenta_contable.html'
     form_class = CuentaContableForm
     
     @method_decorator(permission_required('contabilidad.change_cuenta_contable',reverse_lazy('seguridad:permiso_denegado')))
@@ -256,7 +273,7 @@ class ModificarCuentaContable(UpdateView):
 
 class ModificarConfiguracion(UpdateView):
     model = Configuracion
-    template_name = 'contabilidad/crear_configuracion.html'
+    template_name = 'contabilidad/configuracion.html'
     form_class = ConfiguracionForm
     
     @method_decorator(permission_required('contabilidad.change_configuracion',reverse_lazy('seguridad:permiso_denegado')))
@@ -268,7 +285,7 @@ class ModificarConfiguracion(UpdateView):
     
 class ModificarImpuesto(UpdateView):
     model = Impuesto
-    template_name = 'contabilidad/modificar_impuesto.html'
+    template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
     
     @method_decorator(permission_required('contabilidad.change_impuesto',reverse_lazy('seguridad:permiso_denegado')))
@@ -333,3 +350,26 @@ class ReporteExcelFormasPago(TemplateView):
         wb.save(response)
         return response
     
+class ReporteExcelTiposDocumentos(TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        tipos = TipoDocumento.objects.all().order_by('codigo_sunat')
+        wb = Workbook()
+        ws = wb.active
+        ws['B1'] = 'REPORTE DE TIPOS DE DOCUMENTOS'
+        ws.merge_cells('B1:J1')
+        ws['B3'] = 'CODIGO SUNAT'
+        ws['C3'] = 'NOMBRE'
+        ws['D3'] = 'DESCRIPCIÓN'
+        cont=4
+        for tipo in tipos:
+            ws.cell(row=cont,column=2).value = tipo.codigo_sunat
+            ws.cell(row=cont,column=3).value = tipo.nombre
+            ws.cell(row=cont,column=4).value = tipo.descripcion
+            cont = cont + 1
+        nombre_archivo ="ListadoTiposDocumentos.xlsx" 
+        response = HttpResponse(content_type="application/ms-excel") 
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response

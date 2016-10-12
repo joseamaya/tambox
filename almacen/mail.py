@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.core.mail.message import EmailMessage
+from tambox.mail import enviar_correo
 
 def correo_creacion_pedido(destinatario, pedido):
     asunto = u'TAMBOX - Pedido Pendiente de Aprobar - Logística'
@@ -12,10 +12,3 @@ def correo_creacion_pedido(destinatario, pedido):
     Saludos. 
     ''' % (pedido.codigo, pedido.solicitante.nombre_completo(),pedido.fecha.strftime('%d/%m/%Y'))
     enviar_correo(destinatario, asunto, cuerpo)
-        
-def enviar_correo(destinatario,asunto,cuerpo):
-    email = EmailMessage()
-    email.subject = asunto
-    email.body = cuerpo
-    email.to = destinatario
-    email.send()

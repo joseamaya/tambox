@@ -7,7 +7,8 @@ from contabilidad.views import Tablero, ListadoCuentasContables,\
     DetalleCuentaContable, CrearImpuesto, DetalleImpuesto, ListadoImpuestos,\
     ModificarImpuesto, CrearConfiguracion, ModificarConfiguracion,\
     ListadoFormasPago, CrearFormaPago, ModificarFormaPago, DetalleFormaPago,\
-    ReporteExcelFormasPago, EliminarFormaPago    
+    ReporteExcelFormasPago, EliminarFormaPago    , ReporteExcelTiposDocumentos,\
+    CargarTiposDocumentos
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -25,6 +26,7 @@ urlpatterns = patterns('',
     url(r'^detalle_cuenta_contable/(?P<pk>.+)/$', (DetalleCuentaContable.as_view()), name="detalle_cuenta_contable"),
     url(r'^detalle_impuesto/(?P<pk>.+)/$', (DetalleImpuesto.as_view()), name="detalle_impuesto"),
     url(r'^cargar_cuentas_contables/$',(CargarCuentasContables.as_view()), name="cargar_cuentas_contables"),
+    url(r'^cargar_tipos_documento/$',(CargarTiposDocumentos.as_view()), name="cargar_tipos_documento"),
     url(r'^crear_tipo_documento/$', (CrearTipoDocumento.as_view()), name="crear_tipo_documento"),
     url(r'^crear_impuesto/$', (CrearImpuesto.as_view()), name="crear_impuesto"),
     url(r'^crear_cuenta_contable/$', (CrearCuentaContable.as_view()), name="crear_cuenta_contable"),
@@ -34,4 +36,5 @@ urlpatterns = patterns('',
     url(r'^modificar_impuesto/(?P<pk>.+)/$',(ModificarImpuesto.as_view()), name="modificar_impuesto"),
     url(r'^modificar_configuracion/(?P<pk>.+)/$',(ModificarConfiguracion.as_view()), name="modificar_configuracion"),
     url(r'^maestro_cuentas_contables_excel/$',(ReporteExcelCuentasContables.as_view()), name="maestro_cuentas_contables_excel"),
+    url(r'^maestro_tipos_documentos_excel/$',(ReporteExcelTiposDocumentos.as_view()), name="maestro_tipos_documentos_excel"),
 )

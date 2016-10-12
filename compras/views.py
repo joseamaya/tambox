@@ -43,7 +43,7 @@ from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
 
-#locale.setlocale(locale.LC_ALL,"es_PE.UTF-8")
+locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
 
 class Tablero(View):
@@ -135,7 +135,7 @@ class CargarProveedores(FormView):
     
 class CrearProveedor(CreateView):
     model = Proveedor
-    template_name = 'compras/crear_proveedor.html'
+    template_name = 'compras/proveedor.html'
     form_class = ProveedorForm
     
     @method_decorator(permission_required('compras.add_proveedor',reverse_lazy('seguridad:permiso_denegado')))
@@ -220,6 +220,7 @@ class CrearCotizacion(CreateView):
         try:
             with transaction.atomic():
                 self.object = form.save()
+                referencia = self.object.requerimiento
                 detalles = []
                 cont = 1                
                 for detalle_cotizacion_form in detalle_cotizacion_formset:
@@ -236,13 +237,15 @@ class CrearCotizacion(CreateView):
                                                                cantidad = cantidad) 
                         detalles.append(detalle_cotizacion)                        
                         cont = cont + 1
-                DetalleCotizacion.objects.bulk_create(detalles)
+                DetalleCotizacion.objects.bulk_create(detalles, referencia)
                 return HttpResponseRedirect(reverse('compras:detalle_cotizacion', args=[self.object.codigo]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_cotizacion_formset):
-        return self.render_to_response(self.get_context_data(form=form))
+        print form
+        return self.render_to_response(self.get_context_data(form=form,
+                                                             detalle_cotizacion_formset = detalle_cotizacion_formset))
 
 class CrearOrdenCompra(CreateView):
     form_class = OrdenCompraForm
@@ -399,8 +402,15 @@ class CrearOrdenServicios(CreateView):
     
 class CrearConformidadServicio(CreateView):
     form_class = ConformidadServicioForm
-    template_name = "compras/crear_conformidad_servicio.html"
+    template_name = "compras/conformidad_servicio.html"
     model = ConformidadServicio
+    
+    def get_initial(self):
+        initial = super(CrearConformidadServicio, self).get_initial()
+        initial['total'] = 0
+        initial['subtotal'] = 0
+        initial['total_letras'] = ''
+        return initial
     
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -450,7 +460,8 @@ class CrearConformidadServicio(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_conformidad_servicio_formset):
-        return self.render_to_response(self.get_context_data(form=form))
+        return self.render_to_response(self.get_context_data(form=form, 
+                                                             detalle_conformidad_servicio_form = detalle_conformidad_servicio_formset))
     
 class DetalleProveedor(DetailView):
     model = Proveedor
@@ -568,7 +579,7 @@ class ListadoConformidadesServicio(ListView):
         
 class ModificarProveedor(UpdateView):
     model = Proveedor
-    template_name = 'compras/modificar_proveedor.html'
+    template_name = 'compras/proveedor.html'
     form_class = ProveedorForm
         
     @method_decorator(permission_required('compras.change_proveedor',reverse_lazy('seguridad:permiso_denegado')))
@@ -662,7 +673,7 @@ class ModificarCotizacion(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
     
 class ModificarConformidadServicio(UpdateView):
-    template_name = 'compras/modificar_conformidad_servicio.html'
+    template_name = 'compras/conformidad_servicio.html'
     form_class = ConformidadServicioForm
     model = ConformidadServicio
     
@@ -960,9 +971,9 @@ class ObtenerDetalleCotizacion(TemplateView):
                     valor = detalle.detalle_requerimiento.producto.precio * cantidad
                     if tipo_busqueda == 'PRODUCTOS':
                         det['unidad'] = detalle.detalle_requerimiento.producto.unidad_medida.codigo
-                        impuesto = monto_impuesto * valor
-                        det['impuesto'] = str(round(impuesto,5))
-                        det['valor'] = str(round(valor-impuesto,5))
+                        base = valor / (monto_impuesto + 1)
+                        det['impuesto'] = str(round(valor - base,5))
+                        det['valor'] = str(round(base,5))
                     elif tipo_busqueda == 'SERVICIOS':
                         det['unidad'] = detalle.detalle_requerimiento.uso
                         det['valor'] = str(valor)
@@ -1062,7 +1073,7 @@ class ReportePDFOrdenCompra(View):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
         except:
-            pdf.drawString(40,800,str(""))
+            pdf.drawString(40,800,str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
@@ -1070,7 +1081,7 @@ class ReportePDFOrdenCompra(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° "+orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa.distrito+" "+orden.fecha.strftime('%d de %B de %Y'))
+        pdf.drawString(430, 780, empresa.distrito + " " + orden.fecha.strftime('%d de %b de %Y'))#orden.fecha.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -1130,7 +1141,7 @@ class ReportePDFOrdenCompra(View):
         
     def otros(self,pdf,y,orden):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(u'DIRECCION',u"INMEDIATA",orden.forma_pago.descripcion)]
+        otros = [(empresa.direccion(),u"INMEDIATA",orden.forma_pago.descripcion)]
         tabla_otros = Table([encabezados_otros] + otros,colWidths=[6 * cm, 3.5 * cm, 4.5 * cm], rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
             [
@@ -1187,7 +1198,7 @@ class ReportePDFOrdenCompra(View):
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
                           Facturar a nombre de """ + smart_str(empresa.razon_social),p),
-                          Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
+                          Paragraph("El " + smart_str(empresa.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
                           Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""",p)
@@ -1263,7 +1274,7 @@ class ReportePDFOrdenServicios(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°"+orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, "PIURA "+orden.fecha.strftime('%d de %B de %Y'))
+        pdf.drawString(430, 780,empresa.distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(40, 750, u"SEÑOR(ES): "+orden.cotizacion.proveedor.razon_social)
         pdf.drawString(440, 750, u"R.U.C.: "+orden.cotizacion.proveedor.ruc)
@@ -1381,8 +1392,8 @@ class ReportePDFOrdenServicios(View):
         p.fontName="Times-Roman"
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de NOMBRE EMPRESA.""",p),
-                          Paragraph("""LA EMPRESA, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + smart_str(empresa.razon_social),p),
+                          Paragraph("El " + smart_str(empresa.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
                           Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""",p)
@@ -1456,7 +1467,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 730, u"N°"+conformidad.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, "PIURA " + conformidad.fecha.strftime('%d de %B de %Y'))
+        pdf.drawString(430, 780, empresa.distrito + " " + conformidad.fecha.strftime('%d de %b de %Y'))
         requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
         gerencia_inmediata = requerimiento.oficina.gerencia
         puesto_gerente = Puesto.objects.get(oficina=gerencia_inmediata,estado=True)

@@ -1,0 +1,142 @@
+{% extends "administracion/base_administracion.html" %} {% block cuerpo %}
+{% if object %}
+<h3>Puestos / {{ object.nombre }}</h3>
+{% else %}
+<h3>Puestos / Nuevo</h3>
+{% endif %}
+<form role="form" action="#" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	<div class="row">
+		<div class="col-lg-10">
+			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+			{% if object %}
+				<button type="button" class="btn btn-default" onclick="location.href='{% url 'administracion:detalle_puesto' object.pk %}'">
+					Cancelar
+				</button>
+			{% else %}
+				<button type="button" class="btn btn-default" onclick="location.href='{% url 'administracion:maestro_puestos' %}'">
+					Cancelar
+				</button>
+			{% endif %}
+		</div>
+		<div class="col-lg-2 text-right">
+			<div class="btn-group">
+				{% if object %}
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:modificar_puesto' object.anterior %}';">
+					<span class="glyphicon glyphicon-step-backward"></span>
+				</button>
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:modificar_puesto' object.siguiente %}';">
+					<span class="glyphicon glyphicon-step-forward"></span>
+				</button>
+				{% endif %}
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:maestro_puestos' %}';">
+					<span class="glyphicon glyphicon-th-list"></span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<hr />
+	<div class="panel panel-default">
+		<div class="panel-body">
+			<div class="row">
+				<div class="col-lg-7">
+					<label>Descripción:</label>
+					{% if form.nombre.errors %}
+						{% for error in form.nombre.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
+					<h3>{{ form.nombre }}</h3>					
+				</div>				
+				<div class="col-lg-5">
+					<div class="btn-group"></div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-2">
+					<p>ES JEFATURA: {{ form.es_jefatura }}</p>
+				</div>
+				<div class="col-lg-3">
+					<p>ES ASISTENTE: {{ form.es_asistente }}</p>
+				</div>				
+			</div>
+			<br>
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+			</ul>
+			<div class="tab-content">
+				<div id="general" class="tab-pane fade in active">
+					<br>
+					<div class="row">
+						<div class="col-lg-4">
+							<label>TRABAJADOR:</label> 
+							{% if form.trabajador.errors %}
+								{% for error in form.trabajador.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
+							{{ form.trabajador }} 
+							<label>OFICINA:</label>
+							{% if form.oficina.errors %}
+								{% for error in form.oficina.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
+							{{ form.oficina }} 
+							<label>FECHA INICIO:</label>
+							{% if form.fecha_inicio.errors %}
+								{% for error in form.fecha_inicio.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %} 
+							{{ form.fecha_inicio }}
+						</div>
+						<div class="col-lg-4">
+							<label>FECHA FIN:</label> 
+							{% if form.fecha_fin.errors %}
+								{% for error in form.fecha_fin.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
+							{{ form.fecha_fin }}
+						</div>
+						<div class="col-lg-4"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+{% endblock cuerpo %} {% block js %}
+<script>
+	$(document).ready(function() {
+		$("#id_fecha_inicio").datepicker();
+		$("#id_fecha_fin").datepicker();
+	});
+</script>
+{% endblock js %}

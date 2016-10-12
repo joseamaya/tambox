@@ -22,8 +22,7 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'requerimientos:modificar_requerimiento' object.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'requerimientos:modificar_requerimiento' object.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
 				<button class="btn btn-default" type="button" onclick="location.href='{% url 'requerimientos:modificar_requerimiento' object.siguiente %}';">
@@ -53,7 +52,7 @@
 			<div class="form-group">
 				<div class="row">
 					<div class="col-md-12">
-						<label>Pedido para:</label>
+						<label>Requerido para:</label>
 						{% if form.motivo.errors %}
 							{% for error in form.motivo.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
@@ -84,7 +83,7 @@
 					    {% endif %} 
 						{{ form.mes }}						
 					</div>
-					<div class="col-md-3">
+					<div class="col-md-5">
 						<label>Informe:</label>
 						{% if form.informe.errors %}
 							{% for error in form.informe.errors %}
@@ -136,7 +135,7 @@
 						<thead>
 							<tr>
 								<th>Código</th>								
-								<th>Descripción</th>
+								<th>Bien/Servicio</th>
 								<th>Unidad</th>
 								<th>Cantidad</th>
 								<th>Uso</th>

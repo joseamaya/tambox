@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from contabilidad.models import Configuracion
 from django.db.models import Max
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
-from administracion.models import Trabajador, Oficina, Puesto
+from administracion.models import Trabajador, Oficina
 from productos.models import Producto
-from requerimientos.mail import correo_creacion_requerimiento
 
 # Create your models here.
 class Requerimiento(TimeStampedModel):
@@ -67,6 +65,16 @@ class Requerimiento(TimeStampedModel):
     def __str__(self):
         return self.codigo
     
+    def establecer_estado_cotizado(self):
+        estado_requerimiento = Requerimiento.STATUS.COTIZ
+        detalles_requerimiento = DetalleRequerimiento.objects.filter(requerimiento = self)
+        for detalle in detalles_requerimiento:
+            if detalle.estado == DetalleRequerimiento.STATUS.COTIZ_PARC or detalle.estado == DetalleRequerimiento.STATUS.PEND:
+                estado_requerimiento = Requerimiento.STATUS.COTIZ_PARC
+                break
+        self.estado = estado_requerimiento
+        self.save()
+    
     def establecer_estado(self):
         estado_requerimiento = Requerimiento.STATUS.PED
         detalles_requerimiento = DetalleRequerimiento.objects.filter(requerimiento = self)
@@ -98,11 +106,7 @@ class Requerimiento(TimeStampedModel):
                 aux=int(id_ant[-6:])+1
             correlativo = str(aux).zfill(6)
             codigo = 'RQ'+str(anio)+correlativo
-            self.codigo = codigo
-            puesto_jefe = Puesto.objects.get(oficina=self.oficina,es_jefatura=True,estado=True)
-            jefe = puesto_jefe.trabajador
-            destinatario = [jefe.usuario.email]
-            correo_creacion_requerimiento(destinatario,self)
+            self.codigo = codigo                        
             super(Requerimiento, self).save()
             AprobacionRequerimiento.objects.create(requerimiento = self)
         else:
@@ -170,27 +174,5 @@ class AprobacionRequerimiento(TimeStampedModel):
         permissions = (('ver_tabla_aprobacion_requerimientos', 'Puede ver tabla de Aprobación de Requerimientos'),
                        ('ver_reporte_aprobacion_requerimientos_excel', 'Puede ver Reporte de Aprobación de Requerimientos en excel'),)
 
-    def save(self, *args, **kwargs):
-        configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
-        logistica = configuracion.logistica
-        if self.estado==self.STATUS.APROB_LOG:
-            oficina = presupuesto            
-        elif self.estado==self.STATUS.APROB_GER_INM:
-            oficina = oficina_administracion
-        elif self.estado==self.STATUS.APROB_GER_ADM:
-            oficina = logistica        
-        elif self.estado==self.STATUS.APROB_JEF:
-            oficina = self.requerimiento.oficina.gerencia
-        else:
-            oficina = None
-        if oficina is not None:
-            puesto_jefe = Puesto.objects.get(oficina=oficina,es_jefatura=True,estado=True)
-            jefe = puesto_jefe.trabajador
-            destinatario = [jefe.usuario.email]
-            self.requerimiento.enviar_correo(destinatario)
-        super(AprobacionRequerimiento, self).save()
-        
     def __str__(self):
         return self.pk

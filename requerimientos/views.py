@@ -35,6 +35,7 @@ from requerimientos.forms import AprobacionRequerimientoForm,\
 from compras.forms import DetalleCotizacionFormSet
 from compras.models import Cotizacion
 from productos.models import Producto
+from requerimientos.mail import correo_creacion_requerimiento
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -52,7 +53,7 @@ class AprobarRequerimiento(UpdateView):
     form_class = AprobacionRequerimientoForm
     success_url = reverse_lazy('requerimientos:listado_aprobacion_requerimientos')
     
-    @method_decorator(permission_required('compras.change_aprobacionrequerimiento',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('requerimientos.change_aprobacionrequerimiento',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
         configuracion = Configuracion.objects.first()
@@ -159,7 +160,7 @@ class CrearRequerimiento(CreateView):
     def form_valid(self, form, detalle_requerimiento_formset):
         try:
             with transaction.atomic():
-                self.object = form.save()        
+                self.object = form.save()
                 detalles = []
                 cont = 1
                 for detalle_requerimiento_form in detalle_requerimiento_formset:                
@@ -175,6 +176,10 @@ class CrearRequerimiento(CreateView):
                         detalles.append(DetalleRequerimiento(requerimiento=self.object, nro_detalle = cont, otro=producto, cantidad=cantidad, uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
+                puesto_jefe = Puesto.objects.get(oficina=self.object.oficina, es_jefatura=True, estado=True)
+                jefe = puesto_jefe.trabajador
+                destinatario = [jefe.usuario.email]
+                correo_creacion_requerimiento(destinatario, self.object)
                 return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.codigo]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando el requerimiento.')
@@ -207,10 +212,10 @@ class EliminarRequerimiento(TemplateView):
         
 class ListadoAprobacionRequerimientos(ListView):
     model = AprobacionRequerimiento
-    template_name = 'requerimientos/aprobacion_requerimientos.html'
+    template_name = 'requerimientos/listado_aprobacion_requerimientos.html'
     context_object_name = 'aprobacion_requerimientos'    
     
-    @method_decorator(permission_required('compras.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('requerimientos.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoAprobacionRequerimientos, self).dispatch(*args, **kwargs)
     
@@ -265,11 +270,11 @@ class ListadoCotizacionesPorRequerimiento(ListView):
     
 class ListadoRequerimientos(ListView):
     model = Requerimiento
-    template_name = 'requerimientos/requerimientos.html'
+    template_name = 'requerimientos/listado_requerimientos.html'
     context_object_name = 'requerimientos'
     queryset = Requerimiento.objects.exclude(estado=Requerimiento.STATUS.CANC).order_by('codigo')
     
-    @method_decorator(permission_required('compras.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('requerimientos.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoRequerimientos, self).dispatch(*args, **kwargs)
     
@@ -401,15 +406,18 @@ class TransferenciaRequerimiento(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaRequerimiento, self).get_context_data(**kwargs)
-        requerimientos = Requerimiento.objects.filter(aprobacionrequerimiento__estado=AprobacionRequerimiento.STATUS.APROB_PRES).filter(Q(estado = Requerimiento.STATUS.PEND) | Q(estado = Requerimiento.STATUS.COTIZ))
+        requerimientos = Requerimiento.objects.filter(aprobacionrequerimiento__estado=AprobacionRequerimiento.STATUS.APROB_PRES).filter(Q(estado = Requerimiento.STATUS.PEND) | Q(estado = Requerimiento.STATUS.COTIZ_PARC) | Q(estado = Requerimiento.STATUS.COTIZ))
         context['requerimientos'] = requerimientos
         return context
     
 class ReportePDFRequerimiento(View):
     
     def cabecera(self,pdf,requerimiento):
-        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 20, 750, 100, 90,preserveAspectRatio=True)  
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
+            pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
+        except:
+            pdf.drawString(40,800,str(archivo_imagen))        
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"REQUERIMIENTO DE BIENES Y SERVICIOS"]]
         tabla_encabezado = Table(encabezado,colWidths=[8 * cm])
