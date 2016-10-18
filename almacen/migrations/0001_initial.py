@@ -9,10 +9,10 @@ import model_utils.fields
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('productos', '0001_initial'),
         ('compras', '0001_initial'),
-        ('contabilidad', '0001_initial'),
+        ('productos', '0001_initial'),
         ('administracion', '0001_initial'),
+        ('contabilidad', '0001_initial'),
     ]
 
     operations = [

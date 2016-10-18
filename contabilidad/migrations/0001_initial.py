@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'ordering': ['cuenta'],
-                'permissions': (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'), ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'), ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'), ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel')),
+                'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'), ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'), ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'), ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel')),
             },
         ),
         migrations.CreateModel(
@@ -55,6 +55,11 @@ class Migration(migrations.Migration):
                 ('distrito', models.CharField(max_length=100)),
                 ('provincia', models.CharField(max_length=100)),
                 ('departamento', models.CharField(max_length=100)),
+                ('host_correo', models.CharField(max_length=70)),
+                ('puerto_correo', models.IntegerField(default=25)),
+                ('usuario', models.EmailField(max_length=254)),
+                ('password', models.CharField(max_length=20)),
+                ('usa_tls', models.BooleanField(default=True)),
             ],
             options={
                 'abstract': False,

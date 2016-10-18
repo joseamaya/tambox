@@ -174,5 +174,30 @@ class AprobacionRequerimiento(TimeStampedModel):
         permissions = (('ver_tabla_aprobacion_requerimientos', 'Puede ver tabla de Aprobación de Requerimientos'),
                        ('ver_reporte_aprobacion_requerimientos_excel', 'Puede ver Reporte de Aprobación de Requerimientos en excel'),)
 
+<<<<<<< HEAD
+=======
+    def save(self, *args, **kwargs):
+        configuracion = Configuracion.objects.first()
+        oficina_administracion = configuracion.administracion
+        presupuesto = configuracion.presupuesto
+        logistica = configuracion.logistica
+        if self.estado==self.STATUS.APROB_LOG:
+            oficina = presupuesto            
+        elif self.estado==self.STATUS.APROB_GER_INM:
+            oficina = oficina_administracion
+        elif self.estado==self.STATUS.APROB_GER_ADM:
+            oficina = logistica        
+        elif self.estado==self.STATUS.APROB_JEF:
+            oficina = self.requerimiento.oficina.gerencia
+        else:
+            oficina = None
+        if oficina is not None:
+            puesto_jefe = Puesto.objects.get(oficina=oficina,es_jefatura=True,estado=True)
+            jefe = puesto_jefe.trabajador
+            destinatario = [jefe.usuario.email]
+            correo_creacion_requerimiento(destinatario, self.requerimiento)
+        super(AprobacionRequerimiento, self).save()
+        
+>>>>>>> branch 'master' of https://github.com/joseamaya/tambox
     def __str__(self):
         return self.pk
