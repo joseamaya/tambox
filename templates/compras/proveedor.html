@@ -8,8 +8,7 @@
 <form role="form" action="#" method="post">
 	{% csrf_token %}
 	<div class="row">
-		<div class="col-lg-10">
-			<button type="button" class="btn btn-info" id="id_sunat">Datos SUNAT</button>
+		<div class="col-lg-10">			
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
 			{% if object %}
 			<button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:detalle_proveedor' object.pk %}'">
@@ -146,41 +145,6 @@ $(document).ready(function()
 	    mySpinner.spin();
 	}
 	
-	$("#id_sunat").click(function() 
-	{
-		var ruc=$("#id_ruc").val();		
-		if(ruc.length==11)
-		{
-			setupLoading();
-			$.ajax({
-		      url: "{% url 'compras:busqueda_proveedor_sunat' %}",
-		      data: {'ruc': ruc},
-		      success: function(data) 
-		      {
-		    	  if(data.razon_social=="Proveedor no existe")
-		    	  {
-		    		  removeLoading();
-		    		  alert(data.razon_social);
-		    		  $("#id_ruc").val("")
-		    	  }
-		    	  else if(data.razon_social=="Error en la conexión con SUNAT")
-		    	  {
-		    		  removeLoading();
-		    		  alert(data.razon_social);
-		    	  }		    	
-		    	  else
-		    	  {
-		    		  removeLoading();
-		    		  $("#id_ruc").val(data.razon_social)
-		    	  }
-		      }
-		    });
-		}
-		else
-		{
-			alert("El RUC debe tener una longitud de 11 dígitos")
-		}
-	});
 });
 </script>
 {% endblock js %}

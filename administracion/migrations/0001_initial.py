@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+from django.db import models, migrations
 import django.utils.timezone
 from django.conf import settings
 import model_utils.fields
@@ -56,6 +56,7 @@ class Migration(migrations.Migration):
                 ('fecha_inicio', models.DateField()),
                 ('fecha_fin', models.DateField(null=True)),
                 ('es_jefatura', models.BooleanField(default=False)),
+                ('es_asistente', models.BooleanField(default=False)),
                 ('estado', models.BooleanField(default=True)),
                 ('oficina', models.ForeignKey(to='administracion.Oficina')),
             ],

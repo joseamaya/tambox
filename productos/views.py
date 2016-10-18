@@ -100,13 +100,13 @@ class CargarGrupoProductos(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             try:
-                cuenta = CuentaContable.objects.get(cuenta=fila[0])
+                cuenta = CuentaContable.objects.get(cuenta=fila[0].strip())
                 descripcion = fila[1] 
                 grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=unicode(descripcion, errors='ignore'),
                                                                                defaults={'ctacontable' : cuenta
                                                                                         })
             except CuentaContable.DoesNotExist:
-                pass                       
+                print "Cuenta contable no existe"                       
         return HttpResponseRedirect(reverse('productos:grupos_productos'))
         
 class CargarServicios(FormView):

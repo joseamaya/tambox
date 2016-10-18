@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
+from django.db import models, migrations
 import contabilidad.models
 import django.utils.timezone
 import model_utils.fields
@@ -55,6 +55,11 @@ class Migration(migrations.Migration):
                 ('distrito', models.CharField(max_length=100)),
                 ('provincia', models.CharField(max_length=100)),
                 ('departamento', models.CharField(max_length=100)),
+                ('host_correo', models.CharField(max_length=70)),
+                ('puerto_correo', models.IntegerField(default=25)),
+                ('usuario', models.EmailField(max_length=254)),
+                ('password', models.CharField(max_length=20)),
+                ('usa_tls', models.BooleanField(default=True)),
             ],
             options={
                 'abstract': False,
