@@ -37,14 +37,14 @@ class TipoMovimientoForm(forms.ModelForm):
         fields =['descripcion','incrementa','pide_referencia']
         
     def __init__(self, *args, **kwargs):
-        self.aestado= True
+        self.estado= True
         super(TipoMovimientoForm, self).__init__(*args, **kwargs)
         self.fields['descripcion'].widget.attrs.update({
                 'class': 'form-control'
         })
 
     def save(self, *args, **kwargs):
-        self.instance.aestado= self.aestado
+        self.instance.estado= self.estado
         return super(TipoMovimientoForm, self).save(*args, **kwargs)
 
 class TipoSalidaForm(forms.ModelForm):
