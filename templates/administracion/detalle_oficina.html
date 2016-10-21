@@ -1,11 +1,13 @@
-{% extends "administracion/base_administracion.html" %} {% block cuerpo %}
+{% extends "administracion/base_administracion.html" %} 
+{% block cuerpo %}
 <h3>Oficinas / {{ object.nombre }}</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.administracion.change_oficina %} <a
-			class="btn btn-primary"
+		{% if perms.administracion.change_oficina %} 
+		<a class="btn btn-primary"
 			href="{% url 'administracion:modificar_oficina' object.pk %}">
-			Editar </a> {% endif %} {% if perms.administracion.delete_oficina %}
+			Editar </a> {% endif %} 
+		{% if perms.administracion.delete_oficina %}
 		<button class="btn btn-danger" type="button" id="id_eliminar">
 			Eliminar</button>
 		{% endif %}
@@ -41,8 +43,7 @@
 		</div>
 		<br>
 		<ul class="nav nav-tabs">
-			<li class="active"><a data-toggle="tab" href="#general">Información
-					General</a></li>
+			<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
 		</ul>
 		<div class="tab-content">
 			<div id="general" class="tab-pane fade in active">

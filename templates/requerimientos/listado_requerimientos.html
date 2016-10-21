@@ -1,18 +1,20 @@
-{% extends "requerimientos/base_requerimientos.html" %} {% block cuerpo %}
+{% extends "requerimientos/base_requerimientos.html" %} 
+{% block cuerpo %}
 <h3>Requerimientos</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.requerimientos.add_proveedor %} <a
-			href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary">
-			Crear </a> {% endif %} {% if perms.requerimientos.cargar_proveedores %} <a
-			href="#" class="btn btn-default">
+		{% if perms.requerimientos.add_requerimiento %} 
+		<a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a> 
+		{% endif %} 
+		{% if perms.requerimientos.cargar_requerimientos %} 
+		<a href="#" class="btn btn-default">
 			Importar </a> 
 		{% endif %}
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">
-			{% if perms.requerimientos.ver_reporte_proveedores_excel %}
-			<button class="btn btn-default" type="button">
+			{% if perms.requerimientos.ver_reporte_requerimientos_excel %}
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'requerimientos:maestro_requerimientos_excel' %}';">
 				<span class="glyphicon glyphicon-list-alt"></span>
 			</button>
 			{% endif %}

@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
-from almacen.views import CrearAlmacen, CrearTipoStock, ReporteExcelKardexProducto,\
-    RegistrarIngresoAlmacen,RegistrarSalidaAlmacen, CrearTipoSalida, CrearDetalleSalida,\
+from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,RegistrarSalidaAlmacen, CrearTipoSalida, CrearDetalleSalida,\
     ReportePDFProductos, InicioOperaciones, CrearTipoMovimiento,ListadoAlmacenes,ListadoTiposUnidadMedida,\
     ListadoTiposStock, Tablero, ListadoTiposMovimiento, VerificarSolicitaDocumento,\
     ReporteExcelMovimientos, ReporteExcelMovimientosPorFecha, ListadoMovimientos, CrearDetalleIngreso,\
@@ -10,7 +9,8 @@ from almacen.views import CrearAlmacen, CrearTipoStock, ReporteExcelKardexProduc
     ReporteExcelAlmacenes, ModificarIngresoAlmacen,ModificarSalidaAlmacen, VerificarPideReferencia, ReporteExcelTiposMovimientos, CrearPedido,\
     CargarAlmacenes, CargarInventarioInicial, CrearDetallePedido,ModificarPedido, ListadoPedidos, AprobarPedido, ListadoAprobacionPedidos, VerificarStockParaPedido,\
     DetalleOperacionPedido, DetalleOperacionMovimiento, ReporteExcelStock,\
-    ListadoIngresos, ListadoSalidas, ReporteConsolidadoProductosKardexExcel, ReporteConsolidadoGruposKardexExcel
+    ListadoIngresos, ListadoSalidas, ReporteConsolidadoProductosKardexExcel, ReporteConsolidadoGruposKardexExcel,\
+    GeneracionKardexProducto
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -41,7 +41,7 @@ urlpatterns = patterns('',
     url(r'^aprobar_pedido/(?P<codigo>.+)/$', login_required(AprobarPedido.as_view()), name="aprobar_pedido"),
     url(r'^verificar_solicita_documento/$', login_required(VerificarSolicitaDocumento.as_view()), name="verificar_solicita_documento"),
     url(r'^verificar_pide_referencia/$', login_required(VerificarPideReferencia.as_view()), name="verificar_pide_referencia"),
-    url(r'^kardex_suministro/$', login_required(ReporteExcelKardexProducto.as_view()), name="kardex_suministro"),
+    url(r'^generacion_kardex_producto/$', login_required(GeneracionKardexProducto.as_view()), name="generacion_kardex_producto"),
     url(r'^reporte_productos/$', login_required(ReportePDFProductos), name="reporte_productos"),
     url(r'^reporte_movimientos/$', login_required(ReporteExcelMovimientos.as_view()), name="reporte_movimientos"),
     url(r'^consulta_stock/$', login_required(ConsultaStock.as_view()), name="consulta_stock"),

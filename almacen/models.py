@@ -81,6 +81,7 @@ class Almacen(TimeStampedModel):
 #Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
     codigo = models.CharField(primary_key=True,max_length=10)
+    codigo_sunat = models.CharField(max_length=2)
     descripcion = models.CharField(max_length=25)
     incrementa = models.BooleanField()
     pide_referencia = models.BooleanField(default=False)

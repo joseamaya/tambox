@@ -8,6 +8,7 @@ from django.forms import formsets
 from django.core.exceptions import ValidationError
 
 parametros = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
+
 meses = (
     ('01', 'Enero'),
     ('02', 'Febrero'),
@@ -22,6 +23,8 @@ meses = (
     ('11', 'Noviembre'),
     ('12', 'Diciembre'),
 )
+
+formatos = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
 choices_tipos_movimiento = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
 choices_almacenes = [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
 choices_meses = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in Kardex.objects.datetimes('fecha_operacion', 'month')]
@@ -37,14 +40,14 @@ class TipoMovimientoForm(forms.ModelForm):
         fields =['descripcion','incrementa','pide_referencia']
         
     def __init__(self, *args, **kwargs):
-        self.estado= True
+        self.aestado= True
         super(TipoMovimientoForm, self).__init__(*args, **kwargs)
         self.fields['descripcion'].widget.attrs.update({
                 'class': 'form-control'
         })
 
     def save(self, *args, **kwargs):
-        self.instance.estado= self.estado
+        self.instance.aestado= self.aestado
         return super(TipoMovimientoForm, self).save(*args, **kwargs)
 
 class TipoSalidaForm(forms.ModelForm):
@@ -172,7 +175,8 @@ class FormularioKardexProducto(forms.Form):
     meses = forms.ChoiceField(choices=choices_meses, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     anios = forms.ChoiceField(choices=choices_annios, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     cod_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))    
+    desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'})) 
+    formatos = forms.ChoiceField(choices=formatos, widget=forms.RadioSelect,required=False)      
     
 class CargarInventarioInicialForm(forms.ModelForm):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
@@ -265,7 +269,7 @@ class BaseDetalleIngresoFormSet(formsets.BaseFormSet):
 class FormularioDetalleSalida(forms.Form):
     codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
     nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
+    unidad = forms.CharField(20, widget= forms.TextInput(attrs={'size': 20,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'precio decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))

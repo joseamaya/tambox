@@ -41,8 +41,10 @@
 		            <li><a href="{% url 'almacen:reporte_kardex' %}">Kardex</a></li>
 		            {% endif %}
 		            {% if perms.almacen.ver_reporte_kardex_excel %}
-		            <li><a href="{% url 'almacen:kardex_suministro' %}">Kardex por Suministro</a></li>
+		            <li><a href="{% url 'almacen:generacion_kardex_producto' %}">Kardex Producto</a></li>
 		            {% endif %}
+		            
+		            
 		            {% if perms.almacen.ver_reporte_kardex_excel %}
 		            <li><a href="{% url 'almacen:reporte_consolidado_productos_kardex' %}">Consolidado Kardex Productos</a></li>
 		            {% endif %}

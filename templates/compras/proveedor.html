@@ -8,7 +8,8 @@
 <form role="form" action="#" method="post">
 	{% csrf_token %}
 	<div class="row">
-		<div class="col-lg-10">			
+		<div class="col-lg-10">
+			<button type="button" class="btn btn-info" id="id_sunat">Datos SUNAT</button>
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
 			{% if object %}
 			<button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:detalle_proveedor' object.pk %}'">
@@ -144,7 +145,6 @@ $(document).ready(function()
 	function showLoading() {
 	    mySpinner.spin();
 	}
-	
 });
 </script>
 {% endblock js %}

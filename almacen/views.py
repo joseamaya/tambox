@@ -15,7 +15,7 @@ from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
+from reportlab.lib.pagesizes import letter, landscape, A4
 from reportlab.platypus import Table
 from django.http import JsonResponse
 from compras.models import DetalleOrdenCompra
@@ -30,7 +30,7 @@ from django.views.generic.edit import UpdateView, CreateView
 from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Puesto
 import locale
-from contabilidad.models import Tipo, Configuracion, Empresa
+from contabilidad.models import Tipo, Configuracion, Empresa, TipoDocumento
 import csv
 from contabilidad.forms import UploadForm
 import os
@@ -52,19 +52,20 @@ class Tablero(View):
         cod_mov_ingreso_compra = 'I01'
         cod_mov_salida_pedido = 'S01'
         lista_notificaciones = []
-        cant_almacenes = Almacen.objects.count()
-        cant_tipos_documento = Tipo.objects.filter(tabla="tipo_documento",descripcion_campo="tipo_documento").count()
+        cant_almacenes = Almacen.objects.count()        
         cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_mov_invent_ini).count()
         cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
         inventario_inicial = Movimiento.objects.filter(tipo_movimiento=cod_mov_invent_ini).count()
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_invent_ini,
                                                                        defaults = {'descripcion':'INVENTARIO INICIAL',
+                                                                                   'codigo_sunat': '16',
                                                                                    'incrementa':True,
                                                                                    'estado':True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_ingreso_compra,
                                                                        defaults = {'descripcion':'INGRESO POR COMPRA',
+                                                                                   'codigo_sunat': '02',
                                                                                    'incrementa':True,
                                                                                    'pide_referencia':True,
                                                                                    'estado':True})
@@ -72,6 +73,7 @@ class Tablero(View):
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_salida_pedido,
                                                                        defaults = {'descripcion':'SALIDA POR PEDIDO',
+                                                                                   'codigo_sunat': '10',
                                                                                    'incrementa':False,
                                                                                    'pide_referencia':True,
                                                                                    'estado':True})
@@ -79,8 +81,6 @@ class Tablero(View):
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")                            
         if cant_almacenes==0:
             lista_notificaciones.append("No se ha creado ningún almacen")            
-        if cant_tipos_documento == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de documento")       
         if cant_tipos_movimientos_ingreso == 0:
             lista_notificaciones.append("No se ha creado ningún tipo de movimiento de ingreso")            
         if cant_tipos_movimientos_salida == 0:
@@ -280,13 +280,16 @@ class CargarInventarioInicial(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         tipo_movimiento = TipoMovimiento.objects.get(codigo='I00')
-        with transaction.atomic():            
+        with transaction.atomic():
+            tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')            
             movimiento = Movimiento.objects.create(tipo_movimiento = tipo_movimiento,
+                                                   tipo_documento = tipo_documento,
                                                    almacen = almacen,
                                                    fecha_operacion=fecha_operacion,
                                                    total = 0,
-                                                   observaciones = 'INVENTARIO INICIAL')
-            
+                                                   observaciones = 'INVENTARIO INICIAL',
+                                                   serie = 'SALDO',
+                                                   numero = 'INICIAL')            
             cont_detalles = 1
             detalles = []
             total = 0
@@ -515,7 +518,7 @@ class CrearPedido(CreateView):
                 puesto_jefe_logistica = Puesto.objects.get(oficina = logistica, es_jefatura = True, estado = True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
                 destinatario = [jefe_logistica.usuario.email]
-                correo_creacion_pedido(destinatario,self)
+                correo_creacion_pedido(destinatario,self.object)
                 return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.pk]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando el pedido.')
@@ -1383,10 +1386,25 @@ class ReporteConsolidadoProductosKardexExcel(FormView):
         wb.save(response)
         return response
 
-class ReporteExcelKardexProducto(FormView):
-    template_name = 'almacen/reporte_kardex_producto.html'
+class GeneracionKardexProducto(FormView):
+    template_name = 'almacen/generacion_kardex_producto.html'
     form_class = FormularioKardexProducto
     
+    def form_valid(self, form):
+        data = form.cleaned_data
+        cod_prod = data['cod_producto']
+        producto = Producto.objects.get(codigo=cod_prod)
+        mes = data['meses']
+        anio = data['anios']
+        almacen = data['almacenes']
+        formatos = data['formatos']
+        if formatos == 'S':
+            return self.obtener_formato_sunat_unidades_fisicas(cod_prod, producto, mes, anio, almacen)
+        elif formatos == 'V':
+            return self.obtener_formato_sunat_valorizado(cod_prod, producto, mes, anio, almacen)
+        else:
+            return self.obtener_formato_normal(cod_prod, producto, mes, anio, almacen)
+        
     def obtener_mes_anterior(self,mes,anio):
         if(mes<1):
             mes = 12
@@ -1394,16 +1412,12 @@ class ReporteExcelKardexProducto(FormView):
         else:
             mes = int(mes) - 1
         return mes,anio
-
-    def post(self, request, *args, **kwargs):
-        cod_prod = request.POST['cod_producto']
+        
+    def obtener_formato_normal(self, cod_prod, producto, mes, anio, almacen):
         producto = Producto.objects.get(codigo=cod_prod)
-        mes = request.POST['meses']
-        anio = request.POST['anios']
-        almacen = request.POST['almacenes']
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Almacén: '+ almacen
+        ws['B1'] = u'Almacén: '+ almacen.descripcion
         ws['E1'] = 'Periodo: '+ mes+'-'+ anio        
         ws['B3'] = 'FECHA'
         ws['C3'] = 'NRO_DOC'
@@ -1440,7 +1454,7 @@ class ReporteExcelKardexProducto(FormView):
         ws.cell(row=cont,column=13).value = valor_saldo_inicial
         ws.cell(row=cont,column=13).number_format = '#.00000'
         cont = cont + 1
-        listado_kardex = Kardex.objects.filter(almacen__codigo =  almacen,fecha_operacion__year=anio,fecha_operacion__month=mes,producto=producto.codigo).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+        listado_kardex = Kardex.objects.filter(almacen =  almacen,fecha_operacion__year=anio,fecha_operacion__month=mes,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
         if len(listado_kardex)>0:
             cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
             cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
@@ -1518,6 +1532,188 @@ class ReporteExcelKardexProducto(FormView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
+    
+    def cabecera(self,pdf, x, y, mes, anio, almacen, producto, valorizado):
+        pdf.setFont("Times-Bold", 12)
+        if valorizado:
+            pdf.drawString(200, y, u"REGISTRO DE INVENTARIO PERMANENTE VALORIZADO ")
+        else:
+            pdf.drawString(200, y, u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS")
+            x = 40
+        pdf.setFont("Times-Roman", 11)        
+        pdf.drawString(x, y-20, u"PERIODO: "+ mes+'-'+ anio)
+        pdf.drawString(x, y-40, u"RUC:" + empresa.ruc)
+        pdf.drawString(x, y-60, u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa.razon_social)
+        pdf.drawString(x, y-80, u"ESTABLECIMIENTO (1): " + empresa.direccion())
+        pdf.drawString(x, y-100, u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo)
+        pdf.drawString(x, y-120, u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion)
+        pdf.drawString(x, y-140, u"DESCRIPCIÓN: " + producto.descripcion)
+        pdf.drawString(x, y-160, u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion)        
+        if valorizado:
+            pdf.drawString(x, y-180, u"MÉTODO DE VALUACIÓN: PEPS")
+            y = y - 200
+        else:            
+            y = y - 180
+        return y            
+    
+    def detalle_permanente_unidades_fisicas(self,pdf,y, mes, anio, almacen, producto):
+        encabezados = ('FECHA', 'TIPO (TABLA 10)', 'SERIE', 'NÚMERO', u'TIPO DE OPERACIÓN ','ENTRADAS','SALIDAS', 'SALDO  FINAL')
+        mes_ant, anio_ant = self.obtener_mes_anterior(mes, anio)
+        listado_kardex_ant = Kardex.objects.filter(almacen =  almacen,fecha_operacion__year=anio_ant,fecha_operacion__month=mes_ant,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+        if len(listado_kardex_ant)>0:
+            c_s_i = listado_kardex_ant.aggregate(Sum('cantidad_total'))
+            cant_saldo_inicial=c_s_i['cantidad_total__sum']            
+        else:
+            cant_saldo_inicial = 0            
+        listado_kardex = Kardex.objects.filter(almacen =  almacen,fecha_operacion__year=anio,fecha_operacion__month=mes,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+        t_cantidad_i = 0
+        t_cantidad_s= 0
+        t_cantidad_t= 0   
+        if len(listado_kardex)>0:
+            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
+            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
+            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
+            t_cantidad_s= cantidad_salida['cantidad_salida__sum']
+            t_cantidad_t= cantidad_total['cantidad_total__sum']   
+            detalles = [(kardex.fecha_operacion.strftime('%d/%m/%Y'), kardex.movimiento.tipo_documento.codigo_sunat, kardex.movimiento.serie, kardex.movimiento.numero, kardex.movimiento.tipo_movimiento.codigo_sunat, kardex.cantidad_ingreso,kardex.cantidad_salida,kardex.cantidad_total) for kardex in listado_kardex]
+        detalles.insert(0, ('01/'+mes+"/"+anio,'00', 'SALDO', 'INICIAL','16',0,0,cant_saldo_inicial))
+        detalles.append(('','','','','TOTALES',t_cantidad_i, t_cantidad_s, t_cantidad_t))        
+        size = 30
+        listas = [detalles[i:i+size] for i  in range(0, len(detalles), size)]
+        cant_listas = len(listas)
+        cont_listas = 0
+        if cant_listas==1:
+            y = y - 20 * len(listas[0])
+        else:
+            y = y - 550
+        for lista in listas:
+            cont_listas = cont_listas + 1
+            detalle_orden = Table([encabezados] + lista,colWidths=[2.5 * cm, 3.5 * cm, 3 * cm, 3 * cm, 3.5 * cm, 3.5 * cm, 3.5 * cm])
+            detalle_orden.setStyle(TableStyle(
+                [
+                    ('ALIGN',(0,0),(7,0),'CENTER'),
+                    ('ALIGN',(5,1),(7,-1),'RIGHT'),
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black), 
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ]
+            ))
+            detalle_orden.wrapOn(pdf, 800, 600)
+            detalle_orden.drawOn(pdf, 40,y)            
+            if not len(lista)<30:
+                if cont_listas < cant_listas:
+                    pdf.setFont("Times-Roman", 8)
+                    pdf.drawString(210, 20,empresa.direccion())
+                    pdf.showPage()
+                    y = 400        
+        return y
+    
+    def detalle_permanente_valorizado(self,pdf,x,y, mes, anio, almacen, producto):
+        encabezados = ('FECHA', 'TIPO (TABLA 10)', 'SERIE', 'NÚMERO', u'TIPO DE OPERACIÓN ','CANTIDAD','COSTO UNIT.', 'COSTO TOT.','CANTIDAD','COSTO UNIT.', 'COSTO TOT.','CANTIDAD','COSTO UNIT.', 'COSTO TOT.')
+        mes_ant, anio_ant = self.obtener_mes_anterior(mes, anio)
+        listado_kardex_ant = Kardex.objects.filter(almacen =  almacen,fecha_operacion__year=anio_ant,fecha_operacion__month=mes_ant,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+        if len(listado_kardex_ant)>0:
+            c_s_i = listado_kardex_ant.aggregate(Sum('cantidad_total'))
+            cant_saldo_inicial=c_s_i['cantidad_total__sum']
+            v_s_i = listado_kardex_ant.aggregate(Sum('valor_total'))
+            valor_saldo_inicial=v_s_i['valor_total__sum']            
+        else:
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0           
+        listado_kardex = Kardex.objects.filter(almacen =  almacen,fecha_operacion__year=anio,fecha_operacion__month=mes,producto=producto).order_by('producto__descripcion','fecha_operacion','cantidad_salida','created')
+        t_cantidad_i = 0
+        t_cantidad_s= 0
+        t_cantidad_t= 0   
+        if len(listado_kardex)>0:
+            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
+            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
+            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
+            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
+            valor_total = listado_kardex.aggregate(Sum('valor_total'))
+            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
+            t_cantidad_s= cantidad_salida['cantidad_salida__sum']
+            t_cantidad_t= cantidad_total['cantidad_total__sum']
+            t_valor_i= valor_ingreso['valor_ingreso__sum']
+            t_valor_s= valor_salida['valor_salida__sum']
+            t_valor_t= valor_total['valor_total__sum'] 
+            detalles = [(kardex.fecha_operacion.strftime('%d/%m/%Y'), '', '', '', kardex.movimiento.tipo_movimiento.codigo_sunat, kardex.cantidad_ingreso,kardex.precio_ingreso,kardex.valor_ingreso,kardex.cantidad_salida,kardex.precio_salida,kardex.valor_salida,kardex.cantidad_total,kardex.precio_total,kardex.valor_total) for kardex in listado_kardex]
+        try:
+            precio_saldo_inicial = valor_saldo_inicial/cant_saldo_inicial
+        except:
+            precio_saldo_inicial = 0
+        detalles.insert(0, ('01/'+mes+"/"+anio,'00', 'SALDO', 'INICIAL','16',0,0,0,0,0,0,cant_saldo_inicial,precio_saldo_inicial,valor_saldo_inicial))
+        try:
+            t_precio_i = t_valor_i / t_cantidad_i
+        except:
+            t_precio_i = 0
+        try:
+            t_precio_s = t_valor_s / t_cantidad_s        
+        except:
+            t_precio_s = 0
+        try:
+            t_precio_t = t_valor_t / t_cantidad_t
+        except:
+            t_precio_t = 0
+        detalles.append(('','','','','TOTALES',t_cantidad_i, t_precio_i, t_valor_i, t_cantidad_s, t_precio_s, t_valor_s, t_cantidad_t, t_precio_t, t_valor_t))        
+        size = 30
+        listas = [detalles[i:i+size] for i  in range(0, len(detalles), size)]
+        cant_listas = len(listas)
+        cont_listas = 0
+        if cant_listas==1:
+            y = y - 20 * len(listas[0])
+        else:
+            y = y - 550
+        for lista in listas:
+            cont_listas = cont_listas + 1
+            detalle_orden = Table([encabezados] + lista,colWidths=[1.7 * cm, 2.5 * cm, 1.3 * cm, 1.5 * cm, 3.2 * cm, 1.8 * cm, 2 * cm, 2 * cm, 1.8 * cm, 2 * cm, 2 * cm, 1.8 * cm, 2 * cm, 2 * cm])
+            detalle_orden.setStyle(TableStyle(
+                [
+                    ('GRID', (0, 0), (-1, -1), 1, colors.black), 
+                    ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ]
+            ))
+            detalle_orden.wrapOn(pdf, 800, 600)
+            detalle_orden.drawOn(pdf, x ,y)            
+            if not len(lista)<30:
+                if cont_listas < cant_listas:
+                    pdf.setFont("Times-Roman", 8)
+                    pdf.drawString(210, 20,empresa.direccion())
+                    pdf.showPage()
+                    y = 400        
+        return y
+    
+    def obtener_formato_sunat_unidades_fisicas(self, cod_prod, producto, mes, anio, almacen):    
+        response = HttpResponse(content_type='application/pdf')
+        #response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.setPageSize(landscape(A4))
+        y=500
+        x = 40
+        y=self.cabecera(pdf, x, y, mes, anio, almacen, producto,False)
+        y=self.detalle_permanente_unidades_fisicas(pdf, y, mes, anio, almacen, producto)                    
+        pdf.save()
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response 
+    
+    def obtener_formato_sunat_valorizado(self, cod_prod, producto, mes, anio, almacen):    
+        response = HttpResponse(content_type='application/pdf')
+        #response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.setPageSize(landscape(A4))
+        y=500
+        x = 30
+        y=self.cabecera(pdf, x, y, mes, anio, almacen, producto,True)        
+        y=self.detalle_permanente_valorizado(pdf, x, y, mes, anio, almacen, producto)                    
+        pdf.save()
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response 
     
 class ReporteExcelKardex(FormView):
     template_name = 'almacen/reporte_kardex.html'

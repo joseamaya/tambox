@@ -214,7 +214,7 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
-										{{ form.cantidad }}
+							            {{ form.cantidad }}
 						            </td>	
 						            <td>
 						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
@@ -325,11 +325,7 @@ $(document).ready(function()
 				{
 					cont = i + 1;
 					$("#detalles tbody").append(
-<<<<<<< HEAD
 					"<tr class='formset'>" +				
-=======
-					"<tr class='detalle_cotizacion_formset'>" +				
->>>>>>> branch 'master' of https://github.com/joseamaya/tambox
 						"<td>" + cont + "</td>" +
 						"<td>" + item.requerimiento + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*- 
 from django.db import models
 from model_utils.models import TimeStampedModel
-from contabilidad.models import CuentaContable
+from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import smart_str
 
@@ -87,6 +87,7 @@ class Producto(TimeStampedModel):
     stock = models.DecimalField(max_digits=15, decimal_places=5,default=0) 
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
+    tipo_existencia = models.ForeignKey(TipoExistencia, null=True)
     estado = models.BooleanField(default=True)    
     
     class Meta:
