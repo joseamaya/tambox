@@ -20,21 +20,19 @@ from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
-from almacen.forms import FormularioKardexProducto
-from productos.models import GrupoProductos
-from almacen.models import Kardex
-from django.db.models import Sum
 
 class Tablero(View):
     
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         cant_cuentas_contables = CuentaContable.objects.count()
-        cant_tipos_documentos = TipoDocumento.objects.count()
+        tipo_documento, creado = TipoDocumento.objects.get_or_create(codigo_sunat = 'PEC',
+                                                                     defaults = {'descripcion':'PECOSA',
+                                                                                 'nombre': 'PECOSA'})
+        if creado:
+            lista_notificaciones.append("Se ha creado el tipo de documento PECOSA")
         if cant_cuentas_contables == 0:
             lista_notificaciones.append("No se ha creado ninguna cuenta contable")
-        if cant_tipos_documentos == 0:
-            lista_notificaciones.append("No se ha creado ningun tipo de documento")        
         context = {'notificaciones':lista_notificaciones}
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
     
@@ -50,7 +48,7 @@ class CargarCuentasContables(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             CuentaContable.objects.create(cuenta = fila[0].strip(),
-                                          descripcion= unicode(fila[1], errors='ignore'))                
+                                          descripcion= unicode(fila[1].strip(), errors='ignore'))                
         return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
     
 class CargarTiposDocumentos(FormView):
