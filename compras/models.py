@@ -8,6 +8,7 @@ from model_utils.models import TimeStampedModel, StatusModel
 from django.db.models import Max
 from contabilidad.models import FormaPago
 from productos.models import Producto
+from compras.querysets import NavegableQuerySet
 
 class DetalleCotizacionManager(models.Manager):
     
@@ -105,7 +106,7 @@ class DetalleConformidadServicioManager(models.Manager):
             detalle_requerimiento.establecer_estado_atendido()
             detalle.save()                        
         requerimiento.establecer_estado_atendido()
-        orden.establecer_estado()        
+        orden.establecer_estado()
 
 class RepresentanteLegal(TimeStampedModel):
     documento = models.CharField(primary_key=True,max_length=11)
@@ -132,6 +133,7 @@ class Proveedor(TimeStampedModel):
     ciiu = models.CharField(max_length=250)
     fecha_alta = models.DateField()
     estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
@@ -140,18 +142,12 @@ class Proveedor(TimeStampedModel):
         ordering = ['ruc']
     
     def anterior(self):
-        try:
-            sig = Proveedor.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = Proveedor.objects.all().last()            
-        return sig.pk
+        ant = Proveedor.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = Proveedor.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = Proveedor.objects.all().first()            
-        return ant.pk
+        sig = Proveedor.objects.siguiente(self)            
+        return sig.pk
     
     def __str__(self):
         return smart_str(self.razon_social)
@@ -168,20 +164,15 @@ class Cotizacion(TimeStampedModel):
                      ('DESC', _('DESCARTADA')),
                      ('CANC', _('CANCELADO')),)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    objects = NavegableQuerySet.as_manager()
     
     def anterior(self):
-        try:
-            sig = Cotizacion.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = Cotizacion.objects.all().last()            
-        return sig.pk
+        ant = Cotizacion.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = Cotizacion.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = Cotizacion.objects.all().first()            
-        return ant.pk
+        sig = Cotizacion.objects.siguiente(self)            
+        return sig.pk
     
     def eliminar_referencia(self):
         cotizacion = self
@@ -285,20 +276,15 @@ class OrdenCompra(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    objects = NavegableQuerySet.as_manager()
     
     def anterior(self):
-        try:
-            sig = OrdenCompra.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = OrdenCompra.objects.all().last()            
-        return sig.pk
+        ant = OrdenCompra.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = OrdenCompra.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = OrdenCompra.objects.all().first()            
-        return ant.pk
+        sig = OrdenCompra.objects.siguiente(self)            
+        return sig.pk
     
     def eliminar_referencia(self):
         referencia = self.cotizacion        
@@ -391,20 +377,15 @@ class OrdenServicios(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    objects = NavegableQuerySet.as_manager()
         
     def anterior(self):
-        try:
-            sig = OrdenServicios.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = OrdenServicios.objects.all().last()            
-        return sig.pk
+        ant = OrdenServicios.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = OrdenServicios.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = OrdenServicios.objects.all().first()            
-        return ant.pk
+        sig = OrdenServicios.objects.siguiente(self)            
+        return sig.pk
     
     def eliminar_referencia(self):
         referencia = self.cotizacion        
@@ -487,6 +468,7 @@ class ConformidadServicio(TimeStampedModel):
     total = models.DecimalField(max_digits=15, decimal_places=5)
     total_letras = models.CharField(max_length=150)
     estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_detalle_conformidad_servicio', 'Puede ver detalle de Conformidad de Servicio'),
@@ -494,18 +476,12 @@ class ConformidadServicio(TimeStampedModel):
                        ('ver_reporte_conformidades_servicio_excel', 'Puede ver Reporte de Conformidades de Servicio en excel'),)
     
     def anterior(self):
-        try:
-            sig = ConformidadServicio.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = ConformidadServicio.objects.all().last()            
-        return sig.pk
+        ant = ConformidadServicio.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = ConformidadServicio.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = ConformidadServicio.objects.all().first()            
-        return ant.pk
+        sig = ConformidadServicio.objects.siguiente(self)            
+        return sig.pk
     
     def eliminar_referencia(self, orden_compra):        
         referencia = orden_compra.cotizacion        

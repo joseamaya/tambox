@@ -1,44 +1,21 @@
 # -*- coding: utf-8 -*-
-import os
-from django.conf import settings
 from django.db import models
 from django.utils.encoding import smart_str, python_2_unicode_compatible
 from model_utils.models import TimeStampedModel
-from django.core.files.storage import FileSystemStorage
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Oficina
-
-class OverwriteStorage(FileSystemStorage):
-    
-    def get_available_name(self, name):
-        if self.exists(name):
-            os.remove(os.path.join(settings.MEDIA_ROOT, name))
-        return name
-    
-class SingletonModel(models.Model):
-    
-    class Meta:
-        abstract = True
-    
-    def save(self, *args, **kwargs):
-        self.pk = 1
-        super(SingletonModel, self).save(*args, **kwargs)
+from contabilidad.behaviors import SingletonModel
+from contabilidad.querysets import NavegableQuerySet
+from contabilidad.helpers import OverwriteStorage
         
-    def delete(self, *args, **kwargs):
-        pass
-    
-    @classmethod
-    def load(cls):
-        obj, created = cls.objects.get_or_create(pk=1)
-        return obj
-    
 class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True,max_length=12)
     descripcion = models.CharField(max_length=150)
     depreciacion = models.DecimalField(max_digits=18, decimal_places=2,default=0)
     divisionaria = models.BooleanField(default=False)
     estado = models.BooleanField(default = True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
@@ -48,18 +25,12 @@ class CuentaContable(TimeStampedModel):
         ordering = ['cuenta']
         
     def anterior(self):
-        try:
-            sig = CuentaContable.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = CuentaContable.objects.all().last()            
-        return sig.pk
+        ant = CuentaContable.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = CuentaContable.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = CuentaContable.objects.all().first()            
-        return ant.pk
+        sig = CuentaContable.objects.siguiente(self)            
+        return sig.pk
     
     def __str__(self):
         return smart_str(self.cuenta)
@@ -69,6 +40,7 @@ class FormaPago(TimeStampedModel):
     descripcion = models.CharField(max_length=50)
     dias_credito = models.IntegerField()
     estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('cargar_formas_pago', 'Puede cargar Formas de Pago desde un archivo externo'),
@@ -77,18 +49,12 @@ class FormaPago(TimeStampedModel):
                        ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel'),)
     
     def anterior(self):
-        try:
-            sig = FormaPago.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = FormaPago.objects.all().last()            
-        return sig.pk
+        ant = FormaPago.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = FormaPago.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = FormaPago.objects.all().first()            
-        return ant.pk
+        sig = FormaPago.objects.siguiente(self)            
+        return sig.pk
     
     def __str__(self):
         return smart_str(self.descripcion)
@@ -98,6 +64,7 @@ class TipoDocumento(TimeStampedModel):
     nombre = models.CharField(max_length=100)
     descripcion = models.CharField(max_length=100)
     estado = models.BooleanField(default = True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('cargar_tipos_documento', 'Puede cargar Tipos de Documento desde un archivo externo'),
@@ -107,18 +74,12 @@ class TipoDocumento(TimeStampedModel):
         ordering = ['codigo_sunat']
 
     def anterior(self):
-        try:
-            sig = TipoDocumento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = TipoDocumento.objects.all().last()            
-        return sig.pk
+        ant = TipoDocumento.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = TipoDocumento.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = TipoDocumento.objects.all().first()            
-        return ant.pk
+        sig = TipoDocumento.objects.siguiente(self)            
+        return sig.pk
 
     def __str__(self):
         return self.nombre
@@ -129,7 +90,7 @@ class Tipo(TimeStampedModel):
     codigo = models.CharField(max_length=10)
     descripcion_valor = models.CharField(max_length=100)
     cantidad = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
-    
+        
     class Meta:
         permissions = (('ver_detalle_tipo', 'Puede ver detalle Tipo de Documento'),
                        ('ver_tabla_tipos', 'Puede ver tabla de Tipos de Documentos'),
@@ -150,6 +111,7 @@ class Impuesto(TimeStampedModel):
                      ('VEN', _('VEN')),
                      )
     tipo_uso = models.CharField(choices=STATUS, default=STATUS.COM, max_length=20)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_detalle_impuesto', 'Puede ver detalle Impuesto'),
@@ -158,18 +120,12 @@ class Impuesto(TimeStampedModel):
         ordering = ['abreviatura']
         
     def anterior(self):
-        try:
-            sig = Impuesto.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = Impuesto.objects.all().last()            
-        return sig.pk
+        ant = Impuesto.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = Impuesto.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = Impuesto.objects.all().first()            
-        return ant.pk
+        sig = Impuesto.objects.siguiente(self)            
+        return sig.pk
 
     def __str__(self):
         return self.descripcion

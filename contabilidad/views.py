@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
-    Configuracion, FormaPago, Empresa
+    Configuracion, FormaPago, Empresa, TipoExistencia
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
     ImpuestoForm, ConfiguracionForm, FormaPagoForm 
@@ -47,8 +47,8 @@ class CargarCuentasContables(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            CuentaContable.objects.create(cuenta = fila[0].strip(),
-                                          descripcion= unicode(fila[1].strip(), errors='ignore'))                
+            CuentaContable.objects.create(cuenta = fila[0],
+                                          descripcion= unicode(fila[1], errors='ignore'))                
         return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
     
 class CargarTiposDocumentos(FormView):

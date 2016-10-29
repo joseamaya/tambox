@@ -54,8 +54,7 @@ class Tablero(View):
         lista_notificaciones = []
         cant_almacenes = Almacen.objects.count()        
         cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_mov_invent_ini).count()
-        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
-        inventario_inicial = Movimiento.objects.filter(tipo_movimiento=cod_mov_invent_ini).count()
+        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()        
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_invent_ini,
                                                                        defaults = {'descripcion':'INVENTARIO INICIAL',
                                                                                    'codigo_sunat': '16',
@@ -77,6 +76,7 @@ class Tablero(View):
                                                                                    'incrementa':False,
                                                                                    'pide_referencia':True,
                                                                                    'estado':True})
+        inventario_inicial = Movimiento.objects.filter(tipo_movimiento__codigo=cod_mov_invent_ini).count()
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")                            
         if cant_almacenes==0:

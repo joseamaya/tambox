@@ -29,13 +29,12 @@ from django.contrib import messages
 from contabilidad.models import Configuracion, Empresa
 from requerimientos.models import AprobacionRequerimiento, Requerimiento,\
     DetalleRequerimiento
-from requerimientos.forms import AprobacionRequerimientoForm,\
-    FormularioDetalleRequerimiento, RequerimientoForm,\
-    DetalleRequerimientoFormSet
+from requerimientos.forms import AprobacionRequerimientoForm, RequerimientoForm, DetalleRequerimientoFormSet
 from compras.forms import DetalleCotizacionFormSet
 from compras.models import Cotizacion
 from productos.models import Producto
 from requerimientos.mail import correo_creacion_requerimiento
+from openpyxl import Workbook
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -272,7 +271,10 @@ class ListadoRequerimientos(ListView):
     model = Requerimiento
     template_name = 'requerimientos/listado_requerimientos.html'
     context_object_name = 'requerimientos'
-    queryset = Requerimiento.objects.exclude(estado=Requerimiento.STATUS.CANC).order_by('codigo')
+    
+    def get_queryset(self):
+        queryset = Requerimiento.objects.filter(solicitante__usuario= self.request.user).exclude(estado=Requerimiento.STATUS.CANC).order_by('codigo')
+        return queryset
     
     @method_decorator(permission_required('requerimientos.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
@@ -409,6 +411,35 @@ class TransferenciaRequerimiento(TemplateView):
         requerimientos = Requerimiento.objects.filter(aprobacionrequerimiento__estado=AprobacionRequerimiento.STATUS.APROB_PRES).filter(Q(estado = Requerimiento.STATUS.PEND) | Q(estado = Requerimiento.STATUS.COTIZ_PARC) | Q(estado = Requerimiento.STATUS.COTIZ))
         context['requerimientos'] = requerimientos
         return context
+    
+class ReporteExcelRequerimientos(TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        requerimientos = Requerimiento.objects.filter(solicitante__usuario=request.user)
+        wb = Workbook()
+        ws = wb.active
+        ws['B1'] = 'REPORTE DE REQUERIMIENTOS'
+        ws.merge_cells('B1:J1')
+        ws['B3'] = 'CODIGO'
+        ws['C3'] = 'OFICINA'
+        ws['D3'] = 'ESTADO APROBACION'
+        ws['E3'] = 'ESTADO'
+        ws['F3'] = 'FECHA'
+        cont=4
+        for requerimiento in requerimientos:
+            ws.cell(row=cont,column=2).value = requerimiento.codigo
+            ws.cell(row=cont,column=3).value = requerimiento.oficina.nombre
+            ws.cell(row=cont,column=4).value = requerimiento.get_estado_display()
+            ws.cell(row=cont,column=5).value = requerimiento.aprobacionrequerimiento.get_estado_display()
+            ws.cell(row=cont,column=6).value = requerimiento.created
+            ws.cell(row=cont,column=6).number_format = 'dd/mm/yyyy hh:mm:ss'                  
+            cont = cont + 1
+        nombre_archivo ="ListadoRequerimientos.xlsx" 
+        response = HttpResponse(content_type="application/ms-excel") 
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
     
 class ReportePDFRequerimiento(View):
     

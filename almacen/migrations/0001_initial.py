@@ -19,9 +19,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Almacen',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(max_length=4, serialize=False, primary_key=True)),
+                ('codigo', models.CharField(unique=True, max_length=5)),
                 ('descripcion', models.CharField(max_length=30)),
                 ('estado', models.BooleanField(default=True)),
             ],
@@ -139,9 +140,10 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='TipoMovimiento',
             fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('codigo', models.CharField(max_length=10, serialize=False, primary_key=True)),
+                ('codigo', models.CharField(unique=True, max_length=10)),
                 ('codigo_sunat', models.CharField(max_length=2)),
                 ('descripcion', models.CharField(max_length=25)),
                 ('incrementa', models.BooleanField()),

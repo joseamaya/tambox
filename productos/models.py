@@ -4,11 +4,13 @@ from model_utils.models import TimeStampedModel
 from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import smart_str
+from productos.querysets import NavegableQuerySet
 
 class UnidadMedida(TimeStampedModel):
     codigo = models.CharField(max_length=5, unique=True)
     descripcion = models.CharField(max_length=50)
     estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_detalle_unidad_medida', 'Puede ver detalle Unidad de Medida'),
@@ -17,18 +19,12 @@ class UnidadMedida(TimeStampedModel):
         ordering = ['codigo']   
     
     def anterior(self):
-        try:
-            sig = UnidadMedida.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = UnidadMedida.objects.all().last()            
-        return sig.pk
+        ant = UnidadMedida.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = UnidadMedida.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = UnidadMedida.objects.all().first()            
-        return ant.pk
+        sig = UnidadMedida.objects.siguiente(self)            
+        return sig.pk
     
     def __str__(self):
         return self.descripcion
@@ -39,6 +35,7 @@ class GrupoProductos(TimeStampedModel):
     ctacontable = models.ForeignKey(CuentaContable)
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('cargar_grupo_productos', 'Puede cargar Grupos de Productos desde un archivo externo'),
@@ -58,18 +55,12 @@ class GrupoProductos(TimeStampedModel):
         super(GrupoProductos, self).save()
         
     def anterior(self):
-        try:
-            sig = GrupoProductos.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = GrupoProductos.objects.all().last()            
-        return sig.pk
+        ant = GrupoProductos.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = GrupoProductos.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = GrupoProductos.objects.all().first()            
-        return ant.pk
+        sig = GrupoProductos.objects.siguiente(self)            
+        return sig.pk
 
     def __str__(self):
         return self.descripcion
@@ -88,7 +79,8 @@ class Producto(TimeStampedModel):
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     tipo_existencia = models.ForeignKey(TipoExistencia, null=True)
-    estado = models.BooleanField(default=True)    
+    estado = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -99,18 +91,12 @@ class Producto(TimeStampedModel):
                        ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto'),)
     
     def anterior(self):
-        try:
-            sig = Producto.objects.filter(pk__lt=self.pk,es_servicio=self.es_servicio).order_by('-pk')[0]
-        except:
-            sig = Producto.objects.filter(es_servicio=self.es_servicio).last()            
-        return sig.pk
+        ant = Producto.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = Producto.objects.filter(pk__gt=self.pk,es_servicio=self.es_servicio).order_by('pk')[0]            
-        except:
-            ant = Producto.objects.filter(es_servicio=self.es_servicio).first()            
-        return ant.pk
+        sig = Producto.objects.siguiente(self)            
+        return sig.pk
     
     def save(self, *args, **kwargs):
         if self.codigo == '':
@@ -122,7 +108,9 @@ class Producto(TimeStampedModel):
                 aux=int(cod_ant)+1
                 self.codigo=str(aux).zfill(10)                
             if self.es_servicio:
-                self.unidad_medida = UnidadMedida.objects.get(codigo='SERV')                
+                unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
+                                                                             defaults = {'descripcion':'SERVICIO'}) 
+                self.unidad_medida = unidad_medida                 
         super(Producto, self).save()
 
     def __str__(self):

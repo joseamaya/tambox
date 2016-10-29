@@ -5,7 +5,7 @@ from requerimientos.views import AprobarRequerimiento, ListadoRequerimientos,\
     Tablero, CrearRequerimiento, CrearDetalleRequerimiento,\
     ModificarRequerimiento, TransferenciaRequerimiento,\
     ObtenerDetalleRequerimiento, DetalleOperacionRequerimiento,\
-    ReportePDFRequerimiento, EliminarRequerimiento
+    ReportePDFRequerimiento, EliminarRequerimiento, ReporteExcelRequerimientos
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -20,5 +20,6 @@ urlpatterns = patterns('',
     url(r'^obtener_detalle_requerimiento/$',login_required(ObtenerDetalleRequerimiento.as_view()), name="obtener_detalle_requerimiento"),
     url(r'^detalle_requerimiento/(?P<pk>.+)/$', login_required(DetalleOperacionRequerimiento.as_view()), name="detalle_requerimiento"),
     url(r'^requerimiento_pdf/(?P<codigo>.+)/$', login_required(ReportePDFRequerimiento.as_view()), name="requerimiento_pdf"),
-    url(r'^eliminar_requerimiento/$',login_required(EliminarRequerimiento.as_view()), name="eliminar_requerimiento"),    
+    url(r'^eliminar_requerimiento/$',login_required(EliminarRequerimiento.as_view()), name="eliminar_requerimiento"),
+    url(r'^maestro_requerimientos_excel/$',login_required(ReporteExcelRequerimientos.as_view()), name="maestro_requerimientos_excel"),    
 )

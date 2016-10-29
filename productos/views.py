@@ -19,7 +19,7 @@ from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm,\
     UnidadMedidaForm
-from contabilidad.models import CuentaContable
+from contabilidad.models import CuentaContable, TipoExistencia
 
 # Create your views here.
 class Tablero(View):
@@ -100,13 +100,13 @@ class CargarGrupoProductos(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             try:
-                cuenta = CuentaContable.objects.get(cuenta=fila[0].strip())
+                cuenta = CuentaContable.objects.get(cuenta=fila[0])
                 descripcion = fila[1] 
                 grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=unicode(descripcion, errors='ignore'),
                                                                                defaults={'ctacontable' : cuenta
                                                                                         })
             except CuentaContable.DoesNotExist:
-                print "Cuenta contable no existe"                       
+                pass                       
         return HttpResponseRedirect(reverse('productos:grupos_productos'))
         
 class CargarServicios(FormView):
@@ -148,11 +148,16 @@ class CargarProductos(FormView):
             if fila[3]<>'':
                 precio = fila[3]
             else:
-                precio = 0             
+                precio = 0
+            try:                
+                tipo_existencia = TipoExistencia.objects.get(codigo_sunat = fila[5].strip())
+            except:
+                return HttpResponseRedirect(reverse('contabilidad:tablero'))
             producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
                                                               defaults={'unidad_medida' : und,
                                                                         'grupo_productos' : grupo,
                                                                         'precio' : precio,
+                                                                        'tipo_existencia': tipo_existencia,
                                                                         'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})           
         return HttpResponseRedirect(reverse('productos:productos'))        
         

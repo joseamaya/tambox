@@ -6,6 +6,7 @@ from model_utils import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Trabajador, Oficina
 from productos.models import Producto
+from requerimientos.querysets import NavegableQuerySet, RequerimientoQuerySet
 
 # Create your models here.
 class Requerimiento(TimeStampedModel):
@@ -40,6 +41,7 @@ class Requerimiento(TimeStampedModel):
                      ('CANC', _('CANCELADO')),
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    objects = RequerimientoQuerySet.as_manager()
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -49,18 +51,12 @@ class Requerimiento(TimeStampedModel):
                        ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento'),)
     
     def anterior(self):
-        try:
-            sig = Requerimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
-            sig = Requerimiento.objects.all().last()            
-        return sig.pk
+        ant = Requerimiento.objects.anterior(self)
+        return ant.pk
     
     def siguiente(self):
-        try:
-            ant = Requerimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
-        except:
-            ant = Requerimiento.objects.all().first()            
-        return ant.pk
+        sig = Requerimiento.objects.siguiente(self)            
+        return sig.pk
     
     def __str__(self):
         return self.codigo
@@ -94,19 +90,22 @@ class Requerimiento(TimeStampedModel):
                 break
         self.estado = estado_requerimiento
         self.save()
+        
+    def generar_codigo(self):
+        anio = self.created.year
+        req_ant = Requerimiento.objects.requerimiento_anterior(anio)
+        id_ant=req_ant['codigo__max']        
+        if id_ant is None:
+            aux = 1            
+        else:
+            aux=int(id_ant[-6:])+1
+        correlativo = str(aux).zfill(6)
+        codigo = 'RQ'+str(anio)+correlativo
+        return codigo    
     
     def save(self, *args, **kwargs):
         if self.codigo == '':
-            anio = self.created.year
-            mov_ant = Requerimiento.objects.filter(created__year=anio).aggregate(Max('codigo'))
-            id_ant=mov_ant['codigo__max']        
-            if id_ant is None:
-                aux = 1            
-            else:
-                aux=int(id_ant[-6:])+1
-            correlativo = str(aux).zfill(6)
-            codigo = 'RQ'+str(anio)+correlativo
-            self.codigo = codigo                        
+            self.codigo = self.generar_codigo()                        
             super(Requerimiento, self).save()
             AprobacionRequerimiento.objects.create(requerimiento = self)
         else:
@@ -141,14 +140,14 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.requerimiento.codigo+ ' ' + str(self.nro_detalle)
     
     def establecer_estado(self):
-        if self.cantidad_comprada == self.cantidad:
+        if self.cantidad_comprada >= self.cantidad:
             self.estado = DetalleRequerimiento.STATUS.PED            
         elif self.cantidad_comprada < self.cantidad:
             self.estado = DetalleRequerimiento.STATUS.PED_PARC                
         self.save()
         
     def establecer_estado_atendido(self):
-        if self.cantidad_atendida == self.cantidad:
+        if self.cantidad_atendida >= self.cantidad:
             self.estado = DetalleRequerimiento.STATUS.ATEN            
         elif self.cantidad_atendida < self.cantidad:
             self.estado = DetalleRequerimiento.STATUS.ATEN_PARC                

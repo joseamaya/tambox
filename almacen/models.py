@@ -10,46 +10,11 @@ from model_utils import Choices
 from django.utils.translation import gettext as _
 from requerimientos.models import DetalleRequerimiento
 from productos.models import Producto
-
-class DetalleMovimientoManager(models.Manager):
-    
-    def guardar_detalles_con_referencia(self, objs, orden):
-        try:
-            requerimiento = orden.cotizacion.requerimiento
-        except:
-            requerimiento = None
-        for detalle in objs:
-            detalle_orden = detalle.detalle_orden_compra
-            try:
-                detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
-            except:
-                detalle_requerimiento = None                 
-            detalle_orden.cantidad_ingresada = detalle_orden.cantidad_ingresada + detalle.cantidad
-            if detalle_requerimiento is not None:
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle_orden.cantidad_ingresada            
-            detalle_orden.establecer_estado()
-            if detalle_requerimiento is not None: 
-                detalle_requerimiento.establecer_estado_atendido()
-            detalle.save()                        
-        if requerimiento is not None:
-            requerimiento.establecer_estado_atendido()
-        orden.establecer_estado()
-        
-    def guardar_detalles_sin_referencia(self, objs):
-        cont = 1
-        for detalle in objs:
-            detalle.save()
-            cont = cont + 1
-        
-    def bulk_create(self, objs, referencia):
-        if referencia is not None:
-            self.guardar_detalles_con_referencia(objs, referencia)
-        else:
-            self.guardar_detalles_sin_referencia(objs)
+from almacen.managers import DetalleMovimientoManager
 
 @python_2_unicode_compatible
 class Almacen(TimeStampedModel):
-    codigo = models.CharField(primary_key=True,max_length=4)
+    codigo = models.CharField(unique=True,max_length=5)
     descripcion = models.CharField(max_length=30)
     estado = models.BooleanField(default=True)
     
@@ -63,24 +28,24 @@ class Almacen(TimeStampedModel):
         
     def anterior(self):
         try:
-            sig = Almacen.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
+            ant = Almacen.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
         except:
-            sig = Almacen.objects.all().last()            
-        return sig.pk
+            ant = Almacen.objects.all().order_by('pk').last()    
+        return ant.pk
     
     def siguiente(self):
         try:
-            ant = Almacen.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
+            sig = Almacen.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
         except:
-            ant = Almacen.objects.all().first()            
-        return ant.pk
+            sig = Almacen.objects.all().order_by('pk').first()            
+        return sig.pk
 
     def __str__(self):
         return self.descripcion
 
 #Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
-    codigo = models.CharField(primary_key=True,max_length=10)
+    codigo = models.CharField(unique=True,max_length=10)
     codigo_sunat = models.CharField(max_length=2)
     descripcion = models.CharField(max_length=25)
     incrementa = models.BooleanField()
@@ -89,17 +54,17 @@ class TipoMovimiento(TimeStampedModel):
     
     def anterior(self):
         try:
-            sig = TipoMovimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
+            ant = TipoMovimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
         except:
-            sig = TipoMovimiento.objects.all().last()            
-        return sig.pk
+            ant = TipoMovimiento.objects.all().order_by('pk').last()    
+        return ant.pk
     
     def siguiente(self):
         try:
-            ant = TipoMovimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
+            sig = TipoMovimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
         except:
-            ant = TipoMovimiento.objects.all().first()            
-        return ant.pk
+            sig = TipoMovimiento.objects.all().order_by('pk').first()            
+        return sig.pk
     
     class Meta:
         permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
@@ -146,17 +111,17 @@ class Pedido(TimeStampedModel):
     
     def anterior(self):
         try:
-            sig = Pedido.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
+            ant = Pedido.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
         except:
-            sig = Pedido.objects.all().last()            
-        return sig.pk
+            ant = Pedido.objects.all().order_by('pk').last()    
+        return ant.pk
     
     def siguiente(self):
         try:
-            ant = Pedido.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
+            sig = Pedido.objects.filter(pk__gt=self.pk).order_by('pk')[0]            
         except:
-            ant = Pedido.objects.all().first()            
-        return ant.pk
+            sig = Pedido.objects.all().order_by('pk').first()            
+        return sig.pk
     
     class Meta:
         permissions = (('aprobar_pedido', 'Puede aprobar Pedido'),
@@ -241,11 +206,15 @@ class Movimiento(TimeStampedModel):
             ant = Movimiento.objects.all().first()            
         return ant.pk
     
-    def eliminar_referencia(self):        
+    def modificar_estado_referencia(self):
         movimiento = self
         referencia = movimiento.referencia
         referencia.estado = OrdenCompra.STATUS.PEND
         referencia.save()
+        
+    def eliminar_referencia(self):       
+        movimiento = self
+        self.modificar_estado_referencia()
         detalles = DetalleMovimiento.objects.filter(movimiento=movimiento)
         for detalle in detalles:
             detalle_orden_compra = detalle.detalle_orden_compra
@@ -285,7 +254,7 @@ class Movimiento(TimeStampedModel):
             tipo = self.tipo_movimiento
             anio = self.fecha_operacion.year
             mov_ant = Movimiento.objects.filter(tipo_movimiento__incrementa=tipo.incrementa,fecha_operacion__year=anio).aggregate(Max('id_movimiento'))
-            id_ant=mov_ant['id_movimiento__max']        
+            id_ant = mov_ant['id_movimiento__max']        
             if id_ant is None:
                 aux = 1            
             else:

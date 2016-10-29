@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import migrations, models
-import contabilidad.models
+from django.db import models, migrations
+import contabilidad.helpers
 import django.utils.timezone
 import model_utils.fields
 
@@ -55,6 +55,11 @@ class Migration(migrations.Migration):
                 ('distrito', models.CharField(max_length=100)),
                 ('provincia', models.CharField(max_length=100)),
                 ('departamento', models.CharField(max_length=100)),
+                ('host_correo', models.CharField(max_length=70)),
+                ('puerto_correo', models.IntegerField(default=25)),
+                ('usuario', models.EmailField(max_length=254)),
+                ('password', models.CharField(max_length=20)),
+                ('usa_tls', models.BooleanField(default=True)),
             ],
             options={
                 'abstract': False,
@@ -133,7 +138,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('archivo', models.FileField(storage=contabilidad.models.OverwriteStorage(), upload_to=b'archivos')),
+                ('archivo', models.FileField(storage=contabilidad.helpers.OverwriteStorage(), upload_to=b'archivos')),
             ],
             options={
                 'abstract': False,
