@@ -12,9 +12,8 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 
-#Se debe modificar la ruta del BASE_DIR cuando se crea la carpeta de settings
+# Se debe modificar la ruta del BASE_DIR cuando se crea la carpeta de settings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Quick-start development settings - unsuitable for production
@@ -40,7 +39,7 @@ INSTALLED_APPS = (
     'compras',
     'productos',
     'contabilidad',
-    'almacen',    
+    'almacen',
     'administracion',
 )
 
@@ -92,10 +91,6 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
-
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
-)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 

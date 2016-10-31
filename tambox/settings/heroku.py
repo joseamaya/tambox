@@ -1,5 +1,6 @@
 from .base import *
 import dj_database_url
+
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = False
 ALLOWED_HOSTS = ['*']

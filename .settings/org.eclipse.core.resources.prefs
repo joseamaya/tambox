@@ -2,6 +2,7 @@
 <<<<<<<=HEAD
 >>>>>>>=branch 'master' of https\://github.com/joseamaya/tambox
 eclipse.preferences.version=1
+encoding//administracion/models.py=utf-8
 encoding//administracion/views.py=utf-8
 encoding//almacen/forms.py=utf-8
 encoding//almacen/mail.py=utf-8
