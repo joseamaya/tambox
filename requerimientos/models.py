@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.db.models import Max
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Trabajador, Oficina
 from productos.models import Producto
-from requerimientos.querysets import NavegableQuerySet, RequerimientoQuerySet
+from requerimientos.querysets import RequerimientoQuerySet, AprobacionRequerimientoQuerySet
+from contabilidad.models import Configuracion
+from django.core.validators import MaxValueValidator
+from datetime import date
 
 
 # Create your models here.
@@ -14,7 +16,7 @@ class Requerimiento(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador)
     oficina = models.ForeignKey(Oficina)
-    motivo = models.CharField(max_length=100)
+    motivo = models.CharField(max_length=100, blank=True)
     MESES = Choices((1, _('ENERO')),
                     (2, _('FEBRERO')),
                     (3, _('MARZO')),
@@ -28,7 +30,9 @@ class Requerimiento(TimeStampedModel):
                     (11, _('NOVIEMBRE')),
                     (12, _('DICIEMBRE')),
                     )
+    fecha = models.DateField()
     mes = models.IntegerField(choices=MESES)
+    annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     observaciones = models.TextField()
     informe = models.FileField(upload_to='informes', null=True)
     entrega_directa_solicitante = models.BooleanField(default=False)
@@ -119,7 +123,7 @@ class DetalleRequerimiento(TimeStampedModel):
     producto = models.ForeignKey(Producto, null=True)
     otro = models.CharField(max_length=150, null=True)
     unidad = models.CharField(max_length=20, null=True)
-    uso = models.CharField(max_length=50, null=True)
+    uso = models.CharField(max_length=300, null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_comprada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -160,9 +164,10 @@ class AprobacionRequerimiento(TimeStampedModel):
     requerimiento = models.OneToOneField(Requerimiento, primary_key=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB_LOG', _('APROBADO LOGISTICA')),
-                     ('DESAP_LOG', _('DESAPROBADO LOGISTICA')), )
+                     ('DESAP_LOG', _('DESAPROBADO LOGISTICA')),)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     motivo_desaprobacion = models.TextField(default='')
+    objects = AprobacionRequerimientoQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_tabla_aprobacion_requerimientos', 'Puede ver tabla de Aprobación de Requerimientos'),
@@ -171,3 +176,8 @@ class AprobacionRequerimiento(TimeStampedModel):
 
     def __str__(self):
         return self.pk
+
+    @staticmethod
+    def obtener_aprobaciones_pendientes(usuario):
+        queryset = AprobacionRequerimiento.objects.aprobaciones_pendientes(AprobacionRequerimiento.STATUS.PEND)
+        return queryset

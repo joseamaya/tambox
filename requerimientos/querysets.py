@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Max
+from django.db.models import Q
 
 
 class NavegableQuerySet(models.query.QuerySet):
@@ -22,4 +23,24 @@ class AnteriorQuerySet(models.query.QuerySet):
 
 
 class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
-    pass
+    def requerimientos_activos_por_usuario(self, usuario, estado):
+        return self.filter(solicitante__usuario=usuario).exclude(estado=estado).order_by('codigo')
+
+    def requerimientos_listos_transferencia(self, aprobacion_presupuesto, pendiente, cotizado_parcial, cotizado):
+        return self.filter(aprobacionrequerimiento__estado=aprobacion_presupuesto).filter(Q(estado=pendiente) |
+                                                                                          Q(estado=cotizado_parcial) |
+                                                                                          Q(estado=cotizado))
+
+    def actualizar_requerimiento(self, codigo):
+        return self.filter(codigo=codigo).update(estado=False)
+
+    def requerimientos_oficina_usuario(self, oficina_usuario):
+        return self.filter(oficina=oficina_usuario)
+
+    def requerimientos_gerencia_usuario(self, oficina_usuario):
+        return self.filter(oficina__gerencia=oficina_usuario)
+
+
+class AprobacionRequerimientoQuerySet(models.query.QuerySet):
+    def aprobaciones_pendientes(self, estado):
+        return self.filter(estado=estado)

@@ -11,8 +11,8 @@
 			</button>
 		{% endif %}
 		{% if object.aprobacionrequerimiento.estado == "PEND" %}
-			{% if perms.requerimientos.change_requerimiento %} 
-			<a class="btn btn-primary" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a> 
+			{% if perms.requerimientos.change_requerimiento %}
+			<a class="btn btn-primary" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a>
 			{% endif %}
 		{% endif %}
 		{% if object.aprobacionrequerimiento.estado == "PEND" %}
@@ -43,43 +43,60 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-md-2">
-				<label>CODIGO:</label> 
+				<label>Código:</label>
 				<p>{{ object.pk }}</p>
 			</div>
-			<div class="col-md-1">
-				<label>Fecha:</label> 
+			<div class="col-md-2">
+				<label>Fecha Creación:</label>
 				<p>{{ object.created|date:"d/m/Y" }}</p>
 			</div>
-			<div class="col-md-4">
-				<label>Solicitante:</label> 
-				<p>{{ object.solicitante }}</p>
-			</div>
-			<div class="col-md-2">
-				<label>Estado:</label> 
+
+			<div class="col-md-3">
+				<label>Estado:</label>
 				<p>{{ object.get_estado_display }}</p>
 			</div>
 			<div class="col-md-3">
-				<label>Aprobación:</label> 
+				<label>Aprobación:</label>
 				<p>{{ object.aprobacionrequerimiento.get_estado_display }}</p>
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-md-4">
+				<label>Oficina:</label>
+				<p>{{ object.oficina }}</p>
+			</div>
+			<div class="col-md-4">
+				<label>Solicitante:</label>
+				<p>{{ object.solicitante }}</p>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-12">
-				<label>Pedido para:</label> 
+				<label>Motivo:</label>
 				<p>{{ object.motivo }}</p>
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-md-2">
+				<label>Fecha:</label>
+				<p>{{ object.fecha|date:"d/m/Y" }}</p>
+			</div>
 			<div class="col-md-3">
-				<label>Mes en que se necesita:</label> 
+				<label>Mes en que se necesita:</label>
 				<p>{{ object.get_mes_display }}</p>
 			</div>
 			<div class="col-md-3">
-				<label>Informe:</label>				
+				<label>Año en que se necesita:</label>
+				<p>{{ object.annio }}</p>
+			</div>
+			<div class="col-md-3">
+				<label>Informe:</label>
 				{% if object.informe %} <a
-					href="{{ object.informe.url }}">Ver informe</a> 
+					href="{{ object.informe.url }}">Ver informe</a>
 				{% endif %}
 			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-4">
 				{% if object.entrega_directa_solicitante %}
 				<p>Si Entrega Directamente al Solicitante</p>
@@ -87,7 +104,7 @@
 				<p>No Entrega Directamente al Solicitante</p>
 				{% endif %}
 			</div>
-		</div>		
+		</div>
 		<hr />
 		<div class="row">
 			<div class="col-lg-12">
@@ -99,7 +116,7 @@
 							<th>Uso</th>
 							<th>Unidad</th>
 							<th>Cant. Sol</th>
-							<th>Cant. Comp</th>														
+							<th>Cant. Comp</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -110,12 +127,12 @@
 							<td>{{ detalle.uso }}</td>
 							<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
 							<td>{{ detalle.cantidad }}</td>
-							<td>{{ detalle.cantidad_comprada }}</td>							
+							<td>{{ detalle.cantidad_comprada }}</td>
 							{% else %}
 							<td>{{ detalle.otro }}</td>
 							<td>{{ detalle.uso }}</td>
 							<td>-</td>
-							<td>{{ detalle.cantidad }}</td>							
+							<td>{{ detalle.cantidad }}</td>
 							<td>{{ detalle.cantidad_comprada }}</td>
 							{% endif %}
 						</tr>
@@ -126,8 +143,8 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-12">
-				<label>OBSERVACIONES:</label> 
-				<p>{{ object.observaciones }}</p>				
+				<label>OBSERVACIONES:</label>
+				<p>{{ object.observaciones }}</p>
 			</div>
 		</div>
 	</div>
@@ -135,9 +152,9 @@
 
 {% endblock cuerpo %} {% block js %}
 <script>
-$(document).ready(function() 
+$(document).ready(function()
 {
-	$("#id_eliminar").on("click", function() 
+	$("#id_eliminar").on("click", function()
 	{
 		borrarSeleccionado = $(this);
 		ventana = $("#dialog-confirm").dialog({
@@ -151,7 +168,7 @@ $(document).ready(function()
 		});
 	});
 
-	function borrarRequerimiento() 
+	function borrarRequerimiento()
 	{
 		var id_boton = $(borrarSeleccionado).prop('id');
 		var codigo = id_boton.replace("elim_", "");

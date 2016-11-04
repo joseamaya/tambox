@@ -11,7 +11,7 @@ DATABASES = {
         'NAME': 'tambox_desarrollo',
         'USER': 'tambox',
         'PASSWORD': 's0p0rt3ccpp',
-        'HOST': 'localhost',
+        'HOST': '172.20.30.29',
         'PORT': '5432',
         'CHARSET': 'UTF8',
     },

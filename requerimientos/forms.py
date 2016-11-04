@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
 from django import forms
 from contabilidad.models import Configuracion
 from django.utils.translation import gettext as _
@@ -6,6 +6,8 @@ from model_utils.choices import Choices
 from django.forms import formsets
 from django.core.exceptions import ValidationError
 from requerimientos.models import AprobacionRequerimiento, Requerimiento
+from administracion.models import Puesto
+from requerimientos.mail import correo_creacion_requerimiento
 
 
 class AprobacionRequerimientoForm(forms.ModelForm):
@@ -23,15 +25,51 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         oficina_usuario = puesto_usuario.oficina
         requerimiento_oficina = self.instance.requerimiento.oficina
         configuracion = Configuracion.objects.first()
+        oficina_administracion = configuracion.administracion
+        presupuesto = configuracion.presupuesto
         logistica = configuracion.logistica
-        if oficina_usuario == logistica and self.estado == AprobacionRequerimiento.STATUS.PEND:
+        if puesto_usuario.es_jefatura and oficina_usuario == requerimiento_oficina and self.estado == AprobacionRequerimiento.STATUS.PEND:
+            self.fields['estado'].choices = Choices(('APROB_JEF', _('APROBADO JEFATURA')),
+                                                    ('DESAP_JEF', _('DESAPROBADO JEFATURA')))
+        elif oficina_usuario == requerimiento_oficina.gerencia and self.estado == AprobacionRequerimiento.STATUS.APROB_JEF:
+            self.fields['estado'].choices = Choices(('APROB_GER_INM', _('APROBADO GERENCIA INMEDIATA')),
+                                                    ('DESAP_GER_INM', _('DESAPROBADO GERENCIA INMEDIATA')))
+        elif oficina_usuario == oficina_administracion and self.estado == AprobacionRequerimiento.STATUS.APROB_GER_INM:
+            self.fields['estado'].choices = Choices(('APROB_GER_ADM', _('APROBADO GERENCIA ADMINISTRACION')),
+                                                    ('DESAP_GER_ADM', _('DESAPROBADO GERENCIA ADMINISTRACION')))
+        elif oficina_usuario == logistica and self.estado == AprobacionRequerimiento.STATUS.APROB_GER_ADM:
             self.fields['estado'].choices = Choices(('APROB_LOG', _('APROBADO LOGISTICA')),
                                                     ('DESAP_LOG', _('DESAPROBADO LOGISTICA')))
+        elif oficina_usuario == presupuesto and self.estado == AprobacionRequerimiento.STATUS.APROB_LOG:
+            self.fields['estado'].choices = Choices(('APROB_PRES', _('APROBADO PRESUPUESTO')),
+                                                    ('DESAP_PRES', _('DESAPROBADO PRESUPUESTO')))
         else:
             self.fields['estado'].choices = Choices()
 
-    def save(self, *args, **kwargs):
-        return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
+    def clean(self):
+        estado = self.cleaned_data['estado']
+        configuracion = Configuracion.objects.first()
+        oficina_administracion = configuracion.administracion
+        presupuesto = configuracion.presupuesto
+        logistica = configuracion.logistica
+        if estado == AprobacionRequerimiento.STATUS.APROB_LOG:
+            oficina = presupuesto
+        elif estado == AprobacionRequerimiento.STATUS.APROB_GER_INM:
+            oficina = oficina_administracion
+        elif estado == AprobacionRequerimiento.STATUS.APROB_GER_ADM:
+            oficina = logistica
+        elif estado == AprobacionRequerimiento.STATUS.APROB_JEF:
+            oficina = self.instance.requerimiento.oficina.gerencia
+        else:
+            oficina = None
+        if oficina is not None:
+            try:
+                puesto_jefe = Puesto.objects.get(oficina=oficina, es_jefatura=True, estado=True)
+                jefe = puesto_jefe.trabajador
+                destinatario = [jefe.usuario.email]
+                correo_creacion_requerimiento(destinatario, self.instance.requerimiento)
+            except Puesto.DoesNotExist:
+                raise ValidationError("No existe el puesto superior, imposible continuar.")
 
 
 class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
@@ -79,13 +117,19 @@ class RequerimientoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(RequerimientoForm, self).__init__(*args, **kwargs)
+        self.fields['motivo'].required = False
         self.fields['informe'].required = False
         self.fields['codigo'].required = False
         self.fields['observaciones'].required = False
+        self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
-            if field != 'entrega_directa_solicitante':
+            if field <> 'entrega_directa_solicitante':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
+                })
+            if field == 'annio':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control numero'
                 })
 
     def save(self, *args, **kwargs):
@@ -96,7 +140,8 @@ class RequerimientoForm(forms.ModelForm):
 
     class Meta:
         model = Requerimiento
-        fields = ['codigo', 'motivo', 'mes', 'observaciones', 'informe', 'entrega_directa_solicitante']
+        fields = ['codigo', 'motivo', 'fecha', 'mes', 'annio', 'observaciones', 'informe',
+                  'entrega_directa_solicitante']
 
 
 DetalleRequerimientoFormSet = formsets.formset_factory(FormularioDetalleRequerimiento, BaseDetalleRequerimientoFormSet,
