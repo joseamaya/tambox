@@ -52,26 +52,12 @@ class AprobarRequerimiento(UpdateView):
     def dispatch(self, *args, **kwargs):
         aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
         configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
         logistica = configuracion.logistica
         puesto_usuario = self.request.user.trabajador.puesto_set.all().filter(estado=True)[0]
         oficina_usuario = puesto_usuario.oficina
         requerimiento_oficina = aprobacion_requerimiento.requerimiento.oficina
-        if puesto_usuario.es_jefatura and oficina_usuario == requerimiento_oficina and aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.PEND:
-            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.PEND or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_JEF or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.DESAP_JEF:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == requerimiento_oficina.gerencia:
-            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_JEF or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_INM or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.DESAP_GER_INM:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == oficina_administracion:
-            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_INM or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_ADM or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.DESAP_GER_ADM:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == logistica:
-            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_ADM or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_LOG or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.DESAP_LOG:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == presupuesto:
-            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_LOG or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.APROB_PRES or aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.DESAP_PRES:
+        if oficina_usuario == logistica:
+            if aprobacion_requerimiento.estado == AprobacionRequerimiento.STATUS.PEND:
                 return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
         return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
@@ -130,22 +116,21 @@ class CrearRequerimiento(CreateView):
         try:
             trabajador = request.user.trabajador
             try:
-                puesto = Puesto.objects.get(trabajador=trabajador)
-                if trabajador.firma:
-                    puesto_jefe = Puesto.objects.get(oficina=puesto.oficina, es_jefatura=True, estado=True)
-                    configuracion = Configuracion.objects.first()
-                    if configuracion is not None:
-                        form_class = self.get_form_class()
-                        form = self.get_form(form_class)
-                        detalle_requerimiento_formset = DetalleRequerimientoFormSet()
-                        return self.render_to_response(self.get_context_data(form=form,
-                                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
-                    else:
-                        return HttpResponseRedirect(reverse('contabilidad:configuracion'))
-                else:
-                    return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
+                puesto = Puesto.objects.get(trabajador=trabajador)                
             except Puesto.DoesNotExist:
                 return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            if trabajador.firma:
+                configuracion = Configuracion.objects.first()
+                if configuracion is not None:
+                    form_class = self.get_form_class()
+                    form = self.get_form(form_class)
+                    detalle_requerimiento_formset = DetalleRequerimientoFormSet()
+                    return self.render_to_response(self.get_context_data(form=form,
+                                                                         detalle_requerimiento_formset=detalle_requerimiento_formset))
+                else:
+                    return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+            else:
+                return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
         except:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
 
@@ -230,20 +215,20 @@ class ListadoAprobacionRequerimientos(ListView):
         return super(ListadoAprobacionRequerimientos, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        #try:
-        trabajador = self.request.user.trabajador
-        puestos = trabajador.puesto_set.all().filter(estado=True)
-        configuracion = Configuracion.objects.first()
-        logistica = configuracion.logistica
-        if trabajador.firma == '':
-            return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
-        print puestos[0].oficina
-        if puestos[0].es_jefatura and puestos[0].oficina == logistica:
-            return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)
-        else:
+        try:
+            trabajador = self.request.user.trabajador
+            puestos = trabajador.puesto_set.all().filter(estado=True)
+            configuracion = Configuracion.objects.first()
+            logistica = configuracion.logistica
+            if trabajador.firma == '':
+                return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
+            print puestos[0].oficina
+            if puestos[0].es_jefatura and puestos[0].oficina == logistica:
+                return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)
+            else:
+                return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+        except:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-        #except:
-            #return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_queryset(self):
         return AprobacionRequerimiento.obtener_aprobaciones_pendientes(self.request.user)

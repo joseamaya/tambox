@@ -130,61 +130,25 @@ class ReporteRequerimiento():
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
         oficina = requerimiento.oficina
-        jefatura = Puesto.objects.get(oficina=oficina, es_jefatura=True, estado=True)
-        gerencia = Puesto.objects.get(oficina=oficina.gerencia, es_jefatura=True, estado=True)
         configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
         logistica = configuracion.logistica
-        jefatura_administracion = Puesto.objects.get(oficina=oficina_administracion, es_jefatura=True, estado=True)
-        jefatura_presupuesto = Puesto.objects.get(oficina=presupuesto, es_jefatura=True, estado=True)
         jefatura_logistica = Puesto.objects.get(oficina=logistica, es_jefatura=True, estado=True)
-        jefe = jefatura.trabajador
-        gerente = gerencia.trabajador
-        gerente_administracion = jefatura_administracion.trabajador
         jefe_logistica = jefatura_logistica.trabajador
-        jefe_presupuesto = jefatura_presupuesto.trabajador
         archivo_firma_solicitante = os.path.join(settings.MEDIA_ROOT, str(requerimiento.solicitante.firma))
-        archivo_firma_jefe_departamento = os.path.join(settings.MEDIA_ROOT, str(jefe.firma))
-        archivo_firma_gerente = os.path.join(settings.MEDIA_ROOT, str(gerente.firma))
-        archivo_firma_gerente_administracion = os.path.join(settings.MEDIA_ROOT, str(gerente_administracion.firma))
         archivo_firma_jefe_oficina_logistica = os.path.join(settings.MEDIA_ROOT, str(jefe_logistica.firma))
-        archivo_firma_jefe_oficina_presupuesto = os.path.join(settings.MEDIA_ROOT, str(jefe_presupuesto.firma))
         firma_solicitante = Image(archivo_firma_solicitante, width=90, height=50, hAlign='CENTER')
-        firma_jefe_departamento = Image(archivo_firma_jefe_departamento, width=90, height=50, hAlign='CENTER')
-        firma_gerente = Image(archivo_firma_gerente, width=90, height=50, hAlign='CENTER')
-        firma_gerente_administracion = Image(archivo_firma_gerente_administracion, width=90, height=50, hAlign='CENTER')
         firma_jefe_oficina_logistica = Image(archivo_firma_jefe_oficina_logistica, width=90, height=50, hAlign='CENTER')
-        firma_jefe_oficina_presupuesto = Image(archivo_firma_jefe_oficina_presupuesto, width=90, height=50,
-                                               hAlign='CENTER')
-
         if requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.PEND:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
             solicitante = requerimiento.solicitante.nombre_completo()
-        elif requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.APROB_JEF:
-            cuerpo = [('', firma_solicitante, firma_jefe_departamento, '', '', '')]
-            jefe_departamento = jefe
-        elif requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_INM:
-            cuerpo = [('', firma_solicitante, firma_jefe_departamento, firma_gerente, '', '')]
-        elif requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.APROB_GER_ADM:
-            cuerpo = [('', firma_solicitante, firma_jefe_departamento, firma_gerente, firma_gerente_administracion, '')]
         elif requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.APROB_LOG:
-            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, firma_jefe_departamento, firma_gerente,
-                       firma_gerente_administracion, '')]
-        elif requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.APROB_PRES:
-            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, firma_jefe_departamento, firma_gerente,
-                       firma_gerente_administracion, firma_jefe_oficina_presupuesto)]
-
+            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '','', '')]
         try:
             fecha_recepcion = requerimiento.aprobacionrequerimiento.fecha_recepcion.strftime('%d/%m/%Y')
         except:
             fecha_recepcion = ''
         pie = [(Paragraph('Fecha: ' + fecha_recepcion + "<br/>" + jefe_logistica.nombre_completo(), p),
-                Paragraph("Solicitado por: <br/>" + solicitante, p),
-                Paragraph('Jefe de Departamento: <br/>' + jefe.nombre_completo(), p),
-                Paragraph(u'V° B° Gerente Inm.: <br/>' + gerente.nombre_completo(), p),
-                Paragraph(u'Vº Bº Gerente Adm.: <br/>' + gerente_administracion.nombre_completo(), p),
-                Paragraph(u'Vº Bº Presupuesto: <br/>' + jefe_presupuesto.nombre_completo(), p))]
+                Paragraph("Solicitado por: <br/>" + solicitante, p))]
         tabla_observaciones = Table(encabezados + cuerpo + pie,
                                     colWidths=[3.3 * cm, 3.3 * cm, 3.3 * cm, 3.3 * cm, 3.4 * cm, 3.4 * cm],
                                     rowHeights=[0.5 * cm, 2 * cm, 1.8 * cm])

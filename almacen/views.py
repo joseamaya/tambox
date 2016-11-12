@@ -2300,7 +2300,7 @@ class VerificarSolicitaDocumento(TemplateView):
 class VerificarPideReferencia(TemplateView):
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
-        tipo_movimiento = TipoMovimiento.objects.get(codigo=tipo)
+        tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'pide_refencia': tipo_movimiento.pide_referencia}
         return JsonResponse(json_object)
 
