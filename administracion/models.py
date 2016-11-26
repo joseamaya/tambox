@@ -6,6 +6,9 @@ from model_utils.models import TimeStampedModel
 from administracion.querysets import NavegableQuerySet
 
 # Create your models here.
+class Upload(TimeStampedModel):
+    archivo = models.FileField(upload_to='archivos')
+
 class Profesion(TimeStampedModel):
     abreviatura = models.CharField(max_length=7)
     descripcion = models.CharField(max_length=30)
