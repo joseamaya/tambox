@@ -5,7 +5,7 @@
 {% else %}
 <h3>Impuestos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post" enctype="multipart/form-data">
+<form role="form" method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -42,6 +42,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripcion:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<h3>{{ form.descripcion }}</h3>					
 				</div>
 				<div class="col-lg-5">
@@ -51,14 +61,54 @@
 			<div class="row">
 				<div class="col-lg-4">                                  
 				    <label>ABREVIATURA:</label>
+				    {% if form.abreviatura.errors %}
+						{% for error in form.abreviatura.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.abreviatura }}</p>
 					<label>MONTO: </label>
+					{% if form.monto.errors %}
+						{% for error in form.monto.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.monto }}</p>
 					<label>FECHA INICIO:</label>
+					{% if form.fecha_inicio.errors %}
+						{% for error in form.fecha_inicio.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.fecha_inicio }}</p>					
 				</div>
 				<div class="col-lg-4">
 				    <label>FECHA FIN: </label>
+				    {% if form.fecha_fin.errors %}
+						{% for error in form.fecha_fin.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.fecha_fin }}</p>
 				</div>
 				<div class="col-lg-4">                                                    

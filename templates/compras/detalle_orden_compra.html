@@ -31,12 +31,21 @@
 	</div>
 </div>
 <hr />	
+<div id="dialog-confirm" title="Eliminar Orden de Compra"></div>
 <div class="panel panel-primary">	
 	<div class="panel-body">					
 			<div class="row">
 				<div class="col-md-2">
 					<label>CODIGO:</label>  
 					<p>{{ object.codigo }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Creación:</label> 
+					<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Mod:</label> 
+					<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
 				</div>
 				<div class="col-md-4">
 					<label>Estado:</label> 
@@ -96,7 +105,13 @@
 				<div class="col-md-3">	
 					<label>Proceso:</label>
 					<p>{{ object.proceso }}</p>
-				</div>						
+				</div>
+				<div class="col-md-3">
+				<label>Informe:</label>				
+				{% if object.informe %} <a
+					href="{{ object.informe.url }}">Ver informe</a> 
+				{% endif %}
+			</div>						
 			</div>
 		<hr>
 		<div class="row">
@@ -110,7 +125,7 @@
 							<th>Cantidad</th>	
 							<th>Precio Unit.</th>
 							<th>Impuesto</th>
-							<th>Subtotal</th>							
+							<th>Total</th>							
 						</tr>
 					</thead>
 					<tbody>
@@ -120,10 +135,10 @@
 								<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
-						  		<td>{{ detalle.cantidad }}</td>
-						  		<td>{{ detalle.precio }}</td>
-						  		<td>{{ detalle.impuesto }}</td>
-						  		<td>{{ detalle.valor }}</td>					  		
+						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
+						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
 							</tr>
 							{% endfor %}
 						{% else %}
@@ -132,23 +147,56 @@
 								<td>{{ detalle.producto.codigo }}</td>
 						  		<td>{{ detalle.producto.descripcion }}</td>
 						  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
-						  		<td>{{ detalle.cantidad }}</td>
-						  		<td>{{ detalle.precio }}</td>
-						  		<td>{{ detalle.impuesto }}</td>
-						  		<td>{{ detalle.valor }}</td>					  		
+						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
+						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
 							</tr>
 							{% endfor %}
-						{% endif %}										
+						{% endif %}
+							<tr>
+								<td colspan="7"></td>
+							</tr>
+							<tr>
+								<td colspan="5">
+									SON: {{ object.total_letras }}
+								</td>
+								<td>
+									SUBTOTAL:
+								</td>
+								<td>
+									{{ object.subtotal|floatformat:2 }}
+								</td>
+							</tr>
+							<tr>
+								<td colspan="5">
+									
+								</td>
+								<td>
+									IGV: 
+								</td>
+								<td>
+									{{ object.igv|floatformat:2 }}
+								</td>
+							</tr>
+							<tr>
+								<td colspan="5">
+									
+								</td>
+								<td>
+									TOTAL: 
+								</td>
+								<td>
+									{{ object.total|floatformat:2 }}
+								</td>
+							</tr>																		
 					</tbody>				
 				</table>
 			</div>
 		</div>
 		<div class="row">			
-			<div class="col-md-9">
-				<p>SON: {{ object.total_letras }}</p>
-			</div>
 			<div class="col-md-3">
-				<p>SUBTOTAL: {{ object.subtotal }}</p>
+				<p></p>
 			</div>
 		</div>			
 		<div class="row">
@@ -156,7 +204,7 @@
 				
 			</div>
 			<div class="col-md-3">
-				<p>IGV: {{ object.igv }}</p>
+				<p></p>
 			</div>
 		</div>
 		<div class="row">
@@ -164,15 +212,15 @@
 				
 			</div>
 			<div class="col-md-3">
-				<p>TOTAL: {{ object.total }}</p>
+				<p></p>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-lg-12">
 				<label>OBSERVACIONES:</label>
-				<textarea cols="141" id="id_observaciones" name="observaciones" rows="5">
+				<p>
 				{{ object.observaciones }}
-				</textarea>	
+				</p>	
 			</div>
 		</div>										
 	</div>
@@ -184,306 +232,43 @@
 <script>
 $(document).ready(function() 
 {
-	var mySpinner = null;
-	var contDetalles=parseInt($('#cdetalles').val());
-	var ultimo_item = parseInt($('#cdetalles').val());
-	var subtotal=parseFloat($('#id_subtotal').val());
-	var total=subtotal;
-	$("#id_fecha").datepicker();	
-	$(".decimal").keydown(validar_numeros);
-	
-	function setupLoading() 
-	{    
-	    $('<div id="divSpin" />').appendTo(document.body);
-	    var target = document.getElementById("divSpin");
-	    var opts = {
-	        lines: 13, // The number of lines to draw
-	        length: 20, // The length of each line
-	        width: 10, // The line thickness
-	        radius: 30, // The radius of the inner circle
-	        corners: 1, // Corner roundness (0..1)
-	        rotate: 8, // The rotation offset
-	        direction: 1, // 1: clockwise, -1: counterclockwise
-	        color: '#000', // #rgb or #rrggbb or array of colors
-	        speed: 1, // Rounds per second
-	        trail: 60, // Afterglow percentage
-	        shadow: false, // Whether to render a shadow
-	        hwaccel: false, // Whether to use hardware acceleration
-	        className: 'mySpin', // The CSS class to assign to the spinner
-	        zIndex: 2e9, // The z-index (defaults to 2000000000)
-	        top: '50%', // Top position relative to parent
-	        left: '50%' // Left position relative to parent
-	    };
+	$('#id_eliminar').click(function(e) {
+		e.preventDefault();
+		ventana = $("#dialog-confirm").dialog({
+			resizable : false,
+			height : 140,
+			modal : true,
+			buttons : {
+				"Borrar" : borrarOrdenCompra,
+				"Cancelar" : cerrarOrdenCompra
+			}
+		});
+	});
 
-	    mySpinner = new Spinner(opts).spin(target);
-	}
-
-	function removeLoading(){
-	    mySpinner.stop();
-	    mySpinner = null;
-	}
-
-	function showLoading() {
-	    mySpinner.spin();
-	}
-	
-	$("#id_razon_social").autocomplete({
-	  	source: function(request, response){
-	    $.ajax({
-	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
-	      data: {'razon_social': $("#razon_social").val()},
-	      success: function( data ) 
-	      {
-	          response( data );
-	      }
-	    });
-	  },
-	  minLength: 2,
-	  select: function( event, ui ) {
-		$("#id_ruc").val(ui.item.ruc);
-		return false;
-	  },
-	});
-	
-	$("#id_ruc").keyup(function() 
+	function borrarOrdenCompra() 
 	{
-		var ruc=$("#id_ruc").val();
-		if(ruc.length==11)
-		{
-			setupLoading();
-			$.ajax({
-		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
-		      data: {'ruc': ruc},
-		      success: function(data) 
-		      {
-		    	  $("#id_razon_social").val(data.razon_social);
-		    	  $("#id_direccion").val(data.direccion);
-		    	  removeLoading();
-		    	  event.preventDefault();
-		      }
-		    });
-		}
-	});	
-	
-	$(document).on("click",".eliminar",function()
-	{
-		var parent = $(this).parent().parent();
-		var id_boton= $(this).prop('id');
-		var id = id_boton.replace("btnBorrar","");
-		var valor = $("#valor"+id).val();
-		subtotal=subtotal-parseFloat(valor);
-		total = subtotal;
-		$(parent).remove();
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_letras").val(NumeroALetras(total));
-		contDetalles = contDetalles - 1;
-	});
-	
-	$(document).on("keyup",".cantidad",function()
-	{
-		var id_input= $(this).prop('id');
-		var id = id_input.replace("cantidad","");
-		var cantidad = $("#cantidad"+id).val();
-		var precio = $("#precio"+id).val();
-		var valorAnt = $("#valor"+id).val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#valor"+id).val(valor.toFixed(5));
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valor);
-		total = subtotal;
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_letras").val(NumeroALetras(total));
-	});
-	
-	$(document).on("keyup",".precio",function()
-	{
-		var id_input= $(this).prop('id');
-		var id = id_input.replace("precio","");
-		var cantidad = $("#cantidad"+id).val();
-		var precio = $("#precio"+id).val();
-		var valorAnt = $("#valor"+id).val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#valor"+id).val(valor.toFixed(5));
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valor);
-		total = subtotal;
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_letras").val(NumeroALetras(total));
-	});
-		
-	$('#id_transferencia_cotizacion').click(function(e)
-	{
-	    e.preventDefault();
-	    ventana_transferencia = $('#popup').dialog(
-		{
-			title: "Transferencia de CotizaciÃ³n",
-			width: 950,
-			open: function ()
-	        {
-				var url="{% url 'compras:transferencia_cotizacion' %}";
-	            $(this).load(url);
-	        },
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": transferirCotizacion,
-	          "Cancelar": cerrarTransferencia
-	        }
-		}).dialog('open').load(this.href)
- 	});
-	
-	function transferirCotizacion()
-	{		
-		var cotizacion = $("#cotizacion").val();		
-		var cont = 0;
-		ventana_transferencia.dialog("close");
-		$('#detalles td').parent().remove();
 		$.ajax({
-	      url: "{% url 'compras:busqueda_cotizacion' %}",
-	      data: {'codigo': cotizacion},
-	      success: function(data) 
-	      {
-	    	  $("#id_ruc").val(data.ruc);
-	    	  $("#id_razon_social").val(data.razon_social);
-	    	  $("#id_direccion").val(data.direccion);
-	    	  event.preventDefault();
-	      }
-	    });
-		
-		$.ajax({
-			data : {'cotizacion': cotizacion},
-			url : "{% url 'compras:obtener_detalle_cotizacion' %}",
+			data : { 'codigo' : "{{ object.codigo }}" },
+			url : "{% url 'compras:eliminar_orden_compra' %}",
 			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					cont = i+1;
-					$("#detalles tbody").append( 
-					"<tr>" +
-				  	"<input type='hidden' name='detalle_cotizacion"+cont+"' id='detalle_cotizacion"+cont+"' value='" + item.codigo_detalle + "'/>"+
-					"<td><input class='form-control' type='text' size=14 readonly='readonly' name='codigo"+cont+"' id='codigo"+cont+"' value='" + item.codigo_producto + "'/></td>" +
-				  	"<td><input class='form-control' type='text' size=25 readonly='readonly' name='nombre"+cont+"' id='nombre"+cont+"' value='" + item.nombre_producto + "'/></td>" +
-				  	"<td><input class='form-control' type='text' size=10 readonly='readonly' name='unidad"+cont+"' id='unidad"+cont+"' value='" + item.unidad_producto + "'/></td>" +
-				  	"<td><input class='cantidad decimal form-control' type='numeric' size=5 name='cantidad"+cont+"' id='cantidad"+cont+"' value='" + item.cantidad + "'/></td>" +
-				  	"<td><input class='precio decimal form-control' type='numeric' size=10 name='precio"+cont+"' id='precio"+cont+"' value='" + item.precio_producto + "'/></td>" +
-				  	"<td><input class='form-control' type='text' readonly='readonly' size=14 name='valor"+cont+"' id='valor"+cont+"' value='" + item.valor + "'/></td>" +
-				  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+cont+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");
-					subtotal=subtotal+parseFloat(item.valor);					
-				});
-				contDetalles = cont;
-				ultimo_item = cont;
-				total = subtotal;
-				$("#id_cotizacion").val(cotizacion);				
-				$("#id_subtotal").val(subtotal.toFixed(5));
-				$("#id_igv").val(0);
-				$("#id_total").val(total.toFixed(5));
-				$("#id_total_letras").val(NumeroALetras(total));
-				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(observaciones);
-			}
-		});
-	}
-	
-	function cerrarTransferencia()
-	{
-		ventana_transferencia.dialog("close");
-	}
-	
-	$(document).on("focusout",".precio",function()
-	{
-		var precio= $(this).val();
-		if(precio==0)
-		{
-			alert("El precio no puede ser cero");			
-		}		
-	});
-	
-	$(document).on("focusout",".cantidad",function()
-	{
-		var cantidad= $(this).val();
-		if(cantidad==0)
-		{
-			alert("La cantidad no puede ser cero");			
-		}		
-	});
-	
-	function validar_ceros()
-	{	
-		var control_ceros = false;
-		$(".cantidad").each(function()
-		{
-			if($(this).val()==0)
-			{
-				control_ceros = true;
-			}
-		});
-		
-		$(".precio").each(function()
-		{
-			if($(this).val()==0)
-			{
-				control_ceros = true;
-			}
-		});
-		return control_ceros;
-	}
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		$('#cdetalles').val(ultimo_item);
-		var forma_pago = $('#id_formas_pago').val();
-		var ruc = $('#id_ruc').val();
-		var fecha = $('#id_fecha').val().trim();
-		var dias_entrega = $('#id_dias_entrega').val().trim();
-		if(ruc != '')
-		{					
-			if(fecha != '')
-			{					
-				if(dias_entrega != '')
+			success : function(data) {
+				if (data.movimientos == 'NO') 
 				{
-					if(forma_pago)
-					{
-						if (contDetalles > 0)
-						{
-							if(validar_ceros()==false)
-							{
-								return;								
-							}
-							else
-							{
-								alert("Revise el detalle el valor no puede ser cero");
-							}		
-						}
-						else
-						{
-							alert("No ha ingresado ningÃºn detalle");	
-						}
-					}
-					else
-					{
-						alert("No ha ingresado una forma de pago");
-					}
-				}
-				else
+					alert("Orden de Compra " + data.codigo + " eliminada");
+					$(location).attr('href', "{% url 'compras:detalle_orden_compra' object.siguiente %}");
+				} 
+				else if (data.movimientos == 'SI') 
 				{
-					alert("No ha ingresado tiempo de entrega");
+					alert("Orden de Compra " + data.descripcion + " no puede eliminarse");
 				}
 			}
-			else
-			{
-				alert("No ha seleccionado fecha");
-			}
-		}
-		else
-		{
-			alert("No ha ingresado el ruc del proveedor");
-		}
-		event.preventDefault();
-	});
+		});
+		ventana.dialog("close");
+	}
+
+	function cerrarOrdenCompra() {
+		ventana.dialog("close");
+	}
 });
 </script>
 {% endblock js %}

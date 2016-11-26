@@ -1,7 +1,6 @@
 {% extends "almacen/base_almacen.html" %} {% block cuerpo %}
 <h3>Tipos de Movimiento / Nuevo</h3>
-<form role="form" action="{% url 'almacen:crear_tipo_movimiento' %}"
-	method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -26,6 +25,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<h3>{{ form.descripcion }}</h3>
 				</div>
 				<div class="col-lg-5">
@@ -34,19 +43,40 @@
 			</div>
 			<br>
 			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#general">Información
-						General</a></li>
+				<li class="active">
+					<a data-toggle="tab" href="#general">Información General</a>
+				</li>
 			</ul>
 			<div class="tab-content">
 				<div id="general" class="tab-pane fade in active">
 					<br>
 					<div class="row">
 						<div class="col-lg-4">
-							<label>CODIGO:</label>
+							<label>CODIGO:</label>							
 							<p>{{ object.codigo }}</p>
 							<label>INCREMENTA:</label>
+							{% if form.incrementa.errors %}
+								{% for error in form.incrementa.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.incrementa }}</p>
 							<label>PIDE REFERENCIA:</label>
+							{% if form.pide_referencia.errors %}
+								{% for error in form.pide_referencia.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.pide_referencia }}</p>
 						</div>
 						<div class="col-lg-4"></div>

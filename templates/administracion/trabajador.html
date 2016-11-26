@@ -5,7 +5,7 @@
 {% else %}
 <h3>Trabajadores / {{ object.nombre_completo }}</h3>
 {% endif %}
-<form role="form" action="#" method="post" enctype="multipart/form-data">
+<form role="form" method="post" enctype="multipart/form-data">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">

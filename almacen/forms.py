@@ -1,34 +1,13 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from almacen.models import Almacen, TipoMovimiento, Kardex, Movimiento, Pedido
+from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
 from contabilidad.models import Tipo, Upload
 import datetime
 from compras.models import OrdenCompra
 from django.forms import formsets
 from django.core.exceptions import ValidationError
-
-parametros = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
-
-meses = (
-    ('01', 'Enero'),
-    ('02', 'Febrero'),
-    ('03', 'Marzo'),
-    ('04', 'Abril'),
-    ('05', 'Mayo'),
-    ('06', 'Junio'),
-    ('07', 'Julio'),
-    ('08', 'Agosto'),
-    ('09', 'Setiembre'),
-    ('10', 'Octubre'),
-    ('11', 'Noviembre'),
-    ('12', 'Diciembre'),
-)
-
-formatos = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
-choices_tipos_movimiento = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
-choices_almacenes = [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
-choices_meses = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in Kardex.objects.datetimes('fecha_operacion', 'month')]
-choices_annios = [(anio.year, anio.year) for anio in Kardex.objects.datetimes('fecha_operacion', 'year')]
+from almacen.settings import MESES, PARAMETROS, FORMATOS,\
+    CHOICES_TIPOS_MOVIMIENTO, CHOICES_ALMACENES, CHOICES_MESES, CHOICES_ANNIOS
 
 class FormularioCargarAlmacenes(forms.Form):
     docfile = forms.FileField()
@@ -109,19 +88,20 @@ class FormularioDetalleMovimiento(forms.Form):
     valor = forms.IntegerField(10, widget= forms.TextInput(attrs={'size': 10, 'readonly':"readonly", 'class': 'form-control decimal'}))
     
 class FormularioReporteMovimientos(forms.Form):
-    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}),label='Seleccione:', choices=parametros)
+    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}),label='Seleccione:', choices=PARAMETROS)
     fecha_inicio = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Inicio:',required=False)
     fecha_fin = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Fin:',required=False)
-    mes = forms.ChoiceField(choices=meses, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
+    mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     annio = forms.CharField(4, widget= forms.TextInput(attrs={'size': 4, 'class': 'form-control'}),label='Año',required=False)
-    tipos_movimiento =  forms.ChoiceField(choices=choices_tipos_movimiento, widget=forms.Select(attrs={'class': 'form-control'}))
-    almacenes =  forms.ChoiceField(choices=choices_almacenes, widget=forms.Select(attrs={'class': 'form-control'}))
+    tipos_movimiento =  forms.ChoiceField(choices=CHOICES_TIPOS_MOVIMIENTO, widget=forms.Select(attrs={'class': 'form-control'}))
+    almacenes =  forms.ChoiceField(choices=CHOICES_ALMACENES, widget=forms.Select(attrs={'class': 'form-control'}))
     
 class MovimientoForm(forms.ModelForm):
     fecha = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     doc_referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
+    total = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
     def __init__(self, *args, **kwargs):
         self.tipo_movimiento = kwargs.pop("tipo_movimiento")
@@ -140,11 +120,7 @@ class MovimientoForm(forms.ModelForm):
         for field in iter(self.fields):             
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
-            })
-            if field=='total':
-                self.fields[field].widget.attrs.update({
-                    'readonly':"readonly"
-                })
+            })            
                 
     def obtener_fecha_hora(self,r_fecha,r_hora):
         r_hora = r_hora.replace(" ","")
@@ -168,15 +144,15 @@ class MovimientoForm(forms.ModelForm):
     
     class Meta:
         model = Movimiento
-        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','observaciones','total'] 
+        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','observaciones'] 
     
 class FormularioKardexProducto(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
-    meses = forms.ChoiceField(choices=choices_meses, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
-    anios = forms.ChoiceField(choices=choices_annios, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
+    meses = forms.ChoiceField(choices=CHOICES_MESES, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
+    anios = forms.ChoiceField(choices=CHOICES_ANNIOS, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     cod_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'})) 
-    formatos = forms.ChoiceField(choices=formatos, widget=forms.RadioSelect,required=False)      
+    formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect,required=False)      
     
 class CargarInventarioInicialForm(forms.ModelForm):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
@@ -230,7 +206,7 @@ class FormularioPedido(forms.Form):
     
 class FormularioDetallePedido(forms.Form):
     codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(20, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     
@@ -247,9 +223,9 @@ class FormularioReporteStock(forms.Form):
     
 class FormularioDetalleIngreso(forms.Form):
     orden_compra = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
+    codigo = forms.CharField(widget= forms.TextInput(attrs={'size': 8, 'readonly':"readonly", 'class': 'entero form-control'}))    
+    nombre = forms.CharField(widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 5,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
@@ -267,9 +243,9 @@ class BaseDetalleIngresoFormSet(formsets.BaseFormSet):
                     )
                 
 class FormularioDetalleSalida(forms.Form):
-    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17, 'readonly':"readonly", 'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(20, widget= forms.TextInput(attrs={'size': 20,'readonly':"readonly", 'class': 'form-control'}))
+    codigo = forms.CharField(widget= forms.TextInput(attrs={'size': 8, 'readonly':"readonly", 'class': 'entero form-control'}))    
+    nombre = forms.CharField(widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 5,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'precio decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))

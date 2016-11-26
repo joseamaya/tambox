@@ -5,7 +5,7 @@
 {% else %}
 <h3>Órdenes de Servicios / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -38,7 +38,15 @@
 		</div>
 	</div>
 	<hr />
-	<div class="panel panel-default">	
+	<div class="panel panel-default">
+		{% if form.non_field_errors %}
+			<div class="alert alert-danger alert-dismissible" role="alert">							
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>							
+	            {{ form.non_field_errors }}					        
+			</div>						        
+	    {% endif %}	
 		<div class="panel-body">					
 			{% csrf_token %}
 			<div class="form-group">
@@ -168,14 +176,25 @@
 					</div>							
 				</div>
 			</div>
-			<hr>			
+			<hr>
+			<div class="row">
+				<div class="col-lg-10">							
+				</div>	
+				<div class="col-lg-2">
+					<div class='form-group'>
+						<button id="id_crear_detalle" href="#" class="btn btn-info btn-block">
+							<span class="glyphicon glyphicon-plus">AGREGAR</span>
+						</button>						
+					</div>
+				</div>	
+			</div>	
 			<div class="row">
 				<div class="col-lg-12">
 					<table id="detalles" class="table table-striped table-bordered table-hover">
 						<thead>
 							<tr>
 								<th>SERVICIO</th>
-								<th>USO</th>											
+								<th>UNIDAD</th>											
 								<th>CANTIDAD</th>
 								<th>PRECIO</th>
 								<th>VALOR</th>
@@ -186,8 +205,9 @@
 							{{ detalle_orden_servicios_formset.management_form }}
 						    {% for detalle_orden_servicios_form in detalle_orden_servicios_formset %}					        
 					            <tr class="detalle_orden_servicios_formset">
-					            	<td>
-					            		{{ detalle_orden_servicios_form.cotizacion }}
+					            	<td>					            		
+						            	{{ detalle_orden_servicios_form.cotizacion }}
+						            	{{ detalle_orden_servicios_form.codigo }}
 						            	{% if detalle_orden_servicios_form.nombre.errors %}
 											{% for error in detalle_orden_servicios_form.nombre.errors %}
 											<div class="alert alert-danger alert-dismissible" role="alert">							
@@ -391,12 +411,32 @@
 $(document).ready(function() 
 {
 	var mySpinner = null;
-	var contDetalles=parseInt($('#id_cdetalles').val());
-	var ultimo_item = parseInt($('#id_cdetalles').val());
+	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
+	var ultimo_item = contDetalles;
 	var subtotal=parseFloat($('#id_subtotal').val());
 	var total=subtotal;
 	$("#id_fecha").datepicker();
-	$(".decimal").keydown(validar_numeros);
+	$(".decimal").keydown(validar_decimales);
+	
+	$("#id_ruc").keyup(function() 
+	{
+		var ruc=$("#id_ruc").val();
+		
+		if(ruc.length==11)
+		{	
+			$.ajax({
+		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
+		      data: {'ruc': ruc},
+		      success: function(data) 
+		      {
+		    	  $("#id_razon_social").val(data.razon_social);
+		    	  $("#id_direccion").val(data.direccion);
+		    	  removeLoading();
+		    	  event.preventDefault();
+		      }
+		    });
+		}
+	});
 	
 	$(document).on("click",".eliminar",function()
 	{
@@ -406,7 +446,7 @@ $(document).ready(function()
 		var valor = $("#"+id+"valor").val();
 		var imp = 0;
 		subtotal=subtotal-parseFloat(valor);
-		impuesto_total = impuesto_total - parseFloat(imp)
+		impuesto_total = 0
 		total = subtotal + impuesto_total;
 		$(parent).remove();
 		$("#id_subtotal").val(subtotal.toFixed(5));
@@ -422,8 +462,8 @@ $(document).ready(function()
 	{
 		var id_input= $(this).prop('id');
 		var id = id_input.replace("cantidad","");
-		var cantidad = $("#"+id+"cantidad").val();
-		var precio = $("#"+id+"precio").val();
+		var cantidad = convertir_vacio_cero($("#"+id+"cantidad").val());
+		var precio = convertir_vacio_cero($("#"+id+"precio").val());		
 		var valorAnt = $("#"+id+"valor").val();
 		var valor=parseFloat(cantidad)*parseFloat(precio);
 		$("#"+id+"valor").val(valor.toFixed(5));		
@@ -440,8 +480,8 @@ $(document).ready(function()
 	{
 		var id_input= $(this).prop('id');
 		var id = id_input.replace("precio","");
-		var cantidad = $("#"+id+"cantidad").val();
-		var precio = $("#"+id+"precio").val();
+		var cantidad = convertir_vacio_cero($("#"+id+"cantidad").val());
+		var precio = convertir_vacio_cero($("#"+id+"precio").val());
 		var valorAnt = $("#"+id+"valor").val();
 		var valor=parseFloat(cantidad)*parseFloat(precio);
 		$("#"+id+"valor").val(valor.toFixed(5));		
@@ -453,6 +493,63 @@ $(document).ready(function()
 		$("#id_total").val(total.toFixed(5));
 		$("#id_total_letras").val(NumeroALetras(total));
 	});
+	
+	$('#id_crear_detalle').click(function(e)
+	{
+		$('#id_transferencia_cotizacion').prop("disabled", true);
+		e.preventDefault();
+		$.ajax({
+			url : "{% url 'compras:crear_detalle_orden_servicios' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$.each(data, function(i,item){
+					$("#detalles tbody").append( 
+						"<tr class='detalle_orden_servicios_formset'>" +
+						"<td>" + item.cotizacion + item.codigo + item.nombre + "</td>" +
+						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.precio + "</td>" +
+						"<td>" + item.valor + "</td>" +
+				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");
+					contDetalles = parseInt(contDetalles) + 1;											
+				});
+				$("#id_form-TOTAL_FORMS").val(contDetalles);
+				updateFormElementIndices('detalle_orden_servicios_formset');
+				bindAutoComplete('productos');		
+				$(".decimal").keydown(validar_decimales);
+			}
+		});
+ 	});
+	
+	function bindAutoComplete(classname)
+	{
+		$("."+classname).autocomplete({
+			source: function( request, response ) 
+			{
+				$.ajax({
+				  url: "{% url 'productos:busqueda_productos_descripcion' %}",
+				  data: {'descripcion': request.term,'tipo_busqueda': 'SERVICIOS' },
+			      success: function( data ) 
+			      {
+			          response( data );
+			      }
+			    });
+			},
+		    minLength: 2,
+		    select: function( event, ui ) 
+		    {
+		    	var id_producto = $(this).prop('id');
+				var id = id_producto.replace("nombre", "");
+				$("#"+id+"codigo").val(ui.item.codigo);
+				$("#"+id+"nombre").val(ui.item.descripcion);
+				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"precio").val(ui.item.precio);
+				return false;
+		    },
+		});
+	}
 	
 	$('#id_transferencia_cotizacion').click(function(e)
 	{
@@ -537,68 +634,6 @@ $(document).ready(function()
 	{
 		ventana_transferencia.dialog("close");
 	}
-	
-	$('#id_crear_detalle_orden_servicio').click(function(e)
-	{
-		e.preventDefault();
-		$('#transferencia_requerimiento').prop("disabled", true);
-		ventana = $('#popup').dialog(
-		{
-			title: "Agregar Detalle",
-			open: function ()
-	        {
-				var url="{% url 'compras:crear_detalle_orden_servicio' %}";
-	            $(this).load(url);
-	        },
-			width: 950,
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": agregarDetalle,
-	          "Cancelar": cerrarDetalle
-	        }
-		}).dialog('open').load(this.href)		
- 	});
-	
-	function agregarDetalle() 
-	{
-		codigo = $("#id_codigo").val();
-		cantidad = $("#id_cantidad").val();
-		servicio = $("#id_servicio").val();
-	    descripcion = $("#id_descripcion").val();
-	    precio = $("#id_precio").val();
-	    valor = $("#id_valor").val();
-	    if(codigo!='' && servicio!='' && descripcion!='' && precio!='')
-		{
-			contDetalles = contDetalles + 1;
-			ultimo_item = ultimo_item + 1;			
-			valor = valor;
-			subtotal = subtotal+parseFloat(valor);
-			total = subtotal;
-			$("#detalles tbody").append( 
-			"<tr>" +
-			"<input type='hidden' size=5 name='codigo"+ultimo_item+"' id='codigo"+ultimo_item+"' value='" + codigo + "'/>"+
-			"<td><input class='cantidad decimal form-control' type='numeric' size=1 name='cantidad"+ultimo_item+"' id='cantidad"+ultimo_item+"' value='" + cantidad + "'/></td>" +
-		  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='servicio"+ultimo_item+"' id='servicio"+ultimo_item+"' value='" + servicio + "'/></td>" +
-		  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='descripcion"+ultimo_item+"' id='descripcion"+ultimo_item+"' value='" + descripcion + "'/></td>" +
-		  	"<td><input class='precio decimal form-control' type='numeric' size=5 name='precio"+ultimo_item+"' id='precio"+ultimo_item+"' value='" + precio + "'/></td>" +
-		  	"<td><input class='valor decimal form-control' type='numeric' size=5 name='valor"+ultimo_item+"' id='valor"+ultimo_item+"' value='" + valor + "'/></td>" +
-		  	"<td><button class='eliminar btn btn-small btn-danger' type='button' id='btnBorrar"+ultimo_item+"' name='guardar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-			"</tr>");
-			$(".decimal").keydown(validar_decimales);
-		}
-		ventana.dialog( "close" );
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_igv").val(0);
-		$("#id_total_letras").val(NumeroALetras(total));
-	}
-	
-	function cerrarDetalle()
-	{
-		ventana.dialog("close");
-	}	
 	
 	$(document).on("focusout",".precio",function()
 	{

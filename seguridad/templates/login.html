@@ -1,0 +1,70 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+	<head>
+	    <meta charset="utf-8"/></meta>
+	    <title>TAMBOX</title>
+	    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+	    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" >	    
+	    <link href="{% static "css/sb-admin-2.css"  %}" rel="stylesheet" type="text/css" />
+	    <script src="{% static "js/jquery.js" %}"></script>
+	    <script src="{% static "js/bootstrap.min.js" %}"></script>	    	    	      	    
+	</head>
+	<body>
+		<div class="container">
+			<div class="row">
+				<div class="col-md-4 col-md-offset-4">
+					<div class="login-panel panel panel-default">
+					    <div class="panel-heading">
+					        <h3 class="panel-title">LOGIN</h3>
+					    </div>
+					    <div class="panel-body">
+					    	{% if form.non_field_errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            {{ form.non_field_errors }}					        
+								</div>						        
+						    {% endif %}			    	
+							<form role="form" method="post" id='form_login' action="{% url 'seguridad:login' %}">
+								{% csrf_token %}
+								<fieldset>
+								    <div class="form-group">
+								    	<label>Usuario:</label>
+								    	{% if form.username.errors %}
+											{% for error in form.username.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %} 
+										{{ form.username }}
+								    </div>
+								    <div class="form-group">
+								    	<label>Contraseña:</label>
+								        {% if form.password.errors %}
+											{% for error in form.password.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+								        {{ form.password }}
+								    </div>								    
+								    <button class="btn btn-lg btn-success btn-block" type="submit" name="login"/>Login</button>
+								</fieldset>
+						    </form>
+						</div>
+			        </div>
+			    </div>
+			</div>
+		</div>
+	</body>
+</html>

@@ -6,6 +6,9 @@
 			<li>
 		        <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
 		        <ul class="nav nav-second-level">
+		        	{% if perms.administracion.ver_tabla_niveles_aprobacion %}
+		            <li><a href="{% url 'administracion:maestro_niveles_aprobacion' %}">Niveles de Aprobacion</a></li>
+		            {% endif %}
 		        	{% if perms.administracion.ver_tabla_oficinas %}
 		            <li><a href="{% url 'administracion:maestro_oficinas' %}">Oficinas</a></li>
 		            {% endif %}

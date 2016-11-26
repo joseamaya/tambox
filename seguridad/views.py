@@ -6,15 +6,22 @@ from seguridad.forms import FormularioCambioPassword, FormularioLogin
 from django.views.generic import View
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
+from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.cache import never_cache
+from django.utils.decorators import method_decorator
 
-class Inicio(TemplateView):
-    template_name ='seguridad/bienvenida.html'
+class Inicio(View):
+    
+    def get(self, request, *args, **kwargs):        
+        return render(request,'seguridad/bienvenida.html')
     
 class Login(FormView):
     template_name = 'seguridad/login.html'
     form_class = FormularioLogin
     success_url =  reverse_lazy("seguridad:inicio")
     
+    @method_decorator(csrf_protect)
+    @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated():
             return HttpResponseRedirect(self.get_success_url())
@@ -35,17 +42,5 @@ class ModificarPassword(FormView):
         kwargs['request'] = self.request
         return kwargs
 
-class Permisos(View):
-
-    def dispatch(self, request, *args, **kwargs):
-        if self.revisar_permisos(request.user):
-            clase = type(self)
-            return super(clase, self).dispatch(request, *args, **kwargs)
-        else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-
-    def get(self, request, *args, **kwargs):
-        return render(request,'bienvenida_permisos.html')
-    
 class PermisoDenegado(TemplateView):    
     template_name = 'seguridad/permiso_denegado.html'

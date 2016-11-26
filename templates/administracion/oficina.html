@@ -5,7 +5,7 @@
 {% else %}
 <h3>Oficinas / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -42,6 +42,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.nombre.errors %}
+						{% for error in form.nombre.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<h3>{{ form.nombre }}</h3>
 				</div>
 				<div class="col-lg-5">
@@ -58,10 +68,40 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>CÓDIGO:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.codigo }}</p>
 							<label>DEPENDENCIA:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.dependencia }}</p>
 							<label>GERENCIA:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.gerencia }}</p>
 						</div>
 						<div class="col-lg-4"></div>

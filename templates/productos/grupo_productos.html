@@ -5,7 +5,7 @@
 {% else %}
 <h3>Grupos de Productos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -42,6 +42,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.fecha_fin.errors %}
+						{% for error in form.fecha_fin.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.descripcion }}<p>
 				</div>
 				<div class="col-lg-5">
@@ -64,17 +74,26 @@
 			</div>
 			<br>
 			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#general">Información
-						General</a></li>
+				<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="general" class="tab-pane fade in active">
 					<br>
 					<div class="row">
 						<div class="col-lg-4">
-							<label>CODIGO:</label>
+							<label>CODIGO:</label>							
 							<p>{{ object.codigo }}</p>
 							<label>CTA. CONTABLE: </label>
+							{% if form.ctacontable.errors %}
+								{% for error in form.ctacontable.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.ctacontable }}</p>
 						</div>
 						<div class="col-lg-4"></div>

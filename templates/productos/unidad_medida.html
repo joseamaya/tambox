@@ -5,7 +5,7 @@
 {% else %}
 <h3>Unidades de Medida / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -42,6 +42,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.descripcion }}</p>
 				</div>
 				<div class="col-lg-5">
@@ -55,8 +65,7 @@
 			</div>
 			<br>
 			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#general">Información
-						General</a></li>
+				<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
 			</ul>
 			<div class="tab-content">
 				<div id="general" class="tab-pane fade in active">
@@ -64,6 +73,16 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>CODIGO:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.codigo }}</p>
 						</div>
 						<div class="col-lg-4"></div>

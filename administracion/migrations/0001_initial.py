@@ -15,6 +15,21 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='NivelAprobacion',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
+                ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
+                ('descripcion', models.CharField(max_length=100)),
+                ('aprobacion', models.BooleanField(default=True)),
+                ('nivel_superior', models.ForeignKey(to='administracion.NivelAprobacion', null=True)),
+            ],
+            options={
+                'ordering': ['descripcion'],
+                'permissions': (('ver_detalle_nivel_aprobacion', 'Puede ver detalle de Nivel de Aprobacion'), ('cargar_niveles_aprobacion', 'Puede cargar niveles de aprobacion desde un archivo externo'), ('ver_tabla_niveles_aprobacion', 'Puede ver tabla de Puestos'), ('ver_reporte_niveles_aprobacion_excel', 'Puede ver Reporte de niveles de aprobacion en excel')),
+            },
+        ),
+        migrations.CreateModel(
             name='Oficina',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -52,7 +67,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', model_utils.fields.AutoCreatedField(default=django.utils.timezone.now, verbose_name='created', editable=False)),
                 ('modified', model_utils.fields.AutoLastModifiedField(default=django.utils.timezone.now, verbose_name='modified', editable=False)),
-                ('nombre', models.CharField(unique=True, max_length=100)),
+                ('nombre', models.CharField(max_length=100)),
                 ('fecha_inicio', models.DateField()),
                 ('fecha_fin', models.DateField(null=True)),
                 ('es_jefatura', models.BooleanField(default=False)),
@@ -82,7 +97,7 @@ class Migration(migrations.Migration):
                 ('usuario', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
             options={
-                'ordering': ['dni'],
+                'ordering': ['apellido_paterno'],
                 'permissions': (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'), ('cargar_trabajadores', 'Puede cargar trabajadores desde un archivo externo'), ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'), ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel')),
             },
         ),
@@ -90,5 +105,10 @@ class Migration(migrations.Migration):
             model_name='puesto',
             name='trabajador',
             field=models.ForeignKey(to='administracion.Trabajador'),
+        ),
+        migrations.AddField(
+            model_name='nivelaprobacion',
+            name='oficina',
+            field=models.ForeignKey(to='administracion.Oficina'),
         ),
     ]

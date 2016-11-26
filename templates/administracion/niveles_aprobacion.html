@@ -1,0 +1,65 @@
+{% extends "administracion/base_administracion.html" %}
+{% block cuerpo %}
+<h3>Niveles de Aprobacion</h3>
+<div class="row">
+	<div class="col-lg-10">
+		{% if perms.administracion.add_nivelaprobacion %}
+		<a href="{% url 'administracion:crear_nivel_aprobacion' %}" class="btn btn-primary">
+			Crear
+		</a>												
+		{% endif %}		
+	</div>
+	<div class="col-lg-2 text-right">
+		<div class="btn-group">    					   
+				
+		</div>
+	</div>
+</div>
+<hr/>
+<div class="row">
+	<div class="col-lg-12">
+		<table id="tabla" class="display" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th class="text-center">DESCRIPCION</th>
+					<th class="text-center">OFICINA</th>
+					<th class="text-center">NIVEL SUPERIOR</th>					
+					<th class="text-center">APROBACION</th>
+				</tr>
+			</thead>							
+			<tbody>
+			{% for nivel in niveles %}
+				{% if perms.administracion.ver_detalle_puesto %}
+				<tr onclick="location.href='{% url 'administracion:detalle_nivel_aprobacion' nivel.pk %}';">
+				{% else %}
+				<tr>
+				{% endif %}
+					<td>{{ nivel.descripcion }}</td>
+					<td>{{ nivel.oficina }}</td>
+					<td>{{ nivel.nivel_superior }}</td>					
+					<td>{{ nivel.aprobacion }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>		
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#tabla').dataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	}); 
+    
+});
+</script>
+{% endblock js %}

@@ -5,7 +5,7 @@
 {% else %}
 <h3>Productos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -49,6 +49,16 @@
 				</div>
 				<div class="col-lg-7">
 					<label>RAZÓN SOCIAL:</label>
+					{% if form.razon_social.errors %}
+						{% for error in form.razon_social.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<h3>{{ form.razon_social }}</h3>
 				</div>
 				<div class="col-lg-3">
@@ -74,22 +84,102 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>RUC:</label>
+							{% if form.ruc.errors %}
+								{% for error in form.ruc.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.ruc }}</p>
 							<label>DIRECCIÓN:</label>
+							{% if form.direccion.errors %}
+								{% for error in form.direccion.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.direccion }}</p>
 							<label>ESTADO SUNAT: </label>
+							{% if form.estado_sunat.errors %}
+								{% for error in form.estado_sunat.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.estado_sunat }}</p>
 							<label>CONDICIÓN: </label>
+							{% if form.condicion.errors %}
+								{% for error in form.condicion.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.condicion }}</p>	
 						</div>
 						<div class="col-lg-4">
 							<label>CIIU: </label>
+							{% if form.ciiu.errors %}
+								{% for error in form.ciiu.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.ciiu }}</p>
 							<label>FECHA ALTA: </label>
+							{% if form.fecha_alta.errors %}
+								{% for error in form.fecha_alta.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.fecha_alta }}</p>
 							<label>TELÉFONO: </label>
+							{% if form.telefono.errors %}
+								{% for error in form.telefono.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.telefono }}</p>
 							<label>EMAIL: </label>
+							{% if form.correo.errors %}
+								{% for error in form.correo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.correo }}</p>
 						</div>
 						<div class="col-lg-4"></div>

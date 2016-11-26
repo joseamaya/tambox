@@ -5,7 +5,7 @@
 {% else %}
 <h3>Productos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -23,10 +23,10 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_producto' producto.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_producto' producto.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_producto' producto.siguiente %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_producto' producto.siguiente %}';">
 					<span class="glyphicon glyphicon-step-forward"></span>
 				</button>
 				{% endif %}
@@ -49,6 +49,16 @@
 				</div>
 				<div class="col-lg-5">
 					<label>Descripción:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.descripcion }}</p>
 				</div>
 				<div class="col-lg-5">
@@ -79,24 +89,104 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>CODIGO:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ object.codigo }}</p>
 							<label>GRUPO PRODUCTOS:</label>
+							{% if form.grupo_productos.errors %}
+								{% for error in form.grupo_productos.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.grupo_productos }}</p>
 							<label>DESCRIPCION ABREVIADA: </label>
+							{% if form.desc_abreviada.errors %}
+								{% for error in form.desc_abreviada.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.desc_abreviada }}</p>
 							<label>UNIDAD DE MEDIDA: </label>
+							{% if form.unidad_medida.errors %}
+								{% for error in form.unidad_medida.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.unidad_medida }}</p>
 						</div>
 						<div class="col-lg-4">
 							<label>MARCA: </label>
+							{% if form.marca.errors %}
+								{% for error in form.marca.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.marca }}</p>
 							<label>MODELO: </label>
+							{% if form.modelo.errors %}
+								{% for error in form.modelo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.modelo }}</p>
 							<label>PRECIO: </label>
+							{% if form.precio.errors %}
+								{% for error in form.precio.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.precio }}</p>
 						</div>
 						<div class="col-lg-4">
 							<label>TIPO EXISTENCIA: </label>
+							{% if form.tipo_existencia.errors %}
+								{% for error in form.tipo_existencia.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.tipo_existencia }}</p>
 						</div>
 					</div>

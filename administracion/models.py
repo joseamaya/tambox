@@ -56,6 +56,14 @@ class Trabajador(TimeStampedModel):
         sig = Trabajador.objects.siguiente(self)            
         return sig.pk
     
+    @property
+    def puesto(self):
+        try:
+            puesto = self.puesto_set.all().filter(estado=True)[0]
+        except: 
+            puesto = None
+        return puesto
+    
     def __str__(self):
         return smart_str(self.apellido_paterno)+' '+smart_str(self.apellido_materno)+' '+smart_str(self.nombres)
     
@@ -64,7 +72,7 @@ class Trabajador(TimeStampedModel):
                        ('cargar_trabajadores', 'Puede cargar trabajadores desde un archivo externo'),
                        ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'),
                        ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel'),)
-        ordering = ['dni']
+        ordering = ['apellido_paterno']
     
 class Oficina(TimeStampedModel):
     codigo = models.CharField(max_length=4, unique=True)
@@ -94,7 +102,7 @@ class Oficina(TimeStampedModel):
         return smart_str(self.nombre)
     
 class Puesto(TimeStampedModel):
-    nombre = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(max_length=100)
     oficina = models.ForeignKey(Oficina)
     trabajador = models.ForeignKey(Trabajador)
     fecha_inicio = models.DateField()
@@ -112,6 +120,14 @@ class Puesto(TimeStampedModel):
         sig = Puesto.objects.siguiente(self)            
         return sig.pk
     
+    @property
+    def puesto_superior(self):
+        try:
+            puesto_superior = Puesto.objects.get(oficina=self.oficina,es_jefatura=True,estado=True)
+        except Puesto.DoesNotExist: 
+            puesto_superior = None
+        return puesto_superior
+    
     class Meta:
         permissions = (('ver_detalle_puesto', 'Puede ver detalle de Puesto'),
                        ('cargar_puestos', 'Puede cargar puestos desde un archivo externo'),
@@ -123,3 +139,36 @@ class Puesto(TimeStampedModel):
         if self.fecha_fin is not None:
             self.estado = False
         super(Puesto, self).save()
+        
+class NivelAprobacion(TimeStampedModel):    
+    descripcion =  models.CharField(max_length=100)
+    oficina = models.ForeignKey(Oficina)
+    nivel_superior = models.ForeignKey('self',null=True)
+    aprobacion = models.BooleanField(default=True)
+    objects = NavegableQuerySet.as_manager()
+    
+    def __str__(self):
+        return smart_str(self.descripcion)
+    
+    def anterior(self):
+        ant = NivelAprobacion.objects.anterior(self)
+        return ant.pk
+    
+    def siguiente(self):
+        sig = NivelAprobacion.objects.siguiente(self)            
+        return sig.pk
+    
+    class Meta:
+        permissions = (('ver_detalle_nivel_aprobacion', 'Puede ver detalle de Nivel de Aprobacion'),
+                       ('cargar_niveles_aprobacion', 'Puede cargar niveles de aprobacion desde un archivo externo'),
+                       ('ver_tabla_niveles_aprobacion', 'Puede ver tabla de Puestos'),
+                       ('ver_reporte_niveles_aprobacion_excel', 'Puede ver Reporte de niveles de aprobacion en excel'),)
+        ordering = ['descripcion']
+    
+    def save(self, *args, **kwargs):
+        """if self.aprobacion:
+            desc = 'APROBADO' + self.oficina.nombre
+        else:
+            desc = 'DESAPROBADO' + self.oficina.nombre
+        self.descripcion = desc"""
+        super(NivelAprobacion, self).save()

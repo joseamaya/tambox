@@ -5,7 +5,7 @@
 {% else %}
 <h3>Servicios / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -23,10 +23,10 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_servicio' object.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_servicio' object.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_servicio' object.siguiente %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:detalle_servicio' object.siguiente %}';">
 					<span class="glyphicon glyphicon-step-forward"></span>
 				</button>
 				{% endif %}
@@ -42,6 +42,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<p>{{ form.descripcion }}<p>
 				</div>
 				<div class="col-lg-5">
@@ -64,10 +74,30 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>CODIGO:</label>
+							{% if form.codigo.errors %}
+								{% for error in form.codigo.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ object.codigo }}</p>
 							<label>GRUPO SERVICIOS:</label>
+							{% if form.grupo_productos.errors %}
+								{% for error in form.grupo_productos.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.grupo_productos }}</p>
-							<label>UNIDAD DE MEDIDA:</label>
+							<label>UNIDAD DE MEDIDA:</label>							
 							<p>{{ object.unidad_medida }}</p>
 						</div>
 						<div class="col-lg-4"></div>

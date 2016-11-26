@@ -21,5 +21,8 @@ def enviar_correo(destinatario,asunto,cuerpo):
     email.subject = asunto
     email.body = cuerpo
     email.to = destinatario
-    email.connection = connection 
-    email.send()
+    email.connection = connection
+    try:
+        email.send()
+    except:
+        pass

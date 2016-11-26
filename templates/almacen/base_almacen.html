@@ -61,7 +61,7 @@
 			   		<li><a href="{% url 'almacen:reporte_movimientos' %}">Movimientos por Fecha</a></li>
 			   		{% endif %}
 			   		{% if perms.almacen.ver_reporte_stock_excel %}
-			   		<li><a href="{% url 'almacen:reporte_stock' %}">Stock</a></li>
+			   		<li><a href="{% url 'almacen:listado_stock' %}">Stock de Productos</a></li>
 			   		{% endif %}   					   		
 				</ul>
 		    </li>

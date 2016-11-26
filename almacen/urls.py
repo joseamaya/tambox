@@ -8,9 +8,9 @@ from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,
     EliminarMovimiento, ModificarAlmacen, EliminarAlmacen, DetalleTipoMovimiento, ModificarMovimiento,\
     ReporteExcelAlmacenes, ModificarIngresoAlmacen,ModificarSalidaAlmacen, VerificarPideReferencia, ReporteExcelTiposMovimientos, CrearPedido,\
     CargarAlmacenes, CargarInventarioInicial, CrearDetallePedido,ModificarPedido, ListadoPedidos, AprobarPedido, ListadoAprobacionPedidos, VerificarStockParaPedido,\
-    DetalleOperacionPedido, DetalleOperacionMovimiento, ReporteExcelStock,\
+    DetalleOperacionPedido, DetalleOperacionMovimiento, ListadoStock,\
     ListadoIngresos, ListadoSalidas, ReporteConsolidadoProductosKardexExcel, ReporteConsolidadoGruposKardexExcel,\
-    GeneracionKardexProducto
+    GeneracionKardexProducto, ListadoMovimientosPorPedido
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -64,5 +64,6 @@ urlpatterns = patterns('',
     url(r'^cargar_inventario_inicial/$', login_required(CargarInventarioInicial.as_view()), name="cargar_inventario_inicial"),
     url(r'^listado_aprobacion_pedidos/$',login_required(ListadoAprobacionPedidos.as_view()), name="listado_aprobacion_pedidos"),
     url(r'^verificar_stock_para_pedido/$',login_required(VerificarStockParaPedido.as_view()), name="verificar_stock_para_pedido"),
-    url(r'^reporte_excel_stock/(?P<pk>.+)/$', login_required(ReporteExcelStock.as_view()), name="reporte_excel_stock"),
+    url(r'^listado_stock/$', login_required(ListadoStock.as_view()), name="listado_stock"),
+    url(r'^listado_movimientos_pedido/(?P<pedido>.+)/$',login_required(ListadoMovimientosPorPedido.as_view()), name="listado_movimientos_pedido"),
 )

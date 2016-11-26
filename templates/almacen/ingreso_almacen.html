@@ -5,8 +5,18 @@
 {% else %}
 <h3>Movimientos / Nuevo Ingreso Almacen</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
+	{% if form.errors %}
+		{% for error in form.non_field_errors %}
+		<div class="alert alert-danger alert-dismissible" role="alert">							
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>							
+            <strong>Error: </strong> {{ error|escape }}					        
+		</div>
+        {% endfor %}
+    {% endif %}
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -43,7 +53,17 @@
 			<div class="form-group">
 				<div class="row">
 					<div class="col-md-3">
-						<label>ID MOVIMIENTO:</label>  
+						<label>ID MOVIMIENTO:</label>
+						{% if form.id_movimiento.errors %}
+							{% for error in form.id_movimiento.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}   
 						{{ form.id_movimiento }}
 					</div>														
 				</div>
@@ -53,24 +73,74 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>Tipo de Ingreso:</label>  
+						{% if form.tipo_movimiento.errors %}
+							{% for error in form.tipo_movimiento.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.tipo_movimiento }}
 					</div>
 					<div class="col-md-3">
 						<label>Almacén:</label> 
+						{% if form.almacen.errors %}
+							{% for error in form.almacen.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.almacen }}
 					</div>
 				</div>						
 				<div class="row">
 					<div class="col-md-3">			
 						<label>Fecha:</label> 
+						{% if form.fecha.errors %}
+							{% for error in form.fecha.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.fecha }}
 					</div>
 					<div class="col-md-3">	
 						<label>Hora:</label> 
+						{% if form.hora.errors %}
+							{% for error in form.hora.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.hora }}
 					</div>
 					<div class="col-md-3">	
 						<label>Referencia:</label>
+						{% if form.doc_referencia.errors %}
+							{% for error in form.doc_referencia.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.doc_referencia }}
 					</div>
 					<div class="col-md-3">	
@@ -89,14 +159,44 @@
 				<div class="row">
 					<div class="col-md-3">	
 						<label>DOC. REFER:</label>  
+						{% if form.tipo_documento.errors %}
+							{% for error in form.tipo_documento.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.tipo_documento }}
 					</div>
 					<div class="col-md-3">
 						<label>SERIE:</label>
+						{% if form.serie.errors %}
+							{% for error in form.serie.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.serie }}
 					</div>
 					<div class="col-md-3">
 						<label>NUMERO:</label>
+						{% if form.numero.errors %}
+							{% for error in form.numero.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
 						{{ form.numero }}
 					</div>
 				</div>
@@ -247,6 +347,16 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<label>OBSERVACIONES:</label>	
+					{% if form.observaciones.errors %}
+						{% for error in form.observaciones.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					{{ form.observaciones }}
 				</div>
 			</div>
@@ -264,17 +374,17 @@
 <script>
 $(document).ready(function() 
 {
-	var total=parseInt($('#id_total').val());
+	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	$("#id_fecha").datepicker();
 	{% if object %}
-	$('#id_hora').wickedpicker({now: "{{ movimiento.fecha_operacion|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
+		$('#id_hora').wickedpicker({now: "{{ movimiento.fecha_operacion|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
 	{% else %}
-	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
+		$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
 	{% endif %}
-	
-	$("#id_tipo_movimiento").on('change',verificar_pide_referencia);
+	verificar_pide_referencia();
+	$("#id_tipo_movimiento").on('change',establecer_pide_referencia);
 	
 	$(document).on("click",".eliminar",function()
 	{
@@ -316,9 +426,17 @@ $(document).ready(function()
 		$("#id_total").val(total.toFixed(5));	
 	});
 	
-	function verificar_pide_referencia()
+	function establecer_pide_referencia()
 	{
 		$("#detalles tbody > tr").remove();
+		verificar_pide_referencia();
+		total=0;
+		$("#id_total").val(total);
+		$("#id_referencia").val("");
+	}
+	
+	function verificar_pide_referencia()
+	{
 		tipo_ingreso = $('#id_tipo_movimiento').val();
 		$.ajax({
 			data : {'tipo': tipo_ingreso},
@@ -326,17 +444,14 @@ $(document).ready(function()
 			type : 'get',
 			success : function(data)
 			{
-				if(data.pide_refencia)
+				if(data.pide_referencia)
 				{
 					$('#id_transferencia_referencia').prop("disabled", false);
 					$('#id_crear_detalle').prop("disabled", true);
 				}
 				else
 				{
-					$('#id_transferencia_referencia').prop("disabled", true);
-					total=0;
-					$("#id_total").val(total);
-					$("#id_referencia").val("");
+					$('#id_transferencia_referencia').prop("disabled", true);					
 					$('#id_crear_detalle').prop("disabled", false);
 				}
 			}
@@ -366,7 +481,8 @@ $(document).ready(function()
 				});
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
 				updateFormElementIndices('detalle_ingreso_formset');
-				bindAutoComplete('productos');					
+				bindAutoComplete('productos');		
+				$(".decimal").keydown(validar_decimales);
 			}
 		});
  	});

@@ -1,25 +1,12 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from compras.models import Proveedor,Cotizacion, OrdenCompra, OrdenServicios, ConformidadServicio
-from contabilidad.models import Tipo, Configuracion
+from contabilidad.models import Tipo
 from django.forms import formsets
 from requerimientos.models import Requerimiento
-
-parametros = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
-meses = (
-    (1, 'ENERO'),
-    (2, 'FEBRERO'),
-    (3, 'MARZO'),
-    (4, 'ABRIL'),
-    (5, 'MAYO'),
-    (6, 'JUNIO'),
-    (7, 'JULIO'),
-    (8, 'AGOSTO'),
-    (9, 'SETIEMBRE'),
-    (10, 'OCTUBRE'),
-    (11, 'NOVIEMBRE'),
-    (12, 'DICIEMBRE'),
-)
+from almacen.settings import MESES
+from compras.settings import PARAMETROS_BUSQUEDA
+from django.core.exceptions import ValidationError
 
 class ProveedorForm(forms.ModelForm):
     
@@ -31,6 +18,7 @@ class ProveedorForm(forms.ModelForm):
         super(ProveedorForm, self).__init__(*args, **kwargs)
         self.fields['telefono'].required = False
         self.fields['correo'].required = False
+        self.fields['fecha_alta'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -79,10 +67,10 @@ class DetalleOrdenServicioForm(forms.Form):
     valor = forms.IntegerField(10, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
 class FormularioReporteOrdenesCompraFecha(forms.Form):
-    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}),label='Seleccione:', choices=parametros)
+    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}),label='Seleccione:', choices=PARAMETROS_BUSQUEDA)
     fecha_inicio = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Inicio:',required=False)
     fecha_fin = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Fin:',required=False)
-    mes = forms.ChoiceField(choices=meses, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
+    mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     annio = forms.CharField(4, widget= forms.TextInput(attrs={'size': 4, 'class': 'form-control'}),label='Año',required=False)
     
 class CotizacionForm(forms.ModelForm):
@@ -100,6 +88,16 @@ class CotizacionForm(forms.ModelForm):
                 'class': 'form-control'
             })
             
+    def clean(self):
+        cleaned_data = super(CotizacionForm, self).clean()
+        ruc = cleaned_data.get('ruc')
+        referencia = cleaned_data.get('referencia')        
+        cotizacion = Cotizacion.objects.filter(proveedor__ruc = ruc, requerimiento = referencia)
+        if len(cotizacion) > 0:
+            raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
+        else:
+            return cleaned_data        
+            
     def save(self, *args, **kwargs):
         self.instance.proveedor = Proveedor.objects.get(ruc=self.cleaned_data['ruc'])
         self.instance.requerimiento = Requerimiento.objects.get(pk=self.cleaned_data['referencia'])
@@ -114,8 +112,7 @@ class OrdenCompraForm(forms.ModelForm):
     razon_social = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     direccion = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
-    impuesto = forms.CharField(widget=forms.HiddenInput())
-    cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
+    impuesto = forms.CharField(widget=forms.HiddenInput())    
     
     def __init__(self, *args, **kwargs):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
@@ -124,6 +121,8 @@ class OrdenCompraForm(forms.ModelForm):
         self.fields['referencia'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
+        self.fields['nombre_informe'].required = False
+        self.fields['informe'].required = False
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -143,14 +142,13 @@ class OrdenCompraForm(forms.ModelForm):
                 
     class Meta:
         model = OrdenCompra
-        fields =['codigo','proceso','forma_pago','fecha','subtotal','igv','total','total_letras','observaciones']
+        fields =['codigo','proceso','forma_pago','fecha','subtotal','igv','total','total_letras','observaciones','nombre_informe','informe']
         
 class OrdenServiciosForm(forms.ModelForm):
-    ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly",'class': 'entero form-control'})) 
+    ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 
     razon_social = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     direccion = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
-    referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))    
-    cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
+    referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     
     def __init__(self, *args, **kwargs):
         super(OrdenServiciosForm, self).__init__(*args, **kwargs)
@@ -159,6 +157,7 @@ class OrdenServiciosForm(forms.ModelForm):
         self.fields['proceso'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
+        self.fields['referencia'].required = False
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -169,7 +168,11 @@ class OrdenServiciosForm(forms.ModelForm):
                 })                 
             
     def save(self, *args, **kwargs):
-        self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+        try:
+            self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+        except Cotizacion.DoesNotExist:
+            self.instance.cotizacion = None
+            self.instance.proveedor = Proveedor.objects.get(ruc = self.cleaned_data['ruc'])
         return super(OrdenServiciosForm, self).save(*args, **kwargs)
                 
     class Meta:
@@ -209,9 +212,9 @@ class FormularioDetalleCotizacion(forms.Form):
 
 class FormularioDetalleOrdenCompra(forms.Form):
     cotizacion = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(14, widget= forms.TextInput(attrs={'size': 17,'readonly':"readonly",'class': 'entero form-control'}))    
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
+    codigo = forms.CharField(widget= forms.TextInput(attrs={'size': 12,'readonly':"readonly",'class': 'entero form-control'}))    
+    nombre = forms.CharField(widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
     impuesto = forms.DecimalField(max_digits=15,decimal_places=5, widget = forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'decimal form-control'}))
@@ -219,8 +222,9 @@ class FormularioDetalleOrdenCompra(forms.Form):
     
 class FormularioDetalleOrdenServicios(forms.Form):
     cotizacion = forms.CharField(widget=forms.HiddenInput())
-    nombre = forms.CharField(100, widget= forms.TextInput(attrs={'size': 35,'readonly':"readonly", 'class': 'form-control'}))
-    unidad = forms.CharField(6, widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
+    codigo = forms.CharField(widget=forms.HiddenInput())
+    nombre = forms.CharField(widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))

@@ -88,8 +88,6 @@ class Migration(migrations.Migration):
                 ('cantidad', models.DecimalField(max_digits=15, decimal_places=5)),
                 ('cantidad_ingresada', models.DecimalField(default=0, max_digits=15, decimal_places=5)),
                 ('precio', models.DecimalField(max_digits=15, decimal_places=5)),
-                ('valor', models.DecimalField(null=True, max_digits=15, decimal_places=5, blank=True)),
-                ('impuesto', models.DecimalField(null=True, max_digits=15, decimal_places=5, blank=True)),
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'ING', b'INGRESADO'), (b'ING_PARC', b'INGRESADO PARCIALMENTE'), (b'CANC', b'CANCELADO')])),
                 ('detalle_cotizacion', models.ForeignKey(to='compras.DetalleCotizacion', null=True)),
             ],
@@ -130,6 +128,8 @@ class Migration(migrations.Migration):
                 ('total', models.DecimalField(max_digits=15, decimal_places=5)),
                 ('total_letras', models.CharField(max_length=150)),
                 ('observaciones', models.TextField(default=b'')),
+                ('nombre_informe', models.CharField(default=b'', max_length=150)),
+                ('informe', models.FileField(null=True, upload_to=b'informes')),
                 ('estado', models.CharField(default=b'PEND', max_length=20, choices=[(b'PEND', b'PENDIENTE'), (b'ING', b'INGRESADA'), (b'ING_PARC', b'INGRESADA PARCIALMENTE'), (b'CANC', b'CANCELADA')])),
                 ('cotizacion', models.ForeignKey(to='compras.Cotizacion', null=True)),
                 ('forma_pago', models.ForeignKey(to='contabilidad.FormaPago')),
@@ -200,6 +200,11 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(to='compras.RepresentanteLegal'),
         ),
         migrations.AddField(
+            model_name='ordenservicios',
+            name='proveedor',
+            field=models.ForeignKey(to='compras.Proveedor', null=True),
+        ),
+        migrations.AddField(
             model_name='ordencompra',
             name='proveedor',
             field=models.ForeignKey(to='compras.Proveedor', null=True),
@@ -208,6 +213,11 @@ class Migration(migrations.Migration):
             model_name='detalleordenservicios',
             name='orden',
             field=models.ForeignKey(to='compras.OrdenServicios'),
+        ),
+        migrations.AddField(
+            model_name='detalleordenservicios',
+            name='producto',
+            field=models.ForeignKey(to='productos.Producto', null=True),
         ),
         migrations.AddField(
             model_name='detalleordencompra',

@@ -20,6 +20,7 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm,\
     UnidadMedidaForm
 from contabilidad.models import CuentaContable, TipoExistencia
+#from productos.reports import ProductosReport
 
 # Create your views here.
 class Tablero(View):
@@ -52,11 +53,11 @@ class BusquedaProductosDescripcion(TemplateView):
             descripcion = request.GET['descripcion']
             tipo_busqueda =  request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
-                productos = Producto.objects.filter(descripcion__icontains = descripcion)[:20]
+                productos = Producto.objects.filter(descripcion__icontains = descripcion).order_by('descripcion')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
-                productos = Producto.objects.filter(descripcion__icontains = descripcion,es_servicio=False)[:20]
+                productos = Producto.objects.filter(descripcion__icontains = descripcion,es_servicio=False).order_by('descripcion')[:20]
             elif tipo_busqueda == 'SERVICIOS':
-                productos = Producto.objects.filter(descripcion__icontains = descripcion,es_servicio=True)[:20]
+                productos = Producto.objects.filter(descripcion__icontains = descripcion,es_servicio=True).order_by('descripcion')[:20]
                 
             lista_productos = []
             for producto in productos:
@@ -153,13 +154,27 @@ class CargarProductos(FormView):
                 tipo_existencia = TipoExistencia.objects.get(codigo_sunat = fila[5].strip())
             except:
                 return HttpResponseRedirect(reverse('contabilidad:tablero'))
-            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
-                                                              defaults={'unidad_medida' : und,
-                                                                        'grupo_productos' : grupo,
-                                                                        'precio' : precio,
-                                                                        'tipo_existencia': tipo_existencia,
-                                                                        'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})           
-        return HttpResponseRedirect(reverse('productos:productos'))        
+            try:
+                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
+                                                                  defaults={'unidad_medida' : und,
+                                                                            'grupo_productos' : grupo,
+                                                                            'precio' : precio,
+                                                                            'tipo_existencia': tipo_existencia,
+                                                                            'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})
+            except:
+                pass
+        return HttpResponseRedirect(reverse('productos:productos'))  
+    
+class ConsultaStockProducto(TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            codigo = request.GET['codigo']
+            producto = Producto.objects.get(codigo = codigo) 
+            producto_json = {}                
+            producto_json['stock'] = producto.stock
+            data = simplejson.dumps(producto_json)
+            return HttpResponse(data, 'application/json')      
         
 class CrearGrupoProductos(CreateView):
     model = GrupoProductos
@@ -213,6 +228,13 @@ class CrearServicio(CreateView):
     
     def get_success_url(self):
         return reverse('productos:detalle_servicio', args=[self.object.codigo])
+    
+"""class DownloadProductosReport(View):
+
+    def get(self, request, *args, **kwargs):
+        # debemos obtener nuestro objeto classroom haciendo la consulta a la base de datos
+        report = ProductosReport()
+        return report.render_to_response()"""
     
 class DetalleProducto(DetailView):
     model = Producto
@@ -314,7 +336,7 @@ class ListadoServicios(ListView):
     context_object_name = 'servicios'
     queryset = Producto.objects.filter(estado=True,es_servicio=True).order_by('descripcion')
     
-    @method_decorator(permission_required('productos.ver_tabla_servicios',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('productos.ver_tabla_productos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoServicios, self).dispatch(*args, **kwargs)
     

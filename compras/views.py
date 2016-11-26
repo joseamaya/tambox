@@ -42,6 +42,8 @@ from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
+from datetime import date
+from compras.reports import ReporteOrdenCompra
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -185,14 +187,44 @@ class CrearDetalleOrdenCompra(TemplateView):
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
     
-class CrearDetalleOrdenServicio(FormView):
-    template_name = 'compras/crear_detalle_orden_servicio.html'
-    form_class = DetalleOrdenServicioForm
+class CrearDetalleOrdenServicios(TemplateView):
+    
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            lista_detalles = []            
+            det = {}
+            det['cotizacion'] = '0'
+            det['codigo'] = ''               
+            det['nombre'] = ''                    
+            det['unidad'] = ''
+            det['cantidad'] = '0'
+            det['precio'] = '0'
+            det['valor'] = '0'
+            lista_detalles.append(det)
+            formset = DetalleOrdenServiciosFormSet(initial = lista_detalles)
+            lista_json = []
+            for form in formset:
+                detalle_json = {}    
+                detalle_json['cotizacion'] = str(form['cotizacion'])
+                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['cantidad'] = str(form['cantidad'])
+                detalle_json['precio'] = str(form['precio'])
+                detalle_json['valor'] = str(form['valor'])
+                lista_json.append(detalle_json)                                
+            data = json.dumps(lista_json)
+            return HttpResponse(data, 'application/json')
     
 class CrearCotizacion(CreateView):
     form_class = CotizacionForm
     template_name = "compras/cotizacion.html"
     model = Cotizacion
+    
+    def get_initial(self):
+        initial = super(CrearCotizacion, self).get_initial()
+        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        return initial
     
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -217,33 +249,32 @@ class CrearCotizacion(CreateView):
             return self.form_invalid(form, detalle_cotizacion_formset)
     
     def form_valid(self, form, detalle_cotizacion_formset):
-        try:
-            with transaction.atomic():
-                self.object = form.save()
-                referencia = self.object.requerimiento
-                detalles = []
-                cont = 1                
-                for detalle_cotizacion_form in detalle_cotizacion_formset:
-                    requerimiento = detalle_cotizacion_form.cleaned_data.get('requerimiento')
-                    codigo = detalle_cotizacion_form.cleaned_data.get('codigo')
-                    nombre = detalle_cotizacion_form.cleaned_data.get('nombre')
-                    unidad = detalle_cotizacion_form.cleaned_data.get('unidad')
-                    cantidad = detalle_cotizacion_form.cleaned_data.get('cantidad')                    
-                    detalle_requerimiento = DetalleRequerimiento.objects.get(pk=requerimiento)
-                    if cantidad:
-                        detalle_cotizacion = DetalleCotizacion(detalle_requerimiento = detalle_requerimiento,
-                                                               nro_detalle = cont,
-                                                               cotizacion = self.object,
-                                                               cantidad = cantidad) 
-                        detalles.append(detalle_cotizacion)                        
-                        cont = cont + 1
-                DetalleCotizacion.objects.bulk_create(detalles, referencia)
-                return HttpResponseRedirect(reverse('compras:detalle_cotizacion', args=[self.object.codigo]))
-        except IntegrityError:
-            messages.error(self.request, 'Error guardando la cotizacion.')
+        #try:
+        with transaction.atomic():
+            self.object = form.save()
+            referencia = self.object.requerimiento
+            detalles = []
+            cont = 1                
+            for detalle_cotizacion_form in detalle_cotizacion_formset:
+                requerimiento = detalle_cotizacion_form.cleaned_data.get('requerimiento')
+                codigo = detalle_cotizacion_form.cleaned_data.get('codigo')
+                nombre = detalle_cotizacion_form.cleaned_data.get('nombre')
+                unidad = detalle_cotizacion_form.cleaned_data.get('unidad')
+                cantidad = detalle_cotizacion_form.cleaned_data.get('cantidad')                    
+                detalle_requerimiento = DetalleRequerimiento.objects.get(pk=requerimiento)
+                if cantidad:
+                    detalle_cotizacion = DetalleCotizacion(detalle_requerimiento = detalle_requerimiento,
+                                                           nro_detalle = cont,
+                                                           cotizacion = self.object,
+                                                           cantidad = cantidad) 
+                    detalles.append(detalle_cotizacion)                        
+                    cont = cont + 1
+            DetalleCotizacion.objects.bulk_create(detalles, referencia)
+            return HttpResponseRedirect(reverse('compras:detalle_cotizacion', args=[self.object.codigo]))
+        #except IntegrityError:
+            #messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_cotizacion_formset):
-        print form
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_cotizacion_formset = detalle_cotizacion_formset))
 
@@ -258,6 +289,7 @@ class CrearOrdenCompra(CreateView):
             monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
         except:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+        initial['fecha'] = date.today().strftime('%d/%m/%Y')
         initial['impuesto'] = monto_impuesto
         initial['total'] = 0
         initial['subtotal'] = 0
@@ -312,28 +344,25 @@ class CrearOrdenCompra(CreateView):
                                                                       nro_detalle = cont,
                                                                       orden = self.object,
                                                                       cantidad = cantidad,
-                                                                      precio = precio,
-                                                                      valor = valor,
-                                                                      impuesto = impuesto) 
+                                                                      precio = precio) 
                         except DetalleCotizacion.DoesNotExist:
                             producto = Producto.objects.get(pk = codigo)
                             detalle_orden_compra = DetalleOrdenCompra(producto = producto,
                                                                       nro_detalle = cont,
                                                                       orden = self.object,
                                                                       cantidad = cantidad,
-                                                                      precio = precio,
-                                                                      valor = valor,
-                                                                      impuesto = impuesto)
+                                                                      precio = precio)
                         detalles.append(detalle_orden_compra)                        
                         cont = cont + 1
-                        if cont>1:
-                            DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
+                if cont>1:
+                    DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
                 return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.codigo]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando la cotizacion.')
+            messages.error(self.request, 'Error guardando la orden de compra.')
         
     def form_invalid(self, form, detalle_orden_compra_formset):
-        return self.render_to_response(self.get_context_data(form=form))
+        return self.render_to_response(self.get_context_data(form=form,
+                                                             detalle_orden_compra_formset = detalle_orden_compra_formset))
 
 class CrearOrdenServicios(CreateView):
     form_class = OrdenServiciosForm
@@ -379,26 +408,38 @@ class CrearOrdenServicios(CreateView):
                 cont = 1
                 for detalle_orden_servicios_form in detalle_orden_servicios_formset:
                     cotizacion = detalle_orden_servicios_form.cleaned_data.get('cotizacion')
+                    codigo = detalle_orden_servicios_form.cleaned_data.get('codigo')
                     cantidad = detalle_orden_servicios_form.cleaned_data.get('cantidad')
                     precio = detalle_orden_servicios_form.cleaned_data.get('precio')
                     valor = detalle_orden_servicios_form.cleaned_data.get('valor')
-                    detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                     if cantidad and precio and valor:
-                        detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion = detalle_cotizacion,
-                                                                        nro_detalle = cont,
-                                                                        orden = self.object,
-                                                                        cantidad = cantidad,
-                                                                        precio = precio,
-                                                                        valor = valor) 
+                        try:
+                            detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
+                            detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion = detalle_cotizacion,
+                                                                            nro_detalle = cont,
+                                                                            orden = self.object,
+                                                                            cantidad = cantidad,
+                                                                            precio = precio,
+                                                                            valor = valor)
+                        except DetalleCotizacion.DoesNotExist:
+                            producto = Producto.objects.get(pk = codigo)
+                            detalle_orden_servicios = DetalleOrdenServicios(producto = producto,
+                                                                            nro_detalle = cont,
+                                                                            orden = self.object,
+                                                                            cantidad = cantidad,
+                                                                            precio = precio,
+                                                                            valor = valor)
+                             
                         detalles.append(detalle_orden_servicios)                        
                         cont = cont + 1
-                DetalleOrdenServicios.objects.bulk_create(detalles,referencia)
+                DetalleOrdenServicios.objects.bulk_create(detalles, referencia)
                 return HttpResponseRedirect(reverse('compras:detalle_orden_servicios', args=[self.object.codigo]))                
         except IntegrityError:
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_orden_servicios_formset):
-        return self.render_to_response(self.get_context_data(form=form))        
+        return self.render_to_response(self.get_context_data(form=form,
+                                                             detalle_orden_servicios_formset = detalle_orden_servicios_formset))        
     
 class CrearConformidadServicio(CreateView):
     form_class = ConformidadServicioForm
@@ -496,7 +537,9 @@ class EliminarOrdenCompra(TemplateView):
             else:
                 movimiento_json['movimientos'] = 'NO'
                 with transaction.atomic():
-                    OrdenCompra.objects.filter(codigo=codigo).update(estado = False, referencia=None)
+                    if orden.cotizacion is not None:
+                        orden.eliminar_referencia()
+                    OrdenCompra.objects.filter(codigo=codigo).update(estado = OrdenCompra.STATUS.CANC, cotizacion=None)
                     DetalleOrdenCompra.objects.filter(orden=orden).delete()                
             data = simplejson.dumps(movimiento_json)
             return HttpResponse(data, 'application/json')
@@ -593,6 +636,14 @@ class ModificarCotizacion(UpdateView):
     form_class = CotizacionForm
     template_name = "compras/cotizacion.html"
     model = Cotizacion
+    
+    @method_decorator(permission_required('requerimientos.change_cotizacion',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        cotizacion = self.get_object()
+        if cotizacion.estado == Cotizacion.STATUS.PEND:
+            return super(ModificarCotizacion, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
     
     def get_initial(self):
         initial = super(ModificarCotizacion, self).get_initial()
@@ -725,6 +776,14 @@ class ModificarOrdenCompra(UpdateView):
     form_class = OrdenCompraForm
     model = OrdenCompra
     
+    @method_decorator(permission_required('compras.change_ordencompra',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        orden_compra = self.get_object()
+        if orden_compra.estado == OrdenCompra.STATUS.PEND:
+            return super(ModificarOrdenCompra, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+    
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         if self.object.estado == OrdenCompra.STATUS.PEND:            
@@ -774,6 +833,11 @@ class ModificarOrdenCompra(UpdateView):
         initial['formas_pago'] = orden.forma_pago        
         initial['referencia'] = orden.cotizacion
         initial['proceso'] = orden.proceso
+        try:
+            monto_impuesto = Configuracion.objects.first().impuesto_compra.monto
+        except:
+            return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+        initial['impuesto'] = monto_impuesto
         initial['total'] = orden.total
         initial['subtotal'] = orden.subtotal
         initial['igv'] = orden.igv
@@ -843,42 +907,33 @@ class ModificarOrdenCompra(UpdateView):
         
     def form_invalid(self, form, detalle_orden_compra_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_orden_compra_formset))
+                                                             detalle_orden_compra_formset=detalle_orden_compra_formset))
     
 class ModificarOrdenServicios(UpdateView):
     template_name = 'compras/orden_servicio.html'
     form_class = OrdenServiciosForm
     model = OrdenServicios
     
-    def get(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if self.object.estado == OrdenCompra.STATUS.PEND:            
-            form_class = self.get_form_class()
-            form = self.get_form(form_class)
-            detalles = DetalleOrdenServicios.objects.filter(orden=self.object).order_by('nro_detalle')
-            detalles_data = []
-            for detalle in detalles:
-                d = {'cotizacion': detalle.detalle_cotizacion.pk,
-                     'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
-                     'unidad': detalle.detalle_cotizacion.detalle_requerimiento.uso,
-                     'cantidad': detalle.cantidad,
-                     'precio': detalle.precio,
-                     'valor': detalle.valor }
-                detalles_data.append(d)
-            detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(initial=detalles_data)
-            return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+    @method_decorator(permission_required('requerimientos.change_ordenservicios',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        orden_servicios = self.get_object()
+        if orden_servicios.estado == OrdenServicios.STATUS.PEND:
+            return super(ModificarOrdenServicios, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('compras:ordenes_compra'))
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
     
     def get_initial(self):
         initial = super(ModificarOrdenServicios, self).get_initial()
         orden = self.object
-        self.detalles = DetalleOrdenServicios.objects.filter(orden=orden)
+        cotizacion = orden.cotizacion
+        if cotizacion is None:
+            proveedor = orden.proveedor
+        else:
+            proveedor = orden.cotizacion.proveedor
         initial['codigo'] = orden.codigo
-        initial['ruc'] = orden.cotizacion.proveedor.ruc
-        initial['razon_social'] = orden.cotizacion.proveedor.razon_social
-        initial['direccion'] = orden.cotizacion.proveedor.direccion
+        initial['ruc'] = proveedor.ruc
+        initial['razon_social'] = proveedor.razon_social
+        initial['direccion'] = proveedor.direccion
         initial['fecha'] = orden.fecha.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
@@ -888,9 +943,39 @@ class ModificarOrdenServicios(UpdateView):
         initial['igv'] = orden.igv
         initial['total_letras'] = orden.total_letras
         initial['observaciones'] = orden.observaciones
-        initial['cdetalles'] = self.detalles.count()
         return initial 
         
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.estado == OrdenCompra.STATUS.PEND:            
+            form_class = self.get_form_class()
+            form = self.get_form(form_class)
+            detalles = DetalleOrdenServicios.objects.filter(orden=self.object).order_by('nro_detalle')
+            detalles_data = []
+            for detalle in detalles:
+                try:
+                    d = {'cotizacion': detalle.detalle_cotizacion.pk,
+                         'codigo': detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo,
+                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                         'unidad': detalle.detalle_cotizacion.detalle_requerimiento.uso,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'valor': detalle.valor }
+                except:
+                    d = {'cotizacion': '0',
+                         'codigo': detalle.producto.codigo,
+                         'nombre': detalle.producto.descripcion,
+                         'unidad': detalle.producto.unidad_medida.codigo,
+                         'cantidad': detalle.cantidad,
+                         'precio': detalle.precio,
+                         'valor': detalle.valor }
+                detalles_data.append(d)
+            detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(initial=detalles_data)
+            return self.render_to_response(self.get_context_data(form=form,
+                                                                 detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+        else:
+            return HttpResponseRedirect(reverse('compras:ordenes_compra'))
+    
     def get_context_data(self, **kwargs):
         orden = self.object
         context = super(ModificarOrdenServicios, self).get_context_data(**kwargs)
@@ -910,24 +995,36 @@ class ModificarOrdenServicios(UpdateView):
     def form_valid(self, form, detalle_orden_servicios_formset):
         try:
             with transaction.atomic():
-                self.object.eliminar_referencia()
+                if self.object.cotizacion is not None:
+                    self.object.eliminar_referencia()
+                DetalleOrdenServicios.objects.filter(orden = self.object).delete()
                 self.object = form.save()
                 referencia = self.object.cotizacion
                 detalles = []
                 cont = 1
                 for detalle_orden_servicios_form in detalle_orden_servicios_formset:
                     cotizacion = detalle_orden_servicios_form.cleaned_data.get('cotizacion')
+                    codigo = detalle_orden_servicios_form.cleaned_data.get('codigo')
                     cantidad = detalle_orden_servicios_form.cleaned_data.get('cantidad')
                     precio = detalle_orden_servicios_form.cleaned_data.get('precio')
-                    valor = detalle_orden_servicios_form.cleaned_data.get('valor')
-                    detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
+                    valor = detalle_orden_servicios_form.cleaned_data.get('valor')                    
                     if cantidad and precio and valor:
-                        detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion = detalle_cotizacion,
-                                                                        nro_detalle = cont,
-                                                                        orden = self.object,
-                                                                        cantidad = cantidad,
-                                                                        precio = precio,
-                                                                        valor = valor) 
+                        try:
+                            detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
+                            detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion = detalle_cotizacion,
+                                                                            nro_detalle = cont,
+                                                                            orden = self.object,
+                                                                            cantidad = cantidad,
+                                                                            precio = precio,
+                                                                            valor = valor) 
+                        except:
+                            producto = Producto.objects.get(pk = codigo)
+                            detalle_orden_servicios = DetalleOrdenServicios(producto = producto,
+                                                                            nro_detalle = cont,
+                                                                            orden = self.object,
+                                                                            cantidad = cantidad,
+                                                                            precio = precio,
+                                                                            valor = valor)
                         detalles.append(detalle_orden_servicios)                        
                         cont = cont + 1
                 DetalleOrdenServicios.objects.bulk_create(detalles,referencia)
@@ -937,7 +1034,7 @@ class ModificarOrdenServicios(UpdateView):
         
     def form_invalid(self, form, detalle_orden_servicios_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_orden_servicios_formset))
+                                                             detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 class ObtenerDetalleCotizacion(TemplateView):
     
@@ -973,9 +1070,9 @@ class ObtenerDetalleCotizacion(TemplateView):
                         det['unidad'] = detalle.detalle_requerimiento.producto.unidad_medida.codigo
                         base = valor / (monto_impuesto + 1)
                         det['impuesto'] = str(round(valor - base,5))
-                        det['valor'] = str(round(base,5))
+                        det['valor'] = str(round(valor,5))
                     elif tipo_busqueda == 'SERVICIOS':
-                        det['unidad'] = detalle.detalle_requerimiento.uso
+                        det['unidad'] = detalle.detalle_requerimiento.producto.unidad_medida.codigo
                         det['valor'] = str(valor)
                     lista_detalles.append(det)
                 except:
@@ -1066,6 +1163,17 @@ class ObtenerDetalleOrdenServicios(TemplateView):
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
         
+"""class ReportePDFOrdenCompra(View):
+    
+    def get(self, request, *args, **kwargs): 
+        codigo = kwargs['pk']
+        orden = OrdenCompra.objects.get(codigo=codigo)        
+        response = HttpResponse(content_type='application/pdf')                
+        reporte = ReporteOrdenCompra('A4',orden)
+        pdf = reporte.imprimir()        
+        response.write(pdf)
+        return response"""
+        
 class ReportePDFOrdenCompra(View):  
     
     def cabecera(self,pdf,orden):
@@ -1103,7 +1211,7 @@ class ReportePDFOrdenCompra(View):
         try:
             pdf.drawString(40, 710, u"REFERENCIA: "+orden.cotizacion.requerimiento.codigo+" - "+orden.cotizacion.requerimiento.oficina.nombre)
         except:
-            pdf.drawString(40, 710, u"REFERENCIA: -")
+            pdf.drawString(40, 710, u"REFERENCIA: "+str(orden.nombre_informe))            
         pdf.drawString(40, 690, u"PROCESO: "+orden.proceso)
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(40, 670, u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ")
@@ -1111,9 +1219,9 @@ class ReportePDFOrdenCompra(View):
     def detalle(self,pdf,y,orden):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción','Precio','Total')
         try:
-            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion, detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,detalle.valor) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion, detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,round(detalle.valor,5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         except:
-            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.precio,detalle.valor) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.precio,round(detalle.valor,5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         adicionales = [('','','','','','')]*(15-len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,colWidths=[0.8 * cm, 1.9 * cm, 2 * cm,9.3* cm, 2 * cm, 2.5 * cm])
         detalle_orden.setStyle(TableStyle(
@@ -1156,8 +1264,8 @@ class ReportePDFOrdenCompra(View):
     def cuadro_total(self,pdf,y,orden):
         pdf.drawString(445, y+40, u"SUB-TOTAL: ")
         pdf.drawString(445, y+20, u"IGV: ")
-        pdf.drawString(445, y, u"TOTAL: ")
-        total = [[orden.subtotal],[str(orden.igv)],[str(orden.total)]]
+        pdf.drawString(445, y, u"TOTAL: S/")
+        total = [[round(orden.subtotal,2)],[round(orden.igv,2)],[round(orden.total,2)]]
         tabla_total = Table(total,colWidths=[2.5 * cm])
         tabla_total.setStyle(TableStyle(
             [
@@ -1261,12 +1369,15 @@ class ReportePDFOrdenCompra(View):
         buffer.close()
         response.write(pdf)
         return response
-    
+        
 class ReportePDFOrdenServicios(View):  
     
     def cabecera(self,pdf,orden):
-        archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-        pdf.drawImage(archivo_imagen, 40, 750, 120, 90,preserveAspectRatio=True)  
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
+            pdf.drawImage(archivo_imagen, 40, 750, 120, 90,preserveAspectRatio=True)  
+        except:
+            pdf.drawString(40,800,str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
@@ -1276,16 +1387,21 @@ class ReportePDFOrdenServicios(View):
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(430, 780,empresa.distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(40, 750, u"SEÑOR(ES): "+orden.cotizacion.proveedor.razon_social)
-        pdf.drawString(440, 750, u"R.U.C.: "+orden.cotizacion.proveedor.ruc)
-        direccion = orden.cotizacion.proveedor.direccion
+        cotizacion = orden.cotizacion
+        if cotizacion is None:
+            proveedor = orden.proveedor
+        else:
+            proveedor = orden.cotizacion.proveedor
+        pdf.drawString(40, 750, u"SEÑOR(ES): "+ proveedor.razon_social)
+        pdf.drawString(440, 750, u"R.U.C.: "+ proveedor.ruc)
+        direccion = proveedor.direccion
         if len(direccion)>60:
             pdf.drawString(40,730,u"DIRECCIÓN: "+direccion[0:60])
             pdf.drawString(105, 720,direccion[60:])
         else:            
             pdf.drawString(40,730,u"DIRECCIÓN: "+direccion)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: "+orden.proveedor.telefono)
+            pdf.drawString(440, 730, u"TELÉFONO: "+ proveedor.telefono)
         except:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
@@ -1304,11 +1420,19 @@ class ReportePDFOrdenServicios(View):
         p.fontName="Times-Roman"
         detalles = []
         cont = 0
+        
         for detalle in DetalleOrdenServicios.objects.filter(orden=orden):
-            descripcion = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion+'-'+detalle.detalle_cotizacion.detalle_requerimiento.uso
-            if len(descripcion)>58:
-                cont = cont + 1
-            detalles.append((detalle.nro_detalle, detalle.cantidad, Paragraph(descripcion,p), detalle.precio,detalle.valor))
+            try:
+                descripcion = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion+'-'+detalle.detalle_cotizacion.detalle_requerimiento.uso
+                if len(descripcion)>58:
+                    cont = cont + 1
+                detalles.append((detalle.nro_detalle, detalle.cantidad, Paragraph(descripcion,p), detalle.precio,detalle.valor))
+            except:
+                descripcion = detalle.producto.descripcion
+                if len(descripcion)>58:
+                    cont = cont + 1
+                detalles.append((detalle.nro_detalle, detalle.cantidad, Paragraph(descripcion,p), detalle.precio,detalle.valor))
+                
         #detalles = [(detalle.nro_detalle, detalle.cantidad, Paragraph(detalle.servicio.descripcion+'-'+detalle.descripcion,p), detalle.precio,detalle.valor) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
         adicionales = [('','','','','')]*(15-cont-len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,colWidths=[0.8 * cm, 1.9 * cm, 11.3* cm, 2 * cm, 2.5 * cm])

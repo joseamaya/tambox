@@ -5,7 +5,7 @@
 {% else %}
 <h3>Pedidos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">	
+<form role="form" method="post">	
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -167,6 +167,7 @@ $(document).ready(function()
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	$("#id_fecha").datepicker();
+	bindAutoComplete('productos');
 	
 	$(document).on("click",".eliminar",function()
 	{
@@ -174,10 +175,10 @@ $(document).ready(function()
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btnBorrar","");
 		var valor = $("#valor"+id).val();
-		$(parent).remove();
-		total=parseFloat(total-valor);
-		$("#id_total").val(total.toFixed(5));
-		contDetalles = contDetalles - 1;
+		$(parent).remove();		
+		contDetalles = parseInt(contDetalles) - 1;
+		$("#id_form-TOTAL_FORMS").val(contDetalles);
+		updateFormElementIndices('detalle_pedido_formset');
 	});	
     
 	$('#id_crear_detalle').click(function(e)
@@ -236,21 +237,16 @@ $(document).ready(function()
 	$(document).on("keyup",".cantidad",function()
 	{
 		var cantidad = 0;
-		var precio = 0;
-		var valor = 0;
-		var valorTemp = 0;
 		var id_producto = $(this).prop('id');
 		var id = id_producto.replace("cantidad", "");
 		$.ajax({
-	      url: "{% url 'almacen:consulta_stock' %}",
+	      url: "{% url 'productos:consulta_stock_producto' %}",
 	      data: {
-	    	  'almacen': $("#id_almacen").val(),
 	    	  'codigo': $("#"+id+"codigo").val()
 	   	  },
 	      success: function(data) 
 	      {
-	    	  valorTemp = $("#"+id+"valor").val();
-			  cantidad = $("#"+id+"cantidad").val();
+	    	  cantidad = $("#"+id+"cantidad").val();
 			  if(cantidad=='')
 			  {
 				  cantidad=0;
@@ -260,12 +256,7 @@ $(document).ready(function()
 	          {
 	        	  alert("La cantidad ingresada es mayor que el stock");
 	        	  $("#"+id+"cantidad").val(data.stock);
-	          }
-	    	  precio = $("#"+id+"precio").val();
-	    	  valor = parseFloat(precio)*parseFloat(cantidad);
-	    	  $("#"+id+"valor").val(valor.toFixed(5));
-	    	  total = total - valorTemp + valor;
-			  $("#id_total").val(total.toFixed(5));
+	          }	    	  
 	      }
 	    });
 	});

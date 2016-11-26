@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm,\
-    ProfesionForm
+    ProfesionForm, NivelAprobacionForm
 from contabilidad.forms import UploadForm
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
-from administracion.models import Oficina, Trabajador, Puesto, Profesion
+from administracion.models import Oficina, Trabajador, Puesto, Profesion,\
+    NivelAprobacion
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.conf import settings
@@ -112,6 +113,17 @@ class CargarPuestos(FormView):
                 pass    
         return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
 
+class CrearNivelAprobacion(CreateView):
+    template_name = 'administracion/nivel_aprobacion.html'
+    form_class = NivelAprobacionForm
+    
+    @method_decorator(permission_required('administracion.add_nivelaprobacion',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearNivelAprobacion, self).dispatch(*args, **kwargs)
+    
+    def get_success_url(self):
+        return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
+
 class CrearProfesion(CreateView):
     template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
@@ -172,6 +184,10 @@ class DetalleProfesion(DetailView):
     model = Profesion
     template_name = 'administracion/detalle_profesion.html'
     
+class DetalleNivelAprobacion(DetailView):
+    model = NivelAprobacion
+    template_name = 'administracion/detalle_nivel_aprobacion.html'
+    
 class ListadoOficinas(ListView):
     model = Oficina
     template_name = 'administracion/oficinas.html'
@@ -193,6 +209,23 @@ class ListadoProfesiones(ListView):
     model = Profesion
     template_name = 'administracion/profesiones.html'
     context_object_name = 'profesiones' 
+    
+class ListadoNivelesAprobacion(ListView):
+    model = NivelAprobacion
+    template_name = 'administracion/niveles_aprobacion.html'
+    context_object_name = 'niveles'
+    
+class ModificarNivelAprobacion(UpdateView):
+    model = NivelAprobacion
+    template_name = 'administracion/nivel_aprobacion.html'
+    form_class = NivelAprobacionForm
+    
+    @method_decorator(permission_required('administracion.change_nivelaprobacion',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ModificarNivelAprobacion, self).dispatch(*args, **kwargs)
+    
+    def get_success_url(self):
+        return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
 
 class ModificarProfesion(UpdateView):
     model = Profesion

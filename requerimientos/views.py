@@ -9,15 +9,6 @@ import json
 from django.http import HttpResponse
 import simplejson
 from django.views.generic.detail import DetailView
-from reportlab.pdfgen import canvas
-from io import BytesIO
-from reportlab.platypus import Paragraph, TableStyle
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib import colors
-from reportlab.platypus import Table
-from django.conf import settings
-from reportlab.lib.pagesizes import cm
-from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Oficina, Puesto
 import locale
 from django.contrib.auth.decorators import permission_required
@@ -35,10 +26,12 @@ from compras.models import Cotizacion
 from productos.models import Producto
 from requerimientos.mail import correo_creacion_requerimiento
 from openpyxl import Workbook
+from requerimientos.reports import ReporteRequerimiento
+from datetime import date
+from requerimientos.settings import CONFIGURACION, LOGISTICA, PRESUPUESTO, OFICINA_ADMINISTRACION
 
 locale.setlocale(locale.LC_ALL,"")
-empresa = Empresa.load()
-# Create your views here.
+
 class Tablero(View):
     
     def get(self, request, *args, **kwargs):
@@ -54,35 +47,24 @@ class AprobarRequerimiento(UpdateView):
     
     @method_decorator(permission_required('requerimientos.change_aprobacionrequerimiento',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
-        aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
-        configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
-        logistica = configuracion.logistica
-        puesto_usuario = self.request.user.trabajador.puesto_set.all().filter(estado=True)[0]
-        oficina_usuario = puesto_usuario.oficina
-        requerimiento_oficina = aprobacion_requerimiento.requerimiento.oficina        
-        if puesto_usuario.es_jefatura and oficina_usuario==requerimiento_oficina and aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.PEND:
-            if aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.PEND or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_JEF or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.DESAP_JEF:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario==requerimiento_oficina.gerencia:
-            if aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_JEF or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_INM or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.DESAP_GER_INM:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == oficina_administracion:
-            if aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_INM or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_ADM or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.DESAP_GER_ADM:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == logistica:
-            if aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_ADM or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_LOG or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.DESAP_LOG:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        elif oficina_usuario == presupuesto:
-            if aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_LOG or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.APROB_PRES or aprobacion_requerimiento.estado==AprobacionRequerimiento.STATUS.DESAP_PRES:
-                return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
-        return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+        aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk']) 
+        usuario = self.request.user        
+        if aprobacion_requerimiento.verificar_acceso_aprobacion(usuario):
+            return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
     
     def get_form_kwargs(self):
         kwargs = super(AprobarRequerimiento, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
+    
+    def form_valid(self, form):
+        form.save()
+        return HttpResponseRedirect(self.get_success_url())
+    
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=form))
     
 class CrearDetalleRequerimiento(FormView):    
         
@@ -119,32 +101,35 @@ class CrearRequerimiento(CreateView):
         kwargs['request'] = self.request
         return kwargs
     
+    def get_initial(self):
+        initial = super(CrearRequerimiento, self).get_initial()
+        initial['annio'] = date.today().year
+        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['mes'] = date.today().month
+        return initial
+    
     def get(self, request, *args, **kwargs):
         self.object = None
         oficinas = Oficina.objects.all()        
         if not oficinas:
             return HttpResponseRedirect(reverse('administracion:crear_oficina'))
         try:
-            trabajador = request.user.trabajador
-            try:
-                puesto = Puesto.objects.get(trabajador=trabajador)
-                if trabajador.firma:
-                    puesto_jefe = Puesto.objects.get(oficina=puesto.oficina,es_jefatura=True,estado=True)
-                    configuracion = Configuracion.objects.first()
-                    if configuracion is not None:
-                        form_class = self.get_form_class()
-                        form = self.get_form(form_class)
-                        detalle_requerimiento_formset=DetalleRequerimientoFormSet()
-                        return self.render_to_response(self.get_context_data(form=form,
-                                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
-                    else:
-                        return HttpResponseRedirect(reverse('contabilidad:configuracion'))
-                else:
-                    return HttpResponseRedirect(reverse('administracion:modificar_trabajador',args=[trabajador.pk]))
-            except Puesto.DoesNotExist:
-                return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            trabajador = self.request.user.trabajador
         except:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+        if trabajador.firma == '':
+            return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
+        puesto = trabajador.puesto
+        if puesto is None:
+            return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+        if CONFIGURACION is not None:
+            form_class = self.get_form_class()
+            form = self.get_form(form_class)
+            detalle_requerimiento_formset=DetalleRequerimientoFormSet()
+            return self.render_to_response(self.get_context_data(form=form,
+                                                                 detalle_requerimiento_formset=detalle_requerimiento_formset))
+        else:
+            return HttpResponseRedirect(reverse('contabilidad:configuracion'))            
     
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -162,34 +147,43 @@ class CrearRequerimiento(CreateView):
                 self.object = form.save()
                 detalles = []
                 cont = 1
-                for detalle_requerimiento_form in detalle_requerimiento_formset:                
+                for detalle_requerimiento_form in detalle_requerimiento_formset:
                     codigo = detalle_requerimiento_form.cleaned_data.get('codigo')
                     cantidad = detalle_requerimiento_form.cleaned_data.get('cantidad')
                     uso = detalle_requerimiento_form.cleaned_data.get('uso')
-                    if codigo and cantidad:                                
-                        producto = Producto.objects.get(codigo=codigo)                
-                        detalles.append(DetalleRequerimiento(requerimiento=self.object, nro_detalle = cont, producto=producto, cantidad=cantidad, uso=uso))
-                        cont = cont + 1
-                    elif cantidad:
-                        producto = detalle_requerimiento_form.cleaned_data.get('producto')
-                        detalles.append(DetalleRequerimiento(requerimiento=self.object, nro_detalle = cont, otro=producto, cantidad=cantidad, uso=uso))
+                    if codigo and cantidad:
+                        producto = Producto.objects.get(codigo=codigo)
+                        detalles.append(DetalleRequerimiento(requerimiento=self.object,
+                                                             nro_detalle = cont,
+                                                             producto=producto,
+                                                             cantidad=cantidad,
+                                                             uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
-                puesto_jefe = Puesto.objects.get(oficina=self.object.oficina, es_jefatura=True, estado=True)
-                jefe = puesto_jefe.trabajador
-                destinatario = [jefe.usuario.email]
+                puesto_jefe_logistica = Puesto.objects.get(oficina = LOGISTICA, es_jefatura=True, estado=True)
+                jefe_logistica = puesto_jefe_logistica.trabajador
+                destinatario = jefe_logistica.usuario.email
                 correo_creacion_requerimiento(destinatario, self.object)
                 return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.codigo]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando el requerimiento.')
+            messages.error(self.request, 'Error guardando el requerimiento.')
+            return self.form_invalid(form, detalle_requerimiento_formset)
         
     def form_invalid(self, form, detalle_requerimiento_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
+                                                             detalle_requerimiento_formset = detalle_requerimiento_formset))
 
 class DetalleOperacionRequerimiento(DetailView):
     model = Requerimiento
     template_name = 'requerimientos/detalle_requerimiento.html'
+    
+    @method_decorator(permission_required('requerimientos.ver_detalle_requerimiento',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        requerimiento = self.get_object()
+        if requerimiento.verificar_acceso(self.request.user, OFICINA_ADMINISTRACION, LOGISTICA, PRESUPUESTO):
+            return super(DetalleOperacionRequerimiento, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[requerimiento.siguiente()]))        
     
 class EliminarRequerimiento(TemplateView):
     
@@ -204,7 +198,7 @@ class EliminarRequerimiento(TemplateView):
             else:
                 requerimiento_json['ordenes'] = 'NO'
                 with transaction.atomic():
-                    Requerimiento.objects.filter(codigo=codigo).update(estado = False)
+                    Requerimiento.objects.actualizar_requerimiento(codigo)
                     DetalleRequerimiento.objects.filter(requerimiento=requerimiento).delete()
             data = simplejson.dumps(requerimiento_json)
             return HttpResponse(data, 'application/json')
@@ -221,37 +215,19 @@ class ListadoAprobacionRequerimientos(ListView):
     def get(self, request, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
-            puestos = trabajador.puesto_set.all().filter(estado=True)
-            if trabajador.firma == '':
-                return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-            if puestos[0].es_jefatura:
-                return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)
-            else:
-                return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         except:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))        
+            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+        if trabajador.firma == '':
+            return HttpResponseRedirect(reverse('administracion:modificar_trabajador',args=[trabajador.pk]))
+        puesto = trabajador.puesto
+        if puesto is None:
+            return HttpResponseRedirect(reverse('administracion:crear_puesto'))   
+        if not puesto.es_jefatura:
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+        return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)                           
     
     def get_queryset(self):
-        configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
-        logistica = configuracion.logistica
-        puestos = self.request.user.trabajador.puesto_set.all().filter(estado=True)
-        puesto_usuario = puestos[0]
-        oficina_usuario =  puesto_usuario.oficina
-        queryset = AprobacionRequerimiento.objects.filter(requerimiento__in=Requerimiento.objects.filter(oficina = oficina_usuario),
-                                                          estado=AprobacionRequerimiento.STATUS.PEND)
-        if len(queryset)==0:
-            queryset = AprobacionRequerimiento.objects.filter(requerimiento__in=Requerimiento.objects.filter(oficina__gerencia = oficina_usuario),
-                                                              estado=AprobacionRequerimiento.STATUS.APROB_JEF)
-        if len(queryset)==0:
-            if oficina_usuario == oficina_administracion:
-                queryset = AprobacionRequerimiento.objects.filter(estado=AprobacionRequerimiento.STATUS.APROB_GER_INM)                
-            elif oficina_usuario == logistica:
-                queryset = AprobacionRequerimiento.objects.filter(estado=AprobacionRequerimiento.STATUS.APROB_GER_ADM)
-            elif oficina_usuario == presupuesto:
-                queryset = AprobacionRequerimiento.objects.filter(estado=AprobacionRequerimiento.STATUS.APROB_LOG)                
-        return queryset
+        return AprobacionRequerimiento.obtener_aprobaciones_pendientes(self.request.user)
     
 class ListadoCotizacionesPorRequerimiento(ListView):
     model = Cotizacion
@@ -273,8 +249,9 @@ class ListadoRequerimientos(ListView):
     context_object_name = 'requerimientos'
     
     def get_queryset(self):
-        queryset = Requerimiento.objects.filter(solicitante__usuario= self.request.user).exclude(estado=Requerimiento.STATUS.CANC).order_by('codigo')
-        return queryset
+        usuario = self.request.user
+        requerimientos_visibles = Requerimiento.obtener_requerimientos_visibles(self, usuario)
+        return requerimientos_visibles       
     
     @method_decorator(permission_required('requerimientos.ver_tabla_requerimientos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
@@ -285,20 +262,28 @@ class ModificarRequerimiento(UpdateView):
     model = Requerimiento
     form_class = RequerimientoForm
     
+    @method_decorator(permission_required('requerimientos.change_requerimiento',reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        requerimiento = self.get_object()
+        if requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.STATUS.PEND or self.request.user.is_superuser:
+            return super(ModificarRequerimiento, self).dispatch(*args, **kwargs)
+        else:
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+    
     def get_form_kwargs(self):
         kwargs = super(ModificarRequerimiento, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
     
-    '''def get_initial(self):
+    def get_initial(self):
         initial = super(ModificarRequerimiento, self).get_initial()
         initial['fecha'] = self.object.fecha.strftime('%d/%m/%Y')
-        return initial'''
+        return initial
     
     def get_context_data(self, **kwargs):
         context = super(ModificarRequerimiento, self).get_context_data(**kwargs)
         try:
-            context['archivo_informe'] = os.path.join('/tambox','media',self.object.informe.url)
+            context['archivo_informe'] = os.path.join('/siad','media',self.object.informe.url)
         except:
             pass
         return context
@@ -408,14 +393,18 @@ class TransferenciaRequerimiento(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(TransferenciaRequerimiento, self).get_context_data(**kwargs)
-        requerimientos = Requerimiento.objects.filter(aprobacionrequerimiento__estado=AprobacionRequerimiento.STATUS.APROB_PRES).filter(Q(estado = Requerimiento.STATUS.PEND) | Q(estado = Requerimiento.STATUS.COTIZ_PARC) | Q(estado = Requerimiento.STATUS.COTIZ))
+        #requerimientos = Requerimiento.objects.all()
+        requerimientos = Requerimiento.objects.requerimientos_listos_transferencia(AprobacionRequerimiento.STATUS.APROB_LOG, 
+                                                                                   Requerimiento.STATUS.PEND, 
+                                                                                   Requerimiento.STATUS.COTIZ_PARC, 
+                                                                                   Requerimiento.STATUS.COTIZ)
         context['requerimientos'] = requerimientos
         return context
     
 class ReporteExcelRequerimientos(TemplateView):
     
     def get(self, request, *args, **kwargs):
-        requerimientos = Requerimiento.objects.filter(solicitante__usuario=request.user)
+        requerimientos = Requerimiento.objects.requerimientos_activos_por_usuario(request.user,Requerimiento.STATUS.CANC)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE REQUERIMIENTOS'
@@ -443,164 +432,11 @@ class ReporteExcelRequerimientos(TemplateView):
     
 class ReportePDFRequerimiento(View):
     
-    def cabecera(self,pdf,requerimiento):
-        try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
-            pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto',preserveAspectRatio=True)
-        except:
-            pdf.drawString(40,800,str(archivo_imagen))        
-        pdf.setFont("Times-Roman", 14)
-        encabezado = [[u"REQUERIMIENTO DE BIENES Y SERVICIOS"]]
-        tabla_encabezado = Table(encabezado,colWidths=[8 * cm])
-        tabla_encabezado.setStyle(TableStyle(
-            [
-                ('ALIGN',(0,0),(0,0),'CENTER'),
-                ('GRID', (0, 0), (1, 0), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 10),
-            ]
-        ))
-        tabla_encabezado.wrapOn(pdf, 800, 600)
-        tabla_encabezado.drawOn(pdf, 200,800)
-        pdf.drawString(270, 780, u"N°"+requerimiento.codigo)
-        pdf.setFont("Times-Roman", 10)
-        pdf.drawString(20, 750, u"SOLICITADO POR: "+requerimiento.solicitante.nombre_completo())
-        pdf.drawString(20, 730, u"PEDIDO PARA: "+requerimiento.motivo)
-        pdf.drawString(20, 710, u"FECHA DE REQUERIMIENTO: "+requerimiento.created.strftime('%d/%m/%Y'))
-        pdf.drawString(320, 710, u"MES EN QUE SE NECESITA: "+requerimiento.get_mes_display())
-        pdf.drawString(20, 690, u"REQUERIMIENTO PARA STOCK DE ALMACEN: ")
-        if requerimiento.entrega_directa_solicitante:
-            pdf.drawString(320, 690, u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI")
-        else:
-            pdf.drawString(320, 690, u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO")
-        
-    def detalle(self,pdf,y,requerimiento):
-        encabezados = ('Nro', 'Cantidad', 'Unidad', u'Descripción','Uso')
-        detalles = DetalleRequerimiento.objects.filter(requerimiento=requerimiento)
-        lista_detalles = []
-        for detalle in detalles:
-            try:
-                tupla_producto = (detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.uso)
-                lista_detalles.append(tupla_producto)
-            except:
-                tupla_otro = (detalle.nro_detalle, detalle.cantidad, detalle.unidad, detalle.otro, detalle.uso)
-                lista_detalles.append(tupla_otro)
-        adicionales = [('','','','','')]*(15-len(detalles))
-        tabla_detalle = Table([encabezados] + lista_detalles + adicionales,colWidths=[0.7 * cm, 1.8 * cm, 1.5 * cm,7.5* cm, 8 * cm])
-        tabla_detalle.setStyle(TableStyle(
-            [
-                ('ALIGN',(0,0),(4,0),'CENTER'),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 7),  
-                ('ALIGN',(4,1),(-1,-1),'LEFT'),           
-            ]
-        ))
-        tabla_detalle.wrapOn(pdf, 800, 600)
-        tabla_detalle.drawOn(pdf, 20,y+80)
-        
-    def cuadro_observaciones(self,pdf,y,requerimiento):
-        p = ParagraphStyle('parrafos')
-        p.alignment = TA_JUSTIFY 
-        p.fontSize = 8
-        p.fontName="Times-Roman"
-        obs=Paragraph("OBSERVACIONES: "+requerimiento.observaciones,p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones,colWidths=[19.5 * cm], rowHeights=1.8 * cm)
-        tabla_observaciones.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (0, 2), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                ('VALIGN',(0,0),(-1,-1),'TOP'),
-            ]
-        ))
-        tabla_observaciones.wrapOn(pdf, 800, 600)
-        tabla_observaciones.drawOn(pdf, 20,y+20)
-        
-    def firmas(self,pdf,y,requerimiento):
-        p = ParagraphStyle('parrafos')
-        p.alignment = TA_JUSTIFY 
-        p.fontSize = 8
-        p.fontName="Times-Roman"
-        obs=Paragraph("RECEPCIÓN: ",p)
-        encabezados = [(u'Recepción', '', '', u'','','')]
-        cuerpo = [('','','','','','')]        
-        oficina = requerimiento.oficina
-        jefatura = Puesto.objects.get(oficina=oficina,es_jefatura=True,estado=True)
-        gerencia = Puesto.objects.get(oficina=oficina.gerencia,estado=True)
-        configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        presupuesto = configuracion.presupuesto
-        logistica = configuracion.logistica
-        jefatura_administracion = Puesto.objects.get(oficina = oficina_administracion,es_jefatura=True,estado=True)
-        jefatura_presupuesto = Puesto.objects.get(oficina=presupuesto,es_jefatura=True,estado=True)
-        jefatura_logistica = Puesto.objects.get(oficina=logistica,es_jefatura=True,estado=True)
-        jefe = jefatura.trabajador
-        gerente = gerencia.trabajador
-        gerente_administracion = jefatura_administracion.trabajador
-        jefe_logistica = jefatura_logistica.trabajador
-        jefe_presupuesto = jefatura_presupuesto.trabajador 
-        firma_solicitante = os.path.join(settings.MEDIA_ROOT,str(requerimiento.solicitante.firma))
-        firma_jefe_departamento = os.path.join(settings.MEDIA_ROOT,str(jefe.firma))
-        firma_gerente = os.path.join(settings.MEDIA_ROOT,str(gerente.firma))
-        firma_gerente_administracion = os.path.join(settings.MEDIA_ROOT,str(gerente_administracion.firma))
-        firma_jefe_oficina_logistica = os.path.join(settings.MEDIA_ROOT,str(jefe_logistica.firma))
-        firma_jefe_oficina_presupuesto = os.path.join(settings.MEDIA_ROOT,str(jefe_presupuesto.firma))
-        if requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.PEND:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-        elif requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.APROB_JEF:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_departamento, 190, y-70, 90, 90,preserveAspectRatio=True)
-        elif requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_INM:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_departamento, 190, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente, 290, y-70, 90, 90,preserveAspectRatio=True)
-        elif requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.APROB_GER_ADM:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_departamento, 190, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente, 290, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente_administracion, 380, y-70, 90, 90,preserveAspectRatio=True)
-        elif requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.APROB_LOG:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_departamento, 190, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente, 290, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente_administracion, 380, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_oficina_logistica, 15, y-70, 90, 90,preserveAspectRatio=True)
-        elif requerimiento.aprobacionrequerimiento.estado==AprobacionRequerimiento.STATUS.APROB_PRES:
-            pdf.drawImage(firma_solicitante, 100, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_departamento, 190, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente, 290, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_gerente_administracion, 380, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_oficina_logistica, 15, y-70, 90, 90,preserveAspectRatio=True)
-            pdf.drawImage(firma_jefe_oficina_presupuesto, 480, y-70, 90, 90,preserveAspectRatio=True)
-        pie = [(u'Fecha :     /     /   ', 'Solicitado por:', 'Jefe de Departamento', u'V° B° Gerente Inmediato',u'Vº Bº Gerente Adm.',u'Vº Bº Presupuesto')]
-        tabla_observaciones = Table(encabezados+cuerpo+pie,colWidths=[2.8 * cm, 3.1 * cm, 3.4 * cm,3.4* cm, 3.4 * cm, 3.4 * cm], rowHeights=[0.5 * cm,2 * cm,0.5 * cm])
-        tabla_observaciones.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (5, 2), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                ('ALIGN',(0,2),(5,2),'CENTER'),
-                ('VALIGN',(0,0),(-1,-1),'TOP'),
-            ]
-        ))
-        tabla_observaciones.wrapOn(pdf, 800, 600)
-        tabla_observaciones.drawOn(pdf, 20,y-70)
-        
     def get(self, request, *args, **kwargs): 
         codigo = kwargs['codigo']
         requerimiento = Requerimiento.objects.get(codigo=codigo)        
-        response = HttpResponse(content_type='application/pdf')
-        #response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer)  
-        self.cabecera(pdf, requerimiento)
-        y=300
-        self.detalle(pdf, y, requerimiento)
-        self.cuadro_observaciones(pdf, y, requerimiento)
-        self.firmas(pdf, y, requerimiento)
-        pdf.showPage()    
-        pdf.save()
-        pdf = buffer.getvalue()
-        buffer.close()
+        response = HttpResponse(content_type='application/pdf')                
+        reporte = ReporteRequerimiento('A4',requerimiento)
+        pdf = reporte.imprimir()        
         response.write(pdf)
         return response

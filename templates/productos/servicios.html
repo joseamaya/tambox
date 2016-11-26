@@ -3,12 +3,12 @@
 <h3>Servicios</h3>
 <div class="row">					
 	<div class="col-lg-10">	
-		{% if perms.productos.add_servicio %}
+		{% if perms.productos.add_producto %}
 		<a href="{% url 'productos:crear_servicio' %}" class="btn btn-primary">
 			Crear
 		</a>												
 		{% endif %}
-		{% if perms.productos.cargar_servicios %}
+		{% if perms.productos.cargar_productos %}
 		<a href="{% url 'productos:cargar_servicios' %}" class="btn btn-default">
 			Importar
 		</a>						
@@ -16,7 +16,7 @@
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">    					   
-			{% if perms.productos.ver_reporte_servicios_excel %}						
+			{% if perms.productos.ver_reporte_productos_excel %}						
 			<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:maestro_servicios_excel' %}';">
                    	<span class="glyphicon glyphicon-list-alt"></span>
                     </button>

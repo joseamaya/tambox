@@ -5,7 +5,7 @@
 {% else %}
 <h3>Solicitudes de Cotización / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -39,7 +39,15 @@
 	</div>
 	<hr />
 	<div class="panel panel-default">	
-		<div class="panel-body">					
+		<div class="panel-body">	
+			{% if form.non_field_errors %}
+				<div class="alert alert-danger alert-dismissible" role="alert">							
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>							
+		            {{ form.non_field_errors }}					        
+				</div>						        
+		    {% endif %}					
 			<div class="form-group">
 				{% if object %}
 				<div class="row">
@@ -108,7 +116,7 @@
 			</div>			
 			<div class="form-group">	
 				<div class="row">
-					<div class="col-md-3">			
+					<div class="col-md-2">			
 						<label>FECHA:</label>
 						{% if form.fecha.errors %}
 							{% for error in form.fecha.errors %}
@@ -122,7 +130,7 @@
 					    {% endif %} 
 						{{ form.fecha }}
 					</div>				
-					<div class="col-md-3">	
+					<div class="col-md-2">	
 						<label>Referencia:</label>
 						{% if form.referencia.errors %}
 							{% for error in form.referencia.errors %}
@@ -163,6 +171,9 @@
 							{{ detalle_cotizacion_formset.management_form }}
 						    {% for form in detalle_cotizacion_formset %}					        
 					            <tr class="detalle_cotizacion_formset">
+					            	<td>
+					            		{{ forloop.counter0|add:1 }}
+					            	</td>
 					            	<td>
 					            		{{ form.requerimiento }}
 						            	{% if form.codigo.errors %}
@@ -325,7 +336,7 @@ $(document).ready(function()
 				{
 					cont = i + 1;
 					$("#detalles tbody").append(
-					"<tr class='formset'>" +				
+					"<tr class='detalle_cotizacion_formset'>" +				
 						"<td>" + cont + "</td>" +
 						"<td>" + item.requerimiento + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +

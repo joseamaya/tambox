@@ -5,7 +5,7 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     TransferenciaOrdenCompra, ObtenerDetalleOrdenCompra,\
     ReporteExcelOrdenesCompraFecha, ListadoOrdenesCompra, DetalleProveedor,\
     ModificarOrdenCompra, ReportePDFOrdenCompra, EliminarOrdenCompra, ModificarProveedor,\
-    EliminarProveedor, ReporteExcelProveedores, CrearOrdenServicios, CrearDetalleOrdenServicio, ListadoOrdenesServicios,\
+    EliminarProveedor, ReporteExcelProveedores, CrearOrdenServicios, CrearDetalleOrdenServicios, ListadoOrdenesServicios,\
     ModificarOrdenServicios, CargarProveedores, \
     CrearConformidadServicio, TransferenciaOrdenServicios, ObtenerDetalleOrdenServicios, ListadoConformidadesServicio,\
     ReportePDFOrdenServicios, ReportePDFMemorandoConformidadServicio, ModificarConformidadServicio, \
@@ -28,7 +28,7 @@ urlpatterns = patterns('',
     url(r'^crear_orden_servicios/$',login_required(CrearOrdenServicios.as_view()), name="crear_orden_servicios"),
     url(r'^crear_conformidad_servicio/$',login_required(CrearConformidadServicio.as_view()), name="crear_conformidad_servicio"),
     url(r'^crear_detalle_orden_compra/$', login_required(CrearDetalleOrdenCompra.as_view()), name="crear_detalle_orden_compra"),
-    url(r'^crear_detalle_orden_servicio/$', login_required(CrearDetalleOrdenServicio.as_view()), name="crear_detalle_orden_servicio"),
+    url(r'^crear_detalle_orden_servicios/$', login_required(CrearDetalleOrdenServicios.as_view()), name="crear_detalle_orden_servicios"),
     url(r'^crear_cotizacion/$',login_required(CrearCotizacion.as_view()), name="crear_cotizacion"),
     url(r'^crear_detalle_cotizacion/$',login_required(CrearDetalleCotizacion.as_view()), name="crear_detalle_cotizacion"),    
     url(r'^cargar_proveedores/$',login_required(CargarProveedores.as_view()), name="cargar_proveedores"),

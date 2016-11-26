@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from requerimientos.models import DetalleRequerimiento
 from productos.models import Producto
 from almacen.managers import DetalleMovimientoManager
+from django.db.models import Sum
 
 @python_2_unicode_compatible
 class Almacen(TimeStampedModel):
@@ -99,7 +100,7 @@ class Pedido(TimeStampedModel):
     solicitante = models.ForeignKey(Trabajador)
     oficina = models.ForeignKey(Oficina)
     fecha = models.DateField()
-    observaciones = models.TextField(null=True)
+    observaciones = models.TextField(blank = True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB', _('APROBADO')),
                      ('DESAP', _('DESAPROBADO')),
@@ -179,12 +180,12 @@ class Movimiento(TimeStampedModel):
     id_movimiento = models.CharField(primary_key=True,max_length=16)
     tipo_movimiento = models.ForeignKey(TipoMovimiento)
     referencia = models.ForeignKey(OrdenCompra,null=True)
+    pedido = models.ForeignKey(Pedido, null=True)
     tipo_documento = models.ForeignKey(TipoDocumento,null=True)
     serie = models.CharField(max_length=15, null=True)
     numero = models.CharField(max_length=10, null=True)
     fecha_operacion = models.DateTimeField()
-    almacen = models.ForeignKey(Almacen)    
-    total = models.DecimalField(max_digits=15, decimal_places=5)    
+    almacen = models.ForeignKey(Almacen)
     oficina = models.ForeignKey(Oficina,null=True)
     observaciones = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
@@ -239,6 +240,13 @@ class Movimiento(TimeStampedModel):
             control.stock = control.stock - kardex.cantidad_ingreso                                 
             control.save()
             kardex.delete() 
+            
+    @property            
+    def total(self):
+        total = 0
+        for detalle in DetalleMovimiento.objects.filter(movimiento = self):
+            total = total + detalle.valor
+        return total
     
     class Meta:
         permissions = (('ver_detalle_movimiento', 'Puede ver detalle de Movimiento'),
@@ -274,8 +282,11 @@ class DetalleMovimiento(TimeStampedModel):
     detalle_pedido = models.ForeignKey(DetallePedido, null=True)
     producto = models.ForeignKey(Producto)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
-    precio = models.DecimalField(max_digits=15, decimal_places=5)
-    valor = models.DecimalField(max_digits=15, decimal_places=5, blank=True, null=True)
+    precio = models.DecimalField(max_digits=15, decimal_places=5)    
+    
+    @property
+    def valor(self):
+        return self.precio * self.cantidad 
     
     def save(self, *args, **kwargs):
         movi = self.movimiento
@@ -368,3 +379,10 @@ class ControlProductoAlmacen(TimeStampedModel):
     class Meta:
         unique_together = (('producto', 'almacen'),)
         permissions = (('ver_reporte_stock_excel', 'Puede ver Reporte de Stock'),) 
+        
+    def save(self, *args, **kwargs):
+        super(ControlProductoAlmacen, self).save()
+        producto = self.producto
+        lista_productos_control = ControlProductoAlmacen.objects.filter(producto = producto).aggregate(stock=Sum('stock'))
+        producto.stock = lista_productos_control['stock']
+        producto.save()

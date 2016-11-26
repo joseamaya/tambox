@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import tambox.mail
+from tambox.mail import enviar_correo
 
 def correo_creacion_pedido(destinatario, pedido):
     asunto = u'TAMBOX - Pedido Pendiente de Aprobar - Logística'
@@ -11,4 +11,4 @@ def correo_creacion_pedido(destinatario, pedido):
     http://IP/tambox \n
     Saludos. 
     ''' % (pedido.codigo, pedido.solicitante.nombre_completo(),pedido.fecha.strftime('%d/%m/%Y'))
-    tambox.mail.enviar_correo(destinatario, asunto, cuerpo)
+    enviar_correo([destinatario], asunto, cuerpo)

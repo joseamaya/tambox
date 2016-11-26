@@ -5,7 +5,7 @@
 {% else %}
 <h3>Requerimientos / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post" enctype="multipart/form-data">
+<form role="form" method="post" enctype="multipart/form-data">
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -43,7 +43,7 @@
 				{% if object %}
 				<div class="row">
 					<div class="col-md-3">
-						<label>CODIGO:</label> 
+						<label>Código:</label> 
 						<p>{{ object.codigo }}</p>
 					</div>
 				</div>
@@ -52,7 +52,7 @@
 			<div class="form-group">
 				<div class="row">
 					<div class="col-md-12">
-						<label>Requerido para:</label>
+						<label>Motivo:</label>
 						{% if form.motivo.errors %}
 							{% for error in form.motivo.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
@@ -69,6 +69,20 @@
 			</div>
 			<div class="form-group">
 				<div class="row">
+					<div class="col-md-2">
+						<label>Fecha:</label> 
+						{% if form.fecha.errors %}
+							{% for error in form.fecha.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %} 
+						{{ form.fecha }}
+					</div>
 					<div class="col-md-3">
 						<label>Mes en que se necesita:</label> 
 						{% if form.mes.errors %}
@@ -83,7 +97,21 @@
 					    {% endif %} 
 						{{ form.mes }}						
 					</div>
-					<div class="col-md-5">
+					<div class="col-md-3">
+						<label>Año en que se necesita:</label> 
+						{% if form.annio.errors %}
+							{% for error in form.annio.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %} 
+						{{ form.annio }}						
+					</div>
+					<div class="col-md-4">
 						<label>Informe:</label>
 						{% if form.informe.errors %}
 							{% for error in form.informe.errors %}
@@ -96,8 +124,12 @@
 					        {% endfor %}
 					    {% endif %} 
 						{{ form.informe }}						
-					</div>				
-					<div class="col-md-4">
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="row">
+					<div class="col-md-5">
 						<div class="checkbox">
 							{% if form.entrega_directa_solicitante.errors %}
 								{% for error in form.entrega_directa_solicitante.errors %}
@@ -238,6 +270,7 @@
 $(document).ready(function() 
 {
 	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
+	$("#id_fecha").datepicker();
 	
 	$('#id_crear_detalle').click(function(e)
 		{
@@ -261,7 +294,8 @@ $(document).ready(function()
 					});
 					$("#id_form-TOTAL_FORMS").val(contDetalles);
 					updateFormElementIndices('detalle_requerimiento_formset');
-					bindAutoComplete('productos');					
+					bindAutoComplete('productos');	
+					$(".decimal").keydown(validar_decimales);
 				}
 			});
 	 	});

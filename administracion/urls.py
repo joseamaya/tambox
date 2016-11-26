@@ -4,9 +4,9 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     DetalleOficina, ModificarOficina, ListadoTrabajadores, CrearTrabajador,\
     DetalleTrabajador, ModificarTrabajador, ListadoPuestos, CrearPuesto,\
     DetallePuesto, ModificarPuesto, CargarOficinas, CargarTrabajadores,\
-    ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos,\
+    ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos, ModificarNivelAprobacion,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
-    ReporteExcelPuestos, ReporteExcelProfesiones
+    ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion
 
 urlpatterns = patterns('',    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     url(r'^reporte_excel_puestos/$',login_required(ReporteExcelPuestos.as_view()), name="reporte_excel_puestos"),
     url(r'^reporte_excel_profesiones/$',login_required(ReporteExcelProfesiones.as_view()), name="reporte_excel_profesiones"),
     url(r'^crear_oficina/$',login_required(CrearOficina.as_view()), name="crear_oficina"),
+    url(r'^crear_nivel_aprobacion/$',login_required(CrearNivelAprobacion.as_view()), name="crear_nivel_aprobacion"),
     url(r'^detalle_oficina/(?P<pk>.+)/$', login_required(DetalleOficina.as_view()), name="detalle_oficina"),
     url(r'^modificar_oficina/(?P<pk>.+)/$',login_required(ModificarOficina.as_view()), name="modificar_oficina"),
     url(r'^maestro_trabajadores/$',login_required(ListadoTrabajadores.as_view()), name="maestro_trabajadores"),
@@ -33,4 +34,7 @@ urlpatterns = patterns('',
     url(r'^crear_profesion/$',login_required(CrearProfesion.as_view()), name="crear_profesion"),
     url(r'^detalle_profesion/(?P<pk>.+)/$', login_required(DetalleProfesion.as_view()), name="detalle_profesion"),
     url(r'^modificar_profesion/(?P<pk>.+)/$',login_required(ModificarProfesion.as_view()), name="modificar_profesion"),
+    url(r'^maestro_niveles_aprobacion/$',login_required(ListadoNivelesAprobacion.as_view()), name="maestro_niveles_aprobacion"),
+    url(r'^detalle_nivel_aprobacion/(?P<pk>.+)/$', login_required(DetalleNivelAprobacion.as_view()), name="detalle_nivel_aprobacion"),
+    url(r'^modificar_nivel_aprobacion/(?P<pk>.+)/$',login_required(ModificarNivelAprobacion.as_view()), name="modificar_nivel_aprobacion"),
 )

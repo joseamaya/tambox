@@ -1,6 +1,21 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from administracion.models import Oficina, Trabajador, Puesto, Profesion
+from administracion.models import Oficina, Trabajador, Puesto, Profesion,\
+    NivelAprobacion
+
+class NivelAprobacionForm(forms.ModelForm):    
+
+    class Meta:
+        model = NivelAprobacion
+        fields =['descripcion','oficina','nivel_superior','aprobacion']
+    
+    def __init__(self, *args, **kwargs):
+        super(NivelAprobacionForm, self).__init__(*args, **kwargs)
+        self.fields['nivel_superior'].required = False
+        for field in iter(self.fields):
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control'
+        })
 
 class ProfesionForm(forms.ModelForm):    
 

@@ -5,7 +5,7 @@
 {% else %}
 <h3>Movimientos / Nueva Salida de Almacen</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -377,7 +377,8 @@ $(document).ready(function()
 					});
 					$("#id_form-TOTAL_FORMS").val(contDetalles);
 					updateFormElementIndices('detalle_salida_formset');
-					bindAutoComplete('productos');					
+					bindAutoComplete('productos');		
+					$(".decimal").keydown(validar_decimales);
 				}
 			});	
 		}

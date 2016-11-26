@@ -1,11 +1,13 @@
-{% extends "requerimientos/base_requerimientos.html" %} {% block cuerpo %}
+{% extends "requerimientos/base_requerimientos.html" %} 
+{% load etiquetas %}
+{% block cuerpo %}
 <h3>Requerimientos / {{ object.pk }}</h3>
 <div class="row">
 	<div class="col-lg-10">
 		<button class="btn btn-info" type="button" onclick="location.href='{% url 'requerimientos:requerimiento_pdf' requerimiento.pk %}';">
 		Ver PDF
 		</button>
-		{% if object.aprobacionrequerimiento.estado != "PEND" %}
+		{% if object.requerimiento.estado != "PEND" %}
 			<button class="btn btn-default" type="button" onclick="location.href='{% url 'requerimientos:listado_cotizaciones_requerimiento' requerimiento.pk %}';">
 			Ver Cotizaciones
 			</button>
@@ -24,11 +26,11 @@
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'requerimientos:detalle_requerimiento' object.anterior %}';">
+				onclick="location.href='{% url_anterior 'requerimientos:detalle_requerimiento' object request.user %}';">
 				<span class="glyphicon glyphicon-step-backward"></span>
 			</button>
 			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'requerimientos:detalle_requerimiento' object.siguiente %}';">
+				onclick="location.href='{% url_siguiente 'requerimientos:detalle_requerimiento' object request.user %}';">
 				<span class="glyphicon glyphicon-step-forward"></span>
 			</button>
 			<button class="btn btn-default" type="button"
@@ -43,43 +45,59 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-md-2">
-				<label>CODIGO:</label> 
+				<label>Código:</label> 
 				<p>{{ object.pk }}</p>
 			</div>
-			<div class="col-md-1">
-				<label>Fecha:</label> 
-				<p>{{ object.created|date:"d/m/Y" }}</p>
-			</div>
-			<div class="col-md-4">
-				<label>Solicitante:</label> 
-				<p>{{ object.solicitante }}</p>
-			</div>
 			<div class="col-md-2">
+				<label>Fecha Creación:</label> 
+				<p>{{ object.created|date:"d/m/Y" }}</p>
+			</div>			
+			<div class="col-md-3">
 				<label>Estado:</label> 
 				<p>{{ object.get_estado_display }}</p>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-5">
 				<label>Aprobación:</label> 
 				<p>{{ object.aprobacionrequerimiento.get_estado_display }}</p>
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-md-7">
+				<label>Oficina:</label> 
+				<p>{{ object.oficina }}</p>
+			</div>
+			<div class="col-md-5">
+				<label>Solicitante:</label> 
+				<p>{{ object.solicitante }}</p>
+			</div>
+		</div>
+		<div class="row">
 			<div class="col-md-12">
-				<label>Pedido para:</label> 
+				<label>Motivo:</label> 
 				<p>{{ object.motivo }}</p>
 			</div>
 		</div>
 		<div class="row">
+			<div class="col-md-2">
+				<label>Fecha:</label> 
+				<p>{{ object.fecha|date:"d/m/Y" }}</p>
+			</div>
 			<div class="col-md-3">
 				<label>Mes en que se necesita:</label> 
 				<p>{{ object.get_mes_display }}</p>
+			</div>
+			<div class="col-md-3">
+				<label>Año en que se necesita:</label> 
+				<p>{{ object.annio }}</p>
 			</div>
 			<div class="col-md-3">
 				<label>Informe:</label>				
 				{% if object.informe %} <a
 					href="{{ object.informe.url }}">Ver informe</a> 
 				{% endif %}
-			</div>
+			</div>			
+		</div>
+		<div class="row">
 			<div class="col-md-4">
 				{% if object.entrega_directa_solicitante %}
 				<p>Si Entrega Directamente al Solicitante</p>
@@ -99,6 +117,7 @@
 							<th>Uso</th>
 							<th>Unidad</th>
 							<th>Cant. Sol</th>
+							<th>Cant. Cot</th>
 							<th>Cant. Comp</th>														
 						</tr>
 					</thead>
@@ -110,12 +129,14 @@
 							<td>{{ detalle.uso }}</td>
 							<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
 							<td>{{ detalle.cantidad }}</td>
+							<td>{{ detalle.cantidad_cotizada }}</td>
 							<td>{{ detalle.cantidad_comprada }}</td>							
 							{% else %}
 							<td>{{ detalle.otro }}</td>
 							<td>{{ detalle.uso }}</td>
 							<td>-</td>
-							<td>{{ detalle.cantidad }}</td>							
+							<td>{{ detalle.cantidad }}</td>	
+							<td>{{ detalle.cantidad_cotizada }}</td>						
 							<td>{{ detalle.cantidad_comprada }}</td>
 							{% endif %}
 						</tr>

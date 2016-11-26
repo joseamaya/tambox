@@ -45,6 +45,7 @@ class Migration(migrations.Migration):
                 ('imagen', models.ImageField(default=b'productos/sinimagen.png', upload_to=b'productos')),
                 ('estado', models.BooleanField(default=True)),
                 ('grupo_productos', models.ForeignKey(to='productos.GrupoProductos')),
+                ('tipo_existencia', models.ForeignKey(to='contabilidad.TipoExistencia', null=True)),
             ],
             options={
                 'permissions': (('ver_bienvenida', 'Puede ver bienvenida a la aplicaci\xf3n'), ('cargar_productos', 'Puede cargar Productos desde un archivo externo'), ('ver_detalle_producto', 'Puede ver detalle de Productos'), ('ver_tabla_productos', 'Puede ver tabla Productos'), ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'), ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto')),

@@ -4,7 +4,7 @@
 {% else %}
 <h3>Profesiones / Nuevo</h3>
 {% endif %}
-<form role="form" action="#" method="post">
+<form role="form" method="post">
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -41,6 +41,16 @@
 			<div class="row">
 				<div class="col-lg-7">
 					<label>Descripción:</label>
+					{% if form.descripcion.errors %}
+						{% for error in form.descripcion.errors %}
+						<div class="alert alert-danger alert-dismissible" role="alert">							
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>							
+				            <strong>Error: </strong> {{ error|escape }}					        
+						</div>
+				        {% endfor %}
+				    {% endif %}
 					<h3>{{ form.descripcion }}</h3>
 				</div>
 				<div class="col-lg-5">
@@ -58,6 +68,16 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>ABREVIATURA:</label>
+							{% if form.abreviatura.errors %}
+								{% for error in form.abreviatura.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.abreviatura }}</p>
 						</div>
 						<div class="col-lg-4"></div>
@@ -69,6 +89,16 @@
 					<div class="row">
 						<div class="col-lg-4">
 							<label>USUARIO:</label>
+							{% if form.usuario.errors %}
+								{% for error in form.usuario.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">							
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>							
+						            <strong>Error: </strong> {{ error|escape }}					        
+								</div>
+						        {% endfor %}
+						    {% endif %}
 							<p>{{ form.usuario }}</p>
 						</div>
 					</div>

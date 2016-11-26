@@ -129,18 +129,18 @@ $(document).ready(function()
 	function borrarProducto() 
 	{
 		$.ajax({
-			data : {
-				'codigo' : "{{ object.codigo }}"
-			},
+			data : { 'codigo' : "{{ object.codigo }}" },
 			url : "{% url 'productos:eliminar_producto' %}",
 			type : 'get',
 			success : function(data) {
-				if (data.relaciones == 'NO') {
-					alert("Producto " + data.descripcion
-							+ " eliminado");
-				} else if (data.relaciones == 'SI') {
-					alert("Producto " + data.descripcion
-							+ " no puede eliminarse");
+				if (data.relaciones == 'NO') 
+				{
+					alert("Producto " + data.descripcion + " eliminado");
+					$(location).attr('href', "{% url 'productos:detalle_producto' object.siguiente %}");
+				} 
+				else if (data.relaciones == 'SI') 
+				{
+					alert("Producto " + data.descripcion + " no puede eliminarse");
 				}
 			}
 		});
