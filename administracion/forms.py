@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from administracion.models import Oficina, Trabajador, Puesto, Profesion,\
-    NivelAprobacion
+    NivelAprobacion, Upload
 
 class NivelAprobacionForm(forms.ModelForm):    
 
@@ -101,4 +101,10 @@ class ModificacionPuestoForm(forms.ModelForm):
         self.fields['fecha_fin'].input_formats = ['%d/%m/%Y']
         self.fields['fecha_fin'].required = False
         self.fields['es_jefatura'].required = False    
-        self.fields['es_asistente'].required = False    
+        self.fields['es_asistente'].required = False
+
+
+class UploadForm(forms.ModelForm):
+    class Meta:
+        model = Upload
+        fields = ['archivo']

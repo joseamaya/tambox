@@ -11,8 +11,8 @@ class DetalleCotizacionManager(models.Manager):
         
     def guardar_detalles_con_referencia(self, objs, requerimiento):
         for detalle in objs:
-            detalle_requerimiento = self.detalle_requerimiento
-            detalle_requerimiento.cantidad_cotizada = self.cantidad
+            detalle_requerimiento = detalle.detalle_requerimiento
+            detalle_requerimiento.cantidad_cotizada = detalle.cantidad
             detalle_requerimiento.establecer_estado_cotizado()
             detalle_requerimiento.save()
             detalle.save()                        

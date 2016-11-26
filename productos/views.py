@@ -14,7 +14,7 @@ import csv
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import os
-from contabilidad.forms import UploadForm
+from administracion.forms import UploadForm
 from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm,\

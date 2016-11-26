@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios,\
     ListadoGruposProductos, ListadoProductos, CrearServicio, CrearUnidadMedida,\
@@ -11,7 +11,7 @@ from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios,\
     EliminarGrupoProductos, EliminarProducto, EliminarServicio,\
     CargarGrupoProductos, ListadoProductosPorGrupo, ConsultaStockProducto
 
-urlpatterns = patterns('',    
+urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^unidades_medida/$',login_required(ListadoUnidadesMedida.as_view()), name="unidades_medida"),
     url(r'^servicios/$',login_required(ListadoServicios.as_view()), name="servicios"),
@@ -45,4 +45,4 @@ urlpatterns = patterns('',
     url(r'^eliminar_producto/$',login_required(EliminarProducto.as_view()), name="eliminar_producto"),    
     url(r'^eliminar_servicio/$',login_required(EliminarServicio.as_view()), name="eliminar_servicio"),
     #url(r'^descargar_reporte_productos/$', login_required(DownloadProductosReport.as_view()), name="descargar_reporte_productos"),
-)
+]

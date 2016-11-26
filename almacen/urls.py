@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,RegistrarSalidaAlmacen, CrearTipoSalida, CrearDetalleSalida,\
     ReportePDFProductos, InicioOperaciones, CrearTipoMovimiento,ListadoAlmacenes,ListadoTiposUnidadMedida,\
@@ -12,7 +12,7 @@ from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,
     ListadoIngresos, ListadoSalidas, ReporteConsolidadoProductosKardexExcel, ReporteConsolidadoGruposKardexExcel,\
     GeneracionKardexProducto, ListadoMovimientosPorPedido
 
-urlpatterns = patterns('',    
+urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^inicio_operaciones/$', login_required(InicioOperaciones.as_view()), name="inicio_operaciones"),    
     url(r'^registrar_ingreso/$',login_required(RegistrarIngresoAlmacen.as_view()), name="registrar_ingreso"),
@@ -66,4 +66,4 @@ urlpatterns = patterns('',
     url(r'^verificar_stock_para_pedido/$',login_required(VerificarStockParaPedido.as_view()), name="verificar_stock_para_pedido"),
     url(r'^listado_stock/$', login_required(ListadoStock.as_view()), name="listado_stock"),
     url(r'^listado_movimientos_pedido/(?P<pedido>.+)/$',login_required(ListadoMovimientosPorPedido.as_view()), name="listado_movimientos_pedido"),
-)
+]

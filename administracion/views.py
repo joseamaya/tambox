@@ -2,7 +2,7 @@
 from django.shortcuts import render
 from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm,\
     ProfesionForm, NivelAprobacionForm
-from contabilidad.forms import UploadForm
+from administracion.forms import UploadForm
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView

@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrdenCompra,\
     BusquedaProveedoresRazonSocial, CrearDetalleOrdenCompra,\
@@ -15,7 +15,7 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     ReportePDFSolicitudCotizacion, ListadoOrdenesCompraPorCotizacion    ,\
     BusquedaProveedoresRUC
 
-urlpatterns = patterns('',    
+urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^proveedores/$',login_required(ListadoProveedores.as_view()), name="proveedores"),
     url(r'^ordenes_compra/$', login_required(ListadoOrdenesCompra.as_view()), name="ordenes_compra"),
@@ -59,4 +59,4 @@ urlpatterns = patterns('',
     url(r'^reporte_ordenes_compra_fecha/$', login_required(ReporteExcelOrdenesCompraFecha.as_view()), name="reporte_ordenes_compra_fecha"),
     url(r'^eliminar_orden_compra/$',login_required(EliminarOrdenCompra.as_view()), name="eliminar_orden_compra"),
     url(r'^eliminar_proveedor/$',login_required(EliminarProveedor.as_view()), name="eliminar_proveedor"),    
-)
+]

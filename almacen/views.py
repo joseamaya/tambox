@@ -32,7 +32,6 @@ from administracion.models import Puesto
 import locale
 from contabilidad.models import Tipo, Configuracion, Empresa, TipoDocumento
 import csv
-from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -42,6 +41,7 @@ from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento
+from administracion.forms import UploadForm
 
 locale.setlocale(locale.LC_ALL,"")
 empresa = Empresa.load()
@@ -1105,15 +1105,13 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor)
+                                                                   precio=precioS)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor)
+                                                                   precio=precio)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles,referencia) 

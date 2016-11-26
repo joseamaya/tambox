@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 from django.contrib.auth.decorators import login_required
 from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     DetalleOficina, ModificarOficina, ListadoTrabajadores, CrearTrabajador,\
@@ -8,7 +8,7 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
     ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion
 
-urlpatterns = patterns('',    
+urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^maestro_oficinas/$',login_required(ListadoOficinas.as_view()), name="maestro_oficinas"),
     url(r'^cargar_oficinas/$',login_required(CargarOficinas.as_view()), name="cargar_oficinas"),
@@ -37,4 +37,4 @@ urlpatterns = patterns('',
     url(r'^maestro_niveles_aprobacion/$',login_required(ListadoNivelesAprobacion.as_view()), name="maestro_niveles_aprobacion"),
     url(r'^detalle_nivel_aprobacion/(?P<pk>.+)/$', login_required(DetalleNivelAprobacion.as_view()), name="detalle_nivel_aprobacion"),
     url(r'^modificar_nivel_aprobacion/(?P<pk>.+)/$',login_required(ModificarNivelAprobacion.as_view()), name="modificar_nivel_aprobacion"),
-)
+]

@@ -34,7 +34,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import os
 from django.db import transaction, IntegrityError
-from contabilidad.forms import UploadForm
+from administracion.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
 from contabilidad.models import Configuracion, Empresa
@@ -1109,14 +1109,14 @@ class ObtenerDetalleOrdenCompra(TemplateView):
                     det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
                     det['precio'] = str(detalle.precio)
                     det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor)                                        
+                    det['valor'] = str(round(detalle.valor,5))
                 except:
                     det['codigo'] = detalle.producto.codigo
                     det['nombre'] = detalle.producto.descripcion                    
                     det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
                     det['precio'] = str(detalle.precio)
                     det['unidad'] = detalle.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor)
+                    det['valor'] = str(round(detalle.valor))
                 lista_detalles.append(det)
             formset = DetalleIngresoFormSet(initial=lista_detalles)
             lista_json = []

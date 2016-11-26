@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from administracion.models import Upload
 from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
-from contabilidad.models import Tipo, Upload
+from contabilidad.models import Tipo
 import datetime
 from compras.models import OrdenCompra
 from django.forms import formsets

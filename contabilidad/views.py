@@ -16,7 +16,7 @@ import simplejson
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
-from contabilidad.forms import UploadForm
+from administracion.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
