@@ -15,7 +15,10 @@ from almacen.models import DetalleMovimiento
 from reportlab.rl_config import defaultPageSize
 from reportlab.lib.units import inch
 
-empresa = Empresa.load()
+try:
+    empresa = Empresa.load()
+except:
+    empresa = None
 
 class ReporteMovimiento():
     
