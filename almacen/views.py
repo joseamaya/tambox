@@ -44,7 +44,11 @@ from almacen.reports import ReporteMovimiento
 from administracion.forms import UploadForm
 
 locale.setlocale(locale.LC_ALL,"")
-empresa = Empresa.load()
+
+try:
+    empresa = Empresa.load()
+except:
+    empresa = None
 
 class Tablero(View):
     

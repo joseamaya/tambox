@@ -15,7 +15,10 @@ from compras.models import DetalleOrdenCompra
 from django.utils.encoding import smart_str
 from reportlab.graphics.shapes import Line, Drawing
 
-empresa = Empresa.load()
+try:
+    empresa = Empresa.load()
+except:
+    empresa = None
  
 class ReporteOrdenCompra():
     

@@ -46,7 +46,11 @@ from datetime import date
 from compras.reports import ReporteOrdenCompra
 
 locale.setlocale(locale.LC_ALL,"")
-empresa = Empresa.load()
+
+try:
+    empresa = Empresa.load()
+except:
+    empresa = None
 
 class Tablero(View):
     

@@ -14,7 +14,10 @@ from administracion.models import Puesto
 from reportlab.platypus.flowables import Spacer
 from io import BytesIO
 
-empresa = Empresa.load()
+try:
+    empresa = Empresa.load()
+except:
+    empresa = None
  
 class ReporteRequerimiento():
     
