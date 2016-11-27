@@ -3,10 +3,16 @@ from django.core.urlresolvers import reverse
 from contabilidad.models import Configuracion
 
 register = template.Library()
-configuracion = Configuracion.objects.first()
-oficina_administracion = configuracion.administracion
-presupuesto = configuracion.presupuesto
-logistica = configuracion.logistica
+try:
+    configuracion = Configuracion.objects.first()
+    oficina_administracion = configuracion.administracion
+    presupuesto = configuracion.presupuesto
+    logistica = configuracion.logistica
+except:
+    configuracion = None
+    oficina_administracion = None
+    presupuesto = None
+    logistica = None
 
 @register.simple_tag
 def url_anterior(url, instancia, usuario):
