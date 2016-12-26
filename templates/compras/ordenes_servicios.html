@@ -27,9 +27,9 @@
 			<thead>
 				<tr>
 					<th class="text-center">CODIGO</th>
+					<th class="text-center">PROVEEDOR</th>
 					<th class="text-center">COTIZACION</th>
 					<th class="text-center">FEC.</th>
-					<th class="text-center">FEC_REG</th>
 					<th class="text-center">ESTADO</th>																																						
 				</tr>
 			</thead>							
@@ -40,14 +40,15 @@
 				{% else %}
 				<tr>
 				{% endif %}
-					<td>{{ orden_servicios.codigo }}</td>
-					{% if orden_compra.cotizacion %}
+					<td>{{ orden_servicios.codigo }}</td>					
+					{% if orden_servicios.cotizacion %}
+					<td>{{ orden_servicios.cotizacion.proveedor }}</td>
 					<td>{{ orden_servicios.cotizacion }}</td>
 					{% else %}
+					<td>{{ orden_servicios.proveedor }}</td>
 					<td>Ninguna</td>
 					{% endif %}
 					<td>{{ orden_servicios.fecha|date:"d/m/y" }}</td>
-					<td>{{ orden_servicios.created|date:"d/m/y" }}</td> 
 					<td>{{ orden_servicios.get_estado_display }}</td>					
 				</tr>
 			{% endfor %}

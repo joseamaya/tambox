@@ -29,7 +29,8 @@
 				<tr>
 					<th class="text-center">CODIGO</th>
 					<th class="text-center">OFICINA SOLICITA</th>
-					<th class="text-center">APROBACION.</th>
+					<th class="text-center">NIVEL APROB.</th>
+					<th class="text-center">APROB.</th>
 					<th class="text-center">ESTADO.</th>
 					<th class="text-center">FEC_OPER.</th>					
 				</tr>
@@ -43,7 +44,12 @@
 				{% endif %}
 					<td>{{ requerimiento.codigo }}</td>
 					<td>{{ requerimiento.oficina }}</td>
-					<td>{{ requerimiento.aprobacionrequerimiento.get_estado_display }}</td>
+					<td>{{ requerimiento.aprobacionrequerimiento.nivel }}</td>
+					{% if requerimiento.aprobacionrequerimiento.estado %}
+					<td>SI</td>
+					{% else %}
+					<td>NO</td>
+					{% endif %}
 					<td>{{ requerimiento.get_estado_display }}</td>
 					<td>{{ requerimiento.created|date:"d/m/y" }}</td>					
 				</tr>

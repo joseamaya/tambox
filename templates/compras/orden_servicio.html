@@ -5,7 +5,7 @@
 {% else %}
 <h3>Órdenes de Servicios / Nuevo</h3>
 {% endif %}
-<form role="form" method="post">
+<form role="form" method="post" enctype="multipart/form-data">
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -22,12 +22,10 @@
 		<div class="col-lg-2 text-right">
 			<div class="btn-group">
 				{% if object %}
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.anterior %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.anterior %}';">
 					<span class="glyphicon glyphicon-step-backward"></span>
 				</button>
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.siguiente %}';">
+				<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.siguiente %}';">
 					<span class="glyphicon glyphicon-step-forward"></span>
 				</button>
 				{% endif %}
@@ -53,8 +51,25 @@
 				{{ form.impuesto }}
 				{% if object %}
 				<div class="row">
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<label>CODIGO:</label>  
+						<p>{{ object.codigo }}</p>
+					</div>														
+				</div>
+				{% else %}
+				<div class="row">
+					<div class="col-md-2">
+						<label>CODIGO:</label> 
+						{% if form.codigo.errors %}
+							{% for error in form.codigo.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %} 
 						{{ form.codigo }}
 					</div>														
 				</div>
@@ -173,7 +188,35 @@
 					        {% endfor %}
 					    {% endif %}
 						{{ form.proceso }}
-					</div>							
+					</div>
+					<div class="col-md-4">	
+						<label>INFORME:</label>
+						{% if form.nombre_informe.errors %}
+							{% for error in form.nombre_informe.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.nombre_informe }}
+					</div>	
+					<div class="col-md-5">	
+						<label>ARCHIVO INFORME:</label>
+						{% if form.informe.errors %}
+							{% for error in form.informe.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.informe }}
+					</div>
 				</div>
 			</div>
 			<hr>
@@ -396,12 +439,7 @@
 			</div>										
 		</div>
 	</div>
-	<div id="popup"></div>
-	<div class="row">
-		<div class="col-lg-4">
-			{{ form.cdetalles }}
-		</div>
-	</div>
+	<div id="popup"></div>	
 </form>		
 
 {% endblock cuerpo %}
@@ -436,6 +474,26 @@ $(document).ready(function()
 		      }
 		    });
 		}
+	});
+	
+	$("#id_razon_social").autocomplete({
+	  	source: function(request, response){
+	    $.ajax({
+	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
+	      data: {'razon_social': $("#id_razon_social").val()},
+	      success: function( data ) 
+	      {
+	          response( data );
+	      }
+	    });
+	  },
+	  minLength: 2,
+	  select: function( event, ui ) {
+		$("#id_ruc").val(ui.item.ruc);
+		$("#id_razon_social").val(ui.item.label);
+		$("#id_direccion").val(ui.item.direccion);
+		return false;
+	  },
 	});
 	
 	$(document).on("click",".eliminar",function()
@@ -583,6 +641,7 @@ $(document).ready(function()
 		total=0;
 		ventana_transferencia.dialog("close");
 		$('#detalles td').parent().remove();
+		$('#id_crear_detalle').prop("disabled", true);
 		$.ajax({
 	      url: "{% url 'compras:busqueda_cotizacion' %}",
 	      data: {'codigo': cotizacion},
@@ -604,7 +663,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_orden_servicios_formset'>" +						
-						"<td>" + item.cotizacion + item.nombre + "</td>" +
+						"<td>" + item.cotizacion + item.codigo + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
 						"<td>" + item.precio + "</td>" +

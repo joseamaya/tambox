@@ -1,17 +1,20 @@
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
-from contabilidad.models import Configuracion
+from contabilidad.models import Configuracion, Empresa
 
 try:
     CONFIGURACION = Configuracion.objects.first()
+    OPERACIONES = CONFIGURACION.operaciones
     OFICINA_ADMINISTRACION = CONFIGURACION.administracion
     PRESUPUESTO = CONFIGURACION.presupuesto
     LOGISTICA = CONFIGURACION.logistica
 except:
     CONFIGURACION = None
+    OPERACIONES = None
     OFICINA_ADMINISTRACION = None
     PRESUPUESTO = None
     LOGISTICA = None
+
 try:
     EMPRESA = Empresa.load()
 except:
@@ -41,10 +44,6 @@ CHOICES_ESTADO_REQ = Choices(('PEND', _('PENDIENTE')),
                              ('CANC', _('CANCELADO')),
                              )
 
-CHOICES_ESTADO_APROB_REQ = Choices(('PEND', _('PENDIENTE')),
-                                   ('APROB_LOG', _('APROBADO LOGISTICA')),
-                                   ('DESAP_LOG', _('DESAPROBADO LOGISTICA')),)
-
 CHOICES_JEFATURA = Choices(('APROB_JEF', _('APROBADO JEFATURA')),
                            ('DESAP_JEF', _('DESAPROBADO JEFATURA')))
 
@@ -52,7 +51,7 @@ CHOICES_GER_INM = Choices(('APROB_GER_INM', _('APROBADO GERENCIA INMEDIATA')),
                           ('DESAP_GER_INM', _('DESAPROBADO GERENCIA INMEDIATA')))
 
 CHOICES_GER_ADM = Choices(('APROB_GER_ADM', _('APROBADO GERENCIA ADMINISTRACION')),
-                          ('DESAP_GER_ADM', _('DESAPROBADO GERENCIA ADMINISTRACION'))) 
+                          ('DESAP_GER_ADM', _('DESAPROBADO GERENCIA ADMINISTRACION')))
 
 CHOICES_PRES = Choices(('APROB_PRES', _('APROBADO PRESUPUESTO')),
                        ('DESAP_PRES', _('DESAPROBADO PRESUPUESTO')))
@@ -61,3 +60,6 @@ CHOICES_LOG = Choices(('APROB_LOG', _('APROBADO LOGISTICA')),
                       ('DESAP_LOG', _('DESAPROBADO LOGISTICA')))
 
 CHOICES_VACIA = Choices()
+
+CHOICES_APROB = Choices(('APROB', _('APROBADO')),
+                        ('DESAP', _('DESAPROBADO')))

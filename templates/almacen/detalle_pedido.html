@@ -3,7 +3,7 @@
 <h3>Pedidos / {{ object.pk }}</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if object.estado == "PEND" %}
+		{% if object.estado == "PEND" or object.estado == "ATEN_PARC" %}
 			{% if perms.almacen.aprobar_pedido %}
 			<a class="btn btn-warning" href="{% url 'almacen:aprobar_pedido' object.pk %}">Aprobar</a>
 			{% endif %}
@@ -42,16 +42,36 @@
 	<div class="panel-body">					
 		{% csrf_token %}
 		<div class="row">							
-			<div class="col-md-3">			
+			<div class="col-md-2">			
 				<label>Código:</label> 
 				<p>{{ object.codigo }}</p>
-			</div>														
+			</div>
+			<div class="col-md-4">			
+				<label>Solicitante:</label> 
+				<p>{{ object.solicitante }}</p>
+			</div>
+			<div class="col-md-6">			
+				<label>Oficina:</label> 
+				<p>{{ object.oficina }}</p>
+			</div>															
 		</div>
 		<div class="row">							
-			<div class="col-md-3">			
+			<div class="col-md-2">			
 				<label>Fecha:</label> 
 				<p>{{ object.fecha|date:"d/m/Y" }}
-			</div>														
+			</div>	
+			<div class="col-md-2">			
+				<label>Fecha Creación:</label> 
+				<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+			</div>
+			<div class="col-md-2">			
+				<label>Fecha Modif:</label> 
+				<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
+			</div>
+			<div class="col-md-4">
+				<label>Estado:</label> 
+				<p>{{ object.get_estado_display }}</p>
+			</div>													
 		</div>		
 		<div class="row">
 			<div class="col-lg-12">
@@ -62,6 +82,7 @@
 							<th>Descripción</th>
 							<th>Unidad</th>
 							<th>Cantidad</th>
+							<th>Cant. Aten.</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -70,7 +91,8 @@
 							<td>{{ detalle.producto.codigo }}</td>
 					  		<td>{{ detalle.producto.descripcion }}</td>
 					  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
-					  		<td>{{ detalle.cantidad }}</td>					  		
+					  		<td>{{ detalle.cantidad }}</td>	
+					  		<td>{{ detalle.cantidad_atendida }}</td>					  		
 						</tr>
 					{% endfor %}	
 					</tbody>				

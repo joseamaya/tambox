@@ -16,7 +16,7 @@ import simplejson
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
-from administracion.forms import UploadForm
+from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
@@ -42,7 +42,7 @@ class CargarCuentasContables(FormView):
     
     def form_valid(self, form):
         data = form.cleaned_data
-        docfile = data['archivo']            
+        docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')

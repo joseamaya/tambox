@@ -1,6 +1,24 @@
 # -*- coding: utf-8 -*-
 from almacen.models import TipoMovimiento, Almacen, Kardex
-PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR A�O',))
+from contabilidad.models import Empresa, Configuracion
+
+try:
+    CONFIGURACION = Configuracion.objects.first()
+    OFICINA_ADMINISTRACION = CONFIGURACION.administracion
+    PRESUPUESTO = CONFIGURACION.presupuesto
+    LOGISTICA = CONFIGURACION.logistica
+except:
+    CONFIGURACION = None
+    OFICINA_ADMINISTRACION = None
+    PRESUPUESTO = None
+    LOGISTICA = None
+
+try:
+    EMPRESA = Empresa.load()
+except:
+    EMPRESA = None
+
+PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
 MESES = (
     ('01', 'ENERO'),
@@ -18,7 +36,6 @@ MESES = (
 )
 
 FORMATOS = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
-
 try:
     CHOICES_TIPOS_MOVIMIENTO = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
 except:
@@ -27,7 +44,6 @@ try:
     CHOICES_ALMACENES = [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
 except:
     CHOICES_ALMACENES = []
-
 try:
     CHOICES_MESES = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in Kardex.objects.datetimes('fecha_operacion', 'month')]
 except:

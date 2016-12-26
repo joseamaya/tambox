@@ -4,8 +4,10 @@
 	<div class="col-lg-10">
 		{% if perms.compras.add_cotizacion %} <a
 			href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
-		{% endif %} {% if perms.compras.cargar_proveedores %} <a href="#"
-			class="btn btn-default">Importar</a> {% endif %}
+		{% endif %} 
+		{% if perms.compras.cargar_proveedores %} 
+		<a href="#" class="btn btn-default">Importar</a> 
+		{% endif %}
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">
@@ -24,9 +26,9 @@
 			<thead>
 				<tr>
 					<th class="text-center">CODIGO</th>
+					<th class="text-center">PROVEEDOR</th>
 					<th class="text-center">REQUERIMIENTO</th>
-					<th class="text-center">FECHA.</th>
-					<th class="text-center">FEC_REG</th>
+					<th class="text-center">FECHA.</th>					
 					<th class="text-center">ESTADO</th>					
 				</tr>
 			</thead>
@@ -36,11 +38,11 @@
 				<tr onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.pk %}';">
 				{% else %}
 				<tr>
-				{% endif %}
+				{% endif %}				
 					<td>{{ cotizacion.codigo }}</td>
+					<td>{{ cotizacion.proveedor }}</td>
 					<td>{{ cotizacion.requerimiento }}</td>
-					<td>{{ cotizacion.fecha|date:"d/m/y" }}</td>
-					<td>{{ cotizacion.created|date:"d/m/y" }}</td>
+					<td>{{ cotizacion.fecha|date:"d/m/y" }}</td>					
 					<td>{{ cotizacion.get_estado_display }}</td>					
 				</tr>
 				{% endfor %}

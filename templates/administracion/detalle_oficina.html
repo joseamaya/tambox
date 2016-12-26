@@ -1,4 +1,5 @@
-{% extends "administracion/base_administracion.html" %} {% block cuerpo %}
+{% extends "administracion/base_administracion.html" %} 
+{% block cuerpo %}
 <h3>Oficinas / {{ object.nombre }}</h3>
 <div class="row">
 	<div class="col-lg-10">
@@ -42,8 +43,9 @@
 		</div>
 		<br>
 		<ul class="nav nav-tabs">
-			<li class="active"><a data-toggle="tab" href="#general">Información
-					General</a></li>
+			<li class="active">
+				<a data-toggle="tab" href="#general">Información General</a>
+			</li>
 		</ul>
 		<div class="tab-content">
 			<div id="general" class="tab-pane fade in active">
@@ -52,14 +54,17 @@
 					<div class="col-lg-4">
 						<label>CÓDIGO:</label>
 						<p>{{ object.codigo }}</p>
-						<label>DEPENDENCIA:</label> {% if object.dependencia %}
-						<p>{{ object.dependencia }}</p>
+						<label>DEPENDENCIA:</label> 
+						{% if object.dependencia %}
+							<p>{{ object.dependencia }}</p>
 						{% else %}
-						<p>NINGUNA</p>
-						{% endif %} <label>GERENCIA:</label> {% if object.gerencia %}
-						<p>{{ object.gerencia }}</p>
+							<p>NINGUNA</p>
+						{% endif %} 
+						<label>GERENCIA:</label> 
+						{% if object.es_gerencia %}
+							<p>SI</p>
 						{% else %}
-						<p>NINGUNA</p>
+							<p>NO</p>
 						{% endif %}
 					</div>
 					<div class="col-lg-4"></div>
@@ -68,7 +73,8 @@
 						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
 						<label>FECHA MODIFICACIÓN: </label>
 						<p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
-						<label>ESTADO: </label> {% if object.estado %}
+						<label>ESTADO: </label> 
+						{% if object.estado %}
 						<p>ACTIVO</p>
 						{% else %}
 						<p>INACTIVO</p>

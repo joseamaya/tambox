@@ -2,18 +2,44 @@
 {% block cuerpo %}
 <h3>Órdenes de Compra / {{ object.pk }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'compras:orden_compra_pdf' object.pk %}';">Ver PDF</button>
+	<div class="col-lg-5">
+		{% if perms.compras.add_ordencompra %} 
+		<a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
+		{% endif %} 
 		{% if object.estado == "PEND" %}
 			{% if perms.compras.change_ordencompra %} 
 				<a class="btn btn-primary" href="{% url 'compras:modificar_orden_compra' object.pk %}">Editar </a>			
 			{% endif %}
 		{% endif %}
-		{% if perms.compras.delete_ordencompra %}
-			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+		{% if object.estado == "PEND" %}
+			{% if perms.compras.delete_ordencompra %}
+				<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+			{% endif %}
 		{% endif %}		
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  	<li>
+				<a href="{% url 'compras:listado_movimientos_orden_compra' object.pk %}">
+					<span class="fa fa-building"></span> 
+					Movimientos
+				</a>
+			</li>
+		    <li>
+				<a href="{% url 'compras:orden_compra_pdf' object.pk %}">
+					<span class="fa fa-print"></span> 
+					Imprimir  
+				</a>
+			</li>		    		    
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
 				onclick="location.href='{% url 'compras:detalle_orden_compra' object.anterior %}';">
@@ -107,11 +133,11 @@
 					<p>{{ object.proceso }}</p>
 				</div>
 				<div class="col-md-3">
-				<label>Informe:</label>				
-				{% if object.informe %} <a
-					href="{{ object.informe.url }}">Ver informe</a> 
-				{% endif %}
-			</div>						
+					<label>Informe:</label>				
+					{% if object.informe %} <a
+						href="{{ object.informe.url }}">Ver informe</a> 
+					{% endif %}
+				</div>						
 			</div>
 		<hr>
 		<div class="row">
@@ -252,7 +278,7 @@ $(document).ready(function()
 			url : "{% url 'compras:eliminar_orden_compra' %}",
 			type : 'get',
 			success : function(data) {
-				if (data.movimientos == 'NO') 
+				if (data.movimientos == 'NO')
 				{
 					alert("Orden de Compra " + data.codigo + " eliminada");
 					$(location).attr('href', "{% url 'compras:detalle_orden_compra' object.siguiente %}");

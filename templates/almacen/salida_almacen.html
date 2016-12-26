@@ -38,7 +38,7 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>Id Movimiento:</label>  
-						{{ form.id_movimiento }}
+						<p>{{ object.id_movimiento }}</p>
 					</div>
 				</div>
 			</div>
@@ -208,6 +208,7 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
+									    {{ detalle_salida_form.pedido }}
 						            	{{ detalle_salida_form.codigo }}
 					            	</td>
 					            	<td>
@@ -330,7 +331,7 @@
 <script>
 $(document).ready(function() 
 {
-	var total=0;
+	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
@@ -445,7 +446,7 @@ $(document).ready(function()
 	        	  $("#"+id+"cantidad").val(data.stock);
 	          }
 	    	  precio = $("#"+id+"precio").val();
-	    	  valor = parseFloat(precio)*parseFloat(cantidad);
+	    	  valor = parseFloat(precio) * parseFloat(cantidad);
 	    	  $("#"+id+"valor").val(valor.toFixed(5));
 	    	  total = total - valorTemp + valor;
 			  $("#id_total").val(total.toFixed(5));

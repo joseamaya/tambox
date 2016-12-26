@@ -67,18 +67,6 @@
 					<br>
 					<div class="row">
 						<div class="col-lg-4">
-							<label>OFICINA:</label>
-							{% if form.oficina.errors %}
-								{% for error in form.oficina.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">							
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>							
-						            <strong>Error: </strong> {{ error|escape }}					        
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<p>{{ form.oficina }}</p>
 							<label>NIVEL SUPERIOR:</label>
 							{% if form.nivel_superior.errors %}
 								{% for error in form.nivel_superior.errors %}
@@ -90,19 +78,7 @@
 								</div>
 						        {% endfor %}
 						    {% endif %}
-							<p>{{ form.nivel_superior }}</p>
-							<label>ES APROBACION:</label>
-							{% if form.aprobacion.errors %}
-								{% for error in form.aprobacion.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">							
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>							
-						            <strong>Error: </strong> {{ error|escape }}					        
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<p>{{ form.aprobacion }}</p>							
+							<p>{{ form.nivel_superior }}</p>														
 						</div>						
 						<div class="col-lg-4"></div>
 					</div>

@@ -55,6 +55,13 @@
 				<div class="row">
 					<div class="col-md-2">
 						<label>CODIGO:</label>  
+						<p>{{ object.codigo }}</p>
+					</div>														
+				</div>
+				{% else %}
+				<div class="row">
+					<div class="col-md-2">
+						<label>CODIGO:</label>  
 						{{ form.codigo }}
 					</div>														
 				</div>
@@ -487,6 +494,26 @@ $(document).ready(function()
 		}
 	});
 	
+	$("#id_razon_social").autocomplete({
+	  	source: function(request, response){
+	    $.ajax({
+	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
+	      data: {'razon_social': $("#id_razon_social").val()},
+	      success: function( data ) 
+	      {
+	          response( data );
+	      }
+	    });
+	  },
+	  minLength: 2,
+	  select: function( event, ui ) {
+		$("#id_ruc").val(ui.item.ruc);
+		$("#id_razon_social").val(ui.item.label);
+		$("#id_direccion").val(ui.item.direccion);
+		return false;
+	  },
+	});
+	
 	$(document).on("click",".eliminar",function()
 	{
 		var parent = $(this).parent().parent();
@@ -512,21 +539,24 @@ $(document).ready(function()
 		var id_input= $(this).prop('id');
 		var id = id_input.replace("cantidad","");
 		var cantidad = $("#"+id+"cantidad").val();
-		var precio = $("#"+id+"precio").val();
-		var valorAnt = $("#"+id+"valor").val();
-		var impAnt = $("#"+id+"impuesto").val();
-		var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
-		var valorSinIGV = valorConIGV / (porc_impuesto+1);
-		var imp = parseFloat(valorConIGV - valorSinIGV)
-		$("#"+id+"valor").val(valorConIGV.toFixed(5));
-		$("#"+id+"impuesto").val(imp.toFixed(5));
-		total = total - parseFloat(valorAnt) + parseFloat(valorConIGV);
-		impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
-		subtotal = total - impuesto_total;
-		$("#id_subtotal").val(subtotal.toFixed(2));
-		$("#id_igv").val(impuesto_total.toFixed(2));
-		$("#id_total").val(total.toFixed(2));
-		$("#id_total_letras").val(NumeroALetras(total));
+		if (cantidad != "")
+		{
+			var precio = $("#"+id+"precio").val();		
+			var valorAnt = $("#"+id+"valor").val();
+			var impAnt = $("#"+id+"impuesto").val();
+			var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+			var valorSinIGV = valorConIGV / (porc_impuesto+1);
+			var imp = parseFloat(valorConIGV - valorSinIGV)
+			$("#"+id+"valor").val(valorConIGV.toFixed(5));
+			$("#"+id+"impuesto").val(imp.toFixed(5));
+			total = total - parseFloat(valorAnt) + parseFloat(valorConIGV);
+			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
+			subtotal = total - impuesto_total;
+			$("#id_subtotal").val(subtotal.toFixed(2));
+			$("#id_igv").val(impuesto_total.toFixed(2));
+			$("#id_total").val(total.toFixed(2));
+			$("#id_total_letras").val(NumeroALetras(total));
+		}
 	});
 	
 	$(document).on("keyup",".precio",function()
@@ -535,20 +565,23 @@ $(document).ready(function()
 		var id = id_input.replace("precio","");
 		var cantidad = $("#"+id+"cantidad").val();
 		var precio = $("#"+id+"precio").val();
-		var valorAnt = $("#"+id+"valor").val();
-		var impAnt = $("#"+id+"impuesto").val();
-		var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
-		var valorSinIGV = valorConIGV / (porc_impuesto+1);
-		var imp = parseFloat(valorConIGV - valorSinIGV)
-		$("#"+id+"valor").val(valorConIGV.toFixed(5));
-		$("#"+id+"impuesto").val(imp.toFixed(5));
-		total = total - parseFloat(valorAnt) + parseFloat(valorConIGV);
-		impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
-		subtotal = total - impuesto_total;
-		$("#id_subtotal").val(subtotal.toFixed(2));
-		$("#id_igv").val(impuesto_total.toFixed(2));
-		$("#id_total").val(total.toFixed(2));
-		$("#id_total_letras").val(NumeroALetras(total));
+		if (precio != "")
+		{
+			var valorAnt = $("#"+id+"valor").val();
+			var impAnt = $("#"+id+"impuesto").val();
+			var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+			var valorSinIGV = valorConIGV / (porc_impuesto+1);
+			var imp = parseFloat(valorConIGV - valorSinIGV)
+			$("#"+id+"valor").val(valorConIGV.toFixed(5));
+			$("#"+id+"impuesto").val(imp.toFixed(5));
+			total = total - parseFloat(valorAnt) + parseFloat(valorConIGV);
+			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
+			subtotal = total - impuesto_total;
+			$("#id_subtotal").val(subtotal.toFixed(2));
+			$("#id_igv").val(impuesto_total.toFixed(2));
+			$("#id_total").val(total.toFixed(2));
+			$("#id_total_letras").val(NumeroALetras(total));
+		}
 	});
 	
 	$('#id_crear_detalle').click(function(e)
