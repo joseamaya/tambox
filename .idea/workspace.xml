@@ -2,16 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dd8616d8-1619-476d-bb6a-705cc5f60ed1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/administracion/api.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/administracion/api_urls.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/administracion/serializers.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/tambox.iml" afterPath="$PROJECT_DIR$/.idea/tambox.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/administracion/urls.py" afterPath="$PROJECT_DIR$/administracion/urls.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/requirements.txt" afterPath="$PROJECT_DIR$/requirements.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tambox/settings/base.py" afterPath="$PROJECT_DIR$/tambox/settings/base.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tambox/urls.py" afterPath="$PROJECT_DIR$/tambox/urls.py" />
     </list>
     <ignored path="tambox.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -56,12 +47,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="api.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="api.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/administracion/api.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="2" column="48" selection-start-line="2" selection-start-column="48" selection-end-line="2" selection-end-column="48" />
-              <folding />
+            <state relative-caret-position="136">
+              <caret line="9" column="53" selection-start-line="9" selection-start-column="53" selection-end-line="9" selection-end-column="53" />
+              <folding>
+                <element signature="e#0#63#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -120,22 +113,12 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="base.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="base.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="449">
-              <caret line="106" column="1" selection-start-line="106" selection-start-column="1" selection-end-line="106" selection-end-column="1" />
-              <folding>
-                <marker date="1482904104455" expanded="true" signature="944:1287" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="1318:1837" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="1884:2448" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="1890:2445" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="2062:2438" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="2098:2427" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="2497:2572" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="2678:2778" ph="..." />
-                <marker date="1482904104455" expanded="true" signature="2841:2870" ph="..." />
-              </folding>
+            <state relative-caret-position="79">
+              <caret line="36" column="21" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -159,16 +142,16 @@
         <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/tambox/urls.py" />
         <option value="$PROJECT_DIR$/administracion/urls.py" />
-        <option value="$PROJECT_DIR$/tambox/settings/base.py" />
         <option value="$PROJECT_DIR$/administracion/api_urls.py" />
         <option value="$PROJECT_DIR$/administracion/serializers.py" />
         <option value="$PROJECT_DIR$/administracion/api.py" />
+        <option value="$PROJECT_DIR$/tambox/settings/base.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-25" />
-    <option name="y" value="96" />
+    <option name="x" value="73" />
+    <option name="y" value="134" />
     <option name="width" value="1256" />
     <option name="height" value="707" />
   </component>
@@ -433,7 +416,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-25" y="96" width="1256" height="707" extended-state="0" />
+    <frame x="73" y="134" width="1256" height="707" extended-state="0" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.27750412" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -564,24 +547,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="449">
-          <caret line="106" column="1" selection-start-line="106" selection-start-column="1" selection-end-line="106" selection-end-column="1" />
-          <folding>
-            <marker date="1482904104455" expanded="true" signature="944:1287" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="1318:1837" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="1884:2448" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="1890:2445" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="2062:2438" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="2098:2427" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="2497:2572" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="2678:2778" ph="..." />
-            <marker date="1482904104455" expanded="true" signature="2841:2870" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/administracion/urls.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="334">
@@ -643,8 +608,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/administracion/api.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="2" column="48" selection-start-line="2" selection-start-column="48" selection-end-line="2" selection-end-column="48" />
+        <state relative-caret-position="136">
+          <caret line="9" column="53" selection-start-line="9" selection-start-column="53" selection-end-line="9" selection-end-column="53" />
+          <folding>
+            <element signature="e#0#63#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="79">
+          <caret line="36" column="21" selection-start-line="36" selection-start-column="21" selection-end-line="36" selection-end-column="21" />
           <folding />
         </state>
       </provider>
