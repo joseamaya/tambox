@@ -4,7 +4,8 @@ Django==1.10.2
 django-extensions==1.7.4
 django-model-utils==2.5
 django-simple-history==1.8.1
-django-suit==0.2.21
+django-suit==0.2.22
+djangorestframework==3.5.3
 et-xmlfile==1.0.1
 gunicorn==19.4.5
 jdcal==1.2
@@ -16,4 +17,6 @@ reportlab==3.3.0
 simplejson==3.8.2
 six==1.10.0
 suds==0.4
+suit==2.0.2
+wheel==0.26.0
 whitenoise==2.0.6

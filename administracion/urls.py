@@ -37,4 +37,6 @@ urlpatterns = [
     url(r'^maestro_niveles_aprobacion/$',login_required(ListadoNivelesAprobacion.as_view()), name="maestro_niveles_aprobacion"),
     url(r'^detalle_nivel_aprobacion/(?P<pk>.+)/$', login_required(DetalleNivelAprobacion.as_view()), name="detalle_nivel_aprobacion"),
     url(r'^modificar_nivel_aprobacion/(?P<pk>.+)/$',login_required(ModificarNivelAprobacion.as_view()), name="modificar_nivel_aprobacion"),
+
+
 ]
