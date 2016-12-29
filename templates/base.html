@@ -8,125 +8,152 @@
 	    <meta name="description" content="">
 	    <meta name="author" content="">
 		<title>TAMBOX</title>
-	    <link href="{% static "css/bootstrap.min.css" %}" rel="stylesheet" type="text/css" >	    
-	    <link href="{% static "css/jquery-ui.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/sticky-footer-navbar.css"  %}" rel="stylesheet" type="text/css" >
-	    <link href="{% static "css/jquery.appendGrid-1.6.0.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/jquery.timeentry.css"  %}" rel="stylesheet" type="text/css" />	
-	    <link href="{% static "css/font-awesome.min.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/sb-admin-2.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/metisMenu.min.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/jquery.dataTables.min.css"  %}" rel="stylesheet" type="text/css" />
-	    <link href="{% static "css/wickedpicker.css"  %}" rel="stylesheet" type="text/css" />    
-	    <script src="{% static "js/jquery.js" %}"></script>
-	    <script src="{% static "js/bootstrap.min.js" %}"></script>
-	    <script src="{% static "js/jquery-ui.js" %}"></script>
-	    <script src="{% static "js/jquery.appendGrid-1.6.0.js" %}"></script>
-	    <script src="{% static "js/jquery.plugin.js" %}"></script>
-	    <script src="{% static "js/jquery.timeentry.js" %}"></script>
-	    <script src="{% static "js/wickedpicker.js" %}"></script>
-	    <script src="{% static "js/sb-admin-2.js" %}"></script>
-	    <script src="{% static "js/metisMenu.min.js" %}"></script>
-	    <script src="{% static "js/jquery.dataTables.min.js" %}"></script>
-	    <script src="{% static "js/NumeroALetras.js" %}"></script>
-	    <script src="{% static "js/spin.js" %}"></script>
-	    <script src="{% static "js/utilidades.js" %}"></script>
-	    <script src="{% static "js/jquery.formset.js" %}"></script>
-	    <script type="text/javascript">
-		$.datepicker.regional['es'] = {
-		closeText: 'Cerrar',
-		prevText: '<Ant',
-		nextText: 'Sig>',
-		currentText: 'Hoy',
-		monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-		monthNamesShort: ['Ene','Feb','Mar','Abr', 'May','Jun','Jul','Ago','Sep', 'Oct','Nov','Dic'],
-		dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
-		dayNamesShort: ['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],
-		dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
-		weekHeader: 'Sm',
-		dateFormat: 'dd/mm/yy',
-		firstDay: 1,
-		isRTL: false,
-		showMonthAfterYear: false,
-		yearSuffix: ''
-		};
-		$.datepicker.setDefaults($.datepicker.regional['es']);
-	    </script>
+	    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" >
+		<link href="{% static 'css/datepicker3.css' %}" rel="stylesheet" type="text/css" >
+		<link href="{% static 'css/styles.css' %}" rel="stylesheet" type="text/css" >
+	    <link href="{% static 'css/jquery-ui.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/sticky-footer-navbar.css'  %}" rel="stylesheet" type="text/css" >
+	    <link href="{% static 'css/jquery.appendGrid-1.6.0.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/jquery.timeentry.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/font-awesome.min.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/sb-admin-2.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/metisMenu.min.css' %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/jquery.dataTables.min.css'  %}" rel="stylesheet" type="text/css" />
+	    <link href="{% static 'css/wickedpicker.css'  %}" rel="stylesheet" type="text/css" />
+		<link href="{% static 'css/personal-styles.css'  %}" rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div id="wrapper">
-			<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">	
-				<div class="navbar-header">
-			        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-			            <span class="sr-only">Desplegar navegación</span>
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			            <span class="icon-bar"></span>
-			        </button>
-			        <a class="navbar-brand" href="{% url 'seguridad:inicio' %}">
-						<span class="fa fa-home fa-lg"></span> 
-					</a>
-					{% if perms.administracion.ver_bienvenida %}
-
-					<a class="navbar-brand" href="{% url 'administracion:tablero' %}">
-						<span class="fa fa-area-chart fa-lg"></span> Administración	
-					</a>
-					{% endif %}
-					{% if perms.almacen.ver_bienvenida %}
-					<a class="navbar-brand" href="{% url 'almacen:tablero' %}">
-						<span class="fa fa-building fa-lg"></span> Almacén	
-					</a>
-					{% endif %}
-					{% if perms.compras.ver_bienvenida %}
-					<a class="navbar-brand" href="{% url 'compras:tablero' %}">
-						<span class="fa fa-shopping-cart fa-lg"></span> Compras	
-					</a>
-					{% endif %}
-					{% if perms.contabilidad.ver_bienvenida %}
-					<a class="navbar-brand" href="{% url 'contabilidad:tablero' %}">
-						<span class="fa fa-calculator fa-lg"></span> Contabilidad	
-					</a>
-					{% endif %}					
-					{% if perms.requerimientos.ver_bienvenida %}
-					<a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
-						<span class="fa fa-newspaper-o fa-lg"></span> Requerimientos	
-					</a>
-					{% endif %}											
-			    </div>
-				<ul class="nav navbar-top-links navbar-right">
-					<li class="dropdown">
-					    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-					        <i class="fa fa-bell fa-fw"></i>  
-					        <i class="fa fa-caret-down"></i>
-					    </a>					    		    
-					</li>
-					<li class="dropdown">
-					    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-					        <i class="fa fa-user fa-fw"></i>  <i class="fa fa-caret-down"></i>
-					    </a>
-					    <ul class="dropdown-menu dropdown-user">
-					        <li><a href="#"><i class="fa fa-user fa-fw"></i>Cuenta</a>
-					        </li>
-					        {% if user.is_staff %}
-					        <li><a href="{% url 'admin:index' %}"><i class="fa fa-bars fa-fw"></i>Administración</a>
-					        </li>
-					        {% endif %}	
-					        <li class="divider"></li>
-					        <li><a href="{% url 'seguridad:salir' %}"><i class="fa fa-sign-out fa-fw"></i>Salir</a>
-					        </li>
-					    </ul>		    
-					</li>		
-				</ul>
-				{% block menu %}
-		        {% endblock menu %}
-		    </nav>
-			<div id="page-wrapper">
-				<div class="container-fluid">
-	               	{% block cuerpo %}
-	               	{% endblock cuerpo %}		
+			<nav class="navbar navbar-inverse navbar-fixed-top navegacion-top" role="navigation">
+				<div class="position-relative">
+					<div class="container-fluid" >
+						<div class="navbar-header">
+							<!--Botón menú responsive-->
+							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+								<span class="sr-only">Desplegar navegación</span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+								<span class="icon-bar"></span>
+							</button>
+							<!--End Botón menú responsive-->
+							<a class="navbar-brand" href="{% url 'seguridad:inicio' %}"><span>Tambox</span></a>
+							<!--Boton menu-usuario-->
+							<ul class="user-menu">
+								<li class="dropdown pull-right">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg><span class="caret"></span></a>
+									<ul class="dropdown-menu" role="menu">
+										<li><a href="#"><svg class="glyph stroked male-user"><use xlink:href="#stroked-male-user"></use></svg> Cuenta</a></li>
+										{% if user.is_staff %}
+										<li><a href="{% url 'admin:index' %}"><svg class="glyph stroked gear"><use xlink:href="#stroked-gear"></use></svg> Administración global</a></li>
+										{% endif %}
+										<li><a href="{% url 'seguridad:salir' %}"><svg class="glyph stroked cancel"><use xlink:href="#stroked-cancel"></use></svg> Salir</a></li>
+									</ul>
+								</li>
+							</ul>
+							<!--Fin boton menu-usuario-->
+							<!--Boton menu-notificaciones-->
+							<ul class="user-menu">
+								<li class="dropdown pull-right">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown"><svg class="glyph stroked flag"><use xlink:href="#stroked-flag"/></svg><span class="caret"></span></a>
+									<ul class="dropdown-menu" role="menu">
+										<li class="dropdown">
+												<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+													<i class="fa fa-bell fa-fw"></i>
+													<i class="fa fa-caret-down"></i>
+												</a>
+											</li>
+									</ul>
+								</li>
+							</ul>
+							<!--Fin boton menu-usuario-->
+						</div>
+					</div><!-- /.container-fluid -->
+					<nav class="navbar-inverse navbar-static-top collapse navbar-collapse main-menu" role="navigation" style="margin-bottom: 0" >
+					<div class="container-fluid">
+						<div class="navbar-header">
+							<!--Lista dependiente de Botón menú responsive-->
+							<div class="">
+								<ul class="nav navbar-bar col-xs-12 col-sm-12 col-md-12 col-lg-12 ul-main-menu">
+									{% if perms.administracion.ver_bienvenida %}
+									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-3">
+										<a class="navbar-brand" href="{% url 'administracion:tablero' %}">
+											<span class="fa fa-area-chart fa-lg"></span> Administración
+										</a>
+									</li>
+									{% endif %}
+									{% if perms.almacen.ver_bienvenida %}
+									<li class="col-xs-7 col-sm-6 col-md-2 col-lg-2 ">
+										<a class="navbar-brand" href="{% url 'almacen:tablero' %}">
+											<span class="fa fa-building fa-lg"></span> Almacén
+										</a>
+									</li>
+									{% endif %}
+									{% if perms.compras.ver_bienvenida %}
+									<li class="col-xs-7 col-sm-6 col-md-2 col-lg-2">
+										<a class="navbar-brand" href="{% url 'compras:tablero' %}">
+											<span class="fa fa-shopping-cart fa-lg"></span> Compras
+										</a>
+									</li>
+									{% endif %}
+									{% if perms.contabilidad.ver_bienvenida %}
+									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-2 contabilidad">
+										<a class="navbar-brand" href="{% url 'contabilidad:tablero' %}">
+											<span class="fa fa-calculator fa-lg"></span> Contabilidad
+										</a>
+									</li>
+									{% endif %}
+									{% if perms.requerimientos.ver_bienvenida %}
+									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-3">
+										<a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
+											<span class="fa fa-newspaper-o fa-lg"></span> Requerimientos
+										</a>
+									</li>
+									{% endif %}
+								</ul>
+							</div>
+							<!--Fin lista dependiente de Botón menú responsive-->
+						</div>
+					</div>
+		    	</nav>
 				</div>
-			</div>			
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 contenido position-absolute">
+					{% block menu %}
+					{% endblock menu %}
+
+					{% block cuerpo %}
+					{% endblock cuerpo %}
+				</div>
+			</nav>
 		</div>
+
+		<!--Scripts-->
+		<script src="{% static 'js/jquery.js' %}"></script>
+	    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+		<script src="{% static 'js/chart.min.js' %}"></script>
+		<script src="{% static 'js/chart-data.js' %}"></script>
+		<script src="{% static 'js/easypiechart.js' %}"></script>
+		<script src="{% static 'js/easypiechart-data.js' %}"></script>
+		<script src="{% static 'js/bootstrap-datepicker.js' %}"></script>
+		<script src="{% static 'js/calendar-datepicker-config.js' %}"></script>
+	    <script src="{% static 'js/jquery-ui.js' %}"></script>
+	    <script src="{% static 'js/jquery.appendGrid-1.6.0.js' %}"></script>
+	    <script src="{% static 'js/jquery.plugin.js' %}"></script>
+	    <script src="{% static 'js/jquery.timeentry.js' %}"></script>
+	    <script src="{% static 'js/wickedpicker.js' %}"></script>
+	    <script src="{% static 'js/sb-admin-2.js' %}"></script>
+	    <script src="{% static 'js/metisMenu.min.js' %}"></script>
+	    <script src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+	    <script src="{% static 'js/NumeroALetras.js' %}"></script>
+	    <script src="{% static 'js/spin.js' %}"></script>
+	    <script src="{% static 'js/utilidades.js' %}"></script>
+	    <script src="{% static 'js/jquery.formset.js' %}"></script>
+	    <script src="{% static 'js/datepicker-regional.js' %}"></script>
+		<!--Icons-->
+		<script src="{% static 'js/lumino.glyphs.js' %}"></script>
+		<!--[if lt IE 9]>
+		<script src="js/html5shiv.js"></script>
+		<script src="js/respond.min.js"></script>
+		<![endif]-->
 	</body>
 	{% block js %}	
 	{% endblock js %}

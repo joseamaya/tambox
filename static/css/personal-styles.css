@@ -1,0 +1,40 @@
+.main-menu{
+    border-top: 1px solid #555252;
+    padding-top:15px;
+}
+
+.ul-main-menu > li > .navbar-brand{
+    font-size:10px
+}
+
+.ul-main-menu > li > a >span{
+    font-size:13px
+}
+
+.navegacion-top{
+    position: fixed; z-index: 100;
+}
+
+.position-relative{
+    position:relative;
+}
+
+.position-absolute{
+    position:absolute;
+}
+
+body{
+    padding-top:0px;
+}
+
+/* Medium devices (desktops, 992px and up) */
+@media screen and (min-width: 992px) {
+    .ul-main-menu{
+        display: flex;
+            justify-content: center;
+    }
+
+    .contenido{
+        height:600px;
+    }
+}

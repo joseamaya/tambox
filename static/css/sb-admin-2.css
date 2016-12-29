@@ -129,10 +129,13 @@ body {
 
 @media(min-width:768px) {
     .sidebar {
-        z-index: 1;
+        /*z-index: 1;*/
+        top: -0px;
+        display:inline;
         position: absolute;
-        width: 250px;
-        margin-top: 51px;
+
+        /*width: 250px;
+        margin-top: 51px;*/
     }
 
     .navbar-top-links .dropdown-messages,
