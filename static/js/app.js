@@ -52,7 +52,7 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
     $routeSegmentProvider.when("/requerimientos","requerimientos");
     $routeSegmentProvider.when("/requerimientos/operaciones/requerimiento","requerimientos.requerimiento");
     $routeSegmentProvider.when("/requerimientos/operaciones/aprobacion_requerimientos","requerimientos.aprobacion_requerimientos");
-    $routeSegmentProvider.when("/requerimientos/reportes/requerimientos","requerimientos.requerimientos");
+    $routeSegmentProvider.when("/requerimientos/reportes/requerimientos","requerimientos.requerimientos_requerimientos");
 
 
     $routeSegmentProvider.segment("administracion",{
@@ -243,7 +243,7 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
         controller:"AprobacionRequerimientosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("requerimientos").segment("requerimientos",{
+    $routeSegmentProvider.whitin("requerimientos").segment("requerimientos_requerimientos",{
         controller:"RequerimientosRequerimientosController",
         templateUrl:""
     });
