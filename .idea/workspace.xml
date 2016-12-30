@@ -2,34 +2,29 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dd8616d8-1619-476d-bb6a-705cc5f60ed1" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/js/controllers/NavegacionController.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/app.js" afterPath="$PROJECT_DIR$/static/js/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroNivelesAprobacionController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroNivelesAprobacionController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroOficinasController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroOficinasController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroProfesionesController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroProfesionesController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroPuestosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroPuestosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroTrabajadoresController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/MaestroTrabajadoresController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/AlmacenController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/AlmacenController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/AlmacenesController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/AlmacenesController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/AprobacionPedidosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/AprobacionPedidosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/CargarInventarioInicialController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/CargarInventarioInicialController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexGruposController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexGruposController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexProductosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexProductosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/CrearPedidoController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/CrearPedidoController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/KardexController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/KardexController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/KardexProductoController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/KardexProductoController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosPorFechaController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosPorFechaController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/PedidosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/PedidosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarIngresoController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarIngresoController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarSalidaController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarSalidaController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/StockDeProductosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/StockDeProductosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/almacen/TiposMovimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/almacen/TiposMovimientosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ComprasController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ComprasController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/GruposDeProductosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/GruposDeProductosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeCompraController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeCompraController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeServicioController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeServicioController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ProductosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ProductosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ProveedoresController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ProveedoresController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/ServiciosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/ServiciosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/SolicitudDeCotizacionController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/SolicitudDeCotizacionController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/compras/UnidadesDeMedidaController.js" afterPath="$PROJECT_DIR$/static/js/controllers/compras/UnidadesDeMedidaController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js" afterPath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js" />
     </list>
     <ignored path="tambox.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -48,12 +43,12 @@
     <favorites_list name="tambox" />
   </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/static/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="143" column="46" selection-start-line="143" selection-start-column="20" selection-end-line="143" selection-end-column="46" />
+            <state relative-caret-position="170">
+              <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -80,26 +75,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/administracion/views.py" />
-        <option value="$PROJECT_DIR$/requirements.txt" />
-        <option value="$PROJECT_DIR$/tambox/urls.py" />
-        <option value="$PROJECT_DIR$/administracion/urls.py" />
-        <option value="$PROJECT_DIR$/administracion/api_urls.py" />
-        <option value="$PROJECT_DIR$/administracion/serializers.py" />
-        <option value="$PROJECT_DIR$/administracion/api.py" />
-        <option value="$PROJECT_DIR$/tambox/settings/base.py" />
-        <option value="$PROJECT_DIR$/static/js/datepicker-regional.js" />
-        <option value="$PROJECT_DIR$/static/js/calendar-datepicker-config.js" />
-        <option value="$PROJECT_DIR$/static/css/styles.css" />
-        <option value="$PROJECT_DIR$/templates/administracion/base_administracion.html" />
-        <option value="$PROJECT_DIR$/templates/seguridad/base_seguridad.html" />
-        <option value="$PROJECT_DIR$/templates/seguridad/bienvenida.html" />
-        <option value="$PROJECT_DIR$/static/css/sb-admin-2.css" />
-        <option value="$PROJECT_DIR$/static/css/personal-styles.css" />
-        <option value="$PROJECT_DIR$/templates/base.html" />
-        <option value="$PROJECT_DIR$/templates/recursos/styles.html" />
-        <option value="$PROJECT_DIR$/templates/recursos/scripts.html" />
-        <option value="$PROJECT_DIR$/static/app/app.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/navegaciónController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/NavegaciónController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/NavegacionController.js" />
@@ -129,6 +104,28 @@
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/PedidosController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosPorFechaController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/StockDeProductosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/GruposDeProductosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/ProveedoresController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/ProductosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/ServiciosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/UnidadesDeMedidaController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/SolicitudDeCotizacionController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeCompraController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/OrdenDeServicioController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js" />
       </list>
     </option>
   </component>
@@ -163,7 +160,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
@@ -280,9 +276,36 @@
               <option name="myItemId" value="static" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="js" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controllers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="contabilidad" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="static" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="PackagesPane" />
     </panes>
   </component>
@@ -492,18 +515,16 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1845238" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.29166666" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899627" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39547038" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39033458" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -515,11 +536,13 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39547038" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
@@ -575,168 +598,12 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/GruposDeProductosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ProveedoresController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ProductosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ServiciosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/UnidadesDeMedidaController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/SolicitudDeCotizacionController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenDeCompraController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenDeServicioController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/js/controllers/OrdenDeCompraController.js" />
     <entry file="file://$PROJECT_DIR$/static/js/controllers/OrdenDeServicioController.js" />
     <entry file="file://$PROJECT_DIR$/static/js/controllers/NavegacionController.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="289">
           <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -744,7 +611,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="4" selection-end-line="2" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -752,7 +618,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="87" selection-start-line="1" selection-start-column="87" selection-end-line="1" selection-end-column="87" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -760,7 +625,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="87" selection-start-line="1" selection-start-column="87" selection-end-line="1" selection-end-column="87" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -768,7 +632,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
           <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -776,7 +639,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="38" selection-start-line="1" selection-start-column="38" selection-end-line="1" selection-end-column="38" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -784,7 +646,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="41" selection-start-line="1" selection-start-column="41" selection-end-line="1" selection-end-column="41" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -792,7 +653,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="37" selection-start-line="1" selection-start-column="37" selection-end-line="1" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -800,7 +660,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="42" selection-start-line="1" selection-start-column="42" selection-end-line="1" selection-end-column="42" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -808,7 +667,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -816,7 +674,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="4" selection-start-line="3" selection-start-column="4" selection-end-line="5" selection-end-column="6" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -824,15 +681,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/almacen/CargarInventarioInicialController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -840,7 +688,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="34" selection-start-line="1" selection-start-column="34" selection-end-line="1" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -848,7 +695,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -856,7 +702,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="39" selection-start-line="1" selection-start-column="13" selection-end-line="1" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -864,7 +709,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="39" selection-start-line="1" selection-start-column="39" selection-end-line="1" selection-end-column="39" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -872,7 +716,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="38" selection-start-line="1" selection-start-column="38" selection-end-line="1" selection-end-column="38" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -880,7 +723,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="19" selection-start-line="1" selection-start-column="19" selection-end-line="1" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -888,7 +730,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="37" selection-start-line="1" selection-start-column="37" selection-end-line="1" selection-end-column="37" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -896,7 +737,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="49" selection-start-line="1" selection-start-column="49" selection-end-line="1" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -904,7 +744,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -912,7 +751,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="34" selection-start-line="1" selection-start-column="34" selection-end-line="1" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -920,7 +758,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="42" selection-start-line="1" selection-start-column="42" selection-end-line="1" selection-end-column="42" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -928,7 +765,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -936,14 +772,197 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="17">
           <caret line="1" column="39" selection-start-line="1" selection-start-column="39" selection-end-line="1" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/almacen/CargarInventarioInicialController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/GruposDeProductosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ProveedoresController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ProductosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ServiciosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/UnidadesDeMedidaController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/SolicitudDeCotizacionController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenDeCompraController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenDeServicioController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="51" selection-start-line="1" selection-start-column="51" selection-end-line="1" selection-end-column="51" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/static/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="143" column="46" selection-start-line="143" selection-start-column="20" selection-end-line="143" selection-end-column="46" />
+        <state relative-caret-position="170">
+          <caret line="10" column="0" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
           <folding />
         </state>
       </provider>
