@@ -3,9 +3,10 @@
 <script src="{% static 'js/vendor/jquery.js' %}"></script>
 <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
 <script src="{% static 'js/vendor/chart.min.js' %}"></script>
-<script src="{% static 'js/vendor/chart-data.js' %}"></script>
 <script src="{% static 'js/vendor/easypiechart.js' %}"></script>
 <script src="{% static 'js/vendor/easypiechart-data.js' %}"></script>
+<script src="{% static 'js/vendor/chart-data.js' %}"></script>
+
 <script src="{% static 'js/vendor/bootstrap-datepicker.js' %}"></script>
 <script src="{% static 'js/vendor/calendar-datepicker-config.js' %}"></script>
 <script src="{% static 'js/vendor/jquery-ui.js' %}"></script>
@@ -27,15 +28,70 @@
 <!--Personal-->
 <script src="{% static 'js/personal/datepicker-regional.js' %}"></script>
 <!--Icons-->
-<script src="{% static 'js/lumino.glyphs.js' %}"></script>
+<script src="{% static 'js/vendor/lumino.glyphs.js' %}"></script>
 <!--[if lt IE 9]>
-<script src="js/html5shiv.js"></script>
-<script src="js/respond.min.js"></script>
+<script src="js/vendor/html5shiv.js"></script>
+<script src="js/vendor/respond.min.js"></script>
 <![endif]-->
 <!--Configuración de la aplicación angular-->
+<script src="{% static 'js/app.js' %}"></script>
 <!--Values-->
 <!--Servicios-->
 <!--Servicios-->
 <!--Filters-->
 <!--Controllers-->
+<script src="{% static 'js/controllers/NavegacionController.js' %}"></script>
+
+<script src="{% static 'js/controllers/administracion/AdministracionController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/MaestroNivelesAprobacionController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/MaestroOficinasController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/MaestroProfesionesController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/MaestroPuestosController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/MaestroTrabajadoresController.js' %}"></script>
+
+<script src="{% static 'js/controllers/almacen/AlmacenController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/AlmacenesController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/TiposMovimientosController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/CargarInventarioInicialController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/CrearPedidoController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/AprobacionPedidosController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/RegistrarIngresoController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/RegistrarSalidaController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/KardexController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/KardexProductoController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/ConsolidadoKardexProductosController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/ConsolidadoKardexGruposController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/MovimientosController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/PedidosController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/MovimientosPorFechaController.js' %}"></script>
+<script src="{% static 'js/controllers/almacen/StockDeProductosController.js' %}"></script>
+
+<script src="{% static 'js/controllers/compras/ComprasController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/GruposDeProductosController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/ProveedoresController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/ProductosController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/ServiciosController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/UnidadesDeMedidaController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/SolicitudDeCotizacionController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/OrdenDeCompraController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/OrdenDeServicioController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/ConformidadServiciosController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/CotizacionesController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/OrdenesDeCompraController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/OrdenesDeServicioController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/ConformidadesDeServicioController.js' %}"></script>
+<script src="{% static 'js/controllers/compras/OrdenesDeCompraPorFechaController.js' %}"></script>
+
+<script src="{% static 'js/controllers/contabilidad/ContabilidadController.js' %}"></script>
+<script src="{% static 'js/controllers/contabilidad/ConfiguracionController.js' %}"></script>
+<script src="{% static 'js/controllers/contabilidad/CuentasContablesController.js' %}"></script>
+<script src="{% static 'js/controllers/contabilidad/FormasDePagoController.js' %}"></script>
+<script src="{% static 'js/controllers/contabilidad/ImpuestosController.js' %}"></script>
+<script src="{% static 'js/controllers/contabilidad/TiposDeDocumentosController.js' %}"></script>
+
+<script src="{% static 'js/controllers/requerimientos/RequerimientosController.js' %}"></script>
+<script src="{% static 'js/controllers/requerimientos/RequerimientoController.js' %}"></script>
+<script src="{% static 'js/controllers/requerimientos/AprobacionRequerimientosController.js' %}"></script>
+<script src="{% static 'js/controllers/requerimientos/RequerimientosRequerimientosController.js' %}"></script>
+
 <!--Directives-->

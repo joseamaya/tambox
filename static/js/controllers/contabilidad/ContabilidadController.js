@@ -1,4 +1,4 @@
-angular.module("TamboApp")
+angular.module("TamboxApp")
 .controller("ContabilidadController",["$scope","$routeSegment",function($scope,$routeSegment){
 
     $scope.rutaEsConfiguracion=function(){

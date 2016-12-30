@@ -1,4 +1,4 @@
-angular.module("TampoxApp",["ngRoute","route-segment","view-segment"]);
+angular.module("TamboxApp",["ngRoute","route-segment","view-segment"]);
 
 angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",function($routeSegmentProvider,$routeProvider){
 
