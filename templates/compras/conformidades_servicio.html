@@ -26,18 +26,20 @@
 			<thead>
 				<tr>
 					<th class="text-center">CÓDIGO</th>
+					<th class="text-center">PROVEEDOR</th>
 					<th class="text-center">ORD. SERVICIOS</th>
 					<th class="text-center">FECHA</th>														
 				</tr>
 			</thead>
 			<tbody>
 			{% for conformidad in conformidades %}
-				{% if perms.compras.ver_detalle_conformidad %}
+				{% if perms.compras.ver_detalle_conformidad_servicio %}
 				<tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformidad.pk %}';">
 				{% else %}
 				<tr>
 				{% endif %}
 					<td>{{ conformidad.codigo }}</td>
+					<td>{{ conformidad.orden_servicios.cotizacion.proveedor }}</td>
 					<td>{{ conformidad.orden_servicios }}</td>
 					<td>{{ conformidad.fecha|date:"d/m/y" }}</td>														
 				</tr>

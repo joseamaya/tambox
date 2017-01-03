@@ -11,7 +11,7 @@ from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios,\
     EliminarGrupoProductos, EliminarProducto, EliminarServicio,\
     CargarGrupoProductos, ListadoProductosPorGrupo, ConsultaStockProducto
 
-urlpatterns = [
+urlpatterns = [   
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^unidades_medida/$',login_required(ListadoUnidadesMedida.as_view()), name="unidades_medida"),
     url(r'^servicios/$',login_required(ListadoServicios.as_view()), name="servicios"),

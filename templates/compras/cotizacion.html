@@ -51,7 +51,7 @@
 			<div class="form-group">
 				{% if object %}
 				<div class="row">
-					<div class="col-md-3">
+					<div class="col-md-2">
 						<label>CODIGO:</label>
 						{% if form.codigo.errors %}
 							{% for error in form.codigo.errors %}
@@ -63,7 +63,7 @@
 							</div>
 					        {% endfor %}
 					    {% endif %}
-						{{ form.codigo }}
+						<p>{{ object.codigo }}</p>
 					</div>														
 				</div>
 				{% endif %}
@@ -146,7 +146,7 @@
 					</div>
 					<div class="col-md-3">	
 						<label>Busq. de Requerimiento:</label>
-						<button id="transferencia_requerimiento" class="btn btn-info btn-block">
+						<button id="id_transferencia_requerimiento" class="btn btn-info btn-block">
 							<span class="glyphicon glyphicon-search">BUSCAR</span>
 						</button>
 					</div>
@@ -264,7 +264,7 @@ $(document).ready(function()
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
-	      data: {'razon_social': $("#razon_social").val()},
+	      data: {'razon_social': $("#id_razon_social").val()},
 	      success: function( data ) 
 	      {
 	          response( data );
@@ -274,6 +274,8 @@ $(document).ready(function()
 	  minLength: 2,
 	  select: function( event, ui ) {
 		$("#id_ruc").val(ui.item.ruc);
+		$("#id_razon_social").val(ui.item.label);
+		$("#id_direccion").val(ui.item.direccion);
 		return false;
 	  },
 	});
@@ -296,7 +298,7 @@ $(document).ready(function()
 		}
 	});
 	
-	$('#transferencia_requerimiento').click(function(e)
+	$('#id_transferencia_requerimiento').click(function(e)
 	{
 	    e.preventDefault();
 	    ventana_transferencia = $('#popup').dialog(

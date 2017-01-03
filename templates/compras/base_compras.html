@@ -57,7 +57,10 @@
 			    	{% endif %}			    	
 			    	{% if perms.compras.ver_reporte_ordenes_compra_excel %}
 			    	<li><a href="{% url 'compras:reporte_ordenes_compra_fecha' %}">Ordenes de Compra por Fecha</a></li>
-			    	{% endif %} 	            
+			    	{% endif %} 	
+			    	{% if perms.compras.ver_reporte_ordenes_servicios_excel %}
+			    	<li><a href="{% url 'compras:reporte_ordenes_servicios_fecha' %}">Ordenes de Servicios por Fecha</a></li>
+			    	{% endif %}            
 				</ul>
 		    </li>
     	</ul>	               

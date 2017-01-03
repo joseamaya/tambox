@@ -2,35 +2,59 @@
 {% block cuerpo %}
 <h3>Órdenes de Servicios / {{ object.pk }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'compras:orden_servicios_pdf' object.pk %}';">Ver PDF</button>
+	<div class="col-lg-5">
+		{% if perms.compras.add_ordenservicio %} 
+			<a href="{% url 'compras:crear_orden_servicios' %}" class="btn btn-primary">Crear</a>
+		{% endif %}
 		{% if object.estado == "PEND" %}
 			{% if perms.compras.change_ordenservicios %} 
 				<a class="btn btn-primary" href="{% url 'compras:modificar_orden_servicios' object.pk %}">Editar </a>			
 			{% endif %}
 		{% endif %}
-		{% if perms.compras.delete_ordenservicios %}
-			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+		{% if object.estado == "PEND" %}
+			{% if perms.compras.delete_ordenservicios %}
+				<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+			{% endif %}
 		{% endif %}		
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  	<li>
+				<a href="{% url 'compras:listado_conformidades_orden_servicios' object.pk %}">
+					<span class="fa fa-building"></span> 
+					Conformidades
+				</a>
+			</li>
+		    <li>
+				<a href="{% url 'compras:orden_servicios_pdf' object.pk %}">
+					<span class="fa fa-print"></span> 
+					Imprimir  
+				</a>
+			</li>		    		    
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_orden_servicios' object.anterior %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:detalle_orden_servicios' object.anterior %}';">
 				<span class="glyphicon glyphicon-step-backward"></span>
 			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_orden_servicios' object.siguiente %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:detalle_orden_servicios' object.siguiente %}';">
 				<span class="glyphicon glyphicon-step-forward"></span>
 			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:ordenes_servicios' %}';">
+			<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:ordenes_servicios' %}';">
 				<span class="glyphicon glyphicon-th-list"></span>
 			</button>
 		</div>
 	</div>
 </div>
 <hr />
+<div id="dialog-confirm" title="Eliminar Orden de Servicios"></div>
 <div class="panel panel-primary">	
 	<div class="panel-body">					
 		{% csrf_token %}
@@ -41,10 +65,19 @@
 					<p>{{ object.codigo }}</p>
 				</div>
 				<div class="col-md-2">
+					<label>Fecha Creación:</label> 
+					<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Mod:</label> 
+					<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
+				</div>
+				<div class="col-md-2">
 					<label>Estado:</label> 
 					<p>{{ object.get_estado_display }}</p>
 				</div>													
 			</div>
+			{% if object.cotizacion %}
 			<div class="row">
 				<div class="col-md-2">
 					<label>RUC:</label>  
@@ -59,6 +92,22 @@
 					<p>{{ object.cotizacion.proveedor.direccion }}</p>
 				</div>							
 			</div>
+			{% else %}
+			<div class="row">
+				<div class="col-md-2">
+					<label>RUC:</label>  
+					<p>{{ object.proveedor.ruc }}</p>
+				</div>
+				<div class="col-md-4">
+					<label>Razón Social:</label>  
+					<p>{{ object.proveedor.razon_social }}</p>
+				</div>
+				<div class="col-md-6">	
+					<label>DIRECCIÓN:</label>  
+					<p>{{ object.proveedor.direccion }}</p>
+				</div>							
+			</div>						
+			{% endif %}
 		</div>			
 		<div class="form-group">	
 			<div class="row">
@@ -85,6 +134,12 @@
 				<div class="col-md-3">	
 					<label>Proceso:</label>
 					<p>{{ object.proceso }}</p>
+				</div>
+				<div class="col-md-3">
+					<label>Informe:</label>				
+					{% if object.informe %} <a
+						href="{{ object.informe.url }}">Ver informe</a> 
+					{% endif %}
 				</div>							
 			</div>
 		</div>
@@ -179,7 +234,44 @@
 <script>
 $(document).ready(function() 
 {
+	$('#id_eliminar').click(function(e) {
+		e.preventDefault();
+		ventana = $("#dialog-confirm").dialog({
+			resizable : false,
+			height : 140,
+			modal : true,
+			buttons : {
+				"Borrar" : borrarOrdenServicios,
+				"Cancelar" : cerrarOrdenServicios
+			}
+		});
+	});
 	
+	function borrarOrdenServicios() 
+	{
+		$.ajax({
+			data : { 'codigo' : "{{ object.codigo }}" },
+			url : "{% url 'compras:eliminar_orden_servicios' %}",
+			type : 'get',
+			success : function(data) {
+				if (data.conformidades == 'NO')
+				{
+					alert("Orden de Servicios " + data.codigo + " eliminada");
+					$(location).attr('href', "{% url 'compras:detalle_orden_servicios' object.siguiente %}");
+				} 
+				else if (data.conformidades == 'SI') 
+				{
+					alert("Orden de Servicios " + data.descripcion + " no puede eliminarse");
+				}
+			}
+		});
+		ventana.dialog("close");
+	}
+
+	function cerrarOrdenServicios() {
+		ventana.dialog("close");
+	}
+
 });
 </script>
 {% endblock js %}

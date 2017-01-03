@@ -74,6 +74,14 @@
 				{% else %}
 				<p>NINGUNA</p>
 				{% endif %}
+			</div>
+			<div class="col-md-3">	
+				<label>Pedido:</label>
+				{% if object.pedido %}
+				<p><a href="{% url 'almacen:detalle_pedido' object.pedido.pk %}">{{ object.pedido }}</a></p>
+				{% else %}
+				<p>NINGUNO</p>
+				{% endif %}
 			</div>				
 		</div>
 		<div class="row">

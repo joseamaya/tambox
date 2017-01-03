@@ -13,7 +13,10 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     ModificarCotizacion, TransferenciaCotizacion, ObtenerDetalleCotizacion,\
     BusquedaCotizacion, DetalleOperacionCotizacion, DetalleOperacionOrdenCompra, DetalleOperacionOrdenServicios,\
     ReportePDFSolicitudCotizacion, ListadoOrdenesCompraPorCotizacion    ,\
-    BusquedaProveedoresRUC
+    BusquedaProveedoresRUC, ListadoOrdenesServiciosPorCotizacion,\
+    ListadoMovimientosPorOrdenCompra, ListadoConformidadesPorOrdenServicios,\
+    ReporteExcelOrdenesServiciosFecha, EliminarCotizacion,\
+    EliminarOrdenServicios
 
 urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -23,6 +26,7 @@ urlpatterns = [
     url(r'^conformidades_servicio/$', login_required(ListadoConformidadesServicio.as_view()), name="conformidades_servicio"),
     url(r'^listado_cotizaciones/$',login_required(ListadoCotizaciones.as_view()), name="listado_cotizaciones"),
     url(r'^listado_ordenes_compra_cotizacion/(?P<cotizacion>.+)/$',login_required(ListadoOrdenesCompraPorCotizacion.as_view()), name="listado_ordenes_compra_cotizacion"),
+    url(r'^listado_ordenes_servicios_cotizacion/(?P<cotizacion>.+)/$',login_required(ListadoOrdenesServiciosPorCotizacion.as_view()), name="listado_ordenes_servicios_cotizacion"),
     url(r'^crear_proveedor/$',login_required(CrearProveedor.as_view()), name="crear_proveedor"),
     url(r'^crear_orden_compra/$',login_required(CrearOrdenCompra.as_view()), name="crear_orden_compra"),
     url(r'^crear_orden_servicios/$',login_required(CrearOrdenServicios.as_view()), name="crear_orden_servicios"),
@@ -30,7 +34,7 @@ urlpatterns = [
     url(r'^crear_detalle_orden_compra/$', login_required(CrearDetalleOrdenCompra.as_view()), name="crear_detalle_orden_compra"),
     url(r'^crear_detalle_orden_servicios/$', login_required(CrearDetalleOrdenServicios.as_view()), name="crear_detalle_orden_servicios"),
     url(r'^crear_cotizacion/$',login_required(CrearCotizacion.as_view()), name="crear_cotizacion"),
-    url(r'^crear_detalle_cotizacion/$',login_required(CrearDetalleCotizacion.as_view()), name="crear_detalle_cotizacion"),    
+    url(r'^crear_detalle_cotizacion/$',login_required(CrearDetalleCotizacion.as_view()), name="crear_detalle_cotizacion"),
     url(r'^cargar_proveedores/$',login_required(CargarProveedores.as_view()), name="cargar_proveedores"),
     url(r'^modificar_proveedor/(?P<pk>.+)/$', login_required(ModificarProveedor.as_view()), name="modificar_proveedor"),
     url(r'^modificar_orden_compra/(?P<pk>.+)/$', login_required(ModificarOrdenCompra.as_view()), name="modificar_orden_compra"),
@@ -50,13 +54,18 @@ urlpatterns = [
     url(r'^detalle_cotizacion/(?P<pk>.+)/$', login_required(DetalleOperacionCotizacion.as_view()), name="detalle_cotizacion"),
     url(r'^detalle_orden_compra/(?P<pk>.+)/$', login_required(DetalleOperacionOrdenCompra.as_view()), name="detalle_orden_compra"),
     url(r'^detalle_orden_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionOrdenServicios.as_view()), name="detalle_orden_servicios"),
-    url(r'^detalle_conformidad_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionConformidadServicios.as_view()), name="detalle_conformidad_servicios"),    
+    url(r'^detalle_conformidad_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionConformidadServicios.as_view()), name="detalle_conformidad_servicios"),
+    url(r'^listado_movimientos_orden_compra/(?P<orden>.+)/$',login_required(ListadoMovimientosPorOrdenCompra.as_view()), name="listado_movimientos_orden_compra"),
+    url(r'^listado_conformidades_orden_servicios/(?P<orden>.+)/$',login_required(ListadoConformidadesPorOrdenServicios.as_view()), name="listado_conformidades_orden_servicios"),
     url(r'^orden_compra_pdf/(?P<pk>.+)/$', login_required(ReportePDFOrdenCompra.as_view()), name="orden_compra_pdf"),
     url(r'^orden_servicios_pdf/(?P<codigo>.+)/$', login_required(ReportePDFOrdenServicios.as_view()), name="orden_servicios_pdf"),
     url(r'^ver_memorando_conformidad_servicio/(?P<codigo>.+)/$', login_required(ReportePDFMemorandoConformidadServicio.as_view()), name="ver_memorando_conformidad_servicio"),
     url(r'^cotizacion_pdf/(?P<codigo>.+)/$', login_required(ReportePDFSolicitudCotizacion.as_view()), name="cotizacion_pdf"),
     url(r'^maestro_proveedores_excel/$',login_required(ReporteExcelProveedores.as_view()), name="maestro_proveedores_excel"),
     url(r'^reporte_ordenes_compra_fecha/$', login_required(ReporteExcelOrdenesCompraFecha.as_view()), name="reporte_ordenes_compra_fecha"),
+    url(r'^reporte_ordenes_servicios_fecha/$', login_required(ReporteExcelOrdenesServiciosFecha.as_view()), name="reporte_ordenes_servicios_fecha"),
     url(r'^eliminar_orden_compra/$',login_required(EliminarOrdenCompra.as_view()), name="eliminar_orden_compra"),
-    url(r'^eliminar_proveedor/$',login_required(EliminarProveedor.as_view()), name="eliminar_proveedor"),    
+    url(r'^eliminar_orden_servicios/$',login_required(EliminarOrdenServicios.as_view()), name="eliminar_orden_servicios"),
+    url(r'^eliminar_cotizacion/$',login_required(EliminarCotizacion.as_view()), name="eliminar_cotizacion"),
+    url(r'^eliminar_proveedor/$',login_required(EliminarProveedor.as_view()), name="eliminar_proveedor"),
 ]

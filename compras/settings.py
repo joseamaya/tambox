@@ -1,6 +1,19 @@
 # -*- coding: utf-8 -*-
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
+from contabilidad.models import Configuracion, Empresa
+
+try:
+    CONFIGURACION = Configuracion.objects.first()
+    IMPUESTO_COMPRA = CONFIGURACION.impuesto_compra
+except:
+    CONFIGURACION = None
+    IMPUESTO_COMPRA = None
+
+try:
+    EMPRESA = Empresa.load()
+except:
+    EMPRESA = None
 
 PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
@@ -23,4 +36,4 @@ CHOICES_ESTADO_COTIZ = Choices(('PEND', _('PENDIENTE')),
                                ('ELEG', _('ELEGIDA')),
                                ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
                                ('DESC', _('DESCARTADA')),
-                               ('CANC', _('CANCELADO')),)
+                               ('CANC', _('CANCELADO')), )

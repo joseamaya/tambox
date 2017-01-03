@@ -14,7 +14,7 @@ import csv
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import os
-from administracion.forms import UploadForm
+from contabilidad.forms import UploadForm
 from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm,\
@@ -154,15 +154,12 @@ class CargarProductos(FormView):
                 tipo_existencia = TipoExistencia.objects.get(codigo_sunat = fila[5].strip())
             except:
                 return HttpResponseRedirect(reverse('contabilidad:tablero'))
-            try:
-                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
-                                                                  defaults={'unidad_medida' : und,
-                                                                            'grupo_productos' : grupo,
-                                                                            'precio' : precio,
-                                                                            'tipo_existencia': tipo_existencia,
-                                                                            'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})
-            except:
-                pass
+            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
+                                                              defaults={'unidad_medida' : und,
+                                                                        'grupo_productos' : grupo,
+                                                                        'precio' : precio,
+                                                                        'tipo_existencia': tipo_existencia,
+                                                                        'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})           
         return HttpResponseRedirect(reverse('productos:productos'))  
     
 class ConsultaStockProducto(TemplateView):

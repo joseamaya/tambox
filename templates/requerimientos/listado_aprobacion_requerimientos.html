@@ -48,7 +48,7 @@
 							{% for aprobacion in aprobacion_requerimientos %}
 								<tr>
 									<td>{{ aprobacion.requerimiento }}</td>
-									<td>{{ aprobacion.get_estado_display }}</td>
+									<td>{{ aprobacion.nivel }}</td>
 									<td class="text-center">
 										<a class="btn btn-small" href="{% url 'requerimientos:aprobar_requerimiento' aprobacion.pk %}">
 							                <span class="glyphicon glyphicon-ok"></span>
