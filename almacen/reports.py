@@ -3,7 +3,6 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
-from contabilidad.models import Empresa, Configuracion
 from django.conf import settings
 import os
 from reportlab.platypus import Table
@@ -12,13 +11,7 @@ from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer
 from io import BytesIO
 from almacen.models import DetalleMovimiento
-from reportlab.rl_config import defaultPageSize
-from reportlab.lib.units import inch
-
-try:
-    empresa = Empresa.load()
-except:
-    empresa = None
+from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA
 
 class ReporteMovimiento():
     
@@ -38,7 +31,7 @@ class ReporteMovimiento():
                             fontSize = 14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50,hAlign='LEFT')
         except:
             imagen = Paragraph(u"LOGO", sp)
@@ -81,10 +74,21 @@ class ReporteMovimiento():
             orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)            
         except:
             orden_compra = Paragraph(u"REFERENCIA: -",izquierda)
+        try:
+            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
+                                  izquierda)
+        except:
+            documento = ""
+        try:
+            pedido = Paragraph(u"PEDIDO: "+movimiento.pedido.codigo, izquierda)
+        except:
+            pedido = ""        
         encabezado = [[operacion,''],
                       [almacen,''],
                       [proveedor,''],
-                      [orden_compra,'']]
+                      [orden_compra,''],
+                      [documento,''],
+                      [pedido,'']]
         tabla_datos = Table(encabezado,colWidths=[11 * cm, 9 * cm])
         tabla_datos.setStyle(TableStyle(
             [                
@@ -167,11 +171,8 @@ class ReporteMovimiento():
                             alignment = TA_CENTER,
                             fontSize = 8,
                             fontName="Times-Roman")
-        configuracion = Configuracion.objects.first()
-        oficina_administracion = configuracion.administracion
-        logistica = configuracion.logistica
-        nombre_oficina_administracion = Paragraph(oficina_administracion.nombre,izquierda)
-        nombre_oficina_logistica = Paragraph(logistica.nombre,izquierda)
+        nombre_oficina_administracion = Paragraph(OFICINA_ADMINISTRACION.nombre,izquierda)
+        nombre_oficina_logistica = Paragraph(LOGISTICA.nombre,izquierda)
         if movimiento.tipo_movimiento.incrementa:            
             total = [[nombre_oficina_administracion,'', nombre_oficina_logistica]]
             tabla_firmas = Table(total,colWidths=[7 * cm,4 * cm,7 * cm])
@@ -201,7 +202,7 @@ class ReporteMovimiento():
     def pie_pagina(self, canvas, doc):
         canvas.saveState()
         canvas.setFont('Times-Roman',10)
-        canvas.drawCentredString(300, 20,empresa.direccion())
+        canvas.drawCentredString(300, 20, EMPRESA.direccion())
         canvas.restoreState()
     
     def imprimir(self):

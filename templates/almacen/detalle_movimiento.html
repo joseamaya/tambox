@@ -2,14 +2,29 @@
 {% block cuerpo %}
 <h3>Movimientos / {{ object.pk }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'almacen:movimiento_pdf' object.pk %}';">Ver PDF</button>
+	<div class="col-lg-5">
 		<a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a> 
 		{% if perms.almacen.delete_movimiento %}
 			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
 		{% endif %}
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  	<li>
+				<a href="{% url 'almacen:movimiento_pdf' object.pk %}">
+					<span class="fa fa-print"></span> 
+					Imprimir  
+				</a>
+			</li>		    		    
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
 				onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.anterior %}';">

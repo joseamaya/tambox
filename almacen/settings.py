@@ -36,6 +36,7 @@ MESES = (
 )
 
 FORMATOS = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
+SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
 try:
     CHOICES_TIPOS_MOVIMIENTO = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
 except:
@@ -52,3 +53,5 @@ try:
     CHOICES_ANNIOS = [(anio.year, anio.year) for anio in Kardex.objects.datetimes('fecha_operacion', 'year')]
 except:
     CHOICES_ANNIOS = []
+    
+CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))

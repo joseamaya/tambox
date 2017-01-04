@@ -14,7 +14,7 @@ try:
     EMPRESA = Empresa.load()
 except:
     EMPRESA = None
-
+    
 PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
 MESES = (
@@ -36,4 +36,4 @@ CHOICES_ESTADO_COTIZ = Choices(('PEND', _('PENDIENTE')),
                                ('ELEG', _('ELEGIDA')),
                                ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
                                ('DESC', _('DESCARTADA')),
-                               ('CANC', _('CANCELADO')), )
+                               ('CANC', _('CANCELADO')),)

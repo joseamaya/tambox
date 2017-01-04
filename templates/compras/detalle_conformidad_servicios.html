@@ -26,6 +26,7 @@
 	</div>
 </div>
 <hr />
+<div id="dialog-confirm" title="Eliminar Conformidad Servicios"></div>
 <div class="panel panel-primary">	
 	<div class="panel-body">					
 		{% csrf_token %}
@@ -120,117 +121,37 @@
 <script>
 $(document).ready(function() 
 {
-	var mySpinner = null;
-	var contDetalles=parseInt($('#cdetalles').val());
-	var ultimo_item = parseInt($('#cdetalles').val());
-	var subtotal=parseFloat($('#id_subtotal').val());
-	var total=subtotal;
-	$("#id_fecha").datepicker();
-	$(".entero").keydown(validar_numeros);
-	
-	$('#transferencia_orden_servicios').click(function(e)
-	{
-	    e.preventDefault();
-	    $('#transferencia_orden_servicios').prop("disabled", true );
-		ventana_transferencia = $('#popup').dialog(
-		{
-			title: "Transferencia de Orden de Servicios",
-			width: 950,
-			open: function ()
-	        {
-				var url="{% url 'compras:transferencia_orden_servicios' %}";
-	            $(this).load(url);
-	        },
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": transferirOrdenServicios,
-	          "Cancelar": cerrarTransferenciaOrdenServicios
-	        }
-		}).dialog('open').load(this.href)
- 	});
-	
-	function transferirOrdenServicios()
-	{		
-		var orden_servicios = $("#id_orden_servicios").val();
-		var cont = 0;
-		ventana_transferencia.dialog("close");
-		$.ajax({
-			data : {'orden_servicios': orden_servicios},
-			url : "{% url 'compras:obtener_detalle_orden_servicios' %}",
-			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					cont = i+1;
-					$("#detalles tbody").append( 
-					"<tr>" +
-				  	"<input type='hidden'name='detalle_orden_compra"+cont+"' id='detalle_orden_compra"+cont+"' value='" + item.codigo_detalle + "'/>"+
-				  	"<td><input class='form-control decimal' type='numeric' size=1 name='cantidad"+cont+"' id='cantidad"+cont+"' value='" + item.cantidad + "'/></td>" +
-				  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='servicio"+cont+"' id='servicio"+cont+"' value='" + item.nombre_servicio + "'/></td>" +
-				  	"<td><input class='form-control' type='text' size=50 readonly='readonly' name='descripcion"+cont+"' id='descripcion"+cont+"' value='" + item.descripcion_servicio + "'/></td>" +				  	
-				  	"<td><input class='precio decimal form-control' type='numeric' size=5 name='precio"+cont+"' id='precio"+cont+"' value='" + item.precio + "'/></td>" +
-				  	"<td><input class='valor decimal form-control' type='numeric' size=5 name='valor"+cont+"' id='valor"+cont+"' value='" + item.valor + "'/></td>" +				  	
-					"</tr>");	
-					subtotal=subtotal+parseFloat(item.valor);					
-				});
-				contDetalles = cont;
-				ultimo_item = cont;
-				total = subtotal;
-				$("#id_subtotal").val(subtotal.toFixed(5));
-				$("#id_igv").val(0);
-				$("#id_total").val(total.toFixed(5));
-				$("#id_total_letras").val(NumeroALetras(total));
-				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(observaciones);
+	$('#id_eliminar').click(function(e) {
+		e.preventDefault();
+		ventana = $("#dialog-confirm").dialog({
+			resizable : false,
+			height : 140,
+			modal : true,
+			buttons : {
+				"Borrar" : borrarConformidad,
+				"Cancelar" : cerrarBorrarConformidad
 			}
 		});
-	}
-	
-	function cerrarTransferenciaOrdenServicios()
-	{
-		ventana_transferencia.dialog("close");
-	}
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		$('#cdetalles').val(ultimo_item);
-		var fecha = $('#id_fecha').val().trim();
-		var orden_servicios = $('#id_orden_servicios').val().trim();
-		var doc_sustento = $('#id_doc_sustento').val().trim();
-		if(fecha != '')
-		{					
-			if(orden_servicios != '')
-			{
-				if(doc_sustento != '')
-				{
-					if (contDetalles > 0)
-					{
-						return			
-					}
-					else
-					{
-						alert("No ha ingresado ningún detalle");	
-					}
-				}
-				else
-				{
-					alert("No ha ingresado el documento de sustento");	
-				}
-			}
-			else
-			{
-				alert("No ha ingresado tiempo de entrega");
-			}
-		}
-		else
-		{
-			alert("No ha seleccionado fecha");
-		}
-		event.preventDefault();
 	});
+	
+	function borrarConformidad() 
+	{
+		$.ajax({
+			data : { 'codigo' : "{{ object.codigo }}" },
+			url : "{% url 'compras:eliminar_conformidad_servicio' %}",
+			type : 'get',
+			success : function(data) {
+				alert("Conformidad " + data.codigo + " eliminada");
+				$(location).attr('href', "{% url 'compras:detalle_conformidad_servicios' object.siguiente %}");				
+			}
+		});
+		ventana.dialog("close");
+	}
+
+	function cerrarBorrarConformidad() {
+		ventana.dialog("close");
+	}
+
 });
 </script>
 {% endblock js %}

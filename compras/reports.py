@@ -3,7 +3,6 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
-from contabilidad.models import Empresa
 from django.conf import settings
 import os
 from reportlab.platypus import Table
@@ -14,12 +13,8 @@ from io import BytesIO
 from compras.models import DetalleOrdenCompra
 from django.utils.encoding import smart_str
 from reportlab.graphics.shapes import Line, Drawing
+from compras.settings import EMPRESA
 
-try:
-    empresa = Empresa.load()
-except:
-    empresa = None
- 
 class ReporteOrdenCompra():
     
     def __init__(self, pagesize, orden_compra):
@@ -38,14 +33,14 @@ class ReporteOrdenCompra():
                             fontSize = 14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(empresa.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50,hAlign='LEFT')
         except:
             imagen = Paragraph(u"LOGO", sp)
         
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
-        ruc = Paragraph("R.U.C."+empresa.ruc, sp)
-        encabezado = [[imagen,nro,ruc],['',u"N°"+orden_compra.codigo,empresa.distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
+        ruc = Paragraph("R.U.C."+EMPRESA.ruc, sp)
+        encabezado = [[imagen,nro,ruc],['',u"N°"+orden_compra.codigo,EMPRESA.distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado,colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
@@ -152,7 +147,7 @@ class ReporteOrdenCompra():
         igv = Paragraph(u"IGV: ",p)
         total = Paragraph(u"TOTAL: ",p)
         datos_otros = [[ Paragraph(u"LUGAR DE ENTREGA",p),  Paragraph(u"PLAZO DE ENTREGA",p),  Paragraph(u"FORMA DE PAGO",p),sub_total,orden.subtotal],
-                       [Paragraph(empresa.direccion(),p),Paragraph(u"INMEDIATA",p),Paragraph(orden.forma_pago.descripcion,p),igv,str(orden.igv)],
+                       [Paragraph(EMPRESA.direccion(),p),Paragraph(u"INMEDIATA",p),Paragraph(orden.forma_pago.descripcion,p),igv,str(orden.igv)],
                        ['','','',total,str(orden.total)],
                        ]
         tabla_otros = Table(datos_otros,colWidths=[5.5 * cm, 5 * cm, 5 * cm, 2 * cm, 2.5 * cm])
@@ -201,8 +196,8 @@ class ReporteOrdenCompra():
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
                           Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + smart_str(empresa.razon_social),p),
-                          Paragraph("El " + smart_str(empresa.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + smart_str(EMPRESA.razon_social),p),
+                          Paragraph("El " + smart_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""",p),
                           Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""",p)

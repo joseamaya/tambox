@@ -63,4 +63,4 @@ class ServicioForm(forms.ModelForm):
             
     class Meta:
         model = Producto
-        fields =['descripcion','grupo_productos']        
+        fields =['descripcion','grupo_productos', 'precio']        

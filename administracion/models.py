@@ -4,13 +4,14 @@ from django.utils.encoding import smart_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
 from administracion.querysets import NavegableQuerySet
-
+from simple_history.models import HistoricalRecords
 
 # Create your models here.
 class Profesion(TimeStampedModel):
     abreviatura = models.CharField(max_length=7)
     descripcion = models.CharField(max_length=30)
     estado = models.BooleanField(default=True)
+    history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
@@ -42,6 +43,7 @@ class Trabajador(TimeStampedModel):
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     estado = models.BooleanField(default=True)
+    history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def nombre_completo(self):
@@ -83,6 +85,7 @@ class Oficina(TimeStampedModel):
     es_gerencia = models.BooleanField(default=False)
     dependencia = models.ForeignKey('self', related_name='superior', null=True)
     estado = models.BooleanField(default=True)
+    history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
@@ -122,6 +125,7 @@ class Puesto(TimeStampedModel):
     es_jefatura = models.BooleanField(default=False)
     es_asistente = models.BooleanField(default=False)
     estado = models.BooleanField(default=True)
+    history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
@@ -174,6 +178,7 @@ class Puesto(TimeStampedModel):
 class NivelAprobacion(TimeStampedModel):
     descripcion = models.CharField(max_length=100)
     nivel_superior = models.ForeignKey('self', related_name='superior', null=True)
+    history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def __str__(self):

@@ -2,11 +2,16 @@
 <h3>Proveedores / {{ object.razon_social }}</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.compras.change_proveedor %} <a class="btn btn-primary"
+		{% if perms.compras.add_proveedor %} <a
+			href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">Crear</a>
+		{% endif %}
+		{% if perms.compras.change_proveedor %} 
+		<a class="btn btn-primary"
 			href="{% url 'compras:modificar_proveedor' object.pk %}"> Editar
-		</a> {% endif %} {% if perms.compras.delete_proveedor %}
-		<button class="btn btn-danger" type="button" id="id_eliminar">
-			Eliminar</button>
+		</a> 
+		{% endif %} 
+		{% if perms.compras.delete_proveedor %}
+		<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
 		{% endif %}
 	</div>
 	<div class="col-lg-2 text-right">
@@ -38,6 +43,9 @@
 			</div>
 			<div class="col-lg-7">
 				<h3>{{ object.razon_social }}</h3>
+				{% if object.es_locador %}
+				<p>ES LOCADOR</p>
+				{% endif %}
 			</div>
 			<div class="col-lg-3">
 				<div class="btn-group">

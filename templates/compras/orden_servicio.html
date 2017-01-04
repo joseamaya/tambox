@@ -47,8 +47,7 @@
 	    {% endif %}	
 		<div class="panel-body">					
 			{% csrf_token %}
-			<div class="form-group">
-				{{ form.impuesto }}
+			<div class="form-group">				
 				{% if object %}
 				<div class="row">
 					<div class="col-md-2">
@@ -374,11 +373,11 @@
 									
 								</td>
 								<td WIDTH="50">
-									IGV
+									IMPUESTO
 								</td>
 								<td>
-									{% if form.igv.errors %}
-										{% for error in form.igv.errors %}
+									{% if form.impuesto.errors %}
+										{% for error in form.impuesto.errors %}
 										<div class="alert alert-danger alert-dismissible" role="alert">							
 											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
@@ -387,7 +386,7 @@
 										</div>
 								        {% endfor %}
 								    {% endif %}
-									{{ form.igv }}
+									{{ form.impuesto }}
 								</td>
 								<td WIDTH="60">
 								</td>

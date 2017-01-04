@@ -3,7 +3,7 @@
 {% if object %}
 <h3>Proveedores / {{ object.razon_social }}</h3>
 {% else %}
-<h3>Productos / Nuevo</h3>
+<h3>Proveedores / Nuevo</h3>
 {% endif %}
 <form role="form" method="post">
 	{% csrf_token %}
@@ -60,6 +60,7 @@
 				        {% endfor %}
 				    {% endif %}
 					<h3>{{ form.razon_social }}</h3>
+					<p>ES LOCADOR: {{ form.es_locador }}</p>
 				</div>
 				<div class="col-lg-3">
 					<div class="btn-group">
@@ -199,6 +200,7 @@ $(document).ready(function()
 {
 	var mySpinner = null;	
 	$("#id_fecha_alta").datepicker();
+	$(".cantidad").keydown(validar_numeros);
 	
 	function setupLoading() 
 	{    

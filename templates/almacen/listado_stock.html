@@ -19,7 +19,6 @@
 			<table id="tabla" class="table table-striped table-bordered" cellspacing="0" width="100%">
 				<thead>
 					<tr>
-						<th class="text-center">ALMACÉN</th>
 						<th class="text-center">CODIGO</th>
 						<th class="text-center">DESCRIPCIÓN</th>
 						<th class="text-center">UNIDAD</th>
@@ -29,11 +28,10 @@
 				<tbody>
 				{% for producto in productos %}
 					<tr>				
-						<td>{{ producto.almacen }}</td>
 						<td>{{ producto.producto.codigo }}</td>
 						<td>{{ producto.producto.descripcion }}</td>
 						<td>{{ producto.producto.unidad_medida.codigo }}</td>
-						<td>{{ producto.stock  }}</td>					
+						<td>{{ producto.producto.stock  }}</td>					
 					</tr>
 				{% endfor %}
 				</tbody>

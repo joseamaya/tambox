@@ -150,6 +150,7 @@
 					<thead>
 						<tr>
 							<th>CANTIDAD</th>
+							<th>CANT. CONF.</th>
 							<th>SERVICIO</th>
 							<th>UNIDAD</th>											
 							<th>PRECIO</th>
@@ -161,6 +162,7 @@
 							{% for detalle in object.detalleordenservicios_set.all %}
 							<tr>
 								<td>{{ detalle.cantidad }}</td>
+								<td>{{ detalle.cantidad_conforme }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>									  		
 						  		<td>{{ detalle.precio }}</td>
@@ -182,7 +184,7 @@
 								<td colspan="5"></td>
 							</tr>
 							<tr>
-								<td colspan="3">
+								<td colspan="4">
 									SON: {{ object.total_letras }}
 								</td>
 								<td>
@@ -193,18 +195,18 @@
 								</td>
 							</tr>
 							<tr>
-								<td colspan="3">
+								<td colspan="4">
 									
 								</td>
 								<td>
-									IGV: 
+									IMPUESTO: 
 								</td>
 								<td>
-									{{ object.igv|floatformat:2 }}
+									{{ object.impuesto|floatformat:2 }}
 								</td>
 							</tr>
 							<tr>
-								<td colspan="3">
+								<td colspan="4">
 									
 								</td>
 								<td>

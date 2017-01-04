@@ -150,7 +150,20 @@
 							<span class="glyphicon glyphicon-search">BUSCAR</span>
 						</button>
 					</div>
-												
+					<div class="col-md-3">	
+						<label>Orden:</label>
+						{% if form.orden.errors %}
+							{% for error in form.orden.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.orden }}
+					</div>									
 				</div>
 			</div>
 			<hr />
@@ -276,7 +289,16 @@ $(document).ready(function()
 		$("#id_ruc").val(ui.item.ruc);
 		$("#id_razon_social").val(ui.item.label);
 		$("#id_direccion").val(ui.item.direccion);
-		return false;
+		if(ui.item.es_locador)
+		{		    		  
+			$("#id_orden").attr("readonly", false);
+			$("#id_orden").val(ui.item.orden);
+		}
+		else
+		{
+			$("#id_orden").attr("readonly", true);
+		}
+		event.preventDefault();
 	  },
 	});
 	
@@ -292,6 +314,14 @@ $(document).ready(function()
 		      {
 		    	  $("#id_razon_social").val(data.razon_social);
 		    	  $("#id_direccion").val(data.direccion);
+		    	  if(data.es_locador)
+		    	  {		    		  
+		    		  $("#id_orden").attr("readonly", false);
+		    		  $("#id_orden").val(data.orden);
+		    	  }
+		    	  else{
+		    		  $("#id_orden").attr("readonly", true);
+		    	  }
 		    	  event.preventDefault();
 		      }
 		    });

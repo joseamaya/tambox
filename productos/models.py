@@ -5,12 +5,15 @@ from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import smart_str
 from productos.querysets import NavegableQuerySet
+from simple_history.models import HistoricalRecords
+from django.db.models import Q
 
 class UnidadMedida(TimeStampedModel):
     codigo = models.CharField(max_length=5, unique=True)
     descripcion = models.CharField(max_length=50)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     class Meta:
         permissions = (('ver_detalle_unidad_medida', 'Puede ver detalle Unidad de Medida'),
@@ -36,6 +39,7 @@ class GrupoProductos(TimeStampedModel):
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     class Meta:
         permissions = (('cargar_grupo_productos', 'Puede cargar Grupos de Productos desde un archivo externo'),
@@ -75,12 +79,35 @@ class Producto(TimeStampedModel):
     marca = models.CharField(max_length=40,blank=True)
     modelo = models.CharField(max_length=40,blank=True)
     precio = models.DecimalField(max_digits=15, decimal_places=5, default=0)    
-    stock = models.DecimalField(max_digits=15, decimal_places=5,default=0) 
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     tipo_existencia = models.ForeignKey(TipoExistencia, null=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
+    
+    @property
+    def stock(self):
+        from almacen.models import Kardex, Almacen
+        stock = 0
+        almacenes = Almacen.objects.all()
+        for almacen in almacenes:
+            try:
+                control_producto = Kardex.objects.filter(producto = self,
+                                                         almacen=almacen).latest('fecha_operacion')
+                stock = stock + control_producto.cantidad_total
+            except:                
+                pass
+        return stock
+    
+    @property
+    def previsto(self):
+        from compras.models import DetalleOrdenCompra
+        cant_prevista = 0
+        detalles = DetalleOrdenCompra.objects.filter(Q(producto=self) | Q(detalle_cotizacion__detalle_requerimiento__producto=self))
+        for detalle in detalles:
+            cant_prevista = cant_prevista + detalle.cantidad
+        return cant_prevista
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),

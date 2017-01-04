@@ -10,7 +10,7 @@ from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ, OFICINA_A
     OPERACIONES
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
-
+from simple_history.models import HistoricalRecords
 
 class Requerimiento(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=12)
@@ -26,6 +26,7 @@ class Requerimiento(TimeStampedModel):
     entrega_directa_solicitante = models.BooleanField(default=False)
     STATUS = CHOICES_ESTADO_REQ
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    history = HistoricalRecords()
     objects = RequerimientoQuerySet.as_manager()
 
     class Meta:
@@ -137,18 +138,21 @@ class Requerimiento(TimeStampedModel):
 
     @staticmethod
     def obtener_requerimientos_visibles(self, usuario):
-        trabajador = usuario.trabajador
-        puesto_usuario = trabajador.puesto
-        oficina_usuario = puesto_usuario.oficina
-        if (((
-                     oficina_usuario == OFICINA_ADMINISTRACION or oficina_usuario == PRESUPUESTO) and puesto_usuario.es_jefatura) or
-                (oficina_usuario == LOGISTICA and (puesto_usuario.es_jefatura or puesto_usuario.es_asistente)) or
-                usuario.is_staff):
-            queryset = Requerimiento.objects.all()
-        elif puesto_usuario.es_jefatura:
-            queryset = Requerimiento.objects.requerimientos_oficina_usuario(oficina_usuario)
-        else:
-            queryset = Requerimiento.objects.requerimientos_activos_por_usuario(usuario, Requerimiento.STATUS.CANC)
+        try:
+            trabajador = usuario.trabajador
+            puesto_usuario = trabajador.puesto
+            oficina_usuario = puesto_usuario.oficina
+            if (((
+                         oficina_usuario == OFICINA_ADMINISTRACION or oficina_usuario == PRESUPUESTO) and puesto_usuario.es_jefatura) or
+                    (oficina_usuario == LOGISTICA and (puesto_usuario.es_jefatura or puesto_usuario.es_asistente)) or
+                    usuario.is_staff):
+                queryset = Requerimiento.objects.all()
+            elif puesto_usuario.es_jefatura:
+                queryset = Requerimiento.objects.requerimientos_oficina_usuario(oficina_usuario)
+            else:
+                queryset = Requerimiento.objects.requerimientos_activos_por_usuario(usuario, Requerimiento.STATUS.CANC)
+        except:
+            queryset = []
         return queryset
 
     @staticmethod
@@ -193,6 +197,7 @@ class DetalleRequerimiento(TimeStampedModel):
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = CHOICES_ESTADO_REQ
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    history = HistoricalRecords()
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Requerimiento'),)
@@ -238,6 +243,7 @@ class AprobacionRequerimiento(TimeStampedModel):
     estado = models.BooleanField(default=True)
     motivo_desaprobacion = models.TextField(default='')
     fecha_recepcion = models.DateField(null=True)
+    history = HistoricalRecords()
     history = HistoricalRecords()
     objects = AprobacionRequerimientoQuerySet.as_manager()
 

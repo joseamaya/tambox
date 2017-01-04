@@ -50,7 +50,7 @@
 		<div class="panel-body">					
 			{% csrf_token %}
 			<div class="form-group">
-				{{ form.impuesto }}
+				{{ form.impuesto_actual }}
 				{% if object %}
 				<div class="row">
 					<div class="col-md-2">
@@ -61,7 +61,17 @@
 				{% else %}
 				<div class="row">
 					<div class="col-md-2">
-						<label>CODIGO:</label>  
+						<label>CODIGO:</label>
+						{% if form.codigo.errors %}
+							{% for error in form.codigo.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}  
 						{{ form.codigo }}
 					</div>														
 				</div>
@@ -396,8 +406,8 @@
 									IGV
 								</td>
 								<td>
-									{% if form.igv.errors %}
-										{% for error in form.igv.errors %}
+									{% if form.impuesto.errors %}
+										{% for error in form.impuesto.errors %}
 										<div class="alert alert-danger alert-dismissible" role="alert">							
 											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 												<span aria-hidden="true">&times;</span>
@@ -406,7 +416,7 @@
 										</div>
 								        {% endfor %}
 								    {% endif %}
-									{{ form.igv }}
+									{{ form.impuesto }}
 								</td>
 								<td WIDTH="60">
 								</td>
@@ -467,10 +477,10 @@
 <script>
 $(document).ready(function() 
 {
-	var porc_impuesto = parseFloat($("#id_impuesto").val());
+	var porc_impuesto = parseFloat($("#id_impuesto_actual").val());
 	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
 	var subtotal=parseFloat($('#id_subtotal').val());
-	var impuesto_total = parseFloat($('#id_igv').val());
+	var impuesto_total = parseFloat($('#id_impuesto').val());
 	var total=parseFloat($('#id_total').val());
 	$("#id_fecha").datepicker();	
 	
@@ -526,7 +536,7 @@ $(document).ready(function()
 		subtotal = total - impuesto_total;
 		$(parent).remove();
 		$("#id_subtotal").val(subtotal.toFixed(2));
-		$("#id_igv").val(impuesto_total.toFixed(2));
+		$("#id_impuesto").val(impuesto_total.toFixed(2));
 		$("#id_total").val(total.toFixed(2));
 		$("#id_total_letras").val(NumeroALetras(total));
 		contDetalles = contDetalles - 1;
@@ -553,7 +563,7 @@ $(document).ready(function()
 			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
 			subtotal = total - impuesto_total;
 			$("#id_subtotal").val(subtotal.toFixed(2));
-			$("#id_igv").val(impuesto_total.toFixed(2));
+			$("#id_impuesto").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
 			$("#id_total_letras").val(NumeroALetras(total));
 		}
@@ -578,7 +588,7 @@ $(document).ready(function()
 			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
 			subtotal = total - impuesto_total;
 			$("#id_subtotal").val(subtotal.toFixed(2));
-			$("#id_igv").val(impuesto_total.toFixed(2));
+			$("#id_impuesto").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
 			$("#id_total_letras").val(NumeroALetras(total));
 		}
@@ -717,7 +727,7 @@ $(document).ready(function()
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
 				$("#id_referencia").val(cotizacion);				
 				$("#id_subtotal").val(subtotal.toFixed(2));
-				$("#id_igv").val(impuesto_total.toFixed(2));
+				$("#id_impuesto").val(impuesto_total.toFixed(2));
 				$("#id_total").val(total.toFixed(2));
 				$("#id_total_letras").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);

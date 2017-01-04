@@ -73,6 +73,14 @@
 					<label>CODIGO:</label>  
 					<p>{{ object.codigo }}</p>
 				</div>
+				<div class="col-md-2">
+					<label>Fecha Creación:</label> 
+					<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Mod:</label> 
+					<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
+				</div>
 				<div class="col-md-4">
 					<label>Estado:</label> 
 					<p>{{ object.get_estado_display }}</p>

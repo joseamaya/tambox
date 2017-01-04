@@ -16,9 +16,9 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     BusquedaProveedoresRUC, ListadoOrdenesServiciosPorCotizacion,\
     ListadoMovimientosPorOrdenCompra, ListadoConformidadesPorOrdenServicios,\
     ReporteExcelOrdenesServiciosFecha, EliminarCotizacion,\
-    EliminarOrdenServicios
+    EliminarOrdenServicios, EliminarConformidadServicio
 
-urlpatterns = [
+urlpatterns = [    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^proveedores/$',login_required(ListadoProveedores.as_view()), name="proveedores"),
     url(r'^ordenes_compra/$', login_required(ListadoOrdenesCompra.as_view()), name="ordenes_compra"),
@@ -34,7 +34,7 @@ urlpatterns = [
     url(r'^crear_detalle_orden_compra/$', login_required(CrearDetalleOrdenCompra.as_view()), name="crear_detalle_orden_compra"),
     url(r'^crear_detalle_orden_servicios/$', login_required(CrearDetalleOrdenServicios.as_view()), name="crear_detalle_orden_servicios"),
     url(r'^crear_cotizacion/$',login_required(CrearCotizacion.as_view()), name="crear_cotizacion"),
-    url(r'^crear_detalle_cotizacion/$',login_required(CrearDetalleCotizacion.as_view()), name="crear_detalle_cotizacion"),
+    url(r'^crear_detalle_cotizacion/$',login_required(CrearDetalleCotizacion.as_view()), name="crear_detalle_cotizacion"),    
     url(r'^cargar_proveedores/$',login_required(CargarProveedores.as_view()), name="cargar_proveedores"),
     url(r'^modificar_proveedor/(?P<pk>.+)/$', login_required(ModificarProveedor.as_view()), name="modificar_proveedor"),
     url(r'^modificar_orden_compra/(?P<pk>.+)/$', login_required(ModificarOrdenCompra.as_view()), name="modificar_orden_compra"),
@@ -54,7 +54,7 @@ urlpatterns = [
     url(r'^detalle_cotizacion/(?P<pk>.+)/$', login_required(DetalleOperacionCotizacion.as_view()), name="detalle_cotizacion"),
     url(r'^detalle_orden_compra/(?P<pk>.+)/$', login_required(DetalleOperacionOrdenCompra.as_view()), name="detalle_orden_compra"),
     url(r'^detalle_orden_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionOrdenServicios.as_view()), name="detalle_orden_servicios"),
-    url(r'^detalle_conformidad_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionConformidadServicios.as_view()), name="detalle_conformidad_servicios"),
+    url(r'^detalle_conformidad_servicios/(?P<pk>.+)/$', login_required(DetalleOperacionConformidadServicios.as_view()), name="detalle_conformidad_servicios"),    
     url(r'^listado_movimientos_orden_compra/(?P<orden>.+)/$',login_required(ListadoMovimientosPorOrdenCompra.as_view()), name="listado_movimientos_orden_compra"),
     url(r'^listado_conformidades_orden_servicios/(?P<orden>.+)/$',login_required(ListadoConformidadesPorOrdenServicios.as_view()), name="listado_conformidades_orden_servicios"),
     url(r'^orden_compra_pdf/(?P<pk>.+)/$', login_required(ReportePDFOrdenCompra.as_view()), name="orden_compra_pdf"),
@@ -68,4 +68,5 @@ urlpatterns = [
     url(r'^eliminar_orden_servicios/$',login_required(EliminarOrdenServicios.as_view()), name="eliminar_orden_servicios"),
     url(r'^eliminar_cotizacion/$',login_required(EliminarCotizacion.as_view()), name="eliminar_cotizacion"),
     url(r'^eliminar_proveedor/$',login_required(EliminarProveedor.as_view()), name="eliminar_proveedor"),
+    url(r'^eliminar_conformidad_servicio/$',login_required(EliminarConformidadServicio.as_view()), name="eliminar_conformidad_servicio"),        
 ]

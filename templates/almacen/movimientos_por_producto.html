@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Kardex</h3>	
-<form role="form" method="post">
+<h3>Movimientos por Producto</h3>		
+<form role="form" method="post">		
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -9,14 +9,14 @@
 		</div>		
 	</div>
 	<hr />
-	<div class="panel panel-default">
+	<div class="panel panel-default">		
 		<div class="panel-body">
 			<div class="form-group">
 			 	<div class="row">
 			 		<div class="col-md-4">
 			 			<label>Almacén:</label>
-			 			{% if form.almacenes.errors %}
-							{% for error in form.almacenes.errors %}
+			 			{% if form.almacen.errors %}
+							{% for error in form.almacen.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -25,11 +25,11 @@
 							</div>
 					        {% endfor %}
 					    {% endif %}
-						{{ form.almacenes }}
-					</div>
+						{{ form.almacen }}
+					</div>				
 			 		<div class="col-md-4">
 			 			<label>Desde:</label>
-						{% if form.desde.errors %}
+			 			{% if form.desde.errors %}
 							{% for error in form.desde.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -42,9 +42,9 @@
 						{{ form.desde }}
 					</div>
 					<div class="col-md-4">
-						<label>Hasta:</label>				
-						{% if form.hasta.errors %}
-							{% for error in form.desde.errors %}
+			 			<label>Hasta:</label>
+			 			{% if form.hasta.errors %}
+							{% for error in form.hasta.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -54,15 +54,15 @@
 					        {% endfor %}
 					    {% endif %}
 						{{ form.hasta }}
-					</div>
+					</div>					
 			 	</div>						
 			</div>
 			<div class="form-group">	
 				<div class="row">
 			 		<div class="col-md-4">
-						<label for="codigo">CONSOLIDADO : </label>
-						{% if form.consolidado.errors %}
-							{% for error in form.consolidado.errors %}
+						<label for="codigo">Codigo de Producto: </label>
+						{% if form.producto.errors %}
+							{% for error in form.producto.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -71,16 +71,12 @@
 							</div>
 					        {% endfor %}
 					    {% endif %}
-						{{ form.consolidado }}
-					</div>
-				</div>	
-			</div>	
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">FORMATO PARA SUNAT : </label>
-						{% if form.formatos.errors %}
-							{% for error in form.formatos.errors %}
+						{{ form.producto }}							
+					</div>	
+					<div class="col-md-8">
+						<label for="descripcion">Descripcion de Producto: </label>
+						{% if form.descripcion.errors %}
+							{% for error in form.descripcion.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
@@ -89,17 +85,52 @@
 							</div>
 					        {% endfor %}
 					    {% endif %}
-						{{ form.formatos }}							
-					</div>
+						{{ form.descripcion }}								
+					</div>	
 				</div>	
-			</div>	
+			</div>			
 		</div>
-	</div>	
-</form>
+	</div>
+</form>		
+
 {% endblock cuerpo %}
+
 {% block js %}
 <script>
 $("#id_desde").datepicker();
 $("#id_hasta").datepicker();
+$("#id_descripcion").autocomplete({
+  	source: function( request, response ) {
+    $.ajax({
+      url: "{% url 'productos:busqueda_productos_descripcion' %}",
+      data: {'descripcion': $("#id_descripcion").val(), 'tipo_busqueda': 'PRODUCTOS'},
+      success: function( data ) 
+      {
+          response( data );
+      }
+    });
+  },
+  minLength: 2,
+  select: function( event, ui ) 
+  {
+	$("#id_producto").val(ui.item.codigo);	
+	return false;
+  },
+});
+
+$("input[name=seleccion]").change(function () 
+{	 
+	if($(this).val()=='T')
+	{
+		$("input[name=producto]").attr("disabled",true);
+		$("input[name=descripcion]").attr("disabled",true);
+	}
+	else
+	{
+		$("input[name=producto]").attr("disabled",false);
+		$("input[name=descripcion]").attr("disabled",false);	
+	}
+});
+
 </script>
 {% endblock js %}
