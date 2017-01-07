@@ -1,4 +1,8 @@
 {% load staticfiles %}
+{% load js_reverse %}
+<script type="text/javascript" charset="utf-8">
+{% js_reverse_inline %}
+</script>
 <!--Libraries-->
 <script src="{% static 'js/vendor/jquery.js' %}"></script>
 <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
@@ -43,6 +47,7 @@
 <script src="{% static 'js/controllers/NavegacionController.js' %}"></script>
 
 <script src="{% static 'js/controllers/administracion/AdministracionController.js' %}"></script>
+<script src="{% static 'js/controllers/administracion/AdministracionTableroController.js' %}"></script>
 <script src="{% static 'js/controllers/administracion/MaestroNivelesAprobacionController.js' %}"></script>
 <script src="{% static 'js/controllers/administracion/MaestroOficinasController.js' %}"></script>
 <script src="{% static 'js/controllers/administracion/MaestroProfesionesController.js' %}"></script>

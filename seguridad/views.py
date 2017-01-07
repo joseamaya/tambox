@@ -13,7 +13,7 @@ from django.utils.decorators import method_decorator
 class Inicio(View):
     
     def get(self, request, *args, **kwargs):        
-        return render(request,'seguridad/bienvenida.html')
+        return render(request,'base.html')
     
 class Login(FormView):
     template_name = 'seguridad/login.html'

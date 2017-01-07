@@ -1,41 +1,58 @@
-{% extends "base.html" %}
-{% block menu %}
-<div class="navbar-default sidebar" role="navigation">
-   	<div class="sidebar-nav navbar-collapse">
-		<ul class="nav" id="side-menu">
-			<li>
-		        <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
-		        <ul class="nav nav-second-level">
-		        	{% if perms.administracion.ver_tabla_niveles_aprobacion %}
-		            <li><a href="{% url 'administracion:maestro_niveles_aprobacion' %}">Niveles de Aprobacion</a></li>
+<!--Menú lateral-->
+
+		<ul class="nav menu">
+			<li class="parent">
+                <!--Configuración-->
+                <a href="">
+					<span data-toggle="collapse" href="#sub-item-1">
+                        <i class="fa fa-wrench fa-lg"></i>
+                        Configuración
+                        <span class="fa arrow"></span>
+                    </span>
+				</a>
+				<ul class="children collapse" id="sub-item-1">
+					{% if perms.administracion.ver_tabla_niveles_aprobacion %}
+		            <li><a href="#/administracion/configuracion/aprobacion">Niveles de Aprobacion</a></li>
 		            {% endif %}
 		        	{% if perms.administracion.ver_tabla_oficinas %}
-		            <li><a href="{% url 'administracion:maestro_oficinas' %}">Oficinas</a></li>
+		            <li><a href="#/administracion/configuracion/oficinas">Oficinas</a></li>
 		            {% endif %}
 		            {% if perms.administracion.ver_tabla_profesiones %}
-		            <li><a href="{% url 'administracion:maestro_profesiones' %}">Profesiones</a></li>
-		            {% endif %}	
+		            <li><a href="#/administracion/configuracion/profesiones">Profesiones</a></li>
+		            {% endif %}
 		            {% if perms.administracion.ver_tabla_puestos %}
-		            <li><a href="{% url 'administracion:maestro_puestos' %}">Puestos</a></li>
+		            <li><a href="#/administracion/configuracion/puestos">Puestos</a></li>
 		            {% endif %}
 		            {% if perms.administracion.ver_tabla_trabajadores %}
-		            <li><a href="{% url 'administracion:maestro_trabajadores' %}">Trabajadores</a></li>
+		            <li><a href="#/administracion/configuracion/trabajadores">Trabajadores</a></li>
 		            {% endif %}
-		            	            
-		        </ul>	                
-		    </li>			    
-		    <li>
-		        <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
-		        <ul class="nav nav-second-level">					
-				</ul>	                    
-		    </li>
-		    <li>
-		    	<a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
-			    <ul class="nav nav-second-level">		            
 				</ul>
-		    </li>
-    	</ul>	               
-	</div>
-</div>
+                <!--Fin Configuración-->
+                <!--Operaciones-->
+                <a href="">
+					<span data-toggle="collapse" href="#sub-item-2">
+                        <i class="glyphicon glyphicon-sort"></i>
+                        Operaciones
+                        <span class="fa arrow"></span>
+                    </span>
+				</a>
+				<ul class="children collapse" id="sub-item-2">
 
-{% endblock menu %}
+				</ul>
+                <!--Fin Operaciones-->
+                <!--Reportes-->
+                <a href="">
+					<span data-toggle="collapse" href="#sub-item-3">
+                        <i class="glyphicon glyphicon-stats"></i>
+                        Reportes
+                        <span class="fa arrow"></span>
+                    </span>
+				</a>
+				<ul class="children collapse" id="sub-item-3">
+
+				</ul>
+                <!--Fin Reportes-->
+		    </li>
+    	</ul>
+
+<!--/.Fin Menú lateral-->

@@ -40,8 +40,14 @@ class Tablero(View):
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")        
         context = {'notificaciones':lista_notificaciones}
-        return render(request, 'administracion/tablero_administracion.html', context)
-    
+        return render(request, 'administracion/base_administracion.html', context)
+        #return render(request, 'administracion/tablero_administracion.html', context)
+
+
+class TableroDefault(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'administracion/tablero_administracion.html')
+
 class CargarOficinas(FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm

@@ -1,6 +1,6 @@
 angular.module("TamboxApp",["ngRoute","route-segment","view-segment"]);
 
-angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",function($routeSegmentProvider,$routeProvider){
+angular.module("TamboxApp").config(["$routeSegmentProvider","$routeProvider",function($routeSegmentProvider,$routeProvider){
 
     $routeSegmentProvider.when("/administracion","administracion");
     $routeSegmentProvider.when("/administracion/configuracion/aprobacion","administracion.maestro_niveles_aprobacion");
@@ -54,93 +54,97 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
     $routeSegmentProvider.when("/requerimientos/operaciones/aprobacion_requerimientos","requerimientos.aprobacion_requerimientos");
     $routeSegmentProvider.when("/requerimientos/reportes/requerimientos","requerimientos.requerimientos_requerimientos");
 
-
     $routeSegmentProvider.segment("administracion",{
         controller:"AdministracionController",
-        templateUrl:""
+        templateUrl:Urls['administracion:tablero']()
     });
-    $routeSegmentProvider.whitin("administracion").segment("maestro_niveles_aprobacion",{
+    $routeSegmentProvider.within("administracion").segment("administracion_tablero",{
+        default:true,
+        controller:"AdministracionTableroController",
+        templateUrl:Urls['administracion:tablero_inicio']()
+    });
+    $routeSegmentProvider.within("administracion").segment("maestro_niveles_aprobacion",{
         controller:"MaestroNivelesAprobacionController",
-        templateUrl:""
+        templateUrl:Urls['administracion:maestro_niveles_aprobacion']()
     });
-    $routeSegmentProvider.whitin("administracion").segment("maestro_oficinas",{
+    $routeSegmentProvider.within("administracion").segment("maestro_oficinas",{
         controller:"MaestroOficinasController",
-        templateUrl:""
+        templateUrl:Urls['administracion:maestro_oficinas']()
     });
-    $routeSegmentProvider.whitin("administracion").segment("maestro_profesiones",{
+    $routeSegmentProvider.within("administracion").segment("maestro_profesiones",{
         controller:"MaestroProfesionesController",
-        templateUrl:""
+        templateUrl:Urls['administracion:maestro_profesiones']()
     });
-    $routeSegmentProvider.whitin("administracion").segment("maestro_puestos",{
+    $routeSegmentProvider.within("administracion").segment("maestro_puestos",{
         controller:"MaestroPuestosController",
-        templateUrl:""
+        templateUrl:Urls['administracion:maestro_puestos']()
     });
-    $routeSegmentProvider.whitin("administracion").segment("maestro_trabajadores",{
+    $routeSegmentProvider.within("administracion").segment("maestro_trabajadores",{
         controller:"MaestroTrabajadoresController",
-        templateUrl:""
+        templateUrl:Urls['administracion:maestro_trabajadores']()
     });
 
     $routeSegmentProvider.segment("almacen",{
         controller:"AlmacenController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("almacenes",{
+    $routeSegmentProvider.within("almacen").segment("almacenes",{
         controller:"AlmacenesController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("tipos_movimientos",{
+    $routeSegmentProvider.within("almacen").segment("tipos_movimientos",{
         controller:"TiposMovimientosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("cargar_inventario_inicial",{
+    $routeSegmentProvider.within("almacen").segment("cargar_inventario_inicial",{
         controller:"CargarInventarioInicialController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("crear_pedido",{
+    $routeSegmentProvider.within("almacen").segment("crear_pedido",{
         controller:"CrearPedidoController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("aprobacion_pedidos",{
+    $routeSegmentProvider.within("almacen").segment("aprobacion_pedidos",{
         controller:"AprobacionPedidosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("registrar_ingreso",{
+    $routeSegmentProvider.within("almacen").segment("registrar_ingreso",{
         controller:"RegistrarIngresoController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("registrar_salida",{
+    $routeSegmentProvider.within("almacen").segment("registrar_salida",{
         controller:"RegistrarSalidaController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("kardex",{
+    $routeSegmentProvider.within("almacen").segment("kardex",{
         controller:"KardexController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("kardex_producto",{
+    $routeSegmentProvider.within("almacen").segment("kardex_producto",{
         controller:"KardexProductoController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("consolidado_kardex_productos",{
+    $routeSegmentProvider.within("almacen").segment("consolidado_kardex_productos",{
         controller:"ConsolidadoKardexProductosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("consolidado_kardex_grupos",{
+    $routeSegmentProvider.within("almacen").segment("consolidado_kardex_grupos",{
         controller:"ConsolidadoKardexGruposController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("movimientos",{
+    $routeSegmentProvider.within("almacen").segment("movimientos",{
         controller:"MovimientosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("pedidos",{
+    $routeSegmentProvider.within("almacen").segment("pedidos",{
         controller:"PedidosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("movimientos_por_fecha",{
+    $routeSegmentProvider.within("almacen").segment("movimientos_por_fecha",{
         controller:"MovimientosPorFechaController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("almacen").segment("stock_de_productos",{
+    $routeSegmentProvider.within("almacen").segment("stock_de_productos",{
         controller:"StockDeProductosController",
         templateUrl:""
     });
@@ -149,59 +153,59 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
         controller:"ComprasController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("grupos_de_productos",{
+    $routeSegmentProvider.within("compras").segment("grupos_de_productos",{
         controller:"GruposDeProductosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("proveedores",{
+    $routeSegmentProvider.within("compras").segment("proveedores",{
         controller:"ProveedoresController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("productos",{
+    $routeSegmentProvider.within("compras").segment("productos",{
         controller:"ProductosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("servicios",{
+    $routeSegmentProvider.within("compras").segment("servicios",{
         controller:"ServiciosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("unidades_de_medida",{
+    $routeSegmentProvider.within("compras").segment("unidades_de_medida",{
         controller:"UnidadesDeMedidaController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("solicitud_de_cotizacion",{
+    $routeSegmentProvider.within("compras").segment("solicitud_de_cotizacion",{
         controller:"SolicitudDeCotizacionController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("orden_de_compra",{
+    $routeSegmentProvider.within("compras").segment("orden_de_compra",{
         controller:"OrdenDeCompraController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("orden_de_servicio",{
+    $routeSegmentProvider.within("compras").segment("orden_de_servicio",{
         controller:"OrdenDeServicioController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("conformidad_servicios",{
+    $routeSegmentProvider.within("compras").segment("conformidad_servicios",{
         controller:"ConformidadServiciosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("cotizaciones",{
+    $routeSegmentProvider.within("compras").segment("cotizaciones",{
         controller:"CotizacionesController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("ordenes_de_compra",{
+    $routeSegmentProvider.within("compras").segment("ordenes_de_compra",{
         controller:"OrdenesDeCompraController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("ordenes_de_servicio",{
+    $routeSegmentProvider.within("compras").segment("ordenes_de_servicio",{
         controller:"OrdenesDeServicioController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("conformidades_de_servicio",{
+    $routeSegmentProvider.within("compras").segment("conformidades_de_servicio",{
         controller:"ConformidadesDeServicioController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("compras").segment("ordenes_de_compra_por_fecha",{
+    $routeSegmentProvider.within("compras").segment("ordenes_de_compra_por_fecha",{
         controller:"OrdenesDeCompraPorFechaController",
         templateUrl:""
     });
@@ -210,23 +214,23 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
         controller:"ContabilidadController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("contabilidad").segment("configuracion",{
+    $routeSegmentProvider.within("contabilidad").segment("configuracion",{
         controller:"ConfiguracionController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("contabilidad").segment("cuentas_contables",{
+    $routeSegmentProvider.within("contabilidad").segment("cuentas_contables",{
         controller:"CuentasContablesController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("contabilidad").segment("formas_de_pago",{
+    $routeSegmentProvider.within("contabilidad").segment("formas_de_pago",{
         controller:"FormasDePagoController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("contabilidad").segment("impuestos",{
+    $routeSegmentProvider.within("contabilidad").segment("impuestos",{
         controller:"ImpuestosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("contabilidad").segment("tipos_de_documentos",{
+    $routeSegmentProvider.within("contabilidad").segment("tipos_de_documentos",{
         controller:"TiposDeDocumentosController",
         templateUrl:""
     });
@@ -235,15 +239,15 @@ angular.module("TamboxApp").config(["$routeSegmentProvider","routeProvider",func
         controller:"RequerimientosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("requerimientos").segment("requerimiento",{
+    $routeSegmentProvider.within("requerimientos").segment("requerimiento",{
         controller:"RequerimientoController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("requerimientos").segment("aprobacion_requerimientos",{
+    $routeSegmentProvider.within("requerimientos").segment("aprobacion_requerimientos",{
         controller:"AprobacionRequerimientosController",
         templateUrl:""
     });
-    $routeSegmentProvider.whitin("requerimientos").segment("requerimientos_requerimientos",{
+    $routeSegmentProvider.within("requerimientos").segment("requerimientos_requerimientos",{
         controller:"RequerimientosRequerimientosController",
         templateUrl:""
     });

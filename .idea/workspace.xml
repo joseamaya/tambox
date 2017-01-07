@@ -2,14 +2,26 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="dd8616d8-1619-476d-bb6a-705cc5f60ed1" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionTableroController.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/templates/administracion/menu_lateral.html" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/templates/seguridad/bienvenida2.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/administracion/urls.py" afterPath="$PROJECT_DIR$/administracion/urls.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/administracion/views.py" afterPath="$PROJECT_DIR$/administracion/views.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/seguridad/views.py" afterPath="$PROJECT_DIR$/seguridad/views.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/app.js" afterPath="$PROJECT_DIR$/static/js/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js" afterPath="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js" afterPath="$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosController.js" afterPath="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosController.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/vendor/chart-data.js" afterPath="$PROJECT_DIR$/static/js/vendor/chart-data.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/static/js/vendor/easypiechart-data.js" afterPath="$PROJECT_DIR$/static/js/vendor/easypiechart-data.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/tambox/settings/base.py" afterPath="$PROJECT_DIR$/tambox/settings/base.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/base_administracion.html" afterPath="$PROJECT_DIR$/templates/administracion/base_administracion.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/cargar_oficinas.html" afterPath="$PROJECT_DIR$/templates/administracion/cargar_oficinas.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html" afterPath="$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/oficinas.html" afterPath="$PROJECT_DIR$/templates/administracion/oficinas.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/profesiones.html" afterPath="$PROJECT_DIR$/templates/administracion/profesiones.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/puestos.html" afterPath="$PROJECT_DIR$/templates/administracion/puestos.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/tablero_administracion.html" afterPath="$PROJECT_DIR$/templates/administracion/tablero_administracion.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/administracion/trabajadores.html" afterPath="$PROJECT_DIR$/templates/administracion/trabajadores.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/base.html" afterPath="$PROJECT_DIR$/templates/base.html" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/recursos/scripts.html" afterPath="$PROJECT_DIR$/templates/recursos/scripts.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/seguridad/login.html" afterPath="$PROJECT_DIR$/templates/seguridad/login.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/templates/seguridad/bienvenida.html" afterPath="$PROJECT_DIR$/templates/seguridad/bienvenida.html" />
     </list>
     <ignored path="tambox.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -29,12 +41,97 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="chart-data.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/static/js/vendor/chart-data.js">
+      <file leaf-file-name="urls.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/administracion/urls.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="467">
-              <caret line="124" column="3" selection-start-line="124" selection-start-column="3" selection-end-line="124" selection-end-column="5" />
+            <state relative-caret-position="442">
+              <caret line="26" column="108" selection-start-line="26" selection-start-column="88" selection-end-line="26" selection-end-column="108" />
+              <folding>
+                <element signature="e#0#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="puestos.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/administracion/puestos.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="200">
+              <caret line="50" column="6" selection-start-line="50" selection-start-column="6" selection-end-line="50" selection-end-column="6" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="base_administracion.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/administracion/base_administracion.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="14">
+              <caret line="20" column="51" selection-start-line="20" selection-start-column="51" selection-end-line="20" selection-end-column="51" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="oficinas.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/administracion/oficinas.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="98">
+              <caret line="48" column="48" selection-start-line="48" selection-start-column="48" selection-end-line="48" selection-end-column="48" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/static/js/app.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="477">
+              <caret line="83" column="61" selection-start-line="83" selection-start-column="61" selection-end-line="83" selection-end-column="61" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="trabajadores.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/administracion/trabajadores.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="302">
+              <caret line="55" column="4" selection-start-line="55" selection-start-column="4" selection-end-line="55" selection-end-column="4" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="views.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/administracion/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="98">
+              <caret line="213" column="21" selection-start-line="213" selection-start-column="13" selection-end-line="213" selection-end-column="21" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cargar_oficinas.html" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/administracion/cargar_oficinas.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="base.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/templates/base.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="151">
+              <caret line="110" column="106" selection-start-line="110" selection-start-column="106" selection-end-line="110" selection-end-column="106" />
+              <folding>
+                <element signature="n#style#0;n#div#0;n#div#1;n#nav#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -60,23 +157,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/static/js/controllers/administracion/MaestroNivelesAprobacionController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/administracion/MaestroOficinasController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/administracion/MaestroProfesionesController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/administracion/MaestroPuestosController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/administracion/MaestroTrabajadoresController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/AlmacenesController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/CargarInventarioInicialController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/CrearPedidoController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/AprobacionPedidosController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/TiposMovimientosController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarIngresoController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/RegistrarSalidaController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/KardexController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/KardexProductoController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexProductosController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/ConsolidadoKardexGruposController.js" />
-        <option value="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/PedidosController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/MovimientosPorFechaController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/almacen/StockDeProductosController.js" />
@@ -102,23 +182,40 @@
         <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js" />
-        <option value="$PROJECT_DIR$/static/js/app.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js" />
         <option value="$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosController.js" />
         <option value="$PROJECT_DIR$/templates/seguridad/login.html" />
         <option value="$PROJECT_DIR$/static/js/vendor/easypiechart-data.js" />
-        <option value="$PROJECT_DIR$/templates/recursos/scripts.html" />
-        <option value="$PROJECT_DIR$/templates/administracion/cargar_oficinas.html" />
         <option value="$PROJECT_DIR$/static/js/vendor/chart-data.js" />
+        <option value="$PROJECT_DIR$/templates/seguridad/bienvenida.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/menu_lateral.html" />
+        <option value="$PROJECT_DIR$/seguridad/views.py" />
+        <option value="$PROJECT_DIR$/tambox/settings/base.py" />
+        <option value="$PROJECT_DIR$/static/js/prueba.html" />
+        <option value="$PROJECT_DIR$/static/js/vendor/jquery.js" />
+        <option value="$PROJECT_DIR$/static/js/controllers/administracion/AdministracionTableroController.js" />
+        <option value="$PROJECT_DIR$/templates/recursos/scripts.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/base_administracion.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/tablero_administracion.html" />
+        <option value="$PROJECT_DIR$/administracion/views.py" />
+        <option value="$PROJECT_DIR$/templates/administracion/cargar_oficinas.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/oficinas.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/profesiones.html" />
+        <option value="$PROJECT_DIR$/administracion/urls.py" />
+        <option value="$PROJECT_DIR$/templates/administracion/puestos.html" />
+        <option value="$PROJECT_DIR$/templates/administracion/trabajadores.html" />
+        <option value="$PROJECT_DIR$/static/js/app.js" />
+        <option value="$PROJECT_DIR$/templates/base.html" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-8" />
-    <option name="y" value="-8" />
-    <option name="width" value="1382" />
-    <option name="height" value="744" />
+    <option name="x" value="34" />
+    <option name="y" value="127" />
+    <option name="width" value="1327" />
+    <option name="height" value="522" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -145,7 +242,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -175,6 +271,60 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="templates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="templates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="seguridad" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="templates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="recursos" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="templates" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="administracion" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -232,7 +382,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="vendor" />
+              <option name="myItemId" value="controllers" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -254,7 +404,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="personal" />
+              <option name="myItemId" value="controllers" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="administracion" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -272,31 +426,47 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tambox" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="seguridad" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Entornos/tambox" />
+    <property name="last_opened_file_path" value="$USER_HOME$/Desktop/Proyecto/tambox" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\vendor" />
-      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js" />
-      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\fonts" />
-      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\css" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\requerimientos" />
       <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\contabilidad" />
       <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\compras" />
       <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\almacen" />
       <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\administracion" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\controllers\administracion" />
+      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js\vendor" />
+      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\js" />
+      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\fonts" />
+      <recent name="C:\Users\Francis\Documents\GitHub\Django\tambox\static\css" />
     </key>
   </component>
   <component name="RunManager" selected="Python.runserver">
@@ -483,19 +653,19 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
-    <editor active="true" />
+    <frame x="34" y="127" width="1327" height="522" extended-state="0" />
+    <editor active="false" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28943452" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19782777" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899627" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39443535" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.400982" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39033458" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38952535" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39934534" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -512,39 +682,9 @@
       <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.46317512" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Nl-Palette" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3289689" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Properties" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32899627" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette&#9;" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Image Layers" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39547038" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.39033458" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.140625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Theme Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="*.js" />
@@ -562,144 +702,15 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="1" />
+      <option name="time" value="6" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadServiciosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/CotizacionesController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeServicioController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/OrdenesDeCompraPorFechaController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="46" selection-start-line="1" selection-start-column="46" selection-end-line="1" selection-end-column="46" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/compras/ConformidadesDeServicioController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ConfiguracionController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/CuentasContablesController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/FormasDePagoController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/TiposDeDocumentosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientoController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/AprobacionRequerimientosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ImpuestosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="2" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/requerimientos/RequerimientosRequerimientosController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="51" selection-start-line="1" selection-start-column="51" selection-end-line="1" selection-end-column="51" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/controllers/contabilidad/ContabilidadController.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="22" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="20" selection-start-line="0" selection-start-column="20" selection-end-line="0" selection-end-column="20" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/js/controllers/administracion/AdministracionController.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="255">
           <caret line="15" column="45" selection-start-line="15" selection-start-column="45" selection-end-line="15" selection-end-column="45" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -707,7 +718,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="153">
           <caret line="9" column="40" selection-start-line="9" selection-start-column="40" selection-end-line="9" selection-end-column="40" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -715,7 +725,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="28" selection-start-line="4" selection-start-column="27" selection-end-line="4" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -723,7 +732,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="44">
           <caret line="10" column="41" selection-start-line="10" selection-start-column="41" selection-end-line="10" selection-end-column="41" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -731,7 +739,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-633">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -739,55 +746,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/seguridad/base_seguridad.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/seguridad/bienvenida.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="33" column="141" selection-start-line="33" selection-start-column="138" selection-end-line="33" selection-end-column="141" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/recursos/scripts.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="102">
-          <caret line="6" column="27" selection-start-line="6" selection-start-column="0" selection-end-line="6" selection-end-column="27" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/base_administracion.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/cargar_oficinas.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -795,7 +753,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -803,7 +760,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -811,7 +767,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -819,7 +774,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,7 +781,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -835,7 +788,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="34">
           <caret line="2" column="4" selection-start-line="2" selection-start-column="3" selection-end-line="2" selection-end-column="4" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -843,7 +795,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -851,15 +802,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/trabajadores.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -867,23 +809,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/puestos.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/tablero_administracion.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -891,15 +816,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/profesiones.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -907,15 +823,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/oficinas.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-29">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -923,15 +830,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="2" column="7" selection-start-line="2" selection-start-column="6" selection-end-line="2" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -939,7 +837,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
           <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="15" selection-end-column="17" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -947,7 +844,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-29">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -955,22 +851,230 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="452">
           <caret line="30" column="0" selection-start-line="30" selection-start-column="0" selection-end-line="30" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Desktop/lumino/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="164" column="69" selection-start-line="164" selection-start-column="59" selection-end-line="164" selection-end-column="69" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$USER_HOME$/Desktop/lumino/index.html" />
     <entry file="file://$PROJECT_DIR$/static/js/vendor/chart-data.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="467">
+        <state relative-caret-position="468">
           <caret line="124" column="3" selection-start-line="124" selection-start-column="3" selection-end-line="124" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Entornos/tambox/Lib/site-packages/django/views/generic/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="161">
+          <caret line="46" column="8" selection-start-line="46" selection-start-column="8" selection-end-line="46" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/seguridad/bienvenida.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="19" selection-start-line="0" selection-start-column="19" selection-end-line="0" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../Entornos/tambox/Lib/site-packages/django/views/generic/edit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="59">
+          <caret line="11" column="0" selection-start-line="11" selection-start-column="0" selection-end-line="11" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="239">
+          <caret line="36" column="4" selection-start-line="36" selection-start-column="4" selection-end-line="36" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/vendor/angular.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/menu_lateral.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/vendor/jquery.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="1" column="1146" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/vendor/NumeroALetras.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2596">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seguridad/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="158">
+          <caret line="26" column="0" selection-start-line="26" selection-start-column="0" selection-end-line="26" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/seguridad/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/controllers/administracion/AdministracionTableroController.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/css/personal-styles.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/seguridad/base_seguridad.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="16" selection-start-line="6" selection-start-column="16" selection-end-line="7" selection-end-column="46" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/seguridad/bienvenida2.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="14" selection-start-line="7" selection-start-column="14" selection-end-line="7" selection-end-column="14" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/tablero_administracion.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="48" selection-start-line="6" selection-start-column="48" selection-end-line="6" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="32" selection-start-line="6" selection-start-column="32" selection-end-line="6" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/recursos/scripts.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="49" column="75" selection-start-line="49" selection-start-column="75" selection-end-line="49" selection-end-column="75" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/cargar_oficinas.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/base_administracion.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="14">
+          <caret line="20" column="51" selection-start-line="20" selection-start-column="51" selection-end-line="20" selection-end-column="51" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/oficinas.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="48" column="48" selection-start-line="48" selection-start-column="48" selection-end-line="48" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/profesiones.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="455">
+          <caret line="63" column="9" selection-start-line="63" selection-start-column="9" selection-end-line="63" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/administracion/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="98">
+          <caret line="213" column="21" selection-start-line="213" selection-start-column="13" selection-end-line="213" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/puestos.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="200">
+          <caret line="50" column="6" selection-start-line="50" selection-start-column="6" selection-end-line="50" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/administracion/trabajadores.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="302">
+          <caret line="55" column="4" selection-start-line="55" selection-start-column="4" selection-end-line="55" selection-end-column="4" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/administracion/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="442">
+          <caret line="26" column="108" selection-start-line="26" selection-start-column="88" selection-end-line="26" selection-end-column="108" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="477">
+          <caret line="83" column="61" selection-start-line="83" selection-start-column="61" selection-end-line="83" selection-end-column="61" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="151">
+          <caret line="110" column="106" selection-start-line="110" selection-start-column="106" selection-end-line="110" selection-end-column="106" />
+          <folding>
+            <element signature="n#style#0;n#div#0;n#div#1;n#nav#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#div#0;n#div#0;n#div#0;n#div#1;n#body#0;n#html#0;n#!!top" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/prueba.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="3" selection-start-line="7" selection-start-column="3" selection-end-line="7" selection-end-column="3" />
           <folding />
         </state>
       </provider>
