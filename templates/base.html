@@ -57,14 +57,16 @@
 							<!--Fin boton menu-usuario-->
 						</div>
 					</div><!-- /.container-fluid -->
-					<nav class="navbar-inverse navbar-static-top collapse navbar-collapse main-menu" role="navigation" style="margin-bottom: 0" ng-controller="NavegacionController" >
+                    <!--collapse navbar-collapse main-menu-->
+					<nav class="navbar-inverse navbar-static-top" role="navigation" style="margin-bottom: 0" ng-controller="NavegacionController">
 					<div class="container-fluid">
 						<div class="navbar-header">
 							<!--Lista dependiente de Botón menú responsive-->
+                            <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">-->
 							<div class="">
 								<ul class="nav navbar-bar col-xs-12 col-sm-12 col-md-12 col-lg-12 ul-main-menu">
 									{% if perms.administracion.ver_bienvenida %}
-									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-3">
+									<li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
 
 										<a class="navbar-brand" href="#/administracion">
 											<span class="fa fa-area-chart fa-lg"></span> Administración
@@ -72,28 +74,28 @@
 									</li>
 									{% endif %}
 									{% if perms.almacen.ver_bienvenida %}
-									<li class="col-xs-7 col-sm-6 col-md-2 col-lg-2 ">
+									<li class="col-xs-6 col-sm-4 col-md-2 col-lg-2 ">
 										<a class="navbar-brand" href="{% url 'almacen:tablero' %}">
 											<span class="fa fa-building fa-lg"></span> Almacén
 										</a>
 									</li>
 									{% endif %}
 									{% if perms.compras.ver_bienvenida %}
-									<li class="col-xs-7 col-sm-6 col-md-2 col-lg-2">
+									<li class="col-xs-6 col-sm-4 col-md-2 col-lg-2">
 										<a class="navbar-brand" href="{% url 'compras:tablero' %}">
 											<span class="fa fa-shopping-cart fa-lg"></span> Compras
 										</a>
 									</li>
 									{% endif %}
 									{% if perms.contabilidad.ver_bienvenida %}
-									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-2 contabilidad">
+									<li class="col-xs-6 col-sm-4 col-md-3 col-lg-2 contabilidad">
 										<a class="navbar-brand" href="{% url 'contabilidad:tablero' %}">
 											<span class="fa fa-calculator fa-lg"></span> Contabilidad
 										</a>
 									</li>
 									{% endif %}
 									{% if perms.requerimientos.ver_bienvenida %}
-									<li class="col-xs-7 col-sm-6 col-md-3 col-lg-3">
+									<li class="col-xs-6  col-sm-4 col-md-3 col-lg-3">
 										<a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
 											<span class="fa fa-newspaper-o fa-lg"></span> Requerimientos
 										</a>
@@ -106,18 +108,20 @@
 					</div>
 		    	</nav>
 				</div>
-				<!--Menú lateral-->
-                <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 contenido position-absolute">
-	                <div id="sidebar-collapse" class="col-sm-3 col-lg-2 sidebar" style="padding-left:20px;">
-                        <section app-view-segment="0">Seccion</section>
-                    </div>
-                </div>
-				<!--/.Fin Menu lateral-->
+
 			</nav>
+<!--Menú lateral-->
+
+	                <div id="sidebar-collapse" class="col-sm-3 col-md-3 col-lg-2 sidebar " >
+                        <section class="menu-lateral" app-view-segment="0">Seccion</section>
+                    </div>
+
+				<!--/.Fin Menu lateral-->
+
 		</div>
         <!--Contenido-->
-        <div class="container">
-            <div class='col-sm-9 col-sm-offset-3 col-lg-10 col-lg-offset-2 main row'>
+        <div class="container body-content" >
+            <div class='col-sm-9 col-sm-offset-3 col-md-10 col-lg-10 col-lg-offset-2 main row'>
                 <br>
                 <div class='row'>
                     <div class='col-lg-12'>

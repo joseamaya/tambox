@@ -12,7 +12,7 @@
 }
 
 .navegacion-top{
-    position: fixed; z-index: 100;
+    position: fixed; /*z-index: 100*/;
 }
 
 .position-relative{
@@ -27,6 +27,14 @@ body{
     padding-top:0px;
 }
 
+.menu-lateral{
+    margin-top:100px;
+}
+
+.body-content{
+    transform: translate(0px, -20px);
+}
+
 /* Medium devices (desktops, 992px and up) */
 @media screen and (min-width: 992px) {
     .ul-main-menu{
@@ -36,5 +44,37 @@ body{
 
     .contenido{
         height:600px;
+    }
+}
+
+
+/* Portrait tablets and small desktops */
+@media (min-width: 768px) and (max-width: 991px) {
+    .body-content{
+        margin-top: 20px;
+        height:200px;
+    }
+
+    .menu-lateral{
+        margin-top:150px;
+    }
+}
+
+/* Landscape phones and portrait tablets */
+@media (max-width: 767px) {
+    .body-content{
+        margin-top: 70px;
+        height:500px;
+    }
+
+    .menu-lateral{
+        margin-top:100px;
+    }
+}
+
+/* Portrait phones and smaller */
+@media (max-width: 480px) {
+    .body-content{
+        height:500px;
     }
 }
