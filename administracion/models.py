@@ -151,14 +151,6 @@ class Puesto(TimeStampedModel):
         oficina = self.oficina
         if oficina == LOGISTICA and self.es_jefatura:
             nivel = NivelAprobacion.objects.get(descripcion="LOGISTICA")
-        elif oficina == PRESUPUESTO and self.es_jefatura:
-            nivel = NivelAprobacion.objects.get(descripcion="PRESUPUESTO")
-        elif oficina == OFICINA_ADMINISTRACION and self.es_jefatura:
-            nivel = NivelAprobacion.objects.get(descripcion="GERENCIA ADMINISTRACION")
-        elif oficina == OPERACIONES and self.es_jefatura:
-            nivel = NivelAprobacion.objects.get(descripcion="GERENCIA INMEDIATA")
-        elif self.es_jefatura:
-            nivel = NivelAprobacion.objects.get(descripcion="JEFATURA")
         else:
             nivel = NivelAprobacion.objects.get(descripcion="USUARIO")
         return nivel

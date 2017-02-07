@@ -141,25 +141,28 @@ class CargarProductos(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            grupo = GrupoProductos.objects.get(codigo = fila[0].strip())
-            cod_und = fila[2][0:5]
-            und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
-                                                             defaults={'codigo': cod_und,
-                                                                       'descripcion' : fila[2].strip()})            
-            if fila[3]<>'':
-                precio = fila[3]
-            else:
-                precio = 0
-            try:                
-                tipo_existencia = TipoExistencia.objects.get(codigo_sunat = fila[5].strip())
+            try:
+                grupo = GrupoProductos.objects.get(codigo = fila[0].strip())
+                cod_und = fila[2][0:5]
+                und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
+                                                                 defaults={'codigo': cod_und,
+                                                                           'descripcion' : fila[2].strip()})
+                if fila[3]<>'':
+                    precio = fila[3]
+                else:
+                    precio = 0
+                try:
+                    tipo_existencia = TipoExistencia.objects.get(codigo_sunat = fila[5].strip())
+                except:
+                    return HttpResponseRedirect(reverse('contabilidad:tablero'))
+                producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
+                                                                  defaults={'unidad_medida' : und,
+                                                                            'grupo_productos' : grupo,
+                                                                            'precio' : precio,
+                                                                            'tipo_existencia': tipo_existencia,
+                                                                            'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})
             except:
-                return HttpResponseRedirect(reverse('contabilidad:tablero'))
-            producto, creado = Producto.objects.get_or_create(descripcion=unicode(fila[1].strip(), errors='ignore'),
-                                                              defaults={'unidad_medida' : und,
-                                                                        'grupo_productos' : grupo,
-                                                                        'precio' : precio,
-                                                                        'tipo_existencia': tipo_existencia,
-                                                                        'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})           
+                pass
         return HttpResponseRedirect(reverse('productos:productos'))  
     
 class ConsultaStockProducto(TemplateView):

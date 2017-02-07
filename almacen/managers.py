@@ -43,5 +43,7 @@ class DetalleMovimientoManager(models.Manager):
     def bulk_create(self, objs, referencia, pedido):
         if referencia is not None:
             self.guardar_detalles_con_referencia(objs, referencia)
-        if pedido is not None:
+        elif pedido is not None:
             self.guardar_detalle_con_pedido(objs, pedido)
+        else:
+            self.guardar_detalles_sin_referencia(objs)

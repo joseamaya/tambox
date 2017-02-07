@@ -31,6 +31,7 @@ class Tablero(View):
         cant_trabajadores = Trabajador.objects.all().count()
         cant_puestos = Puesto.objects.all().count()
         cant_profesiones = Profesion.objects.all().count()
+        cant_niveles = NivelAprobacion.objects.all().count()
         if cant_oficinas == 0:
             Oficina.objects.create(codigo='GGEN',
                                    nombre='GERENCIA GENERAL',
@@ -42,6 +43,11 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ningún puesto")
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")
+        if cant_niveles == 0:
+            nivel_logistica = NivelAprobacion.objects.create(descripcion="LOGISTICA")
+            nivel_usuario = NivelAprobacion.objects.create(descripcion = "USUARIO",
+                                                           nivel_superior = nivel_logistica)
+            lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'administracion/tablero_administracion.html', context)
 

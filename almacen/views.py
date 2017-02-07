@@ -264,7 +264,6 @@ class CargarInventarioInicial(FormView):
                                                    tipo_documento = tipo_documento,
                                                    almacen = almacen,
                                                    fecha_operacion=fecha_operacion,
-                                                   total = 0,
                                                    observaciones = 'INVENTARIO INICIAL',
                                                    serie = 'SALDO',
                                                    numero = 'INICIAL')            
@@ -281,14 +280,13 @@ class CargarInventarioInicial(FormView):
                                                            movimiento=movimiento,
                                                            producto=producto,
                                                            cantidad=cantidad,
-                                                           precio=precio,
-                                                           valor = valor)
+                                                           precio=precio)
                     detalles.append(detalle_movimiento)
                 except Producto.DoesNotExist:
                     pass                 
                 total = total + valor
                 cont_detalles = cont_detalles + 1
-            DetalleMovimiento.objects.bulk_create(detalles,None)
+            DetalleMovimiento.objects.bulk_create(detalles,None, None)
             movimiento.save()
         return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[movimiento.id_movimiento]))
     

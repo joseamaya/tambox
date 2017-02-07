@@ -335,8 +335,10 @@ class DetalleMovimiento(TimeStampedModel):
     
     def save(self, *args, **kwargs):
         movi = self.movimiento
-        t_movimiento = movi.tipo_movimiento  
+        t_movimiento = movi.tipo_movimiento
+        print self.valor
         val = Decimal(self.valor)
+        print val
         kardex = Kardex(producto = self.producto,
                         fecha_operacion = movi.fecha_operacion,
                         movimiento = movi,
@@ -400,15 +402,15 @@ class Kardex(TimeStampedModel):
     nro_detalle_movimiento = models.IntegerField()
     producto = models.ForeignKey(Producto)
     fecha_operacion = models.DateTimeField()
-    cantidad_ingreso = models.DecimalField(max_digits=15, decimal_places=5)
-    precio_ingreso = models.DecimalField(max_digits=15, decimal_places=5)
-    valor_ingreso = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_salida = models.DecimalField(max_digits=15, decimal_places=5)
-    precio_salida = models.DecimalField(max_digits=15, decimal_places=5)
-    valor_salida = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_total = models.DecimalField(max_digits=15, decimal_places=5)
-    precio_total = models.DecimalField(max_digits=15, decimal_places=5)
-    valor_total = models.DecimalField(max_digits=15, decimal_places=5)
+    cantidad_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
+    precio_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
+    valor_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
+    cantidad_salida = models.DecimalField(max_digits=20, decimal_places=5)
+    precio_salida = models.DecimalField(max_digits=20, decimal_places=5)
+    valor_salida = models.DecimalField(max_digits=20, decimal_places=5)
+    cantidad_total = models.DecimalField(max_digits=20, decimal_places=5)
+    precio_total = models.DecimalField(max_digits=20, decimal_places=5)
+    valor_total = models.DecimalField(max_digits=20, decimal_places=5)
     almacen = models.ForeignKey(Almacen)
     history = HistoricalRecords()
     
