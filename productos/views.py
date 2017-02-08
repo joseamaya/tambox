@@ -159,8 +159,7 @@ class CargarProductos(FormView):
                                                                   defaults={'unidad_medida' : und,
                                                                             'grupo_productos' : grupo,
                                                                             'precio' : precio,
-                                                                            'tipo_existencia': tipo_existencia,
-                                                                            'desc_abreviada' : unicode(fila[4].strip(), errors='ignore')})
+                                                                            'tipo_existencia': tipo_existencia})
             except:
                 pass
         return HttpResponseRedirect(reverse('productos:productos'))  

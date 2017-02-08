@@ -336,9 +336,7 @@ class DetalleMovimiento(TimeStampedModel):
     def save(self, *args, **kwargs):
         movi = self.movimiento
         t_movimiento = movi.tipo_movimiento
-        print self.valor
         val = Decimal(self.valor)
-        print val
         kardex = Kardex(producto = self.producto,
                         fecha_operacion = movi.fecha_operacion,
                         movimiento = movi,
