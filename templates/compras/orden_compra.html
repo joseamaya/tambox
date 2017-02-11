@@ -54,13 +54,6 @@
 				{% if object %}
 				<div class="row">
 					<div class="col-md-2">
-						<label>CODIGO:</label>  
-						<p>{{ object.codigo }}</p>
-					</div>														
-				</div>
-				{% else %}
-				<div class="row">
-					<div class="col-md-2">
 						<label>CODIGO:</label>
 						{% if form.codigo.errors %}
 							{% for error in form.codigo.errors %}
@@ -242,7 +235,7 @@
 								<th>Producto</th>
 								<th>Unidad</th>	
 								<th>Cantidad</th>	
-								<th>P. Unit(C/IGV)</th>
+								<th>P. Unit</th>
 								<th>Impuesto</th>
 								<th>Total</th>
 								<th>Borrar</th>
