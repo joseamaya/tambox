@@ -3,15 +3,15 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
-from requerimientos.models import DetalleRequerimiento
-from requerimientos.settings import EMPRESA
-from django.conf import settings
-import os
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import cm
-from administracion.models import Puesto
 from reportlab.platypus.flowables import Spacer
+from requerimientos.models import DetalleRequerimiento
+from requerimientos.settings import EMPRESA
+from django.conf import settings
+from administracion.models import Puesto
+import os
 from io import BytesIO
 from requerimientos.settings import CONFIGURACION, OFICINA_ADMINISTRACION, \
     PRESUPUESTO, LOGISTICA, OPERACIONES

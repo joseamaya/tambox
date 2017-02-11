@@ -270,9 +270,9 @@ class OrdenCompra(TimeStampedModel):
         return self.estado
     
     @property            
-    def subtotal(self):
-        sub_total = self.total - self.impuesto
-        return sub_total
+    def total(self):
+        total = self.subtotal + self.impuesto
+        return total
     
     @property            
     def impuesto(self):
@@ -282,11 +282,11 @@ class OrdenCompra(TimeStampedModel):
         return imp
     
     @property            
-    def total(self):
-        total = 0
+    def subtotal(self):
+        subtotal = 0
         for detalle in DetalleOrdenCompra.objects.filter(orden = self):
-            total = total + detalle.valor
-        return total
+            subtotal = subtotal + detalle.valor
+        return subtotal
     
     @property            
     def total_letras(self):
@@ -333,18 +333,25 @@ class DetalleOrdenCompra(TimeStampedModel):
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
-    
+
+    @property
+    def precio_igv(self):
+        monto_impuesto = CONFIGURACION.impuesto_compra.monto
+        return round(self.precio * (monto_impuesto + 1), 5)
+
     @property
     def valor(self):
-        return round(self.precio * self.cantidad,5) 
-    
+        return round(self.precio * self.cantidad,5)
+
+    @property
+    def valor_igv(self):
+        valor_igv = Decimal(self.precio_igv) * self.cantidad
+        return round(valor_igv, 5)
+
     @property
     def impuesto(self):
-        val = Decimal(self.valor)
-        monto_impuesto = CONFIGURACION.impuesto_compra.monto
-        base = val / (monto_impuesto + 1)
-        imp = val - base
-        return round(imp,5)     
+        imp = Decimal(self.valor_igv) - Decimal(self.valor)
+        return round(imp,5)
     
     def establecer_estado(self):   
         cantidad_ingresada = self.cantidad_ingresada

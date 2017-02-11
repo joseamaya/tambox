@@ -1,18 +1,19 @@
-# -*- coding: utf-8 -*- 
+# -*- coding: utf-8 -*-
+
 from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
-from django.conf import settings
-import os
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer, ListFlowable
+from reportlab.graphics.shapes import Line, Drawing
+from django.conf import settings
+import os
 from io import BytesIO
 from compras.models import DetalleOrdenCompra
 from django.utils.encoding import smart_str
-from reportlab.graphics.shapes import Line, Drawing
 from compras.settings import EMPRESA
 
 class ReporteOrdenCompra():

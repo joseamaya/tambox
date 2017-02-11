@@ -562,6 +562,9 @@ $(document).ready(function()
 				$("#id_total").val(total.toFixed(5));
 				$('#id_crear_detalle').prop("disabled", true );
 				$(".decimal").keydown(validar_decimales);	
+			},
+			error: function (jqXHR, exception) {
+				alert(jqXHR.responseText);
 			}
 		});
 	}

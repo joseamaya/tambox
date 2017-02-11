@@ -19,17 +19,17 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter, landscape, A4
 from reportlab.platypus import Table
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import cm
+from reportlab.lib.enums import TA_JUSTIFY
 from django.http import JsonResponse
 from compras.models import DetalleOrdenCompra
 from openpyxl import Workbook
 import simplejson
 import json
 from django.conf import settings
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import cm
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
-from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Puesto
 import locale
 from contabilidad.models import Tipo, TipoDocumento
@@ -824,15 +824,13 @@ class ModificarIngresoAlmacen(UpdateView):
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor) 
+                                                                   precio=precio)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor)
+                                                                   precio=precio)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
@@ -1159,15 +1157,13 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor)
+                                                                   precio=precio)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio,
-                                                                   valor = valor)
+                                                                   precio=precio)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 

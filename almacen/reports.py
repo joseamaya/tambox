@@ -3,12 +3,12 @@ from reportlab.lib.pagesizes import letter, A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
-from django.conf import settings
-import os
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer
+from django.conf import settings
+import os
 from io import BytesIO
 from almacen.models import DetalleMovimiento
 from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA

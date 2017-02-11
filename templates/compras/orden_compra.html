@@ -554,8 +554,8 @@ $(document).ready(function()
 			var precio = $("#"+id+"precio").val();		
 			var valorAnt = $("#"+id+"valor").val();
 			var impAnt = $("#"+id+"impuesto").val();
-			var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
-			var valorSinIGV = valorConIGV / (porc_impuesto+1);
+			var valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
+			var valorConIGV = valorSinIGV * (porc_impuesto+1);
 			var imp = parseFloat(valorConIGV - valorSinIGV)
 			$("#"+id+"valor").val(valorConIGV.toFixed(5));
 			$("#"+id+"impuesto").val(imp.toFixed(5));
@@ -579,8 +579,8 @@ $(document).ready(function()
 		{
 			var valorAnt = $("#"+id+"valor").val();
 			var impAnt = $("#"+id+"impuesto").val();
-			var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
-			var valorSinIGV = valorConIGV / (porc_impuesto+1);
+			var valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
+			var valorConIGV = valorSinIGV * (porc_impuesto+1);
 			var imp = parseFloat(valorConIGV - valorSinIGV)
 			$("#"+id+"valor").val(valorConIGV.toFixed(5));
 			$("#"+id+"impuesto").val(imp.toFixed(5));
