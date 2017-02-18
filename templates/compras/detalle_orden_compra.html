@@ -129,13 +129,11 @@
 			</div>
 			<div class="row">
 				<div class="col-md-3">	
-					<label>Proceso:</label>
-					<p>{{ object.proceso }}</p>
-				</div>
-				<div class="col-md-3">
-					<label>Informe:</label>				
-					{% if object.informe %} <a
-						href="{{ object.informe.url }}">Ver informe</a> 
+					<label>Impuesto:</label>
+					{% if object.con_impuesto %}
+						<p>Impuesto Incluido</p>
+					{% else  %}
+						<p>Sin Impuesto</p>
 					{% endif %}
 				</div>						
 			</div>
@@ -162,9 +160,9 @@
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
 						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
-						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
 						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
-						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
+						  		<td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
 							</tr>
 							{% endfor %}
 						{% else %}
@@ -174,9 +172,9 @@
 						  		<td>{{ detalle.producto.descripcion }}</td>
 						  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
 						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
-						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
 						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
-						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
+						  		<td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
 							</tr>
 							{% endfor %}
 						{% endif %}

@@ -213,17 +213,15 @@ class OrdenCompra(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
     proveedor = models.ForeignKey(Proveedor, null=True)
-    proceso = models.CharField(max_length=50, default='')
-    fecha = models.DateField()    
+    fecha = models.DateField()
     forma_pago = models.ForeignKey(FormaPago)    
     observaciones = models.TextField(default='')
-    nombre_informe = models.CharField(max_length=150, default='')
-    informe = models.FileField(upload_to='informes', null=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
                      ('ING_PARC', _('INGRESADA PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
+    con_impuesto = models.BooleanField(default=False)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -285,7 +283,7 @@ class OrdenCompra(TimeStampedModel):
     def subtotal(self):
         subtotal = 0
         for detalle in DetalleOrdenCompra.objects.filter(orden = self):
-            subtotal = subtotal + detalle.valor
+            subtotal = subtotal + detalle.valor_sin_igv
         return subtotal
     
     @property            
@@ -335,22 +333,48 @@ class DetalleOrdenCompra(TimeStampedModel):
     history = HistoricalRecords()
 
     @property
-    def precio_igv(self):
-        monto_impuesto = CONFIGURACION.impuesto_compra.monto
-        return round(self.precio * (monto_impuesto + 1), 5)
+    def precio_con_igv(self):
+        if self.orden.con_impuesto:
+            precio_con_igv =self.precio
+        else:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            precio_con_igv = round(self.precio * (monto_impuesto + 1), 5)
+        return precio_con_igv
 
     @property
-    def valor(self):
-        return round(self.precio * self.cantidad,5)
+    def precio_sin_igv(self):
+        if self.orden.con_impuesto:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            precio_sin_igv = round(self.precio / (monto_impuesto + 1), 5)
+        else:
+            precio_sin_igv = self.precio
+        return precio_sin_igv
 
     @property
-    def valor_igv(self):
-        valor_igv = Decimal(self.precio_igv) * self.cantidad
-        return round(valor_igv, 5)
+    def valor_sin_igv(self):
+        if self.orden.con_impuesto:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            valor_sin_igv = (self.precio * self.cantidad) / (monto_impuesto+1)
+        else:
+            valor_sin_igv = self.precio * self.cantidad
+        return round(valor_sin_igv, 5)
+
+    @property
+    def valor_con_igv(self):
+        if self.orden.con_impuesto:
+            valor_con_igv = self.precio * self.cantidad
+        else:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            valor_con_igv = (self.precio * self.cantidad) * (monto_impuesto+1)
+        return round(valor_con_igv, 5)
 
     @property
     def impuesto(self):
-        imp = Decimal(self.valor_igv) - Decimal(self.valor)
+        monto_impuesto = CONFIGURACION.impuesto_compra.monto
+        if self.orden.con_impuesto:
+            imp = self.precio * self.cantidad - (self.precio * self.cantidad) / (monto_impuesto+1)
+        else:
+            imp = self.precio * self.cantidad * monto_impuesto
         return round(imp,5)
     
     def establecer_estado(self):   

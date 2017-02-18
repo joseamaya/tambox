@@ -343,6 +343,7 @@ class CrearOrdenCompra(CreateView):
         try:
             with transaction.atomic():
                 self.object = form.save()
+                con_igv = form.cleaned_data.get('con_impuesto')
                 referencia = self.object.cotizacion
                 detalles = []
                 cont = 1                
@@ -934,7 +935,7 @@ class ModificarOrdenCompra(UpdateView):
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
                          'impuesto': detalle.impuesto,
-                         'valor': detalle.valor}
+                         'valor': detalle.valor_sin_igv}
                 detalles_data.append(d)
             detalle_orden_compra_formset = DetalleOrdenCompraFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
@@ -957,7 +958,6 @@ class ModificarOrdenCompra(UpdateView):
         initial['fecha'] = orden.fecha.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
-        initial['proceso'] = orden.proceso
         try:
             monto_impuesto = IMPUESTO_COMPRA.monto
         except:

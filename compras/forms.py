@@ -148,16 +148,14 @@ class OrdenCompraForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
         self.fields['codigo'].required = False
-        self.fields['proceso'].required = False
         self.fields['referencia'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
-        self.fields['nombre_informe'].required = False
-        self.fields['informe'].required = False
         for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
+            if field <> 'con_impuesto':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control'
+                })
             if field=='igv' or field=='total' or field=='subtotal' or field=='total_letras':
                 self.fields[field].widget.attrs.update({
                     'readonly':"readonly"
@@ -179,7 +177,7 @@ class OrdenCompraForm(forms.ModelForm):
                 
     class Meta:
         model = OrdenCompra
-        fields =['codigo','proceso','forma_pago','fecha','observaciones','nombre_informe','informe']
+        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto']
         
 class OrdenServiciosForm(forms.ModelForm):
     ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 
