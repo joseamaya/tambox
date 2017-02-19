@@ -327,16 +327,13 @@ class DetalleMovimiento(TimeStampedModel):
     producto = models.ForeignKey(Producto)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     precio = models.DecimalField(max_digits=15, decimal_places=5)
+    valor = models.DecimalField(max_digits=15, decimal_places=5)
     history = HistoricalRecords()    
-    
-    @property
-    def valor(self):
-        return round(self.precio * self.cantidad, 5)
-    
+
     def save(self, *args, **kwargs):
         movi = self.movimiento
         t_movimiento = movi.tipo_movimiento
-        val = Decimal(self.valor)
+        val = self.valor
         kardex = Kardex(producto = self.producto,
                         fecha_operacion = movi.fecha_operacion,
                         movimiento = movi,

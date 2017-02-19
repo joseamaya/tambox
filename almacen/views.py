@@ -1157,13 +1157,15 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio)
+                                                                   precio=precio,
+                                                                   valor = valor)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio)
+                                                                   precio=precio,
+                                                                   valor=valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 

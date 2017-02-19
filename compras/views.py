@@ -1245,16 +1245,16 @@ class ObtenerDetalleOrdenCompra(TemplateView):
                     det['codigo'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo                
                     det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion                    
                     det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
-                    det['precio'] = str(detalle.precio_igv)
+                    det['precio'] = str(detalle.precio_sin_igv)
                     det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor_igv)
+                    det['valor'] = str(detalle.valor_sin_igv)
                 except:
                     det['codigo'] = detalle.producto.codigo
                     det['nombre'] = detalle.producto.descripcion                    
                     det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
-                    det['precio'] = str(detalle.precio_igv)
+                    det['precio'] = str(detalle.precio_sin_igv)
                     det['unidad'] = detalle.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor_igv)
+                    det['valor'] = str(detalle.valor_sin_igv)
                 lista_detalles.append(det)
             formset = DetalleIngresoFormSet(initial=lista_detalles)
             lista_json = []
