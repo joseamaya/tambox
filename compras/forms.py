@@ -264,7 +264,7 @@ class FormularioDetalleOrdenCompra(forms.Form):
     unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 6,'readonly':"readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     precio = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
-    impuesto = forms.DecimalField(max_digits=15,decimal_places=5, widget = forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'decimal form-control'}))
+    impuesto = forms.DecimalField(max_digits=15,decimal_places=5, widget = forms.TextInput(attrs={'size': 7,'readonly':"readonly", 'class': 'impuesto decimal form-control'}))
     valor = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
 class FormularioDetalleOrdenServicios(forms.Form):

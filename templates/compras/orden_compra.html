@@ -454,7 +454,42 @@ $(document).ready(function()
 
 	$('#id_con_impuesto').change(function(){
 		con_impuesto = $('#id_con_impuesto').prop('checked');
+		subtotal = 0;
+		impuesto_total = 0;
+		total = 0;
+		var valorConIGV = 0;
+		var valorSinIGV = 0;
+		var imp = 0;
+		$(".impuesto").each(function()
+		{
+			var id_input = $(this).prop('id');
+			var id = id_input.replace("impuesto","");
+			var precio = $("#"+id+"precio").val();
+			var cantidad = $("#"+id+"cantidad").val();
+			if (con_impuesto)
+			{
+				valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+				valorSinIGV = valorConIGV / (porc_impuesto+1);
+				imp = parseFloat(valorConIGV - valorSinIGV)
+			}
+			else
+			{
+				valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
+				valorConIGV = valorSinIGV * (porc_impuesto+1);
+				imp = parseFloat(valorConIGV - valorSinIGV)
+			}
+			$("#"+id+"valor").val(valorSinIGV.toFixed(5));
+			$("#"+id+"impuesto").val(imp.toFixed(5));
+			subtotal = subtotal + parseFloat(valorSinIGV);
+			impuesto_total = impuesto_total + parseFloat(imp);
+			total = subtotal + impuesto_total;
+			$("#id_subtotal").val(subtotal.toFixed(2));
+			$("#id_impuesto").val(impuesto_total.toFixed(2));
+			$("#id_total").val(total.toFixed(2));
+			$("#id_total_letras").val(NumeroALetras(total));
+		});
 	});
+
 	$("#id_fecha").datepicker();	
 	
 	$("#id_ruc").keyup(function() 
@@ -521,43 +556,21 @@ $(document).ready(function()
 	{
 		var id_input= $(this).prop('id');
 		var id = id_input.replace("cantidad","");
-		var cantidad = $("#"+id+"cantidad").val();
-		if (cantidad != "")
-		{
-			var precio = $("#"+id+"precio").val();		
-			var valorAnt = $("#"+id+"valor").val();
-			var impAnt = $("#"+id+"impuesto").val();
-			if (con_impuesto)
-			{
-				var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
-				var valorSinIGV = valorConIGV / (porc_impuesto+1);
-				var imp = parseFloat(valorConIGV - valorSinIGV)
-			}
-			else
-			{
-				var valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
-				var valorConIGV = valorSinIGV * (porc_impuesto+1);
-				var imp = parseFloat(valorConIGV - valorSinIGV)
-			}
-			$("#"+id+"valor").val(valorSinIGV.toFixed(5));
-			$("#"+id+"impuesto").val(imp.toFixed(5));
-			subtotal = subtotal - parseFloat(valorAnt) + parseFloat(valorSinIGV);
-			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
-			total = subtotal + impuesto_total;
-			$("#id_subtotal").val(subtotal.toFixed(2));
-			$("#id_impuesto").val(impuesto_total.toFixed(2));
-			$("#id_total").val(total.toFixed(2));
-			$("#id_total_letras").val(NumeroALetras(total));
-		}
+		actualizarValor(id);
 	});
 	
 	$(document).on("keyup",".precio",function()
 	{
 		var id_input= $(this).prop('id');
 		var id = id_input.replace("precio","");
-		var cantidad = $("#"+id+"cantidad").val();
+		actualizarValor(id);
+	});
+
+	function actualizarValor(id)
+	{
 		var precio = $("#"+id+"precio").val();
-		if (precio != "")
+		var cantidad = $("#"+id+"cantidad").val();
+		if (precio != "" && cantidad != "")
 		{
 			var valorAnt = $("#"+id+"valor").val();
 			var impAnt = $("#"+id+"impuesto").val();
@@ -583,7 +596,7 @@ $(document).ready(function()
 			$("#id_total").val(total.toFixed(2));
 			$("#id_total_letras").val(NumeroALetras(total));
 		}
-	});
+	}
 	
 	$('#id_crear_detalle').click(function(e)
 	{
