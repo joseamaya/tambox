@@ -291,7 +291,7 @@ class BaseDetalleIngresoFormSet(formsets.BaseFormSet):
                     )
                 
 class FormularioDetalleSalida(forms.Form):
-    pedido = forms.CharField(widget=forms.HiddenInput())
+    pedido = forms.CharField(widget=forms.HiddenInput(), required=False)
     codigo = forms.CharField(widget= forms.TextInput(attrs={'size': 8, 'readonly':"readonly", 'class': 'entero form-control'}))    
     nombre = forms.CharField(widget= forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget= forms.TextInput(attrs={'size': 5,'readonly':"readonly", 'class': 'form-control'}))

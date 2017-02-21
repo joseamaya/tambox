@@ -201,17 +201,22 @@ class BusquedaProductosAlmacen(TemplateView):
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
+            print descripcion
             kardex_ant = Kardex.objects.filter(producto__descripcion__icontains = descripcion,
-                                               almacen__codigo=almacen).order_by('producto').distinct('producto__codigo')[:20]
+                                               almacen__id=almacen).order_by('producto').distinct('producto__codigo')[:20]
             for kardex in kardex_ant:
                 control = Kardex.objects.filter(producto = kardex.producto,
-                                                almacen__codigo=almacen).latest('fecha_operacion')
+                                                almacen__id=almacen).latest('fecha_operacion')
                 producto_json = {}
                 producto_json['label'] = control.producto.descripcion
                 producto_json['codigo'] = control.producto.codigo
                 producto_json['descripcion'] = control.producto.descripcion
                 producto_json['unidad'] = control.producto.unidad_medida.descripcion
-                producto_json['precio'] = str(round(control.valor_total/control.cantidad_total,5))
+                try:
+                    precio=round(control.valor_total / control.cantidad_total, 5)
+                except:
+                    precio = 0
+                producto_json['precio'] = str(precio)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -510,7 +515,7 @@ class ConsultaStock(TemplateView):
             almacen = request.GET['almacen']
             codigo = request.GET['codigo']            
             control_producto = Kardex.objects.filter(producto__codigo = codigo,
-                                                     almacen__codigo=almacen).latest('fecha_operacion')            
+                                                     almacen__id=almacen).latest('fecha_operacion')
             producto_json = {}                
             producto_json['stock'] = control_producto.cantidad_total
             data = simplejson.dumps(producto_json)
@@ -1234,7 +1239,8 @@ class RegistrarSalidaAlmacen(CreateView):
                                                                movimiento=self.object,
                                                                producto=Producto.objects.get(pk=codigo),
                                                                cantidad=cantidad,
-                                                               precio=precio) 
+                                                               precio=precio,
+                                                               valor=valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
@@ -1243,6 +1249,8 @@ class RegistrarSalidaAlmacen(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_salida_formset):
+        print form
+        print detalle_salida_formset
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_salida_formset = detalle_salida_formset))
     
