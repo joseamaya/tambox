@@ -201,7 +201,6 @@ class BusquedaProductosAlmacen(TemplateView):
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
-            print descripcion
             kardex_ant = Kardex.objects.filter(producto__descripcion__icontains = descripcion,
                                                almacen__id=almacen).order_by('producto').distinct('producto__codigo')[:20]
             for kardex in kardex_ant:
@@ -279,13 +278,24 @@ class CargarInventarioInicial(FormView):
                 try:
                     producto = Producto.objects.get(descripcion=unicode(fila[0].strip(), errors='ignore'))
                     cantidad = Decimal(fila[1])
-                    precio = Decimal(fila[2])
-                    valor = cantidad * precio
+                    try:
+                        precio = Decimal(fila[2])
+                    except:
+                        precio = ''
+                    valor = Decimal(fila[3])
+                    if precio == '':
+                        try:
+                            precio = valor / cantidad
+                        except:
+                            precio = 0
+                    if valor == '':
+                        valor = cantidad * precio
                     detalle_movimiento = DetalleMovimiento(nro_detalle=cont_detalles,
                                                            movimiento=movimiento,
                                                            producto=producto,
                                                            cantidad=cantidad,
-                                                           precio=precio)
+                                                           precio=precio,
+                                                           valor=valor)
                     detalles.append(detalle_movimiento)
                 except Producto.DoesNotExist:
                     pass                 
@@ -1249,8 +1259,6 @@ class RegistrarSalidaAlmacen(CreateView):
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
     def form_invalid(self, form, detalle_salida_formset):
-        print form
-        print detalle_salida_formset
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_salida_formset = detalle_salida_formset))
     
