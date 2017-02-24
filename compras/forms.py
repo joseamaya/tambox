@@ -152,7 +152,7 @@ class OrdenCompraForm(forms.ModelForm):
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
         for field in iter(self.fields):
-            if field <> 'con_impuesto':
+            if field <> 'con_impuesto' and field <> 'dolares':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -177,7 +177,7 @@ class OrdenCompraForm(forms.ModelForm):
                 
     class Meta:
         model = OrdenCompra
-        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto']
+        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto','dolares']
         
 class OrdenServiciosForm(forms.ModelForm):
     ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 

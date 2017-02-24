@@ -221,6 +221,7 @@ class OrdenCompra(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     con_impuesto = models.BooleanField(default=False)
+    dolares =  models.BooleanField(default=False)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
