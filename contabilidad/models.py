@@ -9,6 +9,28 @@ from contabilidad.behaviors import SingletonModel
 from contabilidad.querysets import NavegableQuerySet
 from contabilidad.helpers import OverwriteStorage
         
+class TipoCambio(TimeStampedModel):
+    monto = models.DecimalField(max_digits=15, decimal_places=5)
+    fecha = models.DateField(unique=True)
+    objects = NavegableQuerySet.as_manager()
+
+    class Meta:
+        permissions = (('ver_detalle_tipo_cambio', 'Puede ver detalle de Tipo de Cambio'),
+                       ('ver_tabla_tipos_cambio', 'Puede ver tabla de Tipos de Cambio'),
+                       ('ver_reporte_tipos_cambio_excel', 'Puede ver Reporte Tipos de Cambio en excel'),)
+        ordering = ['fecha']
+
+    def anterior(self):
+        ant = TipoCambio.objects.anterior(self)
+        return ant.pk
+
+    def siguiente(self):
+        sig = TipoCambio.objects.siguiente(self)
+        return sig.pk
+
+    def __str__(self):
+        return self.fecha
+
 class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True,max_length=12)
     descripcion = models.CharField(max_length=150)

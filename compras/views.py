@@ -255,12 +255,6 @@ class CrearCotizacion(CreateView):
         with transaction.atomic():
             self.object = form.save()
             cod_orden = form.cleaned_data.get('orden')
-            if self.object.proveedor.es_locador:
-                orden = OrdenServicios.objects.create(codigo=cod_orden,
-                                                      cotizacion=self.object,
-                                                      proveedor = self.object.proveedor,
-                                                      forma_pago = FormaPago.objects.get(codigo = 'CONT'),
-                                                      fecha = self.object.fecha)
             referencia = self.object.requerimiento
             detalles = []
             detalles_servicios = []
@@ -281,10 +275,7 @@ class CrearCotizacion(CreateView):
                     
                         
                     cont = cont + 1
-            if self.object.proveedor.es_locador:
-                DetalleCotizacion.objects.bulk_create(detalles, referencia, orden)
-            else:
-                DetalleCotizacion.objects.bulk_create(detalles, referencia, None)
+            DetalleCotizacion.objects.bulk_create(detalles, referencia, None)
             return HttpResponseRedirect(reverse('compras:detalle_cotizacion', args=[self.object.codigo]))
         #except IntegrityError:
             #messages.error(self.request, 'Error guardando la cotizacion.')

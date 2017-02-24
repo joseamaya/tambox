@@ -74,7 +74,6 @@ class RepresentanteLegal(TimeStampedModel):
 
 class Proveedor(TimeStampedModel):
     ruc = models.CharField(unique=True,max_length=11)
-    es_locador = models.BooleanField(default = False)
     razon_social = models.CharField(max_length=150)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=15,null=True)

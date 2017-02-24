@@ -2,10 +2,10 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
-    Configuracion, FormaPago, Empresa, TipoExistencia
+    Configuracion, FormaPago, Empresa, TipoExistencia, TipoCambio
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
-    ImpuestoForm, ConfiguracionForm, FormaPagoForm 
+    ImpuestoForm, ConfiguracionForm, FormaPagoForm, TipoCambioForm
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
@@ -90,7 +90,20 @@ class CrearTipoDocumento(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:detalle_tipo_documento', args=[self.object.pk])
-    
+
+
+class CrearTipoCambio(CreateView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipo_cambio.html'
+    form_class = TipoCambioForm
+
+    @method_decorator(permission_required('contabilidad.add_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearTipoCambio, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+
 class CrearCuentaContable(CreateView):
     model = CuentaContable
     template_name = 'contabilidad/cuenta_contable.html'
@@ -134,7 +147,11 @@ class CrearConfiguracion(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
-    
+
+class DetalleTipoCambio(DetailView):
+    model = TipoCambio
+    template_name = 'contabilidad/detalle_tipo_cambio.html'
+
 class DetalleTipoDocumento(DetailView):
     model = TipoDocumento
     template_name = 'contabilidad/detalle_tipo_documento.html'
@@ -202,6 +219,16 @@ class ListadoTiposDocumentos(ListView):
     @method_decorator(permission_required('contabilidad.ver_tabla_tipos_documentos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoTiposDocumentos, self).dispatch(*args, **kwargs)
+
+
+class ListadoTiposCambio(ListView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipos_cambio.html'
+    context_object_name = 'tipos'
+
+    @method_decorator(permission_required('contabilidad.ver_tabla_tipos_cambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ListadoTiposCambio, self).dispatch(*args, **kwargs)
     
 class ListadoCuentasContables(ListView):
     model = CuentaContable
@@ -244,13 +271,26 @@ class ModificarFormaPago(UpdateView):
     
     def get_success_url(self):
         return reverse('compras:detalle_forma_pago', args=[self.object.pk])
-    
+
+
+class ModificarTipoCambio(UpdateView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipo_cambio.html'
+    form_class = TipoCambioForm
+
+    @method_decorator(permission_required('contabilidad.change_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ModificarTipoCambio, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+
 class ModificarTipoDocumento(UpdateView):
     model = TipoDocumento
     template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm    
 
-    @method_decorator(permission_required('contabilidad.change_tipo_documento',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.change_tipodocumento',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoDocumento, self).dispatch(*args, **kwargs)
     

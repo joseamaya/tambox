@@ -1,6 +1,6 @@
 from django import forms
 from contabilidad.models import TipoDocumento, CuentaContable, Upload,\
-    Impuesto, Configuracion, FormaPago, Empresa
+    Impuesto, Configuracion, FormaPago, Empresa, TipoCambio
 from django.forms.models import inlineformset_factory
     
 class FormaPagoForm(forms.ModelForm):
@@ -26,7 +26,20 @@ class UploadForm(forms.ModelForm):
     class Meta:
         model = Upload
         fields =['archivo']
-    
+
+class TipoCambioForm(forms.ModelForm):
+
+    class Meta:
+        model = TipoCambio
+        fields =['monto','fecha']
+
+    def __init__(self, *args, **kwargs):
+        super(TipoCambioForm, self).__init__(*args, **kwargs)
+        for field in iter(self.fields):
+            self.fields[field].widget.attrs.update({
+                'class': 'form-control'
+        })
+
 class TipoDocumentoForm(forms.ModelForm):
 
     class Meta:

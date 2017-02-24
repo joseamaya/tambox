@@ -8,19 +8,22 @@ from contabilidad.views import Tablero, ListadoCuentasContables,\
     ModificarImpuesto, CrearConfiguracion, ModificarConfiguracion,\
     ListadoFormasPago, CrearFormaPago, ModificarFormaPago, DetalleFormaPago,\
     ReporteExcelFormasPago, EliminarFormaPago    , ReporteExcelTiposDocumentos,\
-    CargarTiposDocumentos
+    CargarTiposDocumentos, ListadoTiposCambio, CrearTipoCambio, DetalleTipoCambio, ModificarTipoCambio
 
 urlpatterns = [    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
     url(r'^formas_pago/$',login_required(ListadoFormasPago.as_view()), name="formas_pago"),
     url(r'^crear_forma_pago/$',login_required(CrearFormaPago.as_view()), name="crear_forma_pago"),
+    url(r'^crear_tipo_cambio/$',login_required(CrearTipoCambio.as_view()), name="crear_tipo_cambio"),
     url(r'^modificar_forma_pago/(?P<pk>.+)/$',login_required(ModificarFormaPago.as_view()), name="modificar_forma_pago"),
     url(r'^detalle_forma_pago/(?P<pk>.+)/$', login_required(DetalleFormaPago.as_view()), name="detalle_forma_pago"),
+    url(r'^detalle_tipo_cambio/(?P<pk>.+)/$', login_required(DetalleTipoCambio.as_view()), name="detalle_tipo_cambio"),
     url(r'^maestro_formas_pago_excel/$',login_required(ReporteExcelFormasPago.as_view()), name="maestro_formas_pago_excel"),
     url(r'^eliminar_forma_pago/$',login_required(EliminarFormaPago.as_view()), name="eliminar_forma_pago"),   
     url(r'^cuentas_contables/$',(ListadoCuentasContables.as_view()), name="cuentas_contables"),
     url(r'^configuracion/$',(CrearConfiguracion.as_view()), name="configuracion"),    
     url(r'^tipos_documentos/$', (ListadoTiposDocumentos.as_view()), name="tipos_documentos"),
+    url(r'^tipos_cambio/$', (ListadoTiposCambio.as_view()), name="tipos_cambio"),
     url(r'^impuestos/$', (ListadoImpuestos.as_view()), name="impuestos"),
     url(r'^detalle_tipo_documento/(?P<pk>.+)/$', (DetalleTipoDocumento.as_view()), name="detalle_tipo_documento"),
     url(r'^detalle_cuenta_contable/(?P<pk>.+)/$', (DetalleCuentaContable.as_view()), name="detalle_cuenta_contable"),
@@ -32,6 +35,7 @@ urlpatterns = [
     url(r'^crear_cuenta_contable/$', (CrearCuentaContable.as_view()), name="crear_cuenta_contable"),
     url(r'^eliminar_tipo_documento/$',(EliminarTipoDocumento.as_view()), name="eliminar_tipo_documento"),    
     url(r'^modificar_tipo_documento/(?P<pk>.+)/$',(ModificarTipoDocumento.as_view()), name="modificar_tipo_documento"),
+    url(r'^modificar_tipo_cambio/(?P<pk>.+)/$',(ModificarTipoCambio.as_view()), name="modificar_tipo_cambio"),
     url(r'^modificar_cuenta_contable/(?P<pk>.+)/$',(ModificarCuentaContable.as_view()), name="modificar_cuenta_contable"),
     url(r'^modificar_impuesto/(?P<pk>.+)/$',(ModificarImpuesto.as_view()), name="modificar_impuesto"),
     url(r'^modificar_configuracion/(?P<pk>.+)/$',(ModificarConfiguracion.as_view()), name="modificar_configuracion"),

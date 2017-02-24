@@ -18,6 +18,9 @@
 		            {% if perms.contabilidad.ver_tabla_impuestos %}
 		            <li><a href="{% url 'contabilidad:impuestos' %}">Impuestos</a></li>
 		            {% endif %}
+					{% if perms.contabilidad.ver_tabla_tipos_cambio %}
+		            <li><a href="{% url 'contabilidad:tipos_cambio' %}">Tipos de Cambio</a></li>
+		            {% endif %}
 		            {% if perms.contabilidad.ver_tabla_tipos_documentos %}
 		            <li><a href="{% url 'contabilidad:tipos_documentos' %}">Tipos de Documentos</a></li>
 		            {% endif %}		            
