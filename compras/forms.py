@@ -169,7 +169,7 @@ class OrdenCompraForm(forms.ModelForm):
             
     def save(self, *args, **kwargs):
         try:
-            self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+            self.instance.cotizacion = Cotizacion.objects.get(codigo=self.cleaned_data['referencia'])
         except Cotizacion.DoesNotExist:
             self.instance.cotizacion = None
             self.instance.proveedor = Proveedor.objects.get(ruc = self.cleaned_data['ruc'])
@@ -177,7 +177,7 @@ class OrdenCompraForm(forms.ModelForm):
                 
     class Meta:
         model = OrdenCompra
-        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto','dolares']
+        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto']#,'dolares']
         
 class OrdenServiciosForm(forms.ModelForm):
     ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 

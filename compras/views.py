@@ -98,7 +98,6 @@ class BusquedaProveedoresRazonSocial(TemplateView):
                 proveedor_json['label'] = proveedor.razon_social
                 proveedor_json['ruc'] = proveedor.ruc
                 proveedor_json['direccion'] = proveedor.direccion
-                proveedor_json['es_locador'] = proveedor.es_locador
                 proveedor_json['orden'] = str(OrdenServicios.objects.ultimo())
                 lista_proveedores.append(proveedor_json)
             data = json.dumps(lista_proveedores)
@@ -364,7 +363,7 @@ class CrearOrdenCompra(CreateView):
                         cont = cont + 1
                 if cont>1:
                     DetalleOrdenCompra.objects.bulk_create(detalles,referencia)                
-                return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.codigo]))
+                return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la orden de compra.')
         
@@ -1352,8 +1351,8 @@ class ReportePDFOrdenCompra(View):
         try:
             pdf.drawString(40, 710, u"REFERENCIA: "+orden.cotizacion.requerimiento.codigo+" - "+orden.cotizacion.requerimiento.oficina.nombre)
         except:
-            pdf.drawString(40, 710, u"REFERENCIA: "+unicode(orden.nombre_informe))            
-        pdf.drawString(40, 690, u"PROCESO: "+orden.proceso)
+            pdf.drawString(40, 710, u"REFERENCIA: -")
+        pdf.drawString(40, 690, u"PROCESO: -")
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(40, 670, u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ")
         
@@ -1486,7 +1485,7 @@ class ReportePDFOrdenCompra(View):
         
     def get(self, request, *args, **kwargs):         
         codigo = kwargs['pk']
-        orden = OrdenCompra.objects.get(codigo=codigo)        
+        orden = OrdenCompra.objects.get(pk=codigo)
         response = HttpResponse(content_type='application/pdf')
         #response['Content-Disposition'] = 'attachment; filename="orden_compra.pdf"'
         buffer = BytesIO()

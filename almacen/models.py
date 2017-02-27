@@ -98,7 +98,7 @@ class TipoMovimiento(TimeStampedModel):
         return smart_str(self.descripcion)
 
 class Pedido(TimeStampedModel):
-    codigo = models.CharField(primary_key=True,max_length=12)
+    codigo = models.CharField(unique=True,max_length=12)
     solicitante = models.ForeignKey(Trabajador)
     oficina = models.ForeignKey(Oficina)
     fecha = models.DateField()
@@ -207,7 +207,7 @@ class DetallePedido(TimeStampedModel):
         return self.pedido.codigo+ ' ' + str(self.nro_detalle)
 
 class Movimiento(TimeStampedModel):
-    id_movimiento = models.CharField(primary_key=True,max_length=16)
+    id_movimiento = models.CharField(unique=True,max_length=16)
     tipo_movimiento = models.ForeignKey(TipoMovimiento)
     referencia = models.ForeignKey(OrdenCompra,null=True)
     pedido = models.ForeignKey(Pedido, null=True)

@@ -8,7 +8,8 @@ from contabilidad.views import Tablero, ListadoCuentasContables,\
     ModificarImpuesto, CrearConfiguracion, ModificarConfiguracion,\
     ListadoFormasPago, CrearFormaPago, ModificarFormaPago, DetalleFormaPago,\
     ReporteExcelFormasPago, EliminarFormaPago    , ReporteExcelTiposDocumentos,\
-    CargarTiposDocumentos, ListadoTiposCambio, CrearTipoCambio, DetalleTipoCambio, ModificarTipoCambio
+    CargarTiposDocumentos, ListadoTiposCambio, CrearTipoCambio, DetalleTipoCambio, ModificarTipoCambio, \
+    ObtenerTipoCambio
 
 urlpatterns = [    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -41,4 +42,5 @@ urlpatterns = [
     url(r'^modificar_configuracion/(?P<pk>.+)/$',(ModificarConfiguracion.as_view()), name="modificar_configuracion"),
     url(r'^maestro_cuentas_contables_excel/$',(ReporteExcelCuentasContables.as_view()), name="maestro_cuentas_contables_excel"),
     url(r'^maestro_tipos_documentos_excel/$',(ReporteExcelTiposDocumentos.as_view()), name="maestro_tipos_documentos_excel"),
+    url(r'^obtener_tipo_cambio/$', (ObtenerTipoCambio.as_view()),name="obtener_tipo_cambio"),
 ]

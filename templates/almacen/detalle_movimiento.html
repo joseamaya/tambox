@@ -201,7 +201,7 @@ $(document).ready(function()
 	{
 		var mySpinner = setupLoading();
 		$.ajax({
-			data : {'id_movimiento' : "{{ object.id_movimiento }}" },
+			data : {'id_movimiento' : "{{ object.pk }}" },
 			url : "{% url 'almacen:eliminar_movimiento' %}",
 			type : 'get',
 			success : function(data) 

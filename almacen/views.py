@@ -1184,7 +1184,7 @@ class RegistrarIngresoAlmacen(CreateView):
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
+                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
@@ -1254,7 +1254,7 @@ class RegistrarSalidaAlmacen(CreateView):
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
+                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
                 messages.error(self.request, 'Error guardando la cotizacion.')
         
@@ -2197,7 +2197,7 @@ class ReportePDFMovimiento(View):
     
     def get(self, request, *args, **kwargs): 
         id_movimiento = kwargs['id_movimiento']
-        movimiento = Movimiento.objects.get(id_movimiento=id_movimiento)        
+        movimiento = Movimiento.objects.get(pk=id_movimiento)
         response = HttpResponse(content_type='application/pdf')                
         reporte = ReporteMovimiento('A4', movimiento)
         pdf = reporte.imprimir()        

@@ -20,6 +20,7 @@ from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
+import datetime
 
 class Tablero(View):
     
@@ -338,7 +339,24 @@ class ModificarImpuesto(UpdateView):
         return initial
     
     def get_success_url(self):
-        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])    
+        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])
+
+
+class ObtenerTipoCambio(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            fecha_get = request.GET['fecha']
+            anio = int(fecha_get[6:])
+            mes = int(fecha_get[3:5])
+            dia = int(fecha_get[0:2])
+            fecha = datetime.date(anio, mes, dia)
+            try:
+                tipo_cambio = TipoCambio.objects.get(fecha=fecha)
+            except TipoCambio.DoesNotExist:
+                tipo_cambio = {'fecha':fecha_get,'monto':0}
+            data = simplejson.dumps(tipo_cambio)
+            return HttpResponse(data, 'application/json')
 
 class ReporteExcelCuentasContables(TemplateView):
     

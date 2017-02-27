@@ -468,6 +468,32 @@ $(document).ready(function()
 	var impuesto_total = parseFloat($('#id_impuesto').val());
 	var total=parseFloat($('#id_total').val());
 	var con_impuesto = false;
+	var tipo_cambio = 1;
+
+	$('#id_dolares').change(function()
+	{
+		var fecha = $('#id_fecha').val();
+		if (fecha != "")
+		{
+			$.ajax({
+			  url: "{% url 'contabilidad:obtener_tipo_cambio' %}",
+			  data: {'fecha': fecha},
+			  success: function(data)
+			  {
+			  	if (data.monto != 0)
+			  	{
+					tipo_cambio = data.monto;
+				}
+				else
+				{
+					alert("No existe tipo de cambio para la fecha seleccionada");
+					$('#id_dolares').prop('checked',false);
+				}
+
+			  }
+			});
+		}
+	});
 
 	$('#id_con_impuesto').change(function(){
 		con_impuesto = $('#id_con_impuesto').prop('checked');

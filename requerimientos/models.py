@@ -13,7 +13,7 @@ from django.db.models import Q
 from simple_history.models import HistoricalRecords
 
 class Requerimiento(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador)
     oficina = models.ForeignKey(Oficina)
     motivo = models.CharField(max_length=100, blank=True)

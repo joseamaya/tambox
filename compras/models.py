@@ -74,6 +74,7 @@ class RepresentanteLegal(TimeStampedModel):
 
 class Proveedor(TimeStampedModel):
     ruc = models.CharField(unique=True,max_length=11)
+    es_locador = models.BooleanField(default=False)
     razon_social = models.CharField(max_length=150)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=15,null=True)
@@ -105,7 +106,7 @@ class Proveedor(TimeStampedModel):
         return smart_str(self.razon_social)
     
 class Cotizacion(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     proveedor = models.ForeignKey(Proveedor)
     requerimiento = models.ForeignKey(Requerimiento, null=True)
     fecha = models.DateField()    
@@ -209,7 +210,7 @@ class DetalleCotizacion(TimeStampedModel):
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
         
 class OrdenCompra(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique = True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
     proveedor = models.ForeignKey(Proveedor, null=True)
     fecha = models.DateField()
@@ -221,7 +222,7 @@ class OrdenCompra(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     con_impuesto = models.BooleanField(default=False)
-    dolares =  models.BooleanField(default=False)
+    #dolares =  models.BooleanField(default=False)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -310,6 +311,7 @@ class OrdenCompra(TimeStampedModel):
                 aux=int(id_ant[-6:])+1            
             correlativo = str(aux).zfill(6)
             self.codigo = 'OC'+str(anio)+correlativo
+            print self.codigo
         super(OrdenCompra, self).save()
     
     def __str__(self):
@@ -392,7 +394,7 @@ class DetalleOrdenCompra(TimeStampedModel):
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
         
 class OrdenServicios(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
     proveedor = models.ForeignKey(Proveedor, null=True)
     forma_pago = models.ForeignKey(FormaPago)
@@ -539,7 +541,7 @@ class DetalleOrdenServicios(TimeStampedModel):
         return self.estado
         
 class ConformidadServicio(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     orden_servicios = models.ForeignKey(OrdenServicios)
     doc_sustento = models.CharField(max_length=50)
     archivo = models.FileField(upload_to='informes', null=True)
