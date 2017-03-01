@@ -722,15 +722,16 @@ class ModificarMovimiento(TemplateView):
         return super(ModificarMovimiento, self).dispatch(*args, **kwargs)        
     
     def get(self, request, *args, **kwargs):  
-        id_movimiento = kwargs['id_movimiento']
-        movimiento = Movimiento.objects.get(id_movimiento=id_movimiento)
+        pk = kwargs['pk']
+        movimiento = Movimiento.objects.get(pk=pk)
+        print movimiento
         if movimiento.estado == Movimiento.STATUS.CANC:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))    
         tipo_movimiento = movimiento.tipo_movimiento
         if tipo_movimiento.incrementa:
-            return HttpResponseRedirect(reverse('almacen:modificar_ingreso_almacen', args=[movimiento.id_movimiento]))
+            return HttpResponseRedirect(reverse('almacen:modificar_ingreso_almacen', args=[movimiento.pk]))
         else:
-            return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movimiento.id_movimiento]))   
+            return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movimiento.pk]))
     
 class ModificarIngresoAlmacen(UpdateView):
     template_name = 'almacen/ingreso_almacen.html'
@@ -874,13 +875,22 @@ class ModificarSalidaAlmacen(UpdateView):
         detalles = DetalleMovimiento.objects.filter(movimiento = self.object)
         detalles_data = []
         for detalle in detalles:
-            d = {'pedido': detalle.detalle_pedido.pk,
-                 'codigo': detalle.producto.pk,
-                 'nombre': detalle.producto.descripcion,
-                 'unidad': detalle.producto.unidad_medida,
-                 'cantidad': detalle.cantidad,
-                 'precio': detalle.precio,
-                 'valor': detalle.valor }
+            try:
+                d = {'pedido': detalle.detalle_pedido.pk,
+                     'codigo': detalle.producto.pk,
+                     'nombre': detalle.producto.descripcion,
+                     'unidad': detalle.producto.unidad_medida,
+                     'cantidad': detalle.cantidad,
+                     'precio': detalle.precio,
+                     'valor': detalle.valor}
+            except:
+                d = {'pedido': 0,
+                     'codigo': detalle.producto.pk,
+                     'nombre': detalle.producto.descripcion,
+                     'unidad': detalle.producto.unidad_medida,
+                     'cantidad': detalle.cantidad,
+                     'precio': detalle.precio,
+                     'valor': detalle.valor }
             detalles_data.append(d)
         detalle_salida_formset = DetalleSalidaFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
@@ -940,17 +950,21 @@ class ModificarSalidaAlmacen(UpdateView):
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
+                        try:
+                            det_ped = DetallePedido.objects.get(pk = detalle_pedido)
+                        except:
+                            det_ped = None
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
-                                                               detalle_pedido = DetallePedido.objects.get(pk = detalle_pedido),
+                                                               detalle_pedido = det_ped,
                                                                producto=Producto.objects.get(pk=codigo),
                                                                cantidad=cantidad,
                                                                precio=precio,
-                                                               valor = valor) 
+                                                               valor = valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, self.object.pedido) 
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
+                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
         
