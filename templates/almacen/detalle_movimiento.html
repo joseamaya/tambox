@@ -210,6 +210,10 @@ $(document).ready(function()
 				alert("Movimiento " + data.id_movimiento + " eliminado");	
 				$(location).attr('href', "{% url 'almacen:movimientos' %}");
 			}
+			error: function (request, status, error)
+			{
+            	alert(request.responseText);
+        	}
 		});
 		ventana.dialog("close");
 	}
