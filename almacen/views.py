@@ -2132,7 +2132,10 @@ class ReporteExcelMovimientos(FormView):
         cont=6
         for movimiento in movimientos:
             ws.cell(row=cont,column=2).value = movimiento.id_movimiento
-            ws.cell(row=cont,column=3).value = movimiento.tipo_documento
+            try:
+                ws.cell(row=cont,column=3).value = movimiento.tipo_documento.descripcion
+            except:
+                ws.cell(row=cont, column=3).value = '--'
             ws.cell(row=cont,column=4).value = movimiento.serie
             ws.cell(row=cont,column=5).value = movimiento.numero
             ws.cell(row=cont,column=6).value = movimiento.fecha_operacion

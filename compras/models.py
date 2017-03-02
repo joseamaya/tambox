@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from requerimientos.models import Requerimiento, DetalleRequerimiento
 from model_utils.models import TimeStampedModel
 from django.db.models import Max
-from contabilidad.models import FormaPago
+from contabilidad.models import FormaPago, TipoCambio
 from productos.models import Producto
 from compras.querysets import NavegableQuerySet
 from compras.settings import CHOICES_ESTADO_COTIZ, CONFIGURACION
@@ -74,7 +74,6 @@ class RepresentanteLegal(TimeStampedModel):
 
 class Proveedor(TimeStampedModel):
     ruc = models.CharField(unique=True,max_length=11)
-    es_locador = models.BooleanField(default=False)
     razon_social = models.CharField(max_length=150)
     direccion = models.CharField(max_length=200)
     telefono = models.CharField(max_length=15,null=True)
@@ -222,7 +221,7 @@ class OrdenCompra(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     con_impuesto = models.BooleanField(default=False)
-    #dolares =  models.BooleanField(default=False)
+    dolares =  models.BooleanField(default=False)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -341,6 +340,9 @@ class DetalleOrdenCompra(TimeStampedModel):
         else:
             monto_impuesto = CONFIGURACION.impuesto_compra.monto
             precio_con_igv = round(self.precio * (monto_impuesto + 1), 5)
+        if self.orden.dolares:
+            tipo_cambio = TipoCambio.objects.get(fecha=self.orden.fecha).monto
+            precio_con_igv = round(Decimal(precio_con_igv) * tipo_cambio, 5)
         return precio_con_igv
 
     @property
@@ -350,6 +352,9 @@ class DetalleOrdenCompra(TimeStampedModel):
             precio_sin_igv = round(self.precio / (monto_impuesto + 1), 5)
         else:
             precio_sin_igv = self.precio
+        if self.orden.dolares:
+            tipo_cambio = TipoCambio.objects.get(fecha=self.orden.fecha).monto
+            precio_sin_igv = round(Decimal(precio_sin_igv) * tipo_cambio, 5)
         return precio_sin_igv
 
     @property
@@ -359,6 +364,9 @@ class DetalleOrdenCompra(TimeStampedModel):
             valor_sin_igv = (self.precio * self.cantidad) / (monto_impuesto+1)
         else:
             valor_sin_igv = self.precio * self.cantidad
+        if self.orden.dolares:
+            tipo_cambio = TipoCambio.objects.get(fecha=self.orden.fecha).monto
+            valor_sin_igv = Decimal(valor_sin_igv) * tipo_cambio
         return round(valor_sin_igv, 5)
 
     @property
@@ -368,6 +376,9 @@ class DetalleOrdenCompra(TimeStampedModel):
         else:
             monto_impuesto = CONFIGURACION.impuesto_compra.monto
             valor_con_igv = (self.precio * self.cantidad) * (monto_impuesto+1)
+        if self.orden.dolares:
+            tipo_cambio = TipoCambio.objects.get(fecha=self.orden.fecha).monto
+            valor_con_igv = Decimal(valor_con_igv) * tipo_cambio
         return round(valor_con_igv, 5)
 
     @property

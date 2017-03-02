@@ -35,6 +35,7 @@ class TipoCambioForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(TipoCambioForm, self).__init__(*args, **kwargs)
+        self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'

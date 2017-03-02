@@ -1226,7 +1226,8 @@ class ObtenerDetalleOrdenCompra(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             orden_compra = request.GET['orden_compra']            
-            detalles = DetalleOrdenCompra.objects.filter(orden__codigo=orden_compra,estado=DetalleOrdenCompra.STATUS.PEND).order_by('nro_detalle')
+            detalles = DetalleOrdenCompra.objects.filter(orden__codigo=orden_compra,
+                                                         estado=DetalleOrdenCompra.STATUS.PEND).order_by('nro_detalle')
             lista_detalles = []
             for detalle in detalles:
                 det = {}       

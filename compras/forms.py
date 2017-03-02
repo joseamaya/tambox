@@ -23,10 +23,6 @@ class ProveedorForm(forms.ModelForm):
         self.fields['condicion'].required = False
         self.fields['fecha_alta'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
-            if field<>'es_locador': 
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control'
-                })
             if field=='ruc':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control cantidad'
@@ -177,7 +173,7 @@ class OrdenCompraForm(forms.ModelForm):
                 
     class Meta:
         model = OrdenCompra
-        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto']#,'dolares']
+        fields =['codigo','forma_pago','fecha','observaciones','con_impuesto','dolares']
         
 class OrdenServiciosForm(forms.ModelForm):
     ruc = forms.CharField(11, widget= forms.TextInput(attrs={'size': 100,'class': 'entero form-control'})) 

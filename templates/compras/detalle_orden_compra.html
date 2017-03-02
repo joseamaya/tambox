@@ -128,14 +128,22 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-3">	
+				<div class="col-md-2">
 					<label>Impuesto:</label>
 					{% if object.con_impuesto %}
 						<p>Impuesto Incluido</p>
 					{% else  %}
 						<p>Sin Impuesto</p>
 					{% endif %}
-				</div>						
+				</div>
+				<div class="col-md-3">
+					<label>Dolares:</label>
+					{% if object.dolares %}
+						<p>En Dolares</p>
+					{% else  %}
+						<p>En Soles</p>
+					{% endif %}
+				</div>
 			</div>
 		<hr>
 		<div class="row">
