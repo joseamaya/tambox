@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render
+from openpyxl.styles import Border
+from openpyxl.styles import Side
+
 from almacen.models import Almacen, Movimiento, Kardex,TipoMovimiento,  DetalleMovimiento, ControlProductoAlmacen,\
     Pedido, DetallePedido
 from django.http import HttpResponse, HttpResponseRedirect
@@ -1381,24 +1384,27 @@ class ReporteKardexProducto(FormView):
         producto = Producto.objects.get(codigo=cod_prod)
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Almacén: '+ almacen.descripcion
-        ws['E1'] = 'Periodo: '+ desde.strftime('%d/%m/%Y')+'-'+ hasta.strftime('%d/%m/%Y')      
-        ws['B3'] = 'FECHA'
-        ws['C3'] = 'NRO_DOC'
-        ws['D3']= 'TIPO_MOV'
-        ws['E3'] = 'CANT. ENT'
-        ws['F3'] = 'PRE. ENT'
-        ws['G3'] = 'VALOR. ENT'
-        ws['H3'] = 'CANT. SAL'
-        ws['I3'] = 'PRE. SAL'
-        ws['J3'] = 'VALOR. SAL'
-        ws['K3'] = 'CANT. TOT'
-        ws['L3'] = 'PRE. TOT'
-        ws['M3'] = 'VALOR. TOT'
-        cont = 4        
-        ws.cell(row=cont,column=2).value = 'Codigo: '+ producto.codigo
-        ws.cell(row=cont,column=4).value = u" Denominación: " + producto.descripcion
-        ws.cell(row=cont,column=11).value = " Unidad: " + producto.unidad_medida.descripcion
+        ws.column_dimensions["C"].width = 14
+        ws.column_dimensions["E"].width = 12
+        ws.column_dimensions["F"].width = 12
+        ws.column_dimensions["G"].width = 12
+        ws.column_dimensions["H"].width = 12
+        ws.column_dimensions["I"].width = 12
+        ws.column_dimensions["J"].width = 12
+        ws.column_dimensions["K"].width = 12
+        ws.column_dimensions["L"].width = 12
+        ws.column_dimensions["M"].width = 15
+        ws['E1'] = u'Almacén: ' + almacen.descripcion
+        ws.merge_cells('E1:G1')
+        ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws.merge_cells('H1:J1')
+        cont = 3
+        ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
+        ws.cell(row=cont, column=4).value = u" Denominación: " + producto.descripcion
+        ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
+        ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.descripcion
+        ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
             kardex_inicial = Kardex.objects.filter(producto = producto,
@@ -1410,13 +1416,26 @@ class ReporteKardexProducto(FormView):
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         ws.cell(row=cont,column=8).value = "SALDO INICIAL:"
+        ws.merge_cells(start_row=cont, start_column=8, end_row=cont, end_column=9)
         ws.cell(row=cont,column=10).value = "Cantidad: "
         ws.cell(row=cont,column=11).value = cant_saldo_inicial
         ws.cell(row=cont,column=11).number_format = '#.00000'
         ws.cell(row=cont,column=12).value = "Valor: "
         ws.cell(row=cont,column=13).value = valor_saldo_inicial
         ws.cell(row=cont,column=13).number_format = '#.00000'
-        cont = cont + 1
+        ws['B5'] = 'FECHA'
+        ws['C5'] = 'NRO_DOC'
+        ws['D5']= 'TIPO_MOV'
+        ws['E5'] = 'CANT. ENT'
+        ws['F5'] = 'PRE. ENT'
+        ws['G5'] = 'VALOR. ENT'
+        ws['H5'] = 'CANT. SAL'
+        ws['I5'] = 'PRE. SAL'
+        ws['J5'] = 'VALOR. SAL'
+        ws['K5'] = 'CANT. TOT'
+        ws['L5'] = 'PRE. TOT'
+        ws['M5'] = 'VALOR. TOT'
+        cont = cont + 2
         listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(producto,
                                                                                                                                           almacen,
                                                                                                                                           desde,
@@ -1428,16 +1447,19 @@ class ReporteKardexProducto(FormView):
                 ws.cell(row=cont,column=3).value = kardex.movimiento.id_movimiento
                 ws.cell(row=cont,column=4).value = kardex.movimiento.tipo_movimiento.codigo
                 ws.cell(row=cont,column=5).value = kardex.cantidad_ingreso
+                ws.cell(row=cont, column=5).number_format = '#.00000'
                 ws.cell(row=cont,column=6).value = kardex.precio_ingreso
                 ws.cell(row=cont,column=6).number_format = '#.00000'
                 ws.cell(row=cont,column=7).value = kardex.valor_ingreso
                 ws.cell(row=cont,column=7).number_format = '#.00000'
                 ws.cell(row=cont,column=8).value = kardex.cantidad_salida
+                ws.cell(row=cont, column=8).number_format = '#.00000'
                 ws.cell(row=cont,column=9).value = kardex.precio_salida
                 ws.cell(row=cont,column=9).number_format = '#.00000'
                 ws.cell(row=cont,column=10).value = kardex.valor_salida
                 ws.cell(row=cont,column=10).number_format = '#.00000'
                 ws.cell(row=cont,column=11).value = kardex.cantidad_total
+                ws.cell(row=cont, column=11).number_format = '#.00000'
                 ws.cell(row=cont,column=12).value = kardex.precio_total
                 ws.cell(row=cont,column=12).number_format = '#.00000'
                 ws.cell(row=cont,column=13).value = kardex.valor_total
@@ -1734,8 +1756,10 @@ class ReporteKardex(FormView):
         productos = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Almacén: ' + almacen.descripcion
-        ws['E1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + '-' + hasta.strftime('%d/%m/%Y')
+        ws['E1'] = u'Almacén: ' + almacen.descripcion
+        ws.merge_cells('E1:G1')
+        ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws.merge_cells('H1:J1')
         ws['B3'] = 'FECHA'
         ws['C3'] = 'NRO_DOC'
         ws['D3'] = 'TIPO_MOV'
@@ -1752,8 +1776,11 @@ class ReporteKardex(FormView):
         for prod in productos:
             producto = prod.producto
             ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
+            ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
             ws.cell(row=cont, column=4).value = u" Denominación: " + producto.descripcion
+            ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
             ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.descripcion
+            ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
             cont += 1
             try:
                 kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -1765,6 +1792,7 @@ class ReporteKardex(FormView):
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
+            ws.merge_cells(start_row=cont, start_column=8, end_row=cont, end_column=9)
             ws.cell(row=cont, column=10).value = "Cantidad: "
             ws.cell(row=cont, column=11).value = cant_saldo_inicial
             ws.cell(row=cont, column=11).number_format = '#.00000'
@@ -1846,10 +1874,24 @@ class ReporteKardex(FormView):
     def obtener_consolidado_productos(self, desde, hasta, almacen):
         productos = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
         wb = Workbook()
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
         ws = wb.active
+        ws.column_dimensions["B"].width = 12
+        ws.column_dimensions["C"].width = 50
+        ws.column_dimensions["D"].width = 12
+        ws.column_dimensions["E"].width = 12
+        ws.column_dimensions["F"].width = 12
+        ws.column_dimensions["G"].width = 12
+        ws.column_dimensions["H"].width = 12
+        ws.column_dimensions["I"].width = 12
+        ws.column_dimensions["J"].width = 12
+        ws.column_dimensions["K"].width = 12
         ws['D1'] = u'Almacén: ' + almacen.descripcion
         ws.merge_cells('D1:F1')
-        ws['G1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + '-' + hasta.strftime('%d/%m/%Y')
+        ws['G1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('G1:I1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'NOMBRE'
@@ -1861,11 +1903,23 @@ class ReporteKardex(FormView):
         ws['I3'] = 'VALOR. SAL'
         ws['J3'] = 'CANT. TOT'
         ws['K3'] = 'VALOR. TOT'
+        ws['B3'].border = thin_border
+        ws['C3'].border = thin_border
+        ws['D3'].border = thin_border
+        ws['E3'].border = thin_border
+        ws['F3'].border = thin_border
+        ws['G3'].border = thin_border
+        ws['H3'].border = thin_border
+        ws['I3'].border = thin_border
+        ws['J3'].border = thin_border
+        ws['K3'].border = thin_border
         cont = 4
         for control_producto in productos:
             producto = control_producto.producto
             ws.cell(row=cont, column=2).value = producto.codigo
+            ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = producto.descripcion
+            ws.cell(row=cont, column=3).border = thin_border
             try:
                 kardex_inicial = Kardex.objects.filter(producto=producto,
                                                        almacen=almacen,
@@ -1877,8 +1931,10 @@ class ReporteKardex(FormView):
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=4).value = cant_saldo_inicial
             ws.cell(row=cont, column=4).number_format = '#.00000'
+            ws.cell(row=cont, column=4).border = thin_border
             ws.cell(row=cont, column=5).value = valor_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
+            ws.cell(row=cont, column=5).border = thin_border
             listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = self.obtener_kardex_producto(
                 producto,
                 almacen,
@@ -1887,14 +1943,23 @@ class ReporteKardex(FormView):
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
             ws.cell(row=cont, column=6).value = cantidad_ingreso
+            ws.cell(row=cont, column=6).number_format = '#.00000'
+            ws.cell(row=cont, column=6).border = thin_border
             ws.cell(row=cont, column=7).value = valor_ingreso
             ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=7).border = thin_border
             ws.cell(row=cont, column=8).value = cantidad_salida
+            ws.cell(row=cont, column=8).number_format = '#.00000'
+            ws.cell(row=cont, column=8).border = thin_border
             ws.cell(row=cont, column=9).value = valor_salida
             ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=9).border = thin_border
             ws.cell(row=cont, column=10).value = cantidad_total
+            ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=10).border = thin_border
             ws.cell(row=cont, column=11).value = valor_total
             ws.cell(row=cont, column=11).number_format = '#.00000'
+            ws.cell(row=cont, column=11).border = thin_border
             cont += 1
         nombre_archivo = "ReporteConsolidadoKardexExcel.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1908,13 +1973,28 @@ class ReporteKardex(FormView):
                                                son_productos=True)
         wb = Workbook()
         ws = wb.active
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        ws.column_dimensions["B"].width = 8
+        ws.column_dimensions["C"].width = 40
+        ws.column_dimensions["D"].width = 10
+        ws.column_dimensions["E"].width = 14
+        ws.column_dimensions["F"].width = 14
+        ws.column_dimensions["G"].width = 14
+        ws.column_dimensions["H"].width = 14
+        ws.column_dimensions["I"].width = 14
+        ws.column_dimensions["J"].width = 14
+        ws.column_dimensions["K"].width = 14
+        ws.column_dimensions["L"].width = 14
         ws['D1'] = u'Almacén: ' + almacen.descripcion
         ws.merge_cells('D1:F1')
         ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + '-' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'NOMBRE'
-        ws['D3'] = 'CTA_CONTABLE'
+        ws['D3'] = 'CTA_CONT.'
         ws['E3'] = 'CANT INICIAL'
         ws['F3'] = 'VALOR INICIAL'
         ws['G3'] = 'CANT. ENT'
@@ -1923,11 +2003,25 @@ class ReporteKardex(FormView):
         ws['J3'] = 'VALOR. SAL'
         ws['K3'] = 'CANT. TOT'
         ws['L3'] = 'VALOR. TOT'
+        ws['B3'].border = thin_border
+        ws['C3'].border = thin_border
+        ws['D3'].border = thin_border
+        ws['E3'].border = thin_border
+        ws['F3'].border = thin_border
+        ws['G3'].border = thin_border
+        ws['H3'].border = thin_border
+        ws['I3'].border = thin_border
+        ws['J3'].border = thin_border
+        ws['K3'].border = thin_border
+        ws['L3'].border = thin_border
         cont = 4
         for grupo in grupos:
             ws.cell(row=cont, column=2).value = grupo.codigo
+            ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = grupo.descripcion
+            ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = grupo.ctacontable.cuenta
+            ws.cell(row=cont, column=4).border = thin_border
             try:
                 kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
                                                        almacen=almacen,
@@ -1939,8 +2033,10 @@ class ReporteKardex(FormView):
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=5).value = cant_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
+            ws.cell(row=cont, column=5).border = thin_border
             ws.cell(row=cont, column=6).value = valor_saldo_inicial
             ws.cell(row=cont, column=6).number_format = '#.00000'
+            ws.cell(row=cont, column=6).border = thin_border
             listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = self.obtener_kardex_grupo(
                 grupo,
                 almacen,
@@ -1949,14 +2045,23 @@ class ReporteKardex(FormView):
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
             ws.cell(row=cont, column=7).value = cantidad_ingreso
-            ws.cell(row=cont, column=8).value = valor_ingreso
             ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=7).border = thin_border
+            ws.cell(row=cont, column=8).value = valor_ingreso
+            ws.cell(row=cont, column=8).number_format = '#.00000'
+            ws.cell(row=cont, column=8).border = thin_border
             ws.cell(row=cont, column=9).value = cantidad_salida
+            ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=9).border = thin_border
             ws.cell(row=cont, column=10).value = valor_salida
             ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=10).border = thin_border
             ws.cell(row=cont, column=11).value = cantidad_total
+            ws.cell(row=cont, column=11).number_format = '#.00000'
+            ws.cell(row=cont, column=11).border = thin_border
             ws.cell(row=cont, column=12).value = valor_total
             ws.cell(row=cont, column=12).number_format = '#.00000'
+            ws.cell(row=cont, column=12).border = thin_border
             cont += 1
         nombre_archivo = "ReporteConsolidadoCuentasContablesAlmacen.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
