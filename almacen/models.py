@@ -325,9 +325,9 @@ class DetalleMovimiento(TimeStampedModel):
     detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, null=True)
     detalle_pedido = models.ForeignKey(DetallePedido, null=True)
     producto = models.ForeignKey(Producto)
-    cantidad = models.DecimalField(max_digits=15, decimal_places=5)
-    precio = models.DecimalField(max_digits=15, decimal_places=5)
-    valor = models.DecimalField(max_digits=15, decimal_places=5)
+    cantidad = models.DecimalField(max_digits=25, decimal_places=8)
+    precio = models.DecimalField(max_digits=25, decimal_places=8)
+    valor = models.DecimalField(max_digits=25, decimal_places=8)
     history = HistoricalRecords()    
 
     def save(self, *args, **kwargs):
@@ -397,15 +397,15 @@ class Kardex(TimeStampedModel):
     nro_detalle_movimiento = models.IntegerField()
     producto = models.ForeignKey(Producto)
     fecha_operacion = models.DateTimeField()
-    cantidad_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
-    precio_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
-    valor_ingreso = models.DecimalField(max_digits=20, decimal_places=5)
-    cantidad_salida = models.DecimalField(max_digits=20, decimal_places=5)
-    precio_salida = models.DecimalField(max_digits=20, decimal_places=5)
-    valor_salida = models.DecimalField(max_digits=20, decimal_places=5)
-    cantidad_total = models.DecimalField(max_digits=20, decimal_places=5)
-    precio_total = models.DecimalField(max_digits=20, decimal_places=5)
-    valor_total = models.DecimalField(max_digits=20, decimal_places=5)
+    cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
+    precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
+    valor_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
+    cantidad_salida = models.DecimalField(max_digits=25, decimal_places=8)
+    precio_salida = models.DecimalField(max_digits=25, decimal_places=8)
+    valor_salida = models.DecimalField(max_digits=25, decimal_places=8)
+    cantidad_total = models.DecimalField(max_digits=25, decimal_places=8)
+    precio_total = models.DecimalField(max_digits=25, decimal_places=8)
+    valor_total = models.DecimalField(max_digits=25, decimal_places=8)
     almacen = models.ForeignKey(Almacen)
     history = HistoricalRecords()
     
@@ -435,8 +435,8 @@ class Kardex(TimeStampedModel):
 class ControlProductoAlmacen(TimeStampedModel):
     producto = models.ForeignKey(Producto)
     almacen = models.ForeignKey(Almacen)
-    stock = models.DecimalField(max_digits=15, decimal_places=5,default=0)
-    precio = models.DecimalField(max_digits=15, decimal_places=5,default=0)
+    stock = models.DecimalField(max_digits=25, decimal_places=8,default=0)
+    precio = models.DecimalField(max_digits=25, decimal_places=8,default=0)
     history = HistoricalRecords() 
     
     class Meta:

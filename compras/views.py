@@ -39,11 +39,14 @@ from django.db.models import Q
 from django.contrib import messages
 from almacen.forms import DetalleIngresoFormSet
 from django.shortcuts import render
+
+from contabilidad.models import TipoCambio
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import smart_str
 from datetime import date
 from compras.reports import ReporteOrdenCompra
 from compras.settings import EMPRESA, CONFIGURACION, IMPUESTO_COMPRA
+from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL,"")
 
@@ -1012,7 +1015,7 @@ class ModificarOrdenCompra(UpdateView):
                         cont = cont + 1
                         if cont > 1:
                             DetalleOrdenCompra.objects.bulk_create(detalles, referencia)
-                return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.codigo]))
+                return HttpResponseRedirect(reverse('compras:detalle_orden_compra', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -1222,43 +1225,58 @@ class ObtenerDetalleCotizacion(TemplateView):
             return HttpResponse(data, 'application/json')
 
 class ObtenerDetalleOrdenCompra(TemplateView):
+
+    def obtener_fecha(self,r_fecha):
+        anio = int(r_fecha[6:])
+        mes = int(r_fecha[3:5])
+        dia = int(r_fecha[0:2])
+        fecha = datetime.datetime(anio,mes,dia)
+        return fecha
     
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
-            orden_compra = request.GET['orden_compra']            
-            detalles = DetalleOrdenCompra.objects.filter(orden__codigo=orden_compra,
-                                                         estado=DetalleOrdenCompra.STATUS.PEND).order_by('nro_detalle')
-            lista_detalles = []
-            for detalle in detalles:
-                det = {}       
-                det['orden_compra'] = detalle.id
+            orden_compra = OrdenCompra.objects.get(codigo=request.GET['orden_compra'])
+            fecha = self.obtener_fecha(request.GET['fecha'])
+            tipo_cambio = 1
+            if orden_compra.dolares:
                 try:
-                    det['codigo'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo                
-                    det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion                    
-                    det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
-                    det['precio'] = str(detalle.precio_sin_igv)
-                    det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor_sin_igv)
+                    tipo_cambio = TipoCambio.objects.get(fecha=fecha).monto
                 except:
-                    det['codigo'] = detalle.producto.codigo
-                    det['nombre'] = detalle.producto.descripcion                    
-                    det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
-                    det['precio'] = str(detalle.precio_sin_igv)
-                    det['unidad'] = detalle.producto.unidad_medida.codigo
-                    det['valor'] = str(detalle.valor_sin_igv)
-                lista_detalles.append(det)
-            formset = DetalleIngresoFormSet(initial=lista_detalles)
+                    tipo_cambio = 0
+            lista_detalles = []
             lista_json = []
-            for form in formset:
-                detalle_json = {}    
-                detalle_json['orden_compra'] = str(form['orden_compra'])
-                detalle_json['codigo'] = str(form['codigo'])
-                detalle_json['nombre'] = str(form['nombre'])
-                detalle_json['cantidad'] = str(form['cantidad'])
-                detalle_json['precio'] = str(form['precio'])
-                detalle_json['unidad'] = str(form['unidad'])                
-                detalle_json['valor'] = str(form['valor'])
-                lista_json.append(detalle_json)                                
+            if tipo_cambio > 0:
+                detalles = DetalleOrdenCompra.objects.filter(orden=orden_compra,
+                                                             estado=DetalleOrdenCompra.STATUS.PEND).order_by('nro_detalle')
+                for detalle in detalles:
+                    det = {}
+                    det['orden_compra'] = detalle.id
+                    try:
+                        det['codigo'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo
+                        det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion
+                        det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
+                        det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio,5))
+                        det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
+                        det['valor'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio,5))
+                    except:
+                        det['codigo'] = detalle.producto.codigo
+                        det['nombre'] = detalle.producto.descripcion
+                        det['cantidad'] = str(detalle.cantidad-detalle.cantidad_ingresada)
+                        det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio,5))
+                        det['unidad'] = detalle.producto.unidad_medida.codigo
+                        det['valor'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio,5))
+                    lista_detalles.append(det)
+                formset = DetalleIngresoFormSet(initial=lista_detalles)
+                for form in formset:
+                    detalle_json = {}
+                    detalle_json['orden_compra'] = str(form['orden_compra'])
+                    detalle_json['codigo'] = str(form['codigo'])
+                    detalle_json['nombre'] = str(form['nombre'])
+                    detalle_json['cantidad'] = str(form['cantidad'])
+                    detalle_json['precio'] = str(form['precio'])
+                    detalle_json['unidad'] = str(form['unidad'])
+                    detalle_json['valor'] = str(form['valor'])
+                    lista_json.append(detalle_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
         

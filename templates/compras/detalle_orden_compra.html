@@ -1,6 +1,6 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
-<h3>Órdenes de Compra / {{ object.pk }}</h3>
+<h3>Órdenes de Compra / {{ object.codigo }}</h3>
 <div class="row">
 	<div class="col-lg-5">
 		{% if perms.compras.add_ordencompra %} 

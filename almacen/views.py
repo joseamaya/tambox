@@ -48,6 +48,7 @@ from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento
 from almacen.settings import EMPRESA, LOGISTICA
+from datetime import date
 
 locale.setlocale(locale.LC_ALL,"")
 
@@ -853,7 +854,7 @@ class ModificarIngresoAlmacen(UpdateView):
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
+                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
     
@@ -1133,6 +1134,7 @@ class RegistrarIngresoAlmacen(CreateView):
     
     def get_initial(self):
         initial = super(RegistrarIngresoAlmacen, self).get_initial()
+        initial['fecha'] = date.today().strftime('%d/%m/%Y')
         initial['total'] = 0        
         return initial
     
