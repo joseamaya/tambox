@@ -1336,9 +1336,9 @@ class ReporteKardexProducto(FormView):
         almacen = data.get('almacenes')
         formatos = data.get('formatos')
         if formatos == 'S':
-            return self.obtener_formato_sunat_unidades_fisicas(cod_prod, producto, desde, hasta, almacen)
+            return self.obtener_formato_sunat_unidades_fisicas_excel(cod_prod, producto, desde, hasta, almacen)
         elif formatos == 'V':
-            return self.obtener_formato_sunat_valorizado(cod_prod, producto, desde, hasta, almacen)
+            return self.obtener_formato_sunat_valorizado_excel(cod_prod, producto, desde, hasta, almacen)
         else:
             return self.obtener_formato_normal(cod_prod, producto, desde, hasta, almacen)
         
@@ -1654,7 +1654,7 @@ class ReporteKardexProducto(FormView):
     
     def obtener_formato_sunat_unidades_fisicas(self, cod_prod, producto, desde, hasta, almacen):    
         response = HttpResponse(content_type='application/pdf')
-        #response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="KardexUnidadesFisicas.pdf"'
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
         pdf.setPageSize(landscape(A4))
@@ -1666,11 +1666,151 @@ class ReporteKardexProducto(FormView):
         pdf = buffer.getvalue()
         buffer.close()
         response.write(pdf)
-        return response 
+        return response
+
+    def obtener_formato_sunat_unidades_fisicas_excel(self, cod_prod, producto, desde, hasta, almacen):
+        wb = Workbook()
+        ws = wb.active
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        ws.column_dimensions["C"].width = 15
+        ws.column_dimensions["F"].width = 12
+        ws.column_dimensions["G"].width = 15
+        ws.column_dimensions["H"].width = 15
+        ws.column_dimensions["I"].width = 15
+        ws.column_dimensions["J"].width = 15
+        ws.column_dimensions["K"].width = 15
+        ws.column_dimensions["L"].width = 15
+        ws.column_dimensions["M"].width = 15
+        ws.column_dimensions["N"].width = 15
+        ws.column_dimensions["O"].width = 15
+
+        ws['D1'] = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
+        ws.merge_cells('D1:G1')
+        ws['B3'] = "PERIODO: "+ desde.strftime('%d/%m/%Y')+' - '+ hasta.strftime('%d/%m/%Y')
+        ws.merge_cells('B3:E3')
+        ws['B4'] = u"RUC:" + EMPRESA.ruc
+        ws.merge_cells('B4:E4')
+        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social
+        ws.merge_cells('B5:K5')
+        ws['B6'] = u"ESTABLECIMIENTO (1): " + EMPRESA.direccion()
+        ws.merge_cells('B6:E6')
+        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
+        ws.merge_cells('B7:E7')
+        ws['B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion
+        ws.merge_cells('B8:G8')
+        ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
+        ws.merge_cells('B9:E9')
+        ws['B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion
+        ws.merge_cells('B10:H10')
+        ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
+        ws.merge_cells('B11:E11')
+
+        ws['B13'] = u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR"
+        ws['B13'].border = thin_border
+        ws.merge_cells('B13:E14')
+        ws['B15'] = u"FECHA"
+        ws['B15'].border = thin_border
+        ws['C15'] = u"TIPO (TABLA 10)"
+        ws['C15'].border = thin_border
+        ws['D15'] = u"SERIE"
+        ws['D15'].border = thin_border
+        ws['E15'] = u"NÚMERO"
+        ws['E15'].border = thin_border
+        ws['F13'] = u"TIPO DE \n OPERACIÓN \n (TABLA 12)"
+        ws['F13'].border = thin_border
+        ws.merge_cells('F13:F15')
+
+        ws['G13'] = u"ENTRADAS"
+        ws['G13'].border = thin_border
+        ws.merge_cells('G13:G15')
+        ws['H13'] = u"SALIDAS"
+        ws['H13'].border = thin_border
+        ws.merge_cells('H13:H15')
+        ws['I13'] = u"SALDO FINAL"
+        ws['I13'].border = thin_border
+        ws.merge_cells('I13:I15')
+
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+        except:
+            cant_saldo_inicial = 0
+        cont = 16
+        ws.cell(row=cont, column=2).border = thin_border
+        ws.cell(row=cont, column=3).value = '00'
+        ws.cell(row=cont, column=3).border = thin_border
+        ws.cell(row=cont, column=4).value = 'SALDO'
+        ws.cell(row=cont, column=4).border = thin_border
+        ws.cell(row=cont, column=5).value = 'INICIAL'
+        ws.cell(row=cont, column=5).border = thin_border
+        ws.cell(row=cont, column=6).value = '16'
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = 0
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = 0
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.cell(row=cont, column=9).value = cant_saldo_inicial
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(
+            producto,
+            almacen,
+            desde,
+            hasta)
+        for kardex in listado_kardex:
+            cont = cont + 1
+            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).border = thin_border
+            try:
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+            except:
+                ws.cell(row=cont, column=3).value = '-'
+            ws.cell(row=cont, column=3).border = thin_border
+            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).border = thin_border
+            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).border = thin_border
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).border = thin_border
+            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=7).border = thin_border
+            ws.cell(row=cont, column=8).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=8).number_format = '#.00000'
+            ws.cell(row=cont, column=8).border = thin_border
+            ws.cell(row=cont, column=9).value = kardex.cantidad_total
+            ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=9).border = thin_border
+        cont = cont + 1
+        ws.cell(row=cont, column=6).value = "TOTALES"
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = cantidad_salida
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.cell(row=cont, column=9).value = cantidad_total
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
     
     def obtener_formato_sunat_valorizado(self, cod_prod, producto, desde, hasta, almacen):    
         response = HttpResponse(content_type='application/pdf')
-        #response['Content-Disposition'] = 'attachment; filename="resume.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="KardexValorizado.pdf"'
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
         pdf.setPageSize(landscape(A4))
@@ -1684,6 +1824,244 @@ class ReporteKardexProducto(FormView):
         response.write(pdf)
         return response
 
+    def obtener_formato_sunat_valorizado_excel(self, cod_prod, producto, desde, hasta, almacen):
+        wb = Workbook()
+        ws = wb.active
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        ws.column_dimensions["C"].width = 15
+        ws.column_dimensions["F"].width = 12
+        ws.column_dimensions["G"].width = 15
+        ws.column_dimensions["H"].width = 15
+        ws.column_dimensions["I"].width = 15
+        ws.column_dimensions["J"].width = 15
+        ws.column_dimensions["K"].width = 15
+        ws.column_dimensions["L"].width = 15
+        ws.column_dimensions["M"].width = 15
+        ws.column_dimensions["N"].width = 15
+        ws.column_dimensions["O"].width = 15
+
+        ws['H1'] = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
+        ws.merge_cells('H1:K1')
+        ws['B3'] = "PERIODO: "+ desde.strftime('%d/%m/%Y')+' - '+ hasta.strftime('%d/%m/%Y')
+        ws.merge_cells('B3:E3')
+        ws['B4'] = u"RUC:" + EMPRESA.ruc
+        ws.merge_cells('B4:E4')
+        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social
+        ws.merge_cells('B5:K5')
+        ws['B6'] = u"ESTABLECIMIENTO (1): " + EMPRESA.direccion()
+        ws.merge_cells('B6:E6')
+        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
+        ws.merge_cells('B7:E7')
+        ws['B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion
+        ws.merge_cells('B8:G8')
+        ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
+        ws.merge_cells('B9:E9')
+        ws['B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion
+        ws.merge_cells('B10:H10')
+        ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
+        ws.merge_cells('B11:E11')
+
+        ws['B13'] = u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR"
+        ws['B13'].border = thin_border
+        ws.merge_cells('B13:E14')
+        ws['B15'] = u"FECHA"
+        ws['B15'].border = thin_border
+        ws['C15'] = u"TIPO (TABLA 10)"
+        ws['C15'].border = thin_border
+        ws['D15'] = u"SERIE"
+        ws['D15'].border = thin_border
+        ws['E15'] = u"NÚMERO"
+        ws['E15'].border = thin_border
+        ws['F13'] = u"TIPO DE \n OPERACIÓN \n (TABLA 12)"
+        ws['F13'].border = thin_border
+        ws.merge_cells('F13:F15')
+
+        ws['G13'] = u"ENTRADAS"
+        ws['G13'].border = thin_border
+        ws['I13'].border = thin_border
+        ws.merge_cells('G13:I13')
+        ws['G14'] = u"CANTIDAD"
+        ws['G14'].border = thin_border
+        ws.merge_cells('G14:G15')
+        ws['H14'] = u"COSTO UNITARIO"
+        ws['H14'].border = thin_border
+        ws.merge_cells('H14:H15')
+        ws['I14'] = u"COSTO TOTAL"
+        ws['I14'].border = thin_border
+        ws.merge_cells('I14:I15')
+
+        ws['J13'] = u"SALIDAS"
+        ws['J13'].border = thin_border
+        ws['L13'].border = thin_border
+        ws.merge_cells('J13:L13')
+        ws['J14'] = u"CANTIDAD"
+        ws['J14'].border = thin_border
+        ws.merge_cells('J14:J15')
+        ws['K14'] = u"COSTO UNITARIO"
+        ws['K14'].border = thin_border
+        ws.merge_cells('K14:K15')
+        ws['L14'] = u"COSTO TOTAL"
+        ws['L14'].border = thin_border
+        ws.merge_cells('L14:L15')
+
+        ws['M13'] = u"SALDO FINAL"
+        ws['M13'].border = thin_border
+        ws['O13'].border = thin_border
+        ws.merge_cells('M13:O13')
+        ws['M14'] = u"CANTIDAD"
+        ws['M14'].border = thin_border
+        ws.merge_cells('M14:M15')
+        ws['N14'] = u"COSTO UNITARIO"
+        ws['N14'].border = thin_border
+        ws.merge_cells('N14:N15')
+        ws['O14'] = u"COSTO TOTAL"
+        ws['O14'].border = thin_border
+        ws.merge_cells('O14:O15')
+
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+            valor_saldo_inicial = kardex_inicial.valor_total
+        except:
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0
+        cont = 16
+        ws.cell(row=cont, column=2).border = thin_border
+        ws.cell(row=cont, column=3).value = '00'
+        ws.cell(row=cont, column=3).border = thin_border
+        ws.cell(row=cont, column=4).value = 'SALDO'
+        ws.cell(row=cont, column=4).border = thin_border
+        ws.cell(row=cont, column=5).value = 'INICIAL'
+        ws.cell(row=cont, column=5).border = thin_border
+        ws.cell(row=cont, column=6).value = '16'
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = 0
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = 0
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+        ws.cell(row=cont, column=9).value = 0
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=10).value = 0
+        ws.cell(row=cont, column=10).number_format = '#.00000'
+        ws.cell(row=cont, column=10).border = thin_border
+        ws.cell(row=cont, column=11).value = 0
+        ws.cell(row=cont, column=11).number_format = '#.00000'
+        ws.cell(row=cont, column=11).border = thin_border
+        ws.cell(row=cont, column=12).value = 0
+        ws.cell(row=cont, column=12).number_format = '#.00000'
+        ws.cell(row=cont, column=12).border = thin_border
+        ws.cell(row=cont, column=13).value = cant_saldo_inicial
+        ws.cell(row=cont, column=13).number_format = '#.00000'
+        ws.cell(row=cont, column=13).border = thin_border
+        ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
+        ws.cell(row=cont, column=14).number_format = '#.00000'
+        ws.cell(row=cont, column=14).border = thin_border
+        ws.cell(row=cont, column=15).value = valor_saldo_inicial
+        ws.cell(row=cont, column=15).number_format = '#.00000'
+        ws.cell(row=cont, column=15).border = thin_border
+
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(
+            producto,
+            almacen,
+            desde,
+            hasta)
+        for kardex in listado_kardex:
+            cont = cont + 1
+            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).border = thin_border
+            try:
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+            except:
+                ws.cell(row=cont, column=3).value = '-'
+            ws.cell(row=cont, column=3).border = thin_border
+            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).border = thin_border
+            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).border = thin_border
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).border = thin_border
+            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=7).border = thin_border
+            ws.cell(row=cont, column=8).value = kardex.precio_ingreso
+            ws.cell(row=cont, column=8).number_format = '#.00000'
+            ws.cell(row=cont, column=8).border = thin_border
+            ws.cell(row=cont, column=9).value = kardex.valor_ingreso
+            ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=9).border = thin_border
+            ws.cell(row=cont, column=10).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=10).border = thin_border
+            ws.cell(row=cont, column=11).value = kardex.precio_salida
+            ws.cell(row=cont, column=11).number_format = '#.00000'
+            ws.cell(row=cont, column=11).border = thin_border
+            ws.cell(row=cont, column=12).value = kardex.valor_salida
+            ws.cell(row=cont, column=12).number_format = '#.00000'
+            ws.cell(row=cont, column=12).border = thin_border
+            ws.cell(row=cont, column=13).value = kardex.cantidad_total
+            ws.cell(row=cont, column=13).number_format = '#.00000'
+            ws.cell(row=cont, column=13).border = thin_border
+            ws.cell(row=cont, column=14).value = kardex.precio_total
+            ws.cell(row=cont, column=14).number_format = '#.00000'
+            ws.cell(row=cont, column=14).border = thin_border
+            ws.cell(row=cont, column=15).value = kardex.valor_total
+            ws.cell(row=cont, column=15).number_format = '#.00000'
+            ws.cell(row=cont, column=15).border = thin_border
+        cont = cont + 1
+        try:
+            t_precio_i = valor_ingreso / cantidad_ingreso
+        except:
+            t_precio_i = 0
+        try:
+            t_precio_s = valor_salida / cantidad_salida
+        except:
+            t_precio_s = 0
+        try:
+            t_precio_t = valor_total / cantidad_total
+        except:
+            t_precio_t = 0
+        ws.cell(row=cont, column=6).value = "TOTALES"
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = t_precio_i
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.cell(row=cont, column=9).value = valor_ingreso
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+        ws.cell(row=cont, column=10).value = cantidad_salida
+        ws.cell(row=cont, column=10).number_format = '#.00000'
+        ws.cell(row=cont, column=10).border = thin_border
+        ws.cell(row=cont, column=11).value = t_precio_s
+        ws.cell(row=cont, column=11).number_format = '#.00000'
+        ws.cell(row=cont, column=11).border = thin_border
+        ws.cell(row=cont, column=12).value = valor_salida
+        ws.cell(row=cont, column=12).number_format = '#.00000'
+        ws.cell(row=cont, column=12).border = thin_border
+        ws.cell(row=cont, column=13).value = cantidad_total
+        ws.cell(row=cont, column=13).number_format = '#.00000'
+        ws.cell(row=cont, column=13).border = thin_border
+        ws.cell(row=cont, column=14).value = t_precio_t
+        ws.cell(row=cont, column=14).number_format = '#.00000'
+        ws.cell(row=cont, column=14).border = thin_border
+        ws.cell(row=cont, column=15).value = valor_total
+        ws.cell(row=cont, column=15).number_format = '#.00000'
+        ws.cell(row=cont, column=15).border = thin_border
+        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
 
 class ReporteKardex(FormView):
     template_name = 'almacen/reporte_kardex.html'
