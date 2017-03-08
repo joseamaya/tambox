@@ -217,6 +217,7 @@ class Movimiento(TimeStampedModel):
     fecha_operacion = models.DateTimeField()
     almacen = models.ForeignKey(Almacen)
     oficina = models.ForeignKey(Oficina,null=True)
+    receptor = models.CharField(max_length=150, null=True)
     observaciones = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),

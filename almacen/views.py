@@ -728,7 +728,6 @@ class ModificarMovimiento(TemplateView):
     def get(self, request, *args, **kwargs):  
         pk = kwargs['pk']
         movimiento = Movimiento.objects.get(pk=pk)
-        print movimiento
         if movimiento.estado == Movimiento.STATUS.CANC:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))    
         tipo_movimiento = movimiento.tipo_movimiento
@@ -1223,7 +1222,8 @@ class RegistrarSalidaAlmacen(CreateView):
     
     def get_initial(self):
         initial = super(RegistrarSalidaAlmacen, self).get_initial()
-        initial['total'] = 0        
+        initial['total'] = 0
+        initial['fecha'] = date.today().strftime('%d/%m/%Y')
         return initial
     
     def get(self, request, *args, **kwargs):
@@ -1689,7 +1689,7 @@ class ReporteKardexProducto(FormView):
         ws.column_dimensions["N"].width = 15
         ws.column_dimensions["O"].width = 15
 
-        ws['D1'] = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
+        ws['D1'] = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
         ws.merge_cells('D1:G1')
         ws['B3'] = "PERIODO: "+ desde.strftime('%d/%m/%Y')+' - '+ hasta.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')

@@ -3,6 +3,13 @@
 <h3>Movimientos / {{ object.id_movimiento }}</h3>
 <div class="row">
 	<div class="col-lg-5">
+		{% if perms.almacen.add_movimiento %}
+			{% if object.tipo_movimiento.incrementa %}
+			<a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
+			{% else %}
+			<a href="{% url 'almacen:registrar_salida' %}" class="btn btn-primary">Crear</a>
+			{% endif %}
+		{% endif %}
 		<a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a> 
 		{% if perms.almacen.delete_movimiento %}
 			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
@@ -50,13 +57,13 @@
 				<label>ID MOVIMIENTO:</label>
 				<p>{{ object.id_movimiento }}</p>
 			</div>	
-			<div class="col-md-2">
+			<div class="col-md-3">
 				<label>Fecha Creación:</label> 
-				<p>{{ object.created|date:"d/m/Y" }}</p>
+				<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
 			</div>
 			<div class="col-md-3">
 				<label>Fecha Modificación:</label> 
-				<p>{{ object.modified|date:"d/m/Y" }}</p>
+				<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
 			</div>			
 			<div class="col-md-3">
 				<label>Estado:</label> 
@@ -68,19 +75,35 @@
 				<label>Tipo de Ingreso:</label>  
 				<p>{{ object.tipo_movimiento }}</p>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-3">
 				<label>Almacen:</label> 
 				<p>{{ object.almacen }}</p>
 			</div>
-		</div>						
-		<div class="row">
-			<div class="col-md-3">			
-				<label>Fecha:</label> 
+			<div class="col-md-3">
+				<label>Fecha:</label>
 				<p>{{ object.fecha_operacion|date:"d/m/Y" }}</p>
 			</div>
-			<div class="col-md-3">	
-				<label>Hora:</label> 
+			<div class="col-md-3">
+				<label>Hora:</label>
 				<p>{{ object.fecha_operacion|date:"H:i:s" }}</p>
+			</div>
+		</div>						
+		<div class="row">
+			<div class="col-md-3">
+				<label>Oficina a atender:</label>
+				{% if object.oficina %}
+				<p><a href="{% url 'administracion:detalle_oficina' object.oficina.pk %}">{{ object.oficina }}</a></p>
+				{% else %}
+				<p>NINGUNA</p>
+				{% endif %}
+			</div>
+			<div class="col-md-3">
+				<label>Receptor:</label>
+				{% if object.receptor %}
+				<p>{{ object.receptor }}</p>
+				{% else %}
+				<p>--</p>
+				{% endif %}
 			</div>
 			<div class="col-md-3">	
 				<label>Referencia:</label>

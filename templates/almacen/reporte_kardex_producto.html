@@ -132,7 +132,8 @@ $("#id_desc_producto").autocomplete({
   minLength: 2,
   select: function( event, ui ) 
   {
-	$("#id_cod_producto").val(ui.item.codigo);	
+	$("#id_cod_producto").val(ui.item.codigo);
+	$("#id_desc_producto").val(ui.item.descripcion);
 	return false;
   },
 });

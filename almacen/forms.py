@@ -17,14 +17,13 @@ class TipoMovimientoForm(forms.ModelForm):
     
     class Meta:
         model = TipoMovimiento
-        fields =['descripcion','incrementa','pide_referencia']
+        fields =['descripcion','codigo_sunat','incrementa','pide_referencia']
         
     def __init__(self, *args, **kwargs):
         self.aestado= True
         super(TipoMovimientoForm, self).__init__(*args, **kwargs)
-        self.fields['descripcion'].widget.attrs.update({
-                'class': 'form-control'
-        })
+        self.fields['descripcion'].widget.attrs.update({'class': 'form-control'})
+        self.fields['codigo_sunat'].widget.attrs.update({'class': 'form-control'})
 
     def save(self, *args, **kwargs):
         self.instance.aestado= self.aestado
@@ -102,7 +101,7 @@ class MovimientoForm(forms.ModelForm):
     hora = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     doc_referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
     cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
-    total = forms.DecimalField(max_digits=15,decimal_places=5, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
+    total = forms.DecimalField(max_digits=25,decimal_places=8, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
     def __init__(self, *args, **kwargs):
         self.tipo_movimiento = kwargs.pop("tipo_movimiento")
@@ -113,6 +112,7 @@ class MovimientoForm(forms.ModelForm):
         self.fields['numero'].required = False
         self.fields['observaciones'].required = False
         self.fields['oficina'].required = False
+        self.fields['receptor'].required = False
         self.fields['doc_referencia'].required = False
         if self.tipo_movimiento == 'I':
             self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(incrementa=True)
@@ -145,7 +145,7 @@ class MovimientoForm(forms.ModelForm):
     
     class Meta:
         model = Movimiento
-        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','observaciones'] 
+        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','receptor','observaciones']
     
 class FormularioKardexProducto(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
