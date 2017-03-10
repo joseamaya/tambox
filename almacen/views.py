@@ -2074,16 +2074,20 @@ class ReporteKardex(FormView):
         desde = data.get('desde')
         hasta = data['hasta']
         almacen = data.get('almacenes')
+        formatos = data.get('formatos')
         consolidado = data['consolidado']
         if consolidado == 'P':
             return self.obtener_consolidado_productos(desde, hasta, almacen)
         elif consolidado == 'G':
             return self.obtener_consolidado_grupos(desde, hasta, almacen)
+        elif formatos == 'S':
+            return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
+        elif formatos == 'V':
+            return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
         else:
             return self.obtener_formato_normal(desde, hasta, almacen)
 
-    @staticmethod
-    def obtener_kardex_producto(producto, almacen, desde, hasta):
+    def obtener_kardex_producto(self, producto, almacen, desde, hasta):
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
@@ -2094,18 +2098,24 @@ class ReporteKardex(FormView):
         if len(listado_kardex) > 0:
             cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
             cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
             t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
             t_cantidad_s = cantidad_salida['cantidad_salida__sum']
+            t_cantidad_t = cantidad_total['cantidad_total__sum']
             valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
             valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
+            valor_total = listado_kardex.aggregate(Sum('valor_total'))
             t_valor_i = valor_ingreso['valor_ingreso__sum']
             t_valor_s = valor_salida['valor_salida__sum']
+            t_valor_t = valor_total['valor_total__sum']
         else:
             t_cantidad_i = 0
             t_cantidad_s = 0
+            t_cantidad_t = 0
             t_valor_i = 0
             t_valor_s = 0
-        return listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s
+            t_valor_t = 0
+        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s, t_cantidad_t, t_valor_t)
 
     @staticmethod
     def obtener_kardex_grupo(grupo, almacen, desde, hasta):
@@ -2180,7 +2190,7 @@ class ReporteKardex(FormView):
             ws.cell(row=cont, column=13).value = valor_saldo_inicial
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = self.obtener_kardex_producto(
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(
                 producto,
                 almacen,
                 desde,
@@ -2252,7 +2262,7 @@ class ReporteKardex(FormView):
         return response
 
     def obtener_consolidado_productos(self, desde, hasta, almacen):
-        productos = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
+        productos = Producto.objects.all().order_by('descripcion')
         wb = Workbook()
         thin_border = Border(left=Side(style='thin'),
                              right=Side(style='thin'),
@@ -2294,8 +2304,7 @@ class ReporteKardex(FormView):
         ws['J3'].border = thin_border
         ws['K3'].border = thin_border
         cont = 4
-        for control_producto in productos:
-            producto = control_producto.producto
+        for producto in productos:
             ws.cell(row=cont, column=2).value = producto.codigo
             ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = producto.descripcion
@@ -2315,7 +2324,7 @@ class ReporteKardex(FormView):
             ws.cell(row=cont, column=5).value = valor_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = self.obtener_kardex_producto(
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(
                 producto,
                 almacen,
                 desde,
@@ -2449,6 +2458,176 @@ class ReporteKardex(FormView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
+
+    def obtener_formato_sunat_unidades_fisicas(self, desde, hasta, almacen):
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="KardexUnidadesFisicas.pdf"'
+        buffer = BytesIO()
+        pdf = canvas.Canvas(buffer)
+        pdf.setPageSize(landscape(A4))
+        y = 500
+        x = 40
+        y = self.cabecera(pdf, x, y, desde, hasta, almacen, producto, False)
+        y = self.detalle_permanente_unidades_fisicas(pdf, y, desde, hasta, almacen, producto)
+        pdf.save()
+        pdf = buffer.getvalue()
+        buffer.close()
+        response.write(pdf)
+        return response
+
+    def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta, almacen):
+        ws.column_dimensions["C"].width = 15
+        ws.column_dimensions["F"].width = 12
+        ws.column_dimensions["G"].width = 15
+        ws.column_dimensions["H"].width = 15
+        ws.column_dimensions["I"].width = 15
+        ws.column_dimensions["J"].width = 15
+        ws.column_dimensions["K"].width = 15
+        ws.column_dimensions["L"].width = 15
+        ws.column_dimensions["M"].width = 15
+        ws.column_dimensions["N"].width = 15
+        ws.column_dimensions["O"].width = 15
+        ws.cell(row=cont, column=4).value = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
+        ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"RUC:" + EMPRESA.ruc
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=11)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + EMPRESA.direccion()
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.descripcion
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
+        cont = cont + 1
+        ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
+        cont = cont + 2
+        ws.cell(row=cont, column=2).value = u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR"
+        ws.cell(row=cont, column=2).border = thin_border
+        ws.merge_cells(start_row=cont, start_column=2, end_row=cont + 1, end_column=5)
+        ws.cell(row=cont, column=6).value = u"TIPO DE \n OPERACIÓN \n (TABLA 12)"
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.merge_cells(start_row=cont, start_column=6, end_row=cont + 2, end_column=6)
+        ws.cell(row=cont, column=7).value = u"ENTRADAS"
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.merge_cells(start_row=cont, start_column=7, end_row=cont + 2, end_column=7)
+        ws.cell(row=cont, column=8).value = u"SALIDAS"
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.merge_cells(start_row=cont, start_column=8, end_row=cont + 2, end_column=8)
+        ws.cell(row=cont, column=9).value = u"SALDO FINAL"
+        ws.cell(row=cont, column=9).border = thin_border
+        ws.merge_cells(start_row=cont, start_column=9, end_row=cont + 2, end_column=9)
+        cont = cont + 2
+        ws.cell(row=cont, column=2).value = u"FECHA"
+        ws.cell(row=cont, column=2).border = thin_border
+        ws.cell(row=cont, column=3).value = u"TIPO (TABLA 10)"
+        ws.cell(row=cont, column=3).border = thin_border
+        ws.cell(row=cont, column=4).value = u"SERIE"
+        ws.cell(row=cont, column=4).border = thin_border
+        ws.cell(row=cont, column=5).value = u"NÚMERO"
+        ws.cell(row=cont, column=5).border = thin_border
+
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+        except:
+            cant_saldo_inicial = 0
+        cont = cont + 1
+        ws.cell(row=cont, column=2).border = thin_border
+        ws.cell(row=cont, column=3).value = '00'
+        ws.cell(row=cont, column=3).border = thin_border
+        ws.cell(row=cont, column=4).value = 'SALDO'
+        ws.cell(row=cont, column=4).border = thin_border
+        ws.cell(row=cont, column=5).value = 'INICIAL'
+        ws.cell(row=cont, column=5).border = thin_border
+        ws.cell(row=cont, column=6).value = '16'
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = 0
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = 0
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.cell(row=cont, column=9).value = cant_saldo_inicial
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(producto, almacen, desde, hasta)
+        for kardex in listado_kardex:
+            cont = cont + 1
+            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).border = thin_border
+            try:
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+            except:
+                ws.cell(row=cont, column=3).value = '-'
+            ws.cell(row=cont, column=3).border = thin_border
+            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).border = thin_border
+            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).border = thin_border
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).border = thin_border
+            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=7).border = thin_border
+            ws.cell(row=cont, column=8).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=8).number_format = '#.00000'
+            ws.cell(row=cont, column=8).border = thin_border
+            ws.cell(row=cont, column=9).value = kardex.cantidad_total
+            ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=9).border = thin_border
+        cont = cont + 1
+        ws.cell(row=cont, column=6).value = "TOTALES"
+        ws.cell(row=cont, column=6).border = thin_border
+        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).number_format = '#.00000'
+        ws.cell(row=cont, column=7).border = thin_border
+        ws.cell(row=cont, column=8).value = cantidad_salida
+        ws.cell(row=cont, column=8).number_format = '#.00000'
+        ws.cell(row=cont, column=8).border = thin_border
+        ws.cell(row=cont, column=9).value = cantidad_total
+        ws.cell(row=cont, column=9).number_format = '#.00000'
+        ws.cell(row=cont, column=9).border = thin_border
+        return ws
+
+    def obtener_formato_sunat_unidades_fisicas_excel(self, desde, hasta, almacen):
+        productos = Producto.objects.all().order_by('descripcion')
+        wb = Workbook()
+        ws = wb.active
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        cont = 1
+        for producto in productos:
+            ws.title = producto.codigo
+            self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws,thin_border,cont,producto,desde,hasta,almacen)
+            ws = wb.create_sheet("Hoja")
+        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
+
 
 class ReporteStock(FormView):
     template_name = 'almacen/reporte_stock.html'

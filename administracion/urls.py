@@ -6,7 +6,8 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     DetallePuesto, ModificarPuesto, CargarOficinas, CargarTrabajadores,\
     ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos, ModificarNivelAprobacion,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
-    ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion
+    ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion, BusquedaReceptorDni, \
+    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores
 
 urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -26,7 +27,12 @@ urlpatterns = [
     url(r'^crear_trabajador/$',login_required(CrearTrabajador.as_view()), name="crear_trabajador"),
     url(r'^detalle_trabajador/(?P<pk>.+)/$', login_required(DetalleTrabajador.as_view()), name="detalle_trabajador"),
     url(r'^modificar_trabajador/(?P<pk>.+)/$',login_required(ModificarTrabajador.as_view()), name="modificar_trabajador"),
+    url(r'^crear_productor/$',login_required(CrearProductor.as_view()), name="crear_productor"),
+    url(r'^detalle_productor/(?P<pk>.+)/$', login_required(DetalleProductor.as_view()), name="detalle_productor"),
+    url(r'^modificar_productor/(?P<pk>.+)/$',login_required(ModificarProductor.as_view()), name="modificar_productor"),
+    url(r'^maestro_productores/$',login_required(ListadoProductores.as_view()), name="maestro_productores"),
     url(r'^maestro_puestos/$',login_required(ListadoPuestos.as_view()), name="maestro_puestos"),
+    url(r'^busqueda_receptor_dni/$', login_required(BusquedaReceptorDni.as_view()), name="busqueda_receptor_dni"),
     url(r'^crear_puesto/$',login_required(CrearPuesto.as_view()), name="crear_puesto"),
     url(r'^detalle_puesto/(?P<pk>.+)/$', login_required(DetallePuesto.as_view()), name="detalle_puesto"),
     url(r'^modificar_puesto/(?P<pk>.+)/$',login_required(ModificarPuesto.as_view()), name="modificar_puesto"),

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from administracion.models import Productor, Trabajador
 from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
 from contabilidad.models import Tipo, Upload
 import datetime
@@ -17,7 +19,7 @@ class TipoMovimientoForm(forms.ModelForm):
     
     class Meta:
         model = TipoMovimiento
-        fields =['descripcion','codigo_sunat','incrementa','pide_referencia']
+        fields =['descripcion','codigo_sunat','incrementa','pide_referencia','es_compra','es_venta']
         
     def __init__(self, *args, **kwargs):
         self.aestado= True
@@ -100,6 +102,8 @@ class MovimientoForm(forms.ModelForm):
     fecha = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     doc_referencia = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100,'readonly':"readonly", 'class': 'form-control'}))
+    dni_receptor = forms.CharField(8, widget=forms.TextInput(attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+    receptor = forms.CharField(150, widget=forms.TextInput(attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     cdetalles = forms.CharField(widget=forms.HiddenInput(),initial=0)
     total = forms.DecimalField(max_digits=25,decimal_places=8, widget= forms.TextInput(attrs={'size': 10,'readonly':"readonly", 'class': 'form-control'}))
     
@@ -112,6 +116,7 @@ class MovimientoForm(forms.ModelForm):
         self.fields['numero'].required = False
         self.fields['observaciones'].required = False
         self.fields['oficina'].required = False
+        self.fields['dni_receptor'].required = False
         self.fields['receptor'].required = False
         self.fields['doc_referencia'].required = False
         if self.tipo_movimiento == 'I':
@@ -140,12 +145,23 @@ class MovimientoForm(forms.ModelForm):
                 self.instance.referencia = OrdenCompra.objects.get(pk=self.cleaned_data['doc_referencia'])
             except:
                 self.instance.referencia = None
+        print self.cleaned_data['tipo_movimiento']
+        if self.cleaned_data['tipo_movimiento'].es_venta:
+            try:
+                self.instance.productor = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
+            except:
+                self.instance.productor = None
+        else:
+            try:
+                self.instance.trabajador = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
+            except:
+                self.instance.trabajador = None
         self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'],self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
     
     class Meta:
         model = Movimiento
-        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','receptor','observaciones']
+        fields =['id_movimiento','tipo_movimiento','tipo_documento','serie','numero','almacen','oficina','observaciones']
     
 class FormularioKardexProducto(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))

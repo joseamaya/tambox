@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import render
 from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm, \
-    ProfesionForm, NivelAprobacionForm
+    ProfesionForm, NivelAprobacionForm, ProductorForm
+from almacen.models import TipoMovimiento
 from contabilidad.forms import UploadForm
 from django.core.urlresolvers import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
 from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
-    NivelAprobacion
+    NivelAprobacion, Productor
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.conf import settings
@@ -21,7 +22,7 @@ import datetime
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
-
+import simplejson
 
 class Tablero(View):
 
@@ -51,6 +52,21 @@ class Tablero(View):
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'administracion/tablero_administracion.html', context)
 
+
+class BusquedaReceptorDni(TemplateView):
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            dni = request.GET['dni']
+            tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
+            if tipo_movimiento.es_venta:
+                receptor = Productor.objects.get(dni=dni)
+            else:
+                receptor = Trabajador.objects.get(dni=dni)
+            receptor_json = {}
+            receptor_json['dni'] = receptor.dni
+            receptor_json['nombre_completo'] = str(receptor.nombre_completo())
+            data = simplejson.dumps(receptor_json)
+            return HttpResponse(data, 'application/json')
 
 class CargarOficinas(FormView):
     template_name = 'administracion/cargar_oficinas.html'
@@ -178,6 +194,17 @@ class CrearTrabajador(CreateView):
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
+class CrearProductor(CreateView):
+    template_name = 'administracion/productor.html'
+    form_class = ProductorForm
+
+    @method_decorator(permission_required('administracion.add_productor', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearProductor, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('administracion:detalle_productor', args=[self.object.pk])
+
 
 class CrearPuesto(CreateView):
     template_name = 'administracion/puesto.html'
@@ -200,6 +227,9 @@ class DetalleTrabajador(DetailView):
     model = Trabajador
     template_name = 'administracion/detalle_trabajador.html'
 
+class DetalleProductor(DetailView):
+    model = Productor
+    template_name = 'administracion/detalle_productor.html'
 
 class DetallePuesto(DetailView):
     model = Puesto
@@ -227,6 +257,11 @@ class ListadoTrabajadores(ListView):
     model = Trabajador
     template_name = 'administracion/trabajadores.html'
     context_object_name = 'trabajadores'
+
+class ListadoProductores(ListView):
+    model = Productor
+    template_name = 'administracion/productores.html'
+    context_object_name = 'productores'
 
 
 class ListadoPuestos(ListView):
@@ -303,6 +338,17 @@ class ModificarTrabajador(UpdateView):
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
+class ModificarProductor(UpdateView):
+    model = Productor
+    template_name = 'administracion/productor.html'
+    form_class = ProductorForm
+
+    @method_decorator(permission_required('administracion.change_productor', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ModificarProductor, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('administracion:detalle_productor', args=[self.object.pk])
 
 class ModificarPuesto(UpdateView):
     model = Puesto

@@ -119,7 +119,21 @@
 					    {% endif %}
 						{{ form.oficina }}
 					</div>
-					<div class="col-md-9">
+					<div class="col-md-2">
+						<label>DNI Receptor:</label>
+						{% if form.dni_receptor.errors %}
+							{% for error in form.dni_receptor.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.dni_receptor }}
+					</div>
+					<div class="col-md-7">
 						<label>Receptor:</label>
 						{% if form.receptor.errors %}
 							{% for error in form.receptor.errors %}
@@ -352,6 +366,30 @@ $(document).ready(function()
 	var tipo_salida;	
 	$("#id_fecha").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$("#id_tipo_movimiento").on('change',verificar_tipo_salida);
+
+	function verificar_tipo_salida()
+	{
+		$('#id_dni_receptor').prop("readonly", false);
+	}
+
+	$("#id_dni_receptor").keyup(function()
+	{
+		var dni=$("#id_dni_receptor").val();
+		var tipo_movimiento = $("#id_tipo_movimiento").val();
+		if(dni.length==8)
+		{
+			$.ajax({
+		      url: "{% url 'administracion:busqueda_receptor_dni' %}",
+		      data: {'dni': dni, 'tipo_movimiento':tipo_movimiento},
+		      success: function(data)
+		      {
+		    	  $("#id_receptor").val(data.nombre_completo);
+		    	  event.preventDefault();
+		      }
+		    });
+		}
+	});
 		
 	$(document).on("click",".eliminar",function()
 	{

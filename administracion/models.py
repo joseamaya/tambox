@@ -35,7 +35,7 @@ class Profesion(TimeStampedModel):
 
 class Trabajador(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
-    usuario = models.OneToOneField(User)
+    usuario = models.OneToOneField(User, null=True)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
     nombres = models.CharField(max_length=100)
@@ -76,6 +76,36 @@ class Trabajador(TimeStampedModel):
                        ('cargar_trabajadores', 'Puede cargar trabajadores desde un archivo externo'),
                        ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'),
                        ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel'),)
+        ordering = ['apellido_paterno']
+
+class Productor(TimeStampedModel):
+    dni = models.CharField(max_length=8, unique=True)
+    apellido_paterno = models.CharField(max_length=50)
+    apellido_materno = models.CharField(max_length=50)
+    nombres = models.CharField(max_length=100)
+    estado = models.BooleanField(default=True)
+    history = HistoricalRecords()
+    objects = NavegableQuerySet.as_manager()
+
+    def anterior(self):
+        ant = Productor.objects.anterior(self)
+        return ant.pk
+
+    def siguiente(self):
+        sig = Productor.objects.siguiente(self)
+        return sig.pk
+
+    def nombre_completo(self):
+        return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+
+    def __str__(self):
+        return smart_str(self.apellido_paterno) + ' ' + smart_str(self.apellido_materno) + ' ' + smart_str(self.nombres)
+
+    class Meta:
+        permissions = (('ver_detalle_productor', 'Puede ver detalle de Productor'),
+                       ('cargar_productores', 'Puede cargar productores desde un archivo externo'),
+                       ('ver_tabla_productores', 'Puede ver tabla de productores'),
+                       ('ver_reporte_productores_excel', 'Puede ver Reporte de productores en excel'),)
         ordering = ['apellido_paterno']
 
 

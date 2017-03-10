@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
-    NivelAprobacion
+    NivelAprobacion, Productor
 
 
 class NivelAprobacionForm(forms.ModelForm):
@@ -63,6 +63,23 @@ class TrabajadorForm(forms.ModelForm):
                     'class': 'form-control'
                 })
         self.fields['profesion'].required = False
+
+class ProductorForm(forms.ModelForm):
+    class Meta:
+        model = Productor
+        fields = ['dni', 'apellido_paterno', 'apellido_materno', 'nombres']
+
+    def __init__(self, *args, **kwargs):
+        super(ProductorForm, self).__init__(*args, **kwargs)
+        for field in iter(self.fields):
+            if field == 'dni':
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control entero'
+                })
+            else:
+                self.fields[field].widget.attrs.update({
+                    'class': 'form-control'
+                })
 
 
 class PuestoForm(forms.ModelForm):

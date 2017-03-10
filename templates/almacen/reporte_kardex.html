@@ -101,5 +101,18 @@
 <script>
 $("#id_desde").datepicker();
 $("#id_hasta").datepicker();
+$("input[name='formatos']").change(function() {
+    if(this.checked)
+    {
+        $("input[name='consolidado']").attr("disabled", true);
+    }
+});
+$("input[name='consolidado']").change(function() {
+    if(this.checked)
+    {
+        $("input[name='formatos']").attr("disabled", true);
+    }
+});
+
 </script>
 {% endblock js %}

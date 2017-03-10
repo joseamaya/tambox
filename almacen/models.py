@@ -4,7 +4,7 @@ from django.db.models import Max
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
 from django.utils.encoding import smart_str, python_2_unicode_compatible
-from administracion.models import Oficina, Trabajador
+from administracion.models import Oficina, Trabajador, Productor
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
@@ -52,6 +52,8 @@ class TipoMovimiento(TimeStampedModel):
     descripcion = models.CharField(max_length=25)
     incrementa = models.BooleanField()
     pide_referencia = models.BooleanField(default=False)
+    es_compra = models.BooleanField(default=False)
+    es_venta = models.BooleanField(default=False)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
     
@@ -217,7 +219,8 @@ class Movimiento(TimeStampedModel):
     fecha_operacion = models.DateTimeField()
     almacen = models.ForeignKey(Almacen)
     oficina = models.ForeignKey(Oficina,null=True)
-    receptor = models.CharField(max_length=150, null=True)
+    trabajador = models.ForeignKey(Trabajador, null=True)
+    productor = models.ForeignKey(Productor, null=True)
     observaciones = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),

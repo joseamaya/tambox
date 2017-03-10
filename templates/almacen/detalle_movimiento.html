@@ -97,30 +97,26 @@
 				<p>NINGUNA</p>
 				{% endif %}
 			</div>
-			<div class="col-md-3">
-				<label>Receptor:</label>
-				{% if object.receptor %}
-				<p>{{ object.receptor }}</p>
+			<div class="col-md-2">
+				<label>DNI Receptor:</label>
+				{% if object.productor %}
+				<p>{{ object.productor.dni }}</p>
+				{% elif object.trabajador.dni %}
+				<p>{{ object.trabajador.dni }}</p>
 				{% else %}
 				<p>--</p>
 				{% endif %}
 			</div>
-			<div class="col-md-3">	
-				<label>Referencia:</label>
-				{% if object.referencia %}
-				<p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a></p>
+			<div class="col-md-7">
+				<label>Receptor:</label>
+				{% if object.productor %}
+				<p>{{ object.productor.nombre_completo }}</p>
+				{% elif object.trabajador.dni %}
+				<p>{{ object.trabajador.nombre_completo }}</p>
 				{% else %}
-				<p>NINGUNA</p>
+				<p>--</p>
 				{% endif %}
 			</div>
-			<div class="col-md-3">	
-				<label>Pedido:</label>
-				{% if object.pedido %}
-				<p><a href="{% url 'almacen:detalle_pedido' object.pedido.pk %}">{{ object.pedido }}</a></p>
-				{% else %}
-				<p>NINGUNO</p>
-				{% endif %}
-			</div>				
 		</div>
 		<div class="row">
 			<div class="col-md-3">	
@@ -145,6 +141,24 @@
 				<p>{{ object.numero }}</p>
 				{% else %}
 				<p>-</p>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<label>Referencia:</label>
+				{% if object.referencia %}
+				<p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a></p>
+				{% else %}
+				<p>NINGUNA</p>
+				{% endif %}
+			</div>
+			<div class="col-md-3">
+				<label>Pedido:</label>
+				{% if object.pedido %}
+				<p><a href="{% url 'almacen:detalle_pedido' object.pedido.pk %}">{{ object.pedido }}</a></p>
+				{% else %}
+				<p>NINGUNO</p>
 				{% endif %}
 			</div>
 		</div>

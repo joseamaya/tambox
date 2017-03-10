@@ -92,8 +92,31 @@
 						        {% endfor %}
 						    {% endif %}
 							<p>{{ form.codigo_sunat }}</p>
+							<label>ES COMPRA:</label>
+							{% if form.es_compra.errors %}
+								{% for error in form.es_compra.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+						            <strong>Error: </strong> {{ error|escape }}
+								</div>
+						        {% endfor %}
+						    {% endif %}
+							<p>{{ form.es_compra }}</p>
+							<label>ES VENTA:</label>
+							{% if form.es_venta.errors %}
+								{% for error in form.es_venta.errors %}
+								<div class="alert alert-danger alert-dismissible" role="alert">
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+						            <strong>Error: </strong> {{ error|escape }}
+								</div>
+						        {% endfor %}
+						    {% endif %}
+							<p>{{ form.es_venta }}</p>
 						</div>
-						<div class="col-lg-4"></div>
 					</div>
 				</div>
 			</div>
