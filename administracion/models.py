@@ -48,9 +48,9 @@ class Trabajador(TimeStampedModel):
 
     def nombre_completo(self):
         if self.profesion is not None:
-            return self.profesion.abreviatura + ' ' + self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+            return self.profesion.abreviatura + ' ' + self.apellido_paterno + ' ' + self.apellido_materno + ' ' + self.nombres
         else:
-            return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+            return self.apellido_paterno + ' ' + self.apellido_materno + ' ' + self.nombres
 
     def anterior(self):
         ant = Trabajador.objects.anterior(self)

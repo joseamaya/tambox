@@ -127,7 +127,22 @@ class MovimientoForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })            
-                
+
+    def clean_dni_receptor(self):
+        dni_receptor = self.cleaned_data.get('dni_receptor')
+        if dni_receptor != "":
+            if self.cleaned_data['tipo_movimiento'].es_venta:
+                try:
+                    Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
+                except Productor.DoesNotExist:
+                    raise ValidationError("El DNI no corresponde a ningun productor")
+            else:
+                try:
+                    Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
+                except Trabajador.DoesNotExist:
+                    raise ValidationError("El DNI no correspone a ningun trabajador")
+        return self.cleaned_data['dni_receptor']
+
     def obtener_fecha_hora(self,r_fecha,r_hora):
         r_hora = r_hora.replace(" ","")
         anio = int(r_fecha[6:])

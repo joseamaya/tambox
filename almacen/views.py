@@ -1962,7 +1962,10 @@ class ReporteKardexProducto(FormView):
         ws.cell(row=cont, column=13).value = cant_saldo_inicial
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws.cell(row=cont, column=13).border = thin_border
-        ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
+        try:
+            ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
+        except:
+            ws.cell(row=cont, column=14).value = 0
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
         ws.cell(row=cont, column=15).value = valor_saldo_inicial

@@ -371,6 +371,7 @@ $(document).ready(function()
 	function verificar_tipo_salida()
 	{
 		$('#id_dni_receptor').prop("readonly", false);
+		$('#id_receptor').prop("readonly", false);
 	}
 
 	$("#id_dni_receptor").keyup(function()
@@ -389,6 +390,25 @@ $(document).ready(function()
 		      }
 		    });
 		}
+	});
+
+	$("#id_receptor").autocomplete({
+	  	source: function(request, response){
+	    $.ajax({
+	      url: "{% url 'administracion:busqueda_receptor_nombre' %}",
+	      data: {'nombre': $("#id_receptor").val(), 'tipo_movimiento':$("#id_tipo_movimiento").val()},
+	      success: function( data )
+	      {
+	          response( data );
+	      }
+	    });
+	  },
+	  minLength: 2,
+	  select: function( event, ui ) {
+		$("#id_dni_receptor").val(ui.item.dni);
+		$("#id_receptor").val(ui.item.label);
+		return false;
+	  },
 	});
 		
 	$(document).on("click",".eliminar",function()

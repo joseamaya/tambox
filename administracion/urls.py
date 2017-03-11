@@ -7,7 +7,7 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos, ModificarNivelAprobacion,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
     ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion, BusquedaReceptorDni, \
-    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores
+    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores, BusquedaReceptorNombre
 
 urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -33,6 +33,7 @@ urlpatterns = [
     url(r'^maestro_productores/$',login_required(ListadoProductores.as_view()), name="maestro_productores"),
     url(r'^maestro_puestos/$',login_required(ListadoPuestos.as_view()), name="maestro_puestos"),
     url(r'^busqueda_receptor_dni/$', login_required(BusquedaReceptorDni.as_view()), name="busqueda_receptor_dni"),
+    url(r'^busqueda_receptor_nombre/$', login_required(BusquedaReceptorNombre.as_view()), name="busqueda_receptor_nombre"),
     url(r'^crear_puesto/$',login_required(CrearPuesto.as_view()), name="crear_puesto"),
     url(r'^detalle_puesto/(?P<pk>.+)/$', login_required(DetallePuesto.as_view()), name="detalle_puesto"),
     url(r'^modificar_puesto/(?P<pk>.+)/$',login_required(ModificarPuesto.as_view()), name="modificar_puesto"),

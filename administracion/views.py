@@ -23,6 +23,8 @@ import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import simplejson
+import json
+from django.db.models import Q
 
 class Tablero(View):
 
@@ -68,6 +70,24 @@ class BusquedaReceptorDni(TemplateView):
             data = simplejson.dumps(receptor_json)
             return HttpResponse(data, 'application/json')
 
+class BusquedaReceptorNombre(TemplateView):
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            nombre = request.GET['nombre']
+            tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
+            if tipo_movimiento.es_venta:
+                receptores = Productor.objects.filter(apellido_paterno__icontains=nombre)[:20]
+            else:
+                receptores = Trabajador.objects.filter(Q(apellido_paterno__icontains=nombre) | Q(apellido_materno__icontains=nombre) | Q(nombres__icontains=nombre))[:20]
+            lista_receptores = []
+            for receptor in receptores:
+                receptor_json = {}
+                receptor_json['label'] = str(receptor.nombre_completo())
+                receptor_json['dni'] = receptor.dni
+                lista_receptores.append(receptor_json)
+            data = json.dumps(lista_receptores)
+            return HttpResponse(data, 'application/json')
+
 class CargarOficinas(FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
@@ -98,19 +118,29 @@ class CargarTrabajadores(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            usuario, creado = User.objects.get_or_create(username=fila[0],
-                                                         defaults={'email': fila[5]}, )
-            if creado:
-                usuario.set_password('123456789')
-                usuario.save()
-            trabajador, creado = Trabajador.objects.get_or_create(usuario=usuario,
-                                                                  defaults={'dni': fila[1],
-                                                                            'apellido_paterno': unicode(fila[2],
-                                                                                                        errors='ignore'),
-                                                                            'apellido_materno': unicode(fila[3],
-                                                                                                        errors='ignore'),
-                                                                            'nombres': unicode(fila[4],
-                                                                                               errors='ignore')})
+            usuario_hoja = fila[0]
+            if usuario_hoja != "":
+                usuario, creado = User.objects.get_or_create(username=usuario_hoja,
+                                                             defaults={'email': fila[5]}, )
+                if creado:
+                    usuario.set_password('123456789')
+                    usuario.save()
+                    trabajador, creado = Trabajador.objects.get_or_create(usuario=usuario,
+                                                                          defaults={'dni': fila[1].strip(),
+                                                                                    'apellido_paterno': unicode(fila[2],
+                                                                                                                errors='ignore'),
+                                                                                    'apellido_materno': unicode(fila[3],
+                                                                                                                errors='ignore'),
+                                                                                    'nombres': unicode(fila[4],
+                                                                                                       errors='ignore')})
+            else:
+                trabajador, creado = Trabajador.objects.get_or_create(dni=fila[1].strip(),
+                                                                      defaults={'apellido_paterno': unicode(fila[2],
+                                                                                                            errors='ignore'),
+                                                                                'apellido_materno': unicode(fila[3],
+                                                                                                            errors='ignore'),
+                                                                                'nombres': unicode(fila[4],
+                                                                                                   errors='ignore')})
         return HttpResponseRedirect(reverse('administracion:maestro_trabajadores'))
 
 
