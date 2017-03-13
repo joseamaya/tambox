@@ -181,22 +181,30 @@ class MovimientoForm(forms.ModelForm):
 class FormularioKardexProducto(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
     consolidado = forms.ChoiceField(choices=CHOICES_CONSOLIDADO, widget=forms.RadioSelect,required=False)
-    desde = forms.DateField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hasta = forms.DateField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    desde = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    hasta = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     cod_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False) 
     formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect,required=False)
+
+    def clean_hasta(self):
+        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
+        return self.cleaned_data['hasta']
     
 class FormularioMovimientosProducto(forms.Form):
     almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hasta = forms.DateField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    desde = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    hasta = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     descripcion = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+
+    def clean_hasta(self):
+        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
+        return self.cleaned_data['hasta']
     
 class FormularioReprocesoPrecio(forms.Form):
     almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    desde = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     descripcion = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     seleccion = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
