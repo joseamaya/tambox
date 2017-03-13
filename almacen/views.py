@@ -2740,16 +2740,8 @@ class ReporteExcelMovimientos(FormView):
         wb = Workbook()
         ws = wb.active
         if tipo_busqueda=='F':
-            p_fecha_inicio = data['fecha_inicio']
-            p_fecha_final = data['fecha_fin']
-            anio = int(p_fecha_inicio[6:])        
-            mes = int(p_fecha_inicio[3:5])
-            dia = int(p_fecha_inicio[0:2])
-            fecha_inicio = datetime.datetime(anio,mes,dia,23,59,59)
-            anio = int(p_fecha_final[6:])        
-            mes = int(p_fecha_final[3:5])
-            dia = int(p_fecha_final[0:2])
-            fecha_final = datetime.datetime(anio,mes,dia,23,59,59)            
+            fecha_inicio = data['desde']
+            fecha_final = data['hasta']
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
             ws.merge_cells('B1:H1')
             ws['B2'] = 'ALMACEN: '+ almacen.descripcion
@@ -2757,12 +2749,13 @@ class ReporteExcelMovimientos(FormView):
             ws['E2'] = 'TIPO DE MOVIMIENTO: '+ tipo_movimiento.descripcion
             ws.merge_cells('E2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = p_fecha_inicio
+            ws['C3'] = fecha_inicio
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = p_fecha_final
+            ws['E3'] = fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'        
-            movimientos = Movimiento.objects.filter(fecha_operacion__range=[fecha_inicio, fecha_final],tipo_movimiento=tipo_movimiento,almacen=almacen)                                    
+            movimientos = Movimiento.objects.filter(fecha_operacion__range=[fecha_inicio, fecha_final],
+                                                    tipo_movimiento=tipo_movimiento,almacen=almacen)
         elif tipo_busqueda=='M':
             mes = data['mes'].strip()
             annio = data['annio'].strip()            
@@ -2776,7 +2769,10 @@ class ReporteExcelMovimientos(FormView):
             ws['C3'] = mes
             ws['D3'] = 'AÑO'
             ws['E3'] = annio                    
-            movimientos = Movimiento.objects.filter(fecha_operacion__month=mes,fecha_operacion__year=annio,tipo_movimiento=tipo_movimiento,almacen=almacen)
+            movimientos = Movimiento.objects.filter(fecha_operacion__month=mes,
+                                                    fecha_operacion__year=annio,
+                                                    tipo_movimiento=tipo_movimiento,
+                                                    almacen=almacen)
         elif tipo_busqueda=='A':
             annio = data['annio'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR AÑO'
@@ -2787,7 +2783,9 @@ class ReporteExcelMovimientos(FormView):
             ws.merge_cells('E2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = annio
-            movimientos = Movimiento.objects.filter(fecha_operacion__year=annio,tipo_movimiento=tipo_movimiento,almacen=almacen)
+            movimientos = Movimiento.objects.filter(fecha_operacion__year=annio,
+                                                    tipo_movimiento=tipo_movimiento,
+                                                    almacen=almacen)
         ws['B5'] = 'ID_MOVIMIENTO'
         ws['C5'] = 'TIPO_DOCUMENTO'
         ws['D5'] = 'SERIE'
@@ -2797,6 +2795,7 @@ class ReporteExcelMovimientos(FormView):
         ws['H5'] = 'FECHA_CREACION'
         ws['I5'] = 'ESTADO'
         cont=6
+        movimientos = movimientos.order_by('fecha_operacion')
         for movimiento in movimientos:
             ws.cell(row=cont,column=2).value = movimiento.id_movimiento
             try:

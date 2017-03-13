@@ -91,12 +91,18 @@ class FormularioDetalleMovimiento(forms.Form):
     
 class FormularioReporteMovimientos(forms.Form):
     tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}),label='Seleccione:', choices=PARAMETROS)
-    fecha_inicio = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Inicio:',required=False)
-    fecha_fin = forms.CharField(10, widget= forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),label='Fecha de Fin:',required=False)
+    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}),required=False)
     annio = forms.CharField(4, widget= forms.TextInput(attrs={'size': 4, 'class': 'form-control'}),label='Año',required=False)
     tipos_movimiento =  forms.ChoiceField(choices=CHOICES_TIPOS_MOVIMIENTO, widget=forms.Select(attrs={'class': 'form-control'}))
     almacenes =  forms.ChoiceField(choices=CHOICES_ALMACENES, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    def clean_hasta(self):
+        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
+        return self.cleaned_data['hasta']
     
 class MovimientoForm(forms.ModelForm):
     fecha = forms.CharField(100, widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -160,7 +166,6 @@ class MovimientoForm(forms.ModelForm):
                 self.instance.referencia = OrdenCompra.objects.get(pk=self.cleaned_data['doc_referencia'])
             except:
                 self.instance.referencia = None
-        print self.cleaned_data['tipo_movimiento']
         if self.cleaned_data['tipo_movimiento'].es_venta:
             try:
                 self.instance.productor = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
