@@ -163,7 +163,7 @@ class MovimientoForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         if self.tipo_movimiento=='I':
             try:
-                self.instance.referencia = OrdenCompra.objects.get(pk=self.cleaned_data['doc_referencia'])
+                self.instance.referencia = OrdenCompra.objects.get(codigo=self.cleaned_data['doc_referencia'])
             except:
                 self.instance.referencia = None
         if self.cleaned_data['tipo_movimiento'].es_venta:

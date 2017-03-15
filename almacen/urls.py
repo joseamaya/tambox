@@ -8,7 +8,7 @@ from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,
     EliminarMovimiento, ModificarAlmacen, EliminarAlmacen, DetalleTipoMovimiento, ModificarMovimiento,\
     ReporteExcelAlmacenes, ModificarIngresoAlmacen,ModificarSalidaAlmacen, VerificarPideReferencia, ReporteExcelTiposMovimientos, CrearPedido,\
     CargarAlmacenes, CargarInventarioInicial, CrearDetallePedido,ModificarPedido, ListadoPedidos, AprobarPedido, ListadoAprobacionPedidos, VerificarStockParaPedido,\
-    DetalleOperacionPedido, DetalleOperacionMovimiento, ListadoStock,\
+    DetalleOperacionPedido, DetalleOperacionMovimiento, StockProductos,\
     ListadoIngresos, ListadoSalidas, ReporteKardexProducto, ListadoMovimientosPorPedido,\
     ReprocesoPrecio, EliminarPedido, MovimientosPorProducto
 
@@ -62,7 +62,7 @@ urlpatterns = [
     url(r'^cargar_inventario_inicial/$', login_required(CargarInventarioInicial.as_view()), name="cargar_inventario_inicial"),
     url(r'^listado_aprobacion_pedidos/$',login_required(ListadoAprobacionPedidos.as_view()), name="listado_aprobacion_pedidos"),
     url(r'^verificar_stock_para_pedido/$',login_required(VerificarStockParaPedido.as_view()), name="verificar_stock_para_pedido"),
-    url(r'^listado_stock/$', login_required(ListadoStock.as_view()), name="listado_stock"),
+    url(r'^stock_productos/$', login_required(StockProductos.as_view()), name="stock_productos"),
     url(r'^listado_movimientos_pedido/(?P<pedido>.+)/$',login_required(ListadoMovimientosPorPedido.as_view()), name="listado_movimientos_pedido"),
     url(r'^reproceso_precio/$',login_required(ReprocesoPrecio.as_view()), name="reproceso_precio"),
     url(r'^movimientos_por_producto/$',login_required(MovimientosPorProducto.as_view()), name="movimientos_por_producto"),

@@ -843,13 +843,15 @@ class ModificarIngresoAlmacen(UpdateView):
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio)
+                                                                   precio=precio,
+                                                                   valor=valor)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
-                                                                   precio=precio)
+                                                                   precio=precio,
+                                                                   valor=valor)
                         detalles.append(detalle_movimiento)                        
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
@@ -2691,17 +2693,49 @@ class ReprocesoPrecio(FormView):
                 self.reprocesar_precio_producto(kardex.producto, almacen, desde)
         return HttpResponseRedirect(reverse('almacen:tablero'))
     
+class StockProductos(FormView):
+    form_class = FormularioReprocesoPrecio
+    template_name = 'almacen/consulta_stock.html'
+
+    def get_initial(self):
+        initial = super(StockProductos, self).get_initial()
+        initial['desde'] = date.today().strftime('%d/%m/%Y')
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        desde = data['desde']
+        almacen = data['almacen']
+        seleccion = data['seleccion']
+        productos = []
+        if seleccion == 'P':
+            cod_prod = data['producto']
+            kardex = Kardex.objects.filter(producto__codigo=cod_prod,
+                                           almacen=almacen,
+                                           fecha_operacion__lt=desde).latest('fecha_operacion')
+            productos.append(kardex)
+        else:
+            todos = Producto.objects.all()
+            for producto in todos:
+                kardex = Kardex.objects.filter(producto=producto,
+                                               almacen=almacen,
+                                               fecha_operacion__lt=desde).latest('fecha_operacion')
+                productos.append(kardex)
+
+        return self.render_to_response(self.get_context_data(productos=productos))
+
+
 class ListadoStock(ListView):
     model = ControlProductoAlmacen
     template_name = 'almacen/listado_stock.html'
     context_object_name = 'productos'
-    
+
     def get_context_data(self, **kwargs):
         context = super(ListadoStock, self).get_context_data(**kwargs)
         listado_kardex = Kardex.objects.filter().order_by('producto').distinct('producto__codigo')
         context['productos'] = listado_kardex
         return context
-    
+
     def post(self, request, *args, **kwargs):
         control_productos = Kardex.objects.filter().order_by('producto').distinct('producto__codigo')
         wb = Workbook()
@@ -2711,16 +2745,16 @@ class ListadoStock(ListView):
         ws['C3'] = 'CODIGO'
         ws['D3'] = 'DESCRIPCION'
         ws['E3'] = 'UNIDAD'
-        ws['F3']= 'CANTIDAD'        
+        ws['F3'] = 'CANTIDAD'
         cont = 4
         for control in control_productos:
-            ws.cell(row=cont,column=3).value = control.producto.codigo
-            ws.cell(row=cont,column=4).value = control.producto.descripcion
-            ws.cell(row=cont,column=5).value = control.producto.unidad_medida.codigo
-            ws.cell(row=cont,column=6).value = control.producto.stock
+            ws.cell(row=cont, column=3).value = control.producto.codigo
+            ws.cell(row=cont, column=4).value = control.producto.descripcion
+            ws.cell(row=cont, column=5).value = control.producto.unidad_medida.codigo
+            ws.cell(row=cont, column=6).value = control.producto.stock
             cont = cont + 1
-        nombre_archivo ="ReporteStock.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "ReporteStock.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
