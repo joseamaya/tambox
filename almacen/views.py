@@ -573,14 +573,14 @@ class EliminarMovimiento(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             id_movimiento = request.GET['id_movimiento']
-            movimiento = Movimiento.objects.get(pk=id_movimiento)
+            movimiento = Movimiento.objects.get(pk = id_movimiento)
             orden = movimiento.referencia
             pedido = movimiento.pedido
             if orden is not None:
                 movimiento.eliminar_referencia()                
             if pedido is not None:
                 movimiento.eliminar_pedido()
-            detalle_kardex = Kardex.objects.filter(movimiento__id_movimiento = id_movimiento)
+            detalle_kardex = Kardex.objects.filter(movimiento = movimiento)
             for kardex in detalle_kardex:
                 control = ControlProductoAlmacen.objects.get(producto = kardex.producto, almacen = kardex.almacen)
                 if kardex.cantidad_ingreso>0:
@@ -1348,6 +1348,7 @@ class ReporteKardexProducto(FormView):
         
     def obtener_kardex(self, producto, almacen, desde, hasta):
         listado_kardex = Kardex.objects.filter(almacen = almacen,
+                                               movimiento__estado = Movimiento.STATUS.ACT,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
                                                producto = producto).order_by('producto__descripcion',
