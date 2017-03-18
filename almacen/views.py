@@ -13,7 +13,7 @@ from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimi
     FormularioKardexProducto, CargarInventarioInicialForm, FormularioReporteStock, MovimientoForm,\
     DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet,\
     AprobacionPedidoForm, FormularioReprocesoPrecio,\
-    FormularioMovimientosProducto
+    FormularioMovimientosProducto, FormularioConsultaStock
 from django.db.models import Sum
 from decimal import Decimal
 from io import BytesIO
@@ -2951,8 +2951,8 @@ class ReprocesoPrecio(FormView):
         return HttpResponseRedirect(reverse('almacen:tablero'))
     
 class StockProductos(FormView):
-    form_class = FormularioReprocesoPrecio
-    template_name = 'almacen/consulta_stock.html'
+    form_class = FormularioConsultaStock
+    template_name = 'almacen/stock_productos.html'
 
     def get_initial(self):
         initial = super(StockProductos, self).get_initial()
@@ -2963,52 +2963,36 @@ class StockProductos(FormView):
         data = form.cleaned_data
         desde = data['desde']
         almacen = data['almacen']
-        seleccion = data['seleccion']
-        productos = []
-        if seleccion == 'P':
-            cod_prod = data['producto']
-            kardex = Kardex.objects.filter(producto__codigo=cod_prod,
-                                           almacen=almacen,
-                                           fecha_operacion__lt=desde).latest('fecha_operacion')
-            productos.append(kardex)
-        else:
-            todos = Producto.objects.all()
-            for producto in todos:
-                kardex = Kardex.objects.filter(producto=producto,
-                                               almacen=almacen,
-                                               fecha_operacion__lt=desde).latest('fecha_operacion')
-                productos.append(kardex)
-
-        return self.render_to_response(self.get_context_data(productos=productos))
-
-
-class ListadoStock(ListView):
-    model = ControlProductoAlmacen
-    template_name = 'almacen/listado_stock.html'
-    context_object_name = 'productos'
-
-    def get_context_data(self, **kwargs):
-        context = super(ListadoStock, self).get_context_data(**kwargs)
-        listado_kardex = Kardex.objects.filter().order_by('producto').distinct('producto__codigo')
-        context['productos'] = listado_kardex
-        return context
-
-    def post(self, request, *args, **kwargs):
-        control_productos = Kardex.objects.filter().order_by('producto').distinct('producto__codigo')
+        descripcion = data['descripcion']
+        productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'STOCK DE PRODUCTOS'
         ws.merge_cells('B1:E1')
-        ws['C3'] = 'CODIGO'
-        ws['D3'] = 'DESCRIPCION'
-        ws['E3'] = 'UNIDAD'
-        ws['F3'] = 'CANTIDAD'
+        ws['B3'] = 'CODIGO'
+        ws['C3'] = 'DESCRIPCION'
+        ws['D3'] = 'UNIDAD'
+        ws['E3'] = 'CANTIDAD'
+        ws.column_dimensions["B"].width = 12
+        ws.column_dimensions["C"].width = 40
         cont = 4
-        for control in control_productos:
-            ws.cell(row=cont, column=3).value = control.producto.codigo
-            ws.cell(row=cont, column=4).value = control.producto.descripcion
-            ws.cell(row=cont, column=5).value = control.producto.unidad_medida.codigo
-            ws.cell(row=cont, column=6).value = control.producto.stock
+        for producto in productos:
+            try:
+                kardex = Kardex.objects.filter(producto=producto,
+                                               almacen=almacen).latest('fecha_operacion')
+                codigo = kardex.producto.codigo
+                descripcion = kardex.producto.descripcion
+                unidad_medida = kardex.producto.unidad_medida.descripcion
+                stock = kardex.cantidad_total
+            except:
+                codigo = producto.codigo
+                descripcion = producto.descripcion
+                unidad_medida = producto.unidad_medida.codigo
+                stock = 0
+            ws.cell(row=cont, column=2).value = codigo
+            ws.cell(row=cont, column=3).value = descripcion
+            ws.cell(row=cont, column=4).value = unidad_medida
+            ws.cell(row=cont, column=5).value = stock
             cont = cont + 1
         nombre_archivo = "ReporteStock.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -3016,6 +3000,34 @@ class ListadoStock(ListView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
+
+class ListadoStockProducto(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            descripcion = request.GET['descripcion']
+            desde = request.GET['desde']
+            almacen = request.GET['almacen']
+            lista_productos = []
+            productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
+            for producto in productos:
+                try:
+                    kardex = Kardex.objects.filter(producto=producto,
+                                                   almacen__pk=almacen).latest('fecha_operacion')
+                    kardex_json = {}
+                    kardex_json['codigo'] = kardex.producto.codigo
+                    kardex_json['label'] = kardex.producto.descripcion
+                    kardex_json['unidad'] = kardex.producto.unidad_medida.codigo
+                    kardex_json['stock'] = kardex.cantidad_total
+                except:
+                    kardex_json = {}
+                    kardex_json['codigo'] = producto.codigo
+                    kardex_json['label'] = producto.descripcion
+                    kardex_json['unidad'] = producto.unidad_medida.codigo
+                    kardex_json['stock'] = 0
+                lista_productos.append(kardex_json)
+            data = simplejson.dumps(lista_productos)
+            return HttpResponse(data, 'application/json')
 
 class ReporteExcelMovimientos(FormView):
     form_class = FormularioReporteMovimientos

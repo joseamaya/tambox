@@ -5,7 +5,8 @@
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Consultar">
+			<button type="button" class="btn btn-primary" id="id_buscar">Consultar</button>
+			<input type="submit" class="btn btn-primary" name="submit" value="Exportar">
 		</div>		
 	</div>
 	<hr />
@@ -45,25 +46,7 @@
 			</div>
 			<div class="form-group">	
 				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">SELECCIONE : </label>
-						{% if form.seleccion.errors %}
-							{% for error in form.seleccion.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.seleccion }}
-					</div>
-				</div>	
-			</div>										
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
+			 		<div class="col-md-3">
 						<label for="codigo">Codigo de Producto: </label>
 						{% if form.producto.errors %}
 							{% for error in form.producto.errors %}
@@ -77,7 +60,7 @@
 					    {% endif %}
 						{{ form.producto }}							
 					</div>	
-					<div class="col-md-8">
+					<div class="col-md-9">
 						<label for="descripcion">Descripcion de Producto: </label>
 						{% if form.descripcion.errors %}
 							{% for error in form.descripcion.errors %}
@@ -90,7 +73,7 @@
 					        {% endfor %}
 					    {% endif %}
 						{{ form.descripcion }}								
-					</div>	
+					</div>
 				</div>	
 			</div>
 			<hr/>
@@ -106,14 +89,7 @@
 							</tr>
 						</thead>
 						<tbody>
-						{% for producto in productos %}
-							<tr>
-								<td>{{ producto.producto.codigo }}</td>
-								<td>{{ producto.producto.descripcion }}</td>
-								<td>{{ producto.producto.unidad_medida.codigo }}</td>
-								<td>{{ producto.producto.stock  }}</td>
-							</tr>
-						{% endfor %}
+
 						</tbody>
 					</table>
 				</div>
@@ -127,36 +103,52 @@
 {% block js %}
 <script>
 $("#id_desde").datepicker();
+
 $("#id_descripcion").autocomplete({
   	source: function( request, response ) {
     $.ajax({
       url: "{% url 'productos:busqueda_productos_descripcion' %}",
       data: {'descripcion': $("#id_descripcion").val(), 'tipo_busqueda': 'PRODUCTOS'},
-      success: function( data ) 
+      success: function( data )
       {
           response( data );
       }
     });
   },
   minLength: 2,
-  select: function( event, ui ) 
+  select: function( event, ui )
   {
-	$("#id_producto").val(ui.item.codigo);	
+	$("#id_producto").val(ui.item.codigo);
+	$("#id_descripcion").val(ui.item.label);
 	return false;
   },
 });
 
-$("input[name=seleccion]").change(function () 
-{	 
-	if($(this).val()=='T')
+$("#id_buscar").click(function()
+{
+	$("#tabla tbody > tr").remove();
+	var almacen = $("#id_almacen").val();
+	if(almacen!="")
 	{
-		$("input[name=producto]").attr("disabled",true);
-		$("input[name=descripcion]").attr("disabled",true);
+		$.ajax({
+		  url: "{% url 'almacen:listado_stock_producto' %}",
+		  data: {'descripcion': $("#id_descripcion").val(), 'desde': $("#id_desde").val(), 'almacen': almacen},
+		  success: function( data )
+		  {
+				$.each(data, function(i,item){
+					$("#tabla tbody").append(
+					"<tr>" +
+						"<td>" + item.codigo + "</td>" +
+						"<td>" + item.label + "</td>" +
+						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.stock + "</td>" +
+					"</tr>");
+				});
+		  }
+		});
 	}
-	else
-	{
-		$("input[name=producto]").attr("disabled",false);
-		$("input[name=descripcion]").attr("disabled",false);	
+	else{
+		alert("Por favor seleccione un almacen");
 	}
 });
 

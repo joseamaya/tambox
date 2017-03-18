@@ -10,7 +10,7 @@ from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen,
     CargarAlmacenes, CargarInventarioInicial, CrearDetallePedido,ModificarPedido, ListadoPedidos, AprobarPedido, ListadoAprobacionPedidos, VerificarStockParaPedido,\
     DetalleOperacionPedido, DetalleOperacionMovimiento, StockProductos,\
     ListadoIngresos, ListadoSalidas, ReporteKardexProducto, ListadoMovimientosPorPedido,\
-    ReprocesoPrecio, EliminarPedido, MovimientosPorProducto
+    ReprocesoPrecio, EliminarPedido, MovimientosPorProducto, ListadoStockProducto
 
 urlpatterns = [    
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -67,4 +67,5 @@ urlpatterns = [
     url(r'^reproceso_precio/$',login_required(ReprocesoPrecio.as_view()), name="reproceso_precio"),
     url(r'^movimientos_por_producto/$',login_required(MovimientosPorProducto.as_view()), name="movimientos_por_producto"),
     url(r'^eliminar_pedido/$',login_required(EliminarPedido.as_view()), name="eliminar_pedido"),
+    url(r'^listado_stock_producto/$', login_required(ListadoStockProducto.as_view()), name="listado_stock_producto"),
 ]

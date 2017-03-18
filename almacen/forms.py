@@ -213,6 +213,12 @@ class FormularioReprocesoPrecio(forms.Form):
     producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     descripcion = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     seleccion = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
+
+class FormularioConsultaStock(forms.Form):
+    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
+    desde = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
+    descripcion = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     
 class CargarInventarioInicialForm(forms.ModelForm):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
