@@ -119,9 +119,9 @@ class CargarProductores(FormView):
         for fila in dataReader:
             dni = fila[0]
             if dni != "":
-                appaterno = fila[1]
-                apmaterno = fila[2]
-                nombres = fila[3]
+                appaterno = fila[1].upper()
+                apmaterno = fila[2].upper()
+                nombres = fila[3].upper()
                 try:
                     productor, creado = Productor.objects.get_or_create(dni=dni,
                                                                         defaults={'apellido_paterno': appaterno,
