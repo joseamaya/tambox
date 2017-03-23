@@ -8,6 +8,11 @@
 			Crear
 		</a>												
 		{% endif %}
+		{% if perms.administracion.cargar_productores %}
+		<a href="{% url 'administracion:cargar_productores' %}" class="btn btn-default">
+			Importar
+		</a>
+		{% endif %}
 	</div>
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">    					   

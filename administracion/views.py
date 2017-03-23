@@ -106,6 +106,31 @@ class CargarOficinas(FormView):
                                           )
         return HttpResponseRedirect(reverse('administracion:maestro_oficinas'))
 
+class CargarProductores(FormView):
+    template_name = 'administracion/cargar_productores.html'
+    form_class = UploadForm
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        docfile = data['archivo']
+        form.save()
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
+        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        for fila in dataReader:
+            dni = fila[0]
+            if dni != "":
+                appaterno = fila[1]
+                apmaterno = fila[2]
+                nombres = fila[3]
+                try:
+                    productor, creado = Productor.objects.get_or_create(dni=dni,
+                                                                        defaults={'apellido_paterno': appaterno,
+                                                                                  'apellido_materno': apmaterno,
+                                                                                  'nombres': nombres})
+                except:
+                    pass
+        return HttpResponseRedirect(reverse('administracion:maestro_productores'))
+
 
 class CargarTrabajadores(FormView):
     template_name = 'administracion/cargar_trabajadores.html'

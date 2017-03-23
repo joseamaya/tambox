@@ -7,7 +7,7 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos, ModificarNivelAprobacion,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
     ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion, BusquedaReceptorDni, \
-    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores, BusquedaReceptorNombre
+    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores, BusquedaReceptorNombre, CargarProductores
 
 urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -15,6 +15,7 @@ urlpatterns = [
     url(r'^cargar_oficinas/$',login_required(CargarOficinas.as_view()), name="cargar_oficinas"),
     url(r'^cargar_trabajadores/$',login_required(CargarTrabajadores.as_view()), name="cargar_trabajadores"),
     url(r'^cargar_puestos/$',login_required(CargarPuestos.as_view()), name="cargar_puestos"),
+    url(r'^cargar_productores/$', login_required(CargarProductores.as_view()), name="cargar_productores"),
     url(r'^maestro_oficinas_excel/$',login_required(ReporteExcelOficinas.as_view()), name="maestro_oficinas_excel"),
     url(r'^maestro_trabajadores_excel/$',login_required(ReporteExcelTrabajadores.as_view()), name="maestro_trabajadores_excel"),
     url(r'^reporte_excel_puestos/$',login_required(ReporteExcelPuestos.as_view()), name="reporte_excel_puestos"),
