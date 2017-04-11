@@ -8,9 +8,10 @@ import datetime
 from compras.models import OrdenCompra
 from django.forms import formsets
 from django.core.exceptions import ValidationError
-from almacen.settings import MESES, PARAMETROS, FORMATOS,\
+from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT,\
     CHOICES_TIPOS_MOVIMIENTO, CHOICES_ALMACENES, CHOICES_MESES, CHOICES_ANNIOS,\
-    CHOICES_CONSOLIDADO, SELECCION
+    CHOICES_CONSOLIDADO, SELECCION, FORMATOS
+
 
 class FormularioCargarAlmacenes(forms.Form):
     docfile = forms.FileField()
@@ -190,7 +191,8 @@ class FormularioKardexProducto(forms.Form):
     hasta = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     cod_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False)
     desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False) 
-    formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect,required=False)
+    formato_sunat = forms.ChoiceField(choices=FORMATOS_SUNAT, widget=forms.RadioSelect,required=False)
+    formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect)
 
     def clean_hasta(self):
         self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)

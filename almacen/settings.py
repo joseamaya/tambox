@@ -35,7 +35,8 @@ MESES = (
     ('12', 'DICIEMBRE'),
 )
 
-FORMATOS = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
+FORMATOS_SUNAT = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
+FORMATOS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
 SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
 try:
     CHOICES_TIPOS_MOVIMIENTO = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]

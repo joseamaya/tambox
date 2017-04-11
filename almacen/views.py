@@ -46,7 +46,7 @@ from django.db import transaction, IntegrityError
 from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
-from almacen.reports import ReporteMovimiento
+from almacen.reports import ReporteMovimiento, ReporteKardexPDF
 from almacen.settings import EMPRESA, LOGISTICA
 from datetime import date
 
@@ -1338,13 +1338,46 @@ class ReporteKardexProducto(FormView):
         desde = data.get('desde')
         hasta = data.get('hasta')
         almacen = data.get('almacenes')
+        formato_sunat = data.get('formato_sunat')
         formatos = data.get('formatos')
-        if formatos == 'S':
-            return self.obtener_formato_sunat_unidades_fisicas_excel(cod_prod, producto, desde, hasta, almacen)
-        elif formatos == 'V':
-            return self.obtener_formato_sunat_valorizado_excel(cod_prod, producto, desde, hasta, almacen)
-        else:
-            return self.obtener_formato_normal(cod_prod, producto, desde, hasta, almacen)
+        if formatos == "XLS":
+            if formato_sunat == 'S':
+                return self.obtener_formato_sunat_unidades_fisicas_excel(cod_prod,
+                                                                         producto,
+                                                                         desde,
+                                                                         hasta,
+                                                                         almacen)
+            elif formato_sunat == 'V':
+                return self.obtener_formato_sunat_valorizado_excel(cod_prod,
+                                                                   producto,
+                                                                   desde,
+                                                                   hasta,
+                                                                   almacen)
+            else:
+                return self.obtener_formato_normal(cod_prod,
+                                                   producto,
+                                                   desde,
+                                                   hasta,
+                                                   almacen)
+        elif formatos == "PDF":
+            if formato_sunat == 'S':
+                return self.obtener_formato_sunat_unidades_fisicas_pdf(cod_prod,
+                                                                         producto,
+                                                                         desde,
+                                                                         hasta,
+                                                                         almacen)
+            elif formato_sunat == 'V':
+                return self.obtener_formato_sunat_valorizado_pdf(cod_prod,
+                                                                   producto,
+                                                                   desde,
+                                                                   hasta,
+                                                                   almacen)
+            else:
+                return self.obtener_formato_normal_pdf(cod_prod,
+                                                       producto,
+                                                       desde,
+                                                       hasta,
+                                                       almacen)
         
     def obtener_kardex(self, producto, almacen, desde, hasta):
         listado_kardex = Kardex.objects.filter(almacen = almacen,
@@ -1376,14 +1409,6 @@ class ReporteKardexProducto(FormView):
             t_valor_s = 0
             t_valor_t = 0 
         return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s, t_cantidad_t, t_valor_t)
-        
-    def obtener_mes_anterior(self,mes,anio):
-        if(mes<1):
-            mes = 12
-            anio = int(anio) - 1
-        else:
-            mes = int(mes) - 1
-        return mes,anio
         
     def obtener_formato_normal(self, cod_prod, producto, desde, hasta, almacen):
         producto = Producto.objects.get(codigo=cod_prod)
@@ -1512,165 +1537,6 @@ class ReporteKardexProducto(FormView):
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
-        return response
-    
-    def cabecera(self,pdf, x, y, desde, hasta, almacen, producto, valorizado):
-        pdf.setFont("Times-Bold", 12)
-        if valorizado:
-            pdf.drawString(200, y, u"REGISTRO DE INVENTARIO PERMANENTE VALORIZADO ")
-        else:
-            pdf.drawString(200, y, u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS")
-            x = 40
-        pdf.setFont("Times-Roman", 11)        
-        pdf.drawString(x, y-20, u"PERIODO: "+ desde.strftime('%d/%m/%Y')+'-'+ hasta.strftime('%d/%m/%Y'))
-        pdf.drawString(x, y-40, u"RUC:" + EMPRESA.ruc)
-        pdf.drawString(x, y-60, u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social)
-        pdf.drawString(x, y-80, u"ESTABLECIMIENTO (1): " + EMPRESA.direccion())
-        pdf.drawString(x, y-100, u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo)
-        pdf.drawString(x, y-120, u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion)
-        pdf.drawString(x, y-140, u"DESCRIPCIÓN: " + producto.descripcion)
-        pdf.drawString(x, y-160, u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion)        
-        if valorizado:
-            pdf.drawString(x, y-180, u"MÉTODO DE VALUACIÓN: PEPS")
-            y = y - 200
-        else:            
-            y = y - 180
-        return y            
-    
-    def detalle_permanente_unidades_fisicas(self,pdf,y, desde, hasta, almacen, producto):
-        encabezados = ('FECHA', 'TIPO (TABLA 10)', 'SERIE', 'NÚMERO', u'TIPO DE OPERACIÓN ','ENTRADAS','SALIDAS', 'SALDO  FINAL')
-        detalles = []
-        try:
-            kardex_inicial = Kardex.objects.filter(producto = producto,
-                                            almacen = almacen,
-                                            fecha_operacion__lt = desde).latest('fecha_operacion')
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            valor_saldo_inicial = kardex_inicial.valor_total
-        except:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0     
-        listado_kardex = Kardex.objects.filter(almacen =  almacen,
-                                               fecha_operacion__gte = desde,
-                                               fecha_operacion__lte = hasta,
-                                               producto = producto).order_by('producto__descripcion',
-                                                                           'fecha_operacion',
-                                                                           'cantidad_salida',
-                                                                           'created')
-        t_cantidad_i = 0
-        t_cantidad_s= 0
-        t_cantidad_t= 0   
-        if len(listado_kardex)>0:
-            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
-            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
-            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
-            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
-            t_cantidad_s= cantidad_salida['cantidad_salida__sum']
-            t_cantidad_t= cantidad_total['cantidad_total__sum']   
-            detalles = [(kardex.fecha_operacion.strftime('%d/%m/%Y'), kardex.movimiento.tipo_documento.codigo_sunat, kardex.movimiento.serie, kardex.movimiento.numero, kardex.movimiento.tipo_movimiento.codigo_sunat, kardex.cantidad_ingreso,kardex.cantidad_salida,kardex.cantidad_total) for kardex in listado_kardex]
-        detalles.insert(0, ('','00', 'SALDO', 'INICIAL','16',0,0,cant_saldo_inicial))
-        detalles.append(('','','','','TOTALES',t_cantidad_i, t_cantidad_s, t_cantidad_t))        
-        size = 30
-        listas = [detalles[i:i+size] for i  in range(0, len(detalles), size)]
-        cant_listas = len(listas)
-        cont_listas = 0
-        if cant_listas==1:
-            y = y - 20 * len(listas[0])
-        else:
-            y = y - 550
-        for lista in listas:
-            cont_listas = cont_listas + 1
-            detalle_orden = Table([encabezados] + lista,colWidths=[2.5 * cm, 3.5 * cm, 3 * cm, 3 * cm, 3.5 * cm, 3.5 * cm, 3.5 * cm])
-            detalle_orden.setStyle(TableStyle(
-                [
-                    ('ALIGN',(0,0),(7,0),'CENTER'),
-                    ('ALIGN',(5,1),(7,-1),'RIGHT'),
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black), 
-                    ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ]
-            ))
-            detalle_orden.wrapOn(pdf, 800, 600)
-            detalle_orden.drawOn(pdf, 40,y)            
-            if not len(lista)<30:
-                if cont_listas < cant_listas:
-                    pdf.setFont("Times-Roman", 8)
-                    pdf.drawString(210, 20,EMPRESA.direccion())
-                    pdf.showPage()
-                    y = 400        
-        return y
-    
-    def detalle_permanente_valorizado(self,pdf,x,y, desde, hasta, almacen, producto):
-        encabezados = ('FECHA', 'TIPO (TABLA 10)', 'SERIE', 'NÚMERO', u'TIPO DE OPERACIÓN ','CANTIDAD','COSTO UNIT.', 'COSTO TOT.','CANTIDAD','COSTO UNIT.', 'COSTO TOT.','CANTIDAD','COSTO UNIT.', 'COSTO TOT.')
-        detalles = []
-        try:
-            kardex_inicial = Kardex.objects.filter(producto = producto,
-                                            almacen = almacen,
-                                            fecha_operacion__lt = desde).latest('fecha_operacion')
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            valor_saldo_inicial = kardex_inicial.valor_total
-        except:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0           
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(producto, 
-                                                                                                                                          almacen, 
-                                                                                                                                          desde, 
-                                                                                                                                          hasta)   
-        if len(listado_kardex)>0:
-            detalles = [(kardex.fecha_operacion.strftime('%d/%m/%Y'), '', '', '', kardex.movimiento.tipo_movimiento.codigo_sunat, kardex.cantidad_ingreso,kardex.precio_ingreso,kardex.valor_ingreso,kardex.cantidad_salida,kardex.precio_salida,kardex.valor_salida,kardex.cantidad_total,kardex.precio_total,kardex.valor_total) for kardex in listado_kardex]
-        try:
-            precio_saldo_inicial = valor_saldo_inicial/cant_saldo_inicial
-        except:
-            precio_saldo_inicial = 0
-        detalles.insert(0, ('','00', 'SALDO', 'INICIAL','16',0,0,0,0,0,0,cant_saldo_inicial,precio_saldo_inicial,valor_saldo_inicial))
-        try:
-            t_precio_i = valor_ingreso / cantidad_ingreso
-        except:
-            t_precio_i = 0
-        try:
-            t_precio_s = valor_salida / cantidad_salida        
-        except:
-            t_precio_s = 0
-        detalles.append(('','','','','TOTALES',cantidad_ingreso, t_precio_i, valor_ingreso, cantidad_salida, t_precio_s, valor_salida, kardex.cantidad_total, kardex.precio_total, kardex.valor_total))        
-        size = 30
-        listas = [detalles[i:i+size] for i  in range(0, len(detalles), size)]
-        cant_listas = len(listas)
-        cont_listas = 0
-        if cant_listas==1:
-            y = y - 20 * len(listas[0])
-        else:
-            y = y - 550
-        for lista in listas:
-            cont_listas = cont_listas + 1
-            detalle_orden = Table([encabezados] + lista,colWidths=[1.7 * cm, 2.5 * cm, 1.3 * cm, 1.5 * cm, 3.2 * cm, 1.8 * cm, 2 * cm, 2 * cm, 1.8 * cm, 2 * cm, 2 * cm, 1.8 * cm, 2 * cm, 2 * cm])
-            detalle_orden.setStyle(TableStyle(
-                [
-                    ('GRID', (0, 0), (-1, -1), 1, colors.black), 
-                    ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ]
-            ))
-            detalle_orden.wrapOn(pdf, 800, 600)
-            detalle_orden.drawOn(pdf, x ,y)            
-            if not len(lista)<30:
-                if cont_listas < cant_listas:
-                    pdf.setFont("Times-Roman", 8)
-                    pdf.drawString(210, 20,EMPRESA.direccion())
-                    pdf.showPage()
-                    y = 400        
-        return y
-    
-    def obtener_formato_sunat_unidades_fisicas(self, cod_prod, producto, desde, hasta, almacen):    
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="KardexUnidadesFisicas.pdf"'
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer)
-        pdf.setPageSize(landscape(A4))
-        y=500
-        x = 40
-        y=self.cabecera(pdf, x, y, desde, hasta, almacen, producto,False)
-        y=self.detalle_permanente_unidades_fisicas(pdf, y, desde, hasta, almacen, producto)                    
-        pdf.save()
-        pdf = buffer.getvalue()
-        buffer.close()
-        response.write(pdf)
         return response
 
     def obtener_formato_sunat_unidades_fisicas_excel(self, cod_prod, producto, desde, hasta, almacen):
@@ -1812,20 +1678,11 @@ class ReporteKardexProducto(FormView):
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
-    
-    def obtener_formato_sunat_valorizado(self, cod_prod, producto, desde, hasta, almacen):    
+
+    def obtener_formato_sunat_unidades_fisicas_pdf(self, cod_prod, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="KardexValorizado.pdf"'
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer)
-        pdf.setPageSize(landscape(A4))
-        y=500
-        x = 30
-        y=self.cabecera(pdf, x, y, desde, hasta, almacen, producto,True)        
-        y=self.detalle_permanente_valorizado(pdf, x, y, desde, hasta, almacen, producto)                    
-        pdf.save()
-        pdf = buffer.getvalue()
-        buffer.close()
+        reporte = ReporteKardexPDF('A4')
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(desde, hasta, producto)
         response.write(pdf)
         return response
 
