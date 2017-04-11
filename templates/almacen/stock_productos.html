@@ -94,6 +94,16 @@
 					</table>
 				</div>
 			</div>
+			<div class="row" id="paginacion" style="display:none">
+				<div class="col-md-4">
+					<span id="cantidad"></span>
+				</div>
+				<div class="col-md-4">
+					<a class="btn btn-info" onclick="mostrarPaginaAnterior()">Anterior</a>
+					<span id="msgPagina"></span>
+					<a class="btn btn-info" onclick="mostrarPaginaSiguiente()">Siguiente</a>
+				</div>
+			</div>
 		</div>
 	</div>
 </form>		
@@ -102,7 +112,53 @@
 
 {% block js %}
 <script>
+var todos_productos = [];
+var pagina = 1;
+var total_paginas = 0;
+
 $("#id_desde").datepicker();
+
+function mostrarPaginaAnterior()
+{
+	if(pagina>1)
+	{
+		pagina = pagina - 1;
+		mostrarProductos();
+	}
+}
+
+function mostrarPaginaSiguiente()
+{
+	if(pagina<total_paginas)
+	{
+		pagina = pagina + 1;
+		mostrarProductos();
+	}
+}
+
+function mostrarProductos()
+{
+	$("#tabla tbody > tr").remove();
+	msg_pagina = "Página " + pagina + " de " + total_paginas;
+	var arr_temp = todos_productos.slice(15*(pagina-1), 15*(pagina))
+	$.each(arr_temp, function(i,item)
+	{
+		$("#tabla tbody").append(
+		"<tr>" +
+			"<td>" + item.codigo + "</td>" +
+			"<td>" + item.label + "</td>" +
+			"<td>" + item.unidad + "</td>" +
+			"<td>" + item.stock + "</td>" +
+		"</tr>");
+	});
+	$("#msgPagina").text(msg_pagina);
+}
+
+function mostrarPrimeraPagina()
+{
+	pagina = 1;
+	mostrarProductos();
+}
 
 $("#id_descripcion").autocomplete({
   	source: function( request, response ) {
@@ -127,24 +183,34 @@ $("#id_descripcion").autocomplete({
 $("#id_buscar").click(function()
 {
 	$("#tabla tbody > tr").remove();
+	$("#tabla tbody").append("<tr><td colspan=\"4\">Cargando....</td></tr>");
 	var almacen = $("#id_almacen").val();
 	if(almacen!="")
 	{
 		$.ajax({
-		  url: "{% url 'almacen:listado_stock_producto' %}",
-		  data: {'descripcion': $("#id_descripcion").val(), 'desde': $("#id_desde").val(), 'almacen': almacen},
-		  success: function( data )
-		  {
-				$.each(data, function(i,item){
-					$("#tabla tbody").append(
-					"<tr>" +
-						"<td>" + item.codigo + "</td>" +
-						"<td>" + item.label + "</td>" +
-						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.stock + "</td>" +
-					"</tr>");
-				});
-		  }
+			url: "{% url 'almacen:listado_stock_producto' %}",
+			data:
+			{
+				'descripcion': $("#id_descripcion").val(),
+				'desde': $("#id_desde").val(),
+				'almacen': almacen
+			},
+			success: function( data )
+			{
+				todos_productos = data;
+				total_paginas = parseInt(todos_productos.length/15);
+				if(total_paginas==0)
+				{
+					total_paginas = 1;
+				}
+				else if(Math.round(todos_productos.length % 15)>0)
+				{
+					total_paginas = total_paginas + 1;
+				}
+				mostrarPrimeraPagina();
+				$('#cantidad').text("Total: "+todos_productos.length+" productos");
+				$('#paginacion').show();
+			}
 		});
 	}
 	else{
