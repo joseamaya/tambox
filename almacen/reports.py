@@ -262,7 +262,7 @@ class ReporteKardexPDF():
         titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
 
         encabezado = [[imagen, titulo]]
-        tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 19 * cm])
+        tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 22 * cm])
         """tabla_encabezado.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (2, 1), 'CENTER'),
@@ -273,42 +273,6 @@ class ReporteKardexPDF():
             ]
         ))"""
         return tabla_encabezado
-
-    def tabla_datos(self, styles):
-        orden = self.orden_compra
-        izquierda = ParagraphStyle('parrafos',
-                                   alignment=TA_LEFT,
-                                   fontSize=10,
-                                   fontName="Times-Roman")
-        cotizacion = orden.cotizacion
-        if cotizacion is None:
-            proveedor = orden.proveedor
-        else:
-            proveedor = orden.cotizacion.proveedor
-        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + proveedor.razon_social, izquierda)
-        ruc_proveedor = Paragraph(u"R.U.C.: " + proveedor.ruc, izquierda)
-        direccion = Paragraph(u"DIRECCIÓN: " + proveedor.direccion, izquierda)
-        try:
-            telefono = Paragraph(u"TELÉFONO: " + proveedor.telefono, izquierda)
-        except:
-            telefono = Paragraph(u"TELÉFONO: -", izquierda)
-        try:
-            referencia = Paragraph(
-                u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre,
-                izquierda)
-        except:
-            referencia = Paragraph(u"REFERENCIA: ", izquierda)
-        proceso = Paragraph(u"PROCESO: " + orden.proceso, izquierda)
-        nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ", izquierda)
-        datos = [[razon_social_proveedor, ruc_proveedor], [direccion, telefono], [referencia, ''], [proceso, ''],
-                 [nota, '']]
-        tabla_detalle = Table(datos, colWidths=[11 * cm, 9 * cm])
-        tabla_detalle.setStyle(TableStyle(
-            [
-                ('SPAN', (0, 2), (1, 2)),
-            ]
-        ))
-        return tabla_detalle
 
     def tabla_detalle(self):
         orden = self.orden_compra
@@ -352,103 +316,6 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def tabla_total_letras(self):
-        orden = self.orden_compra
-        total_letras = [("SON: " + orden.total_letras, '')]
-        tabla_total_letras = Table(total_letras, colWidths=[17.5 * cm, 2.5 * cm])
-        tabla_total_letras.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (1, 0), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-            ]
-        ))
-        return tabla_total_letras
-
-    def tabla_otros(self):
-        orden = self.orden_compra
-        p = ParagraphStyle('parrafos',
-                           alignment=TA_CENTER,
-                           fontSize=8,
-                           fontName="Times-Roman")
-        sub_total = Paragraph(u"SUBTOTAL: ", p)
-        igv = Paragraph(u"IGV: ", p)
-        total = Paragraph(u"TOTAL: ", p)
-        datos_otros = [
-            [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
-             sub_total, orden.subtotal],
-            [Paragraph(EMPRESA.direccion(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.descripcion, p),
-             igv, str(orden.igv)],
-            ['', '', '', total, str(orden.total)],
-            ]
-        tabla_otros = Table(datos_otros, colWidths=[5.5 * cm, 5 * cm, 5 * cm, 2 * cm, 2.5 * cm])
-        tabla_otros.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (2, 2), 1, colors.black),
-                ('SPAN', (0, 1), (0, 2)),
-                ('SPAN', (1, 1), (1, 2)),
-                ('SPAN', (2, 1), (2, 2)),
-                ('GRID', (4, 0), (4, 2), 1, colors.black),
-                ('VALIGN', (0, 1), (2, 1), 'MIDDLE'),
-            ]
-        ))
-        return tabla_otros
-
-    def tabla_observaciones(self):
-        orden = self.orden_compra
-        p = ParagraphStyle('parrafos',
-                           alignment=TA_JUSTIFY,
-                           fontSize=8,
-                           fontName="Times-Roman")
-        obs = Paragraph("OBSERVACIONES: " + orden.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[20 * cm], rowHeights=1.8 * cm)
-        tabla_observaciones.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (0, 2), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ]
-        ))
-        return tabla_observaciones
-
-    def tabla_afectacion_presupuestal(self):
-        orden = self.orden_compra
-        p = ParagraphStyle('parrafos',
-                           alignment=TA_JUSTIFY,
-                           fontSize=8,
-                           fontName="Times-Roman")
-        hoja_afectacion = Paragraph(u"HOJA DE AFECTACIÓN PRESUPUESTAL: ", p)
-        importante = Paragraph(u"IMPORTANTE: ", p)
-        recibido = Paragraph(u"RECIBIDO POR: ", p)
-        firma = Paragraph(u"FIRMA: ", p)
-        nombre = Paragraph(u"NOMBRE: ", p)
-        dni = Paragraph(u"DNI: ", p)
-        lista = ListFlowable([
-            Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura.
-                          Facturar a nombre de """ + smart_str(EMPRESA.razon_social), p),
-            Paragraph("El " + smart_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver
-                          la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente
-                          Orden de Compra.""", p),
-            Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
-        ], bulletType='1'
-        )
-        datos_otros = [[hoja_afectacion, ''],
-                       [importante, recibido],
-                       [lista, ''],
-                       ['', firma],
-                       ['', nombre],
-                       ['', dni],
-                       ]
-        tabla_afectacion_presupuestal = Table(datos_otros, colWidths=[10 * cm, 10 * cm])
-        tabla_afectacion_presupuestal.setStyle(TableStyle(
-            [
-                ('ALIGN', (0, 1), (1, 1), 'CENTER'),
-                ('SPAN', (0, 2), (0, 5)),
-            ]
-        ))
-        return tabla_afectacion_presupuestal
-
     def imprimir_formato_sunat_unidades_fisicas(self,desde,hasta,producto):
         y = 300
         buffer = self.buffer
@@ -490,6 +357,10 @@ class ReporteKardexPDF():
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+                           izquierda)
+        elements.append(unidad)
+        elements.append(Spacer(1, 0.25 * cm))
+        unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
