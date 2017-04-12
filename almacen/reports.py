@@ -10,8 +10,9 @@ from reportlab.platypus.flowables import Spacer
 from django.conf import settings
 import os
 from io import BytesIO
-from almacen.models import DetalleMovimiento
+from almacen.models import DetalleMovimiento, Kardex, Movimiento
 from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA
+from django.db.models import Sum
 
 class ReporteMovimiento():
     
@@ -54,7 +55,7 @@ class ReporteMovimiento():
             ]
         ))
         return tabla_encabezado
-    
+
     def tabla_datos(self, styles):
         movimiento = self.movimiento
         izquierda = ParagraphStyle('parrafos',
@@ -71,7 +72,7 @@ class ReporteMovimiento():
         operacion = Paragraph(u"OPERACIÓN: "+movimiento.tipo_movimiento.descripcion,izquierda)
         almacen = Paragraph(u"ALMACÉN: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
         try:
-            orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)            
+            orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)
         except:
             orden_compra = Paragraph(u"REFERENCIA: -",izquierda)
         try:
@@ -82,7 +83,7 @@ class ReporteMovimiento():
         try:
             pedido = Paragraph(u"PEDIDO: "+movimiento.pedido.codigo, izquierda)
         except:
-            pedido = ""        
+            pedido = ""
         encabezado = [[operacion,''],
                       [almacen,''],
                       [proveedor,''],
@@ -91,11 +92,11 @@ class ReporteMovimiento():
                       [pedido,'']]
         tabla_datos = Table(encabezado,colWidths=[11 * cm, 9 * cm])
         tabla_datos.setStyle(TableStyle(
-            [                
-                                                             
+            [
+
             ]
         ))
-        return tabla_datos        
+        return tabla_datos
     
     def tabla_detalle(self):
         movimiento = self.movimiento
@@ -248,7 +249,38 @@ class ReporteKardexPDF():
             self.pagesize = letter
         self.width, self.height = self.pagesize
 
-    def tabla_encabezado(self, styles, desde, hasta, producto):
+    def obtener_kardex(self, producto, almacen, desde, hasta):
+        listado_kardex = Kardex.objects.filter(almacen = almacen,
+                                               movimiento__estado = Movimiento.STATUS.ACT,
+                                               fecha_operacion__gte=desde,
+                                               fecha_operacion__lte=hasta,
+                                               producto = producto).order_by('producto__descripcion',
+                                                                           'fecha_operacion',
+                                                                           'cantidad_salida',
+                                                                           'created')
+        if len(listado_kardex)>0:
+            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
+            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
+            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
+            t_cantidad_s = cantidad_salida['cantidad_salida__sum']
+            t_cantidad_t= cantidad_total['cantidad_total__sum']
+            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
+            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
+            valor_total = listado_kardex.aggregate(Sum('valor_total'))
+            t_valor_i = valor_ingreso['valor_ingreso__sum']
+            t_valor_s = valor_salida['valor_salida__sum']
+            t_valor_t= valor_total['valor_total__sum']
+        else:
+            t_cantidad_i = 0
+            t_cantidad_s = 0
+            t_cantidad_t = 0
+            t_valor_i = 0
+            t_valor_s = 0
+            t_valor_t = 0
+        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s, t_cantidad_t, t_valor_t)
+
+    def tabla_encabezado(self):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -262,61 +294,68 @@ class ReporteKardexPDF():
         titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
 
         encabezado = [[imagen, titulo]]
-        tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 22 * cm])
-        """tabla_encabezado.setStyle(TableStyle(
-            [
-                ('ALIGN', (0, 0), (2, 1), 'CENTER'),
-                ('VALIGN', (0, 0), (2, 0), 'CENTER'),
-                ('VALIGN', (1, 1), (2, 1), 'TOP'),
-                ('SPAN', (0, 0), (0, 1)),
-
-            ]
-        ))"""
+        tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
-    def tabla_detalle(self):
-        orden = self.orden_compra
-        encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = DetalleOrdenCompra.objects.filter(orden=orden).order_by('pk')
-        sp = ParagraphStyle('parrafos')
-        sp.alignment = TA_JUSTIFY
-        sp.fontSize = 8
-        sp.fontName = "Times-Roman"
-        lista_detalles = []
-        for detalle in detalles:
-            try:
-                tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
-                                  Paragraph(str(detalle.cantidad), sp),
-                                  Paragraph(
-                                      detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion,
-                                      sp),
-                                  Paragraph(detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, sp),
-                                  Paragraph(str(detalle.precio), sp),
-                                  Paragraph(str(detalle.valor), sp)]
-            except:
-                tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
-                                  Paragraph(str(detalle.cantidad), sp),
-                                  Paragraph(detalle.producto.unidad_medida.descripcion, sp),
-                                  Paragraph(detalle.producto.descripcion, sp),
-                                  Paragraph(str(detalle.precio), sp),
-                                  Paragraph(str(detalle.valor), sp)]
-            lista_detalles.append(tupla_producto)
-        adicionales = [('', '', '', '', '')] * (15 - len(lista_detalles))
-        tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
-                              colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 10.2 * cm, 2 * cm, 2.5 * cm])
+    def tabla_detalle_unidades_fisicas(self, producto, desde, hasta, almacen):
+        tabla = []
+        encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
+                        "",
+                        "",
+                        "",
+                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
+                       u"ENTRADAS",
+                       u"SALIDAS",
+                       u"SALDO FINAL"]
+        tabla.append(encab_prim)
+        encab_seg = ["FECHA", "TIPO (TABLA 10)","SERIE","NÚMERO","","","",""]
+        tabla.append(encab_seg)
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+        except:
+            cant_saldo_inicial = 0
+        saldo_inicial = ['','00','SALDO','INICIAL','16',format(0,'.5f'),format(0,'.5f'),format(cant_saldo_inicial,'.5f')]
+        tabla.append(saldo_inicial)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(
+            producto,
+            almacen,
+            desde,
+            hasta)
+
+        for kardex in listado_kardex:
+            tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
+                          kardex.movimiento.tipo_documento.codigo_sunat,
+                          kardex.movimiento.serie,
+                          kardex.movimiento.numero,
+                          kardex.movimiento.tipo_movimiento.codigo_sunat,
+                          format(kardex.cantidad_ingreso,'.5f'),
+                          format(kardex.cantidad_salida,'.5f'),
+                          format(kardex.cantidad_total,'.5f')])
+        totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.5f'),format(cantidad_salida,'.5f'),format(cantidad_total,'.5f')]
+        tabla.append(totales)
+        tabla_detalle = Table(tabla, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
         style = TableStyle(
             [
-                ('ALIGN', (0, 0), (4, 0), 'CENTER'),
+                #('ALIGN', (0, 0), (4, 0), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                ('FONTSIZE', (0, 0), (-1, -1), 7),
-                ('ALIGN', (4, 1), (-1, -1), 'LEFT'),
-                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('TEXTFONT', (0, 1), (-1, 1), 'Times-Roman'),
+                ('ALIGN', (5, 1), (7, -1), 'RIGHT'),
+                #('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('FONTSIZE', (0, 0), (-1, -1), 12),
+                ('SPAN', (0, 0), (3, 0)),
+                ('SPAN', (4, 0), (4, 1)),
+                ('SPAN', (5, 0), (5, 1)),
+                ('SPAN', (6, 0), (6, 1)),
+                ('SPAN', (7, 0), (7, 1)),
             ]
         )
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def imprimir_formato_sunat_unidades_fisicas(self,desde,hasta,producto):
+    def imprimir_formato_sunat_unidades_fisicas(self, producto, desde, hasta, almacen):
         y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
@@ -332,7 +371,7 @@ class ReporteKardexPDF():
 
         elements = []
         styles = getSampleStyleSheet()
-        elements.append(self.tabla_encabezado(styles,desde,hasta,producto))
+        elements.append(self.tabla_encabezado())
         elements.append(Spacer(1, 0.5 * cm))
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
@@ -363,7 +402,8 @@ class ReporteKardexPDF():
         unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
         elements.append(unidad)
-        elements.append(Spacer(1, 0.25 * cm))
+        elements.append(Spacer(1, 0.5 * cm))
+        elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
         doc.build(elements)
         pdf = buffer.getvalue()
         buffer.close()

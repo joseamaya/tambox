@@ -1682,7 +1682,7 @@ class ReporteKardexProducto(FormView):
     def obtener_formato_sunat_unidades_fisicas_pdf(self, cod_prod, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(desde, hasta, producto)
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(producto, desde, hasta, almacen)
         response.write(pdf)
         return response
 
