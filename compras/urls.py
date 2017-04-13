@@ -4,7 +4,7 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     BusquedaProveedoresRazonSocial, CrearDetalleOrdenCompra,\
     TransferenciaOrdenCompra, ObtenerDetalleOrdenCompra,\
     ReporteExcelOrdenesCompraFecha, ListadoOrdenesCompra, DetalleProveedor,\
-    ModificarOrdenCompra, ReportePDFOrdenCompra, EliminarOrdenCompra, ModificarProveedor,\
+    ModificarOrdenCompra, ReportePDFOrdenCompra, ReporteXLSOrdenCompra, EliminarOrdenCompra, ModificarProveedor,\
     EliminarProveedor, ReporteExcelProveedores, CrearOrdenServicios, CrearDetalleOrdenServicios, ListadoOrdenesServicios,\
     ModificarOrdenServicios, CargarProveedores, \
     CrearConformidadServicio, TransferenciaOrdenServicios, ObtenerDetalleOrdenServicios, ListadoConformidadesServicio,\
@@ -58,6 +58,7 @@ urlpatterns = [
     url(r'^listado_movimientos_orden_compra/(?P<orden>.+)/$',login_required(ListadoMovimientosPorOrdenCompra.as_view()), name="listado_movimientos_orden_compra"),
     url(r'^listado_conformidades_orden_servicios/(?P<orden>.+)/$',login_required(ListadoConformidadesPorOrdenServicios.as_view()), name="listado_conformidades_orden_servicios"),
     url(r'^orden_compra_pdf/(?P<pk>.+)/$', login_required(ReportePDFOrdenCompra.as_view()), name="orden_compra_pdf"),
+    url(r'^orden_compra_xls/(?P<pk>.+)/$', login_required(ReporteXLSOrdenCompra.as_view()), name="orden_compra_xls"),
     url(r'^orden_servicios_pdf/(?P<codigo>.+)/$', login_required(ReportePDFOrdenServicios.as_view()), name="orden_servicios_pdf"),
     url(r'^ver_memorando_conformidad_servicio/(?P<codigo>.+)/$', login_required(ReportePDFMemorandoConformidadServicio.as_view()), name="ver_memorando_conformidad_servicio"),
     url(r'^cotizacion_pdf/(?P<codigo>.+)/$', login_required(ReportePDFSolicitudCotizacion.as_view()), name="cotizacion_pdf"),
