@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*- 
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
+from openpyxl.styles import Alignment
+from openpyxl.styles import Border
+from openpyxl.styles import Color
+from openpyxl.styles import Font
+from openpyxl.styles import Side
+
 from compras.models import Proveedor, OrdenCompra, FormaPago, DetalleOrdenCompra, DetalleRequerimiento, OrdenServicios,\
     DetalleOrdenServicios, ConformidadServicio,\
     DetalleConformidadServicio, DetalleCotizacion, Cotizacion
@@ -38,7 +44,7 @@ from contabilidad.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
 from almacen.forms import DetalleIngresoFormSet
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
 from contabilidad.models import TipoCambio
 from productos.models import Producto, UnidadMedida, GrupoProductos
@@ -1380,7 +1386,7 @@ class ReportePDFOrdenCompra(View):
         try:
             detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion, detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,round(detalle.valor,5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         except:
-            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.precio,round(detalle.valor,5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion, detalle.producto.descripcion, detalle.precio, round(detalle.precio,5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         adicionales = [('','','','','','')]*(15-len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,colWidths=[0.8 * cm, 1.9 * cm, 2 * cm,9.3* cm, 2 * cm, 2.5 * cm])
         detalle_orden.setStyle(TableStyle(
@@ -1528,7 +1534,360 @@ class ReportePDFOrdenCompra(View):
         buffer.close()
         response.write(pdf)
         return response
-        
+
+class ReporteXLSOrdenCompra(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        orden=get_object_or_404(OrdenCompra, pk=kwargs['pk'])
+        detalle_index=0
+        cotizacion = orden.cotizacion
+        if cotizacion is None:
+            proveedor = orden.proveedor
+        else:
+            proveedor = orden.cotizacion.proveedor
+        wb = Workbook()
+        ws = wb.active
+
+        ws.column_dimensions['B'].width=18
+        ws.column_dimensions['E'].width = 15
+        ws.column_dimensions['G'].width = 15
+        ws.column_dimensions['I'].width = 15
+
+        ws.merge_cells('B2:I2')
+        ws['B2'].font=Font(name='Brush Script MT', size=20, color='0000ff', bold=True)
+        ws['B2'].alignment=Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[2].height=25
+        ws['B2'] = 'Asociación de Bananeros Orgánicos Solidarios  Salitral'
+        ws.merge_cells('B3:I3')
+        ws['B3'].font = Font(name='Lucida Bright', size=9, color='148918', bold=True, italic=True)
+        ws['B3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B3'] = 'Inscrita en Partida Nº 11003959 de la Superintendencia Nacional de'
+        ws.merge_cells('B4:I4')
+        ws['B4'].font = Font(name='Lucida Bright', size=9, color='148918', bold=True, italic=True)
+        ws['B4'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B4'] = 'los Registros Públicos R.U.C. Nº 20484149748'
+        ws.merge_cells('B5:I5')
+        ws['B5'].font = Font(name='Lucida Bright', size=9, color='ff0000', bold=True, italic=True)
+        ws['B5'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B5'] = 'FLO Certified Banana Producer – FLO ID 2460'
+        ws.merge_cells('B6:I6')
+        ws['B6'].font = Font(name='Lucida Bright', size=9, color='ff0000', bold=True, italic=True)
+        ws['B6'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B6'] = 'Certificate Organic USDA-NOP, EU2092/91, JAS. Registration Nº CU 805878'
+        ws.merge_cells('B10:I10')
+        ws['B10'].font = Font(name='Calibri', size=12)
+        ws['B10'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B10'] = '"AÑO DEL BUEN SERVICIO AL CIUDADANO"'
+        ws.merge_cells('D11:F11')
+        ws['D11'].font = Font(name='Calibri', size=18, bold=True, underline="single")
+        ws['D11'].alignment = Alignment(horizontal="center", vertical="center")
+        ws.row_dimensions[11].height = 25
+        ws['D11'] = 'ORDEN DE COMPRA'
+        ws['G11'].font = Font(name='Calibri', size=11, bold=True, underline="single")
+        ws['G11'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['G11'] = 'N°'
+
+
+        ws['B13'].font = Font(size=11, bold=True)
+        ws['B13'] = 'DATOS DEL CLIENTE Y DE LA FACTURA'
+        ws['B14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B14'] = 'RAZÓN SOCIAL'
+        ws.merge_cells('C14:G14')
+        ws['C14'].alignment = Alignment(horizontal="center")
+        ws['C14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C14'] = orden.proveedor.razon_social
+        ws['H14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H14'] = 'FECHA'
+        ws['I14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I14'] = orden.fecha
+        ws['B15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B15'] = 'CONTACTO'
+        ws.merge_cells('C15:G15')
+        ws['C15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C15'].alignment = Alignment(horizontal="center")
+        ws['C15'] = ''
+        ws['H15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H15'] = 'RUC/NIT'
+        ws['I15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I15'] = proveedor.ruc
+        ws['B16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B16'] = 'DIRECCIÓN'
+        ws.merge_cells('C16:G16')
+        ws['C16'].alignment = Alignment(horizontal="center")
+        ws['C16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C16'] = proveedor.direccion
+        ws['H16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H16'] = 'TELÉFONO'
+        ws['I16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        try:
+            ws['I16'] = proveedor.telefono
+        except:
+            ws['I16'] = '-'
+        ws['B17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B17'] = 'E-MAIL'
+        ws.merge_cells('C17:G17')
+        ws['C14'].alignment = Alignment(horizontal="center")
+        ws['C17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C17'] = proveedor.correo
+        ws['H17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H17'] = 'RPM/RPC'
+        ws['I17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I17'] = ''
+
+
+        ws['B19'].font = Font(size=11, bold=True)
+        ws['B19'] = 'DATOS DE ENTREGA'
+        ws.merge_cells('B20:C20')
+        ws['B20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B20'] = 'DIRECCIÓN DE ENTREGA'
+        ws.merge_cells('D20:F20')
+        ws['D20'].alignment = Alignment(horizontal="center")
+        ws['D20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D20'] = str(EMPRESA.direccion())
+        ws.merge_cells('G20:H20')
+        ws['G20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G20'] = 'DEPARTAMENTO'
+        ws['I20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I20'] = str(EMPRESA.departamento)
+        ws.merge_cells('B21:C22')
+        ws['B21'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B21'] = 'PERSONAS AUTORIZADAS'
+        ws.merge_cells('D21:F21')
+        ws['D21'].alignment = Alignment(horizontal="center")
+        ws['D21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D21'] = ''
+        ws.merge_cells('D22:F22')
+        ws['D22'].alignment = Alignment(horizontal="center")
+        ws['D22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D22'] = ''
+        ws.merge_cells('G21:H21')
+        ws['G21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G21'] = 'PROVINCIA'
+        ws['I21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I21'] = str(EMPRESA.provincia)
+        ws.merge_cells('G22:H22')
+        ws['G22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G22'] = 'DISTRITO'
+        ws['I22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I22'] = str(EMPRESA.distrito)
+        ws.merge_cells('B23:C24')
+        ws['B23'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B23'] = 'TELÉFONOS'
+        ws.merge_cells('D23:F23')
+        ws['D23'].alignment = Alignment(horizontal="center")
+        ws['D23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D23'] = ''
+        ws.merge_cells('G23:H23')
+        ws['G23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G23'] = 'COMENTARIO:'
+        ws['I23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I23'] = ''
+        ws['B24'].border = Border(bottom=Side(border_style="thin"))
+        ws.merge_cells('D24:F24')
+        ws['D24'].alignment = Alignment(horizontal="center")
+        ws['D24'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D24'] = ''
+        ws.merge_cells('G24:I24')
+        ws['D24'].alignment = Alignment(horizontal="center")
+        ws['G24'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G24'] = ''
+        ws['J24'].border = Border(left=Side(border_style="thin"))
+        ws.merge_cells('G25:I25')
+        ws['G25'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G25'] = ''
+        ws['J25'].border = Border(left=Side(border_style="thin"))
+        ws.merge_cells('G26:I26')
+        ws['G26'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G26'] = ''
+        ws['J26'].border = Border(left=Side(border_style="thin"))
+
+
+        ws['B28'].font = Font(size=11, bold=True)
+        ws['B28'] = 'DATOS DEL PRODUCTO A ADQUIRIR'
+        ws.merge_cells('B29:B30')
+        ws['B29'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B29'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B29'] = 'UNIDAD MEDIDA'
+        ws.merge_cells('C29:F30')
+        ws['C29'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['C29'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C29'] = 'DESCRIPCIÓN DEL PRODUCTO'
+        ws.merge_cells('G29:G30')
+        ws['G29'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['G29'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G29'] = 'CANT.'
+        ws['H29'].alignment = Alignment(horizontal="center")
+        ws['H29'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H29'] = 'PRECIO'
+        ws['I29'].alignment = Alignment(horizontal="center")
+        ws['I29'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I29'] = 'PRECIO'
+        ws['H30'].alignment = Alignment(horizontal="center")
+        ws['H30'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H30'] = 'UNITARIO'
+        ws['I30'].alignment = Alignment(horizontal="center")
+        ws['I30'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I30'] = 'TOTAL'
+
+        for item in DetalleOrdenCompra.objects.filter(orden=orden):
+            fila=31+detalle_index
+            ws['B'+str(fila)].alignment = Alignment(horizontal="center")
+            ws['B'+str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                      top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws['B'+str(fila)] = item.producto.unidad_medida.descripcion
+            ws.merge_cells('C' + str(fila) + ':F' + str(fila))
+            ws['C'+str(fila)].alignment = Alignment(horizontal="center")
+            ws['C'+str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                      top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws['C'+str(fila)] = item.producto.descripcion
+            ws['G'+str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws['G'+str(fila)] = item.cantidad
+            ws['H'+str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws['H'+str(fila)] = item.precio
+            ws['I'+str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws['I'+str(fila)] = item.cantidad*item.precio
+            detalle_index += 1
+
+        fila_total=31+detalle_index
+        ws.merge_cells('G' + str(fila_total) + ':H' + str(fila_total))
+        ws['G'+str(fila_total)].alignment = Alignment(horizontal="center")
+        ws['G'+str(fila_total)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G'+str(fila_total)] = 'SUBTOTAL'
+        ws['I' + str(fila_total)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I'+str(fila_total)] = orden.subtotal
+        ws.merge_cells('G' + str(fila_total+1) + ':H' + str(fila_total+1))
+        ws['G' + str(fila_total+1)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_total+1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G'+str(fila_total+1)] = 'IMPUESTO 18% IGV'
+        ws['I' + str(fila_total+1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I'+str(fila_total+1)] = orden.impuesto
+        ws.merge_cells('G' + str(fila_total+2) + ':H' + str(fila_total+2))
+        ws['G' + str(fila_total+2)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_total+2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G'+str(fila_total+2)] = 'TOTAL'
+        ws['I' + str(fila_total+2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                  top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['I'+str(fila_total+2)] = orden.total
+
+        ws['B' + str(fila_total + 7)] = 'SON:'
+        ws.merge_cells('C' + str(fila_total + 7) + ':I' + str(fila_total + 7))
+        ws['C' + str(fila_total + 7)].font = Font(underline="single")
+        ws['C' + str(fila_total + 7)].alignment = Alignment(horizontal="center")
+        ws['C' + str(fila_total + 7)] = orden.total_letras
+
+        fila_pago=fila_total+9
+        ws.merge_cells('E' + str(fila_pago) + ':F' + str(fila_pago))
+        ws['E'+str(fila_pago)] = 'FORMA DE PAGO'
+
+        ws.merge_cells('G' + str(fila_pago) + ':I' + str(fila_pago))
+        ws['G' + str(fila_pago)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago)] = orden.forma_pago.descripcion
+        ws.merge_cells('E' + str(fila_pago+1) + ':F' + str(fila_pago+1))
+        ws['E'+str(fila_pago+1)] = 'BANCO'
+        ws.merge_cells('G' + str(fila_pago+1) + ':I' + str(fila_pago+1))
+        ws['G' + str(fila_pago+1)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago+1)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago+1)] = ''
+
+        ws.merge_cells('E' + str(fila_pago+2) + ':F' + str(fila_pago+2))
+        ws['E'+str(fila_pago+2)] = 'NÚMERO DE CTA:'
+        ws.merge_cells('G' + str(fila_pago + 2) + ':I' + str(fila_pago + 2))
+        ws['G' + str(fila_pago+2)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago+2)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago+2)] = ''
+
+        ws.merge_cells('E' + str(fila_pago+3) + ':F' + str(fila_pago+3))
+        ws['E'+str(fila_pago+3)] = 'TIPO DE CUENTA'
+        ws.merge_cells('G' + str(fila_pago + 3) + ':I' + str(fila_pago + 3))
+        ws['G' + str(fila_pago+3)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago+3)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago+3)] = ''
+
+        ws.merge_cells('E' + str(fila_pago+4) + ':F' + str(fila_pago+4))
+        ws['E'+str(fila_pago+4)] = 'MONEDA'
+        ws.merge_cells('G' + str(fila_pago + 4) + ':I' + str(fila_pago + 4))
+        ws['G' + str(fila_pago+4)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago+4)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago+4)] = ''
+
+        ws.merge_cells('E' + str(fila_pago+5) + ':F' + str(fila_pago+5))
+        ws['E'+str(fila_pago+5)] = 'CCI'
+        ws.merge_cells('G' + str(fila_pago + 5) + ':I' + str(fila_pago + 5))
+        ws['G' + str(fila_pago+5)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_pago+5)].border = Border(bottom=Side(border_style="thin"))
+        ws['G'+str(fila_pago+5)] = ''
+
+        fila_firmas=fila_pago+11
+        ws.merge_cells('C' + str(fila_firmas) + ':E' + str(fila_firmas))
+        ws['C' + str(fila_firmas)].alignment = Alignment(horizontal="center")
+        ws['C' + str(fila_firmas)].border = Border(top=Side(border_style="thin"))
+        ws['C' + str(fila_firmas)] = 'RESPONSABLE'
+        ws.merge_cells('G' + str(fila_firmas) + ':I' + str(fila_firmas))
+        ws['G' + str(fila_firmas)].alignment = Alignment(horizontal="center")
+        ws['G' + str(fila_firmas)].border = Border(top=Side(border_style="thin"))
+        ws['G' + str(fila_firmas)] = 'APROBADO POR'
+
+        nombre_archivo ="ORDEN_DE_COMPRA_N°.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
+
+
 class ReportePDFOrdenServicios(View):  
     
     def cabecera(self,pdf,orden):
