@@ -46,7 +46,7 @@ from django.db import transaction, IntegrityError
 from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
-from almacen.reports import ReporteMovimiento, ReporteKardexPDF
+from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexTodosPDF
 from almacen.settings import EMPRESA, LOGISTICA
 from datetime import date
 
@@ -1937,18 +1937,28 @@ class ReporteKardex(FormView):
         desde = data.get('desde')
         hasta = data['hasta']
         almacen = data.get('almacenes')
+        formato_sunat = data.get('formato_sunat')
         formatos = data.get('formatos')
         consolidado = data['consolidado']
         if consolidado == 'P':
             return self.obtener_consolidado_productos(desde, hasta, almacen)
         elif consolidado == 'G':
             return self.obtener_consolidado_grupos(desde, hasta, almacen)
-        elif formatos == 'S':
-            return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
-        elif formatos == 'V':
-            return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
-        else:
-            return self.obtener_formato_normal(desde, hasta, almacen)
+
+        if formatos == "XLS":
+            if formato_sunat == 'S':
+                return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
+            elif formato_sunat == 'V':
+                return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
+            else:
+                return self.obtener_formato_normal(desde, hasta, almacen)
+        elif formatos == "PDF":
+            if formato_sunat == 'S':
+                return self.obtener_formato_sunat_unidades_fisicas_pdf(desde, hasta, almacen)
+            elif formato_sunat == 'V':
+                return self.obtener_formato_sunat_valorizado_pdf(desde, hasta, almacen)
+            else:
+                return self.obtener_formato_normal_pdf(desde, hasta, almacen)
 
     def obtener_kardex_producto(self, producto, almacen, desde, hasta):
         listado_kardex = Kardex.objects.filter(almacen=almacen,
@@ -2322,19 +2332,10 @@ class ReporteKardex(FormView):
         wb.save(response)
         return response
 
-    def obtener_formato_sunat_unidades_fisicas(self, desde, hasta, almacen):
+    def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="KardexUnidadesFisicas.pdf"'
-        buffer = BytesIO()
-        pdf = canvas.Canvas(buffer)
-        pdf.setPageSize(landscape(A4))
-        y = 500
-        x = 40
-        y = self.cabecera(pdf, x, y, desde, hasta, almacen, producto, False)
-        y = self.detalle_permanente_unidades_fisicas(pdf, y, desde, hasta, almacen, producto)
-        pdf.save()
-        pdf = buffer.getvalue()
-        buffer.close()
+        reporte = ReporteKardexTodosPDF('A4')
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(desde, hasta, almacen)
         response.write(pdf)
         return response
 

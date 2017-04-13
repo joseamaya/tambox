@@ -74,11 +74,29 @@
 						{{ form.consolidado }}
 					</div>
 				</div>	
-			</div>	
+			</div>
+			<div class="form-group">
+				<div class="row">
+			 		<div class="col-md-4">
+						<label for="codigo">FORMATO PARA SUNAT: </label>
+						{% if form.formato_sunat.errors %}
+							{% for error in form.formato_sunat.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.formato_sunat }}
+					</div>
+				</div>
+			</div>
 			<div class="form-group">	
 				<div class="row">
 			 		<div class="col-md-4">
-						<label for="codigo">FORMATO PARA SUNAT : </label>
+						<label for="codigo">ESCOJA EL FORMATO: </label>
 						{% if form.formatos.errors %}
 							{% for error in form.formatos.errors %}
 							<div class="alert alert-danger alert-dismissible" role="alert">							
@@ -101,7 +119,7 @@
 <script>
 $("#id_desde").datepicker();
 $("#id_hasta").datepicker();
-$("input[name='formatos']").change(function() {
+$("input[name='formato_sunat']").change(function() {
     if(this.checked)
     {
         $("input[name='consolidado']").attr("disabled", true);
@@ -110,7 +128,7 @@ $("input[name='formatos']").change(function() {
 $("input[name='consolidado']").change(function() {
     if(this.checked)
     {
-        $("input[name='formatos']").attr("disabled", true);
+        $("input[name='formato_sunat']").attr("disabled", true);
     }
 });
 
