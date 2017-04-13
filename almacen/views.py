@@ -1686,6 +1686,13 @@ class ReporteKardexProducto(FormView):
         response.write(pdf)
         return response
 
+    def obtener_formato_sunat_valorizado_pdf(self, cod_prod, producto, desde, hasta, almacen):
+        response = HttpResponse(content_type='application/pdf')
+        reporte = ReporteKardexPDF('A4')
+        pdf = reporte.imprimir_formato_sunat_valorizado(producto, desde, hasta, almacen)
+        response.write(pdf)
+        return response
+
     def obtener_formato_sunat_valorizado_excel(self, cod_prod, producto, desde, hasta, almacen):
         wb = Workbook()
         ws = wb.active
