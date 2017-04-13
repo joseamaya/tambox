@@ -326,11 +326,20 @@ class ReporteKardexPDF():
             hasta)
 
         for kardex in listado_kardex:
+            try:
+                tipo_documento = kardex.movimiento.tipo_documento.codigo_sunat
+            except:
+                tipo_documento = '-'
+            try:
+                tipo_movimiento = kardex.movimiento.tipo_movimiento.codigo_sunat
+            except:
+                tipo_movimiento = "-"
+
             tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
-                          kardex.movimiento.tipo_documento.codigo_sunat,
+                          tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
-                          kardex.movimiento.tipo_movimiento.codigo_sunat,
+                          tipo_movimiento,
                           format(kardex.cantidad_ingreso,'.5f'),
                           format(kardex.cantidad_salida,'.5f'),
                           format(kardex.cantidad_total,'.5f')])
