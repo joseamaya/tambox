@@ -46,7 +46,7 @@ from django.db import transaction, IntegrityError
 from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
-from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexTodosPDF
+from almacen.reports import ReporteMovimiento, ReporteKardexPDF
 from almacen.settings import EMPRESA, LOGISTICA
 from datetime import date
 
@@ -1682,14 +1682,14 @@ class ReporteKardexProducto(FormView):
     def obtener_formato_sunat_unidades_fisicas_pdf(self, cod_prod, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(producto, desde, hasta, almacen)
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_producto(producto, desde, hasta, almacen)
         response.write(pdf)
         return response
 
     def obtener_formato_sunat_valorizado_pdf(self, cod_prod, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_valorizado(producto, desde, hasta, almacen)
+        pdf = reporte.imprimir_formato_sunat_valorizado_producto(producto, desde, hasta, almacen)
         response.write(pdf)
         return response
 
@@ -2341,8 +2341,15 @@ class ReporteKardex(FormView):
 
     def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexTodosPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas(desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4')
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_todos(desde, hasta, almacen)
+        response.write(pdf)
+        return response
+
+    def obtener_formato_sunat_valorizado_pdf(self, desde, hasta, almacen):
+        response = HttpResponse(content_type='application/pdf')
+        reporte = ReporteKardexPDF('A4')
+        pdf = reporte.imprimir_formato_sunat_valorizado_todos(desde, hasta, almacen)
         response.write(pdf)
         return response
 
