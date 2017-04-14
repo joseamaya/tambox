@@ -1964,7 +1964,7 @@ class ReporteKardex(FormView):
             if consolidado == 'P':
                 return self.obtener_consolidado_productos_pdf(desde, hasta, almacen)
             elif consolidado == 'G':
-                return
+                return self.obtener_consolidado_grupos_pdf(desde, hasta, almacen)
             else:
                 if formato_sunat == 'S':
                     return self.obtener_formato_sunat_unidades_fisicas_pdf(desde, hasta, almacen)
@@ -2352,6 +2352,14 @@ class ReporteKardex(FormView):
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
+        return response
+
+    def obtener_consolidado_grupos_pdf(self, desde, hasta, almacen):
+        response = HttpResponse(content_type='application/pdf')
+        reporte = ReporteKardexPDF('A4')
+
+        pdf = reporte.imprimir_formato_consolidado_grupos(desde, hasta, almacen)
+        response.write(pdf)
         return response
 
     def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
