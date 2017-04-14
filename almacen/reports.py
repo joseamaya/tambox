@@ -298,7 +298,7 @@ class ReporteKardexPDF():
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÃSICAS", sp)
 
-        encabezado = [[imagen, titulo]]
+        encabezado = [[imagen,titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
@@ -313,7 +313,7 @@ class ReporteKardexPDF():
                        u"SALIDAS",
                        u"SALDO FINAL"]
         tabla.append(encab_prim)
-        encab_seg = ["FECHA", "TIPO (TABLA 10)","SERIE","NÃšMERO","","","",""]
+        encab_seg = ["FECHA", "TIPO (TABLA 10)","SERIE","NÚMERO","","","",""]
         tabla.append(encab_seg)
         try:
             kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -604,27 +604,27 @@ class ReporteKardexPDF():
         ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
         elements.append(ruc)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÃ“N O RAZÃ“N SOCIAL: " + EMPRESA.razon_social, izquierda)
+        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
         elements.append(razon_social)
         elements.append(Spacer(1, 0.25 * cm))
         direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
         elements.append(direccion)
         elements.append(Spacer(1, 0.25 * cm))
-        codigo = Paragraph(u"CÃ“DIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
+        codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
                          izquierda)
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        descripcion = Paragraph(u"DESCRIPCIÃ“N: " + producto.descripcion, izquierda)
+        descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÃ“DIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"MÃ‰TODO DE VALUACIÃ“N: PEPS",
+        unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
@@ -658,27 +658,27 @@ class ReporteKardexPDF():
         ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
         elements.append(ruc)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÃ“N O RAZÃ“N SOCIAL: " + EMPRESA.razon_social, izquierda)
+        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
         elements.append(razon_social)
         elements.append(Spacer(1, 0.25 * cm))
         direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
         elements.append(direccion)
         elements.append(Spacer(1, 0.25 * cm))
-        codigo = Paragraph(u"CÃ“DIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
+        codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
                          izquierda)
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        descripcion = Paragraph(u"DESCRIPCIÃ“N: " + producto.descripcion, izquierda)
+        descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÃ“DIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"MÃ‰TODO DE VALUACIÃ“N: PEPS",
+        unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
@@ -714,27 +714,27 @@ class ReporteKardexPDF():
             ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
             elements.append(ruc)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÃ“N O RAZÃ“N SOCIAL: " + EMPRESA.razon_social, izquierda)
+            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
             elements.append(razon_social)
             elements.append(Spacer(1, 0.25 * cm))
             direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
             elements.append(direccion)
             elements.append(Spacer(1, 0.25 * cm))
-            codigo = Paragraph(u"CÃ“DIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
+            codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
                              izquierda)
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            descripcion = Paragraph(u"DESCRIPCIÃ“N: " + producto.descripcion, izquierda)
+            descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÃ“DIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"MÃ‰TODO DE VALUACIÃ“N: PEPS",
+            unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.5 * cm))
@@ -770,7 +770,7 @@ class ReporteKardexPDF():
         for producto in productos:
             if posicion==1 or posicion % 25 == 0:
                 if posicion != 1:elements.append(PageBreak())
-                titulo_almacen = Paragraph(u"ALMACÃ‰N: " + almacen.descripcion, centro)
+                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
                 elements.append(titulo_almacen)
                 periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
                 elements.append(periodo)
@@ -810,7 +810,7 @@ class ReporteKardexPDF():
         for grupo in grupos:
             if posicion==1 or posicion % 25 == 0:
                 if posicion != 1:elements.append(PageBreak())
-                titulo_almacen = Paragraph(u"ALMACÃ‰N: " + almacen.descripcion, centro)
+                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
                 elements.append(titulo_almacen)
                 periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
                 elements.append(periodo)
@@ -851,27 +851,27 @@ class ReporteKardexPDF():
             ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
             elements.append(ruc)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÃ“N O RAZÃ“N SOCIAL: " + EMPRESA.razon_social, izquierda)
+            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
             elements.append(razon_social)
             elements.append(Spacer(1, 0.25 * cm))
             direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
             elements.append(direccion)
             elements.append(Spacer(1, 0.25 * cm))
-            codigo = Paragraph(u"CÃ“DIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
+            codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
                              izquierda)
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            descripcion = Paragraph(u"DESCRIPCIÃ“N: " + producto.descripcion, izquierda)
+            descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÃ“DIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"MÃ‰TODO DE VALUACIÃ“N: PEPS",
+            unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.5 * cm))
