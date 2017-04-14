@@ -1947,26 +1947,33 @@ class ReporteKardex(FormView):
         formato_sunat = data.get('formato_sunat')
         formatos = data.get('formatos')
         consolidado = data['consolidado']
-        if consolidado == 'P':
-            return self.obtener_consolidado_productos(desde, hasta, almacen)
-        elif consolidado == 'G':
-            return self.obtener_consolidado_grupos(desde, hasta, almacen)
 
         if formatos == "XLS":
-            if formato_sunat == 'S':
-                return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
-            elif formato_sunat == 'V':
-                return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
+            if consolidado == 'P':
+                return self.obtener_consolidado_productos(desde, hasta, almacen)
+            elif consolidado == 'G':
+                return self.obtener_consolidado_grupos(desde, hasta, almacen)
             else:
-                return self.obtener_formato_normal(desde, hasta, almacen)
+                if formato_sunat == 'S':
+                    return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
+                elif formato_sunat == 'V':
+                    return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
+                else:
+                    return self.obtener_formato_normal(desde, hasta, almacen)
         elif formatos == "PDF":
-            if formato_sunat == 'S':
-                return self.obtener_formato_sunat_unidades_fisicas_pdf(desde, hasta, almacen)
-            elif formato_sunat == 'V':
-                return self.obtener_formato_sunat_valorizado_pdf(desde, hasta, almacen)
+            if consolidado == 'P':
+                return self.obtener_consolidado_productos_pdf(desde, hasta, almacen)
+            elif consolidado == 'G':
+                return
             else:
-                return self.obtener_formato_normal_pdf(desde, hasta, almacen)
+                if formato_sunat == 'S':
+                    return self.obtener_formato_sunat_unidades_fisicas_pdf(desde, hasta, almacen)
+                elif formato_sunat == 'V':
+                    return self.obtener_formato_sunat_valorizado_pdf(desde, hasta, almacen)
+                else:
+                    return self.obtener_formato_normal_pdf(desde, hasta, almacen)
 
+    @classmethod
     def obtener_kardex_producto(self, producto, almacen, desde, hasta):
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                fecha_operacion__gte=desde,
@@ -2235,6 +2242,14 @@ class ReporteKardex(FormView):
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
+        return response
+
+    def obtener_consolidado_productos_pdf(self, desde, hasta, almacen):
+        response = HttpResponse(content_type='application/pdf')
+        reporte = ReporteKardexPDF('A4')
+
+        pdf = reporte.imprimir_formato_consolidado_productos(desde, hasta, almacen)
+        response.write(pdf)
         return response
 
     def obtener_consolidado_grupos(self, desde, hasta, almacen):

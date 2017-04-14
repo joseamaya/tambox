@@ -2,7 +2,7 @@
 from reportlab.lib.pagesizes import letter, A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
+from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import cm
@@ -369,6 +369,55 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
+    def tabla_detalle_consolidado_productos(self, producto, desde, hasta, almacen, print_cabecera):
+
+        tabla = []
+        if print_cabecera:
+            encabezado = [u"CODIGO", u"NOMBRE", u"CANT. INICIAL", u"VALOR INICIAL", u"CANT. ENT", u"VALOR. ENT",
+                          u"CANT. SAL", u"VALOR. SAL.", u"CANT. TOT", u"VALOR. TOT"]
+            tabla.append(encabezado)
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+            valor_saldo_inicial = kardex_inicial.valor_total
+        except:
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0
+
+        from almacen.views import ReporteKardex
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = ReporteKardex.obtener_kardex_producto(
+            producto,
+            almacen,
+            desde,
+            hasta)
+        cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
+        valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
+
+        registro=[producto.codigo,
+                  producto.descripcion,
+                  format(cant_saldo_inicial,'.5f'),
+                  format(valor_saldo_inicial,'.5f'),
+                  format(cantidad_ingreso,'.5f'),
+                  format(valor_ingreso,'.5f'),
+                  format(cantidad_salida,'.5f'),
+                  format(valor_salida,'.5f'),
+                  format(cantidad_total,'.5f'),
+                  format(valor_total,'.5f')]
+        tabla.append(registro)
+        tabla_detalle = Table(tabla, colWidths=[2.2 * cm, 8 * cm,2.3 * cm, 2.3 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm])
+        style = TableStyle(
+            [
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('TEXTFONT', (0, 0), (-1, -1), 'Times-Roman'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ]
+        )
+        tabla_detalle.setStyle(style)
+        return tabla_detalle
+
     def tabla_detalle_valorizado(self, producto, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
@@ -641,6 +690,46 @@ class ReporteKardexPDF():
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
             elements.append(PageBreak())
+        doc.build(elements)
+        pdf = buffer.getvalue()
+        buffer.close()
+        return pdf
+
+    def imprimir_formato_consolidado_productos(self, desde, hasta, almacen):
+        y = 300
+        buffer = self.buffer
+        derecha = ParagraphStyle('parrafos',
+                                   alignment=TA_RIGHT,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        centro = ParagraphStyle('parrafos',
+                                   alignment=TA_CENTER,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        doc = SimpleDocTemplate(buffer,
+                                rightMargin=50,
+                                leftMargin=50,
+                                topMargin=20,
+                                bottomMargin=50,
+                                pagesize=self.pagesize)
+
+        elements = []
+        productos = Producto.objects.all().order_by('descripcion')
+        posicion=1
+        print_cabecera=False
+        for producto in productos:
+            if posicion==1 or posicion % 25 == 0:
+                if posicion != 1:elements.append(PageBreak())
+                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
+                elements.append(titulo_almacen)
+                periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
+                elements.append(periodo)
+                elements.append(Spacer(1, 0.5 * cm))
+                print_cabecera=True
+            elements.append(self.tabla_detalle_consolidado_productos(producto, desde, hasta, almacen, print_cabecera))
+            posicion += 1
+            print_cabecera = False
+
         doc.build(elements)
         pdf = buffer.getvalue()
         buffer.close()
