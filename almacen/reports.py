@@ -396,7 +396,6 @@ class ReporteKardexPDF():
         return tabla_detalle
 
     def tabla_detalle_consolidado_grupo(self, grupo, desde, hasta, almacen, print_cabecera):
-
         tabla = []
         if print_cabecera:
             encabezado = [u"CODIGO", u"NOMBRE", u"CTA_CONT", u"CANT. INICIAL", u"VALOR INICIAL", u"CANT. ENT", u"VALOR. ENT",
@@ -431,6 +430,8 @@ class ReporteKardexPDF():
                   format(cantidad_total,'.5f'),
                   format(valor_total,'.5f')]
         tabla.append(registro)
+        """totales = ["", "", "", "TOTALES","","","",""]
+        tabla.append(totales)"""
         tabla_detalle = Table(tabla, colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
         style = TableStyle(
             [
@@ -818,9 +819,9 @@ class ReporteKardexPDF():
                     imagen = u"LOGO"
                 elements.append(imagen)
                 elements.append(Spacer(0,-1.4 * cm))
-                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
+                titulo_almacen = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS: \n" + almacen.descripcion, centro)
                 elements.append(titulo_almacen)
-                elements.append(Spacer(0, -0.4 * cm))
+                elements.append(Spacer(0, 0.5 * cm))
                 periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
                 elements.append(periodo)
                 elements.append(Spacer(1, 1.5 * cm))
