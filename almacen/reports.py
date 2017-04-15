@@ -296,7 +296,7 @@ class ReporteKardexPDF():
         if valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÃSICAS", sp)
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
 
         encabezado = [[imagen,titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
