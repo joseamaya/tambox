@@ -71,6 +71,31 @@ class GrupoProductos(TimeStampedModel):
     def __str__(self):
         return self.descripcion
 
+    def obtener_kardex(self, almacen, desde, hasta):
+        from almacen.models import Kardex
+        listado_kardex = Kardex.objects.filter(almacen=almacen,
+                                               fecha_operacion__gte=desde,
+                                               fecha_operacion__lte=hasta,
+                                               producto__grupo_productos=self).order_by('producto__descripcion',
+                                                                                         'fecha_operacion',
+                                                                                         'cantidad_salida',
+                                                                                         'created')
+        if len(listado_kardex) > 0:
+            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
+            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
+            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
+            t_cantidad_s = cantidad_salida['cantidad_salida__sum']
+            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
+            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
+            t_valor_i = valor_ingreso['valor_ingreso__sum']
+            t_valor_s = valor_salida['valor_salida__sum']
+        else:
+            t_cantidad_i = 0
+            t_cantidad_s = 0
+            t_valor_i = 0
+            t_valor_s = 0
+        return listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s
+
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
     grupo_productos = models.ForeignKey(GrupoProductos)
