@@ -347,8 +347,8 @@ class ReporteKardexPDF():
 
         tabla = []
         if print_cabecera:
-            encabezado = [u"CODIGO", u"NOMBRE", u"CANT. INICIAL", u"VALOR INICIAL", u"CANT. ENT", u"VALOR. ENT",
-                          u"CANT. SAL", u"VALOR. SAL.", u"CANT. TOT", u"VALOR. TOT"]
+            encabezado = [u"CODIGO", u"NOMBRE",u"UNIDAD",u"CUENTA", u"CANT.\nINICIAL", u"VALOR\nINICIAL", u"CANT.\nENT", u"VALOR.\nENT",
+                          u"CANT.\nSAL", u"VALOR.\nSAL.", u"CANT.\nTOT", u"VALOR.\nTOT"]
             tabla.append(encabezado)
         try:
             kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -366,9 +366,14 @@ class ReporteKardexPDF():
             hasta)
         cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
         valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
-
+        izquierda = ParagraphStyle('parrafos',
+                                   alignment=TA_LEFT,
+                                   fontSize=10,
+                                   fontName="Times-Roman")
         registro=[producto.codigo,
                   producto.descripcion,
+                  producto.unidad_medida.descripcion,
+                  producto.grupo_productos.ctacontable,
                   format(cant_saldo_inicial,'.5f'),
                   format(valor_saldo_inicial,'.5f'),
                   format(cantidad_ingreso,'.5f'),
@@ -378,11 +383,11 @@ class ReporteKardexPDF():
                   format(cantidad_total,'.5f'),
                   format(valor_total,'.5f')]
         tabla.append(registro)
-        tabla_detalle = Table(tabla, colWidths=[2.2 * cm, 8 * cm,2.3 * cm, 2.3 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm])
+        tabla_detalle = Table(tabla, colWidths=[2.2 * cm, 7.5 * cm, 2 * cm, 1.5 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
                 ('TEXTFONT', (0, 0), (-1, -1), 'Times-Roman'),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
             ]
@@ -736,11 +741,11 @@ class ReporteKardexPDF():
         productos = Producto.objects.all().order_by('descripcion')
         posicion=1
         numero_productos = productos.count()
-        numero_paginas = int(math.ceil(numero_productos / 23.0))
+        numero_paginas = int(math.ceil(numero_productos / 22.0))
         numero_pagina=1
         print_cabecera=False
         for producto in productos:
-            if posicion==1 or posicion % 23 == 0:
+            if posicion==1 or posicion % 22 == 0:
                 if posicion != 1 and posicion!=numero_productos:
                     elements.append(Spacer(0, 0.1 * cm))
                     elements.append(Paragraph("Pág: " + str(numero_pagina) + "  |  " + str(numero_paginas), derecha))
@@ -753,7 +758,7 @@ class ReporteKardexPDF():
                     imagen = u"LOGO"
                 elements.append(imagen)
                 elements.append(Spacer(0,-1.4 * cm))
-                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
+                titulo_almacen = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN: " + almacen.descripcion, centro)
                 elements.append(titulo_almacen)
                 elements.append(Spacer(0, -0.4 * cm))
                 periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
@@ -792,7 +797,8 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        grupos = GrupoProductos.objects.filter(estado=True, son_productos=True)
+        grupos = GrupoProductos.objects.filter(estado=True,
+                                               son_productos=True).order_by('descripcion')
         posicion=1
         numero_grupos = grupos.count()
         numero_paginas = int(math.ceil(numero_grupos/ 23.0))
@@ -1081,9 +1087,9 @@ class ReporteKardexExcel():
         ws['L5'] = 'PRE. TOT'
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.producto(almacen,
-                                                                                                                                    desde,
-                                                                                                                                    hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(almacen,
+                                                                                                                                              desde,
+                                                                                                                                              hasta)
         if len(listado_kardex)>0:
             for kardex in listado_kardex:
                 ws.cell(row=cont,column=2).value = kardex.fecha_operacion
