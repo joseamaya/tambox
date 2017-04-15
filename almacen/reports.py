@@ -2,7 +2,7 @@
 from reportlab.lib.pagesizes import letter, A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
+from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import cm
@@ -14,7 +14,7 @@ from almacen.models import DetalleMovimiento, Kardex, Movimiento
 from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA
 from django.db.models import Sum
 
-from productos.models import Producto
+from productos.models import Producto, GrupoProductos
 
 
 class ReporteMovimiento():
@@ -41,9 +41,9 @@ class ReporteMovimiento():
             imagen = Paragraph(u"LOGO", sp)
         
         if movimiento.tipo_movimiento.incrementa:
-            nota = Paragraph(u"NOTA DE INGRESO N°", sp)
+            nota = Paragraph(u"NOTA DE INGRESO NÂ°", sp)
         else:
-            nota = Paragraph(u"NOTA DE SALIDA N°", sp)
+            nota = Paragraph(u"NOTA DE SALIDA NÂ°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
         fecha = Paragraph("FECHA: "+movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)        
         encabezado = [[imagen,nota,fecha],
@@ -72,14 +72,14 @@ class ReporteMovimiento():
                 proveedor = Paragraph(u"PROVEEDOR: "+movimiento.referencia.proveedor.razon_social,izquierda)
         except:
             proveedor = Paragraph(u"PROVEEDOR: SATP",izquierda)
-        operacion = Paragraph(u"OPERACIÓN: "+movimiento.tipo_movimiento.descripcion,izquierda)
-        almacen = Paragraph(u"ALMACÉN: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
+        operacion = Paragraph(u"OPERACIÃ“N: "+movimiento.tipo_movimiento.descripcion,izquierda)
+        almacen = Paragraph(u"ALMACÃ‰N: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
         try:
             orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)
         except:
             orden_compra = Paragraph(u"REFERENCIA: -",izquierda)
         try:
-            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
+            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÃšMERO:" + movimiento.numero,
                                   izquierda)
         except:
             documento = ""
@@ -103,7 +103,7 @@ class ReporteMovimiento():
     
     def tabla_detalle(self):
         movimiento = self.movimiento
-        encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción','Precio','Total']
+        encabezados = ['Item', 'Cantidad', 'Unidad', u'DescripciÃ³n','Precio','Total']
         detalles = DetalleMovimiento.objects.filter(movimiento=movimiento).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY 
@@ -296,9 +296,9 @@ class ReporteKardexPDF():
         if valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÃSICAS", sp)
 
-        encabezado = [[imagen, titulo]]
+        encabezado = [[imagen,titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
@@ -308,7 +308,7 @@ class ReporteKardexPDF():
                         "",
                         "",
                         "",
-                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
+                       u"TIPO DE \n OPERACIÃ“N \n (TABLA 12)",
                        u"ENTRADAS",
                        u"SALIDAS",
                        u"SALDO FINAL"]
@@ -369,11 +369,110 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
+    def tabla_detalle_consolidado_productos(self, producto, desde, hasta, almacen, print_cabecera):
+
+        tabla = []
+        if print_cabecera:
+            encabezado = [u"CODIGO", u"NOMBRE", u"CANT. INICIAL", u"VALOR INICIAL", u"CANT. ENT", u"VALOR. ENT",
+                          u"CANT. SAL", u"VALOR. SAL.", u"CANT. TOT", u"VALOR. TOT"]
+            tabla.append(encabezado)
+        try:
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+            valor_saldo_inicial = kardex_inicial.valor_total
+        except:
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0
+
+        from almacen.views import ReporteKardex
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = ReporteKardex.obtener_kardex_producto(
+            producto,
+            almacen,
+            desde,
+            hasta)
+        cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
+        valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
+
+        registro=[producto.codigo,
+                  producto.descripcion,
+                  format(cant_saldo_inicial,'.5f'),
+                  format(valor_saldo_inicial,'.5f'),
+                  format(cantidad_ingreso,'.5f'),
+                  format(valor_ingreso,'.5f'),
+                  format(cantidad_salida,'.5f'),
+                  format(valor_salida,'.5f'),
+                  format(cantidad_total,'.5f'),
+                  format(valor_total,'.5f')]
+        tabla.append(registro)
+        tabla_detalle = Table(tabla, colWidths=[2.2 * cm, 8 * cm,2.3 * cm, 2.3 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm,2 * cm, 2 * cm])
+        style = TableStyle(
+            [
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('TEXTFONT', (0, 0), (-1, -1), 'Times-Roman'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ]
+        )
+        tabla_detalle.setStyle(style)
+        return tabla_detalle
+
+    def tabla_detalle_consolidado_grupo(self, grupo, desde, hasta, almacen, print_cabecera):
+
+        tabla = []
+        if print_cabecera:
+            encabezado = [u"CODIGO", u"NOMBRE", u"CTA_CONT", u"CANT. INICIAL", u"VALOR INICIAL", u"CANT. ENT", u"VALOR. ENT",
+                          u"CANT. SAL", u"VALOR. SAL.", u"CANT. TOT", u"VALOR. TOT"]
+            tabla.append(encabezado)
+        try:
+            kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            cant_saldo_inicial = kardex_inicial.cantidad_total
+            valor_saldo_inicial = kardex_inicial.valor_total
+        except:
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0
+
+        from almacen.views import ReporteKardex
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = ReporteKardex.obtener_kardex_grupo(
+            grupo,
+            almacen,
+            desde,
+            hasta)
+        cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
+        valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
+
+        registro=[grupo.codigo,
+                  grupo.descripcion,
+                  grupo.ctacontable.cuenta,
+                  format(cant_saldo_inicial,'.5f'),
+                  format(valor_saldo_inicial,'.5f'),
+                  format(cantidad_ingreso,'.5f'),
+                  format(valor_ingreso,'.5f'),
+                  format(cantidad_salida,'.5f'),
+                  format(valor_salida,'.5f'),
+                  format(cantidad_total,'.5f'),
+                  format(valor_total,'.5f')]
+        tabla.append(registro)
+        tabla_detalle = Table(tabla, colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
+        style = TableStyle(
+            [
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+                ('TEXTFONT', (0, 0), (-1, -1), 'Times-Roman'),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ]
+        )
+        tabla_detalle.setStyle(style)
+        return tabla_detalle
+
     def tabla_detalle_valorizado(self, producto, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                         "","","",
-                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
+                       u"TIPO DE \n OPERACIÃ“N \n (TABLA 12)",
                        u"ENTRADAS","","",
                        u"SALIDAS","","",
                        u"SALDO FINAL","",""]
@@ -383,7 +482,7 @@ class ReporteKardexPDF():
                       "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
                       "CANTIDAD", "COSTO\nUNITARIO", "TOTAL"]
         tabla.append(encab_seg)
-        encab_terc = ["FECHA", "TIPO\n(TABLA 10)","SERIE","NÚMERO",
+        encab_terc = ["FECHA", "TIPO\n(TABLA 10)","SERIE","NÃšMERO",
                      "","","",
                      "","","",
                      "","",""]
@@ -641,6 +740,86 @@ class ReporteKardexPDF():
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
             elements.append(PageBreak())
+        doc.build(elements)
+        pdf = buffer.getvalue()
+        buffer.close()
+        return pdf
+
+    def imprimir_formato_consolidado_productos(self, desde, hasta, almacen):
+        y = 300
+        buffer = self.buffer
+        derecha = ParagraphStyle('parrafos',
+                                   alignment=TA_RIGHT,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        centro = ParagraphStyle('parrafos',
+                                   alignment=TA_CENTER,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        doc = SimpleDocTemplate(buffer,
+                                rightMargin=50,
+                                leftMargin=50,
+                                topMargin=20,
+                                bottomMargin=50,
+                                pagesize=self.pagesize)
+
+        elements = []
+        productos = Producto.objects.all().order_by('descripcion')
+        posicion=1
+        print_cabecera=False
+        for producto in productos:
+            if posicion==1 or posicion % 25 == 0:
+                if posicion != 1:elements.append(PageBreak())
+                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
+                elements.append(titulo_almacen)
+                periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
+                elements.append(periodo)
+                elements.append(Spacer(1, 0.5 * cm))
+                print_cabecera=True
+            elements.append(self.tabla_detalle_consolidado_productos(producto, desde, hasta, almacen, print_cabecera))
+            posicion += 1
+            print_cabecera = False
+
+        doc.build(elements)
+        pdf = buffer.getvalue()
+        buffer.close()
+        return pdf
+
+    def imprimir_formato_consolidado_grupos(self, desde, hasta, almacen):
+        y = 300
+        buffer = self.buffer
+        derecha = ParagraphStyle('parrafos',
+                                   alignment=TA_RIGHT,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        centro = ParagraphStyle('parrafos',
+                                   alignment=TA_CENTER,
+                                   fontSize=12,
+                                   fontName="Times-Roman")
+        doc = SimpleDocTemplate(buffer,
+                                rightMargin=50,
+                                leftMargin=50,
+                                topMargin=20,
+                                bottomMargin=50,
+                                pagesize=self.pagesize)
+
+        elements = []
+        grupos = GrupoProductos.objects.filter(estado=True, son_productos=True)
+        posicion=1
+        print_cabecera=False
+        for grupo in grupos:
+            if posicion==1 or posicion % 25 == 0:
+                if posicion != 1:elements.append(PageBreak())
+                titulo_almacen = Paragraph(u"ALMACÉN: " + almacen.descripcion, centro)
+                elements.append(titulo_almacen)
+                periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),derecha)
+                elements.append(periodo)
+                elements.append(Spacer(1, 0.5 * cm))
+                print_cabecera=True
+            elements.append(self.tabla_detalle_consolidado_grupo(grupo, desde, hasta, almacen, print_cabecera))
+            posicion += 1
+            print_cabecera = False
+
         doc.build(elements)
         pdf = buffer.getvalue()
         buffer.close()
