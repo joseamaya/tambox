@@ -73,6 +73,7 @@ class GrupoProductos(TimeStampedModel):
 
     def obtener_kardex(self, almacen, desde, hasta):
         from almacen.models import Kardex
+        hasta = hasta + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,

@@ -985,12 +985,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).value = cantidad_total
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
-        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
 
     def obtener_formato_normal_producto(self, producto, desde, hasta, almacen):
         wb = Workbook()
@@ -1112,12 +1107,8 @@ class ReporteKardexExcel():
             ws.cell(row=cont,column=13).value = valor_saldo_inicial
             ws.cell(row=cont,column=13).number_format = '#.00000'
             cont = cont + 2
-        nombre_archivo ="ReporteExcelKardexProducto.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
+
 
     def obtener_formato_sunat_valorizado_producto(self, producto, desde, hasta, almacen):
         wb = Workbook()
@@ -1353,12 +1344,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).value = valor_total
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
-        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
+
 
     def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta, almacen):
         ws.column_dimensions["C"].width = 15
@@ -1454,7 +1441,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(producto, almacen, desde, hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1506,12 +1493,7 @@ class ReporteKardexExcel():
             ws.title = producto.codigo
             self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws,thin_border,cont,producto,desde,hasta,almacen)
             ws = wb.create_sheet("Hoja")
-        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
 
     def obtener_formato_sunat_valorizado_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta, almacen):
         ws.column_dimensions["C"].width = 15
@@ -1658,8 +1640,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(
-            producto,
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -1762,12 +1743,7 @@ class ReporteKardexExcel():
             ws.title = producto.codigo
             self.obtener_formato_sunat_valorizado_excel_por_producto(ws,thin_border,cont,producto,desde,hasta,almacen)
             ws = wb.create_sheet("Hoja")
-        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
 
     def obtener_consolidado_grupos(self, desde, hasta, almacen):
         grupos = GrupoProductos.objects.filter(estado=True,
@@ -1863,12 +1839,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=12).number_format = '#.00000'
             ws.cell(row=cont, column=12).border = thin_border
             cont += 1
-        nombre_archivo = "ReporteConsolidadoCuentasContablesAlmacen.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
 
     def obtener_consolidado_productos(self, desde, hasta, almacen):
         productos = Producto.objects.all().order_by('descripcion')
@@ -1958,12 +1929,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=11).border = thin_border
             cont += 1
-        nombre_archivo = "ReporteConsolidadoKardexExcel.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb
 
     def obtener_formato_normal_todos(self, desde, hasta, almacen):
         productos = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
@@ -2013,8 +1979,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=13).value = valor_saldo_inicial
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex_producto(
-                producto,
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
                 almacen,
                 desde,
                 hasta)
@@ -2077,9 +2042,4 @@ class ReporteKardexExcel():
                 ws.cell(row=cont, column=13).value = valor_saldo_inicial
                 ws.cell(row=cont, column=13).number_format = '#.00000'
                 cont += 2
-        nombre_archivo = "ReporteExcelKardex.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        wb.save(response)
-        return response
+        return wb

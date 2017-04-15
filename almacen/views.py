@@ -1387,17 +1387,32 @@ class ReporteKardexProducto(FormView):
     def obtener_formato_sunat_unidades_fisicas_excel(self, producto, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_sunat_unidades_fisicas_producto(producto, desde, hasta, almacen)
-        return excel
+        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_formato_sunat_valorizado_excel(self, producto, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_sunat_valorizado_producto(producto, desde, hasta, almacen)
-        return excel
+        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_formato_normal_excel(self, producto, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_normal_producto(producto, desde, hasta, almacen)
-        return excel
+        nombre_archivo = "ReporteExcelKardexProducto.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
 class ReporteKardex(FormView):
     template_name = 'almacen/reporte_kardex.html'
@@ -1468,27 +1483,52 @@ class ReporteKardex(FormView):
     def obtener_formato_normal_excel(self, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_normal_todos(desde, hasta, almacen)
-        return excel
+        nombre_archivo = "ReporteFormatoNormalKardexTodosLosProductos.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_formato_sunat_unidades_fisicas_excel(self, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_sunat_unidades_fisicas_todos(desde, hasta, almacen)
-        return excel
+        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_formato_sunat_valorizado_excel(self, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_formato_sunat_valorizado_todos(desde, hasta, almacen)
-        return excel
+        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_consolidado_productos_excel(self, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_consolidado_productos(desde, hasta, almacen)
-        return excel
+        nombre_archivo = "ReporteConsolidadoKardexExcel.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
     def obtener_consolidado_grupos_excel(self, desde, hasta, almacen):
         reporte = ReporteKardexExcel()
         excel = reporte.obtener_consolidado_grupos(desde, hasta, almacen)
-        return excel
+        nombre_archivo = "ReporteConsolidadoCuentasContablesAlmacen.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        excel.save(response)
+        return response
 
 class ReporteStock(FormView):
     template_name = 'almacen/reporte_stock.html'
