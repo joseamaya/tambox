@@ -13,9 +13,8 @@ from io import BytesIO
 from almacen.models import DetalleMovimiento, Kardex, Movimiento
 from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA
 from django.db.models import Sum
-
+import datetime
 from productos.models import Producto, GrupoProductos
-
 
 class ReporteMovimiento():
     
@@ -41,9 +40,9 @@ class ReporteMovimiento():
             imagen = Paragraph(u"LOGO", sp)
         
         if movimiento.tipo_movimiento.incrementa:
-            nota = Paragraph(u"NOTA DE INGRESO NÂ°", sp)
+            nota = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
-            nota = Paragraph(u"NOTA DE SALIDA NÂ°", sp)
+            nota = Paragraph(u"NOTA DE SALIDA N°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
         fecha = Paragraph("FECHA: "+movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)        
         encabezado = [[imagen,nota,fecha],
@@ -71,15 +70,15 @@ class ReporteMovimiento():
             else:
                 proveedor = Paragraph(u"PROVEEDOR: "+movimiento.referencia.proveedor.razon_social,izquierda)
         except:
-            proveedor = Paragraph(u"PROVEEDOR: SATP",izquierda)
-        operacion = Paragraph(u"OPERACIÃ“N: "+movimiento.tipo_movimiento.descripcion,izquierda)
-        almacen = Paragraph(u"ALMACÃ‰N: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
+            proveedor = Paragraph(u"PROVEEDOR:",izquierda)
+        operacion = Paragraph(u"OPERACIÓN: "+movimiento.tipo_movimiento.descripcion,izquierda)
+        almacen = Paragraph(u"ALMACÉN: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
         try:
             orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)
         except:
             orden_compra = Paragraph(u"REFERENCIA: -",izquierda)
         try:
-            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÃšMERO:" + movimiento.numero,
+            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
                                   izquierda)
         except:
             documento = ""
@@ -103,7 +102,7 @@ class ReporteMovimiento():
     
     def tabla_detalle(self):
         movimiento = self.movimiento
-        encabezados = ['Item', 'Cantidad', 'Unidad', u'DescripciÃ³n','Precio','Total']
+        encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción','Precio','Total']
         detalles = DetalleMovimiento.objects.filter(movimiento=movimiento).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY 
@@ -252,36 +251,7 @@ class ReporteKardexPDF():
             self.pagesize = letter
         self.width, self.height = self.pagesize
 
-    def obtener_kardex(self, producto, almacen, desde, hasta):
-        listado_kardex = Kardex.objects.filter(almacen = almacen,
-                                               movimiento__estado = Movimiento.STATUS.ACT,
-                                               fecha_operacion__gte=desde,
-                                               fecha_operacion__lte=hasta,
-                                               producto = producto).order_by('producto__descripcion',
-                                                                           'fecha_operacion',
-                                                                           'cantidad_salida',
-                                                                           'created')
-        if len(listado_kardex)>0:
-            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
-            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
-            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
-            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
-            t_cantidad_s = cantidad_salida['cantidad_salida__sum']
-            t_cantidad_t= cantidad_total['cantidad_total__sum']
-            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
-            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
-            valor_total = listado_kardex.aggregate(Sum('valor_total'))
-            t_valor_i = valor_ingreso['valor_ingreso__sum']
-            t_valor_s = valor_salida['valor_salida__sum']
-            t_valor_t= valor_total['valor_total__sum']
-        else:
-            t_cantidad_i = 0
-            t_cantidad_s = 0
-            t_cantidad_t = 0
-            t_valor_i = 0
-            t_valor_s = 0
-            t_valor_t = 0
-        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s, t_cantidad_t, t_valor_t)
+
 
     def tabla_encabezado(self,valorizado):
         sp = ParagraphStyle('parrafos',
@@ -308,7 +278,7 @@ class ReporteKardexPDF():
                         "",
                         "",
                         "",
-                       u"TIPO DE \n OPERACIÃ“N \n (TABLA 12)",
+                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
                        u"ENTRADAS",
                        u"SALIDAS",
                        u"SALDO FINAL"]
@@ -324,8 +294,7 @@ class ReporteKardexPDF():
             cant_saldo_inicial = 0
         saldo_inicial = ['','00','SALDO','INICIAL','16',format(0,'.5f'),format(0,'.5f'),format(cant_saldo_inicial,'.5f')]
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(
-            producto,
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -472,7 +441,7 @@ class ReporteKardexPDF():
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                         "","","",
-                       u"TIPO DE \n OPERACIÃ“N \n (TABLA 12)",
+                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
                        u"ENTRADAS","","",
                        u"SALIDAS","","",
                        u"SALDO FINAL","",""]
@@ -482,7 +451,7 @@ class ReporteKardexPDF():
                       "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
                       "CANTIDAD", "COSTO\nUNITARIO", "TOTAL"]
         tabla.append(encab_seg)
-        encab_terc = ["FECHA", "TIPO\n(TABLA 10)","SERIE","NÃšMERO",
+        encab_terc = ["FECHA", "TIPO\n(TABLA 10)","SERIE","NÚMERO",
                      "","","",
                      "","","",
                      "","",""]
@@ -505,8 +474,7 @@ class ReporteKardexPDF():
                          format(0,'.5f'),format(0,'.5f'),format(0,'.5f'),
                          format(cant_saldo_inicial,'.5f'),format(precio_saldo_inicial,'.5f'),format(valor_saldo_inicial,'.5f')]
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = self.obtener_kardex(
-            producto,
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
             almacen,
             desde,
             hasta)

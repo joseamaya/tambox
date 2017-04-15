@@ -193,10 +193,6 @@ class FormularioKardexProducto(forms.Form):
     desc_producto = forms.CharField(widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),required=False) 
     formato_sunat = forms.ChoiceField(choices=FORMATOS_SUNAT, widget=forms.RadioSelect,required=False)
     formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect)
-
-    def clean_hasta(self):
-        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
-        return self.cleaned_data['hasta']
     
 class FormularioMovimientosProducto(forms.Form):
     almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
