@@ -453,7 +453,7 @@ class ReporteKardexPDF():
                    format(cantidad_salida,'.5f'),format(t_precio_s,'.5f'),format(valor_salida,'.5f'),
                    format(cantidad_total,'.5f'),format(t_precio_t,'.5f'),format(valor_total,'.5f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla)#, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
+        tabla_detalle = Table(tabla)
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
