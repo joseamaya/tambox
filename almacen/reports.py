@@ -667,6 +667,7 @@ class ReporteKardexPDF():
         hasta = self.hasta
         almacen = self.almacen
         buffer = self.buffer
+        self.valorizado = False
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -674,13 +675,11 @@ class ReporteKardexPDF():
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
-        elements.append(self.tabla_encabezado(False))
-        elements.append(Spacer(1, 0.5 * cm))
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
@@ -722,6 +721,7 @@ class ReporteKardexPDF():
         hasta = self.hasta
         almacen = self.almacen
         buffer = self.buffer
+        self.valorizado = True
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -729,13 +729,11 @@ class ReporteKardexPDF():
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
-        elements.append(self.tabla_encabezado(True))
-        elements.append(Spacer(1, 0.5 * cm))
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
@@ -777,6 +775,7 @@ class ReporteKardexPDF():
         hasta = self.hasta
         almacen = self.almacen
         buffer = self.buffer
+        self.valorizado = False
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -784,15 +783,13 @@ class ReporteKardexPDF():
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
         productos = Producto.objects.all().order_by('descripcion')
         for producto in productos:
-            elements.append(self.tabla_encabezado(False))
-            elements.append(Spacer(1, 0.5 * cm))
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
@@ -849,7 +846,6 @@ class ReporteKardexPDF():
 
     def _header_footer(self, canvas, doc):
         canvas.saveState()
-
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -859,13 +855,14 @@ class ReporteKardexPDF():
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except:
             imagen = Paragraph(u"LOGO", sp)
+        ruc_empresa = "RUC: " + EMPRESA.ruc
         if self.grupos:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
         periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
         pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[imagen, titulo, pagina],["",periodo,""]]
+        encabezado = [[imagen, titulo, pagina],[ruc_empresa,periodo,""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -880,18 +877,33 @@ class ReporteKardexPDF():
 
     def _header(self, canvas, doc):
         canvas.saveState()
-        pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [["", "", pagina]]
+
+        sp = ParagraphStyle('parrafos',
+                            alignment=TA_CENTER,
+                            fontSize=14,
+                            fontName="Times-Roman")
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+        except:
+            imagen = Paragraph(u"LOGO", sp)
+        ruc_empresa = "RUC: " + EMPRESA.ruc
+        if self.valorizado:
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
+        else:
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS",sp)
+        pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
+        encabezado = [[imagen, titulo, pagina], [ruc_empresa, "", ""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
-                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
             ]
         )
         tabla_encabezado.setStyle(style)
-        tabla_encabezado.wrapOn(canvas, 50, 10)
-        tabla_encabezado.drawOn(canvas, 50, 10)
+        tabla_encabezado.wrapOn(canvas, 50, 510)
+        tabla_encabezado.drawOn(canvas, 50, 510)
         canvas.restoreState()
 
     def imprimir_formato_consolidado_grupos(self):
@@ -918,6 +930,7 @@ class ReporteKardexPDF():
         hasta = self.hasta
         almacen = self.almacen
         buffer = self.buffer
+        self.valorizado = True
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -925,15 +938,13 @@ class ReporteKardexPDF():
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
         productos = Producto.objects.all().order_by('descripcion')
         for producto in productos:
-            elements.append(self.tabla_encabezado(True))
-            elements.append(Spacer(1, 0.5 * cm))
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
