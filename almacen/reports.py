@@ -357,9 +357,9 @@ class ReporteKardexPDF():
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto=listado_kardex.count()+2 #Sumar dos registros, uno que sale siempre al inicio y otro del total
+        total_registros_producto=listado_kardex.count()+2
         if total_registros_producto >11:
-            self.total_paginas += int(math.ceil((total_registros_producto-11) / 21.0))#Contar las páginas extras para los registros restantes, omitiendo los 11 registros del header
+            self.total_paginas += int(math.ceil((total_registros_producto-11) / 21.0))
 
         tabla_detalle = Table(tabla, repeatRows=2, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
         style = TableStyle(
@@ -642,9 +642,9 @@ class ReporteKardexPDF():
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto = listado_kardex.count() + 2  # Sumar dos registros, uno que sale siempre al inicio y otro del total
+        total_registros_producto = listado_kardex.count() + 2 
         if total_registros_producto > 11:
-            self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))  # Contar las páginas extras para los registros restantes, omitiendo los 11 registros del header
+            self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))  
 
         tabla_detalle = Table(tabla,repeatRows=3)
         style = TableStyle(
