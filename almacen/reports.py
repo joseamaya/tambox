@@ -20,7 +20,7 @@ from openpyxl.styles import Border
 from openpyxl.styles import Side
 from openpyxl import Workbook
 from django.http import HttpResponse
-
+from django.db.models import Q
 class ReporteMovimiento():
     
     def __init__(self, pagesize, movimiento):
@@ -707,8 +707,9 @@ class ReporteKardexPDF():
         codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
-        tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
-                         izquierda)
+        tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+                         izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
@@ -761,8 +762,9 @@ class ReporteKardexPDF():
         codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
-        tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
-                         izquierda)
+        tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+                         izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
@@ -800,7 +802,8 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos = Producto.objects.all().order_by('descripcion')
+        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,cantidad_salida=0).order_by().values('producto').distinct()
+        productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
             elements.append(periodo)
@@ -817,8 +820,9 @@ class ReporteKardexPDF():
             codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
-            tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
-                             izquierda)
+            tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+                             izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
@@ -955,7 +959,9 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos = Producto.objects.all().order_by('descripcion')
+        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,
+                                                  cantidad_salida=0).order_by().values('producto').distinct()
+        productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
             elements.append(periodo)
@@ -972,8 +978,9 @@ class ReporteKardexPDF():
             codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
-            tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
-                             izquierda)
+            tipo = Paragraph(u"TIPO: B - EXISTENCIA",izquierda)
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+                             izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
