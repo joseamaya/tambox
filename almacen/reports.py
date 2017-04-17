@@ -479,15 +479,21 @@ class ReporteKardexPDF():
         total_valor_total = 0
         self.total_paginas = int(math.ceil(grupos.count() / 22.0))
         for grupo in grupos:
-            try:
-                kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
-                                                       almacen=almacen,
-                                                       fecha_operacion__lt=desde).latest('fecha_operacion')
-                cant_saldo_inicial = kardex_inicial.cantidad_total
-                valor_saldo_inicial = kardex_inicial.valor_total
-            except:
-                cant_saldo_inicial = 0
-                valor_saldo_inicial = 0
+            cant_saldo_inicial = 0
+            valor_saldo_inicial = 0
+            productos = Producto.objects.filter(grupo_productos=grupo)
+            for producto in productos:
+                try:
+                    kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                           almacen=almacen,
+                                                           fecha_operacion__lt=desde).latest('fecha_operacion')
+                    cant_saldo_inicial_producto = kardex_inicial.cantidad_total
+                    valor_saldo_inicial_producto = kardex_inicial.valor_total
+                except:
+                    cant_saldo_inicial_producto = 0
+                    valor_saldo_inicial_producto = 0
+                cant_saldo_inicial += cant_saldo_inicial_producto
+                valor_saldo_inicial += valor_saldo_inicial_producto
 
             listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = grupo.obtener_kardex(
                 almacen,
@@ -880,10 +886,6 @@ class ReporteKardexPDF():
 
     def imprimir_formato_consolidado_grupos(self):
         buffer = self.buffer
-        centro = ParagraphStyle('parrafos',
-                                   alignment=TA_CENTER,
-                                   fontSize=12,
-                                   fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
