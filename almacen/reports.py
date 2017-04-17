@@ -355,7 +355,7 @@ class ReporteKardexPDF():
                           format(cantidad_total,'.5f')])
         totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.5f'),format(cantidad_salida,'.5f'),format(cantidad_total,'.5f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
+        tabla_detalle = Table(tabla, repeatRows=2, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -634,7 +634,7 @@ class ReporteKardexPDF():
                    format(cantidad_salida,'.5f'),"",format(valor_salida,'.5f'),
                    format(cantidad_total,'.5f'),format(precio_total,'.5f'),format(valor_total,'.5f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla)
+        tabla_detalle = Table(tabla,repeatRows=3)
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -712,7 +712,7 @@ class ReporteKardexPDF():
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
         elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
@@ -767,7 +767,7 @@ class ReporteKardexPDF():
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
         elements.append(self.tabla_detalle_valorizado(producto, desde, hasta, almacen))
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
@@ -825,7 +825,7 @@ class ReporteKardexPDF():
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
             elements.append(PageBreak())
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
@@ -876,7 +876,22 @@ class ReporteKardexPDF():
         tabla_encabezado.setStyle(style)
         tabla_encabezado.wrapOn(canvas, 50, 510)
         tabla_encabezado.drawOn(canvas, 50, 510)
-        # Release the canvas
+        canvas.restoreState()
+
+    def _header(self, canvas, doc):
+        canvas.saveState()
+        pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
+        encabezado = [["", "", pagina]]
+        tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
+        style = TableStyle(
+            [
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]
+        )
+        tabla_encabezado.setStyle(style)
+        tabla_encabezado.wrapOn(canvas, 50, 10)
+        tabla_encabezado.drawOn(canvas, 50, 10)
         canvas.restoreState()
 
     def imprimir_formato_consolidado_grupos(self):
@@ -951,7 +966,7 @@ class ReporteKardexPDF():
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.tabla_detalle_valorizado(producto, desde, hasta, almacen))
             elements.append(PageBreak())
-        doc.build(elements)
+        doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
