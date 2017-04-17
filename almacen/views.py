@@ -1454,14 +1454,14 @@ class ReporteKardex(FormView):
 
     def obtener_consolidado_productos_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_consolidado_productos(desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, False)
+        pdf = reporte.imprimir_formato_consolidado_productos()
         response.write(pdf)
         return response
 
     def obtener_consolidado_grupos_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4',desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, True)
         pdf = reporte.imprimir_formato_consolidado_grupos()
         response.write(pdf)
         return response

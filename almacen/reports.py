@@ -248,10 +248,11 @@ class ReporteMovimiento():
 
 class ReporteKardexPDF():
 
-    def __init__(self, pagesize, desde, hasta, almacen):
+    def __init__(self, pagesize, desde, hasta, almacen, grupos):
         self.desde = desde
         self.hasta = hasta
         self.almacen = almacen
+        self.grupos = grupos
         self.total_paginas = 0
         self.buffer = BytesIO()
         if pagesize == 'A4':
@@ -279,7 +280,7 @@ class ReporteKardexPDF():
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
-    def tabla_encabezado_consolidado(grupos):
+    def tabla_encabezado_consolidado(self, grupos):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -370,12 +371,14 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def tabla_detalle_consolidado_productos(self, productos, desde, hasta, almacen):
-
+    def tabla_detalle_consolidado_productos(self, productos):
+        almacen = self.almacen
+        desde = self.desde
+        hasta = self.hasta
         tabla = []
-        encabezado1 = ["CODIGO", "NOMBRE", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
+        encabezado1 = ["CODIGO", u"DENOMINACIÓN",u"UNIDAD",u"CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
                        u""]
-        encabezado2 = [u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
+        encabezado2 = [u"", u"",u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
                        u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
         tabla.append(encabezado1)
         tabla.append(encabezado2)
@@ -407,6 +410,8 @@ class ReporteKardexPDF():
 
             registro=[producto.codigo,
                       producto.descripcion,
+                      producto.unidad_medida.descripcion,
+                      producto.grupo_productos.ctacontable,
                       format(cant_saldo_inicial,'.5f'),
                       format(valor_saldo_inicial,'.5f'),
                       format(cantidad_ingreso,'.5f'),
@@ -424,28 +429,30 @@ class ReporteKardexPDF():
             total_valor_salida += valor_salida
             total_cantidad_total += cantidad_total
             total_valor_total += valor_total
-        totales = ["",  "TOTALES",
+        totales = ["","","",  "TOTALES",
                    format(total_cant_saldo_inicial,'.5f'), format(total_valor_saldo_inicial,'.5f'),
                    format(total_cantidad_ingreso,'.5f'),format(total_valor_ingreso,'.5f'),
                    format(total_cantidad_salida,'.5f'),format(total_valor_salida,'.5f'),
                    format(total_cantidad_total,'.5f'),format(total_valor_total,'.5f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla,repeatRows=2,
-                              colWidths=[2 * cm, 7 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
+        tabla_detalle = Table(tabla,repeatRows=2)#,colWidths=[2 * cm, 7 * cm, 2.2 * cm, 1.5 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                ('ALIGN', (0, 0), (9, 1), 'CENTER'),
-                ('ALIGN', (3, 2), (9, -1), 'RIGHT'),
+                ('ALIGN', (0, 0), (11, 1), 'CENTER'),
+                ('ALIGN', (4, 2), (11, -1), 'RIGHT'),
                 ('TEXTFONT', (0, 0), (-1, -1), 'Times-Roman'),
-                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('FONTSIZE', (0, 0), (-1, -1), 6.5),
                 ('SPAN', (0, 0), (0, 1)),
                 ('SPAN', (1, 0), (1, 1)),
-                ('SPAN', (2, 0), (3, 0)),
+                ('SPAN', (1, 0), (1, 1)),
+                ('SPAN', (2, 0), (2, 1)),
+                ('SPAN', (3, 0), (3, 1)),
                 ('SPAN', (4, 0), (5, 0)),
                 ('SPAN', (6, 0), (7, 0)),
                 ('SPAN', (8, 0), (9, 0)),
+                ('SPAN', (10, 0), (11, 0)),
             ]
         )
         tabla_detalle.setStyle(style)
@@ -811,27 +818,19 @@ class ReporteKardexPDF():
         buffer.close()
         return pdf
 
-    def imprimir_formato_consolidado_productos(self, desde, hasta, almacen):
+    def imprimir_formato_consolidado_productos(self):
         buffer = self.buffer
-        centro = ParagraphStyle('parrafos',
-                                alignment=TA_CENTER,
-                                fontSize=12,
-                                fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
         productos = Producto.objects.all().order_by('descripcion')
-        elements.append(self.tabla_encabezado_consolidado(False))
-        periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), centro)
-        elements.append(periodo)
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.tabla_detalle_consolidado_productos(productos, desde, hasta, almacen))
-        doc.build(elements)
+        elements.append(self.tabla_detalle_consolidado_productos(productos))
+        doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
@@ -849,7 +848,10 @@ class ReporteKardexPDF():
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except:
             imagen = Paragraph(u"LOGO", sp)
-        titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
+        if self.grupos:
+            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
+        else:
+            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
         periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
         pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
         encabezado = [[imagen, titulo, pagina],["",periodo,""]]
