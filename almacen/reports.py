@@ -248,15 +248,17 @@ class ReporteMovimiento():
 
 class ReporteKardexPDF():
 
-    def __init__(self, pagesize):
+    def __init__(self, pagesize, desde, hasta, almacen):
+        self.desde = desde
+        self.hasta = hasta
+        self.almacen = almacen
+        self.total_paginas = 0
         self.buffer = BytesIO()
         if pagesize == 'A4':
             self.pagesize = landscape(A4)
         elif pagesize == 'Letter':
             self.pagesize = letter
         self.width, self.height = self.pagesize
-
-
 
     def tabla_encabezado(self,valorizado):
         sp = ParagraphStyle('parrafos',
@@ -277,7 +279,7 @@ class ReporteKardexPDF():
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
-    def tabla_encabezado_consolidado(self,grupos):
+    def tabla_encabezado_consolidado(grupos):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -420,7 +422,10 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def tabla_detalle_consolidado_grupo(self, grupos, desde, hasta, almacen):
+    def tabla_detalle_consolidado_grupo(self, grupos):
+        almacen = self.almacen
+        desde = self.desde
+        hasta = self.hasta
         tabla = []
         encabezado1 = ["CODIGO","NOMBRE","CUENTA",u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"",u"SALDO",u""]
         encabezado2 = [u"", u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
@@ -836,7 +841,37 @@ class ReporteKardexPDF():
         buffer.close()
         return pdf
 
-    def imprimir_formato_consolidado_grupos(self, desde, hasta, almacen):
+    def _header_footer(self, canvas, doc):
+        canvas.saveState()
+        self.total_paginas += 1
+
+        sp = ParagraphStyle('parrafos',
+                            alignment=TA_CENTER,
+                            fontSize=14,
+                            fontName="Times-Roman")
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+        except:
+            imagen = Paragraph(u"LOGO", sp)
+        titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
+        periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
+        pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
+        encabezado = [[imagen, titulo, pagina],["",periodo,""]]
+        tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
+        style = TableStyle(
+            [
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]
+        )
+        tabla_encabezado.setStyle(style)
+        tabla_encabezado.wrapOn(canvas, 50, 510)
+        tabla_encabezado.drawOn(canvas, 50, 510)
+        # Release the canvas
+        canvas.restoreState()
+
+    def imprimir_formato_consolidado_grupos(self):
         buffer = self.buffer
         centro = ParagraphStyle('parrafos',
                                    alignment=TA_CENTER,
@@ -845,19 +880,16 @@ class ReporteKardexPDF():
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
-                                topMargin=20,
+                                topMargin=100,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
 
         elements = []
         grupos = GrupoProductos.objects.filter(estado=True,
                                                son_productos=True).order_by('descripcion')
-        elements.append(self.tabla_encabezado_consolidado(True))
-        periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), centro)
-        elements.append(periodo)
-        elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.tabla_detalle_consolidado_grupo(grupos, desde, hasta, almacen))
-        doc.build(elements)
+        elements.append(self.tabla_detalle_consolidado_grupo(grupos))
+
+        doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
