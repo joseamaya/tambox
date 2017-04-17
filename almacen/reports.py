@@ -653,7 +653,10 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def imprimir_formato_sunat_unidades_fisicas_producto(self, producto, desde, hasta, almacen):
+    def imprimir_formato_sunat_unidades_fisicas_producto(self, producto):
+        desde = self.desde
+        hasta = self.hasta
+        almacen = self.almacen
         y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
@@ -707,7 +710,10 @@ class ReporteKardexPDF():
         buffer.close()
         return pdf
 
-    def imprimir_formato_sunat_valorizado_producto(self, producto, desde, hasta, almacen):
+    def imprimir_formato_sunat_valorizado_producto(self, producto):
+        desde = self.desde
+        hasta = self.hasta
+        almacen = self.almacen
         y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
@@ -761,7 +767,10 @@ class ReporteKardexPDF():
         buffer.close()
         return pdf
 
-    def imprimir_formato_sunat_unidades_fisicas_todos(self, desde, hasta, almacen):
+    def imprimir_formato_sunat_unidades_fisicas_todos(self):
+        desde = self.desde
+        hasta = self.hasta
+        almacen = self.almacen
         y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
@@ -891,7 +900,10 @@ class ReporteKardexPDF():
         buffer.close()
         return pdf
 
-    def imprimir_formato_sunat_valorizado_todos(self, desde, hasta, almacen):
+    def imprimir_formato_sunat_valorizado_todos(self):
+        desde = self.desde
+        hasta = self.hasta
+        almacen = self.almacen
         y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',

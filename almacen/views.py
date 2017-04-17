@@ -1372,15 +1372,17 @@ class ReporteKardexProducto(FormView):
 
     def obtener_formato_sunat_unidades_fisicas_pdf(self, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_producto(producto, desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_producto(producto)
+        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteUnidadesFisicas.pdf'
         response.write(pdf)
         return response
 
     def obtener_formato_sunat_valorizado_pdf(self, producto, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_valorizado_producto(producto, desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
+        pdf = reporte.imprimir_formato_sunat_valorizado_producto(producto)
+        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteValorizado.pdf'
         response.write(pdf)
         return response
 
@@ -1456,6 +1458,7 @@ class ReporteKardex(FormView):
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteKardexPDF('A4',desde, hasta, almacen, False)
         pdf = reporte.imprimir_formato_consolidado_productos()
+        response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacen.pdf'
         response.write(pdf)
         return response
 
@@ -1463,20 +1466,23 @@ class ReporteKardex(FormView):
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteKardexPDF('A4',desde, hasta, almacen, True)
         pdf = reporte.imprimir_formato_consolidado_grupos()
+        response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacenPorGruposYCuentas.pdf'
         response.write(pdf)
         return response
 
     def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_todos(desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, False)
+        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_todos()
+        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteUnidadesFisicas.pdf'
         response.write(pdf)
         return response
 
     def obtener_formato_sunat_valorizado_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4')
-        pdf = reporte.imprimir_formato_sunat_valorizado_todos(desde, hasta, almacen)
+        reporte = ReporteKardexPDF('A4',desde, hasta, almacen,False)
+        pdf = reporte.imprimir_formato_sunat_valorizado_todos()
+        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteValorizado.pdf'
         response.write(pdf)
         return response
 
