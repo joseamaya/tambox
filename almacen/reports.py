@@ -390,6 +390,7 @@ class ReporteKardexPDF():
         total_valor_salida = 0
         total_cantidad_total = 0
         total_valor_total = 0
+        self.total_paginas=int(math.ceil(productos.count()/22.0))
         for producto in productos:
             try:
                 kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -476,6 +477,7 @@ class ReporteKardexPDF():
         total_valor_salida = 0
         total_cantidad_total = 0
         total_valor_total = 0
+        self.total_paginas = int(math.ceil(grupos.count() / 22.0))
         for grupo in grupos:
             try:
                 kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
@@ -837,7 +839,6 @@ class ReporteKardexPDF():
 
     def _header_footer(self, canvas, doc):
         canvas.saveState()
-        self.total_paginas += 1
 
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
