@@ -12,6 +12,7 @@ from django.db.models import Sum
 
 class UnidadMedida(TimeStampedModel):
     codigo = models.CharField(max_length=5, unique=True)
+    codigo_sunat = models.CharField(max_length=2)
     descripcion = models.CharField(max_length=50)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()

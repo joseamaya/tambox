@@ -31,6 +31,7 @@
 			<thead>
 				<tr>
 					<th class="text-center">UNIDAD</th>
+					<th class="text-center">CODIGO SUNAT</th>
 					<th class="text-center">DESCRIPCION</th>								
 				</tr>
 			</thead>
@@ -42,6 +43,7 @@
 				<tr>
 				{% endif %}
 					<td>{{ unidad.codigo }}</td>
+					<td>{{ unidad.codigo_sunat }}</td>
 					<td>{{ unidad.descripcion }}</td>														
 				</tr>
 			{% endfor %}

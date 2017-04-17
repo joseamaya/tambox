@@ -665,7 +665,6 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
-        y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
@@ -679,7 +678,6 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        styles = getSampleStyleSheet()
         elements.append(self.tabla_encabezado(False))
         elements.append(Spacer(1, 0.5 * cm))
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
@@ -704,7 +702,7 @@ class ReporteKardexPDF():
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -722,7 +720,6 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
-        y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
@@ -736,7 +733,6 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        styles = getSampleStyleSheet()
         elements.append(self.tabla_encabezado(True))
         elements.append(Spacer(1, 0.5 * cm))
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
@@ -761,7 +757,7 @@ class ReporteKardexPDF():
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -779,7 +775,6 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
-        y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
@@ -793,7 +788,6 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        styles = getSampleStyleSheet()
         productos = Producto.objects.all().order_by('descripcion')
         for producto in productos:
             elements.append(self.tabla_encabezado(False))
@@ -820,7 +814,7 @@ class ReporteKardexPDF():
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -907,7 +901,6 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
-        y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
@@ -921,7 +914,6 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        styles = getSampleStyleSheet()
         productos = Producto.objects.all().order_by('descripcion')
         for producto in productos:
             elements.append(self.tabla_encabezado(True))
@@ -948,7 +940,7 @@ class ReporteKardexPDF():
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion,
+            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
