@@ -325,9 +325,10 @@ class ReporteKardexPDF():
             cant_saldo_inicial = kardex_inicial.cantidad_total
         except:
             cant_saldo_inicial = 0
-        saldo_inicial = ['','00','SALDO','INICIAL','16',format(0,'.5f'),format(0,'.5f'),format(cant_saldo_inicial,'.5f')]
+        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',format(0,'.5f'),format(0,'.5f'),format(cant_saldo_inicial,'.5f')]
+        cantidad_total = cant_saldo_inicial
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -342,6 +343,8 @@ class ReporteKardexPDF():
             except:
                 tipo_movimiento = "-"
 
+            cantidad_total = kardex.cantidad_total
+
             tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
@@ -349,7 +352,7 @@ class ReporteKardexPDF():
                           tipo_movimiento,
                           format(kardex.cantidad_ingreso,'.5f'),
                           format(kardex.cantidad_salida,'.5f'),
-                          format(kardex.cantidad_total,'.5f')])
+                          format(cantidad_total,'.5f')])
         totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.5f'),format(cantidad_salida,'.5f'),format(cantidad_total,'.5f')]
         tabla.append(totales)
         tabla_detalle = Table(tabla, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
@@ -402,7 +405,7 @@ class ReporteKardexPDF():
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
 
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
                 almacen,
                 desde,
                 hasta)
@@ -582,12 +585,17 @@ class ReporteKardexPDF():
             precio_saldo_inicial = valor_saldo_inicial / cant_saldo_inicial
         except:
             precio_saldo_inicial = 0
-        saldo_inicial = ['','00','SALDO','INICIAL','16',
+        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',
                          format(0,'.5f'),format(0,'.5f'),format(0,'.5f'),
                          format(0,'.5f'),format(0,'.5f'),format(0,'.5f'),
                          format(cant_saldo_inicial,'.5f'),format(precio_saldo_inicial,'.5f'),format(valor_saldo_inicial,'.5f')]
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+
+        cantidad_total = cant_saldo_inicial
+        precio_total = precio_saldo_inicial
+        valor_total = valor_saldo_inicial
+
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -602,6 +610,10 @@ class ReporteKardexPDF():
             except:
                 tipo_movimiento = "-"
 
+            cantidad_total = kardex.cantidad_total
+            precio_total = kardex.precio_total
+            valor_total = kardex.valor_total
+
             tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
@@ -613,25 +625,14 @@ class ReporteKardexPDF():
                           format(kardex.cantidad_salida,'.5f'),
                           format(kardex.precio_salida, '.5f'),
                           format(kardex.valor_salida, '.5f'),
-                          format(kardex.cantidad_total,'.5f'),
-                          format(kardex.precio_total, '.5f'),
-                          format(kardex.valor_total, '.5f')])
-        try:
-            t_precio_i = valor_ingreso / cantidad_ingreso
-        except:
-            t_precio_i = 0
-        try:
-            t_precio_s = valor_salida / cantidad_salida
-        except:
-            t_precio_s = 0
-        try:
-            t_precio_t = valor_total / cantidad_total
-        except:
-            t_precio_t = 0
+                          format(cantidad_total,'.5f'),
+                          format(precio_total, '.5f'),
+                          format(valor_total, '.5f')])
+
         totales = ['','','','',"TOTALES",
-                   format(cantidad_ingreso,'.5f'),format(t_precio_i,'.5f'),format(valor_ingreso,'.5f'),
-                   format(cantidad_salida,'.5f'),format(t_precio_s,'.5f'),format(valor_salida,'.5f'),
-                   format(cantidad_total,'.5f'),format(t_precio_t,'.5f'),format(valor_total,'.5f')]
+                   format(cantidad_ingreso,'.5f'),"",format(valor_ingreso,'.5f'),
+                   format(cantidad_salida,'.5f'),"",format(valor_salida,'.5f'),
+                   format(cantidad_total,'.5f'),format(precio_total,'.5f'),format(valor_total,'.5f')]
         tabla.append(totales)
         tabla_detalle = Table(tabla)
         style = TableStyle(
@@ -1050,7 +1051,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -1087,7 +1088,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=8).value = cantidad_salida
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = cantidad_total
+        ws.cell(row=cont, column=9).value = ""
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
         return wb
@@ -1147,9 +1148,7 @@ class ReporteKardexExcel():
         ws['L5'] = 'PRE. TOT'
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(almacen,
-                                                                                                                                              desde,
-                                                                                                                                              hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(almacen,desde,hasta)
         if len(listado_kardex)>0:
             for kardex in listado_kardex:
                 ws.cell(row=cont,column=2).value = kardex.fecha_operacion
@@ -1361,7 +1360,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -1408,24 +1407,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=15).number_format = '#.00000'
             ws.cell(row=cont, column=15).border = thin_border
         cont = cont + 1
-        try:
-            t_precio_i = valor_ingreso / cantidad_ingreso
-        except:
-            t_precio_i = 0
-        try:
-            t_precio_s = valor_salida / cantidad_salida
-        except:
-            t_precio_s = 0
-        try:
-            t_precio_t = valor_total / cantidad_total
-        except:
-            t_precio_t = 0
+
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
         ws.cell(row=cont, column=7).value = cantidad_ingreso
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
-        ws.cell(row=cont, column=8).value = t_precio_i
+        ws.cell(row=cont, column=8).value = ""
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
         ws.cell(row=cont, column=9).value = valor_ingreso
@@ -1434,19 +1422,19 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=10).value = cantidad_salida
         ws.cell(row=cont, column=10).number_format = '#.00000'
         ws.cell(row=cont, column=10).border = thin_border
-        ws.cell(row=cont, column=11).value = t_precio_s
+        ws.cell(row=cont, column=11).value = ""
         ws.cell(row=cont, column=11).number_format = '#.00000'
         ws.cell(row=cont, column=11).border = thin_border
         ws.cell(row=cont, column=12).value = valor_salida
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
-        ws.cell(row=cont, column=13).value = cantidad_total
+        ws.cell(row=cont, column=13).value = ""
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws.cell(row=cont, column=13).border = thin_border
-        ws.cell(row=cont, column=14).value = t_precio_t
+        ws.cell(row=cont, column=14).value = ""
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
-        ws.cell(row=cont, column=15).value = valor_total
+        ws.cell(row=cont, column=15).value = ""
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
         return wb
@@ -1546,7 +1534,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(almacen, desde, hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1580,7 +1568,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=8).value = cantidad_salida
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = cantidad_total
+        ws.cell(row=cont, column=9).value = ""
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
         return ws
@@ -1745,7 +1733,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
             almacen,
             desde,
             hasta)
@@ -1792,24 +1780,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=15).number_format = '#.00000'
             ws.cell(row=cont, column=15).border = thin_border
         cont = cont + 1
-        try:
-            t_precio_i = valor_ingreso / cantidad_ingreso
-        except:
-            t_precio_i = 0
-        try:
-            t_precio_s = valor_salida / cantidad_salida
-        except:
-            t_precio_s = 0
-        try:
-            t_precio_t = valor_total / cantidad_total
-        except:
-            t_precio_t = 0
+
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
         ws.cell(row=cont, column=7).value = cantidad_ingreso
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
-        ws.cell(row=cont, column=8).value = t_precio_i
+        ws.cell(row=cont, column=8).value = ""
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
         ws.cell(row=cont, column=9).value = valor_ingreso
@@ -1818,19 +1795,19 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=10).value = cantidad_salida
         ws.cell(row=cont, column=10).number_format = '#.00000'
         ws.cell(row=cont, column=10).border = thin_border
-        ws.cell(row=cont, column=11).value = t_precio_s
+        ws.cell(row=cont, column=11).value = ""
         ws.cell(row=cont, column=11).number_format = '#.00000'
         ws.cell(row=cont, column=11).border = thin_border
         ws.cell(row=cont, column=12).value = valor_salida
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
-        ws.cell(row=cont, column=13).value = cantidad_total
+        ws.cell(row=cont, column=13).value = ""
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws.cell(row=cont, column=13).border = thin_border
-        ws.cell(row=cont, column=14).value = t_precio_t
+        ws.cell(row=cont, column=14).value = ""
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
-        ws.cell(row=cont, column=15).value = valor_total
+        ws.cell(row=cont, column=15).value = ""
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
         return ws
@@ -2084,7 +2061,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=13).value = valor_saldo_inicial
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
                 almacen,
                 desde,
                 hasta)

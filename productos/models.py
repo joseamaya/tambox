@@ -151,24 +151,18 @@ class Producto(TimeStampedModel):
         if len(listado_kardex)>0:
             cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
             cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
-            cantidad_total = listado_kardex.aggregate(Sum('cantidad_total'))
             t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
             t_cantidad_s = cantidad_salida['cantidad_salida__sum']
-            t_cantidad_t= cantidad_total['cantidad_total__sum']
             valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
             valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
-            valor_total = listado_kardex.aggregate(Sum('valor_total'))
             t_valor_i = valor_ingreso['valor_ingreso__sum']
             t_valor_s = valor_salida['valor_salida__sum']
-            t_valor_t= valor_total['valor_total__sum']
         else:
             t_cantidad_i = 0
             t_cantidad_s = 0
-            t_cantidad_t = 0
             t_valor_i = 0
             t_valor_s = 0
-            t_valor_t = 0
-        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s, t_cantidad_t, t_valor_t)
+        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s)
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
