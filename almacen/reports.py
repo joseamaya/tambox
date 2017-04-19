@@ -325,7 +325,7 @@ class ReporteKardexPDF():
             cant_saldo_inicial = kardex_inicial.cantidad_total
         except:
             cant_saldo_inicial = 0
-        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',format(0,'.5f'),format(0,'.5f'),format(cant_saldo_inicial,'.5f')]
+        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',format(0,'.2f'),format(0,'.2f'),format(cant_saldo_inicial,'.2f')]
         cantidad_total = cant_saldo_inicial
         tabla.append(saldo_inicial)
         listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
@@ -350,10 +350,10 @@ class ReporteKardexPDF():
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso,'.5f'),
-                          format(kardex.cantidad_salida,'.5f'),
-                          format(cantidad_total,'.5f')])
-        totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.5f'),format(cantidad_salida,'.5f'),format(cantidad_total,'.5f')]
+                          format(kardex.cantidad_ingreso,'.2f'),
+                          format(kardex.cantidad_salida,'.2f'),
+                          format(cantidad_total,'.2f')])
+        totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.2f'),format(cantidad_salida,'.2f'),format(cantidad_total,'.2f')]
         tabla.append(totales)
 
         self.total_paginas += 1;
@@ -578,23 +578,31 @@ class ReporteKardexPDF():
                      "","","",
                      "","",""]
         tabla.append(encab_terc)
+
         try:
             kardex_inicial = Kardex.objects.filter(producto=producto,
                                                    almacen=almacen,
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
+            precio_saldo_inicial = kardex_inicial.precio_total
             valor_saldo_inicial = kardex_inicial.valor_total
         except:
             cant_saldo_inicial = 0
-            valor_saldo_inicial = 0
-        try:
-            precio_saldo_inicial = valor_saldo_inicial / cant_saldo_inicial
-        except:
             precio_saldo_inicial = 0
+            valor_saldo_inicial = 0
+
+        cant_saldo_inicial = format(cant_saldo_inicial, '.2f')
+        precio_saldo_inicial = format(precio_saldo_inicial, '.2f')
+        temp_valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+        if temp_valor_saldo_inicial == '-0.00':
+            valor_saldo_inicial = format(abs(valor_saldo_inicial), '.2f')
+        else:
+            valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+
         saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',
-                         format(0,'.5f'),format(0,'.5f'),format(0,'.5f'),
-                         format(0,'.5f'),format(0,'.5f'),format(0,'.5f'),
-                         format(cant_saldo_inicial,'.5f'),format(precio_saldo_inicial,'.5f'),format(valor_saldo_inicial,'.5f')]
+                         format(0,'.2f'),format(0,'.2f'),format(0,'.2f'),
+                         format(0,'.2f'),format(0,'.2f'),format(0,'.2f'),
+                         cant_saldo_inicial,precio_saldo_inicial,valor_saldo_inicial]
         tabla.append(saldo_inicial)
 
         cantidad_total = cant_saldo_inicial
@@ -616,35 +624,37 @@ class ReporteKardexPDF():
             except:
                 tipo_movimiento = "-"
 
-            cantidad_total = kardex.cantidad_total
-            precio_total = kardex.precio_total
-            valor_total = kardex.valor_total
+            cantidad_total = format(kardex.cantidad_total,'.2f')
+            precio_total = format(kardex.precio_total,'.2f')
+            valor_total = format(kardex.valor_total,'.2f')
+            if valor_total == '-0.00':
+                valor_total = format(abs(kardex.valor_total), '.2f')
 
             tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso,'.5f'),
-                          format(kardex.precio_ingreso, '.5f'),
-                          format(kardex.valor_ingreso, '.5f'),
-                          format(kardex.cantidad_salida,'.5f'),
-                          format(kardex.precio_salida, '.5f'),
-                          format(kardex.valor_salida, '.5f'),
-                          format(cantidad_total,'.5f'),
-                          format(precio_total, '.5f'),
-                          format(valor_total, '.5f')])
+                          format(kardex.cantidad_ingreso,'.2f'),
+                          format(kardex.precio_ingreso, '.2f'),
+                          format(kardex.valor_ingreso, '.2f'),
+                          format(kardex.cantidad_salida,'.2f'),
+                          format(kardex.precio_salida, '.2f'),
+                          format(kardex.valor_salida, '.2f'),
+                          cantidad_total,
+                          precio_total,
+                          valor_total])
 
         totales = ['','','','',"TOTALES",
-                   format(cantidad_ingreso,'.5f'),"",format(valor_ingreso,'.5f'),
-                   format(cantidad_salida,'.5f'),"",format(valor_salida,'.5f'),
-                   format(cantidad_total,'.5f'),format(precio_total,'.5f'),format(valor_total,'.5f')]
+                   format(cantidad_ingreso,'.2f'),"",format(valor_ingreso,'.2f'),
+                   format(cantidad_salida,'.2f'),"",format(valor_salida,'.2f'),
+                   cantidad_total,precio_total,valor_total]
         tabla.append(totales)
 
         self.total_paginas += 1;
         total_registros_producto = listado_kardex.count() + 2 
-        if total_registros_producto > 11:
-            self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))  
+        if total_registros_producto > 10:
+            self.total_paginas += int(math.ceil((total_registros_producto - 10) / 20.0))
 
         tabla_detalle = Table(tabla,repeatRows=3)
         style = TableStyle(
