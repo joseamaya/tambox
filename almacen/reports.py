@@ -427,37 +427,37 @@ class ReporteKardexPDF():
             total_cantidad_total += cantidad_total
             total_valor_total += valor_total
 
-            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
-            if temp_valor_saldo_inicial == '-0.00':
-                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.2f')
+            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
+            if temp_valor_saldo_inicial == '-0.000':
+                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.3f')
             else:
-                valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+                valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
 
-            temp_valor_total = format(valor_total, '.2f')
-            if temp_valor_total == '-0.00':
-                valor_total = format(abs(valor_total), '.2f')
+            temp_valor_total = format(valor_total, '.3f')
+            if temp_valor_total == '-0.000':
+                valor_total = format(abs(valor_total), '.3f')
             else:
-                valor_total = format(valor_total, '.2f')
+                valor_total = format(valor_total, '.3f')
 
             registro=[producto.codigo,
                       producto.descripcion,
                       producto.unidad_medida.descripcion,
                       producto.grupo_productos.ctacontable,
-                      format(cant_saldo_inicial,'.2f'),
+                      format(cant_saldo_inicial,'.3f'),
                       valor_saldo_inicial,
-                      format(cantidad_ingreso,'.2f'),
-                      format(valor_ingreso,'.2f'),
-                      format(cantidad_salida,'.2f'),
-                      format(valor_salida,'.2f'),
-                      format(cantidad_total,'.2f'),
+                      format(cantidad_ingreso,'.3f'),
+                      format(valor_ingreso,'.3f'),
+                      format(cantidad_salida,'.3f'),
+                      format(valor_salida,'.3f'),
+                      format(cantidad_total,'.3f'),
                       valor_total]
             tabla.append(registro)
 
         totales = ["","","",  "TOTALES",
-                   format(total_cant_saldo_inicial,'.2f'), format(total_valor_saldo_inicial,'.2f'),
-                   format(total_cantidad_ingreso,'.2f'),format(total_valor_ingreso,'.2f'),
-                   format(total_cantidad_salida,'.2f'),format(total_valor_salida,'.2f'),
-                   format(total_cantidad_total,'.2f'),format(total_valor_total, '.2f')]
+                   format(total_cant_saldo_inicial,'.3f'), format(total_valor_saldo_inicial,'.3f'),
+                   format(total_cantidad_ingreso,'.3f'),format(total_valor_ingreso,'.3f'),
+                   format(total_cantidad_salida,'.3f'),format(total_valor_salida,'.3f'),
+                   format(total_cantidad_total,'.3f'),format(total_valor_total, '.3f')]
         tabla.append(totales)
         tabla_detalle = Table(tabla,repeatRows=2)#,colWidths=[2 * cm, 7 * cm, 2.2 * cm, 1.5 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
         style = TableStyle(
@@ -534,36 +534,36 @@ class ReporteKardexPDF():
             total_cantidad_total += cantidad_total
             total_valor_total += valor_total
 
-            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
-            if temp_valor_saldo_inicial == '-0.00':
-                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.2f')
+            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
+            if temp_valor_saldo_inicial == '-0.00000':
+                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.5f')
             else:
-                valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+                valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
 
-            temp_valor_total = format(valor_total, '.2f')
-            if temp_valor_total == '-0.00':
-                valor_total = format(abs(valor_total), '.2f')
+            temp_valor_total = format(valor_total, '.5f')
+            if temp_valor_total == '-0.00000':
+                valor_total = format(abs(valor_total), '.5f')
             else:
-                valor_total = format(valor_total, '.2f')
+                valor_total = format(valor_total, '.5f')
 
             registro=[grupo.codigo,
                       grupo.descripcion,
                       grupo.ctacontable.cuenta,
-                      format(cant_saldo_inicial,'.2f'),
+                      format(cant_saldo_inicial,'.5f'),
                       valor_saldo_inicial,
-                      format(cantidad_ingreso,'.2f'),
-                      format(valor_ingreso,'.2f'),
-                      format(cantidad_salida,'.2f'),
-                      format(valor_salida,'.2f'),
-                      format(cantidad_total,'.2f'),
+                      format(cantidad_ingreso,'.5f'),
+                      format(valor_ingreso,'.5f'),
+                      format(cantidad_salida,'.5f'),
+                      format(valor_salida,'.5f'),
+                      format(cantidad_total,'.5f'),
                       valor_total]
             tabla.append(registro)
 
         totales = ["", "", "TOTALES",
-                   format(total_cant_saldo_inicial,'.2f'), format(total_valor_saldo_inicial,'.2f'),
-                   format(total_cantidad_ingreso,'.2f'),format(total_valor_ingreso,'.2f'),
-                   format(total_cantidad_salida,'.2f'),format(total_valor_salida,'.2f'),
-                   format(total_cantidad_total,'.2f'),format(total_valor_total,'.2f')]
+                   format(total_cant_saldo_inicial,'.5f'), format(total_valor_saldo_inicial,'.5f'),
+                   format(total_cantidad_ingreso,'.5f'),format(total_valor_ingreso,'.5f'),
+                   format(total_cantidad_salida,'.5f'),format(total_valor_salida,'.5f'),
+                   format(total_cantidad_total,'.5f'),format(total_valor_total,'.5f')]
         tabla.append(totales)
         tabla_detalle = Table(tabla,repeatRows=2,
                               colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
@@ -720,7 +720,7 @@ class ReporteKardexPDF():
         self.valorizado = False
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
-                                   fontSize=12,
+                                   fontSize=11,
                                    fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,

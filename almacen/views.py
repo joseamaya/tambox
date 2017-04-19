@@ -1558,7 +1558,7 @@ class ReprocesoPrecio(FormView):
                 anterior = detalles[indice - 1]
                 cantidad_ant = anterior.cantidad_total                
                 valor_ant = anterior.valor_total
-                precio_ant = Decimal(round(valor_ant / cantidad_ant, 5))   
+                precio_ant = Decimal(round(valor_ant / cantidad_ant, 8))
             except:
                 cantidad_ant = 0
                 precio_ant = 0
