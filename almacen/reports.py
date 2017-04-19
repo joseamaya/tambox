@@ -525,18 +525,6 @@ class ReporteKardexPDF():
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
 
-            registro=[grupo.codigo,
-                      grupo.descripcion,
-                      grupo.ctacontable.cuenta,
-                      format(cant_saldo_inicial,'.5f'),
-                      format(valor_saldo_inicial,'.5f'),
-                      format(cantidad_ingreso,'.5f'),
-                      format(valor_ingreso,'.5f'),
-                      format(cantidad_salida,'.5f'),
-                      format(valor_salida,'.5f'),
-                      format(cantidad_total,'.5f'),
-                      format(valor_total,'.5f')]
-            tabla.append(registro)
             total_cant_saldo_inicial += cant_saldo_inicial
             total_valor_saldo_inicial += valor_saldo_inicial
             total_cantidad_ingreso += cantidad_ingreso
@@ -545,11 +533,37 @@ class ReporteKardexPDF():
             total_valor_salida += valor_salida
             total_cantidad_total += cantidad_total
             total_valor_total += valor_total
+
+            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+            if temp_valor_saldo_inicial == '-0.00':
+                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.2f')
+            else:
+                valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+
+            temp_valor_total = format(valor_total, '.2f')
+            if temp_valor_total == '-0.00':
+                valor_total = format(abs(valor_total), '.2f')
+            else:
+                valor_total = format(valor_total, '.2f')
+
+            registro=[grupo.codigo,
+                      grupo.descripcion,
+                      grupo.ctacontable.cuenta,
+                      format(cant_saldo_inicial,'.2f'),
+                      valor_saldo_inicial,
+                      format(cantidad_ingreso,'.2f'),
+                      format(valor_ingreso,'.2f'),
+                      format(cantidad_salida,'.2f'),
+                      format(valor_salida,'.2f'),
+                      format(cantidad_total,'.2f'),
+                      valor_total]
+            tabla.append(registro)
+
         totales = ["", "", "TOTALES",
-                   format(total_cant_saldo_inicial,'.5f'), format(total_valor_saldo_inicial,'.5f'),
-                   format(total_cantidad_ingreso,'.5f'),format(total_valor_ingreso,'.5f'),
-                   format(total_cantidad_salida,'.5f'),format(total_valor_salida,'.5f'),
-                   format(total_cantidad_total,'.5f'),format(total_valor_total,'.5f')]
+                   format(total_cant_saldo_inicial,'.2f'), format(total_valor_saldo_inicial,'.2f'),
+                   format(total_cantidad_ingreso,'.2f'),format(total_valor_ingreso,'.2f'),
+                   format(total_cantidad_salida,'.2f'),format(total_valor_salida,'.2f'),
+                   format(total_cantidad_total,'.2f'),format(total_valor_total,'.2f')]
         tabla.append(totales)
         tabla_detalle = Table(tabla,repeatRows=2,
                               colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
