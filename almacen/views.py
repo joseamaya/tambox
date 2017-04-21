@@ -1618,6 +1618,7 @@ class StockProductos(FormView):
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'UNIDAD'
         ws['E3'] = 'CANTIDAD'
+        ws['F3'] = 'PRECIO'
         ws.column_dimensions["B"].width = 12
         ws.column_dimensions["C"].width = 40
         cont = 4
@@ -1629,15 +1630,18 @@ class StockProductos(FormView):
                 descripcion = kardex.producto.descripcion
                 unidad_medida = kardex.producto.unidad_medida.descripcion
                 stock = kardex.cantidad_total
+                precio = kardex.precio_total
             except:
                 codigo = producto.codigo
                 descripcion = producto.descripcion
                 unidad_medida = producto.unidad_medida.codigo
                 stock = 0
+                precio = 0
             ws.cell(row=cont, column=2).value = codigo
             ws.cell(row=cont, column=3).value = descripcion
             ws.cell(row=cont, column=4).value = unidad_medida
             ws.cell(row=cont, column=5).value = stock
+            ws.cell(row=cont, column=6).value = precio
             cont = cont + 1
         nombre_archivo = "ReporteStock.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
