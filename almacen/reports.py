@@ -2069,7 +2069,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=5).value = valor_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida, cantidad_total, valor_total = producto.obtener_kardex(
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
                 almacen,
                 desde,
                 hasta)
