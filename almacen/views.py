@@ -1644,8 +1644,19 @@ class StockProductos(FormView):
             ws.cell(row=cont, column=3).value = descripcion
             ws.cell(row=cont, column=4).value = unidad_medida
             ws.cell(row=cont, column=5).value = stock
+
+            temp_precio = format(precio, '.3f')
+            if temp_precio == '-0.000':
+                precio = format(abs(precio), '.3f')
+            else:
+                precio = format(precio, '.3f')
             ws.cell(row=cont, column=6).value = precio
             ws.cell(row=cont, column=6).number_format = '#.000'
+            temp_valor = format(valor, '.3f')
+            if temp_valor == '-0.000':
+                valor = format(abs(valor), '.3f')
+            else:
+                valor = format(valor, '.3f')
             ws.cell(row=cont, column=7).value = valor
             ws.cell(row=cont, column=7).number_format = '#.000'
             cont = cont + 1
