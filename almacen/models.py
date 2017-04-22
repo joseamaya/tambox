@@ -445,4 +445,5 @@ class ControlProductoAlmacen(TimeStampedModel):
     
     class Meta:
         unique_together = (('producto', 'almacen'),)
-        permissions = (('ver_reporte_stock_excel', 'Puede ver Reporte de Stock'),)
+        permissions = (('ver_reporte_stock_excel', 'Puede ver Reporte de Stock'),
+                       ('ver_reporte_inventario_excel', 'Puede ver Inventario de Stock'),)

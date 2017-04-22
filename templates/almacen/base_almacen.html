@@ -58,7 +58,10 @@
 			   		{% endif %}			   		
 			   		{% if perms.almacen.ver_reporte_stock_excel %}
 			   		<li><a href="{% url 'almacen:stock_productos' %}">Stock de Productos</a></li>
-			   		{% endif %}   					   		
+			   		{% endif %}
+					{% if perms.almacen.ver_reporte_inventario_excel %}
+			   		<li><a href="{% url 'almacen:inventario' %}">Inventario</a></li>
+			   		{% endif %}
 				</ul>
 		    </li>
     	</ul>	               

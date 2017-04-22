@@ -382,6 +382,10 @@ class BaseDetallePedidoFormSet(formsets.BaseFormSet):
                         'Registro de datos incompletos.',
                         code='datos_incompletos'
                     )
+
+class FormularioConsultaInventario(forms.Form):
+    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),widget=forms.Select(attrs={'class': 'form-control'}))
+    desde = forms.DateTimeField(input_formats = ['%d/%m/%Y'], widget= forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
                 
 DetalleIngresoFormSet = formsets.formset_factory(FormularioDetalleIngreso, BaseDetalleIngresoFormSet,0)
 DetalleSalidaFormSet = formsets.formset_factory(FormularioDetalleSalida, BaseDetalleSalidaFormSet,0)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render
+from openpyxl.styles import Alignment
 from openpyxl.styles import Border
 from openpyxl.styles import Side
 
@@ -13,7 +14,7 @@ from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimi
     FormularioKardexProducto, CargarInventarioInicialForm, FormularioReporteStock, MovimientoForm,\
     DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet,\
     AprobacionPedidoForm, FormularioReprocesoPrecio,\
-    FormularioMovimientosProducto, FormularioConsultaStock
+    FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
 from django.db.models import Sum
 from decimal import Decimal
 from io import BytesIO
@@ -1963,3 +1964,120 @@ class VerificarStockParaPedido(TemplateView):
             lista_json.append(detalle_json)
         data = json.dumps(lista_json)
         return HttpResponse(data, 'application/json')
+
+class Inventario(FormView):
+    form_class = FormularioConsultaInventario
+    template_name = 'almacen/inventario.html'
+
+    def get_initial(self):
+        initial = super(Inventario, self).get_initial()
+        initial['desde'] = date.today().strftime('%d/%m/%Y')
+        return initial
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        desde = data['desde']
+        grupo_productos=GrupoProductos.objects.filter(estado=True)
+
+        wb = Workbook()
+        ws = wb.active
+
+        ws.merge_cells('A1:H1')
+        ws['A1'].alignment = Alignment(horizontal="center")
+        ws['A1'] = 'INVENTARIO AL ' + desde.strftime('%d.%m.%YY')
+        ws['A3'].alignment = Alignment(horizontal="center")
+        ws['A3'] = 'CTA CONTABLE'
+        ws['B3'].alignment = Alignment(horizontal="center")
+        ws['B3'] = 'CODIGO'
+        ws['C3'].alignment = Alignment(horizontal="center")
+        ws['C3'] = 'PRODUCTO'
+        ws['D3'].alignment = Alignment(horizontal="center")
+        ws['D3'] = 'DETALLE 1'
+        ws['E3'].alignment = Alignment(horizontal="center")
+        ws['E3'] = 'CANTIDAD'
+        ws['F3'].alignment = Alignment(horizontal="center")
+        ws['F3'] = 'MEDIDA'
+        ws['G3'].alignment = Alignment(horizontal="center")
+        ws['G3'] = 'VALOR UNIT'
+        ws['H3'].alignment = Alignment(horizontal="center")
+        ws['H3'] = 'VALOR TOTAL'
+        ws.column_dimensions["A"].width = 15
+        ws.column_dimensions["B"].width = 15
+        ws.column_dimensions["C"].width = 40
+        ws.column_dimensions["G"].width = 12
+        ws.column_dimensions["H"].width = 12
+        cont = 5
+        for grupo_producto in grupo_productos:
+
+            productos=Producto.objects.filter(grupo_productos=grupo_producto)
+
+            if productos.count()>0:
+                sum_valor=0
+                ws['A' + str(cont)].alignment = Alignment(horizontal="center")
+                ws.merge_cells('A' + str(cont) + ':H' + str(cont))
+                ws.cell(row=cont, column=1).value = grupo_producto.descripcion
+
+                cont+=1
+                for producto in productos:
+                    try:
+                        kardex = Kardex.objects.filter(producto=producto).latest('fecha_operacion')
+                        codigo = kardex.producto.codigo
+                        descripcion = kardex.producto.descripcion
+                        unidad_medida = kardex.producto.unidad_medida.descripcion
+                        stock = kardex.cantidad_total
+                        precio = kardex.precio_total
+                        valor = kardex.valor_total
+                        sum_valor+=valor
+                    except:
+                        codigo = producto.codigo
+                        descripcion = producto.descripcion
+                        unidad_medida = producto.unidad_medida.codigo
+                        stock = 0
+                        precio = 0
+                        valor = 0
+                    ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=2).value = codigo
+                    ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
+                    ws.cell(row=cont, column=3).value = descripcion
+                    ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=4).value = ''
+                    ws.cell(row=cont, column=5).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=5).value = stock
+                    ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=6).value = unidad_medida
+                    temp_precio = format(precio, '.3f')
+                    if temp_precio == '-0.000':
+                        precio = format(abs(precio), '.3f')
+                    else:
+                        precio = format(precio, '.3f')
+                    ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=7).value = precio
+                    ws.cell(row=cont, column=7).number_format = '#.000'
+                    temp_valor = format(valor, '.3f')
+                    if temp_valor == '-0.000':
+                        valor = format(abs(valor), '.3f')
+                    else:
+                        valor = format(valor, '.3f')
+                    ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=8).value = valor
+                    ws.cell(row=cont, column=8).number_format = '#.000'
+
+                    cont = cont + 1
+
+                temp_sum_valor = format(sum_valor, '.3f')
+                if temp_sum_valor == '-0.000':
+                    valor = format(abs(sum_valor), '.3f')
+                else:
+                    valor = format(sum_valor, '.3f')
+                ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
+                ws.cell(row=cont, column=8).value = sum_valor
+                ws.cell(row=cont, column=8).number_format = '#.000'
+
+                cont = cont + 2
+
+        nombre_archivo = "ReporteInventario.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
+        contenido = "attachment; filename={0}".format(nombre_archivo)
+        response["Content-Disposition"] = contenido
+        wb.save(response)
+        return response
