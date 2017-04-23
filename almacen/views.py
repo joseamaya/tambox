@@ -1980,7 +1980,7 @@ class Inventario(FormView):
         data = form.cleaned_data
         desde = data['desde']
         grupo_productos=GrupoProductos.objects.filter(estado=True)
-
+        
         wb = Workbook()
         ws = wb.active
 
@@ -2047,6 +2047,7 @@ class Inventario(FormView):
         ws.column_dimensions["G"].width = 12
         ws.column_dimensions["H"].width = 12
         cont = 5
+        total_final=0
         for grupo_producto in grupo_productos:
 
             productos=Producto.objects.filter(grupo_productos=grupo_producto)
@@ -2070,6 +2071,7 @@ class Inventario(FormView):
                         valor = kardex.valor_total
                         detalle = kardex.nro_detalle_movimiento
                         sum_valor+=valor
+                        
                     except:
                         codigo = producto.codigo
                         descripcion = producto.descripcion
@@ -2136,7 +2138,7 @@ class Inventario(FormView):
                     ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=8).value = valor
                     ws.cell(row=cont, column=8).number_format = '#.000'
-
+                   
                     cont = cont + 1
 
                 temp_sum_valor = format(sum_valor, '.3f')
@@ -2151,8 +2153,33 @@ class Inventario(FormView):
                 ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=8).value = sum_valor
                 ws.cell(row=cont, column=8).number_format = '#.000'
-
+                total_final+=sum_valor
                 cont = cont + 2
+
+
+
+        ws.cell(row=cont, column=6).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
+        ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=7).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont,column=7).font = Font(name='Calibri', size=12)
+        ws.cell(row=cont, column=7).value = "Monto Total  S/."
+
+        temp_sum_valor = format(total_final, '.3f')
+        if temp_sum_valor == '-0.000':
+            valor = format(abs(total_final), '.3f')
+        else:
+            valor = format(total_final, '.3f')
+        ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
+        ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont,column=8).font = Font(name='Calibri', size=8)
+        ws.cell(row=cont, column=8).value = total_final
+        ws.cell(row=cont, column=8).number_format = '#.000'
 
         nombre_archivo = "ReporteInventario.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
