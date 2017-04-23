@@ -2,6 +2,8 @@
 from django.shortcuts import render
 from openpyxl.styles import Alignment
 from openpyxl.styles import Border
+from openpyxl.styles import Font
+from openpyxl.styles import PatternFill
 from openpyxl.styles import Side
 
 from almacen.models import Almacen, Movimiento, Kardex,TipoMovimiento,  DetalleMovimiento, ControlProductoAlmacen,\
@@ -1982,24 +1984,62 @@ class Inventario(FormView):
         wb = Workbook()
         ws = wb.active
 
-        ws.merge_cells('A1:H1')
-        ws['A1'].alignment = Alignment(horizontal="center")
-        ws['A1'] = 'INVENTARIO AL ' + desde.strftime('%d.%m.%YY')
-        ws['A3'].alignment = Alignment(horizontal="center")
+        ws.merge_cells('A2:H2')
+        ws['A2'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['A2'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+        ws['A2'].fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
+        ws['A2'].font=Font(name='Calibri', size=11, bold=True)
+        ws['A2'] = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
+
+        ws.row_dimensions[3].height = 25
+
+        ws['A3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['A3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['A3'].font = Font(name='Calibri', size=8, bold=True)
         ws['A3'] = 'CTA CONTABLE'
-        ws['B3'].alignment = Alignment(horizontal="center")
+
+        ws['B3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['B3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['B3'].font = Font(name='Calibri', size=8, bold=True)
         ws['B3'] = 'CODIGO'
-        ws['C3'].alignment = Alignment(horizontal="center")
+
+        ws['C3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['C3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['C3'].font = Font(name='Calibri', size=8, bold=True)
         ws['C3'] = 'PRODUCTO'
-        ws['D3'].alignment = Alignment(horizontal="center")
+
+        ws['D3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['D3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['D3'].font = Font(name='Calibri', size=8, bold=True)
         ws['D3'] = 'DETALLE 1'
-        ws['E3'].alignment = Alignment(horizontal="center")
+
+        ws['E3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['E3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+        ws['E3'].font = Font(name='Calibri', size=8, bold=True)
         ws['E3'] = 'CANTIDAD'
-        ws['F3'].alignment = Alignment(horizontal="center")
+
+        ws['F3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['F3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['F3'].font = Font(name='Calibri', size=8, bold=True)
         ws['F3'] = 'MEDIDA'
-        ws['G3'].alignment = Alignment(horizontal="center")
+
+        ws['G3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['G3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['G3'].font = Font(name='Calibri', size=8, bold=True)
         ws['G3'] = 'VALOR UNIT'
-        ws['H3'].alignment = Alignment(horizontal="center")
+
+        ws['H3'].alignment = Alignment(horizontal="center", vertical="center")
+        ws['H3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws['H3'].font = Font(name='Calibri', size=8, bold=True)
         ws['H3'] = 'VALOR TOTAL'
         ws.column_dimensions["A"].width = 15
         ws.column_dimensions["B"].width = 15
@@ -2015,9 +2055,10 @@ class Inventario(FormView):
                 sum_valor=0
                 ws['A' + str(cont)].alignment = Alignment(horizontal="center")
                 ws.merge_cells('A' + str(cont) + ':H' + str(cont))
+                ws['A' + str(cont)].fill = PatternFill(start_color='F2DCDB', end_color='F2DCDB', fill_type='solid')
                 ws.cell(row=cont, column=1).value = grupo_producto.descripcion
 
-                cont+=1
+                cont+=2
                 for producto in productos:
                     try:
                         kardex = Kardex.objects.filter(producto=producto).latest('fecha_operacion')
@@ -2027,6 +2068,7 @@ class Inventario(FormView):
                         stock = kardex.cantidad_total
                         precio = kardex.precio_total
                         valor = kardex.valor_total
+                        detalle = kardex.nro_detalle_movimiento
                         sum_valor+=valor
                     except:
                         codigo = producto.codigo
@@ -2035,22 +2077,52 @@ class Inventario(FormView):
                         stock = 0
                         precio = 0
                         valor = 0
+                        detalle = ""
+                    ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
+                    ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.cuenta
+
                     ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=2).value = codigo
+
                     ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
+                    ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=3).value = descripcion
+
                     ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
-                    ws.cell(row=cont, column=4).value = ''
+                    ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8)
+                    ws.cell(row=cont, column=4).value = detalle
+
                     ws.cell(row=cont, column=5).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=5).value = stock
+
                     ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")
+                    ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=6).value = unidad_medida
+
                     temp_precio = format(precio, '.3f')
                     if temp_precio == '-0.000':
                         precio = format(abs(precio), '.3f')
                     else:
                         precio = format(precio, '.3f')
                     ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=7).value = precio
                     ws.cell(row=cont, column=7).number_format = '#.000'
                     temp_valor = format(valor, '.3f')
@@ -2059,6 +2131,9 @@ class Inventario(FormView):
                     else:
                         valor = format(valor, '.3f')
                     ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
+                    ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=8).value = valor
                     ws.cell(row=cont, column=8).number_format = '#.000'
 
@@ -2070,6 +2145,10 @@ class Inventario(FormView):
                 else:
                     valor = format(sum_valor, '.3f')
                 ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
+                ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+                ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=8).value = sum_valor
                 ws.cell(row=cont, column=8).number_format = '#.000'
 
