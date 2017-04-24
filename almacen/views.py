@@ -2048,9 +2048,12 @@ class Inventario(FormView):
         ws.column_dimensions["H"].width = 12
         cont = 5
         total_final=0
+        resumen_inventario=[]
         for grupo_producto in grupo_productos:
 
             productos=Producto.objects.filter(grupo_productos=grupo_producto)
+            bandera=" "
+            tempo_cuenta=""
 
             if productos.count()>0:
                 sum_valor=0
@@ -2058,7 +2061,7 @@ class Inventario(FormView):
                 ws.merge_cells('A' + str(cont) + ':H' + str(cont))
                 ws['A' + str(cont)].fill = PatternFill(start_color='F2DCDB', end_color='F2DCDB', fill_type='solid')
                 ws.cell(row=cont, column=1).value = grupo_producto.descripcion
-
+                bandera=grupo_producto.descripcion
                 cont+=2
                 for producto in productos:
                     try:
@@ -2085,7 +2088,7 @@ class Inventario(FormView):
                                              top=Side(border_style="thin"), bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.cuenta
-
+                    tempo_cuenta=grupo_producto.ctacontable.cuenta
                     ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
                     ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                              top=Side(border_style="thin"), bottom=Side(border_style="thin"))
@@ -2140,7 +2143,8 @@ class Inventario(FormView):
                     ws.cell(row=cont, column=8).number_format = '#.000'
                    
                     cont = cont + 1
-
+                tempo_resumen=[bandera,tempo_cuenta,sum_valor]
+                resumen_inventario.append(tempo_resumen)
                 temp_sum_valor = format(sum_valor, '.3f')
                 if temp_sum_valor == '-0.000':
                     valor = format(abs(sum_valor), '.3f')
@@ -2180,6 +2184,136 @@ class Inventario(FormView):
         ws.cell(row=cont,column=8).font = Font(name='Calibri', size=8)
         ws.cell(row=cont, column=8).value = total_final
         ws.cell(row=cont, column=8).number_format = '#.000'
+
+
+
+
+
+        cont=cont+4
+        ws.merge_cells('A1262:H1262')
+        ws.cell(row=cont-1, column=1).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont-1, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+        ws.cell(row=cont-1, column=1).fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
+        ws.cell(row=cont-1, column=1).font=Font(name='Calibri', size=11, bold=True)
+        ws.cell(row=cont-1, column=1).value  = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
+
+        ws.row_dimensions[3].height = 25
+
+        ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=1).value  = 'CTA CONTABLE'
+
+        ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=2).value  = 'CODIGO'
+
+        ws.cell(row=cont, column=3).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=3).value  = 'PRODUCTO'
+
+        ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=4).value = 'DETALLE 1'
+
+        ws.cell(row=cont, column=5).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+        ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=5).value  = 'CANTIDAD'
+
+        ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=6).value  = 'MEDIDA'
+
+        ws.cell(row=cont, column=7).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=7).value  = 'VALOR UNIT'
+
+        ws.cell(row=cont, column=8).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8, bold=True)
+        ws.cell(row=cont, column=8).value  = 'VALOR TOTAL'
+
+        cont=cont+1
+       
+        for resumen in resumen_inventario:
+
+            ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
+            ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=1).value =  ""
+
+            ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
+            ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=2).value = resumen[1]
+
+            ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
+            ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=3).value = resumen[0]
+
+            ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
+            ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=4).value = ""
+
+            ws.cell(row=cont, column=5).alignment = Alignment(horizontal="right")
+            ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=5).value = resumen[2]
+            ws.cell(row=cont, column=5).number_format = '#.000'
+
+            ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")
+            ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
+            ws.cell(row=cont, column=6).value = ""
+
+            ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            cont=cont+1
+
+        ws.cell(row=cont, column=4).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=4).alignment = Alignment(horizontal="right")
+        ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=3).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont,column=3).font = Font(name='Calibri', size=12)
+        ws.cell(row=cont, column=3).value = "   TOTAL  S/."
+        ws.cell(row=cont, column=3).alignment = Alignment(horizontal="right")
+        ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont, column=5).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont, column=5).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+        ws.cell(row=cont,column=5).font = Font(name='Calibri', size=8)
+        ws.cell(row=cont, column=5).value = total_final
+        ws.cell(row=cont, column=5).number_format = '#.000'
 
         nombre_archivo = "ReporteInventario.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
