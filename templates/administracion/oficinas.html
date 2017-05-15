@@ -38,7 +38,7 @@
 			<tbody>
 			{% for oficina in oficinas %}
 				{% if perms.administracion.ver_detalle_oficina %}
-				<tr onclick="location.href='{% url 'administracion:detalle_oficina' oficina.pk %}';">
+				<tr onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')">
 				{% else %}
 				<tr>
 				{% endif %}
@@ -55,6 +55,7 @@
 		</table>
 	</div>
 </div>
+<div id="popup"></div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -72,5 +73,16 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	});
 });
+function abrir_modal(url, titulo)
+{
+	ventana_transferencia = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+}
 </script>
 {% endblock js %}
