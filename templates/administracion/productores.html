@@ -38,7 +38,11 @@
 			</thead>							
 			<tbody>
 			{% for productor in productores %}
-				</tr>
+				{% if perms.administracion.ver_detalle_productor %}
+				<tr onclick="return abrir_modal('{% url 'administracion:detalle_productor' productor.pk %}','Productor / {{ productor.nombres }} {{ productor.apellido_paterno }} {{ productor.apellido_materno }}')">
+				{% else %}
+				<tr onclick=" return alert('wexd0');">
+				{% endif %}
 					<td>{{ productor.dni }}</td>
 					<td>{{ productor.apellido_paterno }}</td>
 					<td>{{ productor.apellido_materno }}</td>
@@ -48,7 +52,8 @@
 			</tbody>
 		</table>
 	</div>
-</div>			
+</div>
+<div id="popup"></div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -66,5 +71,17 @@ $(document).ready(function()
 	}); 
     
 });
+function abrir_modal(url, titulo)
+{
+	ventana_transferencia = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+
+}
 </script>
 {% endblock js %}
