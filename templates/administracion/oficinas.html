@@ -4,7 +4,7 @@
 <div class="row">
 	<div class="col-lg-10">
 		{% if perms.administracion.add_oficina %}
-		<a href="{% url 'administracion:crear_oficina' %}" class="btn btn-primary">
+		<a onclick="return abrir_modal('{% url 'administracion:crear_oficina' %}','Oficinas / Nuevo')" class="btn btn-primary">
 			Crear
 		</a>												
 		{% endif %}

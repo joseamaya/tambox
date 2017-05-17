@@ -1,11 +1,13 @@
-{% extends "administracion/base_administracion.html" %} 
-{% block cuerpo %}
 {% if object %}
 <h3>Oficinas / {{ object.nombre }}</h3>
 {% else %}
 <h3>Oficinas / Nuevo</h3>
 {% endif %}
-<form role="form" method="post">
+{% if object %}
+	<form role="form" action="{% url 'administracion:modificar_oficina' object.pk %}" method="post">
+{% else %}
+	<form role="form" action="{% url 'administracion:crear_oficina' %}" method="post">
+{% endif %}
 	{% csrf_token %}
 	<div class="row">
 		<div class="col-lg-10">
@@ -108,4 +110,3 @@
 		</div>
 	</div>
 </form>
-{% endblock cuerpo %}
