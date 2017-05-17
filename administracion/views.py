@@ -235,7 +235,7 @@ class CrearOficina(CreateView):
         return super(CrearOficina, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_oficina', args=[self.object.pk])
+        return reverse('administracion:maestro_oficinas')
 
 
 class CrearTrabajador(CreateView):
@@ -375,10 +375,6 @@ class ModificarOficina(UpdateView):
     @method_decorator(permission_required('administracion.change_oficina', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ModificarOficina, self).dispatch(*args, **kwargs)
-
-    def get_success_url(self):
-        return reverse('administracion:detalle_oficina', args=[self.object.pk])
-
 
 class ModificarTrabajador(UpdateView):
     model = Trabajador

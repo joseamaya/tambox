@@ -144,11 +144,11 @@ class Oficina(TimeStampedModel):
 
     def anterior(self):
         ant = Oficina.objects.anterior(self)
-        return ant.pk
+        return ant
 
     def siguiente(self):
         sig = Oficina.objects.siguiente(self)
-        return sig.pk
+        return sig
 
     def __str__(self):
         return smart_str(self.nombre)

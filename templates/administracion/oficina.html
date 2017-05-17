@@ -1,44 +1,9 @@
 {% if object %}
-<h3>Oficinas / {{ object.nombre }}</h3>
-{% else %}
-<h3>Oficinas / Nuevo</h3>
-{% endif %}
-{% if object %}
 	<form role="form" action="{% url 'administracion:modificar_oficina' object.pk %}" method="post">
 {% else %}
 	<form role="form" action="{% url 'administracion:crear_oficina' %}" method="post">
 {% endif %}
 	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-			{% if object %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'administracion:detalle_oficina' object.pk %}'">
-				Cancelar
-			</button>
-			{% else %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'administracion:maestro_oficinas' %}'">
-				Cancelar
-			</button>
-			{% endif %}
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:modificar_oficina' object.anterior %}';">
-					<span class="glyphicon glyphicon-step-backward"></span>
-				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:modificar_oficina' object.siguiente %}';">
-					<span class="glyphicon glyphicon-step-forward"></span>
-				</button>
-				{% endif %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:maestro_oficinas' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
 	<div class="panel panel-default">
 		<div class="panel-body">
 			<div class="row">
@@ -56,8 +21,17 @@
 				    {% endif %}
 					<h3>{{ form.nombre }}</h3>
 				</div>
-				<div class="col-lg-5">
-					<div class="btn-group"></div>
+				<div class="col-lg-5 text-right">
+					<div class="btn-group">
+						{% if object %}
+						<button class="btn btn-default" type="button" onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.anterior.pk %}','Oficina / {{ object.anterior.nombre }}');">
+							<span class="glyphicon glyphicon-step-backward"></span>
+						</button>
+						<button class="btn btn-default" type="button" onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.siguiente.pk %}','Oficina / {{ object.siguiente.nombre }}');">
+							<span class="glyphicon glyphicon-step-forward"></span>
+						</button>
+						{% endif %}
+					</div>
 				</div>
 			</div>			
 			<div class="row">
@@ -107,6 +81,16 @@
 					</div>
 				</div>
 			</div>
+
+		</div>
+
+	</div>
+	<div class="row">
+		<div class="col-lg-12 text-right">
+			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+			<button type="button" class="btn btn-default" onclick="return cerrar_modal()">
+				Cancelar
+			</button>
 		</div>
 	</div>
 </form>
