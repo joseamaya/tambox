@@ -60,6 +60,15 @@ class Trabajador(TimeStampedModel):
         sig = Trabajador.objects.siguiente(self)
         return sig.pk
 
+    def anterior_nombres_apellidos(self):
+        ant = Trabajador.objects.anterior(self)
+        return ant.nombres +" "+ ant.apellido_paterno + " " + ant.apellido_materno
+
+    def siguiente_nombres_apellidos(self):
+        sig = Trabajador.objects.siguiente(self)
+        return sig.nombres +" "+ sig.apellido_paterno + " " + sig.apellido_materno
+
+
     @property
     def puesto(self):
         try:

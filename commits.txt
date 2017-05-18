@@ -1,0 +1,1134 @@
+commit 873c08fc11f8ed5ffffc43e026fff12d3a70066d
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Tue May 16 22:43:08 2017 -0500
+
+    Unificando todas las operaciones en el template de oficinas
+
+commit 8ef4ece043db4a6b78d05a49e676dfe0beb470ca
+Merge: f184936 3f95ac3
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue May 16 21:16:53 2017 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit f18493696e7af6a7bb6399a1dbb740e1c500afe6
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue May 16 21:16:45 2017 -0500
+
+    Haciendo la creacion de oficinas en un modal
+
+commit 3f95ac37b4944cb65e1faab6d45733748fca3929
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Tue May 16 17:15:18 2017 -0500
+
+    Ventana modal - Productores
+
+commit 98ced1a286b8fcd0b25aae6d37c2d515375bfbf3
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon May 15 18:48:27 2017 -0500
+
+    Haciendo modal el detalle de la oficina
+
+commit abd0d5b7785b31ba7beb3ed9d51debffc34d6ac4
+Author: Oliver <barsa_real_31@hotmail.com>
+Date:   Mon Apr 24 17:20:08 2017 -0500
+
+    Inventario terminado, por revision
+
+commit 5eb7b3e4920002b94a69d9fb1f6eac9da04cf66a
+Author: Oliver <barsa_real_31@hotmail.com>
+Date:   Sun Apr 23 14:35:05 2017 -0500
+
+    Cambios menores a Inventario
+
+commit 16f20aee63aa92d13ebc215b05a614c8f5cd52c3
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Sat Apr 22 23:05:35 2017 -0500
+
+    Reporte de inventario Excel - Avance 2
+
+commit 3e4a563b1aec840a947edab0eddb75e70c770dfa
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Sat Apr 22 00:46:54 2017 -0500
+
+    Reporte de inventario Excel - Avance 1
+
+commit db1a9f9e5786dd4f97db816e28e39162f29f7ef8
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 21 09:18:31 2017 -0500
+
+    Corrigiendo redondeos en reporte de stock
+
+commit e3c8a2f82acc4ac9c358e797b0e7a52de5fc3dad
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 21 09:05:03 2017 -0500
+
+    Agregando valor al reporte de stock
+
+commit 0ed11a8fc968098164f2cf303bbc697f854064a4
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 21 08:59:06 2017 -0500
+
+    Agregando precio al reporte de stock
+
+commit 742825033d072b8ffc6a793bfea16bd01139e203
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 21 08:26:39 2017 -0500
+
+    Corrigiendo error de reporte kardex de consolidado de productos en excel
+
+commit 0988d02b021f95b6515ec878a70c30d9f29f721b
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Apr 19 14:04:27 2017 -0500
+
+    Corrigiendo error de redondeo en reproceso de precios
+
+commit 1fc4af26bf0fd92b9005f2a7567b76f3ad5e8c1a
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Apr 19 11:47:12 2017 -0500
+
+    Redondeando a dos decimales el reporte consolidado por grupos
+
+commit b1d4f11dbe67131ee232950827971c9f5d7e3b12
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Apr 19 11:29:06 2017 -0500
+
+    Redondeando a dos decimales el reporte consolidado por productos
+
+commit cfebdd5caa07bb8eac13406b25292e7036867804
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Apr 18 23:05:12 2017 -0500
+
+    Kardex aproximado a dos decimales
+
+commit eb0cc4b2f709eff8017cab5b60d16273aefeee8b
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Apr 17 18:29:01 2017 -0500
+
+    Obteniendo kardex solamente de aquellos productos que han tenido movimientos
+
+commit ec87b8067b7c48d8b4be74d67b2d2d73a50fe3fd
+Author: Oliver <barsa_real_31@hotmail.com>
+Date:   Mon Apr 17 13:50:19 2017 -0500
+
+    Total de páginas Formato para SUNAT, unidades físicas y valorizado 2.1
+
+commit e65351a6638d24e2e72c0c8c993f5bcd329e409c
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Mon Apr 17 13:34:43 2017 -0500
+
+    Total de páginas Formato para SUNAT, unidades físicas y valorizado
+
+commit 7e48df0012c4373594cbb1218b3b1d38179fdc43
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Apr 17 11:13:00 2017 -0500
+
+    Fijando encabezados en kardex valorizado y de unidades fisicas formato sunat
+
+commit 0fa84125dc99567cf51d34f25da769cb9487289c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Apr 17 10:36:41 2017 -0500
+
+    Agregando numeracion a los kardex valorizados y de unidades fisicas para sunat
+
+commit 1da71255e2ac9a8fce6035bc3a7b93eee42b620e
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Apr 17 10:13:19 2017 -0500
+
+    Agregando la fecha al saldo inicial
+
+commit c2f199ecf64e6c644c2c5bd5e0feb1763ba653f8
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Apr 17 08:45:10 2017 -0500
+
+    Agregando codigo de sunat a la unidad de medida
+
+commit b45baefbf99bc1090f02592b7d15eaa34e84b9f9
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 23:53:11 2017 -0500
+
+    Corrigiendo errores del resumen mensual por grupos
+
+commit d9de12dee4b7d6bbe72b5db9b40d311695e2e883
+Merge: 0633a03 2ab5e8a
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 23:20:09 2017 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 0633a03dcddd898d8e6148e63ec25c5979118178
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 23:20:02 2017 -0500
+
+    Obteniendo los reportes en pdf listos para su descarga
+
+commit 2ab5e8a6e7819f772356e528fdb561f8ee181e4c
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Sun Apr 16 23:15:52 2017 -0500
+
+    Total de páginas reportes mensuales de almacén por productos, grupos y cuentas
+
+commit 6a96e5b7a1440f48eba728382c4d1dde120b7b45
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 22:48:11 2017 -0500
+
+    Agregando header al reporte mensual de almacen por productos
+
+commit a4a2acb62d2f923a46d93b72cf05a12ec1868af7
+Merge: 67868a2 70035c2
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 22:03:38 2017 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 67868a238352e1427cf1e45078bd6d3a6cf20a9a
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 22:03:30 2017 -0500
+
+    Agregando header al reporte mensual de almacen por grupos y cuentas
+
+commit 70035c222aafdacbfab54fe81038fd340b8076a6
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Sun Apr 16 21:56:52 2017 -0500
+
+    Agregando totales al consolidado mensual por Productos
+
+commit b82c52330233aa0ba7d178052930256b7a4610fc
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Apr 16 19:47:04 2017 -0500
+
+    Agregando totales al consolidado mensual por grupos y cuentas
+
+commit 753a3cbc7400fc9448a25fdb387e166c78c43c40
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Apr 15 12:16:15 2017 -0500
+
+    Cambio de nombre en reporte agrupado de productos
+
+commit 5f65ab9035f33f2c14a2c1880d023e3ddb552383
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Apr 15 11:08:21 2017 -0500
+
+    Agregando campos a los reportes de productos y grupos consolidados
+
+commit cd9c167df5308fc81301aae4e4c785e25c62e1ff
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Sat Apr 15 04:43:11 2017 -0500
+
+    Cabecera con imagen y pie de página para Reporte Consolidado Grupos y Productos PDF
+
+commit 667acc6c445ae0848a1246e26f8a3c46ffe15b45
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sat Apr 15 00:11:02 2017 -0500
+
+    Refactorizando reporte Kardex en Excel
+
+commit 518234ad600c2db41807eb22d7613b4a13043c1c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 14 23:44:11 2017 -0500
+
+    Refactorizando reporte Kardex en Excel
+
+commit 1c9396003522e1524775b22c6a786a7e84800d49
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 14 22:38:25 2017 -0500
+
+    Refactorizando reporte Kardex en PDF
+
+commit ee9236a26628664acdee1ca0dcc7230423c04459
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 14 21:59:12 2017 -0500
+
+    Corrigiendo y mejorando detalles de los reportes en PDF
+
+commit 5beace5cd90852f957accef12bd867db7811ee60
+Merge: 75ac2f2 5b5bd47
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 14 21:45:52 2017 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 75ac2f292fef3026e4d71769b60997c53347a37c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Apr 14 21:45:44 2017 -0500
+
+    Corrigiendo y mejorando detalles de los reportes en PDF
+
+commit 5b5bd470e0bce39e19e285a37fba0e6a3cdeca50
+Author: Oliver <barsa_real_31@hotmail.com>
+Date:   Fri Apr 14 12:42:55 2017 -0500
+
+    Reporte Consolidado del Kardex de Productos en PDF parte 2.1
+
+commit 764398713f8ac54b62cd66a0c0fc7c42855ed82f
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Fri Apr 14 12:16:17 2017 -0500
+
+    Reporte Consolidado Cuentas Contables o Grupos de Productos - Regreso local.py
+
+commit 9f98a632918dcf3e17f56c684ace68b857851b1d
+Author: Oliver <barsa_real_31@hotmail.com>
+Date:   Fri Apr 14 12:09:31 2017 -0500
+
+    Reporte Consolidado del Kardex de Productos en PDF parte 2
+
+commit 879401db70efc7117106d12b6836e0491834a748
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Fri Apr 14 11:53:07 2017 -0500
+
+    Reporte Consolidado Cuentas Contables o Grupos de Productos - Parte 1
+
+commit 82956e6a7b2ec61a57b791e84a86374eb6f6431f
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Fri Apr 14 05:42:06 2017 -0500
+
+    Reporte Consolidado del Kardex de Productos en PDF
+
+commit 782abac99f2392826a9fcdc7a81bcdbd803d2e60
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Apr 13 20:05:11 2017 -0500
+
+    Reporte del Inventario Permanente Valorizado todos los productos completado
+
+commit f3648026a42bff9f7be6360fa1332df3bbb3d49d
+Merge: 8dc312f 9541f05
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Apr 13 18:28:45 2017 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 8dc312f9fcce411e373fd620e5efced05223c215
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Apr 13 18:28:32 2017 -0500
+
+    Reporte del Inventario Permanente Valorizado por producto completado
+
+commit 9541f05780b8751c9d2510287e74fdeb5ca9802d
+Author: Joel Eche <joel.eche5@gmail.com>
+Date:   Thu Apr 13 15:40:11 2017 -0500
+
+    Orden de compra en Excel
+
+commit ed0b36ea5f1a332f0cce8295db89ee23ad371b5c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Apr 13 11:20:15 2017 -0500
+
+    Reporte del Inventario Permanente en Unidades Fisicas todos los productos en PDF
+
+commit f8292f23daa8303c2aa2c94697af9ebf0877e0cf
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Apr 13 10:04:41 2017 -0500
+
+    Corrigiendo error en el registro del inventario permanente en unidades fisicas
+
+commit 4e63a90ed79e87d6de96e2354a6065e6d1c486e1
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Apr 11 21:57:30 2017 -0500
+
+    Reporte en PDF Registro del Inventario Permanente en Unidades Fisicas finalizado
+
+commit 7a01b605dda3307a129e70c8da8dd5460882339e
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Apr 11 18:13:51 2017 -0500
+
+    Iniciando reporte en PDF Registro del Inventario Permanente en Unidades Fisicas
+
+commit b26f59dba2b64941305b557006ea64072042b28f
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Apr 11 18:01:57 2017 -0500
+
+    Iniciando reporte en PDF Registro del Inventario Permanente en Unidades Fisicas
+
+commit dfaeaa73d9cec9061c3218fbaaf4bbd41e53284a
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Apr 11 00:10:00 2017 -0500
+
+    Paginando resultados en stock de productos
+
+commit 454a454af9556f93bb5aecaa8f1e17037adffc50
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 22 22:56:17 2017 -0500
+
+    Importacion de productores
+
+commit a6511d24597caace93cac6128b24dd7dbe206d03
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 22 22:49:15 2017 -0500
+
+    Importacion de productores
+
+commit d5f693d24f33f48879f9d985268c372827791a7f
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Mar 17 23:49:31 2017 -0500
+
+    Correccion de stock, ahora funciona con ajax
+
+commit fa20cefcfb1abd4311c6b36b429a339d68cd3080
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Mar 17 19:21:06 2017 -0500
+
+    Inventario permanente valorizado
+
+commit 2a00efe90007721402bc20bfc9f4af160538e575
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 15 13:35:15 2017 -0500
+
+    Corrigiendo problemas con eliminacion de movimientos que mantenian los kardex en la base de datos
+
+commit d9a26cf86e5f14e48e97cb9466eacee62f5263da
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Mar 14 22:14:28 2017 -0500
+
+    Corrigiendo modificacion de ingresos al almacen
+
+commit 12bdf5bcc0db069117a074a3f2847e530f4d1a21
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Mar 13 17:34:46 2017 -0500
+
+    Corrigiendo error en demas reportes de movimientos, ahora ya toma correctamente la fecha final(hasta)
+
+commit b2766223116bfce93281c756ea897f8b3e9cd64c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Mar 13 17:20:23 2017 -0500
+
+    Corrigiendo error en kardex, ahora ya toma correctamente la fecha final(hasta)
+
+commit 458f05fde86adca1e8362098121354405771d32d
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Mar 11 11:02:49 2017 -0500
+
+    Autocompletado de receptores en salidas de almacen
+
+commit 46df0ebbaaec6447e2739a97d5350254ad91e548
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Mar 9 23:06:11 2017 -0500
+
+    Agregando soporte para productores en el proyecto
+
+commit 34be80024ab356d1b69bb69aa4f02785afa147fc
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 8 15:27:58 2017 -0500
+
+    Agregando receptor en movimiento de salida
+
+commit a0bc6d71121806a8036b36a6ec327f75eb35e026
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Mar 4 13:08:24 2017 -0500
+
+    Corrigiendo funcionamiento del tipo de cambio en el ingreso a almacen
+
+commit 5581331e1522c5a9bdc2a7f346b345aa68ba3064
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Mar 3 23:53:56 2017 -0500
+
+    Corrigiendo reportes
+
+commit b42d6ac71807e23a0e2b88e0df359b82c9fbd224
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Mar 3 20:18:16 2017 -0500
+
+    Corrigiendo reportes
+
+commit 74e8802963cb1d59445f4db9d596e2e0433a339c
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Mar 2 15:08:57 2017 -0500
+
+    Conversion a dolares de manera automática de orden de compra a movimiento de almacen
+
+commit 5dd6548cb8eee5088b5963569eb6f61c82035891
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 1 13:34:08 2017 -0500
+
+    Correccion de errores en modificar salida
+
+commit 96155f889dd2f15f6c7d4be13653bc993235d349
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 1 13:27:17 2017 -0500
+
+    Correccion de errores en modificar salida
+
+commit 5e0bfd864bb4b0c296e3e37d136b38998616ddea
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Mar 1 13:04:48 2017 -0500
+
+    Correccion de errores en modificar salida
+
+commit 76e2c39ad3b48ac284d6c02606336250f240231e
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Mon Feb 27 09:05:19 2017 -0500
+
+    Nueva forma de trabajo con las claves primarias
+
+commit ab9a8eb3389ec3655a3309f1bd43fb890e8182e1
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Feb 23 19:37:07 2017 -0500
+
+    Se agrego soporte para dolares en el template de la orden de compra
+
+commit cf31a1882a3bab4c705148a606344b3a9c5e2a9a
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Feb 23 19:29:24 2017 -0500
+
+    Agregando tipo de cambio
+
+commit 2ffbedf158f5beab95ce32a4830a29573072fb9f
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Feb 22 19:04:22 2017 -0500
+
+    Soporte para carga de inventario inicial donde no se incluya el precio, solamente el valor
+
+commit 32cc47493eca1eef629b351f73bf8e239073dbd9
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 21 18:33:15 2017 -0500
+
+    Corrigiendo reportes de generacion de Kardex
+
+commit 064c5a7762d039145839bff49a6baf3a5c1bbc54
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 21 16:06:03 2017 -0500
+
+    Corrigiendo errores en la salida
+
+commit d0c7ac8f9db70d1e04d6d9556d56aedbba082419
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Feb 19 13:42:59 2017 -0500
+
+    Solucionado el problema con los decimales en la nota de ingreso
+
+commit 531cf5146dd2a4cb1d988984c19b087442d27f67
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sun Feb 19 11:58:17 2017 -0500
+
+    Ya actualiza los registros cuando se da click en el check Con Impuesto
+
+commit 4127300a2858ad9d10470f6e21e0cfce4e18201f
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Feb 18 13:18:02 2017 -0500
+
+    Corrigiendo errores orden de compra, calculo de igv
+
+commit a7f3353dd7ab5c75780c47735cb87d1d1e197d16
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Feb 11 12:32:16 2017 -0500
+
+    Los precios en la orden de compra ahora estan sin IGV
+
+commit 0e41ead0f636a6667921c8b4f01c705da3631c7e
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Feb 11 12:27:39 2017 -0500
+
+    Los precios en la orden de compra ahora estan sin IGV
+
+commit 5c82b933939273b38d9313f039a0cef83ac05401
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Thu Feb 9 17:32:16 2017 -0500
+
+    Eliminando descripcion abreviada de productos
+
+commit a5fd799a28f22944a6f614cc9832fb75c182a215
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 22:25:27 2017 -0500
+
+    Volviendo a agregar el gitignore
+
+commit 4e0e933a766c6033debf6ef302209f4bc4317fa0
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 22:23:01 2017 -0500
+
+    Volviendo a agregar el gitignore
+
+commit ce45c0b4c6031d57641af95ce145280131c1e32a
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 22:20:54 2017 -0500
+
+    Volviendo a agregar el gitignore
+
+commit 115780f657eb027635a391483101ab5e3dcd6ba9
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 19:04:57 2017 -0500
+
+    Corrigiendo errores de carga de inventario inicial}
+
+commit 374eea158d35709058b625495f35ca1cd6816387
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 10:09:33 2017 -0500
+
+    Reordenando estructura
+
+commit 3586c97c01165f95c643441cd57d1b2ab2e1e7d5
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 10:08:39 2017 -0500
+
+    Corrigiendo errores de carga de inventario inicial.
+
+commit a4470f59c6fe168721a1a511f77d1794ae2147fd
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 10:07:42 2017 -0500
+
+    Corrigiendo errores de carga de inventario inicial.
+
+commit 360e55b16adef6ca5e4e6b44c16942fff500a97f
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 10:04:11 2017 -0500
+
+    Corrigiendo errores de carga de inventario inicial.
+
+commit a21cdd68979d7dbfeb251d60dded78caeef2861c
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Feb 7 09:57:26 2017 -0500
+
+    Corrigiendo errores de carga de inventario inicial.
+
+commit ffd82d1930428aed69dc603342d1c50db3d86bdb
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Wed Jan 4 18:49:39 2017 -0500
+
+    Agregando guardado de historial de cambios en todos los modelos.
+
+commit 45d0b2728a212fc35f1880f0d3632fce23a93642
+Merge: 027608b 4be391b
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Jan 3 18:35:40 2017 -0500
+
+    Merge remote-tracking branch 'origin/master'
+
+commit 027608b6d9bec40df1a617cbb095e11be83d1802
+Author: Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Tue Jan 3 18:33:55 2017 -0500
+
+    Modificando gitignore.
+
+commit 4be391b1034895ad6a4314fd7bbc7923ed4ff70b
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sun Dec 25 21:30:05 2016 -0500
+
+    Actualizando requirements.txt
+
+commit b502c725719eb95909c57f51ead44d202753ee6c
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sun Dec 25 20:43:04 2016 -0500
+
+    Unificando reportes de kardex y estableciendo niveles de aprobación.
+
+commit daf939d4af81205b96cbd3fe91afd68e0eedae3f
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 23:17:44 2016 -0500
+
+    Atrapando excepción de instancias no creadas.
+
+commit 3c6ca3cbbca2aa95d774310cd1e161ebe4b18919
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 23:09:36 2016 -0500
+
+    Atrapando excepción de instancias no creadas.
+
+commit 873caae8c18232492d8b48580d8e091dd3af3ff5
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 23:03:27 2016 -0500
+
+    Atrapando excepción de instancias no creadas.
+
+commit d18fc79e68db060a621098e0854166839e9c1d32
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 22:59:32 2016 -0500
+
+    Atrapando excepción de instancias no creadas.
+
+commit ee6dad581dcb30cccadc2002b7bcd822781faac9
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 22:50:49 2016 -0500
+
+    Atrapando excepción de instancias no creadas.
+
+commit 7512f5843748511f6fd1fc98d1a027bfb554ff86
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Sat Nov 26 00:34:14 2016 -0500
+
+    Agregando generación manual de órdenes de compra y servicios.
+
+commit 5e5fa89e84805a46dc4081acaa1638afc8b18ebf
+Merge: 28aedaf 80535c9
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Fri Nov 25 23:53:42 2016 -0500
+
+    Merge remote-tracking branch 'origin/master'
+    
+    # Conflicts:
+    #       .idea/misc.xml
+    #       .idea/tambox.iml
+    #       administracion/forms.py
+    #       administracion/urls.py
+    #       administracion/views.py
+    #       almacen/forms.py
+    #       almacen/mail.py
+    #       almacen/managers.py
+    #       almacen/models.py
+    #       almacen/urls.py
+    #       almacen/views.py
+    #       compras/forms.py
+    #       compras/models.py
+    #       compras/querysets.py
+    #       compras/urls.py
+    #       compras/views.py
+    #       contabilidad/behaviors.py
+    #       contabilidad/migrations/0001_initial.py
+    #       contabilidad/querysets.py
+    #       contabilidad/views.py
+    #       productos/querysets.py
+    #       productos/urls.py
+    #       productos/views.py
+    #       requerimientos/forms.py
+    #       requerimientos/mail.py
+    #       requerimientos/migrations/0001_initial.py
+    #       requerimientos/models.py
+    #       requerimientos/querysets.py
+    #       requerimientos/reports.py
+    #       requerimientos/views.py
+    #       seguridad/views.py
+    #       tambox/mail.py
+    #       templates/requerimientos/detalle_requerimiento.html
+    #       templates/requerimientos/requerimiento.html
+
+commit 28aedaf33bbacddddc263781c62ef827579555ed
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Fri Nov 25 23:52:56 2016 -0500
+
+    Agregando generación manual de órdenes de compra y servicios.
+
+commit 80535c9735ceaa0463c5d7b20417ebed3b5e770f
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Fri Nov 11 19:20:09 2016 -0500
+
+    Modificando requerimientos.
+
+commit 6aeb155338d559ffa8f2797a96caa52c9a0e6cf0
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Nov 4 18:42:58 2016 -0500
+
+    Modificando requerimientos.
+
+commit 140921eab7d499fad9390b121ca29eb070af5130
+Merge: 2bc88eb e9f17a9
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Oct 31 17:43:59 2016 -0500
+
+    Merge remote-tracking branch 'origin/master'
+    
+    # Conflicts:
+    #       .idea/inspectionProfiles/Project_Default.xml
+    #       .settings/org.eclipse.core.resources.prefs
+    #       administracion/models.py
+    #       administracion/tests.py
+    #       almacen/mail.py
+    #       almacen/migrations/0001_initial.py
+    #       almacen/models.py
+    #       almacen/tests.py
+    #       almacen/views.py
+    #       compras/models.py
+    #       compras/tests.py
+    #       compras/views.py
+    #       contabilidad/migrations/0001_initial.py
+    #       contabilidad/models.py
+    #       contabilidad/tests.py
+    #       contabilidad/views.py
+    #       productos/forms.py
+    #       productos/migrations/0001_initial.py
+    #       productos/models.py
+    #       productos/tests.py
+    #       productos/views.py
+    #       requerimientos/admin.py
+    #       requerimientos/forms.py
+    #       requerimientos/mail.py
+    #       requerimientos/models.py
+    #       requerimientos/tests.py
+    #       requerimientos/urls.py
+    #       requerimientos/views.py
+
+commit 2bc88ebf2e8d235616b974afa472a54a14b95e4f
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Oct 31 17:42:28 2016 -0500
+
+    Actualizando a Django 1.10
+
+commit e9f17a99ae159a2564d9d49b70e2b15e79a1edf0
+Author: Miguel Amaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 28 23:23:58 2016 -0500
+
+    Creación de tests.
+
+commit 40a5aeb89343d5d8607fd72212241e0305ae7b69
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Sat Oct 22 13:21:05 2016 -0500
+
+    Corrigiendo errores.
+
+commit 96d0657c9847df719428261b22dd5f376bc43245
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 21 15:36:40 2016 -0500
+
+    Creando reportes para SUNAT
+
+commit 4b8f487dbacc488f396e41411c74f34b8b574d81
+Merge: 4a7cc96 f09b1db
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 18 15:55:37 2016 -0500
+
+    Modificando almacén.
+
+commit 4a7cc96f27a781aa997e856f905913e870d1006a
+Merge: db677df f1e60c3
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 18 15:22:32 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            .settings/org.eclipse.core.resources.prefs
+            compras/views.py
+            contabilidad/migrations/0001_initial.py
+            requerimientos/models.py
+            templates/almacen/crear_pedido.html
+            templates/compras/cotizacion.html
+
+commit f09b1dbbac6c0a583b67936673e05b4df168fd83
+Merge: db677df f1e60c3
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 18 15:22:32 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            .settings/org.eclipse.core.resources.prefs
+            compras/views.py
+            contabilidad/migrations/0001_initial.py
+            requerimientos/models.py
+            templates/almacen/crear_pedido.html
+            templates/compras/cotizacion.html
+
+commit db677dfd903988c8b9948f922474d3a971dc1d89
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 11 19:28:11 2016 -0500
+
+    Unificando templates.
+
+commit f1e60c3d7a35c1c478d90c35dce56747807de13a
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 11 19:28:11 2016 -0500
+
+    Configurando parámetros de envío de correo en ejecución.
+
+commit 14c2067532d71f647450d3d152a8162240be39ff
+Merge: 8e24950 75bfa9b
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Oct 10 09:10:21 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 8e24950ce7e1aefc2ecb21dea48d5edfef0f9699
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Oct 10 08:48:28 2016 -0500
+
+    Corrigiendo permisos.
+
+commit 75bfa9b9e11a372a42246a95f647ac483ed82a14
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Oct 10 08:48:28 2016 -0500
+
+    Corrigiendo permisos.
+
+commit b3fdb13ee9899fddc8c5313b3052ee5fefbfa894
+Merge: 6a009f6 3aa045e
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 17:38:09 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 6a009f6744d7a222fd32e8d9c91498f8eac97c73
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 12:37:07 2016 -0500
+
+    Configurando locale es-PE
+
+commit 3aa045e4253b87a7b7d2a6291eabcfebf818afaa
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 12:37:07 2016 -0500
+
+    Configurando locale es-PE
+
+commit 29127178f4e00ec92ea54b6cd0a37e5ac3688254
+Merge: 5657a41 923d48b
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 11:49:25 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit 5657a410de7f2bd0162972ad4022d4155b4ea659
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 10:18:30 2016 -0500
+
+    Corregido error que no mostraba datos del proveedor en la O.C
+
+commit 923d48bf3b15d9ae539c54dd87b571506f7b7a76
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Oct 7 10:18:30 2016 -0500
+
+    Corregido error que no mostraba datos del proveedor en la O.C
+
+commit b99e730638b9ed7d7fbf8e0e493d0ec13cb65a32
+Merge: 3e52b71 3f249f1
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Oct 6 18:46:49 2016 -0500
+
+    Cambiar la plantilla padre de las plantillas de productos.
+
+commit 3e52b717a88e970af1cc07c14ba167b4b5e6e42a
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Oct 6 18:46:49 2016 -0500
+
+    Cambiar la plantilla padre de las plantillas de productos.
+
+commit 3f249f1b6474ef2df72d20c78e6d0646f0e231a6
+Merge: a1cab6e 52fff56
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Oct 6 16:44:44 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit a1cab6ef562a737aeea60b143ef55ed539e54908
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Oct 6 11:29:42 2016 -0500
+
+    Agregando dirección a los reportes del módulo de compras y almacén.
+
+commit 52fff568efe852f2d5d7d2c6bbfa2417865647c8
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Oct 6 11:29:42 2016 -0500
+
+    Validando guardado de requerimientos.
+
+commit d2e2da347b49fa84f588bb6ec435a5bf2a173a09
+Merge: c611ba7 47106d1
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 19:28:07 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            templates/base.html
+
+commit c611ba7871432ae63382c52a8dff336b71d74278
+Merge: b444cce 566b746
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 15:30:49 2016 -0500
+
+    Modificar creación de detalle de requerimiento.
+
+commit 47106d1c884f701b7c34c92788939da806766429
+Merge: b444cce 566b746
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 15:30:49 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            templates/base.html
+
+commit b444ccee0a4420e7297667bc3aafc32b4e99bdb1
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 12:00:22 2016 -0500
+
+    Restringiendo acceso a módulos.
+
+commit 566b746ba813d942ec6ec7f0730cd4a48dd9452b
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 12:00:22 2016 -0500
+
+    Restringiendo acceso a módulos.
+
+commit 9f307c8fb979fab1dc1070d29bcf856e9833ae7d
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 11:02:41 2016 -0500
+
+    Atrapar excepciones en caso de que no haya logo de la empresa.
+
+commit 14f6b21a153376e0a97a5585e8e447be96414f00
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Oct 5 10:22:27 2016 -0500
+
+    Modificando posición de dirección en los reportes.
+
+commit 4200ab677ad43291d9445af81779e967f3e9ea33
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 4 19:30:07 2016 -0500
+
+    Modificando carga de impuesto actual en orden de compra.
+
+commit 55bf3cf5c64def814e21067c50c55a6696d3316b
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Oct 4 19:00:34 2016 -0500
+
+    Unificando plantillas de trabajador.
+
+commit 953b7b60391cfa89db767f2c62cfe10919a074a6
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Sep 30 18:33:28 2016 -0500
+
+    Validando existencia de impuesto en configuración antes de crear orden
+    de compra.
+
+commit d788a34c1e56bc30fb8385a35b3c36a62aa45e91
+Merge: c8b1bc1 b9ea75e
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Sep 30 17:22:50 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit c8b1bc1312c942abb31113248b459f2fc5675861
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Sep 30 16:47:27 2016 -0500
+
+    Envío de correo.
+
+commit b9ea75e69f8fdce5da6635deadfd107d0807f40d
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Fri Sep 30 16:47:27 2016 -0500
+
+    Envío de correo.
+
+commit 07de6ca56bd6a4e850cdc974aa9f8ff75221e397
+Merge: c627751 d864fee
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 17:35:36 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+
+commit c62775188e1f1945b226ba6523693fdecf9561f6
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 12:53:06 2016 -0500
+
+    Corrigiendo carga de cuentas contables y grupo de productos.
+
+commit d864fee4f15eb9b288e2b5729c859227dafe43dc
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 12:53:06 2016 -0500
+
+    Agregando imagenes faltantes a JQuery DataTables.
+
+commit 1f3714c5d70381ae33a914d0136b1ec62c6d55ab
+Merge: 2dc28e1 cda1584
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 12:39:14 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            Procfile
+            tambox/settings/heroku.py
+
+commit 2dc28e1aaf1d8d15968c0f5f022d822e73dd2b59
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 12:29:55 2016 -0500
+
+    Preparando archivos para deploy en heroku
+
+commit cda1584537dc8aaedd8b625db41ad61fe4f94e80
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Thu Sep 29 12:29:55 2016 -0500
+
+    Preparando archivos para deploy en heroku
+
+commit 93d603f61756fb933a7574546e830498b2e0b111
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Sep 28 17:42:58 2016 -0500
+
+    Reporte Kardex Consolidado
+
+commit db86cbc9c4e45df2a570f4f2f3edaf6ffc184f70
+Merge: 579da73 c7104f1
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Sep 28 17:31:04 2016 -0500
+
+    Merge branch 'master' of https://github.com/joseamaya/tambox
+    
+    Conflicts:
+            .settings/org.eclipse.core.resources.prefs
+            almacen/views.py
+            templates/almacen/detalle_movimiento.html
+
+commit 579da73d138da7061cc179995df03714195bb96d
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Sep 28 17:13:20 2016 -0500
+
+    Reporte Kardex Consolidado
+
+commit e582f2b72d4dd69a469724464a0c1c35c025da3b
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Wed Sep 28 11:49:10 2016 -0500
+
+    Cargar grupo de productos.
+
+commit 36baaf8c30ffbeeaf26113623923fb260ca87fe5
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Sep 27 18:21:25 2016 -0500
+
+    Corrigiendo eliminación de movimientos y carga de inventario inicial.
+
+commit c7104f1d41d59b84c5802748481c7054407375bc
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Sep 27 18:21:25 2016 -0500
+
+    Corrigiendo eliminación de movimientos y carga de inventario inicial.
+
+commit 1db2e442ccf810a7cc1c965b466bc1201bcbf981
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Tue Sep 27 11:55:52 2016 -0500
+
+    Ingreso de orden de compra con detalles sin referencia.
+
+commit 3bc98e8630df730f69dd7fe3fe646ddec1b70132
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Sep 26 17:30:29 2016 -0500
+
+    Orden de compra sin referencia.
+
+commit 7530964554f2ccc8370671aa9449ee21a212de6d
+Author: joseamaya <miguel.amaya99@gmail.com>
+Date:   Mon Sep 26 12:11:23 2016 -0500
+
+    Reorganización de templates.
+
+commit b7634bfd092b1aa36b50f919c12ad292453ee148
+Author: miguel <miguel@illary>
+Date:   Mon Sep 26 07:29:57 2016 -0500
+
+    Agregando datos de empresa.
+
+commit 643b1832df610f429b4d09bf5dc4a9875e0d1d33
+Author: miguel <miguel@illary>
+Date:   Sat Sep 24 22:46:53 2016 -0500
+
+    Corrigiendo errores menores.
+
+commit 1d62a3c71f0a470ea5e4cd7d66646e787ceb5932
+Author: miguel <miguel@illary>
+Date:   Sat Sep 24 22:36:27 2016 -0500
+
+    Eliminando archivos.
+
+commit 7ff92c2d5f48679c6f7dd55e1e0e80835dfd48eb
+Author: miguel <miguel@illary>
+Date:   Sat Sep 24 22:33:24 2016 -0500
+
+    Configuración de empresa.
+
+commit e7bd1ea86190b9e48c70a9fb2d0e8efa8758c7a0
+Author: miguel <miguel@illary>
+Date:   Sat Sep 24 21:53:32 2016 -0500
+
+    Infraestructura del proyecto.
+
+commit 78aa2c7d202324022c73d89dace6789b6bef942f
+Author: José Miguel Amaya Camacho <miguel.amaya99@gmail.com>
+Date:   Sat Sep 24 16:32:42 2016 -0500
+
+    Initial commit

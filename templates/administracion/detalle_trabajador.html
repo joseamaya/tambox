@@ -1,5 +1,4 @@
-{% extends "administracion/base_administracion.html" %} {% block cuerpo %}
-<h3>Trabajadores / {{ object.nombre_completo }}</h3>
+
 <div class="row">
 	<div class="col-lg-10">
 		{% if perms.administracion.change_trabajador %} <a
@@ -13,11 +12,11 @@
 	<div class="col-lg-2 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'administracion:detalle_trabajador' object.anterior %}';">
+				onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.anterior %}','Trabajador / {{ object.anterior_nombres_apellidos }}');">
 				<span class="glyphicon glyphicon-step-backward"></span>
 			</button>
 			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'administracion:detalle_trabajador' object.siguiente %}';">
+				onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.siguiente %}','Trabajador / {{ object.siguiente_nombres_apellidos }}');">
 				<span class="glyphicon glyphicon-step-forward"></span>
 			</button>
 			<button class="btn btn-default" type="button"
@@ -59,22 +58,22 @@
 						<label>APELLIDO PATERNO:</label>
 						<p>{{ object.apellido_paterno }}</p>
 						<label>APELLIDO MATERNO:</label>
-						<p>{{ object.apellido_materno }}</p>						
+						<p>{{ object.apellido_materno }}</p>
 					</div>
 					<div class="col-lg-4">
 						<label>NOMBRES:</label>
 						<p>{{ object.nombres }}</p>
-						<label>PROFESIÓN:</label> 
+						<label>PROFESIÓN:</label>
 						{% if object.profesion %}
 						<p>{{ object.profesion }}</p>
 						{% else %}
 						<p></p>
-						{% endif %} 
-						<label>FIRMA:</label> 
-						{% if object.firma %} 
-						<a href="{{ object.firma.url }}" class="thumbnail"> 
+						{% endif %}
+						<label>FIRMA:</label>
+						{% if object.firma %}
+						<a href="{{ object.firma.url }}" class="thumbnail">
 							<img src="{{ object.firma.url }}" alt="Firma Trabajador" style="width: 120px; height: 90px">
-						</a> 
+						</a>
 						{% endif %}
 					</div>
 					<div class="col-lg-4">
@@ -102,11 +101,3 @@
 		</div>
 	</div>
 </div>
-
-{% endblock cuerpo %} {% block js %}
-<script>
-	$(document).ready(function() {
-
-	});
-</script>
-{% endblock js %}
