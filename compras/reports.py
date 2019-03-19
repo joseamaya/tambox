@@ -6,7 +6,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY
 from reportlab.platypus import Table
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import cm
+#from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer, ListFlowable
 from reportlab.graphics.shapes import Line, Drawing
 from django.conf import settings

@@ -5,7 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.platypus import Table
 from reportlab.lib import colors
-from reportlab.lib.pagesizes import cm
+#from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer
 from requerimientos.models import DetalleRequerimiento
 from requerimientos.settings import EMPRESA
@@ -17,6 +17,7 @@ from requerimientos.settings import CONFIGURACION, OFICINA_ADMINISTRACION, \
     PRESUPUESTO, LOGISTICA, OPERACIONES
 
 class ReporteRequerimiento():
+
     def __init__(self, pagesize, requerimiento):
         self.requerimiento = requerimiento
         self.buffer = BytesIO()

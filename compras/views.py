@@ -31,7 +31,7 @@ from reportlab.lib import colors
 from reportlab.platypus import Table
 from reportlab.platypus.flowables import ListFlowable
 from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import cm
+#from reportlab.lib.pagesizes import cm
 from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Puesto
 import csv
