@@ -25,8 +25,6 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-from itertools import ifilter
-
 UNIDADES = (
     '',
     'UN ',
@@ -186,7 +184,7 @@ def to_word(number, mi_moneda=None):
     """
     if mi_moneda != None:
         try:
-            moneda = ifilter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
+            moneda = filter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
             if int(number) == 1:
                 entero = moneda['singular']
             else:

@@ -1938,7 +1938,7 @@ class VerificarStockParaPedido(TemplateView):
             except:
                 stock = 0
                 precio = 0            
-            if stock <> 0:                
+            if stock != 0:
                 det = {}
                 det['pedido'] = detalle.id
                 det['codigo'] = detalle.producto.codigo               

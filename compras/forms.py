@@ -148,7 +148,7 @@ class OrdenCompraForm(forms.ModelForm):
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
         for field in iter(self.fields):
-            if field <> 'con_impuesto' and field <> 'dolares':
+            if field != 'con_impuesto' and field != 'dolares':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })

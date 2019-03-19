@@ -310,7 +310,6 @@ class OrdenCompra(TimeStampedModel):
                 aux=int(id_ant[-6:])+1            
             correlativo = str(aux).zfill(6)
             self.codigo = 'OC'+str(anio)+correlativo
-            print self.codigo
         super(OrdenCompra, self).save()
     
     def __str__(self):

@@ -147,7 +147,7 @@ class CargarProductos(FormView):
                 und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
                                                                  defaults={'codigo': cod_und,
                                                                            'descripcion' : fila[2].strip()})
-                if fila[3]<>'':
+                if fila[3]!='':
                     precio = fila[3]
                 else:
                     precio = 0

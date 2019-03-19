@@ -441,7 +441,7 @@ class ReporteExcelOficinas(TemplateView):
                 ws.cell(row=cont, column=5).value = oficina.gerencia.nombre
                 cont = cont + 1
             except:
-                print oficina
+                print(oficina)
         nombre_archivo = "Oficinas.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)

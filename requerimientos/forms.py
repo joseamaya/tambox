@@ -97,7 +97,7 @@ class RequerimientoForm(forms.ModelForm):
         self.fields['observaciones'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
-            if field <> 'entrega_directa_solicitante':
+            if field != 'entrega_directa_solicitante':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })

@@ -1153,8 +1153,6 @@ class ModificarOrdenServicios(UpdateView):
                 #messages.error(self.request, 'Error guardando la Orden de Servicios.')
         
     def form_invalid(self, form, detalle_orden_servicios_formset):
-        print form
-        print detalle_orden_servicios_formset
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
@@ -2157,9 +2155,6 @@ class ReportePDFMemorandoConformidadServicio(View):
         else:
             puesto_gerente = self.obtener_puesto(gerencia_inmediata, conformidad)        
         gerente = puesto_gerente.trabajador
-        print puesto_gerente.trabajador
-        print puesto_jefe_inmediato.trabajador
-        print puesto_solicitante.trabajador
         if puesto_gerente.pk == puesto_jefe_inmediato.pk or puesto_jefe_inmediato.pk == puesto_solicitante.pk:
             pdf.drawString(50, y, u"A           :    "+gerente.nombre_completo())
             y = y-20

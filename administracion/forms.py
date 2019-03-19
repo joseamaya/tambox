@@ -39,7 +39,7 @@ class OficinaForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(OficinaForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field <> 'es_gerencia':
+            if field != 'es_gerencia':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -90,7 +90,7 @@ class PuestoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(PuestoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field <> 'es_jefatura' and field <> 'es_asistente':
+            if field != 'es_jefatura' and field != 'es_asistente':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -111,7 +111,7 @@ class ModificacionPuestoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ModificacionPuestoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field <> 'es_jefatura' and field <> 'es_asistente':
+            if field != 'es_jefatura' and field != 'es_asistente':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })

@@ -91,5 +91,5 @@ class CuentaContableForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CuentaContableForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field<>'divisionaria':
+            if field!='divisionaria':
                 self.fields[field].widget.attrs.update({'class': 'form-control'})

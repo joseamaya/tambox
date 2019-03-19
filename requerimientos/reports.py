@@ -37,7 +37,6 @@ class ReporteRequerimiento():
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except:
-            print u"Ingresa acá  "
             imagen = Paragraph(u"LOGO", sp)
         nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.codigo, sp)
         encabezado = [[imagen, nro, '']]
