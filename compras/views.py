@@ -139,8 +139,8 @@ class CargarProveedores(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             Proveedor.objects.get_or_create(ruc=fila[0],
-                                            defaults={'razon_social':unicode(fila[1], errors='ignore'),
-                                                      'direccion':unicode(fila[2], errors='ignore'),
+                                            defaults={'razon_social': fila[1],
+                                                      'direccion': fila[2],
                                                       'fecha_alta' : datetime.datetime.now(),
                                                       'estado_sunat' : 'ACTIVO',
                                                       'condicion' : 'HABIDO',
@@ -1923,7 +1923,7 @@ class ReportePDFOrdenServicios(View):
         try:
             pdf.drawString(40, 710, u"REFERENCIA: "+orden.cotizacion.requerimiento.codigo+" - "+orden.cotizacion.requerimiento.oficina.nombre)
         except:
-            pdf.drawString(40, 710, u"REFERENCIA: " + unicode(orden.nombre_informe))
+            pdf.drawString(40, 710, u"REFERENCIA: " + orden.nombre_informe)
     
         pdf.drawString(40, 690, u"PROCESO: "+orden.proceso)
         pdf.setFont("Times-Roman", 8)

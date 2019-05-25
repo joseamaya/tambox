@@ -48,8 +48,8 @@ class CargarCuentasContables(FormView):
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
-            CuentaContable.objects.get_or_create(cuenta = unicode(fila[0].strip(), errors='ignore'),
-                                                 defaults={'descripcion': unicode(fila[1].strip(), errors='ignore')})
+            CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
+                                                 defaults={'descripcion': fila[1].strip()})
         return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
     
 class CargarTiposDocumentos(FormView):
@@ -64,8 +64,8 @@ class CargarTiposDocumentos(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             TipoDocumento.objects.create(codigo_sunat = fila[0],
-                                         nombre = unicode(fila[1], errors='ignore'),
-                                         descripcion = unicode(fila[1], errors='ignore'))
+                                         nombre=fila[1],
+                                         descripcion =fila[1])
         return HttpResponseRedirect(reverse('contabilidad:tipos_documentos'))   
     
 class CrearFormaPago(CreateView):

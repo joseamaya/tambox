@@ -101,7 +101,7 @@ class CargarOficinas(FormView):
         for fila in dataReader:
             Oficina.objects.get_or_create(codigo=fila[0],
                                           defaults={
-                                              'nombre': unicode(fila[1], errors='ignore'),
+                                              'nombre': fila[1],
                                               'dependencia': Oficina.objects.get(codigo=fila[2])},
                                           )
         return HttpResponseRedirect(reverse('administracion:maestro_oficinas'))
@@ -152,20 +152,14 @@ class CargarTrabajadores(FormView):
                     usuario.save()
                     trabajador, creado = Trabajador.objects.get_or_create(usuario=usuario,
                                                                           defaults={'dni': fila[1].strip(),
-                                                                                    'apellido_paterno': unicode(fila[2],
-                                                                                                                errors='ignore'),
-                                                                                    'apellido_materno': unicode(fila[3],
-                                                                                                                errors='ignore'),
-                                                                                    'nombres': unicode(fila[4],
-                                                                                                       errors='ignore')})
+                                                                                    'apellido_paterno': fila[2],
+                                                                                    'apellido_materno': fila[3],
+                                                                                    'nombres': fila[4]})
             else:
                 trabajador, creado = Trabajador.objects.get_or_create(dni=fila[1].strip(),
-                                                                      defaults={'apellido_paterno': unicode(fila[2],
-                                                                                                            errors='ignore'),
-                                                                                'apellido_materno': unicode(fila[3],
-                                                                                                            errors='ignore'),
-                                                                                'nombres': unicode(fila[4],
-                                                                                                   errors='ignore')})
+                                                                      defaults={'apellido_paterno': fila[2],
+                                                                                'apellido_materno': fila[3],
+                                                                                'nombres': fila[4]})
         return HttpResponseRedirect(reverse('administracion:maestro_trabajadores'))
 
 
@@ -189,7 +183,7 @@ class CargarPuestos(FormView):
             else:
                 es_jefatura = False
             try:
-                puesto, creado = Puesto.objects.get_or_create(nombre=unicode(fila[0], errors='ignore'),
+                puesto, creado = Puesto.objects.get_or_create(nombre=fila[0],
                                                               defaults={'oficina': Oficina.objects.get(
                                                                   codigo=fila[1].strip()),
                                                                         'trabajador': Trabajador.objects.get(

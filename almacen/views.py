@@ -236,7 +236,7 @@ class CargarAlmacenes(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             Almacen.objects.create(codigo=fila[0],
-                                   descripcion=unicode(fila[1], errors='ignore'))                        
+                                   descripcion=fila[1])
         return HttpResponseRedirect(reverse('almacen:almacenes'))
     
 class CargarInventarioInicial(FormView):
@@ -280,7 +280,7 @@ class CargarInventarioInicial(FormView):
             total = 0
             for fila in dataReader:
                 try:
-                    producto = Producto.objects.get(descripcion=unicode(fila[0].strip(), errors='ignore'))
+                    producto = Producto.objects.get(descripcion=fila[0].strip())
                     cantidad = Decimal(fila[1])
                     try:
                         precio = Decimal(fila[2])
