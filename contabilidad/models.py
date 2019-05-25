@@ -184,7 +184,7 @@ class Configuracion(TimeStampedModel):
     presupuesto = models.ForeignKey(Oficina, related_name = 'presupuesto', null=True)
     logistica = models.ForeignKey(Oficina, related_name = 'logistica', null=True)
     
-@python_2_unicode_compatible
+
 class TipoExistencia(TimeStampedModel):
     codigo_sunat = models.CharField(primary_key=True, max_length=2)
     descripcion = models.CharField(max_length = 50)

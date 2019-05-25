@@ -37,6 +37,7 @@ class Tablero(View):
         context = {'notificaciones':lista_notificaciones}
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
     
+
 class CargarCuentasContables(FormView):
     template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
@@ -51,6 +52,23 @@ class CargarCuentasContables(FormView):
             CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
                                                  defaults={'descripcion': fila[1].strip()})
         return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
+
+
+class CargarTiposExistencias(FormView):
+    template_name = 'contabilidad/cargar_tipos_existencias.html'
+    form_class = UploadForm
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        docfile = data['archivo']
+        form.save()
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
+        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        for fila in dataReader:
+            TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
+                                                 defaults={'descripcion': fila[1].strip()})
+        return HttpResponseRedirect(reverse('contabilidad:tipos_existencias'))
+
     
 class CargarTiposDocumentos(FormView):
     template_name = 'contabilidad/cargar_tipos_documentos.html'
@@ -116,7 +134,8 @@ class CrearCuentaContable(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:detalle_cuenta_contable', args=[self.object.pk])
-    
+
+
 class CrearImpuesto(CreateView):
     model = Impuesto
     template_name = 'contabilidad/impuesto.html'
@@ -240,6 +259,18 @@ class ListadoCuentasContables(ListView):
     @method_decorator(permission_required('contabilidad.ver_tabla_cuentas_contables',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoCuentasContables, self).dispatch(*args, **kwargs)
+
+
+class ListadoTiposExistencias(ListView):
+    model = TipoExistencia
+    template_name = 'contabilidad/tipos_existencias.html'
+    context_object_name = 'tipos_existencias'
+    queryset = TipoExistencia.objects.all().order_by('codigo_sunat')
+
+    @method_decorator(
+        permission_required('contabilidad.ver_tabla_tipos_existencias', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ListadoTiposExistencias, self).dispatch(*args, **kwargs)
     
 class ListadoFormasPago(ListView):
     model = FormaPago

@@ -61,19 +61,23 @@ $(document).ready(function()
 	
 	function agregarCero(n)
 	{
-	  if(n>9)
-	  {
-	    return n
-	  }
-	  else{
-	    return "0"+n;
-	  }
+		if(n>9)
+		{
+			return n
+		}
+		else
+		{
+			return "0"+n;
+		}
 	}
 	
 	function mostrarhora()
 	{
 		var f=new Date();
-		cad=agregarCero(f.getHours())+" : "+agregarCero(f.getMinutes())+" : "+agregarCero(f.getSeconds());
+		var horas = f.getHours();
+		var minutos = f.getMinutes();
+		var segundos = f.getSeconds();
+		cad= agregarCero(horas)+" : "+agregarCero(minutos)+" : "+agregarCero(segundos);
 		return cad;
 	}
 	
