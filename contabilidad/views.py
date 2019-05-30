@@ -2,10 +2,10 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
 from contabilidad.models import CuentaContable, TipoDocumento, Impuesto,\
-    Configuracion, FormaPago, Empresa, TipoExistencia
+    Configuracion, FormaPago, Empresa, TipoExistencia, TipoCambio
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm,CuentaContableForm,\
-    ImpuestoForm, ConfiguracionForm, FormaPagoForm 
+    ImpuestoForm, ConfiguracionForm, FormaPagoForm, TipoCambioForm
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
@@ -16,10 +16,11 @@ import simplejson
 from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
-from administracion.forms import UploadForm
+from contabilidad.forms import UploadForm
 import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
+import datetime
 
 class Tablero(View):
     
@@ -36,20 +37,38 @@ class Tablero(View):
         context = {'notificaciones':lista_notificaciones}
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
     
+
 class CargarCuentasContables(FormView):
     template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
     
     def form_valid(self, form):
         data = form.cleaned_data
-        docfile = data['archivo']            
+        docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
-            CuentaContable.objects.create(cuenta = fila[0].strip(),
-                                          descripcion= unicode(fila[1].strip(), errors='ignore'))
+            CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
+                                                 defaults={'descripcion': fila[1].strip()})
         return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
+
+
+class CargarTiposExistencias(FormView):
+    template_name = 'contabilidad/cargar_tipos_existencias.html'
+    form_class = UploadForm
+
+    def form_valid(self, form):
+        data = form.cleaned_data
+        docfile = data['archivo']
+        form.save()
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
+        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
+        for fila in dataReader:
+            TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
+                                                 defaults={'descripcion': fila[1].strip()})
+        return HttpResponseRedirect(reverse('contabilidad:tipos_existencias'))
+
     
 class CargarTiposDocumentos(FormView):
     template_name = 'contabilidad/cargar_tipos_documentos.html'
@@ -63,8 +82,8 @@ class CargarTiposDocumentos(FormView):
         dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         for fila in dataReader:
             TipoDocumento.objects.create(codigo_sunat = fila[0],
-                                         nombre = unicode(fila[1], errors='ignore'),
-                                         descripcion = unicode(fila[1], errors='ignore'))
+                                         nombre=fila[1],
+                                         descripcion =fila[1])
         return HttpResponseRedirect(reverse('contabilidad:tipos_documentos'))   
     
 class CrearFormaPago(CreateView):
@@ -90,7 +109,20 @@ class CrearTipoDocumento(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:detalle_tipo_documento', args=[self.object.pk])
-    
+
+
+class CrearTipoCambio(CreateView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipo_cambio.html'
+    form_class = TipoCambioForm
+
+    @method_decorator(permission_required('contabilidad.add_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearTipoCambio, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+
 class CrearCuentaContable(CreateView):
     model = CuentaContable
     template_name = 'contabilidad/cuenta_contable.html'
@@ -102,7 +134,8 @@ class CrearCuentaContable(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:detalle_cuenta_contable', args=[self.object.pk])
-    
+
+
 class CrearImpuesto(CreateView):
     model = Impuesto
     template_name = 'contabilidad/impuesto.html'
@@ -134,7 +167,11 @@ class CrearConfiguracion(CreateView):
     
     def get_success_url(self):
         return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
-    
+
+class DetalleTipoCambio(DetailView):
+    model = TipoCambio
+    template_name = 'contabilidad/detalle_tipo_cambio.html'
+
 class DetalleTipoDocumento(DetailView):
     model = TipoDocumento
     template_name = 'contabilidad/detalle_tipo_documento.html'
@@ -202,6 +239,16 @@ class ListadoTiposDocumentos(ListView):
     @method_decorator(permission_required('contabilidad.ver_tabla_tipos_documentos',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoTiposDocumentos, self).dispatch(*args, **kwargs)
+
+
+class ListadoTiposCambio(ListView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipos_cambio.html'
+    context_object_name = 'tipos'
+
+    @method_decorator(permission_required('contabilidad.ver_tabla_tipos_cambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ListadoTiposCambio, self).dispatch(*args, **kwargs)
     
 class ListadoCuentasContables(ListView):
     model = CuentaContable
@@ -212,6 +259,18 @@ class ListadoCuentasContables(ListView):
     @method_decorator(permission_required('contabilidad.ver_tabla_cuentas_contables',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoCuentasContables, self).dispatch(*args, **kwargs)
+
+
+class ListadoTiposExistencias(ListView):
+    model = TipoExistencia
+    template_name = 'contabilidad/tipos_existencias.html'
+    context_object_name = 'tipos_existencias'
+    queryset = TipoExistencia.objects.all().order_by('codigo_sunat')
+
+    @method_decorator(
+        permission_required('contabilidad.ver_tabla_tipos_existencias', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ListadoTiposExistencias, self).dispatch(*args, **kwargs)
     
 class ListadoFormasPago(ListView):
     model = FormaPago
@@ -244,13 +303,26 @@ class ModificarFormaPago(UpdateView):
     
     def get_success_url(self):
         return reverse('compras:detalle_forma_pago', args=[self.object.pk])
-    
+
+
+class ModificarTipoCambio(UpdateView):
+    model = TipoCambio
+    template_name = 'contabilidad/tipo_cambio.html'
+    form_class = TipoCambioForm
+
+    @method_decorator(permission_required('contabilidad.change_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(ModificarTipoCambio, self).dispatch(*args, **kwargs)
+
+    def get_success_url(self):
+        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+
 class ModificarTipoDocumento(UpdateView):
     model = TipoDocumento
     template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm    
 
-    @method_decorator(permission_required('contabilidad.change_tipo_documento',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.change_tipodocumento',reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoDocumento, self).dispatch(*args, **kwargs)
     
@@ -298,7 +370,24 @@ class ModificarImpuesto(UpdateView):
         return initial
     
     def get_success_url(self):
-        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])    
+        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])
+
+
+class ObtenerTipoCambio(TemplateView):
+
+    def get(self, request, *args, **kwargs):
+        if request.is_ajax():
+            fecha_get = request.GET['fecha']
+            anio = int(fecha_get[6:])
+            mes = int(fecha_get[3:5])
+            dia = int(fecha_get[0:2])
+            fecha = datetime.date(anio, mes, dia)
+            try:
+                tipo_cambio = TipoCambio.objects.get(fecha=fecha)
+            except TipoCambio.DoesNotExist:
+                tipo_cambio = {'fecha':fecha_get,'monto':0}
+            data = simplejson.dumps(tipo_cambio)
+            return HttpResponse(data, 'application/json')
 
 class ReporteExcelCuentasContables(TemplateView):
     

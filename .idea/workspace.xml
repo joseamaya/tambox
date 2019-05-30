@@ -1,7 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e69304ce-b51f-4d5e-9bca-f4e8c785810d" name="Default Changelist" comment="" />
+    <list default="true" id="e69304ce-b51f-4d5e-9bca-f4e8c785810d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/querysets.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/querysets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/mail.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/mail.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/managers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/reports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/managers.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/managers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/querysets.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/querysets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/reports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/compras/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/compras/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/contabilidad/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/contabilidad/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/forms.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/forms.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/querysets.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/querysets.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/reports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/templatetags/etiquetas.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/templatetags/etiquetas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tambox/settings/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/tambox/settings/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tambox/settings/local.py" beforeDir="false" afterPath="$PROJECT_DIR$/tambox/settings/local.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tambox/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/tambox/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/base_administracion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/base_administracion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/detalle_oficina.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/detalle_oficina.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/detalle_puesto.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/detalle_puesto.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/detalle_trabajador.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/detalle_trabajador.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/nivel_aprobacion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/nivel_aprobacion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/niveles_aprobacion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/oficina.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/oficina.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/oficinas.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/oficinas.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/administracion/trabajadores.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/administracion/trabajadores.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/aprobar_pedido.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/aprobar_pedido.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/base_almacen.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/base_almacen.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/cargar_inventario_inicial.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/cargar_inventario_inicial.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/detalle_pedido.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/detalle_pedido.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/detalle_tipo_movimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/detalle_tipo_movimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/ingreso_almacen.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/ingreso_almacen.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/listado_pedidos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/listado_pedidos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/listado_stock.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/listado_stock.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/movimientos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/movimientos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/reporte_kardex.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/reporte_kardex.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/reporte_movimientos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/reporte_movimientos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/salida_almacen.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/salida_almacen.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/tipo_movimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/tipo_movimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/base_compras.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/base_compras.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/conformidad_servicio.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/conformidad_servicio.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/conformidades_servicio.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/conformidades_servicio.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/cotizacion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/cotizacion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/cotizaciones.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/cotizaciones.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/detalle_conformidad_servicios.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/detalle_conformidad_servicios.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/detalle_cotizacion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/detalle_cotizacion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/detalle_orden_compra.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/detalle_orden_compra.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/detalle_orden_servicios.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/detalle_orden_servicios.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/detalle_proveedor.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/detalle_proveedor.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/orden_compra.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/orden_compra.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/orden_servicio.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/orden_servicio.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/ordenes_servicios.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/ordenes_servicios.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/proveedor.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/proveedor.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/compras/transferencia_orden_servicios.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/compras/transferencia_orden_servicios.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/contabilidad/base_contabilidad.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/contabilidad/base_contabilidad.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/contabilidad/configuracion.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/contabilidad/configuracion.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/detalle_producto.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/detalle_producto.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/detalle_servicio.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/detalle_servicio.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/detalle_unidad_medida.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/detalle_unidad_medida.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/servicio.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/servicio.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/unidad_medida.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/unidad_medida.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/productos/unidades_medida.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/productos/unidades_medida.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/aprobar_requerimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/aprobar_requerimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/listado_aprobacion_requerimientos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/listado_aprobacion_requerimientos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seguridad/bienvenida.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/seguridad/bienvenida.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seguridad/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/seguridad/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/seguridad/permiso_denegado.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/seguridad/permiso_denegado.html" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -9,7 +113,7 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
+    <leaf />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -90,7 +194,7 @@
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="784" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.1748512" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.36458334" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -302,6 +406,9 @@
           <caret line="12" column="34" lean-forward="true" selection-start-line="12" selection-start-column="34" selection-end-line="12" selection-end-column="34" />
         </state>
       </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/corregir.py">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
   </component>
 </project>

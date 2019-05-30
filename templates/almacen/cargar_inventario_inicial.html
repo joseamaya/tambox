@@ -1,6 +1,6 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Movimientos / Cargar Inventario Inicial</h3>
+<h3><h3>Movimientos / Cargar Inventario Inicial</h3>
 <form role="form" method="post" enctype="multipart/form-data">	
 	{% csrf_token %}
 	<div class="row">
@@ -56,24 +56,27 @@ $(document).ready(function()
 {
 	var mySpinner = null;
 	$("#id_fecha").datepicker();
-	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$('#id_hora').wickedpicker({title:'Hora de Salida'});
 	$('#id_hora').val(mostrarhora());
 	
 	function agregarCero(n)
 	{
-	  if(n>9)
-	  {
-	    return n
-	  }
-	  else{
-	    return "0"+n;
-	  }
+		if(n>9)
+		{
+			return n
+		}
+		else
+		{
+			return "0"+n;
+		}
 	}
 	
 	function mostrarhora()
 	{
 		var f=new Date();
-		cad=agregarCero(f.getHours())+" : "+agregarCero(f.getMinutes())+" : "+agregarCero(f.getSeconds());
+		var horas = f.getHours();
+		var minutos = f.getMinutes();
+		cad= agregarCero(horas)+":"+agregarCero(minutos);
 		return cad;
 	}
 	

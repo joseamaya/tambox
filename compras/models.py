@@ -4,19 +4,17 @@ from django.utils.encoding import smart_str
 from model_utils import Choices
 from django.utils.translation import gettext as _
 from requerimientos.models import Requerimiento, DetalleRequerimiento
-from model_utils.models import TimeStampedModel, StatusModel
+from model_utils.models import TimeStampedModel
 from django.db.models import Max
-from contabilidad.models import FormaPago, Configuracion
+from contabilidad.models import FormaPago, TipoCambio
 from productos.models import Producto
 from compras.querysets import NavegableQuerySet
-from compras.settings import CHOICES_ESTADO_COTIZ
+from compras.settings import CHOICES_ESTADO_COTIZ, CONFIGURACION
 from compras.managers import DetalleCotizacionManager,\
     DetalleConformidadServicioManager
-
-try:
-    configuracion = Configuracion.objects.first()
-except:
-    configuracion = None
+from decimal import Decimal
+from tambox.util import to_word
+from simple_history.models import HistoricalRecords
 
 class DetalleOrdenManager(models.Manager):
     
@@ -64,6 +62,7 @@ class RepresentanteLegal(TimeStampedModel):
     documento = models.CharField(primary_key=True,max_length=11)
     nombre = models.CharField(max_length=150)
     cargo = models.CharField(max_length=50)
+    history = HistoricalRecords()
     
     class Meta:
         permissions = (('can_view', 'Can view Representante Legal'),
@@ -86,6 +85,7 @@ class Proveedor(TimeStampedModel):
     fecha_alta = models.DateField()
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     class Meta:
         permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
@@ -105,14 +105,15 @@ class Proveedor(TimeStampedModel):
         return smart_str(self.razon_social)
     
 class Cotizacion(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     proveedor = models.ForeignKey(Proveedor)
     requerimiento = models.ForeignKey(Requerimiento, null=True)
     fecha = models.DateField()    
     observaciones = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    estado = models.CharField(choices=STATUS, default = STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     def anterior(self):
         ant = Cotizacion.objects.anterior(self)
@@ -122,41 +123,39 @@ class Cotizacion(TimeStampedModel):
         sig = Cotizacion.objects.siguiente(self)            
         return sig.pk
     
+    def eliminar_cotizacion(self):
+        self.estado = Cotizacion.STATUS.CANC
+        self.save()
+    
     def eliminar_referencia(self):
         cotizacion = self
-        DetalleCotizacion.objects.filter(cotizacion=cotizacion).delete()
         requerimiento = cotizacion.requerimiento        
-        requerimiento.estado = Requerimiento.STATUS.PEND
-        requerimiento.save()
-        detalles = DetalleRequerimiento.objects.filter(requerimiento=requerimiento)
+        detalles = DetalleCotizacion.objects.filter(cotizacion = cotizacion)
         for detalle in detalles:
-            try:
-                detalle.estado = DetalleRequerimiento.STATUS.PEND 
-                detalle.save()
-            except DetalleRequerimiento.DoesNotExist:
-                pass
+            detalle_requerimiento = detalle.detalle_requerimiento
+            if detalle_requerimiento.cantidad_cotizada > 0:  
+                detalle_requerimiento.cantidad_cotizada = detalle_requerimiento.cantidad_cotizada - detalle.cantidad                
+            detalle_requerimiento.establecer_estado_cotizado()  
+            detalle_requerimiento.save()
+        requerimiento.establecer_estado_cotizado()
+        requerimiento.save()
+        DetalleCotizacion.objects.filter(cotizacion = cotizacion).delete()        
             
     def establecer_estado_comprado(self):
-        cont_desc = 0
-        cont_eleg = 0
-        estado_cotizacion = Cotizacion.STATUS.PEND
-        detalles_cotizacion = DetalleCotizacion.objects.filter(cotizacion = self)
-        cont_det = detalles_cotizacion.count() 
-        for detalle in detalles_cotizacion:
-            if detalle.estado == DetalleCotizacion.STATUS.ELEG_PARC:
-                estado_cotizacion = Cotizacion.STATUS.ELEG_PARC
-                break
-            elif detalle.estado == DetalleCotizacion.STATUS.DESC:
-                cont_desc = cont_desc + 1
-            elif detalle.estado == DetalleCotizacion.STATUS.ELEG:
-                cont_eleg = cont_eleg + 1
-        if cont_desc == cont_det:
-            estado_cotizacion = Cotizacion.STATUS.DESC
-        if cont_eleg == cont_det:
-            estado_cotizacion = Cotizacion.STATUS.ELEG
-        elif cont_eleg > 0:
-            estado_cotizacion = Cotizacion.STATUS.ELEG_PARC
-        self.estado = estado_cotizacion
+        total = 0
+        total_comprado = 0
+        detalles = DetalleCotizacion.objects.filter(cotizacion = self)
+        for detalle in detalles:
+            total = total + detalle.cantidad
+            total_comprado = total_comprado + detalle.cantidad_comprada            
+        if total_comprado == 0:
+            estado = Cotizacion.STATUS.DESC
+        elif total_comprado < total:
+            estado = Cotizacion.STATUS.ELEG_PARC
+        elif total_comprado >= total:
+            estado = Cotizacion.STATUS.ELEG
+        self.estado = estado
+        return self.estado
                     
     class Meta:
         unique_together = (('proveedor', 'requerimiento'),)
@@ -181,7 +180,7 @@ class Cotizacion(TimeStampedModel):
     def __str__(self):
         return self.codigo
     
-class DetalleCotizacion(TimeStampedModel, StatusModel):
+class DetalleCotizacion(TimeStampedModel):
     objects = DetalleCotizacionManager()
     nro_detalle = models.IntegerField()
     cotizacion = models.ForeignKey(Cotizacion)
@@ -193,7 +192,8 @@ class DetalleCotizacion(TimeStampedModel, StatusModel):
                      ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
                      ('DESC', _('DESCARTADA')),
                      ('CANC', _('CANCELADO')),)
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    estado = models.CharField(choices=STATUS, default = STATUS.PEND, max_length=20)
+    history = HistoricalRecords()
     
     def establecer_estado_comprado(self):
         if self.cantidad_comprada == 0:
@@ -203,31 +203,28 @@ class DetalleCotizacion(TimeStampedModel, StatusModel):
         elif self.cantidad_comprada >= self.cantidad:
             estado = DetalleCotizacion.STATUS.ELEG                
         self.estado = estado
+        return self.estado
         
     class Meta:
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
-    
+        
 class OrdenCompra(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique = True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
     proveedor = models.ForeignKey(Proveedor, null=True)
-    proceso = models.CharField(max_length=50, default='')
-    fecha = models.DateField()    
-    forma_pago = models.ForeignKey(FormaPago)
-    subtotal = models.DecimalField(max_digits=15, decimal_places=5)
-    igv = models.DecimalField(max_digits=15, decimal_places=5)    
-    total = models.DecimalField(max_digits=15, decimal_places=5)
-    total_letras = models.CharField(max_length=150)
+    fecha = models.DateField()
+    forma_pago = models.ForeignKey(FormaPago)    
     observaciones = models.TextField(default='')
-    nombre_informe = models.CharField(max_length=150, default='')
-    informe = models.FileField(upload_to='informes', null=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
                      ('ING_PARC', _('INGRESADA PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
+    con_impuesto = models.BooleanField(default=False)
+    dolares =  models.BooleanField(default=False)
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     def anterior(self):
         ant = OrdenCompra.objects.anterior(self)
@@ -238,29 +235,61 @@ class OrdenCompra(TimeStampedModel):
         return sig.pk
     
     def eliminar_referencia(self):
-        detalles = DetalleOrdenCompra.objects.filter(orden=self)
-        for detalle in detalles:
-            try:
-                detalle_cotizacion = detalle.detalle_cotizacion
-                detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada - detalle.cantidad 
-                detalle_cotizacion.establecer_estado()
-                detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-                detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada - detalle.cantidad
-                detalle_requerimiento.establecer_estado()
-            except:
-                pass
         cotizacion = self.cotizacion
-        cotizacion.establecer_estado()        
+        requerimiento = cotizacion.requerimiento
+        detalles = DetalleOrdenCompra.objects.filter(orden=self)        
+        for detalle in detalles:
+            detalle_cotizacion = detalle.detalle_cotizacion
+            detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada - detalle.cantidad 
+            detalle_cotizacion.establecer_estado_comprado()
+            detalle_cotizacion.save()
+            detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
+            detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada - detalle.cantidad
+            detalle_requerimiento.establecer_estado_comprado()
+            detalle_requerimiento.save()                    
+        cotizacion.establecer_estado_comprado()
+        requerimiento.establecer_estado_comprado()
+        cotizacion.save()
         
     def establecer_estado(self):
-        estado_orden = OrdenCompra.STATUS.ING
-        detalles_orden = DetalleOrdenCompra.objects.filter(orden = self)
-        for detalle in detalles_orden:
-            if detalle.estado == DetalleOrdenCompra.STATUS.ING_PARC or detalle.estado == DetalleOrdenCompra.STATUS.PEND:
-                estado_orden = OrdenCompra.STATUS.ING_PARC
-                break            
-        self.estado = estado_orden            
-        self.save()
+        total = 0
+        total_ingresado = 0
+        detalles = DetalleOrdenCompra.objects.filter(orden = self)
+        for detalle in detalles:
+            total = total + detalle.cantidad
+            total_ingresado = total_ingresado + detalle.cantidad_ingresada            
+        if total_ingresado == 0:
+            estado = OrdenCompra.STATUS.PEND
+        elif total_ingresado < total:
+            estado = OrdenCompra.STATUS.ING_PARC
+        elif total_ingresado >= total:
+            estado = OrdenCompra.STATUS.ING
+        self.estado = estado
+        return self.estado
+    
+    @property            
+    def total(self):
+        total = self.subtotal + self.impuesto
+        return total
+    
+    @property            
+    def impuesto(self):
+        imp = 0
+        for detalle in DetalleOrdenCompra.objects.filter(orden = self):
+            imp = imp + detalle.impuesto
+        return imp
+    
+    @property            
+    def subtotal(self):
+        subtotal = 0
+        for detalle in DetalleOrdenCompra.objects.filter(orden = self):
+            subtotal = subtotal + detalle.valor_sin_igv
+        return subtotal
+    
+    @property            
+    def total_letras(self):
+        letras = to_word(self.total).upper()
+        return letras
     
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -268,6 +297,7 @@ class OrdenCompra(TimeStampedModel):
                        ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'),
                        ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'),
                        ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra'),)
+        ordering = ('codigo',)
     
     def save(self, *args, **kwargs):
         if self.codigo == '':
@@ -291,46 +321,84 @@ class DetalleOrdenCompra(TimeStampedModel):
     orden = models.ForeignKey(OrdenCompra)
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True)
     producto = models.ForeignKey(Producto, null=True)
-    cantidad = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_ingresada = models.DecimalField(max_digits=15, decimal_places=5,default=0)
-    precio = models.DecimalField(max_digits=15, decimal_places=5)
+    cantidad = models.DecimalField(max_digits=25, decimal_places=8)
+    cantidad_ingresada = models.DecimalField(max_digits=25, decimal_places=8,default=0)
+    precio = models.DecimalField(max_digits=25, decimal_places=8)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADO')),
                      ('ING_PARC', _('INGRESADO PARCIALMENTE')),
                      ('CANC', _('CANCELADO')),
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
-    
+    history = HistoricalRecords()
+
     @property
-    def valor(self):
-        return self.precio * self.cantidad 
-    
+    def precio_con_igv(self):
+        if self.orden.con_impuesto:
+            precio_con_igv =self.precio
+        else:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            precio_con_igv = round(self.precio * (monto_impuesto + 1), 5)
+        return precio_con_igv
+
+    @property
+    def precio_sin_igv(self):
+        if self.orden.con_impuesto:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            precio_sin_igv = round(self.precio / (monto_impuesto + 1), 5)
+        else:
+            precio_sin_igv = self.precio
+        return precio_sin_igv
+
+    @property
+    def valor_sin_igv(self):
+        if self.orden.con_impuesto:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            valor_sin_igv = (self.precio * self.cantidad) / (monto_impuesto+1)
+        else:
+            valor_sin_igv = self.precio * self.cantidad
+        return round(valor_sin_igv, 5)
+
+    @property
+    def valor_con_igv(self):
+        if self.orden.con_impuesto:
+            valor_con_igv = self.precio * self.cantidad
+        else:
+            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            valor_con_igv = (self.precio * self.cantidad) * (monto_impuesto+1)
+        return round(valor_con_igv, 5)
+
     @property
     def impuesto(self):
-        monto_impuesto = configuracion.impuesto_compra.monto
-        base = self.valor / (monto_impuesto + 1)
-        return self.valor - base        
+        monto_impuesto = CONFIGURACION.impuesto_compra.monto
+        if self.orden.con_impuesto:
+            imp = self.precio * self.cantidad - (self.precio * self.cantidad) / (monto_impuesto+1)
+        else:
+            imp = self.precio * self.cantidad * monto_impuesto
+        return round(imp,5)
     
-    def establecer_estado(self):
-        if self.cantidad_ingresada < self.cantidad: 
+    def establecer_estado(self):   
+        cantidad_ingresada = self.cantidad_ingresada
+        if cantidad_ingresada == 0:   
+            estado = DetalleOrdenCompra.STATUS.PEND
+        elif cantidad_ingresada < self.cantidad: 
             estado = DetalleOrdenCompra.STATUS.ING_PARC                
-        elif self.cantidad_ingresada >= self.cantidad:
-            estado = DetalleOrdenCompra.STATUS.ING                
-        self.estado = estado
+        elif cantidad_ingresada >= self.cantidad:
+            estado = DetalleOrdenCompra.STATUS.ING
+        self.estado = estado  
+        return self.estado
         
     class Meta:
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
         
 class OrdenServicios(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, null=True)
     proveedor = models.ForeignKey(Proveedor, null=True)
     forma_pago = models.ForeignKey(FormaPago)
     proceso = models.CharField(max_length=50, default='')    
-    subtotal = models.DecimalField(max_digits=15, decimal_places=5)
-    igv = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    total = models.DecimalField(max_digits=15, decimal_places=5)
-    total_letras = models.CharField(max_length=150)
+    nombre_informe = models.CharField(max_length=150, default='')
+    informe = models.FileField(upload_to='informes', null=True)
     fecha = models.DateField()
     observaciones = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -340,6 +408,28 @@ class OrdenServicios(TimeStampedModel):
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
+    
+    @property            
+    def subtotal(self):
+        sub_total = 0
+        for detalle in DetalleOrdenServicios.objects.filter(orden = self):
+            sub_total = sub_total + detalle.valor
+        return sub_total
+    
+    @property            
+    def impuesto(self):
+        return 0
+    
+    @property            
+    def total(self):
+        total = self.subtotal
+        return total
+    
+    @property            
+    def total_letras(self):
+        letras = to_word(self.total).upper()
+        return letras
         
     def anterior(self):
         ant = OrdenServicios.objects.anterior(self)
@@ -350,45 +440,59 @@ class OrdenServicios(TimeStampedModel):
         return sig.pk
     
     def eliminar_referencia(self):
-        referencia = self.cotizacion        
-        referencia.estado = Cotizacion.STATUS.PEND
-        referencia.save()
-        detalles = DetalleOrdenServicios.objects.filter(orden=self)
+        cotizacion = self.cotizacion
+        requerimiento = self.cotizacion
+        detalles = DetalleOrdenServicios.objects.filter(orden=self) 
         for detalle in detalles:
-            try:
-                detalle_requerimiento = detalle.detalle_cotizacion.detalle_requerimiento
-                detalle_requerimiento.estado = DetalleCotizacion.STATUS.PEND 
-                detalle_requerimiento.save()
-            except DetalleRequerimiento.DoesNotExist:
-                pass
-        DetalleOrdenServicios.objects.filter(orden = self).delete()
+            detalle_cotizacion = detalle.detalle_cotizacion
+            detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada - detalle.cantidad 
+            detalle_cotizacion.establecer_estado_comprado()
+            detalle_cotizacion.save()
+            detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
+            detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada - detalle.cantidad
+            detalle_requerimiento.establecer_estado_comprado()            
+            detalle_requerimiento.save()                        
+        cotizacion.establecer_estado_comprado()
+        requerimiento.establecer_estado_comprado()
+        cotizacion.save()        
         
     def establecer_estado(self):
-        estado_orden = OrdenServicios.STATUS.CONF
-        detalles_orden = DetalleOrdenServicios.objects.filter(orden = self)
-        for detalle in detalles_orden:
-            if detalle.estado == DetalleOrdenServicios.STATUS.CONF_PARC or detalle.estado == DetalleOrdenServicios.STATUS.PEND:
-                estado_orden = OrdenServicios.STATUS.CONF_PARC
-                break            
-        self.estado = estado_orden            
-        self.save()
+        total = 0
+        total_conforme = 0
+        detalles = DetalleOrdenServicios.objects.filter(orden = self)
+        for detalle in detalles:
+            total = total + detalle.cantidad
+            total_conforme = total_conforme + detalle.cantidad_conforme            
+        if total_conforme == 0:
+            estado = OrdenServicios.STATUS.PEND
+        elif total_conforme < total:
+            estado = OrdenServicios.STATUS.CONF_PARC
+        elif total_conforme >= total:
+            estado = OrdenServicios.STATUS.CONF
+        self.estado = estado
+        return self.estado
     
     class Meta:
         permissions = (('ver_detalle_orden_servicios', 'Puede ver detalle de Orden de Servicios'),
                        ('ver_tabla_ordenes_servicios', 'Puede ver tabla de Ordenes de Servicios'),
                        ('ver_reporte_ordenes_servicios_excel', 'Puede ver Reporte de Ordenes de Servicios en excel'),)
+        ordering = ('codigo',)
+        
+    def generar_codigo(self):
+        anio = self.fecha.year
+        mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
+        id_ant=mov_ant['codigo__max']
+        if id_ant is None:        
+            aux = 1            
+        else:            
+            aux=int(id_ant[-6:])+1            
+        correlativo = str(aux).zfill(6)
+        codigo = 'OS' + str(anio) + correlativo
+        return codigo        
     
     def save(self, *args, **kwargs):        
         if self.codigo == '':
-            anio = self.fecha.year
-            mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant=mov_ant['codigo__max']
-            if id_ant is None:        
-                aux = 1            
-            else:            
-                aux=int(id_ant[-6:])+1            
-            correlativo = str(aux).zfill(6)
-            self.codigo = 'OS'+str(anio)+correlativo            
+            self.codigo = self.generar_codigo()
         super(OrdenServicios, self).save()
     
     def __str__(self):
@@ -403,35 +507,48 @@ class DetalleOrdenServicios(TimeStampedModel):
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_conforme = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     precio = models.DecimalField(max_digits=15, decimal_places=5)
-    valor = models.DecimalField(max_digits=15, decimal_places=5, blank=True, null=True)
-    impuesto = models.DecimalField(max_digits=15, decimal_places=5,default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('CONF', _('CONFORME')),
                      ('CONF_PARC', _('CONFORME PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    history = HistoricalRecords()
+    
+    @property
+    def valor(self):
+        return round(self.precio * self.cantidad,5)
+    
+    @property
+    def impuesto(self):
+        return 0
     
     class Meta:
         permissions = (('ver_detalle_orden_servicios', 'Puede ver Detalle Orden de Servicios'),)
         ordering = ['nro_detalle']
 
-    def establecer_estado_atendido(self):
-        if self.cantidad_conforme < self.cantidad: 
-            self.estado = DetalleOrdenServicios.STATUS.CONF_PARC                
-        elif self.cantidad_conforme >= self.cantidad:
-            self.estado = DetalleOrdenServicios.STATUS.CONF                
-        self.save()
+    def establecer_estado_atendido(self):   
+        cantidad_conforme = self.cantidad_conforme
+        if cantidad_conforme == 0:   
+            estado = DetalleOrdenServicios.STATUS.PEND
+        elif cantidad_conforme < self.cantidad: 
+            estado = DetalleOrdenServicios.STATUS.CONF_PARC                
+        elif cantidad_conforme >= self.cantidad:
+            estado = DetalleOrdenServicios.STATUS.CONF
+        self.estado = estado  
+        return self.estado
         
 class ConformidadServicio(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=12)
+    codigo = models.CharField(unique=True, max_length=12)
     orden_servicios = models.ForeignKey(OrdenServicios)
-    doc_sustento = models.CharField(max_length=12)
+    doc_sustento = models.CharField(max_length=50)
+    archivo = models.FileField(upload_to='informes', null=True)
     fecha = models.DateField()
     total = models.DecimalField(max_digits=15, decimal_places=5)
     total_letras = models.CharField(max_length=150)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
+    history = HistoricalRecords()
     
     class Meta:
         permissions = (('ver_detalle_conformidad_servicio', 'Puede ver detalle de Conformidad de Servicio'),
@@ -446,25 +563,30 @@ class ConformidadServicio(TimeStampedModel):
         sig = ConformidadServicio.objects.siguiente(self)            
         return sig.pk
     
-    def eliminar_referencia(self, orden_compra):        
-        referencia = orden_compra.cotizacion        
-        referencia.abierta = True
-        referencia.save()
-        detalles = DetalleOrdenCompra.objects.filter(orden=orden_compra)
+    def eliminar_referencia(self):
+        orden = self.orden_servicios
+        cotizacion = orden.cotizacion
+        requerimiento = cotizacion.requerimiento
+        detalles = DetalleConformidadServicio.objects.filter(conformidad = self)        
         for detalle in detalles:
-            try:
-                detalle_requerimiento = detalle.detalle_requerimiento
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.cantidad
-                detalle_requerimiento.abierta = True 
-                detalle_requerimiento.save()
-            except DetalleRequerimiento.DoesNotExist:
-                pass
-    
+            detalle_orden = detalle.detalle_orden_servicios
+            detalle_orden.cantidad_conforme = detalle_orden.cantidad_conforme - detalle.cantidad
+            detalle_orden.establecer_estado_atendido()
+            detalle_orden.save()
+            detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
+            detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.cantidad            
+            detalle_requerimiento.establecer_estado_atendido()            
+            detalle_requerimiento.save()                        
+        orden.establecer_estado()
+        orden.save()
+        requerimiento.establecer_estado_atendido()
+        requerimiento.save()
+        
     def save(self, *args, **kwargs):
         if self.codigo == '':
             anio = self.fecha.year
-            mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant=mov_ant['codigo__max']
+            conf_ant = ConformidadServicio.objects.filter(fecha__year = anio).aggregate(Max('codigo'))
+            id_ant = conf_ant['codigo__max']
             if id_ant is None:        
                 aux = 1            
             else:            
@@ -482,3 +604,4 @@ class DetalleConformidadServicio(TimeStampedModel):
     conformidad = models.ForeignKey(ConformidadServicio)
     detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5,default=0)
+    history = HistoricalRecords()

@@ -5,7 +5,7 @@
 {% else %}
 <h3>Conformidades de Servicio / Nuevo</h3>
 {% endif %}
-<form role="form" method="post">
+<form role="form" method="post" enctype="multipart/form-data">
 	<div class="row">
 	    <div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -77,6 +77,9 @@
 							<span class="glyphicon glyphicon-search">BUSCAR</span>
 						</button>
 					</div>
+					
+				</div>
+				<div class="row">
 					<div class="col-md-3">	
 						<label>Doc. Sustento:</label>
 						{% if form.doc_sustento.errors %}
@@ -91,6 +94,20 @@
 					    {% endif %}
 						{{ form.doc_sustento }}
 					</div>
+					<div class="col-md-5">	
+						<label>Archivo:</label>
+						{% if form.archivo.errors %}
+							{% for error in form.archivo.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">							
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>							
+					            <strong>Error: </strong> {{ error|escape }}					        
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.archivo }}
+					</div>					
 				</div>
 			</div>					
 			<hr>					
@@ -111,7 +128,20 @@
 							{{ detalle_conformidad_servicio_formset.management_form }}
 						    {% for detalle_conformidad_servicio_form in detalle_conformidad_servicio_formset %}					        
 					            <tr class="detalle_conformidad_servicio_formset">
-					            	{{ detalle_conformidad_servicio_form.cotizacion }}					            	
+					            	{{ detalle_conformidad_servicio_form.cotizacion }}	
+					            	<td>
+							            {% if detalle_conformidad_servicio_form.cantidad.errors %}
+											{% for error in detalle_conformidad_servicio_form.cantidad.errors %}
+											<div class="alert alert-danger alert-dismissible" role="alert">							
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												</button>							
+									            <strong>Error: </strong> {{ error|escape }}					        
+											</div>
+									        {% endfor %}
+									    {% endif %}
+							            {{ detalle_conformidad_servicio_form.cantidad }}
+						            </td>				            	
 					            	<td>
 						            	{% if detalle_conformidad_servicio_form.nombre.errors %}
 											{% for error in detalle_conformidad_servicio_form.nombre.errors %}
@@ -138,19 +168,7 @@
 									    {% endif %}
 							            {{ detalle_conformidad_servicio_form.unidad }}
 						            </td>
-						            <td>
-							            {% if detalle_conformidad_servicio_form.cantidad.errors %}
-											{% for error in detalle_conformidad_servicio_form.cantidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_conformidad_servicio_form.cantidad }}
-						            </td>
+						            
 						            <td>
 							            {% if detalle_conformidad_servicio_form.precio.errors %}
 											{% for error in detalle_conformidad_servicio_form.precio.errors %}
@@ -285,9 +303,9 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_conformidad_servicio_formset'>" +
 						item.orden_servicios +
-						"<td>" + item.servicio + "</td>" +
-						"<td>" + item.uso + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.servicio + "</td>" +
+						"<td>" + item.uso + "</td>" +						
 						"<td>" + item.precio + "</td>" +
 						"<td>" + item.valor + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +

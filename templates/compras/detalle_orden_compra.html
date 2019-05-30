@@ -1,19 +1,51 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
-<h3>Órdenes de Compra / {{ object.pk }}</h3>
+<h3>Órdenes de Compra / {{ object.codigo }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'compras:orden_compra_pdf' object.pk %}';">Ver PDF</button>
+	<div class="col-lg-5">
+		{% if perms.compras.add_ordencompra %} 
+		<a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
+		{% endif %} 
 		{% if object.estado == "PEND" %}
 			{% if perms.compras.change_ordencompra %} 
 				<a class="btn btn-primary" href="{% url 'compras:modificar_orden_compra' object.pk %}">Editar </a>			
 			{% endif %}
 		{% endif %}
-		{% if perms.compras.delete_ordencompra %}
-			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+		{% if object.estado == "PEND" %}
+			{% if perms.compras.delete_ordencompra %}
+				<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+			{% endif %}
 		{% endif %}		
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  	<li>
+				<a href="{% url 'compras:listado_movimientos_orden_compra' object.pk %}">
+					<span class="fa fa-building"></span> 
+					Movimientos
+				</a>
+			</li>
+		    <li>
+				<a href="{% url 'compras:orden_compra_pdf' object.pk %}">
+					<span class="fa fa-print"></span>
+					Imprimir  
+				</a>
+			</li>
+		    <li>
+				<a href="{% url 'compras:orden_compra_xls' object.pk %}">
+					<span class="fa fa-file-excel-o"></span>
+					Excel
+				</a>
+			</li>
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
 				onclick="location.href='{% url 'compras:detalle_orden_compra' object.anterior %}';">
@@ -102,16 +134,22 @@
 				</div>
 			</div>
 			<div class="row">
-				<div class="col-md-3">	
-					<label>Proceso:</label>
-					<p>{{ object.proceso }}</p>
+				<div class="col-md-2">
+					<label>Impuesto:</label>
+					{% if object.con_impuesto %}
+						<p>Impuesto Incluido</p>
+					{% else  %}
+						<p>Sin Impuesto</p>
+					{% endif %}
 				</div>
 				<div class="col-md-3">
-				<label>Informe:</label>				
-				{% if object.informe %} <a
-					href="{{ object.informe.url }}">Ver informe</a> 
-				{% endif %}
-			</div>						
+					<label>Dolares:</label>
+					{% if object.dolares %}
+						<p>En Dolares</p>
+					{% else  %}
+						<p>En Soles</p>
+					{% endif %}
+				</div>
 			</div>
 		<hr>
 		<div class="row">
@@ -136,9 +174,9 @@
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
 						  		<td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
 						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
-						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
 						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
-						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
+						  		<td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
 							</tr>
 							{% endfor %}
 						{% else %}
@@ -148,9 +186,9 @@
 						  		<td>{{ detalle.producto.descripcion }}</td>
 						  		<td>{{ detalle.producto.unidad_medida.descripcion }}</td>
 						  		<td>{{ detalle.cantidad|floatformat:5 }}</td>
-						  		<td>{{ detalle.precio|floatformat:5 }}</td>
+						  		<td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
 						  		<td>{{ detalle.impuesto|floatformat:5 }}</td>
-						  		<td>{{ detalle.valor|floatformat:5 }}</td>					  		
+						  		<td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
 							</tr>
 							{% endfor %}
 						{% endif %}
@@ -176,7 +214,7 @@
 									IGV: 
 								</td>
 								<td>
-									{{ object.igv|floatformat:2 }}
+									{{ object.impuesto|floatformat:2 }}
 								</td>
 							</tr>
 							<tr>
@@ -252,7 +290,7 @@ $(document).ready(function()
 			url : "{% url 'compras:eliminar_orden_compra' %}",
 			type : 'get',
 			success : function(data) {
-				if (data.movimientos == 'NO') 
+				if (data.movimientos == 'NO')
 				{
 					alert("Orden de Compra " + data.codigo + " eliminada");
 					$(location).attr('href', "{% url 'compras:detalle_orden_compra' object.siguiente %}");

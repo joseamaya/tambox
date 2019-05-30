@@ -6,21 +6,21 @@
 		{% if perms.administracion.add_trabajador %}
 		<a href="{% url 'administracion:crear_trabajador' %}" class="btn btn-primary">
 			Crear
-		</a>												
+		</a>
 		{% endif %}
 		{% if perms.administracion.cargar_trabajadores %}
 		<a href="{% url 'administracion:cargar_trabajadores' %}" class="btn btn-default">
 			Importar
-		</a>						
+		</a>
 		{% endif %}
 	</div>
 	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.administracion.ver_reporte_trabajadores_excel %}						
+		<div class="btn-group">
+			{% if perms.administracion.ver_reporte_trabajadores_excel %}
 			<button class="btn btn-default" type="button" onclick="location.href='{% url 'administracion:maestro_trabajadores_excel' %}';">
            		<span class="glyphicon glyphicon-list-alt"></span>
             </button>
-			{% endif %}	
+			{% endif %}
 		</div>
 	</div>
 </div>
@@ -33,15 +33,15 @@
 					<th class="text-center">DNI</th>
 					<th class="text-center">APELLIDO PATERNO</th>
 					<th class="text-center">APELLIDO MATERNO</th>
-					<th class="text-center">NOMBRE</th>					
+					<th class="text-center">NOMBRE</th>
 				</tr>
-			</thead>							
+			</thead>
 			<tbody>
 			{% for trabajador in trabajadores %}
-				{% if perms.administracion.ver_detalle_puesto %}
-				<tr onclick="location.href='{% url 'administracion:detalle_trabajador' trabajador.pk %}';">
+				{% if perms.administracion.ver_detalle_trabajador %}
+				<tr onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' trabajador.pk %}','Trabajador / {{ trabajador.nombres }} {{ trabajador.apellido_paterno }} {{ trabajador.apellido_materno }}')">
 				{% else %}
-				<tr>
+				<tr onclick=" return alert('wexd0');">
 				{% endif %}
 					<td>{{ trabajador.dni }}</td>
 					<td>{{ trabajador.apellido_paterno }}</td>
@@ -52,23 +52,37 @@
 			</tbody>
 		</table>
 	</div>
-</div>			
+</div>
+<div id="popup"></div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{	
+$(document).ready(function()
+{
     var table = $('#tabla').dataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }
     } );
- 
-    $('#tabla tr').hover(function() 
+
+    $('#tabla tr').hover(function()
 	{
 		$(this).css("cursor","pointer");
-	}); 
-    
+	});
+
 });
+
+function abrir_modal(url, titulo)
+{
+	ventana_transferencia = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+
+}
 </script>
 {% endblock js %}

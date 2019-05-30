@@ -1,15 +1,37 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Movimientos / {{ object.pk }}</h3>
+<h3>Movimientos / {{ object.id_movimiento }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'almacen:movimiento_pdf' object.pk %}';">Ver PDF</button>
+	<div class="col-lg-5">
+		{% if perms.almacen.add_movimiento %}
+			{% if object.tipo_movimiento.incrementa %}
+			<a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
+			{% else %}
+			<a href="{% url 'almacen:registrar_salida' %}" class="btn btn-primary">Crear</a>
+			{% endif %}
+		{% endif %}
 		<a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a> 
 		{% if perms.almacen.delete_movimiento %}
 			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
 		{% endif %}
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		  	<li>
+				<a href="{% url 'almacen:movimiento_pdf' object.pk %}">
+					<span class="fa fa-print"></span> 
+					Imprimir  
+				</a>
+			</li>		    		    
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
 				onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.anterior %}';">
@@ -32,16 +54,16 @@
 	<div class="panel-body">
 		<div class="row">
 			<div class="col-md-3">
-				<label>ID MOVIMIENTO:</label>  
+				<label>ID MOVIMIENTO:</label>
 				<p>{{ object.id_movimiento }}</p>
 			</div>	
-			<div class="col-md-2">
+			<div class="col-md-3">
 				<label>Fecha Creación:</label> 
-				<p>{{ object.created|date:"d/m/Y" }}</p>
+				<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
 			</div>
 			<div class="col-md-3">
 				<label>Fecha Modificación:</label> 
-				<p>{{ object.modified|date:"d/m/Y" }}</p>
+				<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
 			</div>			
 			<div class="col-md-3">
 				<label>Estado:</label> 
@@ -53,28 +75,48 @@
 				<label>Tipo de Ingreso:</label>  
 				<p>{{ object.tipo_movimiento }}</p>
 			</div>
-			<div class="col-md-6">
+			<div class="col-md-3">
 				<label>Almacen:</label> 
 				<p>{{ object.almacen }}</p>
 			</div>
-		</div>						
-		<div class="row">
-			<div class="col-md-3">			
-				<label>Fecha:</label> 
+			<div class="col-md-3">
+				<label>Fecha:</label>
 				<p>{{ object.fecha_operacion|date:"d/m/Y" }}</p>
 			</div>
-			<div class="col-md-3">	
-				<label>Hora:</label> 
+			<div class="col-md-3">
+				<label>Hora:</label>
 				<p>{{ object.fecha_operacion|date:"H:i:s" }}</p>
 			</div>
-			<div class="col-md-3">	
-				<label>Referencia:</label>
-				{% if object.referencia %}
-				<p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a></p>
+		</div>						
+		<div class="row">
+			<div class="col-md-3">
+				<label>Oficina a atender:</label>
+				{% if object.oficina %}
+				<p><a href="{% url 'administracion:detalle_oficina' object.oficina.pk %}">{{ object.oficina }}</a></p>
 				{% else %}
 				<p>NINGUNA</p>
 				{% endif %}
-			</div>				
+			</div>
+			<div class="col-md-2">
+				<label>DNI Receptor:</label>
+				{% if object.productor %}
+				<p>{{ object.productor.dni }}</p>
+				{% elif object.trabajador.dni %}
+				<p>{{ object.trabajador.dni }}</p>
+				{% else %}
+				<p>--</p>
+				{% endif %}
+			</div>
+			<div class="col-md-7">
+				<label>Receptor:</label>
+				{% if object.productor %}
+				<p>{{ object.productor.nombre_completo }}</p>
+				{% elif object.trabajador.dni %}
+				<p>{{ object.trabajador.nombre_completo }}</p>
+				{% else %}
+				<p>--</p>
+				{% endif %}
+			</div>
 		</div>
 		<div class="row">
 			<div class="col-md-3">	
@@ -99,6 +141,24 @@
 				<p>{{ object.numero }}</p>
 				{% else %}
 				<p>-</p>
+				{% endif %}
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<label>Referencia:</label>
+				{% if object.referencia %}
+				<p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a></p>
+				{% else %}
+				<p>NINGUNA</p>
+				{% endif %}
+			</div>
+			<div class="col-md-3">
+				<label>Pedido:</label>
+				{% if object.pedido %}
+				<p><a href="{% url 'almacen:detalle_pedido' object.pedido.pk %}">{{ object.pedido }}</a></p>
+				{% else %}
+				<p>NINGUNO</p>
 				{% endif %}
 			</div>
 		</div>
@@ -178,7 +238,7 @@ $(document).ready(function()
 	{
 		var mySpinner = setupLoading();
 		$.ajax({
-			data : {'id_movimiento' : "{{ object.id_movimiento }}" },
+			data : {'id_movimiento' : "{{ object.pk }}" },
 			url : "{% url 'almacen:eliminar_movimiento' %}",
 			type : 'get',
 			success : function(data) 
@@ -186,7 +246,11 @@ $(document).ready(function()
 				removeLoading(mySpinner);
 				alert("Movimiento " + data.id_movimiento + " eliminado");	
 				$(location).attr('href', "{% url 'almacen:movimientos' %}");
-			}
+			},
+			error: function (request, status, error)
+			{
+            	alert(request.responseText);
+        	}
 		});
 		ventana.dialog("close");
 	}

@@ -12,8 +12,11 @@
 		        	{% if perms.administracion.ver_tabla_oficinas %}
 		            <li><a href="{% url 'administracion:maestro_oficinas' %}">Oficinas</a></li>
 		            {% endif %}
-		            {% if perms.administracion.ver_tabla_profesiones %}
+					{% if perms.administracion.ver_tabla_profesiones %}
 		            <li><a href="{% url 'administracion:maestro_profesiones' %}">Profesiones</a></li>
+		            {% endif %}
+		            {% if perms.administracion.ver_tabla_productores %}
+		            <li><a href="{% url 'administracion:maestro_productores' %}">Productores</a></li>
 		            {% endif %}	
 		            {% if perms.administracion.ver_tabla_puestos %}
 		            <li><a href="{% url 'administracion:maestro_puestos' %}">Puestos</a></li>

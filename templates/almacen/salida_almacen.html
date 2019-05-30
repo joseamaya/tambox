@@ -38,7 +38,7 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>Id Movimiento:</label>  
-						{{ form.id_movimiento }}
+						<p>{{ object.id_movimiento }}</p>
 					</div>
 				</div>
 			</div>
@@ -73,38 +73,38 @@
 					    {% endif %} 
 						{{ form.almacen }}
 					</div>
-				</div>
-			</div>			
-			<div class="form-group">	
-				<div class="row">
-					<div class="col-md-3">			
+					<div class="col-md-3">
 						<label>Fecha:</label>
 						{% if form.fecha.errors %}
 							{% for error in form.fecha.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
-					    {% endif %} 
+					    {% endif %}
 						{{ form.fecha }}
 					</div>
-					<div class="col-md-3">	
-						<label>Hora:</label> 
+					<div class="col-md-3">
+						<label>Hora:</label>
 						{% if form.hora.errors %}
 							{% for error in form.hora.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
 					    {% endif %}
 						{{ form.hora }}
 					</div>
+				</div>
+			</div>			
+			<div class="form-group">	
+				<div class="row">
 					<div class="col-md-3">	
 						<label>Oficina a atender:</label> 
 						{% if form.oficina.errors %}
@@ -119,6 +119,35 @@
 					    {% endif %}
 						{{ form.oficina }}
 					</div>
+					<div class="col-md-2">
+						<label>DNI Receptor:</label>
+						{% if form.dni_receptor.errors %}
+							{% for error in form.dni_receptor.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.dni_receptor }}
+					</div>
+					<div class="col-md-7">
+						<label>Receptor:</label>
+						{% if form.receptor.errors %}
+							{% for error in form.receptor.errors %}
+							<div class="alert alert-danger alert-dismissible" role="alert">
+								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
+							</div>
+					        {% endfor %}
+					    {% endif %}
+						{{ form.receptor }}
+					</div>
+
 				</div>						
 			</div>			
 			<div class='form-group'>
@@ -208,6 +237,7 @@
 											</div>
 									        {% endfor %}
 									    {% endif %}
+									    {{ detalle_salida_form.pedido }}
 						            	{{ detalle_salida_form.codigo }}
 					            	</td>
 					            	<td>
@@ -330,12 +360,56 @@
 <script>
 $(document).ready(function() 
 {
-	var total=0;
+	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
 	$("#id_fecha").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$("#id_tipo_movimiento").on('change',verificar_tipo_salida);
+
+	function verificar_tipo_salida()
+	{
+		$('#id_dni_receptor').prop("readonly", false);
+		$('#id_receptor').prop("readonly", false);
+	}
+
+	$("#id_dni_receptor").keyup(function()
+	{
+		var dni=$("#id_dni_receptor").val();
+		var tipo_movimiento = $("#id_tipo_movimiento").val();
+		if(dni.length==8)
+		{
+			$.ajax({
+		      url: "{% url 'administracion:busqueda_receptor_dni' %}",
+		      data: {'dni': dni, 'tipo_movimiento':tipo_movimiento},
+		      success: function(data)
+		      {
+		    	  $("#id_receptor").val(data.nombre_completo);
+		    	  event.preventDefault();
+		      }
+		    });
+		}
+	});
+
+	$("#id_receptor").autocomplete({
+	  	source: function(request, response){
+	    $.ajax({
+	      url: "{% url 'administracion:busqueda_receptor_nombre' %}",
+	      data: {'nombre': $("#id_receptor").val(), 'tipo_movimiento':$("#id_tipo_movimiento").val()},
+	      success: function( data )
+	      {
+	          response( data );
+	      }
+	    });
+	  },
+	  minLength: 2,
+	  select: function( event, ui ) {
+		$("#id_dni_receptor").val(ui.item.dni);
+		$("#id_receptor").val(ui.item.label);
+		return false;
+	  },
+	});
 		
 	$(document).on("click",".eliminar",function()
 	{
@@ -445,7 +519,7 @@ $(document).ready(function()
 	        	  $("#"+id+"cantidad").val(data.stock);
 	          }
 	    	  precio = $("#"+id+"precio").val();
-	    	  valor = parseFloat(precio)*parseFloat(cantidad);
+	    	  valor = parseFloat(precio) * parseFloat(cantidad);
 	    	  $("#"+id+"valor").val(valor.toFixed(5));
 	    	  total = total - valorTemp + valor;
 			  $("#id_total").val(total.toFixed(5));

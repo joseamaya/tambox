@@ -6,7 +6,8 @@ from administracion.views import CrearOficina, ListadoOficinas, Tablero,\
     DetallePuesto, ModificarPuesto, CargarOficinas, CargarTrabajadores,\
     ReporteExcelOficinas, ReporteExcelTrabajadores, CargarPuestos, ModificarNivelAprobacion,\
     ListadoProfesiones, CrearProfesion, DetalleProfesion, ModificarProfesion,\
-    ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion
+    ReporteExcelPuestos, ReporteExcelProfesiones, CrearNivelAprobacion, ListadoNivelesAprobacion, DetalleNivelAprobacion, BusquedaReceptorDni, \
+    ModificarProductor, DetalleProductor, CrearProductor, ListadoProductores, BusquedaReceptorNombre, CargarProductores
 
 urlpatterns = [
     url(r'^tablero/$',login_required(Tablero.as_view()), name="tablero"),
@@ -14,6 +15,7 @@ urlpatterns = [
     url(r'^cargar_oficinas/$',login_required(CargarOficinas.as_view()), name="cargar_oficinas"),
     url(r'^cargar_trabajadores/$',login_required(CargarTrabajadores.as_view()), name="cargar_trabajadores"),
     url(r'^cargar_puestos/$',login_required(CargarPuestos.as_view()), name="cargar_puestos"),
+    url(r'^cargar_productores/$', login_required(CargarProductores.as_view()), name="cargar_productores"),
     url(r'^maestro_oficinas_excel/$',login_required(ReporteExcelOficinas.as_view()), name="maestro_oficinas_excel"),
     url(r'^maestro_trabajadores_excel/$',login_required(ReporteExcelTrabajadores.as_view()), name="maestro_trabajadores_excel"),
     url(r'^reporte_excel_puestos/$',login_required(ReporteExcelPuestos.as_view()), name="reporte_excel_puestos"),
@@ -26,7 +28,13 @@ urlpatterns = [
     url(r'^crear_trabajador/$',login_required(CrearTrabajador.as_view()), name="crear_trabajador"),
     url(r'^detalle_trabajador/(?P<pk>.+)/$', login_required(DetalleTrabajador.as_view()), name="detalle_trabajador"),
     url(r'^modificar_trabajador/(?P<pk>.+)/$',login_required(ModificarTrabajador.as_view()), name="modificar_trabajador"),
+    url(r'^crear_productor/$',login_required(CrearProductor.as_view()), name="crear_productor"),
+    url(r'^detalle_productor/(?P<pk>.+)/$', login_required(DetalleProductor.as_view()), name="detalle_productor"),
+    url(r'^modificar_productor/(?P<pk>.+)/$',login_required(ModificarProductor.as_view()), name="modificar_productor"),
+    url(r'^maestro_productores/$',login_required(ListadoProductores.as_view()), name="maestro_productores"),
     url(r'^maestro_puestos/$',login_required(ListadoPuestos.as_view()), name="maestro_puestos"),
+    url(r'^busqueda_receptor_dni/$', login_required(BusquedaReceptorDni.as_view()), name="busqueda_receptor_dni"),
+    url(r'^busqueda_receptor_nombre/$', login_required(BusquedaReceptorNombre.as_view()), name="busqueda_receptor_nombre"),
     url(r'^crear_puesto/$',login_required(CrearPuesto.as_view()), name="crear_puesto"),
     url(r'^detalle_puesto/(?P<pk>.+)/$', login_required(DetallePuesto.as_view()), name="detalle_puesto"),
     url(r'^modificar_puesto/(?P<pk>.+)/$',login_required(ModificarPuesto.as_view()), name="modificar_puesto"),

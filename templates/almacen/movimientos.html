@@ -38,7 +38,7 @@
 					<td>{{ movimiento.id_movimiento }}</td>
 					<td>{{ movimiento.tipo_movimiento }}</td>					
 					<td>{{ movimiento.almacen }}</td>
-					<td>{{ movimiento.fecha_operacion|date:"d/m/y" }}</td>
+					<td>{{ movimiento.fecha_operacion|date:"d/m/y H:i:s" }}</td>
 					<td>{{ movimiento.created|date:"d/m/y H:i:s" }}</td>			
 				</tr>
 			{% endfor %}

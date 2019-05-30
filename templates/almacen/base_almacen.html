@@ -32,6 +32,7 @@
 				    {% if perms.almacen.add_movimiento %}
 				    <li><a href="{% url 'almacen:registrar_salida' %}">Registrar Salida</a></li>
 				    {% endif %}
+				    <li><a href="{% url 'almacen:reproceso_precio' %}">Reprocesar Precio</a></li>
 				</ul>	                    
 		    </li>
 		    <li>
@@ -41,28 +42,26 @@
 		            <li><a href="{% url 'almacen:reporte_kardex' %}">Kardex</a></li>
 		            {% endif %}
 		            {% if perms.almacen.ver_reporte_kardex_excel %}
-		            <li><a href="{% url 'almacen:generacion_kardex_producto' %}">Kardex Producto</a></li>
+		            <li><a href="{% url 'almacen:reporte_kardex_producto' %}">Kardex Producto</a></li>
 		            {% endif %}
-		            
-		            
-		            {% if perms.almacen.ver_reporte_kardex_excel %}
-		            <li><a href="{% url 'almacen:reporte_consolidado_productos_kardex' %}">Consolidado Kardex Productos</a></li>
-		            {% endif %}
-		            {% if perms.almacen.ver_reporte_kardex_excel %}
-		            <li><a href="{% url 'almacen:reporte_consolidado_grupos_kardex' %}">Consolidado Kardex Grupos</a></li>
-		            {% endif %}			   		
-			   		{% if perms.almacen.ver_tabla_movimientos %}
+		            {% if perms.almacen.ver_tabla_movimientos %}
 			   		<li><a href="{% url 'almacen:movimientos' %}">Movimientos</a></li>
-			   		{% endif %}
-			   		{% if perms.almacen.ver_tabla_pedidos %}
-			   		<li><a href="{% url 'almacen:pedidos' %}">Pedidos</a></li>
 			   		{% endif %}
 			   		{% if perms.almacen.ver_reporte_movimientos_excel %}			   		
 			   		<li><a href="{% url 'almacen:reporte_movimientos' %}">Movimientos por Fecha</a></li>
 			   		{% endif %}
+			   		{% if perms.almacen.ver_reporte_movimientos_excel %}			   		
+			   		<li><a href="{% url 'almacen:movimientos_por_producto' %}">Movimientos por Producto</a></li>
+			   		{% endif %}
+			   		{% if perms.almacen.ver_tabla_pedidos %}
+			   		<li><a href="{% url 'almacen:pedidos' %}">Pedidos</a></li>
+			   		{% endif %}			   		
 			   		{% if perms.almacen.ver_reporte_stock_excel %}
-			   		<li><a href="{% url 'almacen:listado_stock' %}">Stock de Productos</a></li>
-			   		{% endif %}   					   		
+			   		<li><a href="{% url 'almacen:stock_productos' %}">Stock de Productos</a></li>
+			   		{% endif %}
+					{% if perms.almacen.ver_reporte_inventario_excel %}
+			   		<li><a href="{% url 'almacen:inventario' %}">Inventario</a></li>
+			   		{% endif %}
 				</ul>
 		    </li>
     	</ul>	               

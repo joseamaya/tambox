@@ -2,23 +2,52 @@
 {% block cuerpo %}
 <h3>Solicitudes de Cotización / {{ object.pk }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'compras:cotizacion_pdf' object.pk %}';">
-		Ver PDF
-		</button>
-		<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:listado_ordenes_compra_cotizacion' object.pk %}';">
-		Ver Órdenes
-		</button>
+	<div class="col-lg-5">
+		{% if perms.compras.add_cotizacion %} <a
+			href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
+		{% endif %}
 		{% if cotizacion.estado == "PEND" %} 
 			{% if perms.compras.change_cotizacion %} 
-				<a class="btn btn-primary" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a> 
+				<a class="btn btn-warning" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a> 
 			{% endif %}
 		{% endif %}
-		{% if perms.compras.delete_cotizacion %}
-			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+		{% if object.estado == "PEND" %}
+			{% if perms.compras.delete_cotizacion %}
+				<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+			{% endif %}
 		{% endif %}		
 	</div>
-	<div class="col-lg-2 text-right">
+	<div class="col-lg-3">
+		<div class="dropdown">
+		  <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+		    Acciones
+		    <span class="caret"></span>
+		  </button>
+		  <ul class="dropdown-menu">
+		    {% if object.estado != "PEND" %}
+		    <li>
+				<a href="{% url 'compras:listado_ordenes_servicios_cotizacion' object.pk %}">
+					<span class="fa fa-exchange"></span> 
+					Servicios
+				</a>
+			</li>
+			{% endif %}
+		    <li>
+				<a href="{% url 'compras:listado_ordenes_compra_cotizacion' object.pk %}">
+					<span class="fa fa-book"></span> 
+					Compras
+				</a>
+			</li>
+			<li>
+				<a href="{% url 'compras:cotizacion_pdf' object.pk %}">
+					<span class="fa fa-print"></span> 
+					Imprimir  
+				</a>
+			</li>		    		    
+		  </ul>
+		</div>		
+	</div>
+	<div class="col-lg-4 text-right">
 		<div class="btn-group">
 			<button class="btn btn-default" type="button"
 				onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.anterior %}';">
@@ -36,12 +65,21 @@
 	</div>
 </div>
 <hr />
+<div id="dialog-confirm" title="Eliminar Cotización"></div>
 <div class="panel panel-default">	
 	<div class="panel-body">					
 			<div class="row">
 				<div class="col-md-2">
 					<label>CODIGO:</label>  
 					<p>{{ object.codigo }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Creación:</label> 
+					<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+				</div>
+				<div class="col-md-2">
+					<label>Fecha Mod:</label> 
+					<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
 				</div>
 				<div class="col-md-4">
 					<label>Estado:</label> 
@@ -116,7 +154,44 @@
 <script>
 $(document).ready(function() 
 {
+	$('#id_eliminar').click(function(e) {
+		e.preventDefault();
+		ventana = $("#dialog-confirm").dialog({
+			resizable : false,
+			height : 140,
+			modal : true,
+			buttons : {
+				"Borrar" : borrarCotizacion,
+				"Cancelar" : cerrarCotizacion
+			}
+		});
+	});
 	
+	function borrarCotizacion() 
+	{
+		$.ajax({
+			data : { 'codigo' : "{{ object.codigo }}" },
+			url : "{% url 'compras:eliminar_cotizacion' %}",
+			type : 'get',
+			success : function(data) {
+				if (data.ordenes == 'NO') 
+				{
+					alert("Cotización " + data.codigo + " eliminada");
+					$(location).attr('href', "{% url 'compras:detalle_cotizacion' cotizacion.siguiente %}");
+				} 
+				else if (data.ordenes == 'SI') 
+				{
+					alert("Cotización " + data.codigo + " no puede eliminarse");
+				}
+			}
+		});
+		ventana.dialog("close");
+	}
+
+	function cerrarCotizacion() {
+		ventana.dialog("close");
+	}
+
 });
 </script>
 {% endblock js %}

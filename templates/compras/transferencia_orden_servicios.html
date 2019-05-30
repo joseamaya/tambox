@@ -27,7 +27,11 @@
 							{% for orden in ordenes %}
 								<tr>
 									<td>{{ orden.codigo }}</td>
+									{% if orden.cotizacion %} 
 									<td>{{ orden.cotizacion.proveedor }}</td>
+									{% else %}
+									<td>{{ orden.proveedor }}</td>
+									{% endif %}
 									<td>{{ orden.fecha }}</td>																		
 								</tr>
 							{% endfor %}

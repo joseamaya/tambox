@@ -54,17 +54,7 @@
 				<div class="row">
 					<div class="col-md-3">
 						<label>ID MOVIMIENTO:</label>
-						{% if form.id_movimiento.errors %}
-							{% for error in form.id_movimiento.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}   
-						{{ form.id_movimiento }}
+						<p>{{ object.id_movimiento }}</p>
 					</div>														
 				</div>
 			</div>
@@ -541,37 +531,47 @@ $(document).ready(function()
 	function transferirOrden()
 	{		
 		var orden_compra = $("#orden_compra").val();
+		var fecha = $("#id_fecha").val();
 		var cont = 0;
 		ventana_transferencia.dialog( "close" );
 		$.ajax({
-			data : {'orden_compra': orden_compra},
+			data : {'orden_compra': orden_compra, 'fecha':fecha},
 			url : "{% url 'compras:obtener_detalle_orden_compra' %}",
 			type : 'get',
 			success : function(data)
 			{
-				$.each(data, function(i,item){
-					cont = i+1;
-					$("#detalles tbody").append( 
-					"<tr class='detalle_ingreso_formset'>" +						
-						"<td>" + item.orden_compra + item.codigo + "</td>" +
-						"<td>" + item.nombre + "</td>" +
-						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
-				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");							
-					var val_temp = $("#id_form-"+i+"-valor").val()
-					contDetalles=i+1;
-					total = total + parseFloat(val_temp);
-				});
-				contDetalles = cont;
-				ultimo_item = cont;
-				$("#id_form-TOTAL_FORMS").val(cont);
-				$("#id_doc_referencia").val(orden_compra);
-				$("#id_total").val(total.toFixed(5));
-				$('#id_crear_detalle').prop("disabled", true );
-				$(".decimal").keydown(validar_decimales);	
+				if(data.length > 0)
+				{
+					$.each(data, function(i,item){
+						cont = i+1;
+						$("#detalles tbody").append(
+						"<tr class='detalle_ingreso_formset'>" +
+							"<td>" + item.orden_compra + item.codigo + "</td>" +
+							"<td>" + item.nombre + "</td>" +
+							"<td>" + item.unidad + "</td>" +
+							"<td>" + item.cantidad + "</td>" +
+							"<td>" + item.precio + "</td>" +
+							"<td>" + item.valor + "</td>" +
+							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+						"</tr>");
+						var val_temp = $("#id_form-"+i+"-valor").val()
+						contDetalles=i+1;
+						total = total + parseFloat(val_temp);
+					});
+					contDetalles = cont;
+					ultimo_item = cont;
+					$("#id_form-TOTAL_FORMS").val(cont);
+					$("#id_doc_referencia").val(orden_compra);
+					$("#id_total").val(total.toFixed(5));
+					$('#id_crear_detalle').prop("disabled", true );
+					$(".decimal").keydown(validar_decimales);
+				}
+				else{
+					alert("No existe el tipo de cambio para la fecha seleccionada");
+				}
+			},
+			error: function (jqXHR, exception) {
+				alert(jqXHR.responseText);
 			}
 		});
 	}

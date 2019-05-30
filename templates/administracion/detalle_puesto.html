@@ -65,9 +65,17 @@
 				<div class="row">
 					<div class="col-lg-4">
 						<label>TRABAJADOR:</label>
-						<p>{{ object.trabajador }}</p>
+						{% if object.trabajador %}
+						<p><a href="{% url 'administracion:detalle_trabajador' object.trabajador.pk %}">{{ object.trabajador }}</a></p>
+						{% else %}
+						<p>NINGUNA</p>
+						{% endif %}						
 						<label>OFICINA:</label>
-						<p>{{ object.oficina }}</p>
+						{% if object.oficina %}
+						<p><a href="{% url 'administracion:detalle_oficina' object.oficina.pk %}">{{ object.oficina }}</a></p>
+						{% else %}
+						<p>NINGUNA</p>
+						{% endif %}						
 						<label>FECHA INICIO:</label>
 						<p>{{ object.fecha_inicio|date:"d/m/y" }}</p>						
 					</div>

@@ -27,7 +27,6 @@ SECRET_KEY = 'a819*nw1y=2&z2jd%g+62ogj$mjvx-v6#&_d)_n#fx_b0!24f_'
 # Application definition
 
 INSTALLED_APPS = (
-    'suit',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,6 +40,7 @@ INSTALLED_APPS = (
     'contabilidad',
     'almacen',
     'administracion',
+    'import_export'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,7 +87,7 @@ USE_I18N = True
 
 USE_L10N = False
 
-USE_TZ = True
+USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/

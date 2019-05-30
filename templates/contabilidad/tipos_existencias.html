@@ -1,0 +1,97 @@
+{% extends "contabilidad/base_contabilidad.html" %}
+{% block cuerpo %}
+<h3>Tipos de Existencias</h3>
+<div class="row">
+	<div class="col-lg-10">
+		{% if perms.contabilidad.cargar_tipos_existencias %}
+		<a href="{% url 'contabilidad:cargar_tipos_existencias' %}" class="btn btn-default">
+			Importar
+		</a>
+		{% endif %}
+	</div>
+</div>
+<hr/>
+<div class="row">
+	<div class="col-lg-12">
+		<table id="tabla" class="display" cellspacing="0" width="100%">
+			<thead>
+				<tr>
+					<th class="text-center">COD_SUNAT</th>
+					<th class="text-center">NOMBRE</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for tipo in tipos_existencias %}
+				<tr>
+					<td>{{ tipo.codigo_sunat }}</td>
+					<td>{{ tipo.descripcion }}</td>
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+	</div>
+</div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function()
+{
+    var borrarSeleccionado;
+    var table = $('#tabla').DataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+
+    $('#tabla tr').hover(function()
+	{
+		$(this).css("cursor","pointer");
+	});
+
+    $(document).on("click",".eliminar",function()
+	{
+		borrarSeleccionado = $(this);
+		ventana = $( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons:
+		  {
+			"Borrar": borrarTipoDocumento,
+		    "Cancelar": cerrarBorrarTipoDocumento
+		  }
+		});
+	});
+
+    function borrarTipoDocumento()
+	{
+    	var id_boton= $(borrarSeleccionado).prop('id');
+    	var id = id_boton.replace("elim_","");
+    	$.ajax({
+    		data : {'id': id},
+    		url : "{% url 'contabilidad:eliminar_tipo_documento' %}",
+    		type : 'get',
+    		success : function(data)
+    		{
+    			if(data.relaciones=='NO')
+	   			{
+	   				alert("Tipo de Documento "+data.nombre+ " eliminado");
+	   				table.row('.selected').remove().draw(false);
+	   			}
+	   			else if(data.relaciones=='SI')
+	   			{
+	   				alert("Producto "+data.nombre+" no puede eliminarse");
+	   			}
+    		}
+    	});
+		ventana.dialog("close");
+	}
+
+    function cerrarBorrarTipoDocumento()
+	{
+		ventana.dialog("close");
+	}
+
+});
+</script>
+{% endblock js %}

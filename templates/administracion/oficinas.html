@@ -4,7 +4,7 @@
 <div class="row">
 	<div class="col-lg-10">
 		{% if perms.administracion.add_oficina %}
-		<a href="{% url 'administracion:crear_oficina' %}" class="btn btn-primary">
+		<a onclick="return abrir_modal('{% url 'administracion:crear_oficina' %}','Oficinas / Nuevo')" class="btn btn-primary">
 			Crear
 		</a>												
 		{% endif %}
@@ -32,13 +32,14 @@
 				<tr>
 					<th class="text-center">CODIGO</th>
 					<th class="text-center">NOMBRE</th>
-					<th class="text-center">DEPENDENCIA</th>					
+					<th class="text-center">DEPENDENCIA</th>
+					<th class="text-center">ACCION</th>
 				</tr>
 			</thead>							
 			<tbody>
 			{% for oficina in oficinas %}
 				{% if perms.administracion.ver_detalle_oficina %}
-				<tr onclick="location.href='{% url 'administracion:detalle_oficina' oficina.pk %}';">
+				<tr>
 				{% else %}
 				<tr>
 				{% endif %}
@@ -48,13 +49,31 @@
 					<td>{{ oficina.dependencia }}</td>
 					{% else %}
 					<td>NINGUNA</td>
-					{% endif %}					
+					{% endif %}
+					<td class="text-center">
+						{% if perms.administracion.ver_detalle_oficina %}
+						<a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')" class="btn">
+							<span class="glyphicon glyphicon-eye-open"></span>
+						</a>
+						{% endif %}
+						{% if perms.administracion.change_oficina %}
+						<a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')" class="btn">
+							<span class="glyphicon glyphicon-edit"></span>
+						</a>
+						{% endif %}
+						{% if perms.administracion.delete_oficina %}
+						<a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')" class="btn">
+							<span class="glyphicon glyphicon-remove"></span>
+						</a>
+						{% endif %}
+					</td>
 				</tr>
 			{% endfor %}
 			</tbody>
 		</table>
 	</div>
 </div>
+<div id="popup"></div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -66,11 +85,25 @@ $(document).ready(function()
         	url: "/static/localizacion/es_ES.json"
         },        
     });
-    
-	$('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	});
+
 });
+
+var modal;
+function abrir_modal(url, titulo)
+{
+	modal = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+}
+
+function cerrar_modal()
+{
+	modal.dialog("close");
+}
 </script>
 {% endblock js %}

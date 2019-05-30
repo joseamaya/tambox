@@ -2,8 +2,8 @@
 <h3>Tipos de Movimiento / {{ object.descripcion }}</h3>
 <div class="row">
 	<div class="col-lg-10">
-		{% if perms.tipo_movimiento.change_tipo_movimiento %} 
-		<a class="btn btn-primary" href="#"> Editar </a> 
+		{% if perms.tipo_movimiento.add_tipomovimiento %}
+		<a href="{% url 'almacen:crear_tipo_movimiento' %}" class="btn btn-primary">Crear</a>
 		{% endif %} 
 		{% if perms.tipo_movimiento.delete_tipo_movimiento %}
 		<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
@@ -52,11 +52,34 @@
 						<label>CODIGO:</label>
 						<p>{{ object.codigo }}</p>
 						<label>INCREMENTA:</label>
-						<p>{{ object.incrementa }}</p>
+						{% if object.incrementa %}
+						<p>SI</p>
+						{% else %}
+						<p>NO</p>
+						{% endif %}
 						<label>PIDE REFERENCIA:</label>
-						<p>{{ object.pide_referencia }}</p>
+						{% if object.pide_referencia %}
+						<p>SI</p>
+						{% else %}
+						<p>NO</p>
+						{% endif %}
 					</div>
-					<div class="col-lg-4"></div>
+					<div class="col-lg-4">
+						<label>CODIGO SUNAT:</label>
+						<p>{{ object.codigo_sunat }}</p>
+						<label>ES COMPRA:</label>
+						{% if object.es_compra %}
+						<p>SI</p>
+						{% else %}
+						<p>NO</p>
+						{% endif %}
+						<label>ES VENTA:</label>
+						{% if object.es_venta %}
+						<p>SI</p>
+						{% else %}
+						<p>NO</p>
+						{% endif %}
+					</div>
 					<div class="col-lg-4">
 						<label>FECHA REGISTRO: </label>
 						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
