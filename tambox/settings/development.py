@@ -1,12 +1,14 @@
 from .base import *
 
-DEBUG = False
-ALLOWED_HOSTS = ['*']
+DEBUG = True
+ALLOWED_HOSTS = []
 
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tambox',
+        'NAME': 'tambox_dev',
         'USER': 'tambox',
         'PASSWORD': 's0p0rt3ccpp',
         'HOST': 'localhost',
@@ -20,7 +22,5 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-STATIC_ROOT = os.path.join('/home/inkarri/static')
-
-LOGIN_URL = '/tambox'
-MEDIA_URL = '/tambox/media/'
+LOGIN_URL = '/'
+MEDIA_URL = '/media/'
