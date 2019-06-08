@@ -176,6 +176,10 @@ class Empresa(SingletonModel):
     
     def direccion(self):
         return self.lugar + ' ' + self.calle + ' ' + self.distrito
+
+    class Meta:
+        verbose_name = 'Empresa'
+        verbose_name_plural = 'Empresas'
     
 class Configuracion(TimeStampedModel):
     impuesto_compra = models.ForeignKey(Impuesto)
@@ -191,3 +195,7 @@ class TipoExistencia(TimeStampedModel):
     
     def __str__(self):
         return u'%s' % self.descripcion
+
+    class Meta:
+        verbose_name = 'Tipo de Existencia'
+        verbose_name_plural = 'Tipos de Existencias'

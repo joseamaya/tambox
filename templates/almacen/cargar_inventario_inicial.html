@@ -56,7 +56,7 @@ $(document).ready(function()
 {
 	var mySpinner = null;
 	$("#id_fecha").datepicker();
-	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$('#id_hora').wickedpicker({title:'Hora de Salida'});
 	$('#id_hora').val(mostrarhora());
 	
 	function agregarCero(n)
@@ -76,8 +76,7 @@ $(document).ready(function()
 		var f=new Date();
 		var horas = f.getHours();
 		var minutos = f.getMinutes();
-		var segundos = f.getSeconds();
-		cad= agregarCero(horas)+" : "+agregarCero(minutos)+" : "+agregarCero(segundos);
+		cad= agregarCero(horas)+":"+agregarCero(minutos);
 		return cad;
 	}
 	

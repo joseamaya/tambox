@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3>Aprobar Pedido / {{ pedido.codigo }}</h3>
-<form role="form" method="post">			
+<form role="form" method="post">
 	<div class="row">
 		<div class="col-lg-10">
 			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
@@ -33,11 +33,11 @@
 						<label>Código:</label> 
 						{% if detalle_salida_form.codigo.errors %}
 							{% for error in detalle_salida_form.codigo.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
 					    {% endif %}
@@ -49,11 +49,11 @@
 						<label>Almacén:</label> 
 						{% if detalle_salida_form.codigo.errors %}
 							{% for error in detalle_salida_form.codigo.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
 					    {% endif %}
@@ -63,11 +63,11 @@
 						<label>Fecha:</label> 
 						{% if detalle_salida_form.codigo.errors %}
 							{% for error in detalle_salida_form.codigo.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
 					    {% endif %}
@@ -77,11 +77,11 @@
 						<label>Hora:</label> 
 						{% if detalle_salida_form.codigo.errors %}
 							{% for error in detalle_salida_form.codigo.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
+							<div class="alert alert-danger alert-dismissible" role="alert">
 								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
+								</button>
+					            <strong>Error: </strong> {{ error|escape }}
 							</div>
 					        {% endfor %}
 					    {% endif %}
@@ -105,17 +105,17 @@
 						</thead>
 						<tbody>
 							{{ detalle_salida_formset.management_form }}
-						    {% for detalle_salida_form in detalle_salida_formset %}					        
+						    {% for detalle_salida_form in detalle_salida_formset %}
 					            <tr class="detalle_salida_formset">
 					            	<td>
 					            		{{ detalle_salida_form.pedido }}
 					            		{% if detalle_salida_form.codigo.errors %}
 											{% for error in detalle_salida_form.codigo.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
@@ -124,11 +124,11 @@
 					            	<td>
 						            	{% if detalle_salida_form.nombre.errors %}
 											{% for error in detalle_salida_form.nombre.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
@@ -137,11 +137,11 @@
 						            <td>
 							            {% if detalle_salida_form.unidad.errors %}
 											{% for error in detalle_salida_form.unidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
@@ -150,11 +150,11 @@
 						            <td>
 							            {% if detalle_salida_form.cantidad.errors %}
 											{% for error in detalle_salida_form.cantidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
@@ -163,24 +163,24 @@
 						            <td>
 							            {% if detalle_salida_form.precio.errors %}
 											{% for error in detalle_salida_form.precio.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
 							           	{{ detalle_salida_form.precio }}
-						           	</td>						           		
+						           	</td>
 						           	<td>
 							            {% if detalle_salida_form.valor.errors %}
 											{% for error in detalle_salida_form.valor.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
+											<div class="alert alert-danger alert-dismissible" role="alert">
 												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
 													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
+												</button>
+									            <strong>Error: </strong> {{ error|escape }}
 											</div>
 									        {% endfor %}
 									    {% endif %}
@@ -190,9 +190,9 @@
 						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
 						           			<span class='glyphicon glyphicon-remove'></span>
 						           		</button>
-						           	</td>				           	
-					           	</tr>					           	
-						    {% endfor %}		
+						           	</td>
+					           	</tr>
+						    {% endfor %}
 						</tbody>				
 					</table>
 				</div>
@@ -239,7 +239,7 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
+$(document).ready(function()
 {
 	var total=0;
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
@@ -278,7 +278,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					cont = i+1;
 					$("#detalles tbody").append( 
-					"<tr class='detalle_ingreso_formset'>" +						
+					"<tr class='detalle_ingreso_formset'>" +
 						"<td>" + item.pedido + item.codigo + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
@@ -286,15 +286,15 @@ $(document).ready(function()
 						"<td>" + item.precio + "</td>" +
 						"<td>" + item.valor + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");							
-					var val_temp = $("#id_form-"+i+"-valor").val();					
+					"</tr>");
+					var val_temp = $("#id_form-"+i+"-valor").val();
 					contDetalles=i+1;
-					total = total + parseFloat(val_temp);					
+					total = total + parseFloat(val_temp);
 				});
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
 				$("#id_total").val(total.toFixed(5));
 				updateFormElementIndices('detalle_salida_formset');
-				bindAutoComplete('productos');		
+				bindAutoComplete('productos');
 				$(".decimal").keydown(validar_decimales);
 			}
 		});

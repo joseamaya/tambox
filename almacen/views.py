@@ -233,7 +233,7 @@ class CargarAlmacenes(FormView):
         docfile = data['archivo']            
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             Almacen.objects.create(codigo=fila[0],
                                    descripcion=fila[1])
@@ -244,14 +244,15 @@ class CargarInventarioInicial(FormView):
     form_class = CargarInventarioInicialForm
     
     def obtener_fecha_hora(self,r_fecha,r_hora):
+        print(r_hora)
         r_hora = r_hora.replace(" ","")
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
         dia = int(r_fecha[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
-        segundos = int(r_hora[6:8])
-        fecha = datetime.datetime(anio,mes,dia,horas,minutos,segundos)
+        #segundos = int(r_hora[6:8])
+        fecha = datetime.datetime(anio,mes,dia,horas,minutos)
         return fecha
     
     def form_valid(self, form):
@@ -264,7 +265,7 @@ class CargarInventarioInicial(FormView):
         fecha_operacion = self.obtener_fecha_hora(fecha, hora)
         usuario = self.request.user
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname, encoding = "utf8"), delimiter=',', quotechar='"')
         tipo_movimiento = TipoMovimiento.objects.get(codigo='I00')
         with transaction.atomic():
             tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')            

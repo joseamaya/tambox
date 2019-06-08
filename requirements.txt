@@ -16,3 +16,4 @@ simplejson==3.16.0
 six==1.11.0
 typing==3.6.6
 whitenoise==4.1
+django-import-export==1.2.0

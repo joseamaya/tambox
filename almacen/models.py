@@ -21,6 +21,8 @@ class Almacen(TimeStampedModel):
     history = HistoricalRecords()
     
     class Meta:
+        verbose_name = 'Almacen'
+        verbose_name_plural = 'Almacenes'
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
                        ('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'),
                        ('ver_detalle_almacen', 'Puede ver detalle Almacén'),
@@ -431,6 +433,8 @@ class Kardex(TimeStampedModel):
         return str(self.movimiento.id_movimiento) +'-'+ str(self.nro_detalle_movimiento) +'-' + self.producto.descripcion
     
     class Meta:
+        verbose_name = 'Kardex'
+        verbose_name_plural = 'Kardex'
         permissions = (('ver_detalle_kardex', 'Puede ver detalle de Kardex'),
                        ('ver_tabla_kardex', 'Puede ver tabla de Kardex'),
                        ('ver_reporte_kardex_excel', 'Puede ver Reporte de Kardex en excel'),)

@@ -141,7 +141,7 @@ class CargarTrabajadores(FormView):
         docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname, encoding = "utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             usuario_hoja = fila[0]
             if usuario_hoja != "":

@@ -47,7 +47,7 @@ class CargarCuentasContables(FormView):
         docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
                                                  defaults={'descripcion': fila[1].strip()})
@@ -63,7 +63,7 @@ class CargarTiposExistencias(FormView):
         docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
                                                  defaults={'descripcion': fila[1].strip()})

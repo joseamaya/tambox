@@ -40,6 +40,7 @@ INSTALLED_APPS = (
     'contabilidad',
     'almacen',
     'administracion',
+    'import_export'
 )
 
 MIDDLEWARE_CLASSES = (
