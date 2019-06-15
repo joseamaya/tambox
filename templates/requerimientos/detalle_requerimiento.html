@@ -1,7 +1,7 @@
 {% extends "requerimientos/base_requerimientos.html" %} 
 {% load etiquetas %}
 {% block cuerpo %}
-<h3>Requerimientos / {{ object.pk }}</h3>
+<h3>Requerimientos / {{ object.codigo }}</h3>
 <div class="row">
 	<div class="col-lg-5">
 		{% if perms.requerimientos.add_requerimiento %} 
@@ -68,7 +68,7 @@
 		<div class="row">
 			<div class="col-md-2">
 				<label>Código:</label> 
-				<p>{{ object.pk }}</p>
+				<p>{{ object.codigo }}</p>
 			</div>
 			<div class="col-md-2">
 				<label>Fecha Creación:</label> 

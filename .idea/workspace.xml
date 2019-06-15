@@ -3,15 +3,11 @@
   <component name="ChangeListManager">
     <list default="true" id="e69304ce-b51f-4d5e-9bca-f4e8c785810d" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/administracion/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/almacen/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/almacen/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/reports.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/almacen/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/productos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/css/jquery-ui.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/jquery-ui.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/jquery-ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery-ui.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requerimientos/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/requerimientos/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tambox/settings/development.py" beforeDir="false" afterPath="$PROJECT_DIR$/tambox/settings/development.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,70 +18,37 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/almacen/reports.py">
+        <entry file="file://$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="106">
-              <caret line="899" selection-start-line="899" selection-end-line="899" />
-              <folding>
-                <element signature="e#24#35#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="119">
+              <caret line="40" column="110" selection-start-line="40" selection-start-column="110" selection-end-line="40" selection-end-column="110" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/templates/base.html">
+        <entry file="file://$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="20" column="41" selection-start-line="20" selection-start-column="35" selection-end-line="20" selection-end-column="41" />
+            <state relative-caret-position="68">
+              <caret line="70" column="35" selection-start-line="70" selection-start-column="35" selection-end-line="70" selection-end-column="35" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/requerimientos/urls.py">
+        <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="96">
-              <caret line="15" column="57" selection-start-line="15" selection-start-column="57" selection-end-line="15" selection-end-column="57" />
-              <folding>
-                <element signature="e#0#32#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/requerimientos/views.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="55">
-              <caret line="127" column="36" lean-forward="true" selection-start-line="127" selection-start-column="36" selection-end-line="127" selection-end-column="36" />
+            <state relative-caret-position="309">
+              <caret line="42" column="12" selection-start-line="42" selection-start-column="12" selection-end-line="42" selection-end-column="12" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/administracion/models.py">
+        <entry file="file://$PROJECT_DIR$/tambox/settings/development.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="250">
-              <caret line="194" column="30" lean-forward="true" selection-start-line="194" selection-start-column="30" selection-end-line="194" selection-end-column="30" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/reportlab/platypus/doctemplate.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="21386">
-              <caret line="1267" selection-start-line="1267" selection-end-line="1267" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/requirements.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="221">
-              <caret line="13" column="17" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
+            <state relative-caret-position="170">
+              <caret line="10" column="23" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
             </state>
           </provider>
         </entry>
@@ -103,6 +66,7 @@
     <findStrings>
       <find>detalle_movimiento</find>
       <find>crear</find>
+      <find>DetalleOperacionRequerimiento</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -123,7 +87,6 @@
         <option value="$PROJECT_DIR$/tambox/settings/local.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/manage.py" />
-        <option value="$PROJECT_DIR$/tambox/settings/development.py" />
         <option value="$PROJECT_DIR$/compras/forms.py" />
         <option value="$PROJECT_DIR$/seguridad/migrations/__init__.py" />
         <option value="$PROJECT_DIR$/productos/models.py" />
@@ -132,7 +95,13 @@
         <option value="$PROJECT_DIR$/almacen/models.py" />
         <option value="$PROJECT_DIR$/almacen/reports.py" />
         <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/requerimientos/models.py" />
         <option value="$PROJECT_DIR$/administracion/models.py" />
+        <option value="$PROJECT_DIR$/requerimientos/urls.py" />
+        <option value="$PROJECT_DIR$/requerimientos/views.py" />
+        <option value="$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html" />
+        <option value="$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html" />
+        <option value="$PROJECT_DIR$/tambox/settings/development.py" />
       </list>
     </option>
   </component>
@@ -158,7 +127,13 @@
             <path>
               <item name="tambox" type="b2602c69:ProjectViewProjectNode" />
               <item name="tambox" type="462c0819:PsiDirectoryNode" />
-              <item name="requerimientos" type="462c0819:PsiDirectoryNode" />
+              <item name="administracion" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="tambox" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tambox" type="462c0819:PsiDirectoryNode" />
+              <item name="administracion" type="462c0819:PsiDirectoryNode" />
+              <item name="migrations" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -221,7 +196,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="67" y="25" width="1299" height="743" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19670847" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -229,12 +203,12 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.39739415" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.35504887" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32736155" />
+      <window_info active="true" anchor="bottom" id="Terminal" order="8" visible="true" weight="0.32736155" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -329,13 +303,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="161">
           <caret line="58" column="54" selection-start-line="58" selection-start-column="54" selection-end-line="58" selection-end-column="54" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="357">
-          <caret line="42" column="12" selection-start-line="42" selection-start-column="12" selection-end-line="42" selection-end-column="12" />
         </state>
       </provider>
     </entry>
@@ -450,13 +417,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tambox/settings/development.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/templates/almacen/detalle_movimiento.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="204">
@@ -526,27 +486,76 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/administracion/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="123">
+          <caret line="218" selection-start-line="218" selection-end-line="218" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/requerimientos/urls.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="96">
-          <caret line="15" column="57" selection-start-line="15" selection-start-column="57" selection-end-line="15" selection-end-column="57" />
+        <state relative-caret-position="185">
+          <caret line="20" column="43" selection-start-line="20" selection-start-column="43" selection-end-line="20" selection-end-column="43" />
           <folding>
             <element signature="e#0#32#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/requerimientos/views.py">
+    <entry file="file://$PROJECT_DIR$/requerimientos/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="55">
-          <caret line="127" column="36" lean-forward="true" selection-start-line="127" selection-start-column="36" selection-end-line="127" selection-end-column="36" />
+        <state relative-caret-position="51">
+          <caret line="14" column="6" selection-start-line="14" selection-start-column="6" selection-end-line="14" selection-end-column="6" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/administracion/models.py">
+    <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/django/utils/decorators.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="250">
-          <caret line="194" column="30" lean-forward="true" selection-start-line="194" selection-start-column="30" selection-end-line="194" selection-end-column="30" />
+        <state relative-caret-position="114">
+          <caret line="62" selection-start-line="62" selection-end-line="62" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/django/contrib/auth/decorators.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requerimientos/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="193" selection-start-line="193" selection-end-line="193" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/requerimientos/listado_requerimientos.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="40" column="110" selection-start-line="40" selection-start-column="110" selection-end-line="40" selection-end-column="110" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/requerimientos/detalle_requerimiento.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="70" column="35" selection-start-line="70" selection-start-column="35" selection-end-line="70" selection-end-column="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tambox/settings/base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="309">
+          <caret line="42" column="12" selection-start-line="42" selection-start-column="12" selection-end-line="42" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tambox/settings/development.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="23" selection-start-line="10" selection-start-column="23" selection-end-line="10" selection-end-column="23" />
         </state>
       </provider>
     </entry>

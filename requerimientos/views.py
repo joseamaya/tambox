@@ -185,6 +185,8 @@ class CrearRequerimiento(CreateView):
 
 class DetalleOperacionRequerimiento(DetailView):
     model = Requerimiento
+    slug_field = 'codigo'
+    slug_url_kwarg = 'codigo'
     template_name = 'requerimientos/detalle_requerimiento.html'
 
     @method_decorator(permission_required('requerimientos.ver_detalle_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
