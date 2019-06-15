@@ -548,9 +548,11 @@ class DetalleOperacionPedido(DetailView):
     model = Pedido
     template_name = 'almacen/detalle_pedido.html'    
     
+
 class DetalleOperacionMovimiento(DetailView):
     model = Movimiento
     template_name = 'almacen/detalle_movimiento.html'
+
 
 class EliminarAlmacen(TemplateView):
     

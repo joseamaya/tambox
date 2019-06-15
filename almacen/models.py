@@ -211,7 +211,7 @@ class DetallePedido(TimeStampedModel):
         return self.pedido.codigo+ ' ' + str(self.nro_detalle)
 
 class Movimiento(TimeStampedModel):
-    id_movimiento = models.CharField(unique=True,max_length=16)
+    id_movimiento = models.CharField(unique=True, max_length=16)
     tipo_movimiento = models.ForeignKey(TipoMovimiento)
     referencia = models.ForeignKey(OrdenCompra,null=True)
     pedido = models.ForeignKey(Pedido, null=True)
@@ -323,6 +323,7 @@ class Movimiento(TimeStampedModel):
             self.anio=self.fecha_operacion.year,
             self.mes = self.fecha_operacion.month,
         super(Movimiento, self).save()
+
 
 class DetalleMovimiento(TimeStampedModel):
     objects = DetalleMovimientoManager()

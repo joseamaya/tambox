@@ -98,6 +98,7 @@ class GrupoProductos(TimeStampedModel):
             t_valor_s = 0
         return listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s
 
+
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
     grupo_productos = models.ForeignKey(GrupoProductos)

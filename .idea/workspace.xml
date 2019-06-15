@@ -1,7 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e69304ce-b51f-4d5e-9bca-f4e8c785810d" name="Default Changelist" comment="" />
+    <list default="true" id="e69304ce-b51f-4d5e-9bca-f4e8c785810d" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/administracion/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/administracion/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/reports.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/reports.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/almacen/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/almacen/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/productos/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/productos/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/css/jquery-ui.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/css/jquery-ui.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery-ui.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery-ui.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -10,11 +21,71 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/.gitignore">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/almacen/reports.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+            <state relative-caret-position="106">
+              <caret line="899" selection-start-line="899" selection-end-line="899" />
+              <folding>
+                <element signature="e#24#35#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/templates/base.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="136">
+              <caret line="20" column="41" selection-start-line="20" selection-start-column="35" selection-end-line="20" selection-end-column="41" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/requerimientos/urls.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="96">
+              <caret line="15" column="57" selection-start-line="15" selection-start-column="57" selection-end-line="15" selection-end-column="57" />
+              <folding>
+                <element signature="e#0#32#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/requerimientos/views.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="55">
+              <caret line="127" column="36" lean-forward="true" selection-start-line="127" selection-start-column="36" selection-end-line="127" selection-end-column="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/administracion/models.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="250">
+              <caret line="194" column="30" lean-forward="true" selection-start-line="194" selection-start-column="30" selection-end-line="194" selection-end-column="30" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/reportlab/platypus/doctemplate.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="21386">
+              <caret line="1267" selection-start-line="1267" selection-end-line="1267" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/requirements.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="221">
+              <caret line="13" column="17" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
             </state>
           </provider>
         </entry>
@@ -28,6 +99,12 @@
       </list>
     </option>
   </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>detalle_movimiento</find>
+      <find>crear</find>
+    </findStrings>
+  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
@@ -39,19 +116,23 @@
         <option value="$PROJECT_DIR$/contabilidad/views.py" />
         <option value="$PROJECT_DIR$/almacen/forms.py" />
         <option value="$PROJECT_DIR$/templates/almacen/cargar_inventario_inicial.html" />
-        <option value="$PROJECT_DIR$/almacen/views.py" />
         <option value="$PROJECT_DIR$/contabilidad/models.py" />
         <option value="$PROJECT_DIR$/tambox/settings/base.py" />
         <option value="$PROJECT_DIR$/contabilidad/admin.py" />
-        <option value="$PROJECT_DIR$/almacen/models.py" />
         <option value="$PROJECT_DIR$/almacen/admin.py" />
-        <option value="$PROJECT_DIR$/requirements.txt" />
         <option value="$PROJECT_DIR$/tambox/settings/local.py" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/manage.py" />
         <option value="$PROJECT_DIR$/tambox/settings/development.py" />
         <option value="$PROJECT_DIR$/compras/forms.py" />
         <option value="$PROJECT_DIR$/seguridad/migrations/__init__.py" />
+        <option value="$PROJECT_DIR$/productos/models.py" />
+        <option value="$PROJECT_DIR$/almacen/views.py" />
+        <option value="$PROJECT_DIR$/templates/almacen/detalle_movimiento.html" />
+        <option value="$PROJECT_DIR$/almacen/models.py" />
+        <option value="$PROJECT_DIR$/almacen/reports.py" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/administracion/models.py" />
       </list>
     </option>
   </component>
@@ -66,6 +147,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -78,17 +160,10 @@
               <item name="tambox" type="462c0819:PsiDirectoryNode" />
               <item name="requerimientos" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="tambox" type="b2602c69:ProjectViewProjectNode" />
-              <item name="tambox" type="462c0819:PsiDirectoryNode" />
-              <item name="requerimientos" type="462c0819:PsiDirectoryNode" />
-              <item name="migrations" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -187,6 +262,37 @@
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
     </layout-to-restore>
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/almacen/models.py</url>
+          <line>307</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/almacen/models.py</url>
+          <line>310</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/almacen/models.py</url>
+          <line>234</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/almacen/models.py</url>
+          <line>241</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/almacen/models.py</url>
+          <line>295</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/contabilidad/views.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -216,13 +322,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="238">
           <caret line="223" column="50" selection-start-line="223" selection-start-column="41" selection-end-line="223" selection-end-column="50" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/almacen/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="85">
-          <caret line="267" column="71" selection-start-line="267" selection-start-column="71" selection-end-line="267" selection-end-column="71" />
         </state>
       </provider>
     </entry>
@@ -265,95 +364,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/almacen/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="221">
-          <caret line="212" column="35" selection-start-line="212" selection-start-column="35" selection-end-line="212" selection-end-column="35" />
-          <folding>
-            <element signature="e#699#1890#0" />
-            <element signature="e#926#1334#0" />
-            <element signature="e#1407#1591#0" />
-            <element signature="e#1630#1834#0" />
-            <element signature="e#1867#1890#0" />
-            <element signature="e#2008#4132#0" />
-            <element signature="e#2476#2674#0" />
-            <element signature="e#2713#2931#0" />
-            <element signature="e#2961#3293#0" />
-            <element signature="e#2976#3262#0" />
-            <element signature="e#3344#4061#0" />
-            <element signature="e#3378#4006#0" />
-            <element signature="e#3585#3778#0" />
-            <element signature="e#3685#3778#0" />
-            <element signature="e#3829#4006#0" />
-            <element signature="e#3929#4006#0" />
-            <element signature="e#4098#4132#0" />
-            <element signature="e#4170#6995#0" />
-            <element signature="e#4871#5053#0" />
-            <element signature="e#5092#5294#0" />
-            <element signature="e#5350#5861#0" />
-            <element signature="e#5495#5599#0" />
-            <element signature="e#5891#6300#0" />
-            <element signature="e#5906#6299#0" />
-            <element signature="e#6356#6374#0" />
-            <element signature="e#6425#6995#0" />
-            <element signature="e#6459#6918#0" />
-            <element signature="e#7052#8544#0" />
-            <element signature="e#7825#7900#0" />
-            <element signature="e#7956#8328#0" />
-            <element signature="e#8358#8449#0" />
-            <element signature="e#8490#8544#0" />
-            <element signature="e#8586#13677#0" />
-            <element signature="e#9550#9733#0" />
-            <element signature="e#9772#9967#0" />
-            <element signature="e#10016#11134#0" />
-            <element signature="e#10285#10941#0" />
-            <element signature="e#10421#10735#0" />
-            <element signature="e#11059#11134#0" />
-            <element signature="e#11183#11629#0" />
-            <element signature="e#11320#11560#0" />
-            <element signature="e#11685#11743#0" />
-            <element signature="e#11796#12282#0" />
-            <element signature="e#12039#12282#0" />
-            <element signature="e#12352#12500#0" />
-            <element signature="e#12530#12832#0" />
-            <element signature="e#12545#12794#0" />
-            <element signature="e#12865#12890#0" />
-            <element signature="e#12941#13677#0" />
-            <element signature="e#12982#13638#0" />
-            <element signature="e#13726#17371#0" />
-            <element signature="e#14317#17287#0" />
-            <element signature="e#14741#15709#0" />
-            <element signature="e#15030#15493#0" />
-            <element signature="e#15581#15709#0" />
-            <element signature="e#15748#16748#0" />
-            <element signature="e#16047#16520#0" />
-            <element signature="e#16608#16748#0" />
-            <element signature="e#17128#17209#0" />
-            <element signature="e#17321#17371#0" />
-            <element signature="e#17413#19244#0" />
-            <element signature="e#18367#18542#0" />
-            <element signature="e#18581#18768#0" />
-            <element signature="e#18805#18918#0" />
-            <element signature="e#18957#19253#0" />
-            <element signature="e#18963#19184#0" />
-            <element signature="e#19302#19814#0" />
-            <element signature="e#19597#19814#0" />
-            <element signature="e#19665#19813#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/contabilidad/admin.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="35" lean-forward="true" selection-start-line="3" selection-start-column="35" selection-end-line="3" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="19" column="51" selection-start-line="19" selection-start-column="51" selection-end-line="19" selection-end-column="51" />
         </state>
       </provider>
     </entry>
@@ -408,31 +422,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/tambox/settings/development.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="14" column="18" selection-start-line="14" selection-start-column="18" selection-end-line="14" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/productos/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="15" selection-start-line="9" selection-start-column="15" selection-end-line="9" selection-end-column="15" />
-          <folding>
-            <element signature="e#467#1374#0" />
-            <element signature="e#1420#4475#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/seguridad/models.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
@@ -446,6 +435,118 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
           <caret line="3" column="14" selection-start-line="3" selection-start-column="14" selection-end-line="3" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/productos/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="284">
+          <caret line="199" column="42" lean-forward="true" selection-start-line="199" selection-start-column="42" selection-end-line="199" selection-end-column="42" />
+          <folding>
+            <element signature="e#25#53#0" expanded="true" />
+            <element signature="e#467#1374#0" />
+            <element signature="e#1420#4475#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tambox/settings/development.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="425">
+          <caret line="25" column="21" selection-start-line="25" selection-start-column="21" selection-end-line="25" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/almacen/detalle_movimiento.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="12" column="8" selection-start-line="5" selection-start-column="8" selection-end-line="12" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/almacen/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1636">
+          <caret line="307" selection-start-line="307" selection-end-line="307" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/almacen/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="57" column="65" selection-start-line="57" selection-start-column="65" selection-end-line="57" selection-end-column="65" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/almacen/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="106">
+          <caret line="551" column="6" selection-start-line="551" selection-start-column="6" selection-end-line="551" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/reportlab/lib/units.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="114">
+          <caret line="14" selection-start-line="14" selection-end-line="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/almacen/reports.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="106">
+          <caret line="899" selection-start-line="899" selection-end-line="899" />
+          <folding>
+            <element signature="e#24#35#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/entornos/tambox/lib/python3.6/site-packages/reportlab/platypus/doctemplate.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="21386">
+          <caret line="1267" selection-start-line="1267" selection-end-line="1267" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="221">
+          <caret line="13" column="17" selection-start-line="13" selection-start-column="17" selection-end-line="13" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="20" column="41" selection-start-line="20" selection-start-column="35" selection-end-line="20" selection-end-column="41" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requerimientos/urls.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="15" column="57" selection-start-line="15" selection-start-column="57" selection-end-line="15" selection-end-column="57" />
+          <folding>
+            <element signature="e#0#32#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requerimientos/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="55">
+          <caret line="127" column="36" lean-forward="true" selection-start-line="127" selection-start-column="36" selection-end-line="127" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/administracion/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="194" column="30" lean-forward="true" selection-start-line="194" selection-start-column="30" selection-end-line="194" selection-end-column="30" />
         </state>
       </provider>
     </entry>

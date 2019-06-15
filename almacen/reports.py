@@ -6,15 +6,13 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.platypus import Table
 from reportlab.lib import colors
-#from reportlab.lib.pagesizes import cm
+from reportlab.lib.units import cm
 from reportlab.platypus.flowables import Spacer, PageBreak
 from django.conf import settings
 import os
 from io import BytesIO
 from almacen.models import DetalleMovimiento, Kardex, Movimiento
 from almacen.settings import EMPRESA, OFICINA_ADMINISTRACION, LOGISTICA
-from django.db.models import Sum
-import datetime
 from productos.models import Producto, GrupoProductos
 from openpyxl.styles import Border
 from openpyxl.styles import Side

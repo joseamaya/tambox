@@ -185,11 +185,12 @@ class Puesto(TimeStampedModel):
 
     @property
     def puesto_superior(self):
-        try:
-            puesto_superior = Puesto.objects.get(oficina=self.oficina,
-                                                 es_jefatura=True,
-                                                 estado=True)
-        except Puesto.DoesNotExist:
+        puestos_superiores = Puesto.objects.filter(oficina=self.oficina,
+                                                   es_jefatura=True,
+                                                   estado=True)
+        if puestos_superiores.count() > 0:
+            puesto_superior = puestos_superiores[0]
+        else:
             puesto_superior = None
         return puesto_superior
 
@@ -213,6 +214,7 @@ class Puesto(TimeStampedModel):
         if self.fecha_fin is not None:
             self.estado = False
         super(Puesto, self).save()
+
 
 class NivelAprobacion(TimeStampedModel):
     descripcion = models.CharField(max_length=100)

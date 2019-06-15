@@ -177,8 +177,11 @@ class Requerimiento(TimeStampedModel):
             puesto = self.solicitante.puesto
             self.oficina = puesto.oficina
             if (self.oficina == OFICINA_ADMINISTRACION or self.oficina == OPERACIONES) and puesto.es_jefatura:
-                AprobacionRequerimiento.objects.create(requerimiento=self,
-                                                       nivel=NivelAprobacion.objects.get(descripcion="JEFATURA"))
+                niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")
+                if niveles_aprobacion.count() > 0:
+                    nivel = niveles_aprobacion[0]
+                    AprobacionRequerimiento.objects.create(requerimiento=self,
+                                                           nivel=nivel)
             else:
                 nivel = puesto.establecer_nivel(self.oficina)
                 AprobacionRequerimiento.objects.create(requerimiento=self,
