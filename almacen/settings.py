@@ -47,12 +47,13 @@ try:
 except:
     CHOICES_ALMACENES = []
 try:
-    CHOICES_MESES = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in Kardex.objects.datetimes('fecha_operacion', 'month')]
+    CHOICES_MESES = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in
+                     Kardex.objects.datetimes('fecha_operacion', 'month')]
 except:
     CHOICES_MESES = []
 try:
     CHOICES_ANNIOS = [(anio.year, anio.year) for anio in Kardex.objects.datetimes('fecha_operacion', 'year')]
 except:
     CHOICES_ANNIOS = []
-    
+
 CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))

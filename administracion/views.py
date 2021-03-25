@@ -26,6 +26,7 @@ import simplejson
 import json
 from django.db.models import Q
 
+
 class Tablero(View):
 
     def get(self, request, *args, **kwargs):
@@ -38,7 +39,7 @@ class Tablero(View):
         if cant_oficinas == 0:
             Oficina.objects.create(codigo='GGEN',
                                    nombre='GERENCIA GENERAL',
-                                   es_gerencia = True)
+                                   es_gerencia=True)
             lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
         if cant_trabajadores == 0:
             lista_notificaciones.append("No se ha registrado ningún trabajador")
@@ -48,8 +49,8 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ninguna profesión")
         if cant_niveles == 0:
             nivel_logistica = NivelAprobacion.objects.create(descripcion="LOGISTICA")
-            nivel_usuario = NivelAprobacion.objects.create(descripcion = "USUARIO",
-                                                           nivel_superior = nivel_logistica)
+            nivel_usuario = NivelAprobacion.objects.create(descripcion="USUARIO",
+                                                           nivel_superior=nivel_logistica)
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'administracion/tablero_administracion.html', context)
@@ -70,6 +71,7 @@ class BusquedaReceptorDni(TemplateView):
             data = simplejson.dumps(receptor_json)
             return HttpResponse(data, 'application/json')
 
+
 class BusquedaReceptorNombre(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
@@ -78,7 +80,9 @@ class BusquedaReceptorNombre(TemplateView):
             if tipo_movimiento.es_venta:
                 receptores = Productor.objects.filter(apellido_paterno__icontains=nombre)[:20]
             else:
-                receptores = Trabajador.objects.filter(Q(apellido_paterno__icontains=nombre) | Q(apellido_materno__icontains=nombre) | Q(nombres__icontains=nombre))[:20]
+                receptores = Trabajador.objects.filter(
+                    Q(apellido_paterno__icontains=nombre) | Q(apellido_materno__icontains=nombre) | Q(
+                        nombres__icontains=nombre))[:20]
             lista_receptores = []
             for receptor in receptores:
                 receptor_json = {}
@@ -87,6 +91,7 @@ class BusquedaReceptorNombre(TemplateView):
                 lista_receptores.append(receptor_json)
             data = json.dumps(lista_receptores)
             return HttpResponse(data, 'application/json')
+
 
 class CargarOficinas(FormView):
     template_name = 'administracion/cargar_oficinas.html'
@@ -105,6 +110,7 @@ class CargarOficinas(FormView):
                                               'dependencia': Oficina.objects.get(codigo=fila[2])},
                                           )
         return HttpResponseRedirect(reverse('administracion:maestro_oficinas'))
+
 
 class CargarProductores(FormView):
     template_name = 'administracion/cargar_productores.html'
@@ -141,7 +147,7 @@ class CargarTrabajadores(FormView):
         docfile = data['archivo']
         form.save()
         csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding = "utf8"), delimiter=',', quotechar='"')
+        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             usuario_hoja = fila[0]
             if usuario_hoja != "":
@@ -186,10 +192,10 @@ class CargarPuestos(FormView):
                 puesto, creado = Puesto.objects.get_or_create(nombre=fila[0],
                                                               defaults={'oficina': Oficina.objects.get(
                                                                   codigo=fila[1].strip()),
-                                                                        'trabajador': Trabajador.objects.get(
-                                                                            dni=fila[2].strip()),
-                                                                        'fecha_inicio': fecha,
-                                                                        'es_jefatura': es_jefatura})
+                                                                  'trabajador': Trabajador.objects.get(
+                                                                      dni=fila[2].strip()),
+                                                                  'fecha_inicio': fecha,
+                                                                  'es_jefatura': es_jefatura})
             except:
                 pass
         return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
@@ -243,6 +249,7 @@ class CrearTrabajador(CreateView):
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
+
 class CrearProductor(CreateView):
     template_name = 'administracion/productor.html'
     form_class = ProductorForm
@@ -276,9 +283,11 @@ class DetalleTrabajador(DetailView):
     model = Trabajador
     template_name = 'administracion/detalle_trabajador.html'
 
+
 class DetalleProductor(DetailView):
     model = Productor
     template_name = 'administracion/detalle_productor.html'
+
 
 class DetallePuesto(DetailView):
     model = Puesto
@@ -306,6 +315,7 @@ class ListadoTrabajadores(ListView):
     model = Trabajador
     template_name = 'administracion/trabajadores.html'
     context_object_name = 'trabajadores'
+
 
 class ListadoProductores(ListView):
     model = Productor
@@ -370,6 +380,7 @@ class ModificarOficina(UpdateView):
     def dispatch(self, *args, **kwargs):
         return super(ModificarOficina, self).dispatch(*args, **kwargs)
 
+
 class ModificarTrabajador(UpdateView):
     model = Trabajador
     template_name = 'administracion/trabajador.html'
@@ -383,17 +394,20 @@ class ModificarTrabajador(UpdateView):
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
+
 class ModificarProductor(UpdateView):
     model = Productor
     template_name = 'administracion/productor.html'
     form_class = ProductorForm
 
-    @method_decorator(permission_required('administracion.change_productor', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(
+        permission_required('administracion.change_productor', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProductor, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_productor', args=[self.object.pk])
+
 
 class ModificarPuesto(UpdateView):
     model = Puesto

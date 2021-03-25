@@ -1,52 +1,52 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3>Consulta Inventario</h3>
-<form role="form" method="post">		
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Exportar">
-		</div>		
-	</div>
-	<hr />
-	<div class="panel panel-default">		
-		<div class="panel-body">
-			<div class="form-group">
-			 	<div class="row">
-			 		<div class="col-md-4">
-			 			<label>Almacén:</label>
-			 			{% if form.almacen.errors %}
-							{% for error in form.almacen.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.almacen }}
-					</div>				
-			 		<div class="col-md-4">
-			 			<label>Al:</label>
-			 			{% if form.desde.errors %}
-							{% for error in form.desde.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.desde }}
-					</div>					
-			 	</div>						
-			</div>
-			<hr/>
-		</div>
-	</div>
-</form>		
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Exportar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.almacen.errors %}
+                        {% for error in form.almacen.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.almacen }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Al:</label>
+                        {% if form.desde.errors %}
+                        {% for error in form.desde.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.desde }}
+                    </div>
+                </div>
+            </div>
+            <hr/>
+        </div>
+    </div>
+</form>
 
 {% endblock cuerpo %}
 
@@ -59,6 +59,7 @@ var total_paginas = 0;
 $("#id_desde").datepicker();
 
 });
+
 
 </script>
 {% endblock js %}

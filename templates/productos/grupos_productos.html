@@ -1,56 +1,57 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 <h3>Grupo de Productos</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.productos.add_grupoproductos %}
-		<a href="{% url 'productos:crear_grupo_productos' %}" class="btn btn-primary">
-			Crear
-		</a>												
-		{% endif %}
-		{% if perms.productos.cargar_grupo_productos %}
-		<a href="{% url 'productos:cargar_grupo_productos' %}" class="btn btn-default">
-			Importar
-		</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.productos.ver_reporte_grupos_productos_excel %}						
-			<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:maestro_grupos_productos_excel' %}';">
-                   	<span class="glyphicon glyphicon-list-alt"></span>
-                    </button>
-			{% endif %}	
-		</div>
-	</div>				
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.productos.add_grupoproductos %}
+        <a href="{% url 'productos:crear_grupo_productos' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.productos.cargar_grupo_productos %}
+        <a href="{% url 'productos:cargar_grupo_productos' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.productos.ver_reporte_grupos_productos_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'productos:maestro_grupos_productos_excel' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">CODIGO</th>
-					<th class="text-center">DESCRIPCION</th>
-					<th class="text-center">CTA CONTABLE.</th>									
-				</tr>
-			</thead>
-			<tbody>
-			{% for grupo in grupos_productos %}
-				{% if perms.productos.ver_detalle_grupo_productos %}
-				<tr onclick="location.href='{% url 'productos:detalle_grupo_productos' grupo.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ grupo.codigo }}</td>
-					<td>{{ grupo.descripcion }}</td>
-					<td>{{ grupo.ctacontable }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>		
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">DESCRIPCION</th>
+                <th class="text-center">CTA CONTABLE.</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for grupo in grupos_productos %}
+            {% if perms.productos.ver_detalle_grupo_productos %}
+            <tr onclick="location.href='{% url 'productos:detalle_grupo_productos' grupo.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ grupo.codigo }}</td>
+                <td>{{ grupo.descripcion }}</td>
+                <td>{{ grupo.ctacontable }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -67,5 +68,6 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	}); 
 });
+
 </script>
 {% endblock js %}

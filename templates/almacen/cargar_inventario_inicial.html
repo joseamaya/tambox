@@ -1,57 +1,59 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3><h3>Movimientos / Cargar Inventario Inicial</h3>
-<form role="form" method="post" enctype="multipart/form-data">	
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit"
-				value="Guardar">
-			<button type="button" class="btn btn-default"
-				onclick="location.href='{% url 'almacen:movimientos' %}'">
-				Cancelar</button>
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'almacen:movimientos' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="panel panel-default">
-		<div class="panel-body">				
-			<div class="form-group">
-				<div class="row">
-					<div class="col-md-4">			
-						<label>Almacén:</label> 
-						{{ form.almacenes }}
-					</div>
-					<div class="col-md-4">			
-						<label>Fecha:</label> 
-						{{ form.fecha }}
-					</div>
-					<div class="col-md-4">	
-						<label>Hora:</label> 
-						{{ form.hora }}
-					</div>							
-				</div>
-				<div class="row">
-					<div class="col-md-12">	
-						<label>Selecciona un archivo:</label>
-						{{ form.archivo }}
-						<p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin encabezados, consignando los detalles</p>
-					</div>
-				</div>
-			</div>				
-		</div>
-	</div>
-</form>	
-{% endblock cuerpo %}
-{% block js %}
-<script>
+    <form role="form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-10">
+                <input type="submit" class="btn btn-primary" name="submit"
+                       value="Guardar">
+                <button type="button" class="btn btn-default"
+                        onclick="location.href='{% url 'almacen:movimientos' %}'">
+                    Cancelar
+                </button>
+            </div>
+            <div class="col-lg-2 text-right">
+                <div class="btn-group">
+                    <button class="btn btn-default" type="button"
+                            onclick="location.href='{% url 'almacen:movimientos' %}';">
+                        <span class="glyphicon glyphicon-th-list"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Almacén:</label>
+                            {{ form.almacenes }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha:</label>
+                            {{ form.fecha }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Hora:</label>
+                            {{ form.hora }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Selecciona un archivo:</label>
+                            {{ form.archivo }}
+                            <p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin
+                                encabezados, consignando los detalles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endblock cuerpo %}
+    {% block js %}
+    <script>
 $(document).ready(function() 
 {
 	var mySpinner = null;
@@ -117,5 +119,6 @@ $(document).ready(function()
 		setupLoading();
 	});
 });
-</script>
-{% endblock js %}
+
+    </script>
+    {% endblock js %}

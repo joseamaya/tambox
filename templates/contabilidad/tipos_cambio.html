@@ -1,48 +1,48 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 <h3>Tipos de Cambio</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.contabilidad.add_tipocambio %}
-		<a href="{% url 'contabilidad:crear_tipo_cambio' %}" class="btn btn-primary">
-			Crear
-		</a>												
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.contabilidad.ver_reporte_tipos_cambio_excel %}
-			<button class="btn btn-default" type="button">
-            	<span class="glyphicon glyphicon-list-alt"></span>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.contabilidad.add_tipocambio %}
+        <a href="{% url 'contabilidad:crear_tipo_cambio' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.contabilidad.ver_reporte_tipos_cambio_excel %}
+            <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-list-alt"></span>
             </button>
-			{% endif %}	
-		</div>
-	</div>				
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">FECHA</th>
-					<th class="text-center">TIPOS DE CAMBIO</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for tipo in tipos %}
-				{% if perms.contabilidad.ver_detalle_tipo_cambio %}
-				<tr onclick="location.href='{% url 'contabilidad:detalle_tipo_cambio' tipo.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ tipo.fecha|date:"d/m/y" }}</td>
-					<td>{{ tipo.monto }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">FECHA</th>
+                <th class="text-center">TIPOS DE CAMBIO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tipo in tipos %}
+            {% if perms.contabilidad.ver_detalle_tipo_cambio %}
+            <tr onclick="location.href='{% url 'contabilidad:detalle_tipo_cambio' tipo.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ tipo.fecha|date:"d/m/y" }}</td>
+                <td>{{ tipo.monto }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -61,5 +61,6 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	});
 });
+
 </script>
 {% endblock js %}

@@ -1,111 +1,111 @@
 {% extends "compras/base_compras.html" %} {% block cuerpo %}
 <h3>Proveedores / {{ object.razon_social }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.compras.add_proveedor %} <a
-			href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">Crear</a>
-		{% endif %}
-		{% if perms.compras.change_proveedor %} 
-		<a class="btn btn-primary"
-			href="{% url 'compras:modificar_proveedor' object.pk %}"> Editar
-		</a> 
-		{% endif %} 
-		{% if perms.compras.delete_proveedor %}
-		<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_proveedor' object.anterior %}';">
-				<span class="glyphicon glyphicon-step-backward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_proveedor' object.siguiente %}';">
-				<span class="glyphicon glyphicon-step-forward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:proveedores' %}';">
-				<span class="glyphicon glyphicon-th-list"></span>
-			</button>
-		</div>
-	</div>
+    <div class="col-lg-10">
+        {% if perms.compras.add_proveedor %} <a
+            href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.compras.change_proveedor %}
+        <a class="btn btn-primary"
+           href="{% url 'compras:modificar_proveedor' object.pk %}"> Editar
+        </a>
+        {% endif %}
+        {% if perms.compras.delete_proveedor %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:detalle_proveedor' object.anterior %}';">
+                <span class="glyphicon glyphicon-step-backward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:detalle_proveedor' object.siguiente %}';">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:proveedores' %}';">
+                <span class="glyphicon glyphicon-th-list"></span>
+            </button>
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div id="dialog-confirm" title="Eliminar Proveedor"></div>
 <div class="panel panel-default">
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-lg-2">
-				<a href="{{ object.imagen.url }}" class="thumbnail"> <img
-					src="{{ object.imagen.url }}" alt="Imagen Proveedor" style="width: 120px; height: 90px">
-				</a>
-			</div>
-			<div class="col-lg-7">
-				<h3>{{ object.razon_social }}</h3>
-				{% if object.es_locador %}
-				<p>ES LOCADOR</p>
-				{% endif %}
-			</div>
-			<div class="col-lg-3">
-				<div class="btn-group">
-					<button class="btn btn-default" type="button">
-						<span class="fa fa-shopping-cart fa-2x"></span> 0 <br>
-						Compras
-					</button>
-					<button class="btn btn-default" type="button">
-						<span class="fa fa-truck fa-2x"></span> 0 <br> Facturas
-					</button>
-				</div>
-			</div>
-		</div>
-		<br>
-		<ul class="nav nav-tabs">
-			<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
-			<li><a data-toggle="tab" href="#representantes">Representantes Legales</a></li>
-		</ul>
-		<div class="tab-content">
-			<div id="general" class="tab-pane fade in active">
-				<br>
-				<div class="row">
-					<div class="col-lg-4">
-						<label>RUC:</label>
-						<p>{{ object.ruc }}</p>
-						<label>DIRECCIÓN:</label>
-						<p>{{ object.direccion }}</p>
-						<label>ESTADO SUNAT: </label>
-						<p>{{ object.estado_sunat }}</p>
-						<label>CONDICION: </label>
-						<p>{{ object.condicion }}</p>
-					</div>
-					<div class="col-lg-4">
-						<label>CIIU: </label>
-						<p>{{ object.ciiu }}</p>
-						<label>FECHA DE ALTA: </label>
-						<p>{{ object.fecha_alta|date:"d/m/Y" }}</p>
-						<label>TELEFONO: </label>
-						<p>{{ object.telefono }}</p>
-						<label>EMAIL: </label>
-						<p>{{ object.correo }}</p>
-					</div>
-					<div class="col-lg-4">						
-						<label>FECHA REGISTRO: </label>
-						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
-						<label>FECHA MODIFICACIÓN: </label>
-						<p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
-						<label>ESTADO: </label> {% if object.estado %}
-						<p>ACTIVO</p>
-						{% else %}
-						<p>INACTIVO</p>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-			<div id="representantes" class="tab-pane fade">
-				<br>
-			</div>
-		</div>
-	</div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-2">
+                <a href="{{ object.imagen.url }}" class="thumbnail"> <img
+                        src="{{ object.imagen.url }}" alt="Imagen Proveedor" style="width: 120px; height: 90px">
+                </a>
+            </div>
+            <div class="col-lg-7">
+                <h3>{{ object.razon_social }}</h3>
+                {% if object.es_locador %}
+                <p>ES LOCADOR</p>
+                {% endif %}
+            </div>
+            <div class="col-lg-3">
+                <div class="btn-group">
+                    <button class="btn btn-default" type="button">
+                        <span class="fa fa-shopping-cart fa-2x"></span> 0 <br>
+                        Compras
+                    </button>
+                    <button class="btn btn-default" type="button">
+                        <span class="fa fa-truck fa-2x"></span> 0 <br> Facturas
+                    </button>
+                </div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+            <li><a data-toggle="tab" href="#representantes">Representantes Legales</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade in active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>RUC:</label>
+                        <p>{{ object.ruc }}</p>
+                        <label>DIRECCIÓN:</label>
+                        <p>{{ object.direccion }}</p>
+                        <label>ESTADO SUNAT: </label>
+                        <p>{{ object.estado_sunat }}</p>
+                        <label>CONDICION: </label>
+                        <p>{{ object.condicion }}</p>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>CIIU: </label>
+                        <p>{{ object.ciiu }}</p>
+                        <label>FECHA DE ALTA: </label>
+                        <p>{{ object.fecha_alta|date:"d/m/Y" }}</p>
+                        <label>TELEFONO: </label>
+                        <p>{{ object.telefono }}</p>
+                        <label>EMAIL: </label>
+                        <p>{{ object.correo }}</p>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label> {% if object.estado %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="representantes" class="tab-pane fade">
+                <br>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
@@ -148,5 +148,6 @@
 					ventana.dialog("close");
 				}
 			});
+
 </script>
 {% endblock js %}

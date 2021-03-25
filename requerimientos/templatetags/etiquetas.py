@@ -5,6 +5,7 @@ from requerimientos.settings import OFICINA_ADMINISTRACION, LOGISTICA, PRESUPUES
 
 register = template.Library()
 
+
 @register.simple_tag
 def url_anterior(url, instancia, usuario):
     ant = instancia.anterior()

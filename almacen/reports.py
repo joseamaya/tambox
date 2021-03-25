@@ -3,7 +3,7 @@ import math
 from reportlab.lib.pagesizes import letter, A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER,TA_LEFT, TA_JUSTIFY, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY, TA_RIGHT
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.units import cm
@@ -19,8 +19,10 @@ from openpyxl.styles import Side
 from openpyxl import Workbook
 from django.http import HttpResponse
 from django.db.models import Q
+
+
 class ReporteMovimiento():
-    
+
     def __init__(self, pagesize, movimiento):
         self.movimiento = movimiento
         self.buffer = BytesIO()
@@ -29,34 +31,34 @@ class ReporteMovimiento():
         elif pagesize == 'Letter':
             self.pagesize = letter
         self.width, self.height = self.pagesize
-        
+
     def tabla_encabezado(self, styles):
-        movimiento = self.movimiento        
+        movimiento = self.movimiento
         sp = ParagraphStyle('parrafos',
-                            alignment = TA_CENTER,
-                            fontSize = 14,
+                            alignment=TA_CENTER,
+                            fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT,str(EMPRESA.logo))
-            imagen = Image(archivo_imagen, width=90, height=50,hAlign='LEFT')
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except:
             imagen = Paragraph(u"LOGO", sp)
-        
+
         if movimiento.tipo_movimiento.incrementa:
             nota = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
-        fecha = Paragraph("FECHA: "+movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)        
-        encabezado = [[imagen,nota,fecha],
-                      ['',id_movimiento,'']
+        fecha = Paragraph("FECHA: " + movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)
+        encabezado = [[imagen, nota, fecha],
+                      ['', id_movimiento, '']
                       ]
-        tabla_encabezado = Table(encabezado,colWidths=[4 * cm, 9 * cm, 6 * cm])
+        tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
-                ('VALIGN',(0,0),(2,0),'CENTER'),
-                ('VALIGN',(1,1),(2,1),'TOP'),                
-                ('SPAN',(0,0),(0,1)),                        
+                ('VALIGN', (0, 0), (2, 0), 'CENTER'),
+                ('VALIGN', (1, 1), (2, 1), 'TOP'),
+                ('SPAN', (0, 0), (0, 1)),
             ]
         ))
         return tabla_encabezado
@@ -64,159 +66,162 @@ class ReporteMovimiento():
     def tabla_datos(self, styles):
         movimiento = self.movimiento
         izquierda = ParagraphStyle('parrafos',
-                            alignment = TA_LEFT,
-                            fontSize = 10,
-                            fontName="Times-Roman")
+                                   alignment=TA_LEFT,
+                                   fontSize=10,
+                                   fontName="Times-Roman")
         try:
             if movimiento.referencia.cotizacion is not None:
-                proveedor = Paragraph(u"PROVEEDOR: "+movimiento.referencia.cotizacion.proveedor.razon_social,izquierda)
+                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.cotizacion.proveedor.razon_social,
+                                      izquierda)
             else:
-                proveedor = Paragraph(u"PROVEEDOR: "+movimiento.referencia.proveedor.razon_social,izquierda)
+                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.razon_social, izquierda)
         except:
-            proveedor = Paragraph(u"PROVEEDOR:",izquierda)
-        operacion = Paragraph(u"OPERACIÓN: "+movimiento.tipo_movimiento.descripcion,izquierda)
-        almacen = Paragraph(u"ALMACÉN: "+movimiento.almacen.codigo+"-"+movimiento.almacen.descripcion,izquierda)
+            proveedor = Paragraph(u"PROVEEDOR:", izquierda)
+        operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.descripcion, izquierda)
+        almacen = Paragraph(u"ALMACÉN: " + movimiento.almacen.codigo + "-" + movimiento.almacen.descripcion, izquierda)
         try:
-            orden_compra = Paragraph(u"ORDEN DE COMPRA: "+movimiento.referencia.codigo,izquierda)
+            orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movimiento.referencia.codigo, izquierda)
         except:
-            orden_compra = Paragraph(u"REFERENCIA: -",izquierda)
+            orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
         try:
-            documento = Paragraph(u"DOCUMENTO: "+movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
-                                  izquierda)
+            documento = Paragraph(
+                u"DOCUMENTO: " + movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
+                izquierda)
         except:
             documento = ""
         try:
-            pedido = Paragraph(u"PEDIDO: "+movimiento.pedido.codigo, izquierda)
+            pedido = Paragraph(u"PEDIDO: " + movimiento.pedido.codigo, izquierda)
         except:
             pedido = ""
-        encabezado = [[operacion,''],
-                      [almacen,''],
-                      [proveedor,''],
-                      [orden_compra,''],
-                      [documento,''],
-                      [pedido,'']]
-        tabla_datos = Table(encabezado,colWidths=[11 * cm, 9 * cm])
+        encabezado = [[operacion, ''],
+                      [almacen, ''],
+                      [proveedor, ''],
+                      [orden_compra, ''],
+                      [documento, ''],
+                      [pedido, '']]
+        tabla_datos = Table(encabezado, colWidths=[11 * cm, 9 * cm])
         tabla_datos.setStyle(TableStyle(
             [
 
             ]
         ))
         return tabla_datos
-    
+
     def tabla_detalle(self):
         movimiento = self.movimiento
-        encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción','Precio','Total']
+        encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
         detalles = DetalleMovimiento.objects.filter(movimiento=movimiento).order_by('pk')
         sp = ParagraphStyle('parrafos')
-        sp.alignment = TA_JUSTIFY 
+        sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
-        sp.fontName="Times-Roman"        
+        sp.fontName = "Times-Roman"
         lista_detalles = []
         for detalle in detalles:
             tupla_producto = [str(detalle.nro_detalle),
-                              format(detalle.cantidad,'.5f'),
+                              format(detalle.cantidad, '.5f'),
                               str(detalle.producto.unidad_medida.codigo),
                               detalle.producto.descripcion,
-                              format(detalle.precio,'.5f'),
-                              format(detalle.valor,'.5f')]
+                              format(detalle.precio, '.5f'),
+                              format(detalle.valor, '.5f')]
             lista_detalles.append(tupla_producto)
-        adicionales = [('','','','','')] * (15-len(lista_detalles))
-        tabla_detalle = Table([encabezados] + lista_detalles,colWidths=[1.5 * cm, 2.5 * cm, 1.5 * cm,10* cm, 2 * cm, 2.5 * cm])
+        adicionales = [('', '', '', '', '')] * (15 - len(lista_detalles))
+        tabla_detalle = Table([encabezados] + lista_detalles,
+                              colWidths=[1.5 * cm, 2.5 * cm, 1.5 * cm, 10 * cm, 2 * cm, 2.5 * cm])
         style = TableStyle(
             [
-                ('GRID', (0, 0), (-1, -1), 1, colors.black), 
-                ('FONTSIZE', (0, 0), (-1, -1), 8),  
-                ('ALIGN',(4,0),(-1,-1),'RIGHT'),            
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('FONTSIZE', (0, 0), (-1, -1), 8),
+                ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
             ]
         )
         tabla_detalle.setStyle(style)
         return tabla_detalle
-    
+
     def tabla_total(self):
         movimiento = self.movimiento
         izquierda = ParagraphStyle('parrafos',
-                            alignment = TA_LEFT,
-                            fontSize = 10,
-                            fontName="Times-Roman")
+                                   alignment=TA_LEFT,
+                                   fontSize=10,
+                                   fontName="Times-Roman")
 
-        texto_total = Paragraph("Total: ",izquierda)
-        total = Paragraph(str(round(movimiento.total,2)),izquierda)
-        total = [['',texto_total, total]]
-        tabla_total = Table(total,colWidths=[15.5 * cm,2 * cm,2.5 * cm])
+        texto_total = Paragraph("Total: ", izquierda)
+        total = Paragraph(str(round(movimiento.total, 2)), izquierda)
+        total = [['', texto_total, total]]
+        tabla_total = Table(total, colWidths=[15.5 * cm, 2 * cm, 2.5 * cm])
         tabla_total.setStyle(TableStyle(
             [
                 ('GRID', (2, 0), (2, 0), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('ALIGN',(0,0),(-1,-1),'RIGHT'),
+                ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
             ]
         ))
         return tabla_total
-    
+
     def tabla_observaciones(self):
         movimiento = self.movimiento
         p = ParagraphStyle('parrafos',
-                           alignment = TA_JUSTIFY,
-                           fontSize = 8,
+                           alignment=TA_JUSTIFY,
+                           fontSize=8,
                            fontName="Times-Roman")
-        obs=Paragraph("OBSERVACIONES: "+movimiento.observaciones,p)
+        obs = Paragraph("OBSERVACIONES: " + movimiento.observaciones, p)
         observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones,colWidths=[20 * cm], rowHeights=1.8 * cm)
+        tabla_observaciones = Table(observaciones, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
-                ('ALIGN',(0,0),(-1,-1),'LEFT'),
-                ('VALIGN',(0,0),(-1,-1),'TOP'),
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]
         ))
-        return tabla_observaciones  
-    
+        return tabla_observaciones
+
     def tabla_firmas(self):
         movimiento = self.movimiento
         izquierda = ParagraphStyle('parrafos',
-                            alignment = TA_CENTER,
-                            fontSize = 8,
-                            fontName="Times-Roman")
-        nombre_oficina_administracion = Paragraph(OFICINA_ADMINISTRACION.nombre,izquierda)
-        nombre_oficina_logistica = Paragraph(LOGISTICA.nombre,izquierda)
-        if movimiento.tipo_movimiento.incrementa:            
-            total = [[nombre_oficina_administracion,'', nombre_oficina_logistica]]
-            tabla_firmas = Table(total,colWidths=[7 * cm,4 * cm,7 * cm])
+                                   alignment=TA_CENTER,
+                                   fontSize=8,
+                                   fontName="Times-Roman")
+        nombre_oficina_administracion = Paragraph(OFICINA_ADMINISTRACION.nombre, izquierda)
+        nombre_oficina_logistica = Paragraph(LOGISTICA.nombre, izquierda)
+        if movimiento.tipo_movimiento.incrementa:
+            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica]]
+            tabla_firmas = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
             tabla_firmas.setStyle(TableStyle(
                 [
-                    ("LINEABOVE", (0,0), (0,0), 1, colors.black),
-                    ("LINEABOVE", (2,0), (2,0), 1, colors.black),
-                    ('VALIGN',(0,0),(-1,-1),'TOP'),
+                    ("LINEABOVE", (0, 0), (0, 0), 1, colors.black),
+                    ("LINEABOVE", (2, 0), (2, 0), 1, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ]
             ))
         else:
-            solicitante = Paragraph('SOLICITANTE',izquierda)
-            total = [[nombre_oficina_administracion,'',nombre_oficina_logistica,'',solicitante]]
-            tabla_firmas = Table(total,colWidths=[5 * cm, 1 * cm, 5 * cm, 1 * cm, 5 * cm])
+            solicitante = Paragraph('SOLICITANTE', izquierda)
+            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica, '', solicitante]]
+            tabla_firmas = Table(total, colWidths=[5 * cm, 1 * cm, 5 * cm, 1 * cm, 5 * cm])
             tabla_firmas.setStyle(TableStyle(
                 [
-                    ("LINEABOVE", (0,0), (0,0), 1, colors.black),
-                    ("LINEABOVE", (2,0), (2,0), 1, colors.black),
-                    ("LINEABOVE", (4,0), (4,0), 1, colors.black),
-                    #("LINEABOVE", (2,0), (2,0), 1, colors.black),
-                    ('VALIGN',(0,0),(-1,-1),'TOP'),
+                    ("LINEABOVE", (0, 0), (0, 0), 1, colors.black),
+                    ("LINEABOVE", (2, 0), (2, 0), 1, colors.black),
+                    ("LINEABOVE", (4, 0), (4, 0), 1, colors.black),
+                    # ("LINEABOVE", (2,0), (2,0), 1, colors.black),
+                    ('VALIGN', (0, 0), (-1, -1), 'TOP'),
                 ]
             ))
-        
+
         return tabla_firmas
-    
+
     def pie_pagina(self, canvas, doc):
         canvas.saveState()
-        canvas.setFont('Times-Roman',10)
+        canvas.setFont('Times-Roman', 10)
         canvas.drawCentredString(300, 20, EMPRESA.direccion())
         canvas.restoreState()
-    
+
     def imprimir(self):
-        y=300
+        y = 300
         buffer = self.buffer
         izquierda = ParagraphStyle('parrafos',
-                                   alignment = TA_LEFT,
-                                   fontSize = 10,
+                                   alignment=TA_LEFT,
+                                   fontSize=10,
                                    fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
@@ -224,20 +229,20 @@ class ReporteMovimiento():
                                 topMargin=20,
                                 bottomMargin=50,
                                 pagesize=self.pagesize)
- 
-        elements = [] 
-        styles = getSampleStyleSheet()        
+
+        elements = []
+        styles = getSampleStyleSheet()
         elements.append(self.tabla_encabezado(styles))
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_datos(styles))        
+        elements.append(self.tabla_datos(styles))
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.tabla_detalle())
-        elements.append(Spacer(1,0.25 * cm))
-        elements.append(self.tabla_total())   
-        elements.append(Spacer(1, 0.25 * cm))     
+        elements.append(Spacer(1, 0.25 * cm))
+        elements.append(self.tabla_total())
+        elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.tabla_observaciones())
         elements.append(Spacer(1, 4 * cm))
-        elements.append(self.tabla_firmas())        
+        elements.append(self.tabla_firmas())
         doc.build(elements, onFirstPage=self.pie_pagina, onLaterPages=self.pie_pagina)
         pdf = buffer.getvalue()
         buffer.close()
@@ -259,7 +264,7 @@ class ReporteKardexPDF():
             self.pagesize = letter
         self.width, self.height = self.pagesize
 
-    def tabla_encabezado(self,valorizado):
+    def tabla_encabezado(self, valorizado):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -274,7 +279,7 @@ class ReporteKardexPDF():
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
 
-        encabezado = [[imagen,titulo]]
+        encabezado = [[imagen, titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
@@ -293,7 +298,7 @@ class ReporteKardexPDF():
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR PRODUCTOS", sp)
 
-        encabezado = [[imagen,titulo]]
+        encabezado = [[imagen, titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         style = TableStyle(
             [
@@ -306,15 +311,15 @@ class ReporteKardexPDF():
     def tabla_detalle_unidades_fisicas(self, producto, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
-                        "",
-                        "",
-                        "",
-                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
-                       u"ENTRADAS",
-                       u"SALIDAS",
-                       u"SALDO FINAL"]
+                      "",
+                      "",
+                      "",
+                      u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
+                      u"ENTRADAS",
+                      u"SALIDAS",
+                      u"SALDO FINAL"]
         tabla.append(encab_prim)
-        encab_seg = ["FECHA", "TIPO (TABLA 10)","SERIE","NÚMERO","","","",""]
+        encab_seg = ["FECHA", "TIPO (TABLA 10)", "SERIE", "NÚMERO", "", "", "", ""]
         tabla.append(encab_seg)
         try:
             kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -323,7 +328,8 @@ class ReporteKardexPDF():
             cant_saldo_inicial = kardex_inicial.cantidad_total
         except:
             cant_saldo_inicial = 0
-        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',format(0,'.2f'),format(0,'.2f'),format(cant_saldo_inicial,'.2f')]
+        saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
+                         format(cant_saldo_inicial, '.2f')]
         cantidad_total = cant_saldo_inicial
         tabla.append(saldo_inicial)
         listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
@@ -348,18 +354,20 @@ class ReporteKardexPDF():
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso,'.2f'),
-                          format(kardex.cantidad_salida,'.2f'),
-                          format(cantidad_total,'.2f')])
-        totales = ['','','','',"TOTALES",format(cantidad_ingreso,'.2f'),format(cantidad_salida,'.2f'),format(cantidad_total,'.2f')]
+                          format(kardex.cantidad_ingreso, '.2f'),
+                          format(kardex.cantidad_salida, '.2f'),
+                          format(cantidad_total, '.2f')])
+        totales = ['', '', '', '', "TOTALES", format(cantidad_ingreso, '.2f'), format(cantidad_salida, '.2f'),
+                   format(cantidad_total, '.2f')]
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto=listado_kardex.count()+2
-        if total_registros_producto >11:
-            self.total_paginas += int(math.ceil((total_registros_producto-11) / 21.0))
+        total_registros_producto = listado_kardex.count() + 2
+        if total_registros_producto > 11:
+            self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))
 
-        tabla_detalle = Table(tabla, repeatRows=2, colWidths=[3 * cm, 4 * cm,3 * cm, 3 * cm,3 * cm, 3.5 * cm,3.5 * cm, 3.5 * cm])
+        tabla_detalle = Table(tabla, repeatRows=2,
+                              colWidths=[3 * cm, 4 * cm, 3 * cm, 3 * cm, 3 * cm, 3.5 * cm, 3.5 * cm, 3.5 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -383,9 +391,10 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         tabla = []
-        encabezado1 = ["CODIGO", u"DENOMINACIÓN",u"UNIDAD",u"CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
+        encabezado1 = ["CODIGO", u"DENOMINACIÓN", u"UNIDAD", u"CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"",
+                       u"SALIDAS", u"", u"SALDO",
                        u""]
-        encabezado2 = [u"", u"",u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
+        encabezado2 = [u"", u"", u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
                        u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
         tabla.append(encabezado1)
         tabla.append(encabezado2)
@@ -397,7 +406,7 @@ class ReporteKardexPDF():
         total_valor_salida = 0
         total_cantidad_total = 0
         total_valor_total = 0
-        self.total_paginas=int(math.ceil(productos.count()/22.0))
+        self.total_paginas = int(math.ceil(productos.count() / 22.0))
         for producto in productos:
             try:
                 kardex_inicial = Kardex.objects.filter(producto=producto,
@@ -437,27 +446,28 @@ class ReporteKardexPDF():
             else:
                 valor_total = format(valor_total, '.3f')
 
-            registro=[producto.codigo,
-                      producto.descripcion,
-                      producto.unidad_medida.descripcion,
-                      producto.grupo_productos.ctacontable,
-                      format(cant_saldo_inicial,'.3f'),
-                      valor_saldo_inicial,
-                      format(cantidad_ingreso,'.3f'),
-                      format(valor_ingreso,'.3f'),
-                      format(cantidad_salida,'.3f'),
-                      format(valor_salida,'.3f'),
-                      format(cantidad_total,'.3f'),
-                      valor_total]
+            registro = [producto.codigo,
+                        producto.descripcion,
+                        producto.unidad_medida.descripcion,
+                        producto.grupo_productos.ctacontable,
+                        format(cant_saldo_inicial, '.3f'),
+                        valor_saldo_inicial,
+                        format(cantidad_ingreso, '.3f'),
+                        format(valor_ingreso, '.3f'),
+                        format(cantidad_salida, '.3f'),
+                        format(valor_salida, '.3f'),
+                        format(cantidad_total, '.3f'),
+                        valor_total]
             tabla.append(registro)
 
-        totales = ["","","",  "TOTALES",
-                   format(total_cant_saldo_inicial,'.3f'), format(total_valor_saldo_inicial,'.3f'),
-                   format(total_cantidad_ingreso,'.3f'),format(total_valor_ingreso,'.3f'),
-                   format(total_cantidad_salida,'.3f'),format(total_valor_salida,'.3f'),
-                   format(total_cantidad_total,'.3f'),format(total_valor_total, '.3f')]
+        totales = ["", "", "", "TOTALES",
+                   format(total_cant_saldo_inicial, '.3f'), format(total_valor_saldo_inicial, '.3f'),
+                   format(total_cantidad_ingreso, '.3f'), format(total_valor_ingreso, '.3f'),
+                   format(total_cantidad_salida, '.3f'), format(total_valor_salida, '.3f'),
+                   format(total_cantidad_total, '.3f'), format(total_valor_total, '.3f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla,repeatRows=2)#,colWidths=[2 * cm, 7 * cm, 2.2 * cm, 1.5 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
+        tabla_detalle = Table(tabla,
+                              repeatRows=2)  # ,colWidths=[2 * cm, 7 * cm, 2.2 * cm, 1.5 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -485,9 +495,10 @@ class ReporteKardexPDF():
         desde = self.desde
         hasta = self.hasta
         tabla = []
-        encabezado1 = ["CODIGO","NOMBRE","CUENTA",u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"",u"SALDO",u""]
+        encabezado1 = ["CODIGO", "NOMBRE", "CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
+                       u""]
         encabezado2 = [u"", u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
-                      u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
+                       u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
         tabla.append(encabezado1)
         tabla.append(encabezado2)
         total_cant_saldo_inicial = 0
@@ -544,27 +555,28 @@ class ReporteKardexPDF():
             else:
                 valor_total = format(valor_total, '.5f')
 
-            registro=[grupo.codigo,
-                      grupo.descripcion,
-                      grupo.ctacontable.cuenta,
-                      format(cant_saldo_inicial,'.5f'),
-                      valor_saldo_inicial,
-                      format(cantidad_ingreso,'.5f'),
-                      format(valor_ingreso,'.5f'),
-                      format(cantidad_salida,'.5f'),
-                      format(valor_salida,'.5f'),
-                      format(cantidad_total,'.5f'),
-                      valor_total]
+            registro = [grupo.codigo,
+                        grupo.descripcion,
+                        grupo.ctacontable.cuenta,
+                        format(cant_saldo_inicial, '.5f'),
+                        valor_saldo_inicial,
+                        format(cantidad_ingreso, '.5f'),
+                        format(valor_ingreso, '.5f'),
+                        format(cantidad_salida, '.5f'),
+                        format(valor_salida, '.5f'),
+                        format(cantidad_total, '.5f'),
+                        valor_total]
             tabla.append(registro)
 
         totales = ["", "", "TOTALES",
-                   format(total_cant_saldo_inicial,'.5f'), format(total_valor_saldo_inicial,'.5f'),
-                   format(total_cantidad_ingreso,'.5f'),format(total_valor_ingreso,'.5f'),
-                   format(total_cantidad_salida,'.5f'),format(total_valor_salida,'.5f'),
-                   format(total_cantidad_total,'.5f'),format(total_valor_total,'.5f')]
+                   format(total_cant_saldo_inicial, '.5f'), format(total_valor_saldo_inicial, '.5f'),
+                   format(total_cantidad_ingreso, '.5f'), format(total_valor_ingreso, '.5f'),
+                   format(total_cantidad_salida, '.5f'), format(total_valor_salida, '.5f'),
+                   format(total_cantidad_total, '.5f'), format(total_valor_total, '.5f')]
         tabla.append(totales)
-        tabla_detalle = Table(tabla,repeatRows=2,
-                              colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
+        tabla_detalle = Table(tabla, repeatRows=2,
+                              colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm, 2.3 * cm, 2.3 * cm, 2.3 * cm,
+                                         2.4 * cm, 2.3 * cm, 2.5 * cm])
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -588,21 +600,21 @@ class ReporteKardexPDF():
     def tabla_detalle_valorizado(self, producto, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
-                        "","","",
-                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
-                       u"ENTRADAS","","",
-                       u"SALIDAS","","",
-                       u"SALDO FINAL","",""]
+                      "", "", "",
+                      u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
+                      u"ENTRADAS", "", "",
+                      u"SALIDAS", "", "",
+                      u"SALDO FINAL", "", ""]
         tabla.append(encab_prim)
-        encab_seg = ["", "", "", "","",
-                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
-                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
-                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL"]
+        encab_seg = ["", "", "", "", "",
+                     "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
+                     "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
+                     "CANTIDAD", "COSTO\nUNITARIO", "TOTAL"]
         tabla.append(encab_seg)
-        encab_terc = ["FECHA", "TIPO\n(TABLA 10)","SERIE","NÚMERO",
-                     "","","",
-                     "","","",
-                     "","",""]
+        encab_terc = ["FECHA", "TIPO\n(TABLA 10)", "SERIE", "NÚMERO",
+                      "", "", "",
+                      "", "", "",
+                      "", "", ""]
         tabla.append(encab_terc)
 
         try:
@@ -625,10 +637,10 @@ class ReporteKardexPDF():
         else:
             valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
 
-        saldo_inicial = [desde.strftime('%d/%m/%Y'),'00','SALDO','INICIAL','16',
-                         format(0,'.2f'),format(0,'.2f'),format(0,'.2f'),
-                         format(0,'.2f'),format(0,'.2f'),format(0,'.2f'),
-                         cant_saldo_inicial,precio_saldo_inicial,valor_saldo_inicial]
+        saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16',
+                         format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
+                         format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
+                         cant_saldo_inicial, precio_saldo_inicial, valor_saldo_inicial]
         tabla.append(saldo_inicial)
 
         cantidad_total = cant_saldo_inicial
@@ -650,9 +662,9 @@ class ReporteKardexPDF():
             except:
                 tipo_movimiento = "-"
 
-            cantidad_total = format(kardex.cantidad_total,'.2f')
-            precio_total = format(kardex.precio_total,'.2f')
-            valor_total = format(kardex.valor_total,'.2f')
+            cantidad_total = format(kardex.cantidad_total, '.2f')
+            precio_total = format(kardex.precio_total, '.2f')
+            valor_total = format(kardex.valor_total, '.2f')
             if valor_total == '-0.00':
                 valor_total = format(abs(kardex.valor_total), '.2f')
 
@@ -661,28 +673,28 @@ class ReporteKardexPDF():
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso,'.2f'),
+                          format(kardex.cantidad_ingreso, '.2f'),
                           format(kardex.precio_ingreso, '.2f'),
                           format(kardex.valor_ingreso, '.2f'),
-                          format(kardex.cantidad_salida,'.2f'),
+                          format(kardex.cantidad_salida, '.2f'),
                           format(kardex.precio_salida, '.2f'),
                           format(kardex.valor_salida, '.2f'),
                           cantidad_total,
                           precio_total,
                           valor_total])
 
-        totales = ['','','','',"TOTALES",
-                   format(cantidad_ingreso,'.2f'),"",format(valor_ingreso,'.2f'),
-                   format(cantidad_salida,'.2f'),"",format(valor_salida,'.2f'),
-                   cantidad_total,precio_total,valor_total]
+        totales = ['', '', '', '', "TOTALES",
+                   format(cantidad_ingreso, '.2f'), "", format(valor_ingreso, '.2f'),
+                   format(cantidad_salida, '.2f'), "", format(valor_salida, '.2f'),
+                   cantidad_total, precio_total, valor_total]
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto = listado_kardex.count() + 2 
+        total_registros_producto = listado_kardex.count() + 2
         if total_registros_producto > 10:
             self.total_paginas += int(math.ceil((total_registros_producto - 10) / 20.0))
 
-        tabla_detalle = Table(tabla,repeatRows=3)
+        tabla_detalle = Table(tabla, repeatRows=3)
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -734,7 +746,8 @@ class ReporteKardexPDF():
         ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
         elements.append(ruc)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
+        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social,
+                                 izquierda)
         elements.append(razon_social)
         elements.append(Spacer(1, 0.25 * cm))
         direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
@@ -751,8 +764,9 @@ class ReporteKardexPDF():
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
-                           izquierda)
+        unidad = Paragraph(
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
@@ -789,7 +803,8 @@ class ReporteKardexPDF():
         ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
         elements.append(ruc)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
+        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social,
+                                 izquierda)
         elements.append(razon_social)
         elements.append(Spacer(1, 0.25 * cm))
         direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
@@ -806,8 +821,9 @@ class ReporteKardexPDF():
         descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
         elements.append(descripcion)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
-                           izquierda)
+        unidad = Paragraph(
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
@@ -838,16 +854,19 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,cantidad_salida=0).order_by().values('producto').distinct()
+        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0, cantidad_salida=0).order_by().values(
+            'producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
         for producto in productos:
-            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
+            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
+                                izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
             ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
             elements.append(ruc)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
+            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social,
+                                     izquierda)
             elements.append(razon_social)
             elements.append(Spacer(1, 0.25 * cm))
             direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
@@ -864,8 +883,9 @@ class ReporteKardexPDF():
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
-                               izquierda)
+            unidad = Paragraph(
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
@@ -913,8 +933,8 @@ class ReporteKardexPDF():
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
         periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
-        pagina  = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[imagen, titulo, pagina],[ruc_empresa,periodo,""]]
+        pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
+        encabezado = [[imagen, titulo, pagina], [ruc_empresa, periodo, ""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -943,7 +963,7 @@ class ReporteKardexPDF():
         if self.valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS",sp)
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
         pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
         encabezado = [[imagen, titulo, pagina], [ruc_empresa, "", ""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
@@ -999,13 +1019,15 @@ class ReporteKardexPDF():
                                                   cantidad_salida=0).order_by().values('producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
         for producto in productos:
-            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
+            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
+                                izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
             ruc = Paragraph(u"RUC:" + EMPRESA.ruc, izquierda)
             elements.append(ruc)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social, izquierda)
+            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + EMPRESA.razon_social,
+                                     izquierda)
             elements.append(razon_social)
             elements.append(Spacer(1, 0.25 * cm))
             direccion = Paragraph(u"ESTABLECIMIENTO (1): " + EMPRESA.direccion(), izquierda)
@@ -1014,7 +1036,7 @@ class ReporteKardexPDF():
             codigo = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo, izquierda)
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
-            tipo = Paragraph(u"TIPO: B - EXISTENCIA",izquierda)
+            tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
             """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
                              izquierda)"""
             elements.append(tipo)
@@ -1022,8 +1044,9 @@ class ReporteKardexPDF():
             descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
             elements.append(descripcion)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
-                               izquierda)
+            unidad = Paragraph(
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
@@ -1061,7 +1084,7 @@ class ReporteKardexExcel():
 
         ws['D1'] = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
         ws.merge_cells('D1:G1')
-        ws['B3'] = "PERIODO: "+ desde.strftime('%d/%m/%Y')+' - '+ hasta.strftime('%d/%m/%Y')
+        ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
         ws['B4'] = u"RUC:" + EMPRESA.ruc
         ws.merge_cells('B4:E4')
@@ -1071,11 +1094,13 @@ class ReporteKardexExcel():
         ws.merge_cells('B6:E6')
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells('B7:E7')
-        ws['B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion
+        ws[
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
         ws.merge_cells('B8:G8')
         ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
         ws.merge_cells('B9:E9')
-        ws['B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion
+        ws[
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1200,25 +1225,25 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
-            kardex_inicial = Kardex.objects.filter(producto = producto,
-                                            almacen = almacen,
-                                            fecha_operacion__lt = desde).latest('fecha_operacion')
+            kardex_inicial = Kardex.objects.filter(producto=producto,
+                                                   almacen=almacen,
+                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
         except:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
-        ws.cell(row=cont,column=8).value = "SALDO INICIAL:"
+        ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
         ws.merge_cells(start_row=cont, start_column=8, end_row=cont, end_column=9)
-        ws.cell(row=cont,column=10).value = "Cantidad: "
-        ws.cell(row=cont,column=11).value = cant_saldo_inicial
-        ws.cell(row=cont,column=11).number_format = '#.00000'
-        ws.cell(row=cont,column=12).value = "Valor: "
-        ws.cell(row=cont,column=13).value = valor_saldo_inicial
-        ws.cell(row=cont,column=13).number_format = '#.00000'
+        ws.cell(row=cont, column=10).value = "Cantidad: "
+        ws.cell(row=cont, column=11).value = cant_saldo_inicial
+        ws.cell(row=cont, column=11).number_format = '#.00000'
+        ws.cell(row=cont, column=12).value = "Valor: "
+        ws.cell(row=cont, column=13).value = valor_saldo_inicial
+        ws.cell(row=cont, column=13).number_format = '#.00000'
         ws['B5'] = 'FECHA'
         ws['C5'] = 'NRO_DOC'
-        ws['D5']= 'TIPO_MOV'
+        ws['D5'] = 'TIPO_MOV'
         ws['E5'] = 'CANT. ENT'
         ws['F5'] = 'PRE. ENT'
         ws['G5'] = 'VALOR. ENT'
@@ -1229,71 +1254,71 @@ class ReporteKardexExcel():
         ws['L5'] = 'PRE. TOT'
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(almacen,desde,hasta)
-        if len(listado_kardex)>0:
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
+            almacen, desde, hasta)
+        if len(listado_kardex) > 0:
             for kardex in listado_kardex:
-                ws.cell(row=cont,column=2).value = kardex.fecha_operacion
-                ws.cell(row=cont,column=2).number_format = 'dd/mm/yyyy'
-                ws.cell(row=cont,column=3).value = kardex.movimiento.id_movimiento
-                ws.cell(row=cont,column=4).value = kardex.movimiento.tipo_movimiento.codigo
-                ws.cell(row=cont,column=5).value = kardex.cantidad_ingreso
+                ws.cell(row=cont, column=2).value = kardex.fecha_operacion
+                ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
+                ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
+                ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.codigo
+                ws.cell(row=cont, column=5).value = kardex.cantidad_ingreso
                 ws.cell(row=cont, column=5).number_format = '#.00000'
-                ws.cell(row=cont,column=6).value = kardex.precio_ingreso
-                ws.cell(row=cont,column=6).number_format = '#.00000'
-                ws.cell(row=cont,column=7).value = kardex.valor_ingreso
-                ws.cell(row=cont,column=7).number_format = '#.00000'
-                ws.cell(row=cont,column=8).value = kardex.cantidad_salida
+                ws.cell(row=cont, column=6).value = kardex.precio_ingreso
+                ws.cell(row=cont, column=6).number_format = '#.00000'
+                ws.cell(row=cont, column=7).value = kardex.valor_ingreso
+                ws.cell(row=cont, column=7).number_format = '#.00000'
+                ws.cell(row=cont, column=8).value = kardex.cantidad_salida
                 ws.cell(row=cont, column=8).number_format = '#.00000'
-                ws.cell(row=cont,column=9).value = kardex.precio_salida
-                ws.cell(row=cont,column=9).number_format = '#.00000'
-                ws.cell(row=cont,column=10).value = kardex.valor_salida
-                ws.cell(row=cont,column=10).number_format = '#.00000'
-                ws.cell(row=cont,column=11).value = kardex.cantidad_total
+                ws.cell(row=cont, column=9).value = kardex.precio_salida
+                ws.cell(row=cont, column=9).number_format = '#.00000'
+                ws.cell(row=cont, column=10).value = kardex.valor_salida
+                ws.cell(row=cont, column=10).number_format = '#.00000'
+                ws.cell(row=cont, column=11).value = kardex.cantidad_total
                 ws.cell(row=cont, column=11).number_format = '#.00000'
-                ws.cell(row=cont,column=12).value = kardex.precio_total
-                ws.cell(row=cont,column=12).number_format = '#.00000'
-                ws.cell(row=cont,column=13).value = kardex.valor_total
-                ws.cell(row=cont,column=13).number_format = '#.00000'
+                ws.cell(row=cont, column=12).value = kardex.precio_total
+                ws.cell(row=cont, column=12).number_format = '#.00000'
+                ws.cell(row=cont, column=13).value = kardex.valor_total
+                ws.cell(row=cont, column=13).number_format = '#.00000'
                 cont = cont + 1
-            ws.cell(row=cont,column=5).value = cantidad_ingreso
-            ws.cell(row=cont,column=7).value = valor_ingreso
-            ws.cell(row=cont,column=7).number_format = '#.00000'
-            ws.cell(row=cont,column=8).value = cantidad_salida
-            ws.cell(row=cont,column=10).value = valor_salida
-            ws.cell(row=cont,column=10).number_format = '#.00000'
-            ws.cell(row=cont,column=11).value = kardex.cantidad_total
-            ws.cell(row=cont,column=13).value = kardex.valor_total
-            ws.cell(row=cont,column=13).number_format = '#.00000'
+            ws.cell(row=cont, column=5).value = cantidad_ingreso
+            ws.cell(row=cont, column=7).value = valor_ingreso
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=8).value = cantidad_salida
+            ws.cell(row=cont, column=10).value = valor_salida
+            ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=11).value = kardex.cantidad_total
+            ws.cell(row=cont, column=13).value = kardex.valor_total
+            ws.cell(row=cont, column=13).number_format = '#.00000'
             cont = cont + 2
         else:
-            ws.cell(row=cont,column=5).value = 0
-            ws.cell(row=cont,column=6).value = 0
-            ws.cell(row=cont,column=6).number_format = '#.00000'
-            ws.cell(row=cont,column=7).value = 0
-            ws.cell(row=cont,column=7).number_format = '#.00000'
-            ws.cell(row=cont,column=8).value = 0
-            ws.cell(row=cont,column=9).value = 0
-            ws.cell(row=cont,column=9).number_format = '#.00000'
-            ws.cell(row=cont,column=10).value = 0
-            ws.cell(row=cont,column=10).number_format = '#.00000'
-            ws.cell(row=cont,column=11).value = 0
-            ws.cell(row=cont,column=12).value = 0
-            ws.cell(row=cont,column=12).number_format = '#.00000'
-            ws.cell(row=cont,column=13).value = 0
-            ws.cell(row=cont,column=13).number_format = '#.00000'
+            ws.cell(row=cont, column=5).value = 0
+            ws.cell(row=cont, column=6).value = 0
+            ws.cell(row=cont, column=6).number_format = '#.00000'
+            ws.cell(row=cont, column=7).value = 0
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=8).value = 0
+            ws.cell(row=cont, column=9).value = 0
+            ws.cell(row=cont, column=9).number_format = '#.00000'
+            ws.cell(row=cont, column=10).value = 0
+            ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=11).value = 0
+            ws.cell(row=cont, column=12).value = 0
+            ws.cell(row=cont, column=12).number_format = '#.00000'
+            ws.cell(row=cont, column=13).value = 0
+            ws.cell(row=cont, column=13).number_format = '#.00000'
             cont = cont + 1
-            ws.cell(row=cont,column=5).value = 0
-            ws.cell(row=cont,column=7).value = 0
-            ws.cell(row=cont,column=7).number_format = '#.00000'
-            ws.cell(row=cont,column=8).value = 0
-            ws.cell(row=cont,column=10).value = 0
-            ws.cell(row=cont,column=10).number_format = '#.00000'
-            ws.cell(row=cont,column=11).value = cant_saldo_inicial
-            ws.cell(row=cont,column=13).value = valor_saldo_inicial
-            ws.cell(row=cont,column=13).number_format = '#.00000'
+            ws.cell(row=cont, column=5).value = 0
+            ws.cell(row=cont, column=7).value = 0
+            ws.cell(row=cont, column=7).number_format = '#.00000'
+            ws.cell(row=cont, column=8).value = 0
+            ws.cell(row=cont, column=10).value = 0
+            ws.cell(row=cont, column=10).number_format = '#.00000'
+            ws.cell(row=cont, column=11).value = cant_saldo_inicial
+            ws.cell(row=cont, column=13).value = valor_saldo_inicial
+            ws.cell(row=cont, column=13).number_format = '#.00000'
             cont = cont + 2
         return wb
-
 
     def obtener_formato_sunat_valorizado_producto(self, producto, desde, hasta, almacen):
         wb = Workbook()
@@ -1316,7 +1341,7 @@ class ReporteKardexExcel():
 
         ws['H1'] = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
         ws.merge_cells('H1:K1')
-        ws['B3'] = "PERIODO: "+ desde.strftime('%d/%m/%Y')+' - '+ hasta.strftime('%d/%m/%Y')
+        ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
         ws['B4'] = u"RUC:" + EMPRESA.ruc
         ws.merge_cells('B4:E4')
@@ -1326,11 +1351,13 @@ class ReporteKardexExcel():
         ws.merge_cells('B6:E6')
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells('B7:E7')
-        ws['B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat +" - "+ producto.tipo_existencia.descripcion
+        ws[
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
         ws.merge_cells('B8:G8')
         ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
         ws.merge_cells('B9:E9')
-        ws['B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo +" - "+ producto.unidad_medida.descripcion
+        ws[
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1520,8 +1547,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).border = thin_border
         return wb
 
-
-    def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta, almacen):
+    def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta,
+                                                                  almacen):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
         ws.column_dimensions["G"].width = 15
@@ -1536,7 +1563,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=4).value = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime(
+            '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"RUC:" + EMPRESA.ruc
@@ -1551,13 +1579,15 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+        ws.cell(row=cont,
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+        ws.cell(row=cont,
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1615,7 +1645,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(almacen, desde, hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
+            almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1665,11 +1696,13 @@ class ReporteKardexExcel():
         cont = 1
         for producto in productos:
             ws.title = producto.codigo
-            self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws,thin_border,cont,producto,desde,hasta,almacen)
+            self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws, thin_border, cont, producto, desde,
+                                                                           hasta, almacen)
             ws = wb.create_sheet("Hoja")
         return wb
 
-    def obtener_formato_sunat_valorizado_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta, almacen):
+    def obtener_formato_sunat_valorizado_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta,
+                                                            almacen):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
         ws.column_dimensions["G"].width = 15
@@ -1684,7 +1717,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=4).value = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime(
+            '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"RUC:" + EMPRESA.ruc
@@ -1699,13 +1733,15 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+        ws.cell(row=cont,
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+        ws.cell(row=cont,
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1904,7 +1940,8 @@ class ReporteKardexExcel():
         cont = 1
         for producto in productos:
             ws.title = producto.codigo
-            self.obtener_formato_sunat_valorizado_excel_por_producto(ws,thin_border,cont,producto,desde,hasta,almacen)
+            self.obtener_formato_sunat_valorizado_excel_por_producto(ws, thin_border, cont, producto, desde, hasta,
+                                                                     almacen)
             ws = wb.create_sheet("Hoja")
         return wb
 

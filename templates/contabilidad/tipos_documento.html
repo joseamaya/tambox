@@ -1,53 +1,54 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 <h3>Tipos de Documentos</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.contabilidad.add_tipodocumento %}
-		<a href="{% url 'contabilidad:crear_tipo_documento' %}" class="btn btn-primary">
-			Crear
-		</a>												
-		{% endif %}
-		{% if perms.contabilidad.cargar_tipos_documento %}
-		<a href="{% url 'contabilidad:cargar_tipos_documento' %}" class="btn btn-default">
-			Importar
-		</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}						
-			<button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:maestro_tipos_documentos_excel' %}';">
-            	<span class="glyphicon glyphicon-list-alt"></span>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.contabilidad.add_tipodocumento %}
+        <a href="{% url 'contabilidad:crear_tipo_documento' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.contabilidad.cargar_tipos_documento %}
+        <a href="{% url 'contabilidad:cargar_tipos_documento' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'contabilidad:maestro_tipos_documentos_excel' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
             </button>
-			{% endif %}	
-		</div>
-	</div>				
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">COD_SUNAT</th>
-					<th class="text-center">NOMBRE</th>														
-				</tr>
-			</thead>
-			<tbody>
-			{% for tipo in tipos %}
-				{% if perms.contabilidad.ver_detalle_tipo_documento %}
-				<tr onclick="location.href='{% url 'contabilidad:detalle_tipo_documento' tipo.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ tipo.codigo_sunat }}</td>
-					<td>{{ tipo.nombre }}</td>														
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">COD_SUNAT</th>
+                <th class="text-center">NOMBRE</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tipo in tipos %}
+            {% if perms.contabilidad.ver_detalle_tipo_documento %}
+            <tr onclick="location.href='{% url 'contabilidad:detalle_tipo_documento' tipo.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ tipo.codigo_sunat }}</td>
+                <td>{{ tipo.nombre }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -111,5 +112,6 @@ $(document).ready(function()
 	}
     
 });
+
 </script>
 {% endblock js %}

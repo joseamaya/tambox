@@ -2,58 +2,58 @@
 {% block cuerpo %}
 <h3>Órdenes de Compra</h3>
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.compras.add_ordencompra %} 
-		<a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
-		{% endif %} 
-		{% if perms.compras.cargar_ordenes_compra %} 
-			<a href="#" class="btn btn-default">Importar</a> 
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			{% if perms.compras.ver_reporte_ordenes_compra_excel %}
-			<button class="btn btn-default" type="button">
-				<span class="glyphicon glyphicon-list-alt"></span>
-			</button>
-			{% endif %}
-		</div>
-	</div>
+    <div class="col-lg-10">
+        {% if perms.compras.add_ordencompra %}
+        <a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.compras.cargar_ordenes_compra %}
+        <a href="#" class="btn btn-default">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.compras.ver_reporte_ordenes_compra_excel %}
+            <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">CODIGO</th>
-					<th class="text-center">COTIZACION</th>									
-					<th class="text-center">FEC.</th>
-					<th class="text-center">FEC_REG</th>
-					<th class="text-center">ESTADO</th>																																						
-				</tr>
-			</thead>							
-			<tbody>
-			{% for orden_compra in ordenes_compra %}
-				{% if perms.compras.ver_detalle_orden_compra %}
-				<tr onclick="location.href='{% url 'compras:detalle_orden_compra' orden_compra.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ orden_compra.codigo }}</td>
-					{% if orden_compra.cotizacion %}
-					<td>{{ orden_compra.cotizacion }}</td>
-					{% else %}
-					<td>Ninguna</td>
-					{% endif %}
-					<td>{{ orden_compra.fecha|date:"d/m/y" }}</td>
-					<td>{{ orden_compra.created|date:"d/m/y" }}</td> 
-					<td>{{ orden_compra.get_estado_display }}</td>					
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">COTIZACION</th>
+                <th class="text-center">FEC.</th>
+                <th class="text-center">FEC_REG</th>
+                <th class="text-center">ESTADO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for orden_compra in ordenes_compra %}
+            {% if perms.compras.ver_detalle_orden_compra %}
+            <tr onclick="location.href='{% url 'compras:detalle_orden_compra' orden_compra.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ orden_compra.codigo }}</td>
+                {% if orden_compra.cotizacion %}
+                <td>{{ orden_compra.cotizacion }}</td>
+                {% else %}
+                <td>Ninguna</td>
+                {% endif %}
+                <td>{{ orden_compra.fecha|date:"d/m/y" }}</td>
+                <td>{{ orden_compra.created|date:"d/m/y" }}</td>
+                <td>{{ orden_compra.get_estado_display }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -115,5 +115,6 @@ $(document).ready(function()
 		ventana.dialog("close");
 	}
 });
+
 </script>
 {% endblock js %}

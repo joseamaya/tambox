@@ -2,26 +2,27 @@
 {% block cuerpo %}
 <h3>Puestos / Importar un archivo</h3>
 <form role="form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}        
+    {% csrf_token %}
     <div class="row">
-	    <div class="col-lg-12">	        
-	        <input type="submit" class="btn btn-primary" name="submit" value="Importar">
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'administracion:maestro_puestos' %}'">
+        <div class="col-lg-12">
+            <input type="submit" class="btn btn-primary" name="submit" value="Importar">
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'administracion:maestro_puestos' %}'">
                 Cancelar
             </button>
-	    </div>    
-	</div>
-	<hr/>
-    <div class="panel panel-default">		
-		<div class="panel-body">						
-			{% csrf_token %}
-			<div class="form-group">
-				<label>Selecciona un archivo:</label>
-				{{ form.archivo }}
-				<p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin encabezados</p>
-			</div>				
-		</div>
-	</div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>Selecciona un archivo:</label>
+                {{ form.archivo }}
+                <p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin encabezados</p>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock cuerpo %}
 {% block js %}
@@ -67,5 +68,6 @@ $(document).ready(function()
 		setupLoading();
 	});
 });
+
 </script>
 {% endblock js %}

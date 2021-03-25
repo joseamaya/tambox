@@ -18,7 +18,8 @@ except:
     empresa = None
     connection = None
 
-def enviar_correo(destinatario,asunto,cuerpo):
+
+def enviar_correo(destinatario, asunto, cuerpo):
     email = EmailMessage()
     email.subject = asunto
     email.body = cuerpo

@@ -5,7 +5,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.platypus import Table
 from reportlab.lib import colors
-#from reportlab.lib.pagesizes import cm
+# from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer
 from requerimientos.models import DetalleRequerimiento
 from requerimientos.settings import EMPRESA
@@ -15,6 +15,7 @@ import os
 from io import BytesIO
 from requerimientos.settings import CONFIGURACION, OFICINA_ADMINISTRACION, \
     PRESUPUESTO, LOGISTICA, OPERACIONES
+
 
 class ReporteRequerimiento():
 
@@ -168,7 +169,7 @@ class ReporteRequerimiento():
         if requerimiento.aprobacionrequerimiento.nivel.descripcion == "USUARIO" and requerimiento.aprobacionrequerimiento.estado:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
         elif requerimiento.aprobacionrequerimiento.nivel.descripcion == "LOGISTICA" and requerimiento.aprobacionrequerimiento.estado:
-            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '','', '')]
+            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:
             fecha_recepcion = requerimiento.fecha_recepcion.strftime('%d/%m/%Y')

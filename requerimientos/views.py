@@ -189,7 +189,8 @@ class DetalleOperacionRequerimiento(DetailView):
     slug_url_kwarg = 'codigo'
     template_name = 'requerimientos/detalle_requerimiento.html'
 
-    @method_decorator(permission_required('requerimientos.ver_detalle_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(
+        permission_required('requerimientos.ver_detalle_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
         if requerimiento.verificar_acceso(self.request.user, OFICINA_ADMINISTRACION, LOGISTICA, PRESUPUESTO):
@@ -287,7 +288,7 @@ class ModificarRequerimiento(UpdateView):
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
         if (requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.USU or
-                    requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.JEF or
+                requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.JEF or
                 self.request.user.is_superuser):
             return super(ModificarRequerimiento, self).dispatch(*args, **kwargs)
         else:

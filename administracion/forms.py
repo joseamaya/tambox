@@ -64,6 +64,7 @@ class TrabajadorForm(forms.ModelForm):
                 })
         self.fields['profesion'].required = False
 
+
 class ProductorForm(forms.ModelForm):
     class Meta:
         model = Productor

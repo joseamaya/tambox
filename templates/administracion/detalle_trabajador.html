@@ -1,103 +1,104 @@
-
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.administracion.change_trabajador %} <a
-			class="btn btn-primary"
-			href="{% url 'administracion:modificar_trabajador' object.pk %}">
-			Editar </a> {% endif %} {% if perms.administracion.delete_trabajador %}
-		<button class="btn btn-danger" type="button" id="id_eliminar">
-			Eliminar</button>
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			<button class="btn btn-default" type="button"
-				onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.anterior %}','Trabajador / {{ object.anterior_nombres_apellidos }}');">
-				<span class="glyphicon glyphicon-step-backward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.siguiente %}','Trabajador / {{ object.siguiente_nombres_apellidos }}');">
-				<span class="glyphicon glyphicon-step-forward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'administracion:maestro_trabajadores' %}';">
-				<span class="glyphicon glyphicon-th-list"></span>
-			</button>
-		</div>
-	</div>
+    <div class="col-lg-10">
+        {% if perms.administracion.change_trabajador %} <a
+            class="btn btn-primary"
+            href="{% url 'administracion:modificar_trabajador' object.pk %}">
+        Editar </a> {% endif %} {% if perms.administracion.delete_trabajador %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">
+            Eliminar
+        </button>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            <button class="btn btn-default" type="button"
+                    onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.anterior %}','Trabajador / {{ object.anterior_nombres_apellidos }}');">
+                <span class="glyphicon glyphicon-step-backward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.siguiente %}','Trabajador / {{ object.siguiente_nombres_apellidos }}');">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'administracion:maestro_trabajadores' %}';">
+                <span class="glyphicon glyphicon-th-list"></span>
+            </button>
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div class="panel panel-default">
-	<div class="panel-body">
-		<div class="row">
-			<div class="col-lg-2">
-				<a href="{{ object.foto.url }}" class="thumbnail"> <img src="{{ object.foto.url }}" alt="Foto Trabajador"
-					style="width: 120px; height: 90px">
-				</a>
-			</div>
-			<div class="col-lg-5">
-				<h3>{{ object.nombre_completo }}</h3>
-			</div>
-			<div class="col-lg-5">
-				<div class="btn-group"></div>
-			</div>
-		</div>
-		<br>
-		<ul class="nav nav-tabs">
-			<li class="active"><a data-toggle="tab" href="#general">Información
-					General</a></li>
-			<li><a data-toggle="tab" href="#seguridad">Seguridad</a></li>
-		</ul>
-		<div class="tab-content">
-			<div id="general" class="tab-pane fade in active">
-				<br>
-				<div class="row">
-					<div class="col-lg-4">
-						<label>DNI:</label>
-						<p>{{ object.dni }}</p>
-						<label>APELLIDO PATERNO:</label>
-						<p>{{ object.apellido_paterno }}</p>
-						<label>APELLIDO MATERNO:</label>
-						<p>{{ object.apellido_materno }}</p>
-					</div>
-					<div class="col-lg-4">
-						<label>NOMBRES:</label>
-						<p>{{ object.nombres }}</p>
-						<label>PROFESIÓN:</label>
-						{% if object.profesion %}
-						<p>{{ object.profesion }}</p>
-						{% else %}
-						<p></p>
-						{% endif %}
-						<label>FIRMA:</label>
-						{% if object.firma %}
-						<a href="{{ object.firma.url }}" class="thumbnail">
-							<img src="{{ object.firma.url }}" alt="Firma Trabajador" style="width: 120px; height: 90px">
-						</a>
-						{% endif %}
-					</div>
-					<div class="col-lg-4">
-						<label>FECHA REGISTRO: </label>
-						<p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
-						<label>FECHA MODIFICACIÓN: </label>
-						<p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
-						<label>ESTADO: </label> {% if object.estado %}
-						<p>ACTIVO</p>
-						{% else %}
-						<p>INACTIVO</p>
-						{% endif %}
-					</div>
-				</div>
-			</div>
-			<div id="seguridad" class="tab-pane fade">
-				<br>
-				<div class="row">
-					<div class="col-lg-4">
-						<label>USUARIO:</label>
-						<p>{{ object.usuario }}</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-2">
+                <a href="{{ object.foto.url }}" class="thumbnail"> <img src="{{ object.foto.url }}"
+                                                                        alt="Foto Trabajador"
+                                                                        style="width: 120px; height: 90px">
+                </a>
+            </div>
+            <div class="col-lg-5">
+                <h3>{{ object.nombre_completo }}</h3>
+            </div>
+            <div class="col-lg-5">
+                <div class="btn-group"></div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#general">Información
+                General</a></li>
+            <li><a data-toggle="tab" href="#seguridad">Seguridad</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade in active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>DNI:</label>
+                        <p>{{ object.dni }}</p>
+                        <label>APELLIDO PATERNO:</label>
+                        <p>{{ object.apellido_paterno }}</p>
+                        <label>APELLIDO MATERNO:</label>
+                        <p>{{ object.apellido_materno }}</p>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>NOMBRES:</label>
+                        <p>{{ object.nombres }}</p>
+                        <label>PROFESIÓN:</label>
+                        {% if object.profesion %}
+                        <p>{{ object.profesion }}</p>
+                        {% else %}
+                        <p></p>
+                        {% endif %}
+                        <label>FIRMA:</label>
+                        {% if object.firma %}
+                        <a href="{{ object.firma.url }}" class="thumbnail">
+                            <img src="{{ object.firma.url }}" alt="Firma Trabajador" style="width: 120px; height: 90px">
+                        </a>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label> {% if object.estado %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="seguridad" class="tab-pane fade">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>USUARIO:</label>
+                        <p>{{ object.usuario }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from tambox.mail import enviar_correo
 
-def correo_creacion_requerimiento(destinatario,requerimiento):    
+
+def correo_creacion_requerimiento(destinatario, requerimiento):
     asunto = u'TAMBOX - Requerimiento Pendiente de Aprobar'
     cuerpo = u'''Tiene un requerimiento pendiente de aprobar:\n
     Nro: %s \n
@@ -10,5 +11,6 @@ def correo_creacion_requerimiento(destinatario,requerimiento):
     Por favor ingrese a TAMBOX para hacer la aprobación correspondiente.\n
     http://IP/tambox \n
     Saludos. 
-    ''' % (requerimiento.codigo, requerimiento.solicitante.nombre_completo(),requerimiento.created.strftime('%d/%m/%Y'))
-    enviar_correo([destinatario], asunto, cuerpo)   
+    ''' % (
+    requerimiento.codigo, requerimiento.solicitante.nombre_completo(), requerimiento.created.strftime('%d/%m/%Y'))
+    enviar_correo([destinatario], asunto, cuerpo)

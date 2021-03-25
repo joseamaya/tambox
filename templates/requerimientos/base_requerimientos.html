@@ -1,35 +1,36 @@
 {% extends "base.html" %}
 {% block menu %}
 <div class="navbar-default sidebar" role="navigation">
-   	<div class="sidebar-nav navbar-collapse">
-		<ul class="nav" id="side-menu">
-			<li>
-		        <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
-		        <ul class="nav nav-second-level">
-		        				   		
-		        </ul>	                
-		    </li>			    
-		    <li>
-		        <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
-		        <ul class="nav nav-second-level">
-		        	{% if perms.requerimientos.add_requerimiento %}
-					<li><a href="{% url 'requerimientos:crear_requerimiento' %}">Requerimiento</a></li>
-					{% endif %}
-		        	{% if perms.requerimientos.ver_tabla_aprobacion_requerimientos %}
-					<li><a href="{% url 'requerimientos:listado_aprobacion_requerimientos' %}">Aprobación Requerimientos</a></li>
-					{% endif %}										
-				</ul>	                    
-		    </li>
-		    <li>
-		    	<a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
-			    <ul class="nav nav-second-level">
-			    	{% if perms.requerimientos.ver_tabla_requerimientos %}
-			    	<li><a href="{% url 'requerimientos:requerimientos' %}">Requerimientos</a></li>
-			    	{% endif %}			    	 	            
-				</ul>
-		    </li>
-    	</ul>	               
-	</div>                
+    <div class="sidebar-nav navbar-collapse">
+        <ul class="nav" id="side-menu">
+            <li>
+                <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    {% if perms.requerimientos.add_requerimiento %}
+                    <li><a href="{% url 'requerimientos:crear_requerimiento' %}">Requerimiento</a></li>
+                    {% endif %}
+                    {% if perms.requerimientos.ver_tabla_aprobacion_requerimientos %}
+                    <li><a href="{% url 'requerimientos:listado_aprobacion_requerimientos' %}">Aprobación
+                        Requerimientos</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
+                <ul class="nav nav-second-level">
+                    {% if perms.requerimientos.ver_tabla_requerimientos %}
+                    <li><a href="{% url 'requerimientos:requerimientos' %}">Requerimientos</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+        </ul>
+    </div>
 </div>
 
 {% endblock menu %}

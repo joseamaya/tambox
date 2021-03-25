@@ -5,158 +5,163 @@
 {% else %}
 <h3>Pedidos / Nuevo</h3>
 {% endif %}
-<form role="form" method="post">	
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-			{% if object %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}'">
-				Cancelar
-			</button>
-			{% else %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:pedidos' %}'">
-				Cancelar
-			</button>
-			{% endif %}
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:modificar_pedido' pedido.anterior %}';">
-					<span class="glyphicon glyphicon-step-backward"></span>
-				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:modificar_pedido' pedido.siguiente %}';">
-					<span class="glyphicon glyphicon-step-forward"></span>
-				</button>
-				{% endif %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:pedidos' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="panel panel-primary">
-		<div class="panel-body">					
-			{% csrf_token %}
-			{% if object %}
-			<div class="form-group">	
-				<div class="row">							
-					<div class="col-md-3">			
-						<label>Código:</label> 
-						{{ form.codigo }}
-					</div>														
-				</div>
-			</div>
-			{% endif %}
-			<div class="form-group">
-				<div class="row">							
-					<div class="col-md-3">			
-						<label>Fecha:</label> 
-						{{ form.fecha }}
-					</div>														
-				</div>						
-			</div>
-			<div class="row">
-				<div class="col-lg-10">							
-				</div>	
-				<div class="col-lg-2">
-					<div class='form-group'>
-						<a id="id_crear_detalle" href="{% url 'almacen:crear_detalle_pedido' %}" class="btn btn-info btn-block">
-							<span class="glyphicon glyphicon-plus">DETALLE</span>
-						</a>
-					</div>
-				</div>						
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<table id="detalles" class="table table-striped table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>Código</th>
-								<th>Descripción</th>
-								<th>Unidad</th>
-								<th>Cantidad</th>																						
-								<th>Acción</th>
-							</tr>
-						</thead>
-						<tbody>
-							{{ detalle_pedido_formset.management_form }}
-						    {% for detalle_pedido_form in detalle_pedido_formset %}					        
-					            <tr class="detalle_pedido_formset">
-					            	<td>
-					            		{% if detalle_pedido_form.codigo.errors %}
-											{% for error in detalle_pedido_form.codigo.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-						            	{{ detalle_pedido_form.codigo }}
-					            	</td>
-					            	<td>
-						            	{% if detalle_pedido_form.nombre.errors %}
-											{% for error in detalle_pedido_form.nombre.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_pedido_form.nombre }}
-						            </td>
-						            <td>
-							            {% if detalle_pedido_form.unidad.errors %}
-											{% for error in detalle_pedido_form.unidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_pedido_form.unidad }}
-						            </td>
-						            <td>
-							            {% if detalle_pedido_form.cantidad.errors %}
-											{% for error in detalle_pedido_form.cantidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_pedido_form.cantidad }}
-						            </td>
-						            <td>
-						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-						           			<span class='glyphicon glyphicon-remove'></span>
-						           		</button>
-						           	</td>				           	
-					           	</tr>					           	
-						    {% endfor %}	
-						</tbody>				
-					</table>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<label>OBSERVACIONES:</label>	
-					{{ form.observaciones }}
-				</div>
-			</div>	
-		</div>
-	</div>
-	<div id="popup"></div>
-</form>		
+<form role="form" method="post">
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:pedidos' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.anterior %}';">
+                    <span class="glyphicon glyphicon-step-backward"></span>
+                </button>
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.siguiente %}';">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:pedidos' %}';">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            {% csrf_token %}
+            {% if object %}
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Código:</label>
+                        {{ form.codigo }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Fecha:</label>
+                        {{ form.fecha }}
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-10">
+                </div>
+                <div class="col-lg-2">
+                    <div class='form-group'>
+                        <a id="id_crear_detalle" href="{% url 'almacen:crear_detalle_pedido' %}"
+                           class="btn btn-info btn-block">
+                            <span class="glyphicon glyphicon-plus">DETALLE</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="detalles" class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descripción</th>
+                            <th>Unidad</th>
+                            <th>Cantidad</th>
+                            <th>Acción</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ detalle_pedido_formset.management_form }}
+                        {% for detalle_pedido_form in detalle_pedido_formset %}
+                        <tr class="detalle_pedido_formset">
+                            <td>
+                                {% if detalle_pedido_form.codigo.errors %}
+                                {% for error in detalle_pedido_form.codigo.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_pedido_form.codigo }}
+                            </td>
+                            <td>
+                                {% if detalle_pedido_form.nombre.errors %}
+                                {% for error in detalle_pedido_form.nombre.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_pedido_form.nombre }}
+                            </td>
+                            <td>
+                                {% if detalle_pedido_form.unidad.errors %}
+                                {% for error in detalle_pedido_form.unidad.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_pedido_form.unidad }}
+                            </td>
+                            <td>
+                                {% if detalle_pedido_form.cantidad.errors %}
+                                {% for error in detalle_pedido_form.cantidad.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_pedido_form.cantidad }}
+                            </td>
+                            <td>
+                                <button class='eliminar btn btn-small btn-danger' type='button'
+                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <label>OBSERVACIONES:</label>
+                    {{ form.observaciones }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup"></div>
+</form>
 
 {% endblock cuerpo %}
 
@@ -316,5 +321,6 @@ $(document).ready(function()
 		event.preventDefault();
 	});
 });
+
 </script>
 {% endblock js %}

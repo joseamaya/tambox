@@ -6,16 +6,16 @@ from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 from openpyxl.styles import Side
 
-from almacen.models import Almacen, Movimiento, Kardex,TipoMovimiento,  DetalleMovimiento, ControlProductoAlmacen,\
+from almacen.models import Almacen, Movimiento, Kardex, TipoMovimiento, DetalleMovimiento, ControlProductoAlmacen, \
     Pedido, DetallePedido
 from django.http import HttpResponse, HttpResponseRedirect
 from django.core.urlresolvers import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos,\
-    FormularioKardexProducto, CargarInventarioInicialForm, FormularioReporteStock, MovimientoForm,\
-    DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet,\
-    AprobacionPedidoForm, FormularioReprocesoPrecio,\
+from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos, \
+    FormularioKardexProducto, CargarInventarioInicialForm, FormularioReporteStock, MovimientoForm, \
+    DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet, \
+    AprobacionPedidoForm, FormularioReprocesoPrecio, \
     FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
 from django.db.models import Sum
 from decimal import Decimal
@@ -50,104 +50,107 @@ from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexEx
 from almacen.settings import EMPRESA, LOGISTICA
 from datetime import date
 
-locale.setlocale(locale.LC_ALL,"")
+locale.setlocale(locale.LC_ALL, "")
+
 
 class Tablero(View):
-    
+
     def get(self, request, *args, **kwargs):
         cod_mov_invent_ini = 'I00'
         cod_mov_ingreso_compra = 'I01'
         cod_mov_salida_pedido = 'S01'
         lista_notificaciones = []
-        cant_almacenes = Almacen.objects.count()        
-        cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_mov_invent_ini).count()
-        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()        
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_invent_ini,
-                                                                       defaults = {'descripcion':'INVENTARIO INICIAL',
-                                                                                   'codigo_sunat': '16',
-                                                                                   'incrementa':True,
-                                                                                   'estado':True})
+        cant_almacenes = Almacen.objects.count()
+        cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(
+            codigo=cod_mov_invent_ini).count()
+        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_invent_ini,
+                                                                       defaults={'descripcion': 'INVENTARIO INICIAL',
+                                                                                 'codigo_sunat': '16',
+                                                                                 'incrementa': True,
+                                                                                 'estado': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_ingreso_compra,
-                                                                       defaults = {'descripcion':'INGRESO POR COMPRA',
-                                                                                   'codigo_sunat': '02',
-                                                                                   'incrementa':True,
-                                                                                   'pide_referencia':True,
-                                                                                   'estado':True})
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_ingreso_compra,
+                                                                       defaults={'descripcion': 'INGRESO POR COMPRA',
+                                                                                 'codigo_sunat': '02',
+                                                                                 'incrementa': True,
+                                                                                 'pide_referencia': True,
+                                                                                 'estado': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo = cod_mov_salida_pedido,
-                                                                       defaults = {'descripcion':'SALIDA POR PEDIDO',
-                                                                                   'codigo_sunat': '10',
-                                                                                   'incrementa':False,
-                                                                                   'pide_referencia':True,
-                                                                                   'estado':True})
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_salida_pedido,
+                                                                       defaults={'descripcion': 'SALIDA POR PEDIDO',
+                                                                                 'codigo_sunat': '10',
+                                                                                 'incrementa': False,
+                                                                                 'pide_referencia': True,
+                                                                                 'estado': True})
         inventario_inicial = Movimiento.objects.filter(tipo_movimiento__codigo=cod_mov_invent_ini).count()
         if creado:
-            lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")                            
-        if cant_almacenes==0:
-            lista_notificaciones.append("No se ha creado ningún almacen")            
+            lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
+        if cant_almacenes == 0:
+            lista_notificaciones.append("No se ha creado ningún almacen")
         if cant_tipos_movimientos_ingreso == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de ingreso")            
+            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de ingreso")
         if cant_tipos_movimientos_salida == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de salida")        
+            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de salida")
         if inventario_inicial == 0:
-            lista_notificaciones.append("No se ha realizado el inventario inicial")            
-        context = {'notificaciones':lista_notificaciones}
+            lista_notificaciones.append("No se ha realizado el inventario inicial")
+        context = {'notificaciones': lista_notificaciones}
         return render(request, 'almacen/tablero_almacen.html', context)
-    
+
+
 class AprobarPedido(CreateView):
     form_class = AprobacionPedidoForm
-    template_name = 'almacen/aprobar_pedido.html'    
+    template_name = 'almacen/aprobar_pedido.html'
     model = Movimiento
-    
-    @method_decorator(permission_required('almacen.aprobar_pedido',reverse_lazy('seguridad:permiso_denegado')))
+
+    @method_decorator(permission_required('almacen.aprobar_pedido', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         self.codigo = kwargs['codigo']
         return super(AprobarPedido, self).dispatch(*args, **kwargs)
-        
+
     def get_form_kwargs(self):
         kwargs = super(AprobarPedido, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
-    
+
     def get_initial(self):
         initial = super(AprobarPedido, self).get_initial()
         initial['cod_pedido'] = self.codigo
         return initial
-    
+
     def get_context_data(self, **kwargs):
-        pedido = Pedido.objects.get(codigo = self.codigo)
+        pedido = Pedido.objects.get(codigo=self.codigo)
         context = super(AprobarPedido, self).get_context_data(**kwargs)
         context['pedido'] = pedido
         return context
-    
+
     def get(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
-        form = self.get_form(form_class)        
-        pedido = Pedido.objects.get(codigo = self.codigo)
+        form = self.get_form(form_class)
+        pedido = Pedido.objects.get(codigo=self.codigo)
         try:
             trabajador = self.request.user.trabajador
         except:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))        
+            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.puesto_set.all().filter(estado=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == LOGISTICA:
                 form_class = self.get_form_class()
-                form = self.get_form(form_class)                
-                detalles = DetallePedido.objects.filter(pedido=pedido,estado=DetallePedido.STATUS.PEND)
+                form = self.get_form(form_class)
+                detalles = DetallePedido.objects.filter(pedido=pedido, estado=DetallePedido.STATUS.PEND)
                 detalles_data = []
-                for detalle in detalles:                    
+                for detalle in detalles:
                     d = {'pedido': detalle.id,
                          'codigo': detalle.producto.codigo,
                          'nombre': detalle.producto.descripcion,
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad
-                        }
+                         }
                     detalles_data.append(d)
                 detalle_salida_formset = DetalleSalidaFormSet(initial=detalles_data)
                 return self.render_to_response(self.get_context_data(form=form,
@@ -155,8 +158,8 @@ class AprobarPedido(CreateView):
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         except:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))        
-    
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
@@ -166,49 +169,52 @@ class AprobarPedido(CreateView):
             return self.form_valid(form, detalle_salida_formset)
         else:
             return self.form_invalid(form, detalle_salida_formset)
-        
+
     def form_valid(self, form, detalle_salida_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 pedido = self.object.pedido
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_salida_form in detalle_salida_formset:
                     detalle_pedido = detalle_salida_form.cleaned_data.get('pedido')
-                    codigo = detalle_salida_form.cleaned_data.get('codigo') 
+                    codigo = detalle_salida_form.cleaned_data.get('codigo')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
-                        detalle_movimiento = DetalleMovimiento(nro_detalle = cont,
-                                                               movimiento = self.object,
-                                                               producto = Producto.objects.get(pk=codigo),
-                                                               detalle_pedido = DetallePedido.objects.get(pk=detalle_pedido),
-                                                               cantidad = cantidad,
-                                                               precio = precio)
-                        detalles.append(detalle_movimiento)                        
+                        detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                                                               movimiento=self.object,
+                                                               producto=Producto.objects.get(pk=codigo),
+                                                               detalle_pedido=DetallePedido.objects.get(
+                                                                   pk=detalle_pedido),
+                                                               cantidad=cantidad,
+                                                               precio=precio)
+                        detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, None, pedido) 
+                DetalleMovimiento.objects.bulk_create(detalles, None, pedido)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
-        
+
     def form_invalid(self, form, detalle_salida_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_salida_formset = detalle_salida_formset))
-        
+                                                             detalle_salida_formset=detalle_salida_formset))
+
+
 class BusquedaProductosAlmacen(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
-            kardex_ant = Kardex.objects.filter(producto__descripcion__icontains = descripcion,
-                                               almacen__id=almacen).order_by('producto').distinct('producto__codigo')[:20]
+            kardex_ant = Kardex.objects.filter(producto__descripcion__icontains=descripcion,
+                                               almacen__id=almacen).order_by('producto').distinct('producto__codigo')[
+                         :20]
             for kardex in kardex_ant:
-                control = Kardex.objects.filter(producto = kardex.producto,
+                control = Kardex.objects.filter(producto=kardex.producto,
                                                 almacen__id=almacen).latest('fecha_operacion')
                 producto_json = {}
                 producto_json['label'] = control.producto.descripcion
@@ -216,7 +222,7 @@ class BusquedaProductosAlmacen(TemplateView):
                 producto_json['descripcion'] = control.producto.descripcion
                 producto_json['unidad'] = control.producto.unidad_medida.descripcion
                 try:
-                    precio=round(control.valor_total / control.cantidad_total, 5)
+                    precio = round(control.valor_total / control.cantidad_total, 5)
                 except:
                     precio = 0
                 producto_json['precio'] = str(precio)
@@ -224,37 +230,39 @@ class BusquedaProductosAlmacen(TemplateView):
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
 
+
 class CargarAlmacenes(FormView):
     template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
-    
+
     def form_valid(self, form):
         data = form.cleaned_data
-        docfile = data['archivo']            
+        docfile = data['archivo']
         form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname,encoding = "utf8"), delimiter=',', quotechar='"')
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
+        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
         for fila in dataReader:
             Almacen.objects.create(codigo=fila[0],
                                    descripcion=fila[1])
         return HttpResponseRedirect(reverse('almacen:almacenes'))
-    
+
+
 class CargarInventarioInicial(FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = CargarInventarioInicialForm
-    
-    def obtener_fecha_hora(self,r_fecha,r_hora):
+
+    def obtener_fecha_hora(self, r_fecha, r_hora):
         print(r_hora)
-        r_hora = r_hora.replace(" ","")
+        r_hora = r_hora.replace(" ", "")
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
         dia = int(r_fecha[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
-        #segundos = int(r_hora[6:8])
-        fecha = datetime.datetime(anio,mes,dia,horas,minutos)
+        # segundos = int(r_hora[6:8])
+        fecha = datetime.datetime(anio, mes, dia, horas, minutos)
         return fecha
-    
+
     def form_valid(self, form):
         data = form.cleaned_data
         docfile = data['archivo']
@@ -264,18 +272,18 @@ class CargarInventarioInicial(FormView):
         form.save()
         fecha_operacion = self.obtener_fecha_hora(fecha, hora)
         usuario = self.request.user
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT,'archivos',str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding = "utf8"), delimiter=',', quotechar='"')
+        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
+        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
         tipo_movimiento = TipoMovimiento.objects.get(codigo='I00')
         with transaction.atomic():
-            tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')            
-            movimiento = Movimiento.objects.create(tipo_movimiento = tipo_movimiento,
-                                                   tipo_documento = tipo_documento,
-                                                   almacen = almacen,
+            tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')
+            movimiento = Movimiento.objects.create(tipo_movimiento=tipo_movimiento,
+                                                   tipo_documento=tipo_documento,
+                                                   almacen=almacen,
                                                    fecha_operacion=fecha_operacion,
-                                                   observaciones = 'INVENTARIO INICIAL',
-                                                   serie = 'SALDO',
-                                                   numero = 'INICIAL')            
+                                                   observaciones='INVENTARIO INICIAL',
+                                                   serie='SALDO',
+                                                   numero='INICIAL')
             cont_detalles = 1
             detalles = []
             total = 0
@@ -303,25 +311,27 @@ class CargarInventarioInicial(FormView):
                                                            valor=valor)
                     detalles.append(detalle_movimiento)
                 except Producto.DoesNotExist:
-                    pass                 
+                    pass
                 total = total + valor
                 cont_detalles = cont_detalles + 1
-            DetalleMovimiento.objects.bulk_create(detalles,None, None)
+            DetalleMovimiento.objects.bulk_create(detalles, None, None)
             movimiento.save()
         return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[movimiento.id_movimiento]))
-    
+
+
 class CrearTipoMovimiento(CreateView):
     template_name = 'almacen/tipo_movimiento.html'
     form_class = TipoMovimientoForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
-    @method_decorator(permission_required('almacen.add_tipomovimiento',reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('almacen.add_tipomovimiento', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoMovimiento, self).dispatch(*args, **kwargs)
-    
+
     def get_success_url(self):
         return reverse('almacen:detalle_tipo_movimiento', args=[self.object.pk])
-    
+
+
 class CrearTipoSalida(FormView):
     template_name = 'almacen/crear_tipo_salida.html'
     form_class = TipoSalidaForm
@@ -329,14 +339,15 @@ class CrearTipoSalida(FormView):
 
     def form_valid(self, form):
         form.save()
-        return super(CrearTipoSalida, self).form_valid(form)  
-    
+        return super(CrearTipoSalida, self).form_valid(form)
+
+
 class CrearTipoStock(View):
-    
+
     def get(self, request, *args, **kwargs):
-        form = TipoStockForm()        
+        form = TipoStockForm()
         return render(request, 'crear_tipo_stock.html', {'form': form})
-    
+
     '''template_name = 'almacen/crear_tipo_stock.html'
     form_class = TipoStockForm
     success_url = reverse_lazy('almacen:crear_tipo_stock')
@@ -344,6 +355,7 @@ class CrearTipoStock(View):
     def form_valid(self, form):
         form.save()
         return super(CrearTipoStock, self).form_valid(form)'''
+
 
 class CrearAlmacen(FormView):
     template_name = 'almacen/almacen.html'
@@ -353,7 +365,8 @@ class CrearAlmacen(FormView):
     def form_valid(self, form):
         form.save()
         return super(CrearAlmacen, self).form_valid(form)
-    
+
+
 '''class CrearDetalleSalida(FormView):
     template_name = 'almacen/crear_detalle_salida.html'
     form_class = FormularioDetalleMovimiento
@@ -371,15 +384,16 @@ class CrearAlmacen(FormView):
     def form_valid(self, form):
         form.save()
         return super(CrearDetalleSalida, self).form_valid(form)'''
-    
+
+
 class CrearDetalleSalida(TemplateView):
-        
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
-            lista_detalles = []            
+            lista_detalles = []
             det = {}
-            det['codigo'] = ''               
-            det['nombre'] = ''                    
+            det['codigo'] = ''
+            det['nombre'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
             det['unidad'] = ''
@@ -388,32 +402,33 @@ class CrearDetalleSalida(TemplateView):
             formset = DetalleSalidaFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
-                detalle_json = {}    
+                detalle_json = {}
                 detalle_json['codigo'] = str(form['codigo'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
-                detalle_json['unidad'] = str(form['unidad'])                
+                detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['valor'] = str(form['valor'])
-                lista_json.append(detalle_json)                                
+                lista_json.append(detalle_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
-        
+
+
 class CrearDetallePedido(TemplateView):
-        
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
-            lista_detalles = []            
+            lista_detalles = []
             det = {}
-            det['codigo'] = ''               
-            det['nombre'] = ''                    
+            det['codigo'] = ''
+            det['nombre'] = ''
             det['cantidad'] = '0'
-            det['unidad'] = ''            
+            det['unidad'] = ''
             lista_detalles.append(det)
             formset = DetallePedidoFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
-                detalle_json = {}    
+                detalle_json = {}
                 detalle_json['codigo'] = str(form['codigo'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
@@ -422,15 +437,16 @@ class CrearDetallePedido(TemplateView):
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
+
 class CrearDetalleIngreso(TemplateView):
-        
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
-            lista_detalles = []            
+            lista_detalles = []
             det = {}
             det['orden_compra'] = '0'
-            det['codigo'] = ''               
-            det['nombre'] = ''                    
+            det['codigo'] = ''
+            det['nombre'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
             det['unidad'] = ''
@@ -439,24 +455,25 @@ class CrearDetalleIngreso(TemplateView):
             formset = DetalleIngresoFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
-                detalle_json = {}    
+                detalle_json = {}
                 detalle_json['orden_compra'] = str(form['orden_compra'])
                 detalle_json['codigo'] = str(form['codigo'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
-                detalle_json['unidad'] = str(form['unidad'])                
+                detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['valor'] = str(form['valor'])
-                lista_json.append(detalle_json)                                
+                lista_json.append(detalle_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
-    
+
+
 class CrearPedido(CreateView):
     template_name = 'almacen/pedido.html'
     form_class = PedidoForm
     model = Pedido
-    
-    @method_decorator(permission_required('almacen.add_pedido',reverse_lazy('seguridad:permiso_denegado')))
+
+    @method_decorator(permission_required('almacen.add_pedido', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
@@ -468,18 +485,18 @@ class CrearPedido(CreateView):
         if puesto is None:
             return HttpResponseRedirect(reverse('administracion:crear_puesto'))
         if puesto.es_jefatura or puesto.es_asistente:
-            return super(CrearPedido, self).dispatch(*args, **kwargs)                
+            return super(CrearPedido, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))        
-    
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+
     def get(self, request, *args, **kwargs):
-        self.object = None        
+        self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_pedido_formset=DetallePedidoFormSet()
+        detalle_pedido_formset = DetallePedidoFormSet()
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_pedido_formset = detalle_pedido_formset))
-        
+                                                             detalle_pedido_formset=detalle_pedido_formset))
+
     def get_form_kwargs(self):
         kwargs = super(CrearPedido, self).get_form_kwargs()
         kwargs['request'] = self.request
@@ -494,60 +511,64 @@ class CrearPedido(CreateView):
             return self.form_valid(form, detalle_pedido_formset)
         else:
             return self.form_invalid(form, detalle_pedido_formset)
-    
+
     def form_valid(self, form, detalle_pedido_formset):
         try:
             with transaction.atomic():
-                self.object = form.save()        
+                self.object = form.save()
                 detalles = []
                 cont = 1
-                for detalle_pedido_form in detalle_pedido_formset:                
+                for detalle_pedido_form in detalle_pedido_formset:
                     codigo = detalle_pedido_form.cleaned_data.get('codigo')
                     cantidad = detalle_pedido_form.cleaned_data.get('cantidad')
-                    if codigo and cantidad:                                
-                        producto = Producto.objects.get(codigo=codigo)                
-                        detalles.append(DetallePedido(pedido=self.object, 
-                                                      nro_detalle=cont, 
-                                                      producto=producto, 
+                    if codigo and cantidad:
+                        producto = Producto.objects.get(codigo=codigo)
+                        detalles.append(DetallePedido(pedido=self.object,
+                                                      nro_detalle=cont,
+                                                      producto=producto,
                                                       cantidad=cantidad))
-                        cont = cont + 1                    
+                        cont = cont + 1
                 DetallePedido.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Puesto.objects.get(oficina = LOGISTICA, es_jefatura = True, estado = True)
+                puesto_jefe_logistica = Puesto.objects.get(oficina=LOGISTICA, es_jefatura=True, estado=True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
                 destinatario = jefe_logistica.usuario.email
-                correo_creacion_pedido(destinatario,self.object)
+                correo_creacion_pedido(destinatario, self.object)
                 return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.pk]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando el pedido.')
-        
+            messages.error(self.request, 'Error guardando el pedido.')
+
     def form_invalid(self, form, detalle_pedido_formset):
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_pedido_formset=detalle_pedido_formset))
-    
+
+
 class ConsultaStock(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             almacen = request.GET['almacen']
-            codigo = request.GET['codigo']            
-            control_producto = Kardex.objects.filter(producto__codigo = codigo,
+            codigo = request.GET['codigo']
+            control_producto = Kardex.objects.filter(producto__codigo=codigo,
                                                      almacen__id=almacen).latest('fecha_operacion')
-            producto_json = {}                
+            producto_json = {}
             producto_json['stock'] = control_producto.cantidad_total
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
+
 class DetalleAlmacen(DetailView):
     model = Almacen
     template_name = 'almacen/detalle_almacen.html'
-    
+
+
 class DetalleTipoMovimiento(DetailView):
     model = TipoMovimiento
     template_name = 'almacen/detalle_tipo_movimiento.html'
 
+
 class DetalleOperacionPedido(DetailView):
     model = Pedido
-    template_name = 'almacen/detalle_pedido.html'    
-    
+    template_name = 'almacen/detalle_pedido.html'
+
 
 class DetalleOperacionMovimiento(DetailView):
     model = Movimiento
@@ -555,7 +576,7 @@ class DetalleOperacionMovimiento(DetailView):
 
 
 class EliminarAlmacen(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             codigo = request.GET['codigo']
@@ -563,48 +584,50 @@ class EliminarAlmacen(TemplateView):
             almacen_json = {}
             almacen_json['codigo'] = almacen.codigo
             almacen_json['descripcion'] = almacen.descripcion
-            if len(almacen.movimiento_set.all())>0:
+            if len(almacen.movimiento_set.all()) > 0:
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
-                Almacen.objects.filter(pk=codigo).update(estado = False)                
+                Almacen.objects.filter(pk=codigo).update(estado=False)
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
-    
+
+
 class EliminarMovimiento(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             id_movimiento = request.GET['id_movimiento']
-            movimiento = Movimiento.objects.get(pk = id_movimiento)
+            movimiento = Movimiento.objects.get(pk=id_movimiento)
             orden = movimiento.referencia
             pedido = movimiento.pedido
             if orden is not None:
-                movimiento.eliminar_referencia()                
+                movimiento.eliminar_referencia()
             if pedido is not None:
                 movimiento.eliminar_pedido()
-            detalle_kardex = Kardex.objects.filter(movimiento = movimiento)
+            detalle_kardex = Kardex.objects.filter(movimiento=movimiento)
             for kardex in detalle_kardex:
-                control = ControlProductoAlmacen.objects.get(producto = kardex.producto, almacen = kardex.almacen)
-                if kardex.cantidad_ingreso>0:
-                    control.stock = control.stock - kardex.cantidad_ingreso                                        
+                control = ControlProductoAlmacen.objects.get(producto=kardex.producto, almacen=kardex.almacen)
+                if kardex.cantidad_ingreso > 0:
+                    control.stock = control.stock - kardex.cantidad_ingreso
                 elif kardex.cantidad_salida > 0:
                     control.stock = control.stock + kardex.cantidad_salida
                 control.save()
-                kardex.delete()                
-            Movimiento.objects.filter(pk=id_movimiento).update(estado = Movimiento.STATUS.CANC, referencia=None)
+                kardex.delete()
+            Movimiento.objects.filter(pk=id_movimiento).update(estado=Movimiento.STATUS.CANC, referencia=None)
             DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
             movimiento_json = {}
             movimiento_json['id_movimiento'] = id_movimiento
             data = simplejson.dumps(movimiento_json)
             return HttpResponse(data, 'application/json')
-        
+
+
 class EliminarPedido(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         if request.is_ajax():
             codigo = request.GET['codigo']
-            pedido = Pedido.objects.get(pk=codigo)            
+            pedido = Pedido.objects.get(pk=codigo)
             movimientos = pedido.movimiento_set.all()
             almacen_json = {}
             almacen_json['codigo'] = pedido.codigo
@@ -613,25 +636,28 @@ class EliminarPedido(TemplateView):
             else:
                 almacen_json['movimientos'] = 'NO'
                 with transaction.atomic():
-                    Pedido.objects.filter(codigo=codigo).update(estado = Pedido.STATUS.CANC)
-                    DetallePedido.objects.filter(pedido = pedido).delete()
+                    Pedido.objects.filter(codigo=codigo).update(estado=Pedido.STATUS.CANC)
+                    DetallePedido.objects.filter(pedido=pedido).delete()
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
 
+
 class InicioOperaciones(TemplateView):
-    template_name = "inicio_operaciones.html"    
-    
+    template_name = "inicio_operaciones.html"
+
+
 class ListadoAprobacionPedidos(ListView):
     model = Pedido
     template_name = 'almacen/listado_pedidos.html'
-    context_object_name = 'pedidos'    
-    
-    @method_decorator(permission_required('almacen.ver_tabla_aprobacion_pedidos',reverse_lazy('seguridad:permiso_denegado')))
+    context_object_name = 'pedidos'
+
+    @method_decorator(
+        permission_required('almacen.ver_tabla_aprobacion_pedidos', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
         except:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))        
+            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.puesto_set.all().filter(estado=True)
             if trabajador.firma == '':
@@ -642,46 +668,52 @@ class ListadoAprobacionPedidos(ListView):
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         except:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-    
+
     def get_queryset(self):
-        queryset = Pedido.objects.filter(~Q(estado = Pedido.STATUS.APROB))
+        queryset = Pedido.objects.filter(~Q(estado=Pedido.STATUS.APROB))
         return queryset
-    
+
+
 class ListadoAlmacenes(ListView):
     model = Almacen
     template_name = 'almacen/almacenes.html'
     context_object_name = 'almacenes'
     queryset = Almacen.objects.all().order_by('descripcion')
 
+
 class ListadoPedidos(ListView):
     model = Pedido
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
     queryset = Pedido.objects.exclude(estado=Pedido.STATUS.CANC).order_by('codigo')
-    
+
+
 class ListadoTiposUnidadMedida(ListView):
     model = Tipo
     template_name = 'almacen/tipos.html'
     context_object_name = 'tipos'
     paginate_by = 10
-    queryset = Tipo.objects.filter(tabla="tipo_unidad_medida",descripcion_campo="tipo_unidad_medida").order_by('descripcion_valor')
+    queryset = Tipo.objects.filter(tabla="tipo_unidad_medida", descripcion_campo="tipo_unidad_medida").order_by(
+        'descripcion_valor')
 
     def get_context_data(self, **kwargs):
         context = super(ListadoTiposUnidadMedida, self).get_context_data(**kwargs)
         context['tabla'] = 'tipo_unidad_medida'
         return context
-    
+
+
 class ListadoTiposStock(ListView):
     model = Tipo
     template_name = 'almacen/tipos.html'
     context_object_name = 'tipos'
     paginate_by = 10
-    queryset = Tipo.objects.filter(tabla="tipo_stock",descripcion_campo="tipo_stock").order_by('descripcion_valor')
+    queryset = Tipo.objects.filter(tabla="tipo_stock", descripcion_campo="tipo_stock").order_by('descripcion_valor')
 
     def get_context_data(self, **kwargs):
         context = super(ListadoTiposStock, self).get_context_data(**kwargs)
         context['tabla'] = 'tipo_stock'
         return context
+
 
 class ListadoTiposMovimiento(ListView):
     model = TipoMovimiento
@@ -689,69 +721,75 @@ class ListadoTiposMovimiento(ListView):
     context_object_name = 'tipos_movimiento'
     paginate_by = 10
     queryset = TipoMovimiento.objects.all().order_by('codigo')
-    
+
+
 class ListadoMovimientos(ListView):
     model = Movimiento
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT)    
+    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT)
+
 
 class ListadoIngresos(ListView):
     model = Movimiento
     template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True) 
-    
+    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True)
+
+
 class ListadoSalidas(ListView):
     model = Movimiento
     template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False) 
-    
+    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False)
+
+
 class ListadoMovimientosPorPedido(ListView):
     model = Movimiento
     template_name = 'almacen/movimientos.html'
-    context_object_name = 'movimientos'    
-    
-    @method_decorator(permission_required('almacen.ver_tabla_movimientos',reverse_lazy('seguridad:permiso_denegado')))
+    context_object_name = 'movimientos'
+
+    @method_decorator(permission_required('almacen.ver_tabla_movimientos', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoMovimientosPorPedido, self).dispatch(*args, **kwargs)
-    
+
     def get_queryset(self):
         pedido = Pedido.objects.get(pk=self.kwargs['pedido'])
         queryset = pedido.movimiento_set.all()
         return queryset
 
+
 class ModificarMovimiento(TemplateView):
-    
-    @method_decorator(permission_required('almacen.change_movimiento',reverse_lazy('seguridad:permiso_denegado')))
+
+    @method_decorator(permission_required('almacen.change_movimiento', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarMovimiento, self).dispatch(*args, **kwargs)        
-    
-    def get(self, request, *args, **kwargs):  
+        return super(ModificarMovimiento, self).dispatch(*args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
         movimiento = Movimiento.objects.get(pk=pk)
         if movimiento.estado == Movimiento.STATUS.CANC:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))    
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         tipo_movimiento = movimiento.tipo_movimiento
         if tipo_movimiento.incrementa:
             return HttpResponseRedirect(reverse('almacen:modificar_ingreso_almacen', args=[movimiento.pk]))
         else:
             return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movimiento.pk]))
-    
+
+
 class ModificarIngresoAlmacen(UpdateView):
     template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
-    
+
     def get_form_kwargs(self):
         kwargs = super(ModificarIngresoAlmacen, self).get_form_kwargs()
         kwargs['tipo_movimiento'] = 'I'
         return kwargs
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == Movimiento.STATUS.ACT:            
+        if self.object.estado == Movimiento.STATUS.ACT:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalles = DetalleMovimiento.objects.filter(movimiento=self.object).order_by('nro_detalle')
@@ -765,7 +803,7 @@ class ModificarIngresoAlmacen(UpdateView):
                              'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
-                             'valor': detalle.valor }
+                             'valor': detalle.valor}
                     else:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
                              'codigo': detalle.detalle_orden_compra.producto.codigo,
@@ -773,7 +811,7 @@ class ModificarIngresoAlmacen(UpdateView):
                              'unidad': detalle.detalle_orden_compra.producto.unidad_medida.codigo,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
-                             'valor': detalle.valor }
+                             'valor': detalle.valor}
                 else:
                     d = {'orden_compra': '0',
                          'codigo': detalle.producto.codigo,
@@ -781,14 +819,14 @@ class ModificarIngresoAlmacen(UpdateView):
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
-                         'valor': detalle.valor }
+                         'valor': detalle.valor}
                 detalles_data.append(d)
             detalle_ingreso_formset = DetalleIngresoFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_ingreso_formset=detalle_ingreso_formset))            
+                                                                 detalle_ingreso_formset=detalle_ingreso_formset))
         else:
             return HttpResponseRedirect(reverse('almacen:listado_ingresos'))
-    
+
     def get_initial(self):
         initial = super(ModificarIngresoAlmacen, self).get_initial()
         movimiento = self.object
@@ -797,21 +835,21 @@ class ModificarIngresoAlmacen(UpdateView):
         initial['hora'] = movimiento.fecha_operacion.strftime('%H : %M : %S')
         initial['almacen'] = movimiento.almacen
         initial['tipo_movimiento'] = movimiento.tipo_movimiento
-        initial['doc_referencia'] = movimiento.referencia     
+        initial['doc_referencia'] = movimiento.referencia
         initial['tipo_documento'] = movimiento.tipo_documento
         initial['serie'] = movimiento.serie
         initial['numero'] = movimiento.numero
         initial['total'] = movimiento.total
         initial['observaciones'] = movimiento.observaciones
-        return initial 
-        
+        return initial
+
     def get_context_data(self, **kwargs):
-        movimiento = self.object        
+        movimiento = self.object
         context = super(ModificarIngresoAlmacen, self).get_context_data(**kwargs)
         context['movimiento'] = movimiento
         return context
-    
-    def post(self, request, *args, **kwargs):                      
+
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -820,7 +858,7 @@ class ModificarIngresoAlmacen(UpdateView):
             return self.form_valid(form, detalle_ingreso_formset)
         else:
             return self.form_invalid(form, detalle_ingreso_formset)
-    
+
     def form_valid(self, form, detalle_ingreso_formset):
         try:
             with transaction.atomic():
@@ -831,13 +869,13 @@ class ModificarIngresoAlmacen(UpdateView):
                 self.object = form.save()
                 referencia = self.object.referencia
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_ingreso_form in detalle_ingreso_formset:
                     orden_compra = detalle_ingreso_form.cleaned_data.get('orden_compra')
-                    codigo = detalle_ingreso_form.cleaned_data.get('codigo') 
+                    codigo = detalle_ingreso_form.cleaned_data.get('codigo')
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
-                    valor = detalle_ingreso_form.cleaned_data.get('valor')                    
+                    valor = detalle_ingreso_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
                         try:
                             detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
@@ -855,32 +893,33 @@ class ModificarIngresoAlmacen(UpdateView):
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
-                        detalles.append(detalle_movimiento)                        
+                        detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
+                DetalleMovimiento.objects.bulk_create(detalles, referencia, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
-    
+
     def form_invalid(self, form, detalle_ingreso_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_ingreso_formset=detalle_ingreso_formset))    
-    
+                                                             detalle_ingreso_formset=detalle_ingreso_formset))
+
+
 class ModificarSalidaAlmacen(UpdateView):
     template_name = 'almacen/salida_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
-    
+
     def get_form_kwargs(self):
         kwargs = super(ModificarSalidaAlmacen, self).get_form_kwargs()
         kwargs['tipo_movimiento'] = 'S'
         return kwargs
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = DetalleMovimiento.objects.filter(movimiento = self.object)
+        detalles = DetalleMovimiento.objects.filter(movimiento=self.object)
         detalles_data = []
         for detalle in detalles:
             try:
@@ -898,12 +937,12 @@ class ModificarSalidaAlmacen(UpdateView):
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
-                     'valor': detalle.valor }
+                     'valor': detalle.valor}
             detalles_data.append(d)
         detalle_salida_formset = DetalleSalidaFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_salida_formset = detalle_salida_formset))        
-    
+                                                             detalle_salida_formset=detalle_salida_formset))
+
     def get_initial(self):
         initial = super(ModificarSalidaAlmacen, self).get_initial()
         movimiento = self.object
@@ -914,23 +953,23 @@ class ModificarSalidaAlmacen(UpdateView):
         initial['almacenes'] = movimiento.almacen
         initial['tipos_salida'] = movimiento.tipo_movimiento
         initial['oficina'] = movimiento.oficina
-        initial['referencia'] = movimiento.referencia     
+        initial['referencia'] = movimiento.referencia
         initial['doc_referencia'] = movimiento.tipo_documento
         initial['serie'] = movimiento.serie
         initial['numero'] = movimiento.numero
         initial['total'] = movimiento.total
-        initial['observaciones'] = movimiento.observaciones 
+        initial['observaciones'] = movimiento.observaciones
         initial['cdetalles'] = self.detalles.count()
-        return initial 
-        
+        return initial
+
     def get_context_data(self, **kwargs):
-        movimiento = self.object       
+        movimiento = self.object
         context = super(ModificarSalidaAlmacen, self).get_context_data(**kwargs)
         context['movimiento'] = movimiento
-        context['detalles'] = self.detalles        
+        context['detalles'] = self.detalles
         return context
-               
-    def post(self, request, *args, **kwargs):                      
+
+    def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -939,7 +978,7 @@ class ModificarSalidaAlmacen(UpdateView):
             return self.form_valid(form, detalle_salida_formset)
         else:
             return self.form_invalid(form, detalle_salida_formset)
-    
+
     def form_valid(self, form, detalle_salida_formset):
         try:
             with transaction.atomic():
@@ -950,67 +989,69 @@ class ModificarSalidaAlmacen(UpdateView):
                 self.object = form.save()
                 referencia = self.object.referencia
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_salida_form in detalle_salida_formset:
-                    detalle_pedido = detalle_salida_form.cleaned_data.get('pedido') 
-                    codigo = detalle_salida_form.cleaned_data.get('codigo') 
+                    detalle_pedido = detalle_salida_form.cleaned_data.get('pedido')
+                    codigo = detalle_salida_form.cleaned_data.get('codigo')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
                         try:
-                            det_ped = DetallePedido.objects.get(pk = detalle_pedido)
+                            det_ped = DetallePedido.objects.get(pk=detalle_pedido)
                         except:
                             det_ped = None
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
-                                                               detalle_pedido = det_ped,
+                                                               detalle_pedido=det_ped,
                                                                producto=Producto.objects.get(pk=codigo),
                                                                cantidad=cantidad,
                                                                precio=precio,
-                                                               valor = valor)
-                        detalles.append(detalle_movimiento)                        
+                                                               valor=valor)
+                        detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, referencia, self.object.pedido) 
+                DetalleMovimiento.objects.bulk_create(detalles, referencia, self.object.pedido)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
-        
+
     def form_invalid(self, form, detalle_salida_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_salida_formset = detalle_salida_formset))
-    
+                                                             detalle_salida_formset=detalle_salida_formset))
+
+
 class ModificarAlmacen(UpdateView):
     model = Almacen
     template_name = 'almacen/almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
-    
-class ModificarPedido(UpdateView):    
+
+
+class ModificarPedido(UpdateView):
     template_name = 'almacen/pedido.html'
     form_class = PedidoForm
     model = Pedido
-    
-    @method_decorator(permission_required('almacen.change_pedido',reverse_lazy('seguridad:permiso_denegado')))
+
+    @method_decorator(permission_required('almacen.change_pedido', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         pedido = self.get_object()
         if pedido.estado == Pedido.STATUS.PEND:
             return super(ModificarPedido, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))  
-    
+            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+
     def get_form_kwargs(self):
         kwargs = super(ModificarPedido, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
-    
+
     def get_initial(self):
         initial = super(ModificarPedido, self).get_initial()
-        pedido = self.object        
+        pedido = self.object
         initial['fecha'] = pedido.fecha.strftime('%d/%m/%Y')
-        initial['observaciones'] = pedido.observaciones        
-        return initial 
-    
+        initial['observaciones'] = pedido.observaciones
+        return initial
+
     def get_context_data(self, **kwargs):
         pedido = self.object
         detalles = DetallePedido.objects.filter(pedido=pedido).order_by('nro_detalle')
@@ -1020,13 +1061,13 @@ class ModificarPedido(UpdateView):
         context['detalles'] = detalles
         context['cant_detalles'] = cant_detalles
         return context
-    
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == Pedido.STATUS.PEND:            
+        if self.object.estado == Pedido.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetallePedido.objects.filter(pedido = self.object).order_by('nro_detalle')
+            detalles = DetallePedido.objects.filter(pedido=self.object).order_by('nro_detalle')
             detalles_data = []
             for detalle in detalles:
                 d = {'codigo': detalle.producto.codigo,
@@ -1034,10 +1075,10 @@ class ModificarPedido(UpdateView):
                      'unidad': detalle.producto.unidad_medida.codigo,
                      'cantidad': detalle.cantidad}
                 detalles_data.append(d)
-            detalle_pedido_formset=DetallePedidoFormSet(initial=detalles_data)
+            detalle_pedido_formset = DetallePedidoFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_pedido_formset=detalle_pedido_formset))
-    
+
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
@@ -1047,124 +1088,127 @@ class ModificarPedido(UpdateView):
             return self.form_valid(form, detalle_pedido_formset)
         else:
             return self.form_invalid(form, detalle_pedido_formset)
-    
+
     def form_valid(self, form, detalle_pedido_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 DetallePedido.objects.filter(pedido=self.object).delete()
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_pedido_form in detalle_pedido_formset:
                     codigo = detalle_pedido_form.cleaned_data.get('codigo')
                     cantidad = detalle_pedido_form.cleaned_data.get('cantidad')
                     if codigo and cantidad:
-                        producto = Producto.objects.get(codigo=codigo) 
-                        detalles.append(DetallePedido(pedido=self.object, 
-                                                      nro_detalle=cont, 
-                                                      producto=producto, 
+                        producto = Producto.objects.get(codigo=codigo)
+                        detalles.append(DetallePedido(pedido=self.object,
+                                                      nro_detalle=cont,
+                                                      producto=producto,
                                                       cantidad=cantidad))
                         cont = cont + 1
-                DetallePedido.objects.bulk_create(detalles)                
+                DetallePedido.objects.bulk_create(detalles)
                 return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.codigo]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando la cotizacion.')
-        
+            messages.error(self.request, 'Error guardando la cotizacion.')
+
     def form_invalid(self, form, detalle_pedido_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_pedido_formset = detalle_pedido_formset))
-    
+                                                             detalle_pedido_formset=detalle_pedido_formset))
+
+
 class MovimientosPorProducto(FormView):
     template_name = 'almacen/movimientos_por_producto.html'
     form_class = FormularioMovimientosProducto
-    
+
     def form_valid(self, form):
         data = form.cleaned_data
         desde = data['desde']
         hasta = data['hasta']
         almacen = data['almacen']
-        producto = Producto.objects.get(codigo = data['producto'])        
+        producto = Producto.objects.get(codigo=data['producto'])
         return self.obtener_movimientos(desde, hasta, almacen, producto)
-    
+
     def obtener_movimientos(self, desde, hasta, almacen, producto):
-        detalles = DetalleMovimiento.objects.filter(movimiento__almacen = almacen,
-                                                    producto = producto,
-                                                    movimiento__fecha_operacion__gte = desde,
-                                                    movimiento__fecha_operacion__lte = hasta).order_by('movimiento__fecha_operacion')
+        detalles = DetalleMovimiento.objects.filter(movimiento__almacen=almacen,
+                                                    producto=producto,
+                                                    movimiento__fecha_operacion__gte=desde,
+                                                    movimiento__fecha_operacion__lte=hasta).order_by(
+            'movimiento__fecha_operacion')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Producto: '+ producto.descripcion
+        ws['B1'] = u'Producto: ' + producto.descripcion
         ws.merge_cells('B1:I1')
-        ws['B2'] = u'Almacén: '+ almacen.descripcion
+        ws['B2'] = u'Almacén: ' + almacen.descripcion
         ws.merge_cells('B2:D2')
-        ws['E2'] = 'Periodo: Desde: '+ desde.strftime('%d/%m/%Y')+' Hasta: '+ hasta.strftime('%d/%m/%Y')
+        ws['E2'] = 'Periodo: Desde: ' + desde.strftime('%d/%m/%Y') + ' Hasta: ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('E2:H2')
         ws['B4'] = 'MOVIMIENTO'
         ws['C4'] = 'TIPO MOV.'
         ws['D4'] = 'ORDEN COMPRA'
         ws['E4'] = 'PEDIDO'
         ws['F4'] = 'FECHA OPERACION'
-        ws['G4']= 'CANTIDAD'
+        ws['G4'] = 'CANTIDAD'
         ws['H4'] = 'PRECIO'
-        ws['I4'] = 'VALOR'        
+        ws['I4'] = 'VALOR'
         cont = 5
         for detalle in detalles:
-            ws.cell(row=cont,column=2).value = str(detalle.movimiento)
-            ws.cell(row=cont,column=3).value = str(detalle.movimiento.tipo_movimiento)
+            ws.cell(row=cont, column=2).value = str(detalle.movimiento)
+            ws.cell(row=cont, column=3).value = str(detalle.movimiento.tipo_movimiento)
             if detalle.movimiento.referencia is not None:
-                ws.cell(row=cont,column=4).value = str(detalle.movimiento.referencia)
+                ws.cell(row=cont, column=4).value = str(detalle.movimiento.referencia)
             else:
-                ws.cell(row=cont,column=4).value = ""
+                ws.cell(row=cont, column=4).value = ""
             if detalle.movimiento.pedido is not None:
-                ws.cell(row=cont,column=5).value = str(detalle.movimiento.pedido)
+                ws.cell(row=cont, column=5).value = str(detalle.movimiento.pedido)
             else:
-                ws.cell(row=cont,column=5).value = ""
-            ws.cell(row=cont,column=6).value = detalle.movimiento.fecha_operacion.strftime('%d/%m/%Y %H : %M : %S')
-            ws.cell(row=cont,column=7).value = detalle.cantidad
-            ws.cell(row=cont,column=8).value = detalle.precio
-            ws.cell(row=cont,column=9).value = detalle.valor
+                ws.cell(row=cont, column=5).value = ""
+            ws.cell(row=cont, column=6).value = detalle.movimiento.fecha_operacion.strftime('%d/%m/%Y %H : %M : %S')
+            ws.cell(row=cont, column=7).value = detalle.cantidad
+            ws.cell(row=cont, column=8).value = detalle.precio
+            ws.cell(row=cont, column=9).value = detalle.valor
             cont = cont + 1
-        nombre_archivo ="MovimientosPorProducto.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "MovimientosPorProducto.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
 
+
 class RegistrarIngresoAlmacen(CreateView):
     template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
     model = Movimiento
-    
+
     def get_initial(self):
         initial = super(RegistrarIngresoAlmacen, self).get_initial()
         initial['fecha'] = date.today().strftime('%d/%m/%Y')
-        initial['total'] = 0        
+        initial['total'] = 0
         return initial
-    
+
     def get_form_kwargs(self):
         kwargs = super(RegistrarIngresoAlmacen, self).get_form_kwargs()
         kwargs['tipo_movimiento'] = 'I'
         return kwargs
-    
+
     def get(self, request, *args, **kwargs):
         self.object = None
         cod_tipo_mov = 'I00'
-        tipos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_tipo_mov)        
+        tipos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_tipo_mov)
         if not tipos_ingreso:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
         almacenes = Almacen.objects.all()
         cant_suministros = Producto.objects.count()
-        if almacenes.count()>0:
-            if cant_suministros > 0:                    
+        if almacenes.count() > 0:
+            if cant_suministros > 0:
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalle_ingreso_formset=DetalleIngresoFormSet()
+                detalle_ingreso_formset = DetalleIngresoFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
-                                                                     detalle_ingreso_formset=detalle_ingreso_formset))                
+                                                                     detalle_ingreso_formset=detalle_ingreso_formset))
         return HttpResponseRedirect(reverse('almacen:tablero'))
-    
-    def post(self, request, *args, **kwargs):                      
+
+    def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -1173,17 +1217,17 @@ class RegistrarIngresoAlmacen(CreateView):
             return self.form_valid(form, detalle_ingreso_formset)
         else:
             return self.form_invalid(form, detalle_ingreso_formset)
-    
+
     def form_valid(self, form, detalle_ingreso_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 referencia = self.object.referencia
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_ingreso_form in detalle_ingreso_formset:
                     orden_compra = detalle_ingreso_form.cleaned_data.get('orden_compra')
-                    codigo = detalle_ingreso_form.cleaned_data.get('codigo') 
+                    codigo = detalle_ingreso_form.cleaned_data.get('codigo')
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
                     valor = detalle_ingreso_form.cleaned_data.get('valor')
@@ -1196,7 +1240,7 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    producto=Producto.objects.get(pk=codigo),
                                                                    cantidad=cantidad,
                                                                    precio=precio,
-                                                                   valor = valor)
+                                                                   valor=valor)
                         except:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
@@ -1204,49 +1248,50 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
-                        detalles.append(detalle_movimiento)                        
+                        detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
+                DetalleMovimiento.objects.bulk_create(detalles, referencia, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando la cotizacion.')
-        
+            messages.error(self.request, 'Error guardando la cotizacion.')
+
     def form_invalid(self, form, detalle_ingreso_formset):
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_ingreso_formset=detalle_ingreso_formset))
-        
+
+
 class RegistrarSalidaAlmacen(CreateView):
     form_class = MovimientoForm
     template_name = "almacen/salida_almacen.html"
     model = Movimiento
-    
+
     def get_form_kwargs(self):
         kwargs = super(RegistrarSalidaAlmacen, self).get_form_kwargs()
         kwargs['tipo_movimiento'] = 'S'
         return kwargs
-    
+
     def get_initial(self):
         initial = super(RegistrarSalidaAlmacen, self).get_initial()
         initial['total'] = 0
         initial['fecha'] = date.today().strftime('%d/%m/%Y')
         return initial
-    
+
     def get(self, request, *args, **kwargs):
         self.object = None
         tipos_salida = TipoMovimiento.objects.filter(incrementa=False)
         if not tipos_salida:
-            return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))    
-        almacenes = Almacen.objects.filter()  
+            return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
+        almacenes = Almacen.objects.filter()
         if not almacenes:
-            return HttpResponseRedirect(reverse('almacen:crear_almacen'))      
+            return HttpResponseRedirect(reverse('almacen:crear_almacen'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_salida_formset=DetalleSalidaFormSet()
+            detalle_salida_formset = DetalleSalidaFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_salida_formset=detalle_salida_formset))
-    
-    def post(self, request, *args, **kwargs):                      
+
+    def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
@@ -1255,16 +1300,16 @@ class RegistrarSalidaAlmacen(CreateView):
             return self.form_valid(form, detalle_salida_formset)
         else:
             return self.form_invalid(form, detalle_salida_formset)
-    
+
     def form_valid(self, form, detalle_salida_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 referencia = self.object.referencia
                 detalles = []
-                cont = 1                
+                cont = 1
                 for detalle_salida_form in detalle_salida_formset:
-                    codigo = detalle_salida_form.cleaned_data.get('codigo') 
+                    codigo = detalle_salida_form.cleaned_data.get('codigo')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
@@ -1275,19 +1320,20 @@ class RegistrarSalidaAlmacen(CreateView):
                                                                cantidad=cantidad,
                                                                precio=precio,
                                                                valor=valor)
-                        detalles.append(detalle_movimiento)                        
+                        detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, referencia, None) 
+                DetalleMovimiento.objects.bulk_create(detalles, referencia, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
-                messages.error(self.request, 'Error guardando la cotizacion.')
-        
+            messages.error(self.request, 'Error guardando la cotizacion.')
+
     def form_invalid(self, form, detalle_salida_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_salida_formset = detalle_salida_formset))
-    
+                                                             detalle_salida_formset=detalle_salida_formset))
+
+
 class ReporteExcelAlmacenes(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         almacenes = Almacen.objects.filter(estado=True).order_by('codigo')
         wb = Workbook()
@@ -1296,20 +1342,21 @@ class ReporteExcelAlmacenes(TemplateView):
         ws.merge_cells('B1:J1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'DESCRIPCIÓN'
-        cont=4
+        cont = 4
         for almacen in almacenes:
-            ws.cell(row=cont,column=2).value = almacen.codigo
-            ws.cell(row=cont,column=3).value = almacen.descripcion
+            ws.cell(row=cont, column=2).value = almacen.codigo
+            ws.cell(row=cont, column=3).value = almacen.descripcion
             cont = cont + 1
-        nombre_archivo ="ListadoAlmacenes.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "ListadoAlmacenes.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
-    
+
+
 class ReporteExcelTiposMovimientos(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         tipos = TipoMovimiento.objects.filter(estado=True).order_by('codigo')
         wb = Workbook()
@@ -1318,26 +1365,27 @@ class ReporteExcelTiposMovimientos(TemplateView):
         ws.merge_cells('B1:J1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'DESCRIPCIÓN'
-        cont=4
+        cont = 4
         for tipo in tipos:
-            ws.cell(row=cont,column=2).value = tipo.codigo
-            ws.cell(row=cont,column=3).value = tipo.descripcion
+            ws.cell(row=cont, column=2).value = tipo.codigo
+            ws.cell(row=cont, column=3).value = tipo.descripcion
             cont = cont + 1
-        nombre_archivo ="MaestroTiposMovimientos.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "MaestroTiposMovimientos.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
 
+
 class ReporteKardexProducto(FormView):
     template_name = 'almacen/reporte_kardex_producto.html'
     form_class = FormularioKardexProducto
-    
+
     def form_valid(self, form):
         data = form.cleaned_data
         cod_prod = data.get('cod_producto')
-        producto = Producto.objects.get(codigo = cod_prod)
+        producto = Producto.objects.get(codigo=cod_prod)
         desde = data.get('desde')
         hasta = data.get('hasta')
         almacen = data.get('almacenes')
@@ -1422,6 +1470,7 @@ class ReporteKardexProducto(FormView):
         excel.save(response)
         return response
 
+
 class ReporteKardex(FormView):
     template_name = 'almacen/reporte_kardex.html'
     form_class = FormularioKardexProducto
@@ -1462,7 +1511,7 @@ class ReporteKardex(FormView):
 
     def obtener_consolidado_productos_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, False)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
         pdf = reporte.imprimir_formato_consolidado_productos()
         response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacen.pdf'
         response.write(pdf)
@@ -1470,7 +1519,7 @@ class ReporteKardex(FormView):
 
     def obtener_consolidado_grupos_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, True)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, True)
         pdf = reporte.imprimir_formato_consolidado_grupos()
         response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacenPorGruposYCuentas.pdf'
         response.write(pdf)
@@ -1478,7 +1527,7 @@ class ReporteKardex(FormView):
 
     def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4',desde, hasta, almacen, False)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
         pdf = reporte.imprimir_formato_sunat_unidades_fisicas_todos()
         response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteUnidadesFisicas.pdf'
         response.write(pdf)
@@ -1486,7 +1535,7 @@ class ReporteKardex(FormView):
 
     def obtener_formato_sunat_valorizado_pdf(self, desde, hasta, almacen):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4',desde, hasta, almacen,False)
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
         pdf = reporte.imprimir_formato_sunat_valorizado_todos()
         response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteValorizado.pdf'
         response.write(pdf)
@@ -1542,27 +1591,29 @@ class ReporteKardex(FormView):
         excel.save(response)
         return response
 
+
 class ReporteStock(FormView):
     template_name = 'almacen/reporte_stock.html'
-    form_class = FormularioReporteStock    
-    
+    form_class = FormularioReporteStock
+
     def post(self, request, *args, **kwargs):
         r_almacen = request.POST['almacenes']
-        return HttpResponseRedirect(reverse('almacen:listado_stock',args=[r_almacen]))
-    
+        return HttpResponseRedirect(reverse('almacen:listado_stock', args=[r_almacen]))
+
+
 class ReprocesoPrecio(FormView):
     template_name = 'almacen/reproceso_precio.html'
     form_class = FormularioReprocesoPrecio
-    
+
     def reprocesar_precio_producto(self, producto, almacen, desde):
-        detalles = Kardex.objects.filter(producto = producto,
-                                         almacen = almacen,
+        detalles = Kardex.objects.filter(producto=producto,
+                                         almacen=almacen,
                                          fecha_operacion__gte=desde).order_by('fecha_operacion')
         indice = 0
         for detalle in detalles:
             try:
                 anterior = detalles[indice - 1]
-                cantidad_ant = anterior.cantidad_total                
+                cantidad_ant = anterior.cantidad_total
                 valor_ant = anterior.valor_total
                 precio_ant = Decimal(round(valor_ant / cantidad_ant, 8))
             except:
@@ -1571,23 +1622,23 @@ class ReprocesoPrecio(FormView):
                 valor_ant = 0
             tipo_mov = detalle.movimiento.tipo_movimiento
             if tipo_mov.incrementa:
-                detalle.cantidad_total = cantidad_ant + detalle.cantidad_ingreso  
+                detalle.cantidad_total = cantidad_ant + detalle.cantidad_ingreso
                 detalle.precio_total = detalle.precio_ingreso
                 detalle.valor_total = valor_ant + detalle.valor_ingreso
             else:
                 detalle.precio_salida = precio_ant
-                detalle.valor_salida = detalle.cantidad_salida * detalle.precio_salida                
+                detalle.valor_salida = detalle.cantidad_salida * detalle.precio_salida
                 detalle.cantidad_total = cantidad_ant - detalle.cantidad_salida
                 detalle.valor_total = valor_ant - detalle.valor_salida
                 try:
                     detalle.precio_total = detalle.valor_total / detalle.cantidad_total
                 except:
-                    detalle.precio_total = 0 
-            detalle.save()   
+                    detalle.precio_total = 0
+            detalle.save()
             indice = indice + 1
-    
+
     def form_valid(self, form):
-        data = form.cleaned_data        
+        data = form.cleaned_data
         desde = data['desde']
         almacen = data['almacen']
         seleccion = data['seleccion']
@@ -1596,11 +1647,12 @@ class ReprocesoPrecio(FormView):
             producto = Producto.objects.get(codigo=cod_prod)
             self.reprocesar_precio_producto(producto, almacen, desde)
         else:
-            listado_kardex = Kardex.objects.filter(almacen = almacen).order_by('producto').distinct('producto__codigo')
-            for kardex in listado_kardex:                
+            listado_kardex = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
+            for kardex in listado_kardex:
                 self.reprocesar_precio_producto(kardex.producto, almacen, desde)
         return HttpResponseRedirect(reverse('almacen:tablero'))
-    
+
+
 class StockProductos(FormView):
     form_class = FormularioConsultaStock
     template_name = 'almacen/stock_productos.html'
@@ -1673,6 +1725,7 @@ class StockProductos(FormView):
         wb.save(response)
         return response
 
+
 class ListadoStockProducto(TemplateView):
 
     def get(self, request, *args, **kwargs):
@@ -1701,9 +1754,10 @@ class ListadoStockProducto(TemplateView):
             data = simplejson.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
 
+
 class ReporteExcelMovimientos(FormView):
     form_class = FormularioReporteMovimientos
-    template_name = "almacen/reporte_movimientos.html"    
+    template_name = "almacen/reporte_movimientos.html"
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1714,47 +1768,47 @@ class ReporteExcelMovimientos(FormView):
         tipo_movimiento = TipoMovimiento.objects.get(codigo=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
-        if tipo_busqueda=='F':
+        if tipo_busqueda == 'F':
             fecha_inicio = data['desde']
             fecha_final = data['hasta']
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: '+ almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: '+ tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
             ws.merge_cells('E2:H2')
             ws['B3'] = 'DESDE'
             ws['C3'] = fecha_inicio
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
             ws['E3'] = fecha_final
-            ws['F3'].number_format = 'dd/mm/yyyy'        
+            ws['F3'].number_format = 'dd/mm/yyyy'
             movimientos = Movimiento.objects.filter(fecha_operacion__range=[fecha_inicio, fecha_final],
-                                                    tipo_movimiento=tipo_movimiento,almacen=almacen)
-        elif tipo_busqueda=='M':
+                                                    tipo_movimiento=tipo_movimiento, almacen=almacen)
+        elif tipo_busqueda == 'M':
             mes = data['mes'].strip()
-            annio = data['annio'].strip()            
+            annio = data['annio'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR MES'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: '+ almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: '+ tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
             ws.merge_cells('E2:H2')
             ws['B3'] = 'MES'
             ws['C3'] = mes
             ws['D3'] = 'AÑO'
-            ws['E3'] = annio                    
+            ws['E3'] = annio
             movimientos = Movimiento.objects.filter(fecha_operacion__month=mes,
                                                     fecha_operacion__year=annio,
                                                     tipo_movimiento=tipo_movimiento,
                                                     almacen=almacen)
-        elif tipo_busqueda=='A':
+        elif tipo_busqueda == 'A':
             annio = data['annio'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR AÑO'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: '+ almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: '+ tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
             ws.merge_cells('E2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = annio
@@ -1769,62 +1823,64 @@ class ReporteExcelMovimientos(FormView):
         ws['G5'] = 'OBSERVACION'
         ws['H5'] = 'FECHA_CREACION'
         ws['I5'] = 'ESTADO'
-        cont=6
+        cont = 6
         movimientos = movimientos.order_by('fecha_operacion')
         for movimiento in movimientos:
-            ws.cell(row=cont,column=2).value = movimiento.id_movimiento
+            ws.cell(row=cont, column=2).value = movimiento.id_movimiento
             try:
-                ws.cell(row=cont,column=3).value = movimiento.tipo_documento.descripcion
+                ws.cell(row=cont, column=3).value = movimiento.tipo_documento.descripcion
             except:
                 ws.cell(row=cont, column=3).value = '--'
-            ws.cell(row=cont,column=4).value = movimiento.serie
-            ws.cell(row=cont,column=5).value = movimiento.numero
-            ws.cell(row=cont,column=6).value = movimiento.fecha_operacion
-            ws.cell(row=cont,column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont,column=7).value = movimiento.observaciones
-            ws.cell(row=cont,column=8).value = movimiento.created    
-            ws.cell(row=cont,column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont,column=9).value = movimiento.estado            
+            ws.cell(row=cont, column=4).value = movimiento.serie
+            ws.cell(row=cont, column=5).value = movimiento.numero
+            ws.cell(row=cont, column=6).value = movimiento.fecha_operacion
+            ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
+            ws.cell(row=cont, column=7).value = movimiento.observaciones
+            ws.cell(row=cont, column=8).value = movimiento.created
+            ws.cell(row=cont, column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
+            ws.cell(row=cont, column=9).value = movimiento.estado
             cont = cont + 1
-        nombre_archivo ="ReporteMovimientosPorFecha.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "ReporteMovimientosPorFecha.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
-        
+
+
 class ReporteExcelMovimientosPorFecha(View):
-    
+
     def get(self, request, *args, **kwargs):
         p_fecha_inicio = kwargs['fecha_inicio']
         p_fecha_final = kwargs['fecha_fin']
         p_almacen = kwargs['almacen']
         p_tipo_movimiento = kwargs['tipo_movimiento']
-        anio = int(p_fecha_inicio[6:])        
+        anio = int(p_fecha_inicio[6:])
         mes = int(p_fecha_inicio[3:5])
         dia = int(p_fecha_inicio[0:2])
-        fecha_inicio = datetime.datetime(anio,mes,dia,23,59,59)
-        anio = int(p_fecha_final[6:])        
+        fecha_inicio = datetime.datetime(anio, mes, dia, 23, 59, 59)
+        anio = int(p_fecha_final[6:])
         mes = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
-        fecha_final = datetime.datetime(anio,mes,dia,23,59,59)
+        fecha_final = datetime.datetime(anio, mes, dia, 23, 59, 59)
         almacen = Almacen.objects.get(codigo=p_almacen)
         tipo_movimiento = TipoMovimiento.objects.get(codigo=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
         ws.merge_cells('B1:H1')
-        ws['B2'] = 'ALMACEN: '+ almacen.descripcion
+        ws['B2'] = 'ALMACEN: ' + almacen.descripcion
         ws.merge_cells('B2:D2')
-        ws['E2'] = 'TIPO DE MOVIMIENTO: '+ tipo_movimiento.descripcion
+        ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
         ws.merge_cells('E2:H2')
         ws['B3'] = 'DESDE'
         ws['C3'] = p_fecha_inicio
         ws['C3'].number_format = 'dd/mm/yyyy'
         ws['D3'] = 'HASTA'
         ws['E3'] = p_fecha_final
-        ws['F3'].number_format = 'dd/mm/yyyy'        
-        movimientos = Movimiento.objects.filter(fecha_operacion__range=[fecha_inicio, fecha_final],tipo_movimiento=tipo_movimiento,almacen=almacen)
+        ws['F3'].number_format = 'dd/mm/yyyy'
+        movimientos = Movimiento.objects.filter(fecha_operacion__range=[fecha_inicio, fecha_final],
+                                                tipo_movimiento=tipo_movimiento, almacen=almacen)
         ws['B5'] = 'ID_MOVIMIENTO'
         ws['C5'] = 'TIPO_DOCUMENTO'
         ws['D5'] = 'SERIE'
@@ -1832,39 +1888,41 @@ class ReporteExcelMovimientosPorFecha(View):
         ws['F5'] = 'FECHA_OPERACION'
         ws['G5'] = 'OBSERVACION'
         ws['H5'] = 'FECHA_CREACION'
-        cont=6
+        cont = 6
         for movimiento in movimientos:
-            ws.cell(row=cont,column=2).value = movimiento.id_movimiento
-            ws.cell(row=cont,column=3).value = movimiento.tipo_documento
-            ws.cell(row=cont,column=4).value = movimiento.serie
-            ws.cell(row=cont,column=5).value = movimiento.numero
-            ws.cell(row=cont,column=6).value = movimiento.fecha_operacion
-            ws.cell(row=cont,column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont,column=7).value = movimiento.observacion
-            ws.cell(row=cont,column=8).value = movimiento.created    
-            ws.cell(row=cont,column=8).number_format = 'dd/mm/yyyy hh:mm:ss'        
+            ws.cell(row=cont, column=2).value = movimiento.id_movimiento
+            ws.cell(row=cont, column=3).value = movimiento.tipo_documento
+            ws.cell(row=cont, column=4).value = movimiento.serie
+            ws.cell(row=cont, column=5).value = movimiento.numero
+            ws.cell(row=cont, column=6).value = movimiento.fecha_operacion
+            ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
+            ws.cell(row=cont, column=7).value = movimiento.observacion
+            ws.cell(row=cont, column=8).value = movimiento.created
+            ws.cell(row=cont, column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo ="ReporteMovimientosPorFecha.xlsx" 
-        response = HttpResponse(content_type="application/ms-excel") 
+        nombre_archivo = "ReporteMovimientosPorFecha.xlsx"
+        response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
-    
+
+
 class ReportePDFMovimiento(View):
-    
-    def get(self, request, *args, **kwargs): 
+
+    def get(self, request, *args, **kwargs):
         id_movimiento = kwargs['id_movimiento']
         movimiento = Movimiento.objects.get(pk=id_movimiento)
-        response = HttpResponse(content_type='application/pdf')                
+        response = HttpResponse(content_type='application/pdf')
         reporte = ReporteMovimiento('A4', movimiento)
-        pdf = reporte.imprimir()        
+        pdf = reporte.imprimir()
         response.write(pdf)
         return response
 
-class ReportePDFProductos(View):    
-    
-    def get(self, request, *args, **kwargs): 
+
+class ReportePDFProductos(View):
+
+    def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type='application/pdf')
         pdf_name = "clientes.pdf"  # llamado clientes
         # la linea 26 es por si deseas descargar el pdf a tu computadora
@@ -1883,7 +1941,7 @@ class ReportePDFProductos(View):
         clientes.append(header)
         headings = ('Nombre', 'Email', 'Edad', 'Direccion')
         allclientes = [(p.codigo, p.descripcion, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
-            
+
         t = Table([headings] + allclientes)
         t.setStyle(TableStyle(
             [
@@ -1897,7 +1955,8 @@ class ReportePDFProductos(View):
         response.write(buff.getvalue())
         buff.close()
         return response
-    
+
+
 class PopupCrearTipoStock(FormView):
     template_name = 'almacen/popup_crear_tipo_stock.html'
     form_class = TipoStockForm
@@ -1906,69 +1965,73 @@ class PopupCrearTipoStock(FormView):
     def form_valid(self, form):
         form.save()
         return super(PopupCrearTipoStock, self).form_valid(form)
-    
+
+
 class VerificarSolicitaDocumento(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'solicita_documento': tipo_movimiento.solicita_documento}
         return JsonResponse(json_object)
-    
+
+
 class VerificarPideReferencia(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'pide_referencia': tipo_movimiento.pide_referencia}
         return JsonResponse(json_object)
-    
+
+
 class VerificarStockParaPedido(TemplateView):
-    
+
     def get(self, request, *args, **kwargs):
         almacen = request.GET['almacen']
         pedido = request.GET['pedido']
-        detalles = DetallePedido.objects.filter(pedido__codigo = pedido, 
+        detalles = DetallePedido.objects.filter(pedido__codigo=pedido,
                                                 estado=DetallePedido.STATUS.PEND).order_by('nro_detalle')
         lista_detalles = []
         for detalle in detalles:
             try:
-                control_producto = Kardex.objects.filter(producto = detalle.producto,
-                                                almacen__codigo=almacen).latest('fecha_operacion')
-                
+                control_producto = Kardex.objects.filter(producto=detalle.producto,
+                                                         almacen__codigo=almacen).latest('fecha_operacion')
+
                 stock = control_producto.cantidad_total
                 precio = control_producto.valor_total / stock
             except:
                 stock = 0
-                precio = 0            
+                precio = 0
             if stock != 0:
                 det = {}
                 det['pedido'] = detalle.id
-                det['codigo'] = detalle.producto.codigo               
-                det['nombre'] = detalle.producto.descripcion                     
-                det['unidad'] = detalle.producto.unidad_medida.descripcion                
-                cantidad = detalle.cantidad-detalle.cantidad_atendida
+                det['codigo'] = detalle.producto.codigo
+                det['nombre'] = detalle.producto.descripcion
+                det['unidad'] = detalle.producto.unidad_medida.descripcion
+                cantidad = detalle.cantidad - detalle.cantidad_atendida
                 if cantidad > stock:
                     cantidad = stock
                 valor = round(cantidad * precio, 5)
                 det['cantidad'] = cantidad
-                det['precio'] = round(precio,5)                
+                det['precio'] = round(precio, 5)
                 det['valor'] = valor
                 lista_detalles.append(det)
         formset = DetalleSalidaFormSet(initial=lista_detalles)
         lista_json = []
         for form in formset:
-            detalle_json = {}    
+            detalle_json = {}
             detalle_json['pedido'] = str(form['pedido'])
             detalle_json['codigo'] = str(form['codigo'])
             detalle_json['nombre'] = str(form['nombre'])
             detalle_json['cantidad'] = str(form['cantidad'])
             detalle_json['precio'] = str(form['precio'])
-            detalle_json['unidad'] = str(form['unidad'])                
-            detalle_json['valor'] = str(form['valor']) 
+            detalle_json['unidad'] = str(form['unidad'])
+            detalle_json['valor'] = str(form['valor'])
             lista_json.append(detalle_json)
         data = json.dumps(lista_json)
         return HttpResponse(data, 'application/json')
+
 
 class Inventario(FormView):
     form_class = FormularioConsultaInventario
@@ -1982,17 +2045,17 @@ class Inventario(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         desde = data['desde']
-        grupo_productos=GrupoProductos.objects.filter(estado=True)
-        
+        grupo_productos = GrupoProductos.objects.filter(estado=True)
+
         wb = Workbook()
         ws = wb.active
 
         ws.merge_cells('A2:H2')
         ws['A2'].alignment = Alignment(horizontal="center", vertical="center")
         ws['A2'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws['A2'].fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
-        ws['A2'].font=Font(name='Calibri', size=11, bold=True)
+        ws['A2'].font = Font(name='Calibri', size=11, bold=True)
         ws['A2'] = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
 
         ws.row_dimensions[3].height = 25
@@ -2023,7 +2086,7 @@ class Inventario(FormView):
 
         ws['E3'].alignment = Alignment(horizontal="center", vertical="center")
         ws['E3'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws['E3'].font = Font(name='Calibri', size=8, bold=True)
         ws['E3'] = 'CANTIDAD'
 
@@ -2050,22 +2113,22 @@ class Inventario(FormView):
         ws.column_dimensions["G"].width = 12
         ws.column_dimensions["H"].width = 12
         cont = 5
-        total_final=0
-        resumen_inventario=[]
+        total_final = 0
+        resumen_inventario = []
         for grupo_producto in grupo_productos:
 
-            productos=Producto.objects.filter(grupo_productos=grupo_producto)
-            bandera=" "
-            tempo_cuenta=""
+            productos = Producto.objects.filter(grupo_productos=grupo_producto)
+            bandera = " "
+            tempo_cuenta = ""
 
-            if productos.count()>0:
-                sum_valor=0
+            if productos.count() > 0:
+                sum_valor = 0
                 ws['A' + str(cont)].alignment = Alignment(horizontal="center")
                 ws.merge_cells('A' + str(cont) + ':H' + str(cont))
                 ws['A' + str(cont)].fill = PatternFill(start_color='F2DCDB', end_color='F2DCDB', fill_type='solid')
                 ws.cell(row=cont, column=1).value = grupo_producto.descripcion
-                bandera=grupo_producto.descripcion
-                cont+=2
+                bandera = grupo_producto.descripcion
+                cont += 2
                 for producto in productos:
                     try:
                         kardex = Kardex.objects.filter(producto=producto).latest('fecha_operacion')
@@ -2076,8 +2139,8 @@ class Inventario(FormView):
                         precio = kardex.precio_total
                         valor = kardex.valor_total
                         detalle = kardex.nro_detalle_movimiento
-                        sum_valor+=valor
-                        
+                        sum_valor += valor
+
                     except:
                         codigo = producto.codigo
                         descripcion = producto.descripcion
@@ -2087,38 +2150,50 @@ class Inventario(FormView):
                         valor = 0
                         detalle = ""
                     ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
-                    ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.cuenta
-                    tempo_cuenta=grupo_producto.ctacontable.cuenta
+                    tempo_cuenta = grupo_producto.ctacontable.cuenta
                     ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
-                    ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=2).value = codigo
 
                     ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
-                    ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=3).value = descripcion
 
                     ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
-                    ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=4).value = detalle
 
                     ws.cell(row=cont, column=5).alignment = Alignment(horizontal="right")
-                    ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=5).value = stock
 
                     ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")
-                    ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=6).value = unidad_medida
 
@@ -2128,8 +2203,10 @@ class Inventario(FormView):
                     else:
                         precio = format(precio, '.3f')
                     ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
-                    ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=7).value = precio
                     ws.cell(row=cont, column=7).number_format = '#.000'
@@ -2139,14 +2216,16 @@ class Inventario(FormView):
                     else:
                         valor = format(valor, '.3f')
                     ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
-                    ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                    ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"),
+                                                                right=Side(border_style="thin"),
+                                                                top=Side(border_style="thin"),
+                                                                bottom=Side(border_style="thin"))
                     ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                     ws.cell(row=cont, column=8).value = valor
                     ws.cell(row=cont, column=8).number_format = '#.000'
-                   
+
                     cont = cont + 1
-                tempo_resumen=[bandera,tempo_cuenta,sum_valor]
+                tempo_resumen = [bandera, tempo_cuenta, sum_valor]
                 resumen_inventario.append(tempo_resumen)
                 temp_sum_valor = format(sum_valor, '.3f')
                 if temp_sum_valor == '-0.000':
@@ -2154,25 +2233,26 @@ class Inventario(FormView):
                 else:
                     valor = format(sum_valor, '.3f')
                 ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
-                ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-                ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
+                ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"),
+                                                            right=Side(border_style="thin"),
+                                                            top=Side(border_style="thin"),
+                                                            bottom=Side(border_style="thin"))
+                ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2',
+                                                               fill_type='solid')
                 ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=8).value = sum_valor
                 ws.cell(row=cont, column=8).number_format = '#.000'
-                total_final+=sum_valor
+                total_final += sum_valor
                 cont = cont + 2
-
-
 
         ws.cell(row=cont, column=6).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
         ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
         ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=7).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
-        ws.cell(row=cont,column=7).font = Font(name='Calibri', size=12)
+        ws.cell(row=cont, column=7).font = Font(name='Calibri', size=12)
         ws.cell(row=cont, column=7).value = "Monto Total  S/."
 
         temp_sum_valor = format(total_final, '.3f')
@@ -2182,139 +2262,134 @@ class Inventario(FormView):
             valor = format(total_final, '.3f')
         ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
         ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
-        ws.cell(row=cont,column=8).font = Font(name='Calibri', size=8)
+        ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
         ws.cell(row=cont, column=8).value = total_final
         ws.cell(row=cont, column=8).number_format = '#.000'
 
-
-
-
-
-        cont=cont+4
+        cont = cont + 4
         ws.merge_cells('A1262:H1262')
-        ws.cell(row=cont-1, column=1).alignment = Alignment(horizontal="center", vertical="center")
-        ws.cell(row=cont-1, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
-        ws.cell(row=cont-1, column=1).fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
-        ws.cell(row=cont-1, column=1).font=Font(name='Calibri', size=11, bold=True)
-        ws.cell(row=cont-1, column=1).value  = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
+        ws.cell(row=cont - 1, column=1).alignment = Alignment(horizontal="center", vertical="center")
+        ws.cell(row=cont - 1, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+        ws.cell(row=cont - 1, column=1).fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
+        ws.cell(row=cont - 1, column=1).font = Font(name='Calibri', size=11, bold=True)
+        ws.cell(row=cont - 1, column=1).value = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
 
         ws.row_dimensions[3].height = 25
 
         ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=1).value  = 'CTA CONTABLE'
+        ws.cell(row=cont, column=1).value = 'CTA CONTABLE'
 
         ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=2).value  = 'CODIGO'
+        ws.cell(row=cont, column=2).value = 'CODIGO'
 
         ws.cell(row=cont, column=3).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=3).value  = 'PRODUCTO'
+        ws.cell(row=cont, column=3).value = 'PRODUCTO'
 
         ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8, bold=True)
         ws.cell(row=cont, column=4).value = 'DETALLE 1'
 
         ws.cell(row=cont, column=5).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top = Side(border_style="thin"), bottom = Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=5).value  = 'CANTIDAD'
+        ws.cell(row=cont, column=5).value = 'CANTIDAD'
 
         ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=6).value  = 'MEDIDA'
+        ws.cell(row=cont, column=6).value = 'MEDIDA'
 
         ws.cell(row=cont, column=7).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=7).value  = 'VALOR UNIT'
+        ws.cell(row=cont, column=7).value = 'VALOR UNIT'
 
         ws.cell(row=cont, column=8).alignment = Alignment(horizontal="center", vertical="center")
         ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8, bold=True)
-        ws.cell(row=cont, column=8).value  = 'VALOR TOTAL'
+        ws.cell(row=cont, column=8).value = 'VALOR TOTAL'
 
-        cont=cont+1
-       
+        cont = cont + 1
+
         for resumen in resumen_inventario:
-
             ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
             ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
-            ws.cell(row=cont, column=1).value =  ""
+            ws.cell(row=cont, column=1).value = ""
 
             ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
             ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8)
             ws.cell(row=cont, column=2).value = resumen[1]
 
             ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
             ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
             ws.cell(row=cont, column=3).value = resumen[0]
 
             ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
             ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=4).font = Font(name='Calibri', size=8)
             ws.cell(row=cont, column=4).value = ""
 
             ws.cell(row=cont, column=5).alignment = Alignment(horizontal="right")
             ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
             ws.cell(row=cont, column=5).value = resumen[2]
             ws.cell(row=cont, column=5).number_format = '#.000'
 
             ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")
             ws.cell(row=cont, column=6).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
             ws.cell(row=cont, column=6).value = ""
 
             ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
             ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-            cont=cont+1
+                                                        top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+            cont = cont + 1
 
         ws.cell(row=cont, column=4).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
         ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=4).alignment = Alignment(horizontal="right")
         ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=3).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
-        ws.cell(row=cont,column=3).font = Font(name='Calibri', size=12)
+        ws.cell(row=cont, column=3).font = Font(name='Calibri', size=12)
         ws.cell(row=cont, column=3).value = "   TOTAL  S/."
         ws.cell(row=cont, column=3).alignment = Alignment(horizontal="right")
         ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
-                                                            top=Side(border_style="thin"), bottom=Side(border_style="thin"))
+                                                    top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=5).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
         ws.cell(row=cont, column=5).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
-        ws.cell(row=cont,column=5).font = Font(name='Calibri', size=8)
+        ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
         ws.cell(row=cont, column=5).value = total_final
         ws.cell(row=cont, column=5).number_format = '#.000'
 

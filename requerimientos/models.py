@@ -12,6 +12,7 @@ from simple_history.models import HistoricalRecords
 from django.db.models import Q
 from simple_history.models import HistoricalRecords
 
+
 class Requerimiento(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador)
@@ -126,12 +127,12 @@ class Requerimiento(TimeStampedModel):
         puesto_usuario = trabajador.puesto
         oficina_usuario = puesto_usuario.oficina
         if (usuario.is_staff
-            or solicitante == trabajador
-            or (oficina_usuario == self.oficina and puesto_usuario.es_jefatura)
-            or ((oficina_usuario == self.oficina.gerencia
-                 or oficina_usuario == oficina_administracion
-                 or oficina_usuario == logistica
-                 or oficina_usuario == presupuesto) and puesto_usuario.es_jefatura)):
+                or solicitante == trabajador
+                or (oficina_usuario == self.oficina and puesto_usuario.es_jefatura)
+                or ((oficina_usuario == self.oficina.gerencia
+                     or oficina_usuario == oficina_administracion
+                     or oficina_usuario == logistica
+                     or oficina_usuario == presupuesto) and puesto_usuario.es_jefatura)):
             return True
         else:
             return False
@@ -266,7 +267,7 @@ class AprobacionRequerimiento(TimeStampedModel):
         if ((self.nivel == nivel_actual or self.nivel == nivel_anterior) or
                 (self.nivel.descripcion == "JEFATURA" and nivel_actual.descripcion == "GERENCIA ADMINISTRACION") or
                 (
-                            self.nivel.descripcion == "USUARIO" and oficina_requerimiento == OPERACIONES and nivel_actual.descripcion == "GERENCIA INMEDIATA")):
+                        self.nivel.descripcion == "USUARIO" and oficina_requerimiento == OPERACIONES and nivel_actual.descripcion == "GERENCIA INMEDIATA")):
             return True
         else:
             return False

@@ -6,6 +6,7 @@ from model_utils.models import TimeStampedModel
 from administracion.querysets import NavegableQuerySet
 from simple_history.models import HistoricalRecords
 
+
 # Create your models here.
 class Profesion(TimeStampedModel):
     abreviatura = models.CharField(max_length=7)
@@ -62,12 +63,11 @@ class Trabajador(TimeStampedModel):
 
     def anterior_nombres_apellidos(self):
         ant = Trabajador.objects.anterior(self)
-        return ant.nombres +" "+ ant.apellido_paterno + " " + ant.apellido_materno
+        return ant.nombres + " " + ant.apellido_paterno + " " + ant.apellido_materno
 
     def siguiente_nombres_apellidos(self):
         sig = Trabajador.objects.siguiente(self)
-        return sig.nombres +" "+ sig.apellido_paterno + " " + sig.apellido_materno
-
+        return sig.nombres + " " + sig.apellido_paterno + " " + sig.apellido_materno
 
     @property
     def puesto(self):
@@ -86,6 +86,7 @@ class Trabajador(TimeStampedModel):
                        ('ver_tabla_trabajadores', 'Puede ver tabla de Trabajadores'),
                        ('ver_reporte_trabajadores_excel', 'Puede ver Reporte de Trabajadores en excel'),)
         ordering = ['apellido_paterno']
+
 
 class Productor(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
@@ -106,11 +107,11 @@ class Productor(TimeStampedModel):
 
     def anterior_nombres_apellidos(self):
         ant = Productor.objects.anterior(self)
-        return ant.nombres +" "+ ant.apellido_paterno + " " + ant.apellido_materno
+        return ant.nombres + " " + ant.apellido_paterno + " " + ant.apellido_materno
 
     def siguiente_nombres_apellidos(self):
         sig = Productor.objects.siguiente(self)
-        return sig.nombres +" "+ sig.apellido_paterno + " " + sig.apellido_materno
+        return sig.nombres + " " + sig.apellido_paterno + " " + sig.apellido_materno
 
     def nombre_completo(self):
         return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno

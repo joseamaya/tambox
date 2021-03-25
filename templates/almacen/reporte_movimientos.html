@@ -2,21 +2,21 @@
 {% block cuerpo %}
 <h3>Movimientos / Reporte por Fechas</h3>
 <form action="{% url 'almacen:reporte_movimientos' %}" method="post" role="form">
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Generar">			
-		</div>		
-	</div>
-	<hr />
-	<div class="panel panel-default">		
-		<div class="panel-body">			
-			{% csrf_token %}
-			<div class="form-group">
-				{{ form.as_p }}
-			</div>			
-		</div>
-	</div>
-</form>	
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock cuerpo %}
 {% block js %}
@@ -47,6 +47,7 @@ $("input[name=tipo_busqueda]").change(function ()
 		$("#id_annio").attr("disabled",false);	
 	}
 });	 
+
 
 </script>
 {% endblock js %}

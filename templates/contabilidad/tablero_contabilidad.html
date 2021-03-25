@@ -1,18 +1,18 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 <h3>Tablero Contabilidad</h3>
-<hr />
+<hr/>
 <div class="panel panel-default">
-	<div class="panel-heading">
-	    <i class="fa fa-bell fa-fw"></i>Panel de Notificaciones.
-	</div>
-	<div class="panel-body">
-		<div class="list-group">
-			{% for notificacion in notificaciones %}
-				<p class="list-group-item">{{ notificacion }}</p>
-			{% endfor %}
-		</div>			
-	</div>
+    <div class="panel-heading">
+        <i class="fa fa-bell fa-fw"></i>Panel de Notificaciones.
+    </div>
+    <div class="panel-body">
+        <div class="list-group">
+            {% for notificacion in notificaciones %}
+            <p class="list-group-item">{{ notificacion }}</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}

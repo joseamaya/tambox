@@ -1,4 +1,4 @@
-{% extends "contabilidad/base_contabilidad.html" %} 
+{% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 {% if object %}
 <h3>Formas de Pago / {{ object.descripcion }}</h3>
@@ -6,88 +6,93 @@
 <h3>Formas de Pago / Nuevo</h3>
 {% endif %}
 <form role="form" method="post">
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-			{% if object %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'contabilidad:detalle_forma_pago' object.pk %}'">
-				Cancelar
-			</button>
-			{% else %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'contabilidad:formas_pago' %}'">
-				Cancelar
-			</button>
-			{% endif %}
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.anterior %}';">
-					<span class="glyphicon glyphicon-step-backward"></span>
-				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.siguiente %}';">
-					<span class="glyphicon glyphicon-step-forward"></span>
-				</button>
-				{% endif %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:formas_pago' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<div class="row">
-				<div class="col-lg-7">
-					<label>DESCRIPCIÓN:</label>
-					<p>{{ form.descripcion }}</p>
-				</div>
-				<div class="col-lg-5">
-					<div class="btn-group"></div>
-				</div>
-			</div>
-			<br>
-			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
-			</ul>
-			<div class="tab-content">
-				<div id="general" class="tab-pane fade in active">
-					<br>
-					<div class="row">
-						<div class="col-lg-4">
-							<label>CODIGO:</label>
-							{% if form.codigo.errors %}
-								{% for error in form.codigo.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">							
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>							
-						            <strong>Error: </strong> {{ error|escape }}					        
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<p>{{ form.codigo }}</p>
-							<label>DÍAS DE CRÉDITO: </label>
-							{% if form.dias_credito.errors %}
-								{% for error in form.dias_credito.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">							
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>							
-						            <strong>Error: </strong> {{ error|escape }}					        
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<p>{{ form.dias_credito }}</p>
-						</div>
-						<div class="col-lg-4"></div>
-						<div class="col-lg-4"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'contabilidad:detalle_forma_pago' object.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'contabilidad:formas_pago' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.anterior %}';">
+                    <span class="glyphicon glyphicon-step-backward"></span>
+                </button>
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.siguiente %}';">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'contabilidad:formas_pago' %}';">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-7">
+                    <label>DESCRIPCIÓN:</label>
+                    <p>{{ form.descripcion }}</p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="btn-group"></div>
+                </div>
+            </div>
+            <br>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="general" class="tab-pane fade in active">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>CODIGO:</label>
+                            {% if form.codigo.errors %}
+                            {% for error in form.codigo.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error: </strong> {{ error|escape }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.codigo }}</p>
+                            <label>DÍAS DE CRÉDITO: </label>
+                            {% if form.dias_credito.errors %}
+                            {% for error in form.dias_credito.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error: </strong> {{ error|escape }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.dias_credito }}</p>
+                        </div>
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock cuerpo %}

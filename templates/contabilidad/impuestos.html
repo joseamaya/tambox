@@ -1,51 +1,51 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 <h3>Impuestos</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.contabilidad.add_impuesto %}
-		<a href="{% url 'contabilidad:crear_impuesto' %}" class="btn btn-primary">Crear</a>												
-		{% endif %}
-		{% if perms.contabilidad.cargar_impuestos %}
-		<a href="#" class="btn btn-default">Importar</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.contabilidad.ver_reporte_impuestos_excel %}						
-			<button class="btn btn-default" type="button" onclick="location.href='#';">
-				<span class="glyphicon glyphicon-list-alt"></span>
-			</button>
-			{% endif %}	
-		</div>
-	</div>				
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.contabilidad.add_impuesto %}
+        <a href="{% url 'contabilidad:crear_impuesto' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.contabilidad.cargar_impuestos %}
+        <a href="#" class="btn btn-default">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.contabilidad.ver_reporte_impuestos_excel %}
+            <button class="btn btn-default" type="button" onclick="location.href='#';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">ABREVIATURA</th>
-					<th class="text-center">DESCRIPCION</th>
-					<th class="text-center">MONTO</th>																													
-				</tr>
-			</thead>							
-			<tbody>
-			{% for impuesto in impuestos %}
-				{% if perms.contabilidad.ver_detalle_impuesto %}
-				<tr onclick="location.href='{% url 'contabilidad:detalle_impuesto' impuesto.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ impuesto.abreviatura }}</td>
-					<td>{{ impuesto.descripcion }}</td>
-					<td>{{ impuesto.monto }}</td>					
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">ABREVIATURA</th>
+                <th class="text-center">DESCRIPCION</th>
+                <th class="text-center">MONTO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for impuesto in impuestos %}
+            {% if perms.contabilidad.ver_detalle_impuesto %}
+            <tr onclick="location.href='{% url 'contabilidad:detalle_impuesto' impuesto.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ impuesto.abreviatura }}</td>
+                <td>{{ impuesto.descripcion }}</td>
+                <td>{{ impuesto.monto }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -65,5 +65,6 @@ $(document).ready(function()
 	});
     
 });
+
 </script>
 {% endblock js %}

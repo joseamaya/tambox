@@ -2,34 +2,34 @@
 {% block cuerpo %}
 <h3>Tipos de Existencias</h3>
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.contabilidad.cargar_tipos_existencias %}
-		<a href="{% url 'contabilidad:cargar_tipos_existencias' %}" class="btn btn-default">
-			Importar
-		</a>
-		{% endif %}
-	</div>
+    <div class="col-lg-10">
+        {% if perms.contabilidad.cargar_tipos_existencias %}
+        <a href="{% url 'contabilidad:cargar_tipos_existencias' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">COD_SUNAT</th>
-					<th class="text-center">NOMBRE</th>
-				</tr>
-			</thead>
-			<tbody>
-			{% for tipo in tipos_existencias %}
-				<tr>
-					<td>{{ tipo.codigo_sunat }}</td>
-					<td>{{ tipo.descripcion }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">COD_SUNAT</th>
+                <th class="text-center">NOMBRE</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for tipo in tipos_existencias %}
+            <tr>
+                <td>{{ tipo.codigo_sunat }}</td>
+                <td>{{ tipo.descripcion }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -93,5 +93,6 @@ $(document).ready(function()
 	}
 
 });
+
 </script>
 {% endblock js %}

@@ -1,54 +1,55 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3>Almacenes</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.almacen.add_almacen %}
-		<a href="{% url 'almacen:crear_almacen' %}" class="btn btn-primary">
-			Crear
-		</a>												
-		{% endif %}
-		{% if perms.almacen.cargar_almacenes %}
-		<a href="{% url 'almacen:cargar_almacenes' %}" class="btn btn-default">
-			Importar
-		</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.almacen.ver_reporte_almacenes_excel %}						
-			<button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:maestro_almacenes_excel' %}';">
-            	<span class="glyphicon glyphicon-list-alt"></span>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.almacen.add_almacen %}
+        <a href="{% url 'almacen:crear_almacen' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.almacen.cargar_almacenes %}
+        <a href="{% url 'almacen:cargar_almacenes' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.almacen.ver_reporte_almacenes_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'almacen:maestro_almacenes_excel' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
             </button>
-			{% endif %}	
-		</div>
-	</div>				
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">CODIGO</th>
-					<th class="text-center">DESCRIPCION</th>														
-				</tr>
-			</thead>
-			<tbody>
-			{% for almacen in almacenes %}
-				{% if perms.almacen.ver_detalle_almacen %}
-				<tr onclick="location.href='{% url 'almacen:detalle_almacen' almacen.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ almacen.codigo }}</td>
-					<td>{{ almacen.descripcion }}</td>
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>		
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">DESCRIPCION</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for almacen in almacenes %}
+            {% if perms.almacen.ver_detalle_almacen %}
+            <tr onclick="location.href='{% url 'almacen:detalle_almacen' almacen.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ almacen.codigo }}</td>
+                <td>{{ almacen.descripcion }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -109,5 +110,6 @@ $(document).ready(function()
 		ventana.dialog("close");
 	}
 });
+
 </script>
 {% endblock js %}

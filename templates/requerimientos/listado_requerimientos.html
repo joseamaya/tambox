@@ -1,62 +1,63 @@
-{% extends "requerimientos/base_requerimientos.html" %} 
+{% extends "requerimientos/base_requerimientos.html" %}
 {% block cuerpo %}
 <h3>Requerimientos</h3>
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.requerimientos.add_requerimiento %} 
-		<a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a> 
-		{% endif %} 
-		{% if perms.requerimientos.cargar_requerimientos %} 
-		<a href="#" class="btn btn-default">
-			Importar </a> 
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			{% if perms.requerimientos.ver_reporte_requerimientos_excel %}
-			<button class="btn btn-default" type="button" onclick="location.href='{% url 'requerimientos:maestro_requerimientos_excel' %}';">
-				<span class="glyphicon glyphicon-list-alt"></span>
-			</button>
-			{% endif %}
-		</div>
-	</div>
+    <div class="col-lg-10">
+        {% if perms.requerimientos.add_requerimiento %}
+        <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
+        {% endif %}
+        {% if perms.requerimientos.cargar_requerimientos %}
+        <a href="#" class="btn btn-default">
+            Importar </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.requerimientos.ver_reporte_requerimientos_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'requerimientos:maestro_requerimientos_excel' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">CODIGO</th>
-					<th class="text-center">OFICINA SOLICITA</th>
-					<th class="text-center">NIVEL APROB.</th>
-					<th class="text-center">APROB.</th>
-					<th class="text-center">ESTADO.</th>
-					<th class="text-center">FEC_OPER.</th>					
-				</tr>
-			</thead>
-			<tbody>
-				{% for requerimiento in requerimientos %}
-				{% if perms.requerimientos.ver_detalle_requerimiento %}
-				<tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.codigo %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ requerimiento.codigo }}</td>
-					<td>{{ requerimiento.oficina }}</td>
-					<td>{{ requerimiento.aprobacionrequerimiento.nivel }}</td>
-					{% if requerimiento.aprobacionrequerimiento.estado %}
-					<td>SI</td>
-					{% else %}
-					<td>NO</td>
-					{% endif %}
-					<td>{{ requerimiento.get_estado_display }}</td>
-					<td>{{ requerimiento.created|date:"d/m/y" }}</td>					
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">OFICINA SOLICITA</th>
+                <th class="text-center">NIVEL APROB.</th>
+                <th class="text-center">APROB.</th>
+                <th class="text-center">ESTADO.</th>
+                <th class="text-center">FEC_OPER.</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for requerimiento in requerimientos %}
+            {% if perms.requerimientos.ver_detalle_requerimiento %}
+            <tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.codigo %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ requerimiento.codigo }}</td>
+                <td>{{ requerimiento.oficina }}</td>
+                <td>{{ requerimiento.aprobacionrequerimiento.nivel }}</td>
+                {% if requerimiento.aprobacionrequerimiento.estado %}
+                <td>SI</td>
+                {% else %}
+                <td>NO</td>
+                {% endif %}
+                <td>{{ requerimiento.get_estado_display }}</td>
+                <td>{{ requerimiento.created|date:"d/m/y" }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -74,5 +75,6 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	});
 });
+
 </script>
 {% endblock js %}

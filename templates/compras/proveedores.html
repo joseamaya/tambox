@@ -1,53 +1,54 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 <h3>Proveedores</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.compras.add_proveedor %}
-		<a href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">
-			Crear
-		</a>												
-		{% endif %}
-		{% if perms.compras.cargar_proveedores %}
-		<a href="{% url 'compras:cargar_proveedores' %}" class="btn btn-default">
-			Importar
-		</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.compras.ver_reporte_proveedores_excel %}						
-			<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:maestro_proveedores_excel' %}';">
-                   	<span class="glyphicon glyphicon-list-alt"></span>
-                    </button>
-			{% endif %}	
-		</div>
-	</div>				
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.compras.add_proveedor %}
+        <a href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.compras.cargar_proveedores %}
+        <a href="{% url 'compras:cargar_proveedores' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.compras.ver_reporte_proveedores_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:maestro_proveedores_excel' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">RUC</th>
-					<th class="text-center">RAZON SOCIAL</th>													
-				</tr>
-			</thead>
-			<tbody>
-			{% for proveedor in proveedores %}
-				{% if perms.compras.ver_detalle_proveedor %}
-				<tr onclick="location.href='{% url 'compras:detalle_proveedor' proveedor.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ proveedor.ruc }}</td>
-					<td>{{ proveedor.razon_social }}</td>														
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">RUC</th>
+                <th class="text-center">RAZON SOCIAL</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for proveedor in proveedores %}
+            {% if perms.compras.ver_detalle_proveedor %}
+            <tr onclick="location.href='{% url 'compras:detalle_proveedor' proveedor.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ proveedor.ruc }}</td>
+                <td>{{ proveedor.razon_social }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -102,5 +103,6 @@ $(document).ready(function()
 		ventana.dialog("close");
 	}
 });
+
 </script>
 {% endblock js %}

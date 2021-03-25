@@ -1,4 +1,4 @@
-#from siad.jasper import BaseJasperReport
+# from siad.jasper import BaseJasperReport
 
 """class ProductosReport(BaseJasperReport):
     report_name = 'productos'

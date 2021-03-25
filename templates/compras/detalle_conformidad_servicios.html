@@ -2,119 +2,125 @@
 {% block cuerpo %}
 <h3>Conformidades de Servicio / {{ object.pk }}</h3>
 <div class="row">
-	<div class="col-lg-10">
-		<button class="btn btn-info" type="button" onclick="location.href='{% url 'compras:ver_memorando_conformidad_servicio' object.pk %}';">Ver PDF</button>
-		{% if perms.compras.delete_cotizacion %}
-			<button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
-		{% endif %}		
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_conformidad_servicios' object.anterior %}';">
-				<span class="glyphicon glyphicon-step-backward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:detalle_conformidad_servicios' object.siguiente %}';">
-				<span class="glyphicon glyphicon-step-forward"></span>
-			</button>
-			<button class="btn btn-default" type="button"
-				onclick="location.href='{% url 'compras:conformidades_servicio' %}';">
-				<span class="glyphicon glyphicon-th-list"></span>
-			</button>
-		</div>
-	</div>
+    <div class="col-lg-10">
+        <button class="btn btn-info" type="button"
+                onclick="location.href='{% url 'compras:ver_memorando_conformidad_servicio' object.pk %}';">Ver PDF
+        </button>
+        {% if perms.compras.delete_cotizacion %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:detalle_conformidad_servicios' object.anterior %}';">
+                <span class="glyphicon glyphicon-step-backward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:detalle_conformidad_servicios' object.siguiente %}';">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'compras:conformidades_servicio' %}';">
+                <span class="glyphicon glyphicon-th-list"></span>
+            </button>
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div id="dialog-confirm" title="Eliminar Conformidad Servicios"></div>
-<div class="panel panel-primary">	
-	<div class="panel-body">					
-		{% csrf_token %}
-		<div class="form-group">	
-			<div class="row">
-				<div class="col-md-2">
-					<label>CODIGO:</label>  
-					<p>{{ object.codigo }}</p>
-				</div>	
-				<div class="col-md-3">
-					<label>Fecha Creación:</label> 
-					<p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
-				</div>
-				<div class="col-md-2">
-					<label>Fecha Mod:</label> 
-					<p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
-				</div>													
-			</div>
-			<div class="row">
-				<div class="col-md-2">			
-					<label>FECHA:</label> 
-					<p>{{ object.fecha|date:"d/m/Y" }}
-				</div>							
-				<div class="col-md-3">	
-					<label>Orden de Servicios:</label>
-					<p>
-						<a href="{% url 'compras:detalle_orden_servicios' object.orden_servicios.pk %}">{{ object.orden_servicios }}</a>
-					</p>
-				</div>				
-				<div class="col-md-5">	
-					<label>Doc. Sustento:</label>
-					<p>{{ object.doc_sustento }}
-				</div>
-			</div>
-		</div>					
-		<hr>					
-		<div class="row">
-			<div class="col-lg-12">
-				<table id="detalles" class="table table-striped table-bordered table-hover">
-					<thead>
-						<tr>
-							<th>CANTIDAD</th>
-							<th>SERVICIO</th>
-							<th>DESCRIPCION</th>											
-							<th>PRECIO</th>
-							<th>VALOR</th>										
-						</tr>
-					</thead>
-					<tbody>
-						{% for detalle in object.detalleconformidadservicio_set.all %}
-						<tr>
-							<td>{{ detalle.detalle_orden_servicios.cantidad }}</td>
-					  		<td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
-					  		<td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.uso }}</td>									  		
-					  		<td>{{ detalle.detalle_orden_servicios.precio }}</td>
-					  		<td>{{ detalle.detalle_orden_servicios.valor }}</td>								  		
-						</tr>
-						{% endfor %}
-						<tr>
-							<td colspan="5"></td>
-						</tr>
-						<tr>
-							<td colspan="3">	
-							SON: {{ object.total_letras }}
-							</td>
-							<td>
-								SUBTOTAL
-							</td>
-							<td>
-								{{ object.total }}
-							</td>							
-						</tr>
-						<tr>
-							<td colspan="3">
-									
-							</td>
-							<td>
-								TOTAL
-							</td>
-							<td>
-								{{ object.total }}
-							</td>							
-						</tr>	
-					</tbody>				
-				</table>
-			</div>
-		</div>															
-	</div>
+<div class="panel panel-primary">
+    <div class="panel-body">
+        {% csrf_token %}
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-2">
+                    <label>CODIGO:</label>
+                    <p>{{ object.codigo }}</p>
+                </div>
+                <div class="col-md-3">
+                    <label>Fecha Creación:</label>
+                    <p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+                </div>
+                <div class="col-md-2">
+                    <label>Fecha Mod:</label>
+                    <p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-2">
+                    <label>FECHA:</label>
+                    <p>{{ object.fecha|date:"d/m/Y" }}
+                </div>
+                <div class="col-md-3">
+                    <label>Orden de Servicios:</label>
+                    <p>
+                        <a href="{% url 'compras:detalle_orden_servicios' object.orden_servicios.pk %}">{{
+                            object.orden_servicios }}</a>
+                    </p>
+                </div>
+                <div class="col-md-5">
+                    <label>Doc. Sustento:</label>
+                    <p>{{ object.doc_sustento }}
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="detalles" class="table table-striped table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <th>CANTIDAD</th>
+                        <th>SERVICIO</th>
+                        <th>DESCRIPCION</th>
+                        <th>PRECIO</th>
+                        <th>VALOR</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detalle in object.detalleconformidadservicio_set.all %}
+                    <tr>
+                        <td>{{ detalle.detalle_orden_servicios.cantidad }}</td>
+                        <td>{{
+                            detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.descripcion
+                            }}
+                        </td>
+                        <td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.uso }}</td>
+                        <td>{{ detalle.detalle_orden_servicios.precio }}</td>
+                        <td>{{ detalle.detalle_orden_servicios.valor }}</td>
+                    </tr>
+                    {% endfor %}
+                    <tr>
+                        <td colspan="5"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+                            SON: {{ object.total_letras }}
+                        </td>
+                        <td>
+                            SUBTOTAL
+                        </td>
+                        <td>
+                            {{ object.total }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3">
+
+                        </td>
+                        <td>
+                            TOTAL
+                        </td>
+                        <td>
+                            {{ object.total }}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -153,5 +159,6 @@ $(document).ready(function()
 	}
 
 });
+
 </script>
 {% endblock js %}

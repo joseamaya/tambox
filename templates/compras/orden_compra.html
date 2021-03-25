@@ -6,445 +6,448 @@
 <h3>Órdenes de Compra / Nuevo</h3>
 {% endif %}
 <form role="form" method="post" enctype="multipart/form-data">
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-			{% if object %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:detalle_orden_compra' orden.pk %}'">
-				Cancelar
-			</button>			
-			{% else %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:ordenes_compra' %}'">
-				Cancelar
-			</button>			
-			{% endif %}
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'compras:modificar_orden_compra' orden.anterior %}';">
-					<span class="glyphicon glyphicon-step-backward"></span>
-				</button>
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:modificar_orden_compra' orden.siguiente %}';">
-					<span class="glyphicon glyphicon-step-forward"></span>
-				</button>
-				{% endif %}
-				<button class="btn btn-default" type="button"
-					onclick="location.href='{% url 'compras:ordenes_compra' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="panel panel-primary">
-		{% if form.non_field_errors %}
-			<div class="alert alert-danger alert-dismissible" role="alert">							
-				<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-					<span aria-hidden="true">&times;</span>
-				</button>							
-	            {{ form.non_field_errors }}					        
-			</div>						        
-	    {% endif %}		
-		<div class="panel-body">					
-			{% csrf_token %}
-			<div class="form-group">
-				{{ form.impuesto_actual }}
-				{% if object %}
-				<div class="row">
-					<div class="col-md-2">
-						<label>CODIGO:</label>
-						<p>{{ object.codigo }}</p>
-					</div>														
-				</div>
-				{% endif %}
-			</div>	
-			<div class="form-group">				
-				<div class="row">
-					<div class="col-md-2">
-						<label>RUC:</label>  
-						{% if form.ruc.errors %}
-							{% for error in form.ruc.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.ruc }}
-					</div>
-					<div class="col-md-4">
-						<label>Razón Social:</label>  
-						{% if form.razon_social.errors %}
-							{% for error in form.razon_social.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.razon_social }}
-					</div>
-					<div class="col-md-6">	
-						<label>DIRECCIÓN:</label>  
-						{% if form.direccion.errors %}
-							{% for error in form.direccion.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.direccion }}
-					</div>							
-				</div>
-			</div>			
-			<div class="form-group">	
-				<div class="row">
-					<div class="col-md-2">			
-						<label>FECHA:</label> 
-						{% if form.fecha.errors %}
-							{% for error in form.fecha.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.fecha }}
-					</div>
-					<div class="col-md-4">	
-						<label>FORMA DE PAGO:</label>  
-						{% if form.forma_pago.errors %}
-							{% for error in form.forma_pago.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.forma_pago }}
-					</div>									
-					<div class="col-md-2">	
-						<label>COTIZACION:</label>
-						{% if form.referencia.errors %}
-							{% for error in form.referencia.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.referencia }}
-					</div>
-					<div class="col-md-3">	
-						<label>BUSQ. DE COTIZACIÓN:</label>
-						<button id="id_transferencia_cotizacion" class="btn btn-info btn-block">
-							<span class="glyphicon glyphicon-search">BUSCAR</span>
-						</button>
-					</div>
-				</div>
-			</div>
-			<div class="form-group">
-				<div class="row">
-					<div class="col-md-2">
-						<div class="checkbox">
-							{% if form.con_impuesto.errors %}
-								{% for error in form.con_impuesto.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-						            <strong>Error: </strong> {{ error|escape }}
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<label>
-								{{ form.con_impuesto }} Con impuesto
-							</label>
-						</div>
-					</div>
-					<div class="col-md-3">
-						<div class="checkbox">
-							{% if form.dolares.errors %}
-								{% for error in form.dolares.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
-						            <strong>Error: </strong> {{ error|escape }}
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<label>
-								{{ form.dolares }} En Dolares
-							</label>
-						</div>
-					</div>
-				</div>
-			</div>
-			<hr>
-			<div class="row">
-				<div class="col-lg-10">							
-				</div>	
-				<div class="col-lg-2">
-					<div class='form-group'>
-						<button id="id_crear_detalle" href="#" class="btn btn-info btn-block">
-							<span class="glyphicon glyphicon-plus">AGREGAR</span>
-						</button>						
-					</div>
-				</div>	
-			</div>			
-			<div class="row">
-				<div class="col-lg-12">
-					<table id="detalles" class="table table-striped table-bordered table-hover">
-						<thead>
-							<tr>
-								<th>ID Producto</th>
-								<th>Producto</th>
-								<th>Unidad</th>	
-								<th>Cantidad</th>	
-								<th>P. Unit</th>
-								<th>Impuesto</th>
-								<th>Total</th>
-								<th>Borrar</th>
-							</tr>
-						</thead>
-						<tbody>									
-							{{ detalle_orden_compra_formset.management_form }}
-						    {% for detalle_orden_compra_form in detalle_orden_compra_formset %}					        
-					            <tr class="detalle_orden_compra_formset">
-					            	<td>
-					            		{{ detalle_orden_compra_form.cotizacion }}
-						            	{% if detalle_orden_compra_form.codigo.errors %}
-											{% for error in detalle_orden_compra_form.codigo.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-						            	{{ detalle_orden_compra_form.codigo }}
-					            	</td>
-					            	<td>
-						            	{% if detalle_orden_compra_form.nombre.errors %}
-											{% for error in detalle_orden_compra_form.nombre.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_orden_compra_form.nombre }}
-						            </td>
-						            <td>
-							            {% if detalle_orden_compra_form.unidad.errors %}
-											{% for error in detalle_orden_compra_form.unidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_orden_compra_form.unidad }}
-						            </td>
-						            <td>
-							            {% if detalle_orden_compra_form.cantidad.errors %}
-											{% for error in detalle_orden_compra_form.cantidad.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							            {{ detalle_orden_compra_form.cantidad }}
-						            </td>
-						            <td>
-							            {% if detalle_orden_compra_form.precio.errors %}
-											{% for error in detalle_orden_compra_form.precio.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							           	{{ detalle_orden_compra_form.precio }}
-						           	</td>
-						           	<td>
-							            {% if detalle_orden_compra_form.impuesto.errors %}
-											{% for error in detalle_orden_compra_form.impuesto.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							           	{{ detalle_orden_compra_form.impuesto }}
-						           	</td>	
-						           	<td>
-							            {% if detalle_orden_compra_form.valor.errors %}
-											{% for error in detalle_orden_compra_form.valor.errors %}
-											<div class="alert alert-danger alert-dismissible" role="alert">							
-												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												</button>							
-									            <strong>Error: </strong> {{ error|escape }}					        
-											</div>
-									        {% endfor %}
-									    {% endif %}
-							           	{{ detalle_orden_compra_form.valor }}
-						           	</td>					           	
-						           	<td>
-						           		<button class='eliminar btn btn-small btn-danger' type='button' id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-						           			<span class='glyphicon glyphicon-remove'></span>
-						           		</button>
-						           	</td>					           	
-					           	</tr>
-					           	
-						    {% endfor %}									
-						</tbody>				
-					</table>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<table id="tabla_total" class="table table-striped table-hover">
-						<tbody>	
-							<tr>
-								<td WIDTH="50">	
-								SON										
-								</td>										
-								<td WIDTH="550">
-									{% if form.total_letras.errors %}
-										{% for error in form.total_letras.errors %}
-										<div class="alert alert-danger alert-dismissible" role="alert">							
-											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-												<span aria-hidden="true">&times;</span>
-											</button>							
-								            <strong>Error: </strong> {{ error|escape }}					        
-										</div>
-								        {% endfor %}
-								    {% endif %}
-									{{ form.total_letras }}
-								</td>
-								<td WIDTH="50">
-									SUBTOTAL
-								</td>
-								<td>
-									{% if form.subtotal.errors %}
-										{% for error in form.subtotal.errors %}
-										<div class="alert alert-danger alert-dismissible" role="alert">							
-											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-												<span aria-hidden="true">&times;</span>
-											</button>							
-								            <strong>Error: </strong> {{ error|escape }}					        
-										</div>
-								        {% endfor %}
-								    {% endif %}
-									{{ form.subtotal }}
-								</td>
-								<td WIDTH="60">
-								</td>
-							</tr>
-							<tr>
-								<td WIDTH="50">											
-								</td>
-								<td WIDTH="550">
-									
-								</td>
-								<td WIDTH="50">
-									IGV
-								</td>
-								<td>
-									{% if form.impuesto.errors %}
-										{% for error in form.impuesto.errors %}
-										<div class="alert alert-danger alert-dismissible" role="alert">							
-											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-												<span aria-hidden="true">&times;</span>
-											</button>							
-								            <strong>Error: </strong> {{ error|escape }}					        
-										</div>
-								        {% endfor %}
-								    {% endif %}
-									{{ form.impuesto }}
-								</td>
-								<td WIDTH="60">
-								</td>
-							</tr>
-							<tr>
-								<td WIDTH="50">											
-								</td>
-								<td WIDTH="550">
-									
-								</td>
-								<td WIDTH="50">
-									TOTAL
-								</td>
-								<td>
-									{% if form.total.errors %}
-										{% for error in form.total.errors %}
-										<div class="alert alert-danger alert-dismissible" role="alert">							
-											<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-												<span aria-hidden="true">&times;</span>
-											</button>							
-								            <strong>Error: </strong> {{ error|escape }}					        
-										</div>
-								        {% endfor %}
-								    {% endif %}
-									{{ form.total }}
-								</td>
-								<td WIDTH="60">
-								</td>
-							</tr>		
-						</tbody>				
-					</table>
-				</div>
-			</div>
-			<div class="row">
-				<div class="col-lg-12">
-					<label>OBSERVACIONES:</label>
-					{% if form.observaciones.errors %}
-						{% for error in form.observaciones.errors %}
-						<div class="alert alert-danger alert-dismissible" role="alert">							
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>							
-				            <strong>Error: </strong> {{ error|escape }}					        
-						</div>
-				        {% endfor %}
-				    {% endif %}	
-					{{ form.observaciones }}
-				</div>
-			</div>										
-		</div>
-	</div>		
-	<div id="popup"></div>	
-</form>		
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'compras:detalle_orden_compra' orden.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:ordenes_compra' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'compras:modificar_orden_compra' orden.anterior %}';">
+                    <span class="glyphicon glyphicon-step-backward"></span>
+                </button>
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'compras:modificar_orden_compra' orden.siguiente %}';">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'compras:ordenes_compra' %}';">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-primary">
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+        <div class="panel-body">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.impuesto_actual }}
+                {% if object %}
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>CODIGO:</label>
+                        <p>{{ object.codigo }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>RUC:</label>
+                        {% if form.ruc.errors %}
+                        {% for error in form.ruc.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.ruc }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Razón Social:</label>
+                        {% if form.razon_social.errors %}
+                        {% for error in form.razon_social.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.razon_social }}
+                    </div>
+                    <div class="col-md-6">
+                        <label>DIRECCIÓN:</label>
+                        {% if form.direccion.errors %}
+                        {% for error in form.direccion.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.direccion }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>FECHA:</label>
+                        {% if form.fecha.errors %}
+                        {% for error in form.fecha.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.fecha }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>FORMA DE PAGO:</label>
+                        {% if form.forma_pago.errors %}
+                        {% for error in form.forma_pago.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.forma_pago }}
+                    </div>
+                    <div class="col-md-2">
+                        <label>COTIZACION:</label>
+                        {% if form.referencia.errors %}
+                        {% for error in form.referencia.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.referencia }}
+                    </div>
+                    <div class="col-md-3">
+                        <label>BUSQ. DE COTIZACIÓN:</label>
+                        <button id="id_transferencia_cotizacion" class="btn btn-info btn-block">
+                            <span class="glyphicon glyphicon-search">BUSCAR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="checkbox">
+                            {% if form.con_impuesto.errors %}
+                            {% for error in form.con_impuesto.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error: </strong> {{ error|escape }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <label>
+                                {{ form.con_impuesto }} Con impuesto
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="checkbox">
+                            {% if form.dolares.errors %}
+                            {% for error in form.dolares.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error: </strong> {{ error|escape }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <label>
+                                {{ form.dolares }} En Dolares
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-10">
+                </div>
+                <div class="col-lg-2">
+                    <div class='form-group'>
+                        <button id="id_crear_detalle" href="#" class="btn btn-info btn-block">
+                            <span class="glyphicon glyphicon-plus">AGREGAR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="detalles" class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>ID Producto</th>
+                            <th>Producto</th>
+                            <th>Unidad</th>
+                            <th>Cantidad</th>
+                            <th>P. Unit</th>
+                            <th>Impuesto</th>
+                            <th>Total</th>
+                            <th>Borrar</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {{ detalle_orden_compra_formset.management_form }}
+                        {% for detalle_orden_compra_form in detalle_orden_compra_formset %}
+                        <tr class="detalle_orden_compra_formset">
+                            <td>
+                                {{ detalle_orden_compra_form.cotizacion }}
+                                {% if detalle_orden_compra_form.codigo.errors %}
+                                {% for error in detalle_orden_compra_form.codigo.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.codigo }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.nombre.errors %}
+                                {% for error in detalle_orden_compra_form.nombre.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.nombre }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.unidad.errors %}
+                                {% for error in detalle_orden_compra_form.unidad.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.unidad }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.cantidad.errors %}
+                                {% for error in detalle_orden_compra_form.cantidad.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.cantidad }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.precio.errors %}
+                                {% for error in detalle_orden_compra_form.precio.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.precio }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.impuesto.errors %}
+                                {% for error in detalle_orden_compra_form.impuesto.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.impuesto }}
+                            </td>
+                            <td>
+                                {% if detalle_orden_compra_form.valor.errors %}
+                                {% for error in detalle_orden_compra_form.valor.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ detalle_orden_compra_form.valor }}
+                            </td>
+                            <td>
+                                <button class='eliminar btn btn-small btn-danger' type='button'
+                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
+                                    <span class='glyphicon glyphicon-remove'></span>
+                                </button>
+                            </td>
+                        </tr>
+
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="tabla_total" class="table table-striped table-hover">
+                        <tbody>
+                        <tr>
+                            <td WIDTH="50">
+                                SON
+                            </td>
+                            <td WIDTH="550">
+                                {% if form.total_letras.errors %}
+                                {% for error in form.total_letras.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.total_letras }}
+                            </td>
+                            <td WIDTH="50">
+                                SUBTOTAL
+                            </td>
+                            <td>
+                                {% if form.subtotal.errors %}
+                                {% for error in form.subtotal.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.subtotal }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td WIDTH="50">
+                            </td>
+                            <td WIDTH="550">
+
+                            </td>
+                            <td WIDTH="50">
+                                IGV
+                            </td>
+                            <td>
+                                {% if form.impuesto.errors %}
+                                {% for error in form.impuesto.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.impuesto }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td WIDTH="50">
+                            </td>
+                            <td WIDTH="550">
+
+                            </td>
+                            <td WIDTH="50">
+                                TOTAL
+                            </td>
+                            <td>
+                                {% if form.total.errors %}
+                                {% for error in form.total.errors %}
+                                <div class="alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>Error: </strong> {{ error|escape }}
+                                </div>
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.total }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <label>OBSERVACIONES:</label>
+                    {% if form.observaciones.errors %}
+                    {% for error in form.observaciones.errors %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>Error: </strong> {{ error|escape }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {{ form.observaciones }}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="popup"></div>
+</form>
 
 {% endblock cuerpo %}
 
@@ -863,5 +866,6 @@ $(document).ready(function()
 		event.preventDefault();
 	});
 });
+
 </script>
 {% endblock js %}

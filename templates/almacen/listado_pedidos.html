@@ -1,49 +1,50 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3>Pedidos</h3>
-<div class="row">					
-	<div class="col-lg-10">	
-		{% if perms.almacen.add_pedido %}
-		<a href="{% url 'almacen:crear_pedido' %}" class="btn btn-primary">Crear</a>												
-		{% endif %}
-		{% if perms.almacen.cargar_pedidos %}
-		<a href="#" class="btn btn-default">Importar</a>						
-		{% endif %}									
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">    					   
-			{% if perms.almacen.ver_reporte_pedidos_excel %}						
-			<button class="btn btn-default" type="button"">
-            	<span class="glyphicon glyphicon-list-alt"></span>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.almacen.add_pedido %}
+        <a href="{% url 'almacen:crear_pedido' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.almacen.cargar_pedidos %}
+        <a href="#" class="btn btn-default">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.almacen.ver_reporte_pedidos_excel %}
+            <button class="btn btn-default" type="button"
+            ">
+            <span class="glyphicon glyphicon-list-alt"></span>
             </button>
-			{% endif %}	
-		</div>
-	</div>				
+            {% endif %}
+        </div>
+    </div>
 </div>
 <hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">PEDIDO</th>
-					<th class="text-center">OFICINA</th>
-					<th class="text-center">FEC OPERACION</th>															
-					<th class="text-center">ESTADO</th>																																																			
-				</tr>
-			</thead>							
-			<tbody>
-			{% for pedido in pedidos %}
-				<tr onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}';">				
-					<td>{{ pedido.codigo }}</td>
-					<td>{{ pedido.oficina }}</td>
-					<td>{{ pedido.fecha|date:"d/m/y" }}</td>
-					<td>{{ pedido.get_estado_display }}</td>												        
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">PEDIDO</th>
+                <th class="text-center">OFICINA</th>
+                <th class="text-center">FEC OPERACION</th>
+                <th class="text-center">ESTADO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for pedido in pedidos %}
+            <tr onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}';">
+                <td>{{ pedido.codigo }}</td>
+                <td>{{ pedido.oficina }}</td>
+                <td>{{ pedido.fecha|date:"d/m/y" }}</td>
+                <td>{{ pedido.get_estado_display }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock cuerpo %}
 {% block js %}
@@ -61,5 +62,6 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	});
 });
+
 </script>
 {% endblock js %}

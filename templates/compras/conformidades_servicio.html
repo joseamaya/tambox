@@ -1,53 +1,53 @@
 {% extends "compras/base_compras.html" %} {% block cuerpo %}
 <h3>Conformidades de Servicio</h3>
 <div class="row">
-	<div class="col-lg-10">
-		{% if perms.compras.add_cotizacion %} 
-		<a href="{% url 'compras:crear_conformidad_servicio' %}" class="btn btn-primary">Crear</a>
-		{% endif %} 
-		{% if perms.compras.cargar_proveedores %} 
-		<a href="#" class="btn btn-default">Importar</a> 
-		{% endif %}
-	</div>
-	<div class="col-lg-2 text-right">
-		<div class="btn-group">
-			{% if perms.compras.ver_reporte_conformidades_excel %}
-			<button class="btn btn-default" type="button">
-				<span class="glyphicon glyphicon-list-alt"></span>
-			</button>
-			{% endif %}
-		</div>
-	</div>
+    <div class="col-lg-10">
+        {% if perms.compras.add_cotizacion %}
+        <a href="{% url 'compras:crear_conformidad_servicio' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.compras.cargar_proveedores %}
+        <a href="#" class="btn btn-default">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.compras.ver_reporte_conformidades_excel %}
+            <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
 </div>
-<hr />
+<hr/>
 <div class="row">
-	<div class="col-lg-12">
-		<table id="tabla" class="display" cellspacing="0" width="100%">
-			<thead>
-				<tr>
-					<th class="text-center">CÓDIGO</th>
-					<th class="text-center">PROVEEDOR</th>
-					<th class="text-center">ORD. SERVICIOS</th>
-					<th class="text-center">FECHA</th>														
-				</tr>
-			</thead>
-			<tbody>
-			{% for conformidad in conformidades %}
-				{% if perms.compras.ver_detalle_conformidad_servicio %}
-				<tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformidad.pk %}';">
-				{% else %}
-				<tr>
-				{% endif %}
-					<td>{{ conformidad.codigo }}</td>
-					<td>{{ conformidad.orden_servicios.cotizacion.proveedor }}</td>
-					<td>{{ conformidad.orden_servicios }}</td>
-					<td>{{ conformidad.fecha|date:"d/m/y" }}</td>														
-				</tr>
-			{% endfor %}
-			</tbody>
-		</table>
-	</div>
-</div>			
+    <div class="col-lg-12">
+        <table id="tabla" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CÓDIGO</th>
+                <th class="text-center">PROVEEDOR</th>
+                <th class="text-center">ORD. SERVICIOS</th>
+                <th class="text-center">FECHA</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for conformidad in conformidades %}
+            {% if perms.compras.ver_detalle_conformidad_servicio %}
+            <tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformidad.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ conformidad.codigo }}</td>
+                <td>{{ conformidad.orden_servicios.cotizacion.proveedor }}</td>
+                <td>{{ conformidad.orden_servicios }}</td>
+                <td>{{ conformidad.fecha|date:"d/m/y" }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock cuerpo %}
 {% block js %}
 <script>
@@ -64,5 +64,6 @@ $(document).ready(function()
 		$(this).css("cursor","pointer");
 	});
 });
+
 </script>
 {% endblock js %}

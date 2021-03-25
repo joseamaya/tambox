@@ -1,101 +1,101 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Reproceso Precio</h3>		
-<form role="form" method="post">		
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Reprocesar">			
-		</div>		
-	</div>
-	<hr />
-	<div class="panel panel-default">		
-		<div class="panel-body">
-			<div class="form-group">
-			 	<div class="row">
-			 		<div class="col-md-4">
-			 			<label>Almacén:</label>
-			 			{% if form.almacen.errors %}
-							{% for error in form.almacen.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.almacen }}
-					</div>				
-			 		<div class="col-md-4">
-			 			<label>Desde:</label>
-			 			{% if form.desde.errors %}
-							{% for error in form.desde.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.desde }}
-					</div>					
-			 	</div>						
-			</div>
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">SELECCIONE : </label>
-						{% if form.seleccion.errors %}
-							{% for error in form.seleccion.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.seleccion }}
-					</div>
-				</div>	
-			</div>										
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">Codigo de Producto: </label>
-						{% if form.producto.errors %}
-							{% for error in form.producto.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.producto }}							
-					</div>	
-					<div class="col-md-8">
-						<label for="descripcion">Descripcion de Producto: </label>
-						{% if form.descripcion.errors %}
-							{% for error in form.descripcion.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.descripcion }}								
-					</div>	
-				</div>	
-			</div>			
-		</div>
-	</div>
-</form>		
+<h3>Reproceso Precio</h3>
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Reprocesar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.almacen.errors %}
+                        {% for error in form.almacen.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.almacen }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Desde:</label>
+                        {% if form.desde.errors %}
+                        {% for error in form.desde.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.desde }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="codigo">SELECCIONE : </label>
+                        {% if form.seleccion.errors %}
+                        {% for error in form.seleccion.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.seleccion }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="codigo">Codigo de Producto: </label>
+                        {% if form.producto.errors %}
+                        {% for error in form.producto.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.producto }}
+                    </div>
+                    <div class="col-md-8">
+                        <label for="descripcion">Descripcion de Producto: </label>
+                        {% if form.descripcion.errors %}
+                        {% for error in form.descripcion.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.descripcion }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
 
 {% endblock cuerpo %}
 
@@ -134,6 +134,7 @@ $("input[name=seleccion]").change(function ()
 		$("input[name=descripcion]").attr("disabled",false);	
 	}
 });
+
 
 </script>
 {% endblock js %}

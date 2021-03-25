@@ -2,24 +2,24 @@
 {% block cuerpo %}
 <h3>Órdenes / Reporte Fechas</h3>
 <form role="form" method="post">
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Generar">
-		</div>
-	</div>
-	<hr />
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="panel panel-default">
-				<div class="panel-body">
-						<div class="form-group">
-							{{ form.as_p }}
-						</div>					
-				</div>
-			</div>
-		</div>
-	</div>	
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock cuerpo %}
 {% block js %}
@@ -50,6 +50,7 @@ $("input[name=tipo_busqueda]").change(function ()
 		$("#id_annio").attr("disabled",false);	
 	}
 });	 
+
 
 </script>
 {% endblock js %}

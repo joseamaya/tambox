@@ -1,118 +1,118 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Kardex</h3>	
+<h3>Kardex</h3>
 <form role="form" method="post">
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Generar">			
-		</div>		
-	</div>
-	<hr />
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<div class="form-group">
-			 	<div class="row">
-			 		<div class="col-md-4">
-			 			<label>Almacén:</label>
-			 			{% if form.almacenes.errors %}
-							{% for error in form.almacenes.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.almacenes }}
-					</div>
-			 		<div class="col-md-4">
-			 			<label>Desde:</label>
-						{% if form.desde.errors %}
-							{% for error in form.desde.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.desde }}
-					</div>
-					<div class="col-md-4">
-						<label>Hasta:</label>				
-						{% if form.hasta.errors %}
-							{% for error in form.desde.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.hasta }}
-					</div>
-			 	</div>						
-			</div>
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">CONSOLIDADO : </label>
-						{% if form.consolidado.errors %}
-							{% for error in form.consolidado.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.consolidado }}
-					</div>
-				</div>	
-			</div>
-			<div class="form-group">
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">FORMATO PARA SUNAT: </label>
-						{% if form.formato_sunat.errors %}
-							{% for error in form.formato_sunat.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>
-					            <strong>Error: </strong> {{ error|escape }}
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.formato_sunat }}
-					</div>
-				</div>
-			</div>
-			<div class="form-group">	
-				<div class="row">
-			 		<div class="col-md-4">
-						<label for="codigo">ESCOJA EL FORMATO: </label>
-						{% if form.formatos.errors %}
-							{% for error in form.formatos.errors %}
-							<div class="alert alert-danger alert-dismissible" role="alert">							
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-									<span aria-hidden="true">&times;</span>
-								</button>							
-					            <strong>Error: </strong> {{ error|escape }}					        
-							</div>
-					        {% endfor %}
-					    {% endif %}
-						{{ form.formatos }}							
-					</div>
-				</div>	
-			</div>	
-		</div>
-	</div>	
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.almacenes.errors %}
+                        {% for error in form.almacenes.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.almacenes }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Desde:</label>
+                        {% if form.desde.errors %}
+                        {% for error in form.desde.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.desde }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Hasta:</label>
+                        {% if form.hasta.errors %}
+                        {% for error in form.desde.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.hasta }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="codigo">CONSOLIDADO : </label>
+                        {% if form.consolidado.errors %}
+                        {% for error in form.consolidado.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.consolidado }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="codigo">FORMATO PARA SUNAT: </label>
+                        {% if form.formato_sunat.errors %}
+                        {% for error in form.formato_sunat.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.formato_sunat }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="codigo">ESCOJA EL FORMATO: </label>
+                        {% if form.formatos.errors %}
+                        {% for error in form.formatos.errors %}
+                        <div class="alert alert-danger alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <strong>Error: </strong> {{ error|escape }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.formatos }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock cuerpo %}
 {% block js %}
@@ -131,6 +131,7 @@ $("input[name='consolidado']").change(function() {
         $("input[name='formato_sunat']").attr("disabled", true);
     }
 });
+
 
 </script>
 {% endblock js %}

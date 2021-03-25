@@ -6,102 +6,108 @@
 <h3>Grupos de Productos / Nuevo</h3>
 {% endif %}
 <form role="form" method="post">
-	{% csrf_token %}
-	<div class="row">
-		<div class="col-lg-10">
-			<input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-			{% if object %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'productos:detalle_grupo_productos' object.pk %}'">
-				Cancelar
-			</button>
-			{% else %}
-			<button type="button" class="btn btn-default" onclick="location.href='{% url 'productos:grupos_productos' %}'">
-				Cancelar
-			</button>
-			{% endif %}
-		</div>
-		<div class="col-lg-2 text-right">
-			<div class="btn-group">
-				{% if object %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_grupo_productos' object.anterior %}';">
-					<span class="glyphicon glyphicon-step-backward"></span>
-				</button>
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:modificar_grupo_productos' object.siguiente %}';">
-					<span class="glyphicon glyphicon-step-forward"></span>
-				</button>
-				{% endif %}
-				<button class="btn btn-default" type="button" onclick="location.href='{% url 'productos:grupos_productos' %}';">
-					<span class="glyphicon glyphicon-th-list"></span>
-				</button>
-			</div>
-		</div>
-	</div>
-	<hr />
-	<div class="panel panel-default">
-		<div class="panel-body">
-			<div class="row">
-				<div class="col-lg-7">
-					<label>Descripción:</label>
-					{% if form.fecha_fin.errors %}
-						{% for error in form.fecha_fin.errors %}
-						<div class="alert alert-danger alert-dismissible" role="alert">							
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>							
-				            <strong>Error: </strong> {{ error|escape }}					        
-						</div>
-				        {% endfor %}
-				    {% endif %}
-					<p>{{ form.descripcion }}<p>
-				</div>
-				<div class="col-lg-5">
-					<div class="btn-group">
-						<button class="btn btn-default" type="button">
-							<span class="fa fa-building fa-2x"></span> {{ object.stock }} <br>
-							Stock
-						</button>
-						<button class="btn btn-default" type="button">
-							<span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
-							Previsto
-						</button>
-						<button class="btn btn-default" type="button">
-							<span class="fa fa-shopping-cart fa-2x"></span> 
-							{{ object.stock }} 
-							<br> productos
-						</button>
-					</div>
-				</div>
-			</div>
-			<br>
-			<ul class="nav nav-tabs">
-				<li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
-			</ul>
-			<div class="tab-content">
-				<div id="general" class="tab-pane fade in active">
-					<br>
-					<div class="row">
-						<div class="col-lg-4">
-							<label>CODIGO:</label>							
-							<p>{{ object.codigo }}</p>
-							<label>CTA. CONTABLE: </label>
-							{% if form.ctacontable.errors %}
-								{% for error in form.ctacontable.errors %}
-								<div class="alert alert-danger alert-dismissible" role="alert">							
-									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>							
-						            <strong>Error: </strong> {{ error|escape }}					        
-								</div>
-						        {% endfor %}
-						    {% endif %}
-							<p>{{ form.ctacontable }}</p>
-						</div>
-						<div class="col-lg-4"></div>
-						<div class="col-lg-4"></div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'productos:detalle_grupo_productos' object.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'productos:grupos_productos' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'productos:modificar_grupo_productos' object.anterior %}';">
+                    <span class="glyphicon glyphicon-step-backward"></span>
+                </button>
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'productos:modificar_grupo_productos' object.siguiente %}';">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'productos:grupos_productos' %}';">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-7">
+                    <label>Descripción:</label>
+                    {% if form.fecha_fin.errors %}
+                    {% for error in form.fecha_fin.errors %}
+                    <div class="alert alert-danger alert-dismissible" role="alert">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>Error: </strong> {{ error|escape }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    <p>{{ form.descripcion }}
+                    <p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="btn-group">
+                        <button class="btn btn-default" type="button">
+                            <span class="fa fa-building fa-2x"></span> {{ object.stock }} <br>
+                            Stock
+                        </button>
+                        <button class="btn btn-default" type="button">
+                            <span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
+                            Previsto
+                        </button>
+                        <button class="btn btn-default" type="button">
+                            <span class="fa fa-shopping-cart fa-2x"></span>
+                            {{ object.stock }}
+                            <br> productos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="general" class="tab-pane fade in active">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>CODIGO:</label>
+                            <p>{{ object.codigo }}</p>
+                            <label>CTA. CONTABLE: </label>
+                            {% if form.ctacontable.errors %}
+                            {% for error in form.ctacontable.errors %}
+                            <div class="alert alert-danger alert-dismissible" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <strong>Error: </strong> {{ error|escape }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.ctacontable }}</p>
+                        </div>
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </form>
 {% endblock cuerpo %}
