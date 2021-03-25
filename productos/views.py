@@ -152,7 +152,7 @@ class CargarProductos(FormView):
                 else:
                     precio = 0
                 try:
-                    tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
+                    tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[5].strip())
                 except:
                     return HttpResponseRedirect(reverse('contabilidad:tablero'))
                 producto, creado = Producto.objects.get_or_create(descripcion=fila[1].strip(),
