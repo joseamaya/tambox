@@ -1,5 +1,4 @@
 .idea
 media/
-migrations/
 development.py
 *.pyc
