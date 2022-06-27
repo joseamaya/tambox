@@ -11,7 +11,7 @@ openpyxl==2.5.7
 Pillow==7.2.0
 psycopg2-binary==2.8.6
 pytz==2018.5
-reportlab==3.5.23
+reportlab==3.5.55
 simplejson==3.16.0
 six==1.11.0
 typing==3.6.6
