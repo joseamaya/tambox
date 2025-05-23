@@ -111,8 +111,10 @@ class Proveedor(TimeStampedModel):
 
 class Cotizacion(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    proveedor = models.ForeignKey(Proveedor)
-    requerimiento = models.ForeignKey(Requerimiento, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    requerimiento = models.ForeignKey(Requerimiento, null=True, on_delete=models.PROTECT)
     fecha = models.DateField()
     observaciones = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
@@ -163,7 +165,9 @@ class Cotizacion(TimeStampedModel):
         return self.estado
 
     class Meta:
-        unique_together = (('proveedor', 'requerimiento'),)
+        constraints = [
+            models.UniqueConstraint(fields=['proveedor', 'requerimiento'], name='unique_proveedor_requerimiento')
+        ]
         permissions = (('ver_detalle_cotizacion', 'Puede ver detalle de Cotización'),
                        ('ver_tabla_cotizaciones', 'Puede ver tabla Cotizaciones'),
                        ('ver_reporte_cotizaciones_excel', 'Puede ver Reporte de Cotizaciones en excel'),
@@ -189,8 +193,10 @@ class Cotizacion(TimeStampedModel):
 class DetalleCotizacion(TimeStampedModel):
     objects = DetalleCotizacionManager()
     nro_detalle = models.IntegerField()
-    cotizacion = models.ForeignKey(Cotizacion)
-    detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, null=True, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_comprada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -217,10 +223,13 @@ class DetalleCotizacion(TimeStampedModel):
 
 class OrdenCompra(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, null=True)
-    proveedor = models.ForeignKey(Proveedor, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    cotizacion = models.ForeignKey(Cotizacion, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    proveedor = models.ForeignKey(Proveedor, null=True, on_delete=models.PROTECT)
     fecha = models.DateField()
-    forma_pago = models.ForeignKey(FormaPago)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    forma_pago = models.ForeignKey(FormaPago, on_delete=models.PROTECT)
     observaciones = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
@@ -326,9 +335,12 @@ class OrdenCompra(TimeStampedModel):
 class DetalleOrdenCompra(TimeStampedModel):
     objects = DetalleOrdenManager()
     nro_detalle = models.IntegerField()
-    orden = models.ForeignKey(OrdenCompra)
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True)
-    producto = models.ForeignKey(Producto, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    orden = models.ForeignKey(OrdenCompra, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, null=True, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=25, decimal_places=8)
     cantidad_ingresada = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     precio = models.DecimalField(max_digits=25, decimal_places=8)
@@ -402,9 +414,12 @@ class DetalleOrdenCompra(TimeStampedModel):
 
 class OrdenServicios(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, null=True)
-    proveedor = models.ForeignKey(Proveedor, null=True)
-    forma_pago = models.ForeignKey(FormaPago)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    cotizacion = models.ForeignKey(Cotizacion, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    proveedor = models.ForeignKey(Proveedor, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    forma_pago = models.ForeignKey(FormaPago, on_delete=models.PROTECT)
     proceso = models.CharField(max_length=50, default='')
     nombre_informe = models.CharField(max_length=150, default='')
     informe = models.FileField(upload_to='informes', null=True)
@@ -511,9 +526,12 @@ class OrdenServicios(TimeStampedModel):
 class DetalleOrdenServicios(TimeStampedModel):
     objects = DetalleOrdenManager()
     nro_detalle = models.IntegerField()
-    orden = models.ForeignKey(OrdenServicios)
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True)
-    producto = models.ForeignKey(Producto, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    orden = models.ForeignKey(OrdenServicios, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, null=True, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_conforme = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     precio = models.DecimalField(max_digits=15, decimal_places=5)
@@ -551,7 +569,8 @@ class DetalleOrdenServicios(TimeStampedModel):
 
 class ConformidadServicio(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    orden_servicios = models.ForeignKey(OrdenServicios)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.PROTECT)
     doc_sustento = models.CharField(max_length=50)
     archivo = models.FileField(upload_to='informes', null=True)
     fecha = models.DateField()
@@ -614,7 +633,9 @@ class ConformidadServicio(TimeStampedModel):
 class DetalleConformidadServicio(TimeStampedModel):
     objects = DetalleConformidadServicioManager()
     nro_detalle = models.IntegerField()
-    conformidad = models.ForeignKey(ConformidadServicio)
-    detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    conformidad = models.ForeignKey(ConformidadServicio, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, null=True, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     history = HistoricalRecords()

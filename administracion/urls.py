@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path, path
 from django.contrib.auth.decorators import login_required
 from administracion.views import CrearOficina, ListadoOficinas, Tablero, \
     DetalleOficina, ModificarOficina, ListadoTrabajadores, CrearTrabajador, \

@@ -3,11 +3,12 @@ import dj_database_url
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEBUG = False
+# TODO: Replace '*' with the actual Heroku domain(s) for security.
 ALLOWED_HOSTS = ['*']
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'tambox',
         'USER': 'tambox',
         'PASSWORD': 's0p0rt3ccpp',
@@ -34,7 +35,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+# TODO: Fill in your actual domain(s).
+CSRF_TRUSTED_ORIGINS = ['https://your_heroku_app_name.herokuapp.com']
+
+STORAGES["staticfiles"]["BACKEND"] = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 LOGIN_URL = '/tambox'
 MEDIA_URL = '/tambox/media/'

@@ -15,8 +15,10 @@ from simple_history.models import HistoricalRecords
 
 class Requerimiento(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador)
-    oficina = models.ForeignKey(Oficina)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    oficina = models.ForeignKey(Oficina, on_delete=models.PROTECT)
     motivo = models.CharField(max_length=100, blank=True)
     fecha = models.DateField()
     fecha_recepcion = models.DateField(null=True)
@@ -192,8 +194,10 @@ class Requerimiento(TimeStampedModel):
 
 class DetalleRequerimiento(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    requerimiento = models.ForeignKey(Requerimiento)
-    producto = models.ForeignKey(Producto, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, null=True, on_delete=models.PROTECT)
     uso = models.TextField(null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_cotizada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -242,8 +246,10 @@ class DetalleRequerimiento(TimeStampedModel):
 
 
 class AprobacionRequerimiento(TimeStampedModel):
-    requerimiento = models.OneToOneField(Requerimiento, primary_key=True)
-    nivel = models.ForeignKey(NivelAprobacion)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    requerimiento = models.OneToOneField(Requerimiento, primary_key=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    nivel = models.ForeignKey(NivelAprobacion, on_delete=models.PROTECT)
     estado = models.BooleanField(default=True)
     motivo_desaprobacion = models.TextField(default='')
     fecha_recepcion = models.DateField(null=True)

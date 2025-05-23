@@ -206,7 +206,9 @@ class AprobarPedido(CreateView):
 class BusquedaProductosAlmacen(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
@@ -389,7 +391,9 @@ class CrearAlmacen(FormView):
 class CrearDetalleSalida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -417,7 +421,9 @@ class CrearDetalleSalida(TemplateView):
 class CrearDetallePedido(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -441,7 +447,9 @@ class CrearDetallePedido(TemplateView):
 class CrearDetalleIngreso(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['orden_compra'] = '0'
@@ -544,7 +552,9 @@ class CrearPedido(CreateView):
 
 class ConsultaStock(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             almacen = request.GET['almacen']
             codigo = request.GET['codigo']
             control_producto = Kardex.objects.filter(producto__codigo=codigo,
@@ -578,7 +588,9 @@ class DetalleOperacionMovimiento(DetailView):
 class EliminarAlmacen(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             almacen = Almacen.objects.get(pk=codigo)
             almacen_json = {}
@@ -596,7 +608,9 @@ class EliminarAlmacen(TemplateView):
 class EliminarMovimiento(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             id_movimiento = request.GET['id_movimiento']
             movimiento = Movimiento.objects.get(pk=id_movimiento)
             orden = movimiento.referencia
@@ -625,7 +639,9 @@ class EliminarMovimiento(TemplateView):
 class EliminarPedido(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             pedido = Pedido.objects.get(pk=codigo)
             movimientos = pedido.movimiento_set.all()
@@ -1970,6 +1986,9 @@ class PopupCrearTipoStock(FormView):
 class VerificarSolicitaDocumento(TemplateView):
 
     def get(self, request, *args, **kwargs):
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        # if request.headers.get('x-requested-with') == 'XMLHttpRequest': # This check might not be necessary if the view only returns JSON
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'solicita_documento': tipo_movimiento.solicita_documento}
@@ -1979,6 +1998,9 @@ class VerificarSolicitaDocumento(TemplateView):
 class VerificarPideReferencia(TemplateView):
 
     def get(self, request, *args, **kwargs):
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        # if request.headers.get('x-requested-with') == 'XMLHttpRequest': # This check might not be necessary if the view only returns JSON
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'pide_referencia': tipo_movimiento.pide_referencia}

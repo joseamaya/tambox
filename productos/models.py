@@ -40,7 +40,8 @@ class UnidadMedida(TimeStampedModel):
 class GrupoProductos(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=6)
     descripcion = models.CharField(max_length=100)
-    ctacontable = models.ForeignKey(CuentaContable)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    ctacontable = models.ForeignKey(CuentaContable, on_delete=models.PROTECT)
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -103,16 +104,19 @@ class GrupoProductos(TimeStampedModel):
 
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
-    grupo_productos = models.ForeignKey(GrupoProductos)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.PROTECT)
     descripcion = models.CharField(max_length=100, unique=True)
     es_servicio = models.BooleanField(default=False)
-    unidad_medida = models.ForeignKey(UnidadMedida, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    unidad_medida = models.ForeignKey(UnidadMedida, null=True, on_delete=models.PROTECT)
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
     precio = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
-    tipo_existencia = models.ForeignKey(TipoExistencia, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    tipo_existencia = models.ForeignKey(TipoExistencia, null=True, on_delete=models.PROTECT)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()

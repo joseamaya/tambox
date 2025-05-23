@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.utils.encoding import smart_str, python_2_unicode_compatible
+from django.utils.encoding import smart_str
 from model_utils.models import TimeStampedModel
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
@@ -163,7 +163,6 @@ class Upload(TimeStampedModel):
     archivo = models.FileField(upload_to='archivos')
 
 
-@python_2_unicode_compatible
 class Empresa(SingletonModel):
     razon_social = models.CharField(max_length=150)
     ruc = models.CharField(max_length=11)
@@ -191,11 +190,16 @@ class Empresa(SingletonModel):
 
 
 class Configuracion(TimeStampedModel):
-    impuesto_compra = models.ForeignKey(Impuesto)
-    operaciones = models.ForeignKey(Oficina, related_name='operaciones', null=True)
-    administracion = models.ForeignKey(Oficina, related_name='administracion', null=True)
-    presupuesto = models.ForeignKey(Oficina, related_name='presupuesto', null=True)
-    logistica = models.ForeignKey(Oficina, related_name='logistica', null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    impuesto_compra = models.ForeignKey(Impuesto, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    operaciones = models.ForeignKey(Oficina, related_name='operaciones', null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    administracion = models.ForeignKey(Oficina, related_name='administracion', null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    presupuesto = models.ForeignKey(Oficina, related_name='presupuesto', null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    logistica = models.ForeignKey(Oficina, related_name='logistica', null=True, on_delete=models.PROTECT)
 
 
 class TipoExistencia(TimeStampedModel):

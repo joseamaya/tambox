@@ -15,7 +15,7 @@ from compras.forms import ProveedorForm, DetalleCotizacionForm, CotizacionForm, 
     OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet, \
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet, \
     FormularioReporteOrdenesFecha
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
 from django.http import HttpResponse
@@ -87,7 +87,9 @@ class Tablero(View):
 class BusquedaCotizacion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             cotizacion = Cotizacion.objects.get(codigo=codigo)
             cotizacion_json = {}
@@ -101,7 +103,9 @@ class BusquedaCotizacion(TemplateView):
 class BusquedaProveedoresRazonSocial(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             razon_social = request.GET['razon_social']
             proveedores = Proveedor.objects.filter(razon_social__icontains=razon_social)[:20]
             lista_proveedores = []
@@ -119,7 +123,9 @@ class BusquedaProveedoresRazonSocial(TemplateView):
 class BusquedaProveedoresRUC(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             ruc = request.GET['ruc']
             proveedor = Proveedor.objects.get(ruc=ruc)
             proveedor_json = {}
@@ -166,7 +172,7 @@ class CrearProveedor(CreateView):
         return reverse('compras:detalle_proveedor', args=[self.object.pk])
 
     def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
+        return render(self.request, self.template_name, self.get_context_data(form=form))
 
 
 class CrearDetalleCotizacion(FormView):
@@ -177,7 +183,9 @@ class CrearDetalleCotizacion(FormView):
 class CrearDetalleOrdenCompra(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['cotizacion'] = '0'
@@ -209,7 +217,9 @@ class CrearDetalleOrdenCompra(TemplateView):
 class CrearDetalleOrdenServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['cotizacion'] = '0'
@@ -255,7 +265,7 @@ class CrearCotizacion(CreateView):
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_cotizacion_formset = DetalleCotizacionFormSet()
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_cotizacion_formset=detalle_cotizacion_formset))
 
     def post(self, request, *args, **kwargs):
@@ -298,7 +308,7 @@ class CrearCotizacion(CreateView):
         # messages.error(self.request, 'Error guardando la cotizacion.')
 
     def form_invalid(self, form, detalle_cotizacion_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_cotizacion_formset=detalle_cotizacion_formset))
 
 
@@ -333,7 +343,7 @@ class CrearOrdenCompra(CreateView):
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalle_orden_compra_formset = DetalleOrdenCompraFormSet()
-                return self.render_to_response(self.get_context_data(form=form,
+                return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                      detalle_orden_compra_formset=detalle_orden_compra_formset))
             except:
                 return HttpResponseRedirect(reverse('contabilidad:configuracion'))
@@ -387,7 +397,7 @@ class CrearOrdenCompra(CreateView):
             messages.error(self.request, 'Error guardando la orden de compra.')
 
     def form_invalid(self, form, detalle_orden_compra_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_orden_compra_formset=detalle_orden_compra_formset))
 
 
@@ -414,7 +424,7 @@ class CrearOrdenServicios(CreateView):
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet()
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
     def post(self, request, *args, **kwargs):
@@ -466,7 +476,7 @@ class CrearOrdenServicios(CreateView):
             messages.error(self.request, 'Error guardando la cotizacion.')
 
     def form_invalid(self, form, detalle_orden_servicios_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
@@ -491,7 +501,7 @@ class CrearConformidadServicio(CreateView):
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_conformidad_servicio_formset = DetalleConformidadServicioFormSet()
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_conformidad_servicio_formset=detalle_conformidad_servicio_formset))
 
     def post(self, request, *args, **kwargs):
@@ -531,7 +541,7 @@ class CrearConformidadServicio(CreateView):
             messages.error(self.request, 'Error guardando la cotizacion.')
 
     def form_invalid(self, form, detalle_conformidad_servicio_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_conformidad_servicio_form=detalle_conformidad_servicio_formset))
 
 
@@ -563,7 +573,9 @@ class DetalleOperacionConformidadServicios(DetailView):
 class EliminarCotizacion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             cotizacion = Cotizacion.objects.get(codigo=codigo)
             cotizacion_json = {}
@@ -590,7 +602,9 @@ class EliminarCotizacion(TemplateView):
 class EliminarOrdenCompra(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             orden = OrdenCompra.objects.get(codigo=codigo)
             movimiento_json = {}
@@ -611,7 +625,9 @@ class EliminarOrdenCompra(TemplateView):
 class EliminarOrdenServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             orden = OrdenServicios.objects.get(codigo=codigo)
             orden_json = {}
@@ -633,7 +649,9 @@ class EliminarOrdenServicios(TemplateView):
 class EliminarConformidadServicio(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             conformidad = ConformidadServicio.objects.get(codigo=codigo)
             conformidad_json = {}
@@ -650,7 +668,9 @@ class EliminarConformidadServicio(TemplateView):
 class EliminarProveedor(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             ruc = request.GET['ruc']
             proveedor = Proveedor.objects.get(pk=ruc)
             proveedor_json = {}
@@ -846,7 +866,7 @@ class ModificarCotizacion(UpdateView):
                  'cantidad': detalle.cantidad}
             detalles_data.append(d)
         detalle_cotizacion_formset = DetalleCotizacionFormSet(initial=detalles_data)
-        return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_cotizacion_formset=detalle_cotizacion_formset))
 
     def post(self, request, *args, **kwargs):
@@ -886,7 +906,7 @@ class ModificarCotizacion(UpdateView):
             messages.error(self.request, 'Error guardando el requerimiento.')
 
     def form_invalid(self, form, detalle_cotizacion_formset):
-        return self.render_to_response(self.get_context_data(form=form))
+        return render(self.request, self.template_name, self.get_context_data(form=form))
 
 
 class ModificarConformidadServicio(UpdateView):
@@ -898,7 +918,7 @@ class ModificarConformidadServicio(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        return self.render_to_response(self.get_context_data(form=form))
+        return render(self.request, self.template_name, self.get_context_data(form=form))
 
     def get_initial(self):
         initial = super(ModificarConformidadServicio, self).get_initial()
@@ -979,7 +999,7 @@ class ModificarOrdenCompra(UpdateView):
                          'valor': detalle.valor_sin_igv}
                 detalles_data.append(d)
             detalle_orden_compra_formset = DetalleOrdenCompraFormSet(initial=detalles_data)
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_orden_compra_formset=detalle_orden_compra_formset))
         else:
             return HttpResponseRedirect(reverse('compras:ordenes_compra'))
@@ -1068,7 +1088,7 @@ class ModificarOrdenCompra(UpdateView):
             messages.error(self.request, 'Error guardando la cotizacion.')
 
     def form_invalid(self, form, detalle_orden_compra_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_orden_compra_formset=detalle_orden_compra_formset))
 
 
@@ -1134,7 +1154,7 @@ class ModificarOrdenServicios(UpdateView):
                          'valor': detalle.valor}
                 detalles_data.append(d)
             detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(initial=detalles_data)
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_orden_servicios_formset=detalle_orden_servicios_formset))
         else:
             return HttpResponseRedirect(reverse('compras:ordenes_compra'))
@@ -1196,14 +1216,16 @@ class ModificarOrdenServicios(UpdateView):
             # messages.error(self.request, 'Error guardando la Orden de Servicios.')
 
     def form_invalid(self, form, detalle_orden_servicios_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
 class ObtenerDetalleCotizacion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             cotizacion = request.GET['cotizacion']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'PRODUCTOS':
@@ -1285,7 +1307,9 @@ class ObtenerDetalleOrdenCompra(TemplateView):
         return fecha
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             orden_compra = OrdenCompra.objects.get(codigo=request.GET['orden_compra'])
             fecha = self.obtener_fecha(request.GET['fecha'])
             tipo_cambio = 1
@@ -1336,7 +1360,9 @@ class ObtenerDetalleOrdenCompra(TemplateView):
 class ObtenerDetalleOrdenServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             orden_servicios = request.GET['orden_servicios']
             detalles = DetalleOrdenServicios.objects.filter(orden__codigo=orden_servicios,
                                                             estado=DetalleOrdenServicios.STATUS.PEND).order_by(

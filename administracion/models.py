@@ -36,11 +36,13 @@ class Profesion(TimeStampedModel):
 
 class Trabajador(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
-    usuario = models.OneToOneField(User, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    usuario = models.OneToOneField(User, null=True, on_delete=models.PROTECT)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
     nombres = models.CharField(max_length=100)
-    profesion = models.ForeignKey(Profesion, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    profesion = models.ForeignKey(Profesion, null=True, on_delete=models.PROTECT)
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     estado = models.BooleanField(default=True)
@@ -131,7 +133,8 @@ class Oficina(TimeStampedModel):
     codigo = models.CharField(max_length=4, unique=True)
     nombre = models.CharField(max_length=50)
     es_gerencia = models.BooleanField(default=False)
-    dependencia = models.ForeignKey('self', related_name='superior', null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    dependencia = models.ForeignKey('self', related_name='superior', null=True, on_delete=models.PROTECT)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -166,8 +169,10 @@ class Oficina(TimeStampedModel):
 
 class Puesto(TimeStampedModel):
     nombre = models.CharField(max_length=100)
-    oficina = models.ForeignKey(Oficina)
-    trabajador = models.ForeignKey(Trabajador)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    oficina = models.ForeignKey(Oficina, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.PROTECT)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)
@@ -219,7 +224,8 @@ class Puesto(TimeStampedModel):
 
 class NivelAprobacion(TimeStampedModel):
     descripcion = models.CharField(max_length=100)
-    nivel_superior = models.ForeignKey('self', related_name='superior', null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    nivel_superior = models.ForeignKey('self', related_name='superior', null=True, on_delete=models.PROTECT)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 

@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
 from django.http import HttpResponse
@@ -66,12 +66,14 @@ class AprobarRequerimiento(UpdateView):
         return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data(form=form))
+        return render(self.request, self.template_name, self.get_context_data(form=form))
 
 
 class CrearDetalleRequerimiento(FormView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -135,7 +137,7 @@ class CrearRequerimiento(CreateView):
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_requerimiento_formset = DetalleRequerimientoFormSet()
-            return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                                  detalle_requerimiento_formset=detalle_requerimiento_formset))
         else:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
@@ -179,7 +181,7 @@ class CrearRequerimiento(CreateView):
             messages.error(self.request, 'Error guardando el requerimiento.')
 
     def form_invalid(self, form, detalle_requerimiento_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
@@ -202,7 +204,9 @@ class DetalleOperacionRequerimiento(DetailView):
 
 class EliminarRequerimiento(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             requerimiento = Requerimiento.objects.get(codigo=codigo)
             requerimiento_json = {}
@@ -333,7 +337,7 @@ class ModificarRequerimiento(UpdateView):
                      'uso': detalle.uso}
             detalles_data.append(d)
         detalle_requerimiento_formset = DetalleRequerimientoFormSet(initial=detalles_data)
-        return self.render_to_response(self.get_context_data(form=form,
+            return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
     def post(self, request, *args, **kwargs):
@@ -374,13 +378,15 @@ class ModificarRequerimiento(UpdateView):
             messages.error(self.request, 'Error guardando el requerimiento.')
 
     def form_invalid(self, form, detalle_requerimiento_formset):
-        return self.render_to_response(self.get_context_data(form=form,
+        return render(self.request, self.template_name, self.get_context_data(form=form,
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
 class ObtenerDetalleRequerimiento(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             requerimiento = request.GET['requerimiento']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':

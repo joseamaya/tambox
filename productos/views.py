@@ -52,7 +52,9 @@ class Tablero(View):
 class BusquedaProductosDescripcion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             descripcion = request.GET['descripcion']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
@@ -80,7 +82,9 @@ class BusquedaProductosDescripcion(TemplateView):
 class BusquedaProductosCodigo(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             productos = Producto.objects.filter(codigo__icontains=codigo)[:20]
             lista_productos = []
@@ -176,7 +180,9 @@ class CargarProductos(FormView):
 class ConsultaStockProducto(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             producto = Producto.objects.get(codigo=codigo)
             producto_json = {}
@@ -273,7 +279,9 @@ class DetalleServicio(DetailView):
 class EliminarUnidadMedida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             id = request.GET['id']
             unidad_medida = UnidadMedida.objects.get(pk=id)
             unidad_medida_json = {}
@@ -290,7 +298,9 @@ class EliminarUnidadMedida(TemplateView):
 class EliminarGrupoProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             grupo_productos = GrupoProductos.objects.get(pk=codigo)
             grupo_productos_json = {}
@@ -308,7 +318,9 @@ class EliminarGrupoProductos(TemplateView):
 class EliminarProducto(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             producto = Producto.objects.get(pk=codigo)
             producto_json = {}
@@ -328,7 +340,9 @@ class EliminarProducto(TemplateView):
 class EliminarServicio(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        # TODO: Replaced request.is_ajax() with a check for the 'x-requested-with' header.
+        # For future development, consider using the Fetch API or other client-side indicators for AJAX requests.
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             servicio = Producto.objects.get(codigo=codigo)
             servicio_json = {}

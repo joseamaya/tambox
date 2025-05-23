@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models import Max
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
-from django.utils.encoding import smart_str, python_2_unicode_compatible
+from django.utils.encoding import smart_str
 from administracion.models import Oficina, Trabajador, Productor
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
@@ -14,7 +14,6 @@ from decimal import Decimal
 from simple_history.models import HistoricalRecords
 
 
-@python_2_unicode_compatible
 class Almacen(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=5)
     descripcion = models.CharField(max_length=30)
@@ -106,8 +105,10 @@ class TipoMovimiento(TimeStampedModel):
 
 class Pedido(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador)
-    oficina = models.ForeignKey(Oficina)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    oficina = models.ForeignKey(Oficina, on_delete=models.PROTECT)
     fecha = models.DateField()
     observaciones = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -178,8 +179,10 @@ class Pedido(TimeStampedModel):
 
 class DetallePedido(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    pedido = models.ForeignKey(Pedido)
-    producto = models.ForeignKey(Producto, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    pedido = models.ForeignKey(Pedido, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, null=True, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -217,17 +220,25 @@ class DetallePedido(TimeStampedModel):
 
 class Movimiento(TimeStampedModel):
     id_movimiento = models.CharField(unique=True, max_length=16)
-    tipo_movimiento = models.ForeignKey(TipoMovimiento)
-    referencia = models.ForeignKey(OrdenCompra, null=True)
-    pedido = models.ForeignKey(Pedido, null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    referencia = models.ForeignKey(OrdenCompra, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    pedido = models.ForeignKey(Pedido, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    tipo_documento = models.ForeignKey(TipoDocumento, null=True, on_delete=models.PROTECT)
     serie = models.CharField(max_length=15, null=True)
     numero = models.CharField(max_length=10, null=True)
     fecha_operacion = models.DateTimeField()
-    almacen = models.ForeignKey(Almacen)
-    oficina = models.ForeignKey(Oficina, null=True)
-    trabajador = models.ForeignKey(Trabajador, null=True)
-    productor = models.ForeignKey(Productor, null=True)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    almacen = models.ForeignKey(Almacen, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    oficina = models.ForeignKey(Oficina, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    trabajador = models.ForeignKey(Trabajador, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    productor = models.ForeignKey(Productor, null=True, on_delete=models.PROTECT)
     observaciones = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
@@ -334,10 +345,14 @@ class Movimiento(TimeStampedModel):
 class DetalleMovimiento(TimeStampedModel):
     objects = DetalleMovimientoManager()
     nro_detalle = models.IntegerField()
-    movimiento = models.ForeignKey(Movimiento)
-    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, null=True)
-    detalle_pedido = models.ForeignKey(DetallePedido, null=True)
-    producto = models.ForeignKey(Producto)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    detalle_pedido = models.ForeignKey(DetallePedido, null=True, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.DecimalField(max_digits=25, decimal_places=8)
     precio = models.DecimalField(max_digits=25, decimal_places=8)
     valor = models.DecimalField(max_digits=25, decimal_places=8)
@@ -407,9 +422,11 @@ class DetalleMovimiento(TimeStampedModel):
 
 
 class Kardex(TimeStampedModel):
-    movimiento = models.ForeignKey(Movimiento)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.PROTECT)
     nro_detalle_movimiento = models.IntegerField()
-    producto = models.ForeignKey(Producto)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     fecha_operacion = models.DateTimeField()
     cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
     precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
@@ -420,7 +437,8 @@ class Kardex(TimeStampedModel):
     cantidad_total = models.DecimalField(max_digits=25, decimal_places=8)
     precio_total = models.DecimalField(max_digits=25, decimal_places=8)
     valor_total = models.DecimalField(max_digits=25, decimal_places=8)
-    almacen = models.ForeignKey(Almacen)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    almacen = models.ForeignKey(Almacen, on_delete=models.PROTECT)
     history = HistoricalRecords()
 
     def anterior(self):
@@ -451,8 +469,10 @@ class Kardex(TimeStampedModel):
 
 
 class ControlProductoAlmacen(TimeStampedModel):
-    producto = models.ForeignKey(Producto)
-    almacen = models.ForeignKey(Almacen)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
+    # TODO: Review on_delete behavior for this field. models.PROTECT was used as a default.
+    almacen = models.ForeignKey(Almacen, on_delete=models.PROTECT)
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     precio = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()

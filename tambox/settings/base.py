@@ -26,6 +26,8 @@ SECRET_KEY = 'a819*nw1y=2&z2jd%g+62ogj$mjvx-v6#&_d)_n#fx_b0!24f_'
 
 # Application definition
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -43,12 +45,11 @@ INSTALLED_APPS = (
     'import_export'
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -74,6 +75,8 @@ TEMPLATES = [
     },
 ]
 
+FORM_RENDERER = 'django.forms.renderers.DjangoTemplates'
+
 WSGI_APPLICATION = 'tambox.wsgi.application'
 
 # Internationalization
@@ -85,14 +88,21 @@ TIME_ZONE = 'America/Lima'
 
 USE_I18N = True
 
-USE_L10N = False
-
-USE_TZ = False
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
 SUIT_CONFIG = {
     'ADMIN_NAME': 'TAMBOX',
