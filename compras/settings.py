@@ -6,13 +6,13 @@ from contabilidad.models import Configuracion, Empresa
 try:
     CONFIGURACION = Configuracion.objects.first()
     IMPUESTO_COMPRA = CONFIGURACION.impuesto_compra
-except:
+except Exception:
     CONFIGURACION = None
     IMPUESTO_COMPRA = None
 
 try:
     EMPRESA = Empresa.load()
-except:
+except Exception:
     EMPRESA = None
 
 PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))

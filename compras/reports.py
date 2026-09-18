@@ -13,7 +13,8 @@ from django.conf import settings
 import os
 from io import BytesIO
 from compras.models import DetalleOrdenCompra
-from django.utils.encoding import smart_str
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.encoding import force_str
 from compras.settings import EMPRESA
 
 
@@ -37,7 +38,7 @@ class ReporteOrdenCompra():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
@@ -72,13 +73,13 @@ class ReporteOrdenCompra():
         direccion = Paragraph(u"DIRECCIÓN: " + proveedor.direccion, izquierda)
         try:
             telefono = Paragraph(u"TELÉFONO: " + proveedor.telefono, izquierda)
-        except:
+        except TypeError:
             telefono = Paragraph(u"TELÉFONO: -", izquierda)
         try:
             referencia = Paragraph(
                 u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre,
                 izquierda)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             referencia = Paragraph(u"REFERENCIA: ", izquierda)
         proceso = Paragraph(u"PROCESO: " + orden.proceso, izquierda)
         nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ", izquierda)
@@ -111,7 +112,7 @@ class ReporteOrdenCompra():
                                   Paragraph(detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, sp),
                                   Paragraph(str(detalle.precio), sp),
                                   Paragraph(str(detalle.valor), sp)]
-            except:
+            except (ObjectDoesNotExist, AttributeError):
                 tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
                                   Paragraph(str(detalle.cantidad), sp),
                                   Paragraph(detalle.producto.unidad_medida.descripcion, sp),
@@ -208,8 +209,8 @@ class ReporteOrdenCompra():
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + smart_str(EMPRESA.razon_social), p),
-            Paragraph("El " + smart_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
+            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)

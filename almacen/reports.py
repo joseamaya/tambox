@@ -19,6 +19,7 @@ from openpyxl.styles import Side
 from openpyxl import Workbook
 from django.http import HttpResponse
 from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class ReporteMovimiento():
@@ -41,7 +42,7 @@ class ReporteMovimiento():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
 
         if movimiento.tipo_movimiento.incrementa:
@@ -75,23 +76,23 @@ class ReporteMovimiento():
                                       izquierda)
             else:
                 proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.razon_social, izquierda)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             proveedor = Paragraph(u"PROVEEDOR:", izquierda)
         operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.descripcion, izquierda)
         almacen = Paragraph(u"ALMACÉN: " + movimiento.almacen.codigo + "-" + movimiento.almacen.descripcion, izquierda)
         try:
             orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movimiento.referencia.codigo, izquierda)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
         try:
             documento = Paragraph(
                 u"DOCUMENTO: " + movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
                 izquierda)
-        except:
+        except (ObjectDoesNotExist, TypeError):
             documento = ""
         try:
             pedido = Paragraph(u"PEDIDO: " + movimiento.pedido.codigo, izquierda)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             pedido = ""
         encabezado = [[operacion, ''],
                       [almacen, ''],
@@ -272,7 +273,7 @@ class ReporteKardexPDF():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
         if valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
@@ -291,7 +292,7 @@ class ReporteKardexPDF():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
         if grupos:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
@@ -326,7 +327,7 @@ class ReporteKardexPDF():
                                                    almacen=almacen,
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
         saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
                          format(cant_saldo_inicial, '.2f')]
@@ -340,11 +341,11 @@ class ReporteKardexPDF():
         for kardex in listado_kardex:
             try:
                 tipo_documento = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 tipo_documento = '-'
             try:
                 tipo_movimiento = kardex.movimiento.tipo_movimiento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 tipo_movimiento = "-"
 
             cantidad_total = kardex.cantidad_total
@@ -414,7 +415,7 @@ class ReporteKardexPDF():
                                                        fecha_operacion__lt=desde).latest('fecha_operacion')
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except:
+            except Kardex.DoesNotExist:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
 
@@ -521,7 +522,7 @@ class ReporteKardexPDF():
                                                            fecha_operacion__lt=desde).latest('fecha_operacion')
                     cant_saldo_inicial_producto = kardex_inicial.cantidad_total
                     valor_saldo_inicial_producto = kardex_inicial.valor_total
-                except:
+                except Kardex.DoesNotExist:
                     cant_saldo_inicial_producto = 0
                     valor_saldo_inicial_producto = 0
                 cant_saldo_inicial += cant_saldo_inicial_producto
@@ -624,7 +625,7 @@ class ReporteKardexPDF():
             cant_saldo_inicial = kardex_inicial.cantidad_total
             precio_saldo_inicial = kardex_inicial.precio_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
             precio_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -655,11 +656,11 @@ class ReporteKardexPDF():
         for kardex in listado_kardex:
             try:
                 tipo_documento = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 tipo_documento = '-'
             try:
                 tipo_movimiento = kardex.movimiento.tipo_movimiento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 tipo_movimiento = "-"
 
             cantidad_total = format(kardex.cantidad_total, '.2f')
@@ -925,7 +926,7 @@ class ReporteKardexPDF():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
         ruc_empresa = "RUC: " + EMPRESA.ruc
         if self.grupos:
@@ -957,7 +958,7 @@ class ReporteKardexPDF():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
         ruc_empresa = "RUC: " + EMPRESA.ruc
         if self.valorizado:
@@ -1135,7 +1136,7 @@ class ReporteKardexExcel():
                                                    almacen=almacen,
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
         cont = 16
         ws.cell(row=cont, column=2).border = thin_border
@@ -1167,7 +1168,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = kardex.movimiento.serie
@@ -1230,7 +1231,7 @@ class ReporteKardexExcel():
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
@@ -1425,7 +1426,7 @@ class ReporteKardexExcel():
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         cont = 16
@@ -1460,7 +1461,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=13).border = thin_border
         try:
             ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
-        except:
+        except ZeroDivisionError:
             ws.cell(row=cont, column=14).value = 0
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
@@ -1478,7 +1479,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = kardex.movimiento.serie
@@ -1623,7 +1624,7 @@ class ReporteKardexExcel():
                                                    almacen=almacen,
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
         cont = cont + 1
         ws.cell(row=cont, column=2).border = thin_border
@@ -1653,7 +1654,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = kardex.movimiento.serie
@@ -1806,7 +1807,7 @@ class ReporteKardexExcel():
                                                    fecha_operacion__lt=desde).latest('fecha_operacion')
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except:
+        except Kardex.DoesNotExist:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         cont = cont + 1
@@ -1842,7 +1843,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=13).border = thin_border
         try:
             ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
-        except:
+        except ZeroDivisionError:
             ws.cell(row=cont, column=14).value = 0
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
@@ -1860,7 +1861,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = kardex.movimiento.serie
@@ -2005,7 +2006,7 @@ class ReporteKardexExcel():
                                                        fecha_operacion__lt=desde).latest('fecha_operacion')
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except:
+            except Kardex.DoesNotExist:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=5).value = cant_saldo_inicial
@@ -2095,7 +2096,7 @@ class ReporteKardexExcel():
                                                        fecha_operacion__lt=desde).latest('fecha_operacion')
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except:
+            except Kardex.DoesNotExist:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=4).value = cant_saldo_inicial
@@ -2167,7 +2168,7 @@ class ReporteKardexExcel():
                                                        fecha_operacion__lt=desde).latest('fecha_operacion')
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except:
+            except Kardex.DoesNotExist:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=8).value = "SALDO INICIAL:"

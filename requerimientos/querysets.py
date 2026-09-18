@@ -6,13 +6,13 @@ class NavegableQuerySet(models.query.QuerySet):
     def anterior(self, instancia):
         try:
             return self.filter(pk__lt=instancia.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             return self.order_by('pk').last()
 
     def siguiente(self, instancia):
         try:
             return self.filter(pk__gt=instancia.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             return self.order_by('pk').first()
 
 

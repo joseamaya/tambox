@@ -8,7 +8,7 @@ try:
     OFICINA_ADMINISTRACION = CONFIGURACION.administracion
     PRESUPUESTO = CONFIGURACION.presupuesto
     LOGISTICA = CONFIGURACION.logistica
-except:
+except Exception:
     CONFIGURACION = None
     OPERACIONES = None
     OFICINA_ADMINISTRACION = None
@@ -17,7 +17,7 @@ except:
 
 try:
     EMPRESA = Empresa.load()
-except:
+except Exception:
     EMPRESA = None
 
 CHOICES_MESES = Choices((1, _('ENERO')),

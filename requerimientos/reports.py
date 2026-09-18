@@ -37,7 +37,7 @@ class ReporteRequerimiento():
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
-        except:
+        except Exception:
             imagen = Paragraph(u"LOGO", sp)
         nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.codigo, sp)
         encabezado = [[imagen, nro, '']]
@@ -173,7 +173,7 @@ class ReporteRequerimiento():
 
         try:
             fecha_recepcion = requerimiento.fecha_recepcion.strftime('%d/%m/%Y')
-        except:
+        except AttributeError:
             fecha_recepcion = ''
         pie = [(Paragraph('Fecha: ' + fecha_recepcion + "<br/>" + jefe_logistica.nombre_completo(), p),
                 Paragraph("Solicitado por: <br/>" + solicitante, p),

@@ -7,7 +7,7 @@ try:
     OFICINA_ADMINISTRACION = CONFIGURACION.administracion
     PRESUPUESTO = CONFIGURACION.presupuesto
     LOGISTICA = CONFIGURACION.logistica
-except:
+except Exception:
     CONFIGURACION = None
     OFICINA_ADMINISTRACION = None
     PRESUPUESTO = None
@@ -15,7 +15,7 @@ except:
 
 try:
     EMPRESA = Empresa.load()
-except:
+except Exception:
     EMPRESA = None
 
 PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
@@ -40,20 +40,20 @@ FORMATOS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
 SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
 try:
     CHOICES_TIPOS_MOVIMIENTO = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
-except:
+except Exception:
     CHOICES_TIPOS_MOVIMIENTO = []
 try:
     CHOICES_ALMACENES = [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
-except:
+except Exception:
     CHOICES_ALMACENES = []
 try:
     CHOICES_MESES = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in
                      Kardex.objects.datetimes('fecha_operacion', 'month')]
-except:
+except Exception:
     CHOICES_MESES = []
 try:
     CHOICES_ANNIOS = [(anio.year, anio.year) for anio in Kardex.objects.datetimes('fecha_operacion', 'year')]
-except:
+except Exception:
     CHOICES_ANNIOS = []
 
 CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))

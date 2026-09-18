@@ -185,7 +185,7 @@ def to_word(number, mi_moneda=None):
     """
     if mi_moneda != None:
         try:
-            moneda = filter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
+            moneda = next(filter(lambda x: x['currency'] == mi_moneda, MONEDAS))
             if int(number) == 1:
                 entero = moneda['singular']
             else:
@@ -195,7 +195,7 @@ def to_word(number, mi_moneda=None):
                 else:
                     fraccion = moneda['decimalplural']
 
-        except:
+        except StopIteration:
             return "Tipo de moneda inválida"
     else:
         entero = ""

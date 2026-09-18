@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
@@ -53,7 +54,7 @@ class DetalleConformidadServicioManager(models.Manager):
     def guardar_detalles_con_referencia(self, objs, orden):
         try:
             requerimiento = orden.cotizacion.requerimiento
-        except:
+        except ObjectDoesNotExist:
             requerimiento = None
         for detalle in objs:
             detalle_orden = detalle.detalle_orden_servicios
@@ -62,7 +63,7 @@ class DetalleConformidadServicioManager(models.Manager):
             detalle_orden.save()
             try:
                 detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
-            except:
+            except ObjectDoesNotExist:
                 detalle_requerimiento = None
             if detalle_requerimiento is not None:
                 detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle_orden.cantidad_conforme
