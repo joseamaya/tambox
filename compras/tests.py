@@ -104,3 +104,29 @@ class ReporteXLSOrdenCompraTest(TestCase):
         libro = reporte_xls_orden_compra(orden)
 
         self.assertIsNotNone(libro.active)
+
+
+class ReportesPDFTest(TestCase):
+    """Genera cada PDF de verdad. Los metodos de dibujado se movieron fuera de
+    las vistas sin cambios, y ninguna comprobacion estatica garantiza que las
+    llamadas encadenadas sigan funcionando: hay que ejecutarlas."""
+
+    def test_orden_compra(self):
+        from compras.models import OrdenCompra
+        from compras.reports import PDFOrdenCompra
+
+        orden = baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+
+        contenido = PDFOrdenCompra().imprimir(orden)
+
+        self.assertTrue(contenido.startswith(b'%PDF'))
+
+    def test_orden_servicios(self):
+        from compras.models import OrdenServicios
+        from compras.reports import PDFOrdenServicios
+
+        orden = baker.make(OrdenServicios, proveedor=baker.make(Proveedor))
+
+        contenido = PDFOrdenServicios().imprimir(orden)
+
+        self.assertTrue(contenido.startswith(b'%PDF'))
