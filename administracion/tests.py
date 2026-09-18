@@ -1,5 +1,6 @@
 from django.test import TestCase
-from administracion.models import Profesion, Trabajador, Oficina, Puesto
+from django.core.exceptions import ValidationError
+from administracion.models import Profesion, Trabajador, Oficina, Puesto, NivelAprobacion
 from django.urls import reverse
 from administracion.forms import ProfesionForm
 from model_bakery import baker
@@ -138,3 +139,22 @@ class PuestoTest(TestCase):
         p = baker.make(Puesto, fecha_fin=date.today())
         self.assertTrue(self.p1.estado)
         self.assertFalse(p.estado)
+
+
+class EstablecerNivelTest(TestCase):
+    """Sin los niveles semilla, registrar un requerimiento fallaba con un
+    DoesNotExist sin contexto. Ahora dice cual falta."""
+
+    def test_nivel_ausente_da_un_mensaje_claro(self):
+        oficina = baker.make(Oficina)
+        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), fecha_fin=None)
+
+        with self.assertRaisesMessage(ValidationError, 'Falta el nivel de aprobacion "USUARIO"'):
+            puesto.establecer_nivel(oficina)
+
+    def test_usa_el_nivel_existente(self):
+        nivel = baker.make(NivelAprobacion, descripcion='USUARIO')
+        oficina = baker.make(Oficina)
+        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), fecha_fin=None)
+
+        self.assertEqual(puesto.establecer_nivel(oficina), nivel)

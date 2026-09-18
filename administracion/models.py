@@ -4,7 +4,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
 from tambox.querysets import NavegableQuerySet
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from simple_history.models import HistoricalRecords
 
 
@@ -198,12 +198,13 @@ class Puesto(TimeStampedModel):
 
     def establecer_nivel(self, oficina_requerimiento):
         from tambox.configuracion import logistica, presupuesto, oficina_administracion, operaciones
-        oficina = self.oficina
-        if oficina == logistica() and self.es_jefatura:
-            nivel = NivelAprobacion.objects.get(descripcion="LOGISTICA")
-        else:
-            nivel = NivelAprobacion.objects.get(descripcion="USUARIO")
-        return nivel
+        descripcion = "LOGISTICA" if (self.oficina == logistica() and self.es_jefatura) else "USUARIO"
+        try:
+            return NivelAprobacion.objects.get(descripcion=descripcion)
+        except NivelAprobacion.DoesNotExist:
+            raise ValidationError(
+                'Falta el nivel de aprobacion "%s". Cargalo en Administracion antes de registrar requerimientos.'
+                % descripcion)
 
     class Meta:
         permissions = (('ver_detalle_puesto', 'Puede ver detalle de Puesto'),
