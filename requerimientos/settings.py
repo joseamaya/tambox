@@ -1,24 +1,10 @@
+"""Constantes de requerimientos que no dependen de la base de datos.
+
+Los valores que salen de la base de datos viven en tambox.configuracion.
+"""
+
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
-from contabilidad.models import Configuracion, Empresa
-
-try:
-    CONFIGURACION = Configuracion.objects.first()
-    OPERACIONES = CONFIGURACION.operaciones
-    OFICINA_ADMINISTRACION = CONFIGURACION.administracion
-    PRESUPUESTO = CONFIGURACION.presupuesto
-    LOGISTICA = CONFIGURACION.logistica
-except Exception:
-    CONFIGURACION = None
-    OPERACIONES = None
-    OFICINA_ADMINISTRACION = None
-    PRESUPUESTO = None
-    LOGISTICA = None
-
-try:
-    EMPRESA = Empresa.load()
-except Exception:
-    EMPRESA = None
 
 CHOICES_MESES = Choices((1, _('ENERO')),
                         (2, _('FEBRERO')),

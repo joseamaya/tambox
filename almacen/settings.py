@@ -1,22 +1,13 @@
 # -*- coding: utf-8 -*-
-from almacen.models import TipoMovimiento, Almacen, Kardex
-from contabilidad.models import Empresa, Configuracion
+"""Constantes de almacen que no dependen de la base de datos.
 
-try:
-    CONFIGURACION = Configuracion.objects.first()
-    OFICINA_ADMINISTRACION = CONFIGURACION.administracion
-    PRESUPUESTO = CONFIGURACION.presupuesto
-    LOGISTICA = CONFIGURACION.logistica
-except Exception:
-    CONFIGURACION = None
-    OFICINA_ADMINISTRACION = None
-    PRESUPUESTO = None
-    LOGISTICA = None
+Los valores que salen de la base de datos viven en tambox.configuracion (con
+cache) o son funciones de este modulo cuando deben leerse frescos, que es el
+caso de las opciones de los formularios: se calculan al construir el formulario
+y no al importar el modulo.
+"""
 
-try:
-    EMPRESA = Empresa.load()
-except Exception:
-    EMPRESA = None
+from almacen.models import TipoMovimiento, Almacen
 
 PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
@@ -38,22 +29,12 @@ MESES = (
 FORMATOS_SUNAT = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
 FORMATOS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
 SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
-try:
-    CHOICES_TIPOS_MOVIMIENTO = [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
-except Exception:
-    CHOICES_TIPOS_MOVIMIENTO = []
-try:
-    CHOICES_ALMACENES = [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
-except Exception:
-    CHOICES_ALMACENES = []
-try:
-    CHOICES_MESES = [(str(mes.month).zfill(2), str(mes.month).zfill(2)) for mes in
-                     Kardex.objects.datetimes('fecha_operacion', 'month')]
-except Exception:
-    CHOICES_MESES = []
-try:
-    CHOICES_ANNIOS = [(anio.year, anio.year) for anio in Kardex.objects.datetimes('fecha_operacion', 'year')]
-except Exception:
-    CHOICES_ANNIOS = []
-
 CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
+
+
+def choices_tipos_movimiento():
+    return [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
+
+
+def choices_almacenes():
+    return [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]

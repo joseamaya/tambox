@@ -6,8 +6,8 @@ from productos.models import Producto
 from requerimientos.querysets import RequerimientoQuerySet, AprobacionRequerimientoQuerySet
 from django.core.validators import MaxValueValidator
 from datetime import date
-from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ, OFICINA_ADMINISTRACION, PRESUPUESTO, LOGISTICA, \
-    OPERACIONES
+from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
+from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
@@ -144,8 +144,8 @@ class Requerimiento(TimeStampedModel):
             puesto_usuario = trabajador.puesto
             oficina_usuario = puesto_usuario.oficina
             if (((
-                         oficina_usuario == OFICINA_ADMINISTRACION or oficina_usuario == PRESUPUESTO) and puesto_usuario.es_jefatura) or
-                    (oficina_usuario == LOGISTICA and (puesto_usuario.es_jefatura or puesto_usuario.es_asistente)) or
+                         oficina_usuario == oficina_administracion() or oficina_usuario == presupuesto()) and puesto_usuario.es_jefatura) or
+                    (oficina_usuario == logistica() and (puesto_usuario.es_jefatura or puesto_usuario.es_asistente)) or
                     usuario.is_staff):
                 queryset = Requerimiento.objects.all()
             elif puesto_usuario.es_jefatura:
@@ -177,7 +177,7 @@ class Requerimiento(TimeStampedModel):
             self.codigo = self.generar_codigo()
             puesto = self.solicitante.puesto
             self.oficina = puesto.oficina
-            if (self.oficina == OFICINA_ADMINISTRACION or self.oficina == OPERACIONES) and puesto.es_jefatura:
+            if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
                 niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")
                 if niveles_aprobacion.count() > 0:
                     nivel = niveles_aprobacion[0]
@@ -266,7 +266,7 @@ class AprobacionRequerimiento(TimeStampedModel):
         if ((self.nivel == nivel_actual or self.nivel == nivel_anterior) or
                 (self.nivel.descripcion == "JEFATURA" and nivel_actual.descripcion == "GERENCIA ADMINISTRACION") or
                 (
-                        self.nivel.descripcion == "USUARIO" and oficina_requerimiento == OPERACIONES and nivel_actual.descripcion == "GERENCIA INMEDIATA")):
+                        self.nivel.descripcion == "USUARIO" and oficina_requerimiento == operaciones() and nivel_actual.descripcion == "GERENCIA INMEDIATA")):
             return True
         else:
             return False
@@ -274,11 +274,11 @@ class AprobacionRequerimiento(TimeStampedModel):
     def obtener_oficina_aprobacion_superior(self):
         nivel = self.nivel
         if nivel.descripcion == "PRESUPUESTO":
-            oficina = LOGISTICA
+            oficina = logistica()
         elif nivel.descripcion == "GERENCIA ADMINISTRACION":
-            oficina = PRESUPUESTO
+            oficina = presupuesto()
         elif nivel.descripcion == "GERENCIA INMEDIATA":
-            oficina = OFICINA_ADMINISTRACION
+            oficina = oficina_administracion()
         elif nivel.descripcion == "JEFATURA":
             oficina = self.requerimiento.oficina.gerencia
         elif nivel.descripcion == "USUARIO":
@@ -292,7 +292,7 @@ class AprobacionRequerimiento(TimeStampedModel):
         puesto_usuario = usuario.trabajador.puesto
         oficina_usuario = puesto_usuario.oficina
         queryset = []
-        if oficina_usuario == LOGISTICA and puesto_usuario.es_jefatura:
+        if oficina_usuario == logistica() and puesto_usuario.es_jefatura:
             queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__estado=Requerimiento.STATUS.CANC),
                                                               nivel__descripcion="USUARIO",
                                                               estado=True)

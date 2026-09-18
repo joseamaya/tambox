@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
-    CHOICES_TIPOS_MOVIMIENTO, CHOICES_ALMACENES, CHOICES_MESES, CHOICES_ANNIOS, \
+    choices_tipos_movimiento, choices_almacenes, \
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
 
 
@@ -106,9 +106,14 @@ class FormularioReporteMovimientos(forms.Form):
     mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     annio = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
-    tipos_movimiento = forms.ChoiceField(choices=CHOICES_TIPOS_MOVIMIENTO,
+    tipos_movimiento = forms.ChoiceField(choices=[],
                                          widget=forms.Select(attrs={'class': 'form-control'}))
-    almacenes = forms.ChoiceField(choices=CHOICES_ALMACENES, widget=forms.Select(attrs={'class': 'form-control'}))
+    almacenes = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
+
+    def __init__(self, *args, **kwargs):
+        super(FormularioReporteMovimientos, self).__init__(*args, **kwargs)
+        self.fields['tipos_movimiento'].choices = choices_tipos_movimiento()
+        self.fields['almacenes'].choices = choices_almacenes()
 
     def clean_hasta(self):
         self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)

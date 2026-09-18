@@ -8,13 +8,12 @@ from reportlab.lib import colors
 # from reportlab.lib.pagesizes import cm
 from reportlab.platypus.flowables import Spacer
 from requerimientos.models import DetalleRequerimiento
-from requerimientos.settings import EMPRESA
 from django.conf import settings
 from administracion.models import Puesto
 import os
 from io import BytesIO
-from requerimientos.settings import CONFIGURACION, OFICINA_ADMINISTRACION, \
-    PRESUPUESTO, LOGISTICA, OPERACIONES
+from tambox.configuracion import empresa, configuracion, oficina_administracion, \
+    presupuesto, logistica, operaciones
 
 
 class ReporteRequerimiento():
@@ -35,7 +34,7 @@ class ReporteRequerimiento():
                             fontName="Times-Roman")
         requerimiento = self.requerimiento
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
@@ -160,7 +159,7 @@ class ReporteRequerimiento():
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
         oficina = requerimiento.oficina
-        jefatura_logistica = self.obtener_puesto(LOGISTICA, requerimiento)
+        jefatura_logistica = self.obtener_puesto(logistica(), requerimiento)
         jefe_logistica = jefatura_logistica.trabajador
         firma_solicitante = self.obtener_firma(solicitante.firma)
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.firma)

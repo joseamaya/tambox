@@ -28,8 +28,8 @@ from requerimientos.mail import correo_creacion_requerimiento
 from openpyxl import Workbook
 from requerimientos.reports import ReporteRequerimiento
 from datetime import date
-from requerimientos.settings import CONFIGURACION, OFICINA_ADMINISTRACION, \
-    LOGISTICA, PRESUPUESTO
+from tambox.configuracion import configuracion, oficina_administracion, \
+    logistica, presupuesto
 
 locale.setlocale(locale.LC_ALL, "")
 
@@ -132,7 +132,7 @@ class CrearRequerimiento(CreateView):
         niveles_aprobacion = NivelAprobacion.objects.all()
         if not niveles_aprobacion:
             return HttpResponseRedirect(reverse('administracion:crear_nivel_aprobacion'))
-        if CONFIGURACION is not None:
+        if configuracion() is not None:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_requerimiento_formset = DetalleRequerimientoFormSet()
@@ -194,7 +194,7 @@ class DetalleOperacionRequerimiento(DetailView):
         permission_required('requerimientos.ver_detalle_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
-        if requerimiento.verificar_acceso(self.request.user, OFICINA_ADMINISTRACION, LOGISTICA, PRESUPUESTO):
+        if requerimiento.verificar_acceso(self.request.user, oficina_administracion(), logistica(), presupuesto()):
             return super(DetalleOperacionRequerimiento, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(

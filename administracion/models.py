@@ -197,9 +197,9 @@ class Puesto(TimeStampedModel):
         return puesto_superior
 
     def establecer_nivel(self, oficina_requerimiento):
-        from requerimientos.settings import LOGISTICA, PRESUPUESTO, OFICINA_ADMINISTRACION, OPERACIONES
+        from tambox.configuracion import logistica, presupuesto, oficina_administracion, operaciones
         oficina = self.oficina
-        if oficina == LOGISTICA and self.es_jefatura:
+        if oficina == logistica() and self.es_jefatura:
             nivel = NivelAprobacion.objects.get(descripcion="LOGISTICA")
         else:
             nivel = NivelAprobacion.objects.get(descripcion="USUARIO")

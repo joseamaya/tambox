@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
+"""Constantes de compras que no dependen de la base de datos.
+
+Los valores que salen de la base de datos viven en tambox.configuracion.
+"""
+
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
-from contabilidad.models import Configuracion, Empresa
-
-try:
-    CONFIGURACION = Configuracion.objects.first()
-    IMPUESTO_COMPRA = CONFIGURACION.impuesto_compra
-except Exception:
-    CONFIGURACION = None
-    IMPUESTO_COMPRA = None
-
-try:
-    EMPRESA = Empresa.load()
-except Exception:
-    EMPRESA = None
 
 PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 

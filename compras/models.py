@@ -9,7 +9,8 @@ from django.db.models import Max
 from contabilidad.models import FormaPago, TipoCambio
 from productos.models import Producto
 from tambox.querysets import NavegableQuerySet
-from compras.settings import CHOICES_ESTADO_COTIZ, CONFIGURACION
+from compras.settings import CHOICES_ESTADO_COTIZ
+from tambox.configuracion import configuracion
 from compras.managers import DetalleCotizacionManager, \
     DetalleConformidadServicioManager
 from decimal import Decimal
@@ -345,14 +346,14 @@ class DetalleOrdenCompra(TimeStampedModel):
         if self.orden.con_impuesto:
             precio_con_igv = self.precio
         else:
-            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            monto_impuesto = configuracion().impuesto_compra.monto
             precio_con_igv = round(self.precio * (monto_impuesto + 1), 5)
         return precio_con_igv
 
     @property
     def precio_sin_igv(self):
         if self.orden.con_impuesto:
-            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            monto_impuesto = configuracion().impuesto_compra.monto
             precio_sin_igv = round(self.precio / (monto_impuesto + 1), 5)
         else:
             precio_sin_igv = self.precio
@@ -361,7 +362,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     @property
     def valor_sin_igv(self):
         if self.orden.con_impuesto:
-            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            monto_impuesto = configuracion().impuesto_compra.monto
             valor_sin_igv = (self.precio * self.cantidad) / (monto_impuesto + 1)
         else:
             valor_sin_igv = self.precio * self.cantidad
@@ -372,13 +373,13 @@ class DetalleOrdenCompra(TimeStampedModel):
         if self.orden.con_impuesto:
             valor_con_igv = self.precio * self.cantidad
         else:
-            monto_impuesto = CONFIGURACION.impuesto_compra.monto
+            monto_impuesto = configuracion().impuesto_compra.monto
             valor_con_igv = (self.precio * self.cantidad) * (monto_impuesto + 1)
         return round(valor_con_igv, 5)
 
     @property
     def impuesto(self):
-        monto_impuesto = CONFIGURACION.impuesto_compra.monto
+        monto_impuesto = configuracion().impuesto_compra.monto
         if self.orden.con_impuesto:
             imp = self.precio * self.cantidad - (self.precio * self.cantidad) / (monto_impuesto + 1)
         else:

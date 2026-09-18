@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.encoding import force_str
 from model_utils.models import TimeStampedModel
 from model_utils.choices import Choices
@@ -207,3 +209,11 @@ class TipoExistencia(TimeStampedModel):
     class Meta:
         verbose_name = 'Tipo de Existencia'
         verbose_name_plural = 'Tipos de Existencias'
+
+
+@receiver(post_save, sender=Configuracion)
+@receiver(post_save, sender=Empresa)
+def invalidar_cache_configuracion(sender, **kwargs):
+    """La configuracion y la empresa se leen con cache; al guardarlas se invalida."""
+    from tambox.configuracion import limpiar_cache
+    limpiar_cache()

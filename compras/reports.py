@@ -15,7 +15,7 @@ from io import BytesIO
 from compras.models import DetalleOrdenCompra
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import force_str
-from compras.settings import EMPRESA
+from tambox.configuracion import empresa
 
 
 class ReporteOrdenCompra():
@@ -36,15 +36,15 @@ class ReporteOrdenCompra():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
-        ruc = Paragraph("R.U.C." + EMPRESA.ruc, sp)
+        ruc = Paragraph("R.U.C." + empresa().ruc, sp)
         encabezado = [[imagen, nro, ruc], ['', u"N°" + orden_compra.codigo,
-                                           EMPRESA.distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
+                                           empresa().distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
@@ -159,7 +159,7 @@ class ReporteOrdenCompra():
         datos_otros = [
             [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
              sub_total, orden.subtotal],
-            [Paragraph(EMPRESA.direccion(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.descripcion, p),
+            [Paragraph(empresa().direccion(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.descripcion, p),
              igv, str(orden.igv)],
             ['', '', '', total, str(orden.total)],
             ]
@@ -209,8 +209,8 @@ class ReporteOrdenCompra():
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
-            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
+            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)

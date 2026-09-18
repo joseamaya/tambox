@@ -49,7 +49,7 @@ from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel
-from almacen.settings import EMPRESA, LOGISTICA
+from tambox.configuracion import empresa, logistica
 from datetime import date
 
 locale.setlocale(locale.LC_ALL, "")
@@ -141,7 +141,7 @@ class AprobarPedido(CreateView):
             puestos = trabajador.puesto_set.all().filter(estado=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
-            if puestos[0].es_jefatura and puestos[0].oficina == LOGISTICA:
+            if puestos[0].es_jefatura and puestos[0].oficina == logistica():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalles = DetallePedido.objects.filter(pedido=pedido, estado=DetallePedido.STATUS.PEND)
@@ -531,7 +531,7 @@ class CrearPedido(CreateView):
                                                       cantidad=cantidad))
                         cont = cont + 1
                 DetallePedido.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Puesto.objects.get(oficina=LOGISTICA, es_jefatura=True, estado=True)
+                puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), es_jefatura=True, estado=True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
                 destinatario = jefe_logistica.usuario.email
                 correo_creacion_pedido(destinatario, self.object)
@@ -679,7 +679,7 @@ class ListadoAprobacionPedidos(ListView):
             puestos = trabajador.puesto_set.all().filter(estado=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
-            if puestos[0].es_jefatura and puestos[0].oficina == LOGISTICA:
+            if puestos[0].es_jefatura and puestos[0].oficina == logistica():
                 return super(ListadoAprobacionPedidos, self).dispatch(*args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))

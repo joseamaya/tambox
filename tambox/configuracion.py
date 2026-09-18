@@ -1,0 +1,43 @@
+from functools import lru_cache
+
+
+@lru_cache(maxsize=1)
+def configuracion():
+    from contabilidad.models import Configuracion
+    return Configuracion.objects.first()
+
+
+@lru_cache(maxsize=1)
+def empresa():
+    from contabilidad.models import Empresa
+    return Empresa.load()
+
+
+def limpiar_cache():
+    configuracion.cache_clear()
+    empresa.cache_clear()
+
+
+def _campo_configuracion(nombre):
+    config = configuracion()
+    return getattr(config, nombre) if config is not None else None
+
+
+def oficina_administracion():
+    return _campo_configuracion('administracion')
+
+
+def presupuesto():
+    return _campo_configuracion('presupuesto')
+
+
+def logistica():
+    return _campo_configuracion('logistica')
+
+
+def operaciones():
+    return _campo_configuracion('operaciones')
+
+
+def impuesto_compra():
+    return _campo_configuracion('impuesto_compra')

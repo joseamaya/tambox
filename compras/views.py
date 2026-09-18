@@ -53,7 +53,7 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from django.utils.encoding import force_str
 from datetime import date
 from compras.reports import ReporteOrdenCompra
-from compras.settings import EMPRESA, CONFIGURACION, IMPUESTO_COMPRA
+from tambox.configuracion import empresa, configuracion, impuesto_compra
 from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
@@ -320,7 +320,7 @@ class CrearOrdenCompra(CreateView):
     def get_initial(self):
         initial = super(CrearOrdenCompra, self).get_initial()
         try:
-            monto_impuesto = IMPUESTO_COMPRA.monto
+            monto_impuesto = impuesto_compra().monto
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['fecha'] = date.today().strftime('%d/%m/%Y')
@@ -339,7 +339,7 @@ class CrearOrdenCompra(CreateView):
             return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
             try:
-                CONFIGURACION
+                configuracion()
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalle_orden_compra_formset = DetalleOrdenCompraFormSet()
@@ -1045,7 +1045,7 @@ class ModificarOrdenCompra(UpdateView):
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
         try:
-            monto_impuesto = IMPUESTO_COMPRA.monto
+            monto_impuesto = impuesto_compra().monto
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['impuesto_actual'] = monto_impuesto
@@ -1257,7 +1257,7 @@ class ObtenerDetalleCotizacion(TemplateView):
                     cotizacion__codigo=cotizacion,
                     detalle_requerimiento__producto__es_servicio=False).order_by('nro_detalle')
                 try:
-                    monto_impuesto = IMPUESTO_COMPRA.monto
+                    monto_impuesto = impuesto_compra().monto
                 except AttributeError:
                     monto_impuesto = 0
             elif tipo_busqueda == 'SERVICIOS':
@@ -1438,18 +1438,18 @@ class ReportePDFOrdenCompra(View):
 
     def cabecera(self, pdf, orden):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + EMPRESA.ruc)
+        pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° " + orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, EMPRESA.distrito + " " + orden.fecha.strftime(
+        pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime(
             '%d de %b de %Y'))  # orden.fecha.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
@@ -1517,7 +1517,7 @@ class ReportePDFOrdenCompra(View):
 
     def otros(self, pdf, y, orden):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(EMPRESA.direccion(), u"INMEDIATA", orden.forma_pago.descripcion)]
+        otros = [(empresa().direccion(), u"INMEDIATA", orden.forma_pago.descripcion)]
         tabla_otros = Table([encabezados_otros] + otros, colWidths=[6 * cm, 3.5 * cm, 4.5 * cm],
                             rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
@@ -1574,8 +1574,8 @@ class ReportePDFOrdenCompra(View):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
-            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
+            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1631,7 +1631,7 @@ class ReportePDFOrdenCompra(View):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, EMPRESA.direccion())
+        pdf.drawCentredString(300, y - 280, empresa().direccion())
         pdf.showPage()
         pdf.save()
         pdf = buffer.getvalue()
@@ -1764,14 +1764,14 @@ class ReporteXLSOrdenCompra(TemplateView):
         ws['D20'].alignment = Alignment(horizontal="center")
         ws['D20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['D20'] = str(EMPRESA.direccion())
+        ws['D20'] = str(empresa().direccion())
         ws.merge_cells('G20:H20')
         ws['G20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws['G20'] = 'DEPARTAMENTO'
         ws['I20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['I20'] = str(EMPRESA.departamento)
+        ws['I20'] = str(empresa().departamento)
         ws.merge_cells('B21:C22')
         ws['B21'].alignment = Alignment(horizontal="center", vertical="center")
         ws['B21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -1793,14 +1793,14 @@ class ReporteXLSOrdenCompra(TemplateView):
         ws['G21'] = 'PROVINCIA'
         ws['I21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['I21'] = str(EMPRESA.provincia)
+        ws['I21'] = str(empresa().provincia)
         ws.merge_cells('G22:H22')
         ws['G22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws['G22'] = 'DISTRITO'
         ws['I22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['I22'] = str(EMPRESA.distrito)
+        ws['I22'] = str(empresa().distrito)
         ws.merge_cells('B23:C24')
         ws['B23'].alignment = Alignment(horizontal="center", vertical="center")
         ws['B23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -1994,18 +1994,18 @@ class ReportePDFOrdenServicios(View):
 
     def cabecera(self, pdf, orden):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + EMPRESA.ruc)
+        pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°" + orden.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, EMPRESA.distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -2142,8 +2142,8 @@ class ReportePDFOrdenServicios(View):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
-            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
+            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -2199,7 +2199,7 @@ class ReportePDFOrdenServicios(View):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, EMPRESA.direccion())
+        pdf.drawCentredString(300, y - 280, empresa().direccion())
         pdf.showPage()
         pdf.save()
         pdf = buffer.getvalue()
@@ -2238,7 +2238,7 @@ class ReportePDFMemorandoConformidadServicio(View):
 
     def cabecera(self, pdf, conformidad):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 750, str(archivo_imagen))
@@ -2247,7 +2247,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 730, u"N°" + conformidad.codigo)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, EMPRESA.distrito + " " + conformidad.fecha.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().distrito + " " + conformidad.fecha.strftime('%d de %b de %Y'))
         pdf.drawString(475, 710, conformidad.orden_servicios.codigo)
         requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
         gerencia_inmediata = requerimiento.oficina.gerencia
@@ -2259,7 +2259,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         jefe_inmediato = puesto_jefe_inmediato.trabajador
         y = 690
         if puesto_solicitante.oficina.codigo == 'GGEN':
-            puesto_gerente = self.obtener_puesto(CONFIGURACION.administracion, conformidad)
+            puesto_gerente = self.obtener_puesto(configuracion().administracion, conformidad)
         elif puesto_solicitante.oficina.codigo == 'GOPE' and not puesto_solicitante.es_jefatura:
             puesto_gerente = self.obtener_puesto(requerimiento.oficina, conformidad)
         else:
@@ -2344,7 +2344,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         self.firma(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
         self.firma(pdf, 130, y - 150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y - 140)
         self.firma(pdf, 350, y - 150, "UNIDAD DE LOGÍSTICA", 320, 470, y - 140)
-        pdf.drawCentredString(300, y - 280, EMPRESA.direccion())
+        pdf.drawCentredString(300, y - 280, empresa().direccion())
         pdf.showPage()
         pdf.save()
         pdf = buffer.getvalue()
@@ -2356,7 +2356,7 @@ class ReportePDFMemorandoConformidadServicio(View):
 class ReportePDFSolicitudCotizacion(View):
 
     def cabecera(self, pdf, cotizacion):
-        archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
+        archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
         pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"SOLICITUD DE COTIZACIÓN"]]
