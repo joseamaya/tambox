@@ -1,4 +1,37 @@
+# Entorno / IDE
 .idea
+.vscode
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+env/
+.venv/
+
+# Django
+*.log
+staticfiles/
 media/
+local.py
 development.py
-*.pyc
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+
+# Variables de entorno y secretos
+.env
+.env.*
+!.env.example
+*.env
+
+# Cobertura y tests
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Sistema operativo
+.DS_Store
