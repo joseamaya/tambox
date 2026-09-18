@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*- 
+import logging
+
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
 from django.http import HttpResponse
@@ -20,6 +22,8 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
     UnidadMedidaForm
 from contabilidad.models import CuentaContable, TipoExistencia
+
+logger = logging.getLogger(__name__)
 
 
 # from productos.reports import ProductosReport
@@ -52,7 +56,7 @@ class Tablero(View):
 class BusquedaProductosDescripcion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             descripcion = request.GET['descripcion']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
@@ -80,7 +84,7 @@ class BusquedaProductosDescripcion(TemplateView):
 class BusquedaProductosCodigo(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             productos = Producto.objects.filter(codigo__icontains=codigo)[:20]
             lista_productos = []
@@ -161,22 +165,22 @@ class CargarProductos(FormView):
                     precio = 0
                 try:
                     tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
-                except:
+                except TipoExistencia.DoesNotExist:
                     return HttpResponseRedirect(reverse('contabilidad:tablero'))
                 producto, creado = Producto.objects.get_or_create(descripcion=fila[1].strip(),
                                                                   defaults={'unidad_medida': und,
                                                                             'grupo_productos': grupo,
                                                                             'precio': precio,
                                                                             'tipo_existencia': tipo_existencia})
-            except:
-                pass
+            except Exception:
+                logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
         return HttpResponseRedirect(reverse('productos:productos'))
 
 
 class ConsultaStockProducto(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             producto = Producto.objects.get(codigo=codigo)
             producto_json = {}
@@ -271,10 +275,16 @@ class DetalleServicio(DetailView):
 
 
 class EliminarUnidadMedida(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            id = request.GET['id']
+    @method_decorator(permission_required('productos.delete_unidadmedida',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarUnidadMedida, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            id = request.POST['id']
             unidad_medida = UnidadMedida.objects.get(pk=id)
             unidad_medida_json = {}
             unidad_medida_json['unidad'] = unidad_medida.unidad
@@ -288,10 +298,16 @@ class EliminarUnidadMedida(TemplateView):
 
 
 class EliminarGrupoProductos(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('productos.delete_grupoproductos',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarGrupoProductos, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             grupo_productos = GrupoProductos.objects.get(pk=codigo)
             grupo_productos_json = {}
             grupo_productos_json['codigo'] = grupo_productos.codigo
@@ -306,10 +322,16 @@ class EliminarGrupoProductos(TemplateView):
 
 
 class EliminarProducto(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('productos.delete_producto',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarProducto, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             producto = Producto.objects.get(pk=codigo)
             producto_json = {}
             producto_json['codigo'] = producto.codigo
@@ -326,10 +348,16 @@ class EliminarProducto(TemplateView):
 
 
 class EliminarServicio(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('productos.delete_producto',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarServicio, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             servicio = Producto.objects.get(codigo=codigo)
             servicio_json = {}
             servicio_json['codigo'] = codigo

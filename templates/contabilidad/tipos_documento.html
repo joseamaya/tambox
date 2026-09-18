@@ -89,7 +89,7 @@ $(document).ready(function()
     	$.ajax({
     		data : {'id': id},
     		url : "{% url 'contabilidad:eliminar_tipo_documento' %}",
-    		type : 'get',
+    		type : 'post',
     		success : function(data)
     		{
     			if(data.relaciones=='NO')

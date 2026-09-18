@@ -130,7 +130,7 @@
 							'codigo' : "{{ object.codigo }}"
 						},
 						url : "{% url 'compras:eliminar_proveedor' %}",
-						type : 'get',
+						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
 								alert("Producto " + data.descripcion

@@ -90,7 +90,7 @@ $(document).ready(function()
 	   	$.ajax({
 	   		data : {'id': id},
 	   		url : "{% url 'productos:eliminar_unidad_medida' %}",
-	   		type : 'get',
+	   		type : 'post',
 	   		success : function(data)
 	   		{
 	   			if(data.productos=='NO')

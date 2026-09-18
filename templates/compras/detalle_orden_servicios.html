@@ -260,7 +260,7 @@ $(document).ready(function()
 		$.ajax({
 			data : { 'codigo' : "{{ object.codigo }}" },
 			url : "{% url 'compras:eliminar_orden_servicios' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) {
 				if (data.conformidades == 'NO')
 				{

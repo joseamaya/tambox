@@ -153,7 +153,7 @@ $(document).ready(function()
 		$.ajax({
 			data : {'codigo' : "{{ object.pk }}" },
 			url : "{% url 'almacen:eliminar_pedido' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) 
 			{
 				removeLoading(mySpinner);

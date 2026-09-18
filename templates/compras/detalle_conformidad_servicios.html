@@ -145,7 +145,7 @@ $(document).ready(function()
 		$.ajax({
 			data : { 'codigo' : "{{ object.codigo }}" },
 			url : "{% url 'compras:eliminar_conformidad_servicio' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) {
 				alert("Conformidad " + data.codigo + " eliminada");
 				$(location).attr('href', "{% url 'compras:detalle_conformidad_servicios' object.siguiente %}");				

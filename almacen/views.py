@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*- 
+from django.utils import timezone
 from django.shortcuts import render
 from openpyxl.styles import Alignment
 from openpyxl.styles import Border
@@ -9,7 +10,7 @@ from openpyxl.styles import Side
 from almacen.models import Almacen, Movimiento, Kardex, TipoMovimiento, DetalleMovimiento, ControlProductoAlmacen, \
     Pedido, DetallePedido
 from django.http import HttpResponse, HttpResponseRedirect
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
 from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos, \
@@ -18,7 +19,7 @@ from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimi
     AprobacionPedidoForm, FormularioReprocesoPrecio, \
     FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
 from django.db.models import Sum
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
@@ -43,6 +44,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q
 from django.db import transaction, IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
@@ -133,7 +135,7 @@ class AprobarPedido(CreateView):
         pedido = Pedido.objects.get(codigo=self.codigo)
         try:
             trabajador = self.request.user.trabajador
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.puesto_set.all().filter(estado=True)
@@ -157,7 +159,7 @@ class AprobarPedido(CreateView):
                                                                      detalle_salida_formset=detalle_salida_formset))
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-        except:
+        except (IndexError, ObjectDoesNotExist):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def post(self, request, *args, **kwargs):
@@ -206,7 +208,7 @@ class AprobarPedido(CreateView):
 class BusquedaProductosAlmacen(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
@@ -223,7 +225,7 @@ class BusquedaProductosAlmacen(TemplateView):
                 producto_json['unidad'] = control.producto.unidad_medida.descripcion
                 try:
                     precio = round(control.valor_total / control.cantidad_total, 5)
-                except:
+                except (TypeError, ZeroDivisionError):
                     precio = 0
                 producto_json['precio'] = str(precio)
                 lista_productos.append(producto_json)
@@ -260,7 +262,7 @@ class CargarInventarioInicial(FormView):
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         # segundos = int(r_hora[6:8])
-        fecha = datetime.datetime(anio, mes, dia, horas, minutos)
+        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos))
         return fecha
 
     def form_valid(self, form):
@@ -293,13 +295,13 @@ class CargarInventarioInicial(FormView):
                     cantidad = Decimal(fila[1])
                     try:
                         precio = Decimal(fila[2])
-                    except:
+                    except InvalidOperation:
                         precio = ''
                     valor = Decimal(fila[3])
                     if precio == '':
                         try:
                             precio = valor / cantidad
-                        except:
+                        except (InvalidOperation, ZeroDivisionError):
                             precio = 0
                     if valor == '':
                         valor = cantidad * precio
@@ -389,7 +391,7 @@ class CrearAlmacen(FormView):
 class CrearDetalleSalida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -417,7 +419,7 @@ class CrearDetalleSalida(TemplateView):
 class CrearDetallePedido(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -441,7 +443,7 @@ class CrearDetallePedido(TemplateView):
 class CrearDetalleIngreso(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['orden_compra'] = '0'
@@ -477,7 +479,7 @@ class CrearPedido(CreateView):
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
@@ -544,7 +546,7 @@ class CrearPedido(CreateView):
 
 class ConsultaStock(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             almacen = request.GET['almacen']
             codigo = request.GET['codigo']
             control_producto = Kardex.objects.filter(producto__codigo=codigo,
@@ -576,10 +578,15 @@ class DetalleOperacionMovimiento(DetailView):
 
 
 class EliminarAlmacen(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('almacen.delete_almacen', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarAlmacen, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             almacen = Almacen.objects.get(pk=codigo)
             almacen_json = {}
             almacen_json['codigo'] = almacen.codigo
@@ -594,10 +601,15 @@ class EliminarAlmacen(TemplateView):
 
 
 class EliminarMovimiento(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            id_movimiento = request.GET['id_movimiento']
+    @method_decorator(permission_required('almacen.delete_movimiento', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarMovimiento, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            id_movimiento = request.POST['id_movimiento']
             movimiento = Movimiento.objects.get(pk=id_movimiento)
             orden = movimiento.referencia
             pedido = movimiento.pedido
@@ -623,10 +635,15 @@ class EliminarMovimiento(TemplateView):
 
 
 class EliminarPedido(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('almacen.delete_pedido', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarPedido, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             pedido = Pedido.objects.get(pk=codigo)
             movimientos = pedido.movimiento_set.all()
             almacen_json = {}
@@ -656,7 +673,7 @@ class ListadoAprobacionPedidos(ListView):
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.puesto_set.all().filter(estado=True)
@@ -666,7 +683,7 @@ class ListadoAprobacionPedidos(ListView):
                 return super(ListadoAprobacionPedidos, self).dispatch(*args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-        except:
+        except (IndexError, ObjectDoesNotExist):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_queryset(self):
@@ -886,7 +903,7 @@ class ModificarIngresoAlmacen(UpdateView):
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
-                        except:
+                        except ObjectDoesNotExist:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
@@ -930,7 +947,7 @@ class ModificarSalidaAlmacen(UpdateView):
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
                      'valor': detalle.valor}
-            except:
+            except (ObjectDoesNotExist, AttributeError):
                 d = {'pedido': 0,
                      'codigo': detalle.producto.pk,
                      'nombre': detalle.producto.descripcion,
@@ -999,7 +1016,7 @@ class ModificarSalidaAlmacen(UpdateView):
                     if cantidad and precio and valor:
                         try:
                             det_ped = DetallePedido.objects.get(pk=detalle_pedido)
-                        except:
+                        except ObjectDoesNotExist:
                             det_ped = None
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
@@ -1241,7 +1258,7 @@ class RegistrarIngresoAlmacen(CreateView):
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
-                        except:
+                        except ObjectDoesNotExist:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=codigo),
@@ -1616,7 +1633,7 @@ class ReprocesoPrecio(FormView):
                 cantidad_ant = anterior.cantidad_total
                 valor_ant = anterior.valor_total
                 precio_ant = Decimal(round(valor_ant / cantidad_ant, 8))
-            except:
+            except (IndexError, ZeroDivisionError, TypeError):
                 cantidad_ant = 0
                 precio_ant = 0
                 valor_ant = 0
@@ -1632,7 +1649,7 @@ class ReprocesoPrecio(FormView):
                 detalle.valor_total = valor_ant - detalle.valor_salida
                 try:
                     detalle.precio_total = detalle.valor_total / detalle.cantidad_total
-                except:
+                except ZeroDivisionError:
                     detalle.precio_total = 0
             detalle.save()
             indice = indice + 1
@@ -1691,7 +1708,7 @@ class StockProductos(FormView):
                 stock = kardex.cantidad_total
                 precio = kardex.precio_total
                 valor = kardex.valor_total
-            except:
+            except (Kardex.DoesNotExist, AttributeError):
                 codigo = producto.codigo
                 descripcion = producto.descripcion
                 unidad_medida = producto.unidad_medida.codigo
@@ -1729,7 +1746,7 @@ class StockProductos(FormView):
 class ListadoStockProducto(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             descripcion = request.GET['descripcion']
             desde = request.GET['desde']
             almacen = request.GET['almacen']
@@ -1744,7 +1761,7 @@ class ListadoStockProducto(TemplateView):
                     kardex_json['label'] = kardex.producto.descripcion
                     kardex_json['unidad'] = kardex.producto.unidad_medida.codigo
                     kardex_json['stock'] = kardex.cantidad_total
-                except:
+                except Kardex.DoesNotExist:
                     kardex_json = {}
                     kardex_json['codigo'] = producto.codigo
                     kardex_json['label'] = producto.descripcion
@@ -1829,7 +1846,7 @@ class ReporteExcelMovimientos(FormView):
             ws.cell(row=cont, column=2).value = movimiento.id_movimiento
             try:
                 ws.cell(row=cont, column=3).value = movimiento.tipo_documento.descripcion
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '--'
             ws.cell(row=cont, column=4).value = movimiento.serie
             ws.cell(row=cont, column=5).value = movimiento.numero
@@ -1858,11 +1875,11 @@ class ReporteExcelMovimientosPorFecha(View):
         anio = int(p_fecha_inicio[6:])
         mes = int(p_fecha_inicio[3:5])
         dia = int(p_fecha_inicio[0:2])
-        fecha_inicio = datetime.datetime(anio, mes, dia, 23, 59, 59)
+        fecha_inicio = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
         anio = int(p_fecha_final[6:])
         mes = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
-        fecha_final = datetime.datetime(anio, mes, dia, 23, 59, 59)
+        fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
         almacen = Almacen.objects.get(codigo=p_almacen)
         tipo_movimiento = TipoMovimiento.objects.get(codigo=p_tipo_movimiento)
         wb = Workbook()
@@ -1957,16 +1974,6 @@ class ReportePDFProductos(View):
         return response
 
 
-class PopupCrearTipoStock(FormView):
-    template_name = 'almacen/popup_crear_tipo_stock.html'
-    form_class = TipoStockForm
-    success_url = reverse_lazy('almacen:crear_suministro')
-
-    def form_valid(self, form):
-        form.save()
-        return super(PopupCrearTipoStock, self).form_valid(form)
-
-
 class VerificarSolicitaDocumento(TemplateView):
 
     def get(self, request, *args, **kwargs):
@@ -2000,7 +2007,7 @@ class VerificarStockParaPedido(TemplateView):
 
                 stock = control_producto.cantidad_total
                 precio = control_producto.valor_total / stock
-            except:
+            except (Kardex.DoesNotExist, ZeroDivisionError):
                 stock = 0
                 precio = 0
             if stock != 0:
@@ -2141,7 +2148,7 @@ class Inventario(FormView):
                         detalle = kardex.nro_detalle_movimiento
                         sum_valor += valor
 
-                    except:
+                    except (Kardex.DoesNotExist, AttributeError):
                         codigo = producto.codigo
                         descripcion = producto.descripcion
                         unidad_medida = producto.unidad_medida.codigo

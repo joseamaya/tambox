@@ -242,7 +242,7 @@ $(document).ready(function()
 		$.ajax({
 			data : {'id_movimiento' : "{{ object.pk }}" },
 			url : "{% url 'almacen:eliminar_movimiento' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data)
 			{
 				removeLoading(mySpinner);

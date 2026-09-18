@@ -89,7 +89,7 @@ $(document).ready(function()
     	$.ajax({
     		data : {'id_movimiento': id_movimiento},
     		url : "{% url 'almacen:eliminar_movimiento' %}",
-    		type : 'get',
+    		type : 'post',
     		success : function(data)
     		{
     			alert("Movimiento "+data.id_movimiento+ " eliminado");

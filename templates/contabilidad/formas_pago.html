@@ -90,7 +90,7 @@ $(document).ready(function()
 	   	$.ajax({
 	   		data : {'codigo': codigo},
 	   		url : "{% url 'contabilidad:eliminar_forma_pago' %}",
-	   		type : 'get',
+	   		type : 'post',
 	   		success : function(data)
 	   		{
 	   			if(data.relaciones=='NO')

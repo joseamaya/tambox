@@ -216,7 +216,7 @@ $(document).ready(function()
 		$.ajax({
 			data : { 'codigo' : "{{ object.codigo }}" },
 			url : "{% url 'requerimientos:eliminar_requerimiento' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) {
 				if (data.cotizaciones == 'NO') 
 				{

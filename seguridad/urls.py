@@ -1,13 +1,15 @@
-from django.conf.urls import url
-from django.contrib.auth.views import logout
+from django.urls import re_path
+from django.contrib.auth.views import LogoutView
 from seguridad.views import Inicio, Login, ModificarPassword, PermisoDenegado
 from django.contrib.auth.decorators import login_required
-from django.core.urlresolvers import reverse
+from django.views.decorators.http import require_POST
+
+app_name = 'seguridad'
 
 urlpatterns = [
-    url(r'^$', Login.as_view(), name="login"),
-    url(r'^inicio/$', login_required(Inicio.as_view()), name="inicio"),
-    url(r'^permiso_denegado/$', login_required(PermisoDenegado.as_view()), name="permiso_denegado"),
-    url(r'^cambiar_password$', login_required(ModificarPassword.as_view()), name="cambiar_password"),
-    url(r'^salir$', logout, name="salir", kwargs={'next_page': 'seguridad:login'}),
+    re_path(r'^$', Login.as_view(), name="login"),
+    re_path(r'^inicio/$', login_required(Inicio.as_view()), name="inicio"),
+    re_path(r'^permiso_denegado/$', login_required(PermisoDenegado.as_view()), name="permiso_denegado"),
+    re_path(r'^cambiar_password$', login_required(ModificarPassword.as_view()), name="cambiar_password"),
+    re_path(r'^salir$', require_POST(LogoutView.as_view(next_page='seguridad:login')), name="salir"),
 ]

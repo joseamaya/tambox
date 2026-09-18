@@ -86,7 +86,7 @@ $(document).ready(function()
 				'codigo' : codigo
 			},
 			url : "{% url 'compras:eliminar_orden_compra' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) {
 				if (data.movimientos == 'NO') {
 					alert("Orden de Compra " + data.codigo

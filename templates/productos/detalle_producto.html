@@ -127,7 +127,7 @@ $(document).ready(function()
 		$.ajax({
 			data : { 'codigo' : "{{ object.codigo }}" },
 			url : "{% url 'productos:eliminar_producto' %}",
-			type : 'get',
+			type : 'post',
 			success : function(data) {
 				if (data.relaciones == 'NO') 
 				{

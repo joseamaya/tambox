@@ -109,7 +109,7 @@
 							'codigo' : "{{ object.codigo }}"
 						},
 						url : "{% url 'productos:eliminar_grupo_productos' %}",
-						type : 'get',
+						type : 'post',
 						success : function(data) {
 							if (data.productos == 'NO') {
 								alert("Grupo de Productos " + data.descripcion

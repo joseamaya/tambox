@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*- 
+from django.utils import timezone
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
 from openpyxl.styles import Alignment
@@ -15,7 +16,7 @@ from compras.forms import ProveedorForm, DetalleCotizacionForm, CotizacionForm, 
     OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet, \
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet, \
     FormularioReporteOrdenesFecha
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
 from django.http import HttpResponse
@@ -40,6 +41,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import os
 from django.db import transaction, IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from contabilidad.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
@@ -48,7 +50,7 @@ from django.shortcuts import render, get_object_or_404
 
 from contabilidad.models import TipoCambio
 from productos.models import Producto, UnidadMedida, GrupoProductos
-from django.utils.encoding import smart_str
+from django.utils.encoding import force_str
 from datetime import date
 from compras.reports import ReporteOrdenCompra
 from compras.settings import EMPRESA, CONFIGURACION, IMPUESTO_COMPRA
@@ -87,7 +89,7 @@ class Tablero(View):
 class BusquedaCotizacion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
             cotizacion = Cotizacion.objects.get(codigo=codigo)
             cotizacion_json = {}
@@ -101,7 +103,7 @@ class BusquedaCotizacion(TemplateView):
 class BusquedaProveedoresRazonSocial(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             razon_social = request.GET['razon_social']
             proveedores = Proveedor.objects.filter(razon_social__icontains=razon_social)[:20]
             lista_proveedores = []
@@ -119,7 +121,7 @@ class BusquedaProveedoresRazonSocial(TemplateView):
 class BusquedaProveedoresRUC(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             ruc = request.GET['ruc']
             proveedor = Proveedor.objects.get(ruc=ruc)
             proveedor_json = {}
@@ -177,7 +179,7 @@ class CrearDetalleCotizacion(FormView):
 class CrearDetalleOrdenCompra(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['cotizacion'] = '0'
@@ -209,7 +211,7 @@ class CrearDetalleOrdenCompra(TemplateView):
 class CrearDetalleOrdenServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['cotizacion'] = '0'
@@ -240,6 +242,10 @@ class CrearCotizacion(CreateView):
     form_class = CotizacionForm
     template_name = "compras/cotizacion.html"
     model = Cotizacion
+
+    @method_decorator(permission_required('compras.add_cotizacion', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearCotizacion, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
         initial = super(CrearCotizacion, self).get_initial()
@@ -307,11 +313,15 @@ class CrearOrdenCompra(CreateView):
     template_name = "compras/orden_compra.html"
     model = OrdenCompra
 
+    @method_decorator(permission_required('compras.add_ordencompra', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearOrdenCompra, self).dispatch(*args, **kwargs)
+
     def get_initial(self):
         initial = super(CrearOrdenCompra, self).get_initial()
         try:
             monto_impuesto = IMPUESTO_COMPRA.monto
-        except:
+        except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['fecha'] = date.today().strftime('%d/%m/%Y')
         initial['codigo'] = OrdenCompra.objects.ultimo()
@@ -335,7 +345,7 @@ class CrearOrdenCompra(CreateView):
                 detalle_orden_compra_formset = DetalleOrdenCompraFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_orden_compra_formset=detalle_orden_compra_formset))
-            except:
+            except Exception:
                 return HttpResponseRedirect(reverse('contabilidad:configuracion'))
 
     def post(self, request, *args, **kwargs):
@@ -395,6 +405,10 @@ class CrearOrdenServicios(CreateView):
     form_class = OrdenServiciosForm
     template_name = "compras/orden_servicio.html"
     model = OrdenServicios
+
+    @method_decorator(permission_required('compras.add_ordenservicios', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearOrdenServicios, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
         initial = super(CrearOrdenServicios, self).get_initial()
@@ -474,6 +488,11 @@ class CrearConformidadServicio(CreateView):
     form_class = ConformidadServicioForm
     template_name = "compras/conformidad_servicio.html"
     model = ConformidadServicio
+
+    @method_decorator(permission_required('compras.add_conformidadservicio',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(CrearConformidadServicio, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
         initial = super(CrearConformidadServicio, self).get_initial()
@@ -561,10 +580,15 @@ class DetalleOperacionConformidadServicios(DetailView):
 
 
 class EliminarCotizacion(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('compras.delete_cotizacion', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarCotizacion, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             cotizacion = Cotizacion.objects.get(codigo=codigo)
             cotizacion_json = {}
             cotizacion_json['codigo'] = codigo
@@ -588,10 +612,15 @@ class EliminarCotizacion(TemplateView):
 
 
 class EliminarOrdenCompra(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('compras.delete_ordencompra', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarOrdenCompra, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             orden = OrdenCompra.objects.get(codigo=codigo)
             movimiento_json = {}
             movimiento_json['codigo'] = codigo
@@ -609,10 +638,15 @@ class EliminarOrdenCompra(TemplateView):
 
 
 class EliminarOrdenServicios(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('compras.delete_ordenservicios', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarOrdenServicios, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             orden = OrdenServicios.objects.get(codigo=codigo)
             orden_json = {}
             orden_json['codigo'] = codigo
@@ -631,10 +665,16 @@ class EliminarOrdenServicios(TemplateView):
 
 
 class EliminarConformidadServicio(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('compras.delete_conformidadservicio',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarConformidadServicio, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             conformidad = ConformidadServicio.objects.get(codigo=codigo)
             conformidad_json = {}
             conformidad_json['codigo'] = codigo
@@ -648,10 +688,15 @@ class EliminarConformidadServicio(TemplateView):
 
 
 class EliminarProveedor(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            ruc = request.GET['ruc']
+    @method_decorator(permission_required('compras.delete_proveedor', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarProveedor, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            ruc = request.POST['ruc']
             proveedor = Proveedor.objects.get(pk=ruc)
             proveedor_json = {}
             proveedor_json['ruc'] = ruc
@@ -968,7 +1013,7 @@ class ModificarOrdenCompra(UpdateView):
                          'precio': detalle.precio,
                          'impuesto': detalle.impuesto,
                          'valor': detalle.valor}
-                except:
+                except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'codigo': detalle.producto.codigo,
                          'nombre': detalle.producto.descripcion,
@@ -1001,7 +1046,7 @@ class ModificarOrdenCompra(UpdateView):
         initial['referencia'] = orden.cotizacion
         try:
             monto_impuesto = IMPUESTO_COMPRA.monto
-        except:
+        except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['impuesto_actual'] = monto_impuesto
         initial['total'] = orden.total
@@ -1124,7 +1169,7 @@ class ModificarOrdenServicios(UpdateView):
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
                          'valor': detalle.valor}
-                except:
+                except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'codigo': detalle.producto.codigo,
                          'nombre': detalle.producto.descripcion,
@@ -1180,7 +1225,7 @@ class ModificarOrdenServicios(UpdateView):
                                                                         cantidad=cantidad,
                                                                         precio=precio,
                                                                         valor=valor)
-                    except:
+                    except ObjectDoesNotExist:
                         producto = Producto.objects.get(pk=codigo)
                         detalle_orden_servicios = DetalleOrdenServicios(producto=producto,
                                                                         nro_detalle=cont,
@@ -1203,7 +1248,7 @@ class ModificarOrdenServicios(UpdateView):
 class ObtenerDetalleCotizacion(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             cotizacion = request.GET['cotizacion']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'PRODUCTOS':
@@ -1213,7 +1258,7 @@ class ObtenerDetalleCotizacion(TemplateView):
                     detalle_requerimiento__producto__es_servicio=False).order_by('nro_detalle')
                 try:
                     monto_impuesto = IMPUESTO_COMPRA.monto
-                except:
+                except AttributeError:
                     monto_impuesto = 0
             elif tipo_busqueda == 'SERVICIOS':
                 monto_impuesto = 1
@@ -1241,7 +1286,7 @@ class ObtenerDetalleCotizacion(TemplateView):
                         det['unidad'] = detalle.detalle_requerimiento.producto.unidad_medida.codigo
                         det['valor'] = str(round(valor))
                     lista_detalles.append(det)
-                except:
+                except (ObjectDoesNotExist, AttributeError):
                     pass
             if tipo_busqueda == 'PRODUCTOS':
                 formset = DetalleOrdenCompraFormSet(initial=lista_detalles)
@@ -1281,18 +1326,18 @@ class ObtenerDetalleOrdenCompra(TemplateView):
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
         dia = int(r_fecha[0:2])
-        fecha = datetime.datetime(anio, mes, dia)
+        fecha = datetime.date(anio, mes, dia)
         return fecha
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             orden_compra = OrdenCompra.objects.get(codigo=request.GET['orden_compra'])
             fecha = self.obtener_fecha(request.GET['fecha'])
             tipo_cambio = 1
             if orden_compra.dolares:
                 try:
                     tipo_cambio = TipoCambio.objects.get(fecha=fecha).monto
-                except:
+                except TipoCambio.DoesNotExist:
                     tipo_cambio = 0
             lista_detalles = []
             lista_json = []
@@ -1310,7 +1355,7 @@ class ObtenerDetalleOrdenCompra(TemplateView):
                         det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
                         det['valor'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))
-                    except:
+                    except (ObjectDoesNotExist, AttributeError):
                         det['codigo'] = detalle.producto.codigo
                         det['nombre'] = detalle.producto.descripcion
                         det['cantidad'] = str(detalle.cantidad - detalle.cantidad_ingresada)
@@ -1336,7 +1381,7 @@ class ObtenerDetalleOrdenCompra(TemplateView):
 class ObtenerDetalleOrdenServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             orden_servicios = request.GET['orden_servicios']
             detalles = DetalleOrdenServicios.objects.filter(orden__codigo=orden_servicios,
                                                             estado=DetalleOrdenServicios.STATUS.PEND).order_by(
@@ -1352,7 +1397,7 @@ class ObtenerDetalleOrdenServicios(TemplateView):
                     det['precio'] = str(detalle.precio)
                     det['cantidad'] = str(detalle.cantidad)
                     det['valor'] = str(detalle.valor)
-                except:
+                except (ObjectDoesNotExist, AttributeError):
                     det = {}
                     det['orden_servicios'] = detalle.id
                     det['codigo'] = detalle.producto.codigo
@@ -1395,7 +1440,7 @@ class ReportePDFOrdenCompra(View):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
-        except:
+        except Exception:
             pdf.drawString(40, 800, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
@@ -1422,12 +1467,12 @@ class ReportePDFOrdenCompra(View):
             pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
         try:
             pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.telefono)
-        except:
+        except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
                            u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: -")
         pdf.drawString(40, 690, u"PROCESO: -")
         pdf.setFont("Times-Roman", 8)
@@ -1440,7 +1485,7 @@ class ReportePDFOrdenCompra(View):
                          detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion,
                          detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion, detalle.precio,
                          round(detalle.valor, 5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.descripcion,
                          detalle.producto.descripcion, detalle.precio, round(detalle.precio, 5)) for detalle in
                         DetalleOrdenCompra.objects.filter(orden=orden)]
@@ -1529,8 +1574,8 @@ class ReportePDFOrdenCompra(View):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + smart_str(EMPRESA.razon_social), p),
-            Paragraph("El " + smart_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
+            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1692,7 +1737,7 @@ class ReporteXLSOrdenCompra(TemplateView):
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         try:
             ws['I16'] = proveedor.telefono
-        except:
+        except TypeError:
             ws['I16'] = '-'
         ws['B17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
@@ -1951,7 +1996,7 @@ class ReportePDFOrdenServicios(View):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
-        except:
+        except Exception:
             pdf.drawString(40, 800, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
@@ -1977,12 +2022,12 @@ class ReportePDFOrdenServicios(View):
             pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
         try:
             pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.telefono)
-        except:
+        except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
                            u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre)
-        except:
+        except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: " + orden.nombre_informe)
 
         pdf.drawString(40, 690, u"PROCESO: " + orden.proceso)
@@ -2005,7 +2050,7 @@ class ReportePDFOrdenServicios(View):
                     cont = cont + 1
                 detalles.append(
                     (detalle.nro_detalle, detalle.cantidad, Paragraph(descripcion, p), detalle.precio, detalle.valor))
-            except:
+            except (ObjectDoesNotExist, AttributeError):
                 descripcion = detalle.producto.descripcion
                 if len(descripcion) > 58:
                     cont = cont + 1
@@ -2097,8 +2142,8 @@ class ReportePDFOrdenServicios(View):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + smart_str(EMPRESA.razon_social), p),
-            Paragraph("El " + smart_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(EMPRESA.razon_social), p),
+            Paragraph("El " + force_str(EMPRESA.razon_social) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -2195,7 +2240,7 @@ class ReportePDFMemorandoConformidadServicio(View):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(EMPRESA.logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
-        except:
+        except Exception:
             pdf.drawString(40, 750, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(130, 750, u"MEMORANDO DE CONFORMIDAD DEL SERVICIO")
@@ -2337,7 +2382,7 @@ class ReportePDFSolicitudCotizacion(View):
             pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
         try:
             pdf.drawString(440, 730, u"TELÉFONO: " + cotizacion.proveedor.telefono)
-        except:
+        except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         pdf.drawString(40, 710, u"FECHA: " + cotizacion.fecha.strftime('%d/%m/%Y'))
 
@@ -2432,7 +2477,7 @@ class ReporteExcelProveedores(TemplateView):
             ws.cell(row=cont, column=8).value = proveedor.condicion
             try:
                 ws.cell(row=cont, column=9).value = proveedor.representante.nombre
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=9).value = '-'
             ws.cell(row=cont, column=10).value = proveedor.ciiu
             ws.cell(row=cont, column=11).value = proveedor.fecha_alta
@@ -2461,11 +2506,11 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             anio = int(p_fecha_inicio[6:])
             mes = int(p_fecha_inicio[3:5])
             dia = int(p_fecha_inicio[0:2])
-            fecha_inicio = datetime.datetime(anio, mes, dia, 23, 59, 59)
+            fecha_inicio = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
             mes = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
-            fecha_final = datetime.datetime(anio, mes, dia, 23, 59, 59)
+            fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
@@ -2506,7 +2551,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = orden.cotizacion.proveedor.razon_social
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=4).value = orden.proveedor.razon_social
             ws.cell(row=cont, column=5).value = orden.total
             ws.cell(row=cont, column=6).value = orden.forma_pago.descripcion
@@ -2538,11 +2583,11 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             anio = int(p_fecha_inicio[6:])
             mes = int(p_fecha_inicio[3:5])
             dia = int(p_fecha_inicio[0:2])
-            fecha_inicio = datetime.datetime(anio, mes, dia, 23, 59, 59)
+            fecha_inicio = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
             mes = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
-            fecha_final = datetime.datetime(anio, mes, dia, 23, 59, 59)
+            fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
@@ -2583,7 +2628,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = orden_compra.cotizacion.proveedor.razon_social
-            except:
+            except ObjectDoesNotExist:
                 ws.cell(row=cont, column=4).value = orden_compra.proveedor.razon_social
             ws.cell(row=cont, column=5).value = orden_compra.total
             ws.cell(row=cont, column=6).value = orden_compra.forma_pago.descripcion

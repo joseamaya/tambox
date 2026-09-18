@@ -88,7 +88,7 @@ $(document).ready(function()
 	   	$.ajax({
 	   		data : {'ruc': ruc},
 	   		url : "{% url 'compras:eliminar_proveedor' %}",
-	   		type : 'get',
+	   		type : 'post',
 	   		success : function(data)
 	   		{
 	   			alert("Proveedor "+data.ruc+ " eliminado");

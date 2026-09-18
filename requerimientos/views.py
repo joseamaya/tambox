@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from django.core.urlresolvers import reverse_lazy, reverse
+from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
 from django.http import HttpResponse
@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import os
 from django.db import transaction, IntegrityError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.contrib import messages
 from requerimientos.models import AprobacionRequerimiento, Requerimiento, \
@@ -71,7 +72,7 @@ class AprobarRequerimiento(UpdateView):
 
 class CrearDetalleRequerimiento(FormView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
             det['codigo'] = ''
@@ -118,7 +119,7 @@ class CrearRequerimiento(CreateView):
             return HttpResponseRedirect(reverse('administracion:crear_oficina'))
         try:
             trabajador = self.request.user.trabajador
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
@@ -201,9 +202,16 @@ class DetalleOperacionRequerimiento(DetailView):
 
 
 class EliminarRequerimiento(TemplateView):
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    http_method_names = ['post']
+
+    @method_decorator(permission_required('requerimientos.delete_requerimiento',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarRequerimiento, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             requerimiento = Requerimiento.objects.get(codigo=codigo)
             requerimiento_json = {}
             requerimiento_json['codigo'] = codigo
@@ -232,7 +240,7 @@ class ListadoAprobacionRequerimientos(ListView):
     def get(self, request, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
-        except:
+        except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
@@ -269,7 +277,7 @@ class ListadoRequerimientos(ListView):
 
     def get_queryset(self):
         usuario = self.request.user
-        requerimientos_visibles = Requerimiento.obtener_requerimientos_visibles(self, usuario)
+        requerimientos_visibles = Requerimiento.obtener_requerimientos_visibles(usuario)
         return requerimientos_visibles
 
     @method_decorator(
@@ -306,10 +314,6 @@ class ModificarRequerimiento(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ModificarRequerimiento, self).get_context_data(**kwargs)
-        try:
-            context['archivo_informe'] = os.path.join('/siad', 'media', self.object.informe.url)
-        except:
-            pass
         return context
 
     def get(self, request, *args, **kwargs):
@@ -325,7 +329,7 @@ class ModificarRequerimiento(UpdateView):
                      'cantidad': detalle.cantidad,
                      'unidad': detalle.producto.unidad_medida.codigo,
                      'uso': detalle.uso}
-            except:
+            except AttributeError:
                 d = {'codigo': '',
                      'producto': detalle.otro,
                      'cantidad': detalle.cantidad,
@@ -380,7 +384,7 @@ class ModificarRequerimiento(UpdateView):
 
 class ObtenerDetalleRequerimiento(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             requerimiento = request.GET['requerimiento']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
@@ -405,7 +409,7 @@ class ObtenerDetalleRequerimiento(TemplateView):
                     # det['precio'] = str(detalle.producto.precio)
                     # det['valor'] = str(detalle.producto.precio*(detalle.cantidad-detalle.cantidad_atendida))
                     lista_detalles.append(det)
-                except:
+                except AttributeError:
                     pass
             formset = DetalleCotizacionFormSet(initial=lista_detalles)
             lista_json = []

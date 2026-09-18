@@ -9,7 +9,7 @@ from contabilidad.forms import TipoDocumentoForm, CuentaContableForm, \
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView, \
     BaseCreateView
 import simplejson
@@ -93,7 +93,7 @@ class CrearFormaPago(CreateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(permission_required('compras.add_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.add_formapago', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(CrearFormaPago, self).dispatch(*args, **kwargs)
 
@@ -206,10 +206,15 @@ class DetalleFormaPago(DetailView):
 
 
 class EliminarFormaPago(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            codigo = request.GET['codigo']
+    @method_decorator(permission_required('contabilidad.delete_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarFormaPago, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            codigo = request.POST['codigo']
             forma_pago = FormaPago.objects.get(pk=codigo)
             forma_pago_json = {}
             forma_pago_json['codigo'] = forma_pago.codigo
@@ -228,10 +233,16 @@ class EliminarFormaPago(TemplateView):
 
 
 class EliminarTipoDocumento(TemplateView):
+    http_method_names = ['post']
 
-    def get(self, request, *args, **kwargs):
-        if request.is_ajax():
-            id = request.GET['id']
+    @method_decorator(permission_required('contabilidad.delete_tipodocumento',
+                                          reverse_lazy('seguridad:permiso_denegado')))
+    def dispatch(self, *args, **kwargs):
+        return super(EliminarTipoDocumento, self).dispatch(*args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            id = request.POST['id']
             tipo_documento = TipoDocumento.objects.get(pk=id)
             tipo_documento_json = {}
             tipo_documento_json['codigo_sunat'] = tipo_documento.codigo_sunat
@@ -299,7 +310,7 @@ class ListadoFormasPago(ListView):
     paginate_by = 10
     queryset = FormaPago.objects.order_by('codigo')
 
-    @method_decorator(permission_required('compras.ver_tabla_formas_pago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.ver_tabla_formas_pago', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ListadoFormasPago, self).dispatch(*args, **kwargs)
 
@@ -320,12 +331,12 @@ class ModificarFormaPago(UpdateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(permission_required('compras.change_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(permission_required('contabilidad.change_formapago', reverse_lazy('seguridad:permiso_denegado')))
     def dispatch(self, *args, **kwargs):
         return super(ModificarFormaPago, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('compras:detalle_forma_pago', args=[self.object.pk])
+        return reverse('contabilidad:detalle_forma_pago', args=[self.object.pk])
 
 
 class ModificarTipoCambio(UpdateView):
@@ -406,7 +417,7 @@ class ModificarImpuesto(UpdateView):
 class ObtenerTipoCambio(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             fecha_get = request.GET['fecha']
             anio = int(fecha_get[6:])
             mes = int(fecha_get[3:5])

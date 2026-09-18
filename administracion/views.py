@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from django.shortcuts import render
 from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm, \
     ProfesionForm, NivelAprobacionForm, ProductorForm
 from almacen.models import TipoMovimiento
 from contabilidad.forms import UploadForm
-from django.core.urlresolvers import reverse_lazy
+from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
 from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
@@ -14,7 +16,7 @@ from django.views.generic.detail import DetailView
 from django.conf import settings
 import csv
 from django.http.response import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.contrib.auth.models import User
 from openpyxl import Workbook
 from django.http import HttpResponse
@@ -25,6 +27,8 @@ from django.utils.decorators import method_decorator
 import simplejson
 import json
 from django.db.models import Q
+
+logger = logging.getLogger(__name__)
 
 
 class Tablero(View):
@@ -58,7 +62,7 @@ class Tablero(View):
 
 class BusquedaReceptorDni(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
             if tipo_movimiento.es_venta:
@@ -74,7 +78,7 @@ class BusquedaReceptorDni(TemplateView):
 
 class BusquedaReceptorNombre(TemplateView):
     def get(self, request, *args, **kwargs):
-        if request.is_ajax():
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             nombre = request.GET['nombre']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
             if tipo_movimiento.es_venta:
@@ -133,8 +137,8 @@ class CargarProductores(FormView):
                                                                         defaults={'apellido_paterno': appaterno,
                                                                                   'apellido_materno': apmaterno,
                                                                                   'nombres': nombres})
-                except:
-                    pass
+                except Exception:
+                    logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
         return HttpResponseRedirect(reverse('administracion:maestro_productores'))
 
 
@@ -154,7 +158,7 @@ class CargarTrabajadores(FormView):
                 usuario, creado = User.objects.get_or_create(username=usuario_hoja,
                                                              defaults={'email': fila[5]}, )
                 if creado:
-                    usuario.set_password('123456789')
+                    usuario.set_unusable_password()
                     usuario.save()
                     trabajador, creado = Trabajador.objects.get_or_create(usuario=usuario,
                                                                           defaults={'dni': fila[1].strip(),
@@ -183,7 +187,7 @@ class CargarPuestos(FormView):
             anio = int(fila[3][6:])
             mes = int(fila[3][3:5])
             dia = int(fila[3][0:2])
-            fecha = datetime.datetime(anio, mes, dia)
+            fecha = datetime.date(anio, mes, dia)
             if fila[4] == 'SI':
                 es_jefatura = True
             else:
@@ -196,8 +200,8 @@ class CargarPuestos(FormView):
                                                                       dni=fila[2].strip()),
                                                                   'fecha_inicio': fecha,
                                                                   'es_jefatura': es_jefatura})
-            except:
-                pass
+            except Exception:
+                logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
         return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
 
 
@@ -448,8 +452,8 @@ class ReporteExcelOficinas(TemplateView):
                 ws.cell(row=cont, column=4).value = oficina.dependencia.nombre
                 ws.cell(row=cont, column=5).value = oficina.gerencia.nombre
                 cont = cont + 1
-            except:
-                print(oficina)
+            except Exception:
+                logger.warning("No se pudo exportar la oficina %s", oficina.pk, exc_info=True)
         nombre_archivo = "Oficinas.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
