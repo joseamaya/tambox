@@ -7,6 +7,7 @@ from requerimientos.querysets import RequerimientoQuerySet, AprobacionRequerimie
 from django.core.validators import MaxValueValidator
 from datetime import date
 from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
+from tambox.estados import clasificar, COMPLETO, PARCIAL, VACIO
 from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
@@ -70,25 +71,23 @@ class Requerimiento(TimeStampedModel):
         return self.codigo
 
     def establecer_estado_cotizado(self):
-        total_cotizado = self.total_cotizado
-        total = self.total
-        if total_cotizado == 0:
+        caso = clasificar(self.total_cotizado, self.total)
+        if caso == VACIO:
             estado = Requerimiento.STATUS.PEND
-        elif total_cotizado < total:
+        elif caso == PARCIAL:
             estado = Requerimiento.STATUS.COTIZ_PARC
-        elif total_cotizado >= total:
+        else:
             estado = Requerimiento.STATUS.COTIZ
         self.estado = estado
         return self.estado
 
     def establecer_estado_comprado(self):
-        total_comprado = self.total
-        total = self.total_comprado
-        if total_comprado == 0:
+        caso = clasificar(self.total_comprado, self.total)
+        if caso == VACIO:
             estado = self.establecer_estado_cotizado()
-        elif total_comprado < total:
+        elif caso == PARCIAL:
             estado = Requerimiento.STATUS.COMP_PARC
-        elif total_comprado >= total:
+        else:
             estado = Requerimiento.STATUS.COMP
         self.estado = estado
         return self.estado
@@ -100,11 +99,12 @@ class Requerimiento(TimeStampedModel):
         for detalle in detalles:
             total = total + detalle.cantidad
             total_atendido = total_atendido + detalle.cantidad_atendida
-        if total_atendido == 0:
+        caso = clasificar(total_atendido, total)
+        if caso == VACIO:
             estado = self.establecer_estado_comprado()
-        elif total_atendido < total:
+        elif caso == PARCIAL:
             estado = Requerimiento.STATUS.ATEN_PARC
-        elif total_atendido >= total:
+        else:
             estado = Requerimiento.STATUS.ATEN
         self.estado = estado
         return self.estado
@@ -173,7 +173,8 @@ class Requerimiento(TimeStampedModel):
         self.save()
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
+        es_nuevo = self.codigo == ''
+        if es_nuevo:
             self.codigo = self.generar_codigo()
             puesto = self.solicitante.puesto
             if puesto is None:
@@ -181,17 +182,23 @@ class Requerimiento(TimeStampedModel):
                     'No se puede registrar el requerimiento: el solicitante %s no tiene un puesto asignado.'
                     % self.solicitante)
             self.oficina = puesto.oficina
-            if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
-                niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")
-                if niveles_aprobacion.count() > 0:
-                    nivel = niveles_aprobacion[0]
-                    AprobacionRequerimiento.objects.create(requerimiento=self,
-                                                           nivel=nivel)
-            else:
-                nivel = puesto.establecer_nivel(self.oficina)
-                AprobacionRequerimiento.objects.create(requerimiento=self,
-                                                       nivel=nivel)
+
         super(Requerimiento, self).save()
+
+        if es_nuevo:
+            self.crear_aprobacion_inicial(puesto)
+
+    def crear_aprobacion_inicial(self, puesto):
+        """Crea la aprobacion del primer nivel. Requiere que el requerimiento ya
+        tenga pk, por eso se llama despues de guardar."""
+        if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
+            niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")
+            if niveles_aprobacion.count() > 0:
+                AprobacionRequerimiento.objects.create(requerimiento=self,
+                                                        nivel=niveles_aprobacion[0])
+            return
+        AprobacionRequerimiento.objects.create(requerimiento=self,
+                                               nivel=puesto.establecer_nivel(self.oficina))
 
 
 class DetalleRequerimiento(TimeStampedModel):

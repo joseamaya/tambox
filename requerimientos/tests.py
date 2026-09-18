@@ -1,7 +1,9 @@
 from django.test import TestCase
 from model_bakery import baker
+from administracion.models import NivelAprobacion, Oficina, Puesto, Trabajador
 from requerimientos.models import Requerimiento, DetalleRequerimiento, \
     AprobacionRequerimiento
+from tambox.estados import clasificar, COMPLETO, PARCIAL, VACIO
 
 
 # Create your tests here.
@@ -125,3 +127,103 @@ class AprobacionRequerimientoTest(TestCase):
     def test_creacion_detalle_requerimiento(self):
         self.assertTrue(isinstance(self.apr1, AprobacionRequerimiento))
         self.assertEqual(self.apr1.__str__(), self.r1.codigo)
+
+
+class ClasificarTest(TestCase):
+    """La regla detras de la maquina de estados."""
+
+    def test_sin_avance(self):
+        self.assertEqual(clasificar(0, 10), VACIO)
+
+    def test_avance_parcial(self):
+        self.assertEqual(clasificar(4, 10), PARCIAL)
+
+    def test_avance_completo(self):
+        self.assertEqual(clasificar(10, 10), COMPLETO)
+
+    def test_avance_por_encima_del_total(self):
+        self.assertEqual(clasificar(12, 10), COMPLETO)
+
+
+class EstadosDeRequerimientoTest(TestCase):
+
+    def _requerimiento(self, cantidad, cotizada=0, comprada=0, atendida=0):
+        baker.make(NivelAprobacion, descripcion='USUARIO')
+        oficina = baker.make(Oficina)
+        trabajador = baker.make(Trabajador)
+        baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)
+        requerimiento = baker.make(Requerimiento, solicitante=trabajador, oficina=oficina, codigo='')
+        baker.make(DetalleRequerimiento, requerimiento=requerimiento, nro_detalle=1,
+                   cantidad=cantidad, cantidad_cotizada=cotizada,
+                   cantidad_comprada=comprada, cantidad_atendida=atendida)
+        return requerimiento
+
+    def test_comprado_parcial_no_marca_como_comprado(self):
+        requerimiento = self._requerimiento(cantidad=10, comprada=4)
+
+        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP_PARC)
+
+    def test_crear_requerimiento_crea_su_aprobacion_inicial(self):
+        """Antes fallaba siempre: la aprobacion se creaba antes de que el
+        requerimiento tuviera pk."""
+        requerimiento = self._requerimiento(cantidad=10)
+
+        self.assertTrue(AprobacionRequerimiento.objects.filter(requerimiento=requerimiento).exists())
+
+    def test_comprado_completo(self):
+        requerimiento = self._requerimiento(cantidad=10, comprada=10)
+
+        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
+
+    def test_comprado_por_encima_del_total(self):
+        requerimiento = self._requerimiento(cantidad=10, comprada=12)
+
+        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
+
+    def test_cotizado_parcial(self):
+        requerimiento = self._requerimiento(cantidad=10, cotizada=4)
+
+        self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ_PARC)
+
+    def test_cotizado_completo(self):
+        requerimiento = self._requerimiento(cantidad=10, cotizada=10)
+
+        self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ)
+
+    def test_atendido_parcial(self):
+        requerimiento = self._requerimiento(cantidad=10, atendida=4)
+
+        self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN_PARC)
+
+    def test_atendido_completo(self):
+        requerimiento = self._requerimiento(cantidad=10, atendida=10)
+
+        self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN)
+
+
+class EstadosDeDetalleRequerimientoTest(TestCase):
+    """Estos metodos solo leen los campos de la instancia, asi que no hace falta
+    tocar la base de datos."""
+
+    def _detalle(self, cantidad, cotizada=0, comprada=0, atendida=0):
+        return DetalleRequerimiento(cantidad=cantidad, cantidad_cotizada=cotizada,
+                                    cantidad_comprada=comprada, cantidad_atendida=atendida)
+
+    def test_cotizado(self):
+        self.assertEqual(self._detalle(10).establecer_estado_cotizado(), DetalleRequerimiento.STATUS.PEND)
+        self.assertEqual(self._detalle(10, cotizada=4).establecer_estado_cotizado(),
+                         DetalleRequerimiento.STATUS.COTIZ_PARC)
+        self.assertEqual(self._detalle(10, cotizada=10).establecer_estado_cotizado(),
+                         DetalleRequerimiento.STATUS.COTIZ)
+
+    def test_comprado(self):
+        self.assertEqual(self._detalle(10, comprada=4).establecer_estado_comprado(),
+                         DetalleRequerimiento.STATUS.COMP_PARC)
+        self.assertEqual(self._detalle(10, comprada=10).establecer_estado_comprado(),
+                         DetalleRequerimiento.STATUS.COMP)
+
+    def test_atendido(self):
+        self.assertEqual(self._detalle(10, atendida=4).establecer_estado_atendido(),
+                         DetalleRequerimiento.STATUS.ATEN_PARC)
+        self.assertEqual(self._detalle(10, atendida=10).establecer_estado_atendido(),
+                         DetalleRequerimiento.STATUS.ATEN)
