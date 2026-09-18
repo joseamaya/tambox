@@ -13,8 +13,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from almacen.forms import AlmacenForm, TipoStockForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos, \
-    FormularioKardexProducto, CargarInventarioInicialForm, FormularioReporteStock, MovimientoForm, \
+from almacen.forms import AlmacenForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos, \
+    FormularioKardexProducto, CargarInventarioInicialForm, MovimientoForm, \
     DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet, \
     AprobacionPedidoForm, FormularioReprocesoPrecio, \
     FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
@@ -342,21 +342,6 @@ class CrearTipoSalida(FormView):
     def form_valid(self, form):
         form.save()
         return super(CrearTipoSalida, self).form_valid(form)
-
-
-class CrearTipoStock(View):
-
-    def get(self, request, *args, **kwargs):
-        form = TipoStockForm()
-        return render(request, 'crear_tipo_stock.html', {'form': form})
-
-    '''template_name = 'almacen/crear_tipo_stock.html'
-    form_class = TipoStockForm
-    success_url = reverse_lazy('almacen:crear_tipo_stock')
-
-    def form_valid(self, form):
-        form.save()
-        return super(CrearTipoStock, self).form_valid(form)'''
 
 
 class CrearAlmacen(FormView):
@@ -1506,15 +1491,6 @@ class ReporteKardex(RespuestaReporteMixin, FormView):
         metodo, nombre_archivo = self.REPORTES_EXCEL[clave]
         reporte = ReporteKardexExcel()
         return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, almacen), nombre_archivo)
-
-
-class ReporteStock(FormView):
-    template_name = 'almacen/reporte_stock.html'
-    form_class = FormularioReporteStock
-
-    def post(self, request, *args, **kwargs):
-        r_almacen = request.POST['almacenes']
-        return HttpResponseRedirect(reverse('almacen:listado_stock', args=[r_almacen]))
 
 
 class ReprocesoPrecio(FormView):

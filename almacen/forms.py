@@ -14,10 +14,6 @@ from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
 
 
-class FormularioCargarAlmacenes(forms.Form):
-    docfile = forms.FileField()
-
-
 class TipoMovimientoForm(forms.ModelForm):
     class Meta:
         model = TipoMovimiento
@@ -48,26 +44,6 @@ class TipoSalidaForm(forms.ModelForm):
         self.instance.tabla = self.tabla
         self.instance.descripcion_campo = self.descripcion_campo
         super(TipoSalidaForm, self).save(*args, **kwargs)
-
-
-class TipoStockForm(forms.ModelForm):
-    class Meta:
-        model = Tipo
-        fields = ['codigo', 'descripcion_valor']
-
-    def __init__(self, *args, **kwargs):
-        self.tabla = "tipo_stock"
-        self.descripcion_campo = "tipo_stock"
-        super(TipoStockForm, self).__init__(*args, **kwargs)
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
-
-    def save(self, *args, **kwargs):
-        self.instance.tabla = self.tabla
-        self.instance.descripcion_campo = self.descripcion_campo
-        super(TipoStockForm, self).save(*args, **kwargs)
 
 
 class AlmacenForm(forms.ModelForm):
@@ -359,11 +335,6 @@ class FormularioDetallePedido(forms.Form):
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
-
-
-class FormularioReporteStock(forms.Form):
-    almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
-                                       widget=forms.Select(attrs={'class': 'form-control'}))
 
 
 class FormularioDetalleIngreso(forms.Form):

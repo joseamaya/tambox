@@ -628,7 +628,7 @@ class PDFSolicitudCotizacion(object):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
-            pdf.drawString(20, 800, str(archivo_imagen))
+            pdf.drawString(20, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"SOLICITUD DE COTIZACIÓN"]]
         tabla_encabezado = Table(encabezado, colWidths=[8 * cm])
@@ -749,7 +749,7 @@ class PDFMemorandoConformidadServicio(object):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
         except Exception:
-            pdf.drawString(40, 750, str(archivo_imagen))
+            pdf.drawString(40, 750, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(130, 750, u"MEMORANDO DE CONFORMIDAD DEL SERVICIO")
         pdf.setFont("Times-Roman", 13)
@@ -865,7 +865,7 @@ class PDFOrdenServicios(object):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
-            pdf.drawString(40, 800, str(archivo_imagen))
+            pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
@@ -1080,7 +1080,7 @@ class PDFOrdenCompra(object):
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
         except Exception:
-            pdf.drawString(40, 800, str(archivo_imagen))
+            pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)

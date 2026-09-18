@@ -10,7 +10,7 @@ from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
 from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
 class Requerimiento(TimeStampedModel):
@@ -176,6 +176,10 @@ class Requerimiento(TimeStampedModel):
         if self.codigo == '':
             self.codigo = self.generar_codigo()
             puesto = self.solicitante.puesto
+            if puesto is None:
+                raise ValidationError(
+                    'No se puede registrar el requerimiento: el solicitante %s no tiene un puesto asignado.'
+                    % self.solicitante)
             self.oficina = puesto.oficina
             if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
                 niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")

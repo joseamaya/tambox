@@ -1,11 +1,11 @@
 from django.urls import re_path
 from django.contrib.auth.decorators import login_required
-from almacen.views import CrearAlmacen, CrearTipoStock, RegistrarIngresoAlmacen, RegistrarSalidaAlmacen, \
+from almacen.views import CrearAlmacen, RegistrarIngresoAlmacen, RegistrarSalidaAlmacen, \
     CrearTipoSalida, CrearDetalleSalida, \
     ReportePDFProductos, InicioOperaciones, CrearTipoMovimiento, ListadoAlmacenes, ListadoTiposUnidadMedida, \
     ListadoTiposStock, Tablero, ListadoTiposMovimiento, VerificarSolicitaDocumento, \
     ReporteExcelMovimientos, ReporteExcelMovimientosPorFecha, ListadoMovimientos, CrearDetalleIngreso, \
-    ConsultaStock, BusquedaProductosAlmacen, ReportePDFMovimiento, ReporteStock, ReporteKardex, DetalleAlmacen, \
+    ConsultaStock, BusquedaProductosAlmacen, ReportePDFMovimiento, ReporteKardex, DetalleAlmacen, \
     EliminarMovimiento, ModificarAlmacen, EliminarAlmacen, DetalleTipoMovimiento, ModificarMovimiento, \
     ReporteExcelAlmacenes, ModificarIngresoAlmacen, ModificarSalidaAlmacen, VerificarPideReferencia, \
     ReporteExcelTiposMovimientos, CrearPedido, \
@@ -29,7 +29,6 @@ urlpatterns = [
     re_path(r'^crear_detalle_salida/$', login_required(CrearDetalleSalida.as_view()), name="crear_detalle_salida"),
     re_path(r'^crear_detalle_ingreso/$', login_required(CrearDetalleIngreso.as_view()), name="crear_detalle_ingreso"),
     re_path(r'^crear_almacen/$', login_required(CrearAlmacen.as_view()), name="crear_almacen"),
-    re_path(r'^crear_tipo_stock/$', login_required(CrearTipoStock.as_view()), name="crear_tipo_stock"),
     re_path(r'^almacenes/$', login_required(ListadoAlmacenes.as_view()), name="almacenes"),
     re_path(r'^movimientos/$', login_required(ListadoMovimientos.as_view()), name="movimientos"),
     re_path(r'^listado_ingresos/$', login_required(ListadoIngresos.as_view()), name="listado_ingresos"),
@@ -62,7 +61,6 @@ urlpatterns = [
         login_required(ReporteExcelMovimientosPorFecha.as_view()), name="movimientos_fecha"),
     re_path(r'^movimiento_pdf/(?P<id_movimiento>.+)/$', login_required(ReportePDFMovimiento.as_view()),
         name="movimiento_pdf"),
-    re_path(r'^reporte_stock/$', login_required(ReporteStock.as_view()), name="reporte_stock"),
     re_path(r'^reporte_kardex/$', login_required(ReporteKardex.as_view()), name="reporte_kardex"),
     re_path(r'^eliminar_movimiento/$', login_required(EliminarMovimiento.as_view()), name="eliminar_movimiento"),
     re_path(r'^eliminar_almacen/$', login_required(EliminarAlmacen.as_view()), name="eliminar_almacen"),
