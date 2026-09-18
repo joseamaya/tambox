@@ -148,7 +148,7 @@ class ClasificarTest(TestCase):
 class EstadosDeRequerimientoTest(TestCase):
 
     def _requerimiento(self, cantidad, cotizada=0, comprada=0, atendida=0):
-        baker.make(NivelAprobacion, descripcion='USUARIO')
+        NivelAprobacion.objects.get_or_create(descripcion='USUARIO')
         oficina = baker.make(Oficina)
         trabajador = baker.make(Trabajador)
         baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)
@@ -218,6 +218,21 @@ class EstadosDeRequerimientoTest(TestCase):
             requerimiento.total
             requerimiento.total_cotizado
             requerimiento.total_comprado
+
+    def test_el_prefetch_evita_una_consulta_por_requerimiento(self):
+        """Los totales recorren el manager inverso y no un .filter(), que siempre
+        lanza su propia consulta. Eso es lo que hace que prefetch_related sirva
+        en los bucles que cargan muchos requerimientos."""
+        for cantidad in (10, 20, 30):
+            self._requerimiento(cantidad=cantidad)
+
+        requerimientos = list(Requerimiento.objects.prefetch_related('detallerequerimiento_set'))
+
+        with self.assertNumQueries(0):
+            for requerimiento in requerimientos:
+                requerimiento.total
+                requerimiento.total_cotizado
+                requerimiento.total_comprado
 
 
 class EstadosDeDetalleRequerimientoTest(TestCase):

@@ -293,7 +293,7 @@ class OrdenCompra(TimeStampedModel):
         """
         if not hasattr(self, '_impuesto_calculado'):
             imp = 0
-            for detalle in DetalleOrdenCompra.objects.filter(orden=self):
+            for detalle in self.detalleordencompra_set.all():
                 imp = imp + detalle.impuesto
             self._impuesto_calculado = imp
         return self._impuesto_calculado
@@ -302,7 +302,7 @@ class OrdenCompra(TimeStampedModel):
     def subtotal(self):
         if not hasattr(self, '_subtotal_calculado'):
             subtotal = 0
-            for detalle in DetalleOrdenCompra.objects.filter(orden=self):
+            for detalle in self.detalleordencompra_set.all():
                 subtotal = subtotal + detalle.valor_sin_igv
             self._subtotal_calculado = subtotal
         return self._subtotal_calculado
@@ -435,10 +435,10 @@ class OrdenServicios(TimeStampedModel):
 
     @property
     def subtotal(self):
-        sub_total = 0
-        for detalle in DetalleOrdenServicios.objects.filter(orden=self):
-            sub_total = sub_total + detalle.valor
-        return sub_total
+        if not hasattr(self, '_subtotal_calculado'):
+            self._subtotal_calculado = sum(detalle.valor
+                                           for detalle in self.detalleordenservicios_set.all())
+        return self._subtotal_calculado
 
     @property
     def impuesto(self):

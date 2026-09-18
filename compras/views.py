@@ -994,7 +994,10 @@ class ModificarOrdenCompra(UpdateView):
         if self.object.estado == OrdenCompra.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetalleOrdenCompra.objects.filter(orden=self.object).order_by('nro_detalle')
+            detalles = (DetalleOrdenCompra.objects.filter(orden=self.object)
+                        .select_related('orden', 'producto__unidad_medida',
+                                        'detalle_cotizacion__detalle_requerimiento__producto__unidad_medida')
+                        .order_by('nro_detalle'))
             detalles_data = []
             for detalle in detalles:
                 try:
@@ -1571,6 +1574,9 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
         ws['F5'] = 'FORMA_PAGO'
         ws['G5'] = 'CREADO'
         ws['H5'] = 'ESTADO'
+        ordenes_servicios = ordenes_servicios.select_related(
+            'proveedor', 'forma_pago', 'cotizacion__proveedor'
+        ).prefetch_related('detalleordenservicios_set')
         cont = 6
         for orden in ordenes_servicios:
             ws.cell(row=cont, column=2).value = orden.codigo
@@ -1648,6 +1654,9 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         ws['F5'] = 'FORMA_PAGO'
         ws['G5'] = 'CREADO'
         ws['H5'] = 'ESTADO'
+        ordenes_compra = ordenes_compra.select_related(
+            'proveedor', 'forma_pago', 'cotizacion__proveedor'
+        ).prefetch_related('detalleordencompra_set')
         cont = 6
         for orden_compra in ordenes_compra:
             ws.cell(row=cont, column=2).value = orden_compra.codigo

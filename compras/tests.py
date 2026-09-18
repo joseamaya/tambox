@@ -1,7 +1,7 @@
 from django.test import TestCase
 from model_bakery import baker
 from compras.models import Proveedor, RepresentanteLegal, Cotizacion, \
-    DetalleCotizacion, DetalleOrdenCompra, DetalleOrdenServicios
+    DetalleCotizacion, DetalleOrdenCompra, DetalleOrdenServicios, OrdenCompra
 from datetime import date
 
 
@@ -178,7 +178,6 @@ class TotalesDeOrdenCompraTest(TestCase):
     consultas. No se convierten en agregados SQL porque redondean fila a fila."""
 
     def test_subtotal_e_impuesto_se_calculan_una_sola_vez(self):
-        from compras.models import OrdenCompra
         orden = baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
 
         with self.assertNumQueries(1):
@@ -191,3 +190,15 @@ class TotalesDeOrdenCompraTest(TestCase):
             orden.subtotal
             orden.impuesto
             orden.total
+
+    def test_los_detalles_usan_la_cache_del_prefetch(self):
+        """`subtotal` recorre detalleordencompra_set y no un .filter(): solo asi
+        prefetch_related evita una consulta por orden en los reportes."""
+        baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+
+        ordenes = list(OrdenCompra.objects.prefetch_related('detalleordencompra_set'))
+
+        with self.assertNumQueries(0):
+            for orden in ordenes:
+                orden.subtotal
+                orden.impuesto

@@ -10,7 +10,7 @@ from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
 from tambox.estados import clasificar, PARCIAL, VACIO
 from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
-from django.db.models import Q, Sum
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
@@ -48,25 +48,31 @@ class Requerimiento(TimeStampedModel):
 
     @property
     def total(self):
-        """Suma una columna, asi que el agregado es exacto. Se memoriza porque la
-        maquina de estados y las plantillas lo invocan varias veces."""
+        """Suma una columna, asi que el total es exacto con o sin agregado SQL.
+
+        Se recorre el manager inverso en lugar de un .filter() para que
+        `prefetch_related` sirva de algo en los bucles que cargan muchos
+        requerimientos: un .filter() siempre lanza su propia consulta y se salta
+        la cache. Se memoriza porque la maquina de estados y las plantillas lo
+        invocan varias veces.
+        """
         if not hasattr(self, '_total_calculado'):
-            self._total_calculado = DetalleRequerimiento.objects.filter(
-                requerimiento=self).aggregate(total=Sum('cantidad'))['total'] or 0
+            self._total_calculado = sum(detalle.cantidad
+                                        for detalle in self.detallerequerimiento_set.all())
         return self._total_calculado
 
     @property
     def total_cotizado(self):
         if not hasattr(self, '_total_cotizado_calculado'):
-            self._total_cotizado_calculado = DetalleRequerimiento.objects.filter(
-                requerimiento=self).aggregate(total=Sum('cantidad_cotizada'))['total'] or 0
+            self._total_cotizado_calculado = sum(detalle.cantidad_cotizada
+                                                 for detalle in self.detallerequerimiento_set.all())
         return self._total_cotizado_calculado
 
     @property
     def total_comprado(self):
         if not hasattr(self, '_total_comprado_calculado'):
-            self._total_comprado_calculado = DetalleRequerimiento.objects.filter(
-                requerimiento=self).aggregate(total=Sum('cantidad_comprada'))['total'] or 0
+            self._total_comprado_calculado = sum(detalle.cantidad_comprada
+                                                 for detalle in self.detallerequerimiento_set.all())
         return self._total_comprado_calculado
 
     def __str__(self):
@@ -161,8 +167,9 @@ class Requerimiento(TimeStampedModel):
     @staticmethod
     def obtener_requerimientos_listos_transferencia():
         listado_requerimientos = []
-        requerimientos = Requerimiento.objects.filter(aprobacionrequerimiento__nivel__descripcion="LOGISTICA",
-                                                      aprobacionrequerimiento__estado=True)
+        requerimientos = Requerimiento.objects.filter(
+            aprobacionrequerimiento__nivel__descripcion="LOGISTICA",
+            aprobacionrequerimiento__estado=True).prefetch_related('detallerequerimiento_set')
         for requerimiento in requerimientos:
             total = requerimiento.total
             total_comprado = requerimiento.total_comprado
