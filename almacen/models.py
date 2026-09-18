@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*- 
 from django.db import models, transaction
-from django.db.models import Max
+from django.db.models import Max, Sum
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
 from django.utils.encoding import force_str
@@ -279,10 +279,11 @@ class Movimiento(TimeStampedModel):
 
     @property
     def total(self):
-        total = 0
-        for detalle in DetalleMovimiento.objects.filter(movimiento=self):
-            total = total + detalle.valor
-        return total
+        """Suma la columna `valor`, asi que el agregado es exacto."""
+        if not hasattr(self, '_total_calculado'):
+            self._total_calculado = DetalleMovimiento.objects.filter(
+                movimiento=self).aggregate(total=Sum('valor'))['total'] or 0
+        return self._total_calculado
 
     class Meta:
         permissions = (('ver_detalle_movimiento', 'Puede ver detalle de Movimiento'),

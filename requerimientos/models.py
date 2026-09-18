@@ -10,7 +10,7 @@ from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
 from tambox.estados import clasificar, PARCIAL, VACIO
 from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
@@ -48,24 +48,26 @@ class Requerimiento(TimeStampedModel):
 
     @property
     def total(self):
-        total = 0
-        for detalle in DetalleRequerimiento.objects.filter(requerimiento=self):
-            total = total + detalle.cantidad
-        return total
+        """Suma una columna, asi que el agregado es exacto. Se memoriza porque la
+        maquina de estados y las plantillas lo invocan varias veces."""
+        if not hasattr(self, '_total_calculado'):
+            self._total_calculado = DetalleRequerimiento.objects.filter(
+                requerimiento=self).aggregate(total=Sum('cantidad'))['total'] or 0
+        return self._total_calculado
 
     @property
     def total_cotizado(self):
-        total = 0
-        for detalle in DetalleRequerimiento.objects.filter(requerimiento=self):
-            total = total + detalle.cantidad_cotizada
-        return total
+        if not hasattr(self, '_total_cotizado_calculado'):
+            self._total_cotizado_calculado = DetalleRequerimiento.objects.filter(
+                requerimiento=self).aggregate(total=Sum('cantidad_cotizada'))['total'] or 0
+        return self._total_cotizado_calculado
 
     @property
     def total_comprado(self):
-        total = 0
-        for detalle in DetalleRequerimiento.objects.filter(requerimiento=self):
-            total = total + detalle.cantidad_comprada
-        return total
+        if not hasattr(self, '_total_comprado_calculado'):
+            self._total_comprado_calculado = DetalleRequerimiento.objects.filter(
+                requerimiento=self).aggregate(total=Sum('cantidad_comprada'))['total'] or 0
+        return self._total_comprado_calculado
 
     def __str__(self):
         return self.codigo

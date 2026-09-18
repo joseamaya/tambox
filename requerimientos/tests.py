@@ -200,6 +200,25 @@ class EstadosDeRequerimientoTest(TestCase):
 
         self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN)
 
+    def test_los_totales_se_calculan_una_sola_vez(self):
+        """Suma columnas, asi que el agregado es exacto; la maquina de estados los
+        invoca varias veces en la misma operacion."""
+        requerimiento = self._requerimiento(cantidad=10)
+
+        with self.assertNumQueries(1):
+            self.assertEqual(requerimiento.total, 10)
+
+        with self.assertNumQueries(1):
+            requerimiento.total_cotizado
+
+        with self.assertNumQueries(1):
+            requerimiento.total_comprado
+
+        with self.assertNumQueries(0):
+            requerimiento.total
+            requerimiento.total_cotizado
+            requerimiento.total_comprado
+
 
 class EstadosDeDetalleRequerimientoTest(TestCase):
     """Estos metodos solo leen los campos de la instancia, asi que no hace falta

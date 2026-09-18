@@ -170,3 +170,24 @@ class EstadosDeDetalleTest(TestCase):
                          DetalleOrdenServicios.STATUS.CONF_PARC)
         self.assertEqual(DetalleOrdenServicios(cantidad=10, cantidad_conforme=10).establecer_estado_atendido(),
                          DetalleOrdenServicios.STATUS.CONF)
+
+
+class TotalesDeOrdenCompraTest(TestCase):
+    """`total` y `total_letras` encadenan `subtotal` e `impuesto`, y las
+    plantillas las invocan mas de una vez: sin memorizar se repiten las
+    consultas. No se convierten en agregados SQL porque redondean fila a fila."""
+
+    def test_subtotal_e_impuesto_se_calculan_una_sola_vez(self):
+        from compras.models import OrdenCompra
+        orden = baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+
+        with self.assertNumQueries(1):
+            orden.subtotal
+
+        with self.assertNumQueries(1):
+            orden.impuesto
+
+        with self.assertNumQueries(0):
+            orden.subtotal
+            orden.impuesto
+            orden.total

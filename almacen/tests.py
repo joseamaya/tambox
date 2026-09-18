@@ -233,3 +233,16 @@ class CargarCsvTest(TestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(Almacen.objects.filter(codigo__in=['AL01', 'AL02']).count(), 2)
         self.assertEqual(Almacen.objects.get(codigo='AL01').descripcion, 'ALMACEN UNO')
+
+
+class TotalDeMovimientoTest(TestCase):
+    """Suma la columna `valor`, asi que el agregado es exacto y ademas se memoriza."""
+
+    def test_se_calcula_una_sola_vez(self):
+        movimiento = baker.make(Movimiento)
+
+        with self.assertNumQueries(1):
+            movimiento.total
+
+        with self.assertNumQueries(0):
+            movimiento.total

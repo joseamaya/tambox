@@ -284,17 +284,28 @@ class OrdenCompra(TimeStampedModel):
 
     @property
     def impuesto(self):
-        imp = 0
-        for detalle in DetalleOrdenCompra.objects.filter(orden=self):
-            imp = imp + detalle.impuesto
-        return imp
+        """Se memoriza: `total` y `total_letras` la encadenan, y las plantillas
+        las invocan mas de una vez en la misma pagina.
+
+        No se convierte en agregado SQL a proposito: suma una propiedad que
+        redondea fila a fila, y SUM(...) redondearia una sola vez al final, lo
+        que cambia los ultimos decimales del importe.
+        """
+        if not hasattr(self, '_impuesto_calculado'):
+            imp = 0
+            for detalle in DetalleOrdenCompra.objects.filter(orden=self):
+                imp = imp + detalle.impuesto
+            self._impuesto_calculado = imp
+        return self._impuesto_calculado
 
     @property
     def subtotal(self):
-        subtotal = 0
-        for detalle in DetalleOrdenCompra.objects.filter(orden=self):
-            subtotal = subtotal + detalle.valor_sin_igv
-        return subtotal
+        if not hasattr(self, '_subtotal_calculado'):
+            subtotal = 0
+            for detalle in DetalleOrdenCompra.objects.filter(orden=self):
+                subtotal = subtotal + detalle.valor_sin_igv
+            self._subtotal_calculado = subtotal
+        return self._subtotal_calculado
 
     @property
     def total_letras(self):
