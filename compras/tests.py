@@ -87,3 +87,20 @@ class CotizacionTest(TestCase):
 
     def test_eliminar_referencia(self):
         pass
+
+
+class ReporteXLSOrdenCompraTest(TestCase):
+    """Ejecuta el armado del libro de Excel. `manage.py check` no ejecuta
+    cuerpos de funcion, asi que sin esto un nombre sin importar en la funcion
+    solo se descubriria al descargar el reporte."""
+
+    def test_genera_el_libro(self):
+        from compras.models import OrdenCompra
+        from compras.reports import reporte_xls_orden_compra
+
+        proveedor = baker.make(Proveedor)
+        orden = baker.make(OrdenCompra, proveedor=proveedor)
+
+        libro = reporte_xls_orden_compra(orden)
+
+        self.assertIsNotNone(libro.active)
