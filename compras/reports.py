@@ -624,8 +624,11 @@ def reporte_xls_orden_compra(orden):
 class PDFSolicitudCotizacion(object):
 
     def cabecera(self, pdf, cotizacion):
-        archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-        pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
+        try:
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
+        except Exception:
+            pdf.drawString(20, 800, str(archivo_imagen))
         pdf.setFont("Times-Roman", 14)
         encabezado = [[u"SOLICITUD DE COTIZACIÓN"]]
         tabla_encabezado = Table(encabezado, colWidths=[8 * cm])

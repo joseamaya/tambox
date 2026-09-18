@@ -130,3 +130,12 @@ class ReportesPDFTest(TestCase):
         contenido = PDFOrdenServicios().imprimir(orden)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
+
+    def test_solicitud_cotizacion_sin_logo(self):
+        from compras.reports import PDFSolicitudCotizacion
+
+        cotizacion = baker.make(Cotizacion, proveedor=baker.make(Proveedor))
+
+        contenido = PDFSolicitudCotizacion().imprimir(cotizacion)
+
+        self.assertTrue(contenido.startswith(b'%PDF'))
