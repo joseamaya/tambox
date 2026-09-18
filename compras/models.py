@@ -9,6 +9,7 @@ from django.db.models import Max
 from contabilidad.models import FormaPago, TipoCambio
 from productos.models import Producto
 from tambox.querysets import NavegableQuerySet
+from tambox.estados import clasificar, PARCIAL, VACIO
 from compras.settings import CHOICES_ESTADO_COTIZ
 from tambox.configuracion import configuracion
 from compras.managers import DetalleCotizacionManager, \
@@ -150,15 +151,15 @@ class Cotizacion(TimeStampedModel):
     def establecer_estado_comprado(self):
         total = 0
         total_comprado = 0
-        detalles = DetalleCotizacion.objects.filter(cotizacion=self)
-        for detalle in detalles:
+        for detalle in DetalleCotizacion.objects.filter(cotizacion=self):
             total = total + detalle.cantidad
             total_comprado = total_comprado + detalle.cantidad_comprada
-        if total_comprado == 0:
+        caso = clasificar(total_comprado, total)
+        if caso == VACIO:
             estado = Cotizacion.STATUS.DESC
-        elif total_comprado < total:
+        elif caso == PARCIAL:
             estado = Cotizacion.STATUS.ELEG_PARC
-        elif total_comprado >= total:
+        else:
             estado = Cotizacion.STATUS.ELEG
         self.estado = estado
         return self.estado
@@ -203,11 +204,12 @@ class DetalleCotizacion(TimeStampedModel):
     history = HistoricalRecords()
 
     def establecer_estado_comprado(self):
-        if self.cantidad_comprada == 0:
+        caso = clasificar(self.cantidad_comprada, self.cantidad)
+        if caso == VACIO:
             estado = DetalleCotizacion.STATUS.PEND
-        elif self.cantidad_comprada < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleCotizacion.STATUS.ELEG_PARC
-        elif self.cantidad_comprada >= self.cantidad:
+        else:
             estado = DetalleCotizacion.STATUS.ELEG
         self.estado = estado
         return self.estado
@@ -262,15 +264,15 @@ class OrdenCompra(TimeStampedModel):
     def establecer_estado(self):
         total = 0
         total_ingresado = 0
-        detalles = DetalleOrdenCompra.objects.filter(orden=self)
-        for detalle in detalles:
+        for detalle in DetalleOrdenCompra.objects.filter(orden=self):
             total = total + detalle.cantidad
             total_ingresado = total_ingresado + detalle.cantidad_ingresada
-        if total_ingresado == 0:
+        caso = clasificar(total_ingresado, total)
+        if caso == VACIO:
             estado = OrdenCompra.STATUS.PEND
-        elif total_ingresado < total:
+        elif caso == PARCIAL:
             estado = OrdenCompra.STATUS.ING_PARC
-        elif total_ingresado >= total:
+        else:
             estado = OrdenCompra.STATUS.ING
         self.estado = estado
         return self.estado
@@ -387,12 +389,12 @@ class DetalleOrdenCompra(TimeStampedModel):
         return round(imp, 5)
 
     def establecer_estado(self):
-        cantidad_ingresada = self.cantidad_ingresada
-        if cantidad_ingresada == 0:
+        caso = clasificar(self.cantidad_ingresada, self.cantidad)
+        if caso == VACIO:
             estado = DetalleOrdenCompra.STATUS.PEND
-        elif cantidad_ingresada < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleOrdenCompra.STATUS.ING_PARC
-        elif cantidad_ingresada >= self.cantidad:
+        else:
             estado = DetalleOrdenCompra.STATUS.ING
         self.estado = estado
         return self.estado
@@ -469,15 +471,15 @@ class OrdenServicios(TimeStampedModel):
     def establecer_estado(self):
         total = 0
         total_conforme = 0
-        detalles = DetalleOrdenServicios.objects.filter(orden=self)
-        for detalle in detalles:
+        for detalle in DetalleOrdenServicios.objects.filter(orden=self):
             total = total + detalle.cantidad
             total_conforme = total_conforme + detalle.cantidad_conforme
-        if total_conforme == 0:
+        caso = clasificar(total_conforme, total)
+        if caso == VACIO:
             estado = OrdenServicios.STATUS.PEND
-        elif total_conforme < total:
+        elif caso == PARCIAL:
             estado = OrdenServicios.STATUS.CONF_PARC
-        elif total_conforme >= total:
+        else:
             estado = OrdenServicios.STATUS.CONF
         self.estado = estado
         return self.estado
@@ -539,12 +541,12 @@ class DetalleOrdenServicios(TimeStampedModel):
         ordering = ['nro_detalle']
 
     def establecer_estado_atendido(self):
-        cantidad_conforme = self.cantidad_conforme
-        if cantidad_conforme == 0:
+        caso = clasificar(self.cantidad_conforme, self.cantidad)
+        if caso == VACIO:
             estado = DetalleOrdenServicios.STATUS.PEND
-        elif cantidad_conforme < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleOrdenServicios.STATUS.CONF_PARC
-        elif cantidad_conforme >= self.cantidad:
+        else:
             estado = DetalleOrdenServicios.STATUS.CONF
         self.estado = estado
         return self.estado

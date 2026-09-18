@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from productos.models import Producto
 from almacen.managers import DetalleMovimientoManager
 from tambox.querysets import NavegableQuerySet
+from tambox.estados import clasificar, PARCIAL, VACIO
 from decimal import Decimal
 from simple_history.models import HistoricalRecords
 
@@ -119,17 +120,18 @@ class Pedido(TimeStampedModel):
     def establecer_estado_atendido(self):
         total = 0
         total_atendida = 0
-        detalles = DetallePedido.objects.filter(pedido=self)
-        for detalle in detalles:
+        for detalle in DetallePedido.objects.filter(pedido=self):
             total = total + detalle.cantidad
             total_atendida = total_atendida + detalle.cantidad_atendida
-        if total_atendida == 0:
+        caso = clasificar(total_atendida, total)
+        if caso == VACIO:
             estado = Pedido.STATUS.PEND
-        elif total_atendida < total:
+        elif caso == PARCIAL:
             estado = Pedido.STATUS.ATEN_PARC
-        elif total_atendida >= total:
+        else:
             estado = Pedido.STATUS.ATEN
         self.estado = estado
+        return self.estado
 
     class Meta:
         permissions = (('aprobar_pedido', 'Puede aprobar Pedido'),
@@ -179,15 +181,15 @@ class DetallePedido(TimeStampedModel):
         return resultado
 
     def establecer_estado_atendido(self):
-        cantidad_atendida = self.cantidad_atendida
-        cantidad = self.cantidad
-        if cantidad_atendida == 0:
+        caso = clasificar(self.cantidad_atendida, self.cantidad)
+        if caso == VACIO:
             estado = DetallePedido.STATUS.PEND
-        elif cantidad_atendida < cantidad:
+        elif caso == PARCIAL:
             estado = DetallePedido.STATUS.ATEN_PARC
-        elif cantidad_atendida >= cantidad:
+        else:
             estado = DetallePedido.STATUS.ATEN
         self.estado = estado
+        return self.estado
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Pedido'),)

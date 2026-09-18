@@ -1,7 +1,7 @@
 from django.test import TestCase
 from model_bakery import baker
 from compras.models import Proveedor, RepresentanteLegal, Cotizacion, \
-    DetalleCotizacion
+    DetalleCotizacion, DetalleOrdenCompra, DetalleOrdenServicios
 from datetime import date
 
 
@@ -139,3 +139,34 @@ class ReportesPDFTest(TestCase):
         contenido = PDFSolicitudCotizacion().imprimir(cotizacion)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
+
+
+class EstadosDeDetalleTest(TestCase):
+    """Estos metodos solo leen campos de la instancia, asi que no hace falta
+    tocar la base de datos, y fijan la regla compartida de clasificar()."""
+
+    def test_detalle_cotizacion(self):
+        self.assertEqual(DetalleCotizacion(cantidad=10, cantidad_comprada=0).establecer_estado_comprado(),
+                         DetalleCotizacion.STATUS.PEND)
+        self.assertEqual(DetalleCotizacion(cantidad=10, cantidad_comprada=4).establecer_estado_comprado(),
+                         DetalleCotizacion.STATUS.ELEG_PARC)
+        self.assertEqual(DetalleCotizacion(cantidad=10, cantidad_comprada=10).establecer_estado_comprado(),
+                         DetalleCotizacion.STATUS.ELEG)
+        self.assertEqual(DetalleCotizacion(cantidad=10, cantidad_comprada=12).establecer_estado_comprado(),
+                         DetalleCotizacion.STATUS.ELEG)
+
+    def test_detalle_orden_compra(self):
+        self.assertEqual(DetalleOrdenCompra(cantidad=10, cantidad_ingresada=0).establecer_estado(),
+                         DetalleOrdenCompra.STATUS.PEND)
+        self.assertEqual(DetalleOrdenCompra(cantidad=10, cantidad_ingresada=4).establecer_estado(),
+                         DetalleOrdenCompra.STATUS.ING_PARC)
+        self.assertEqual(DetalleOrdenCompra(cantidad=10, cantidad_ingresada=10).establecer_estado(),
+                         DetalleOrdenCompra.STATUS.ING)
+
+    def test_detalle_orden_servicios(self):
+        self.assertEqual(DetalleOrdenServicios(cantidad=10, cantidad_conforme=0).establecer_estado_atendido(),
+                         DetalleOrdenServicios.STATUS.PEND)
+        self.assertEqual(DetalleOrdenServicios(cantidad=10, cantidad_conforme=4).establecer_estado_atendido(),
+                         DetalleOrdenServicios.STATUS.CONF_PARC)
+        self.assertEqual(DetalleOrdenServicios(cantidad=10, cantidad_conforme=10).establecer_estado_atendido(),
+                         DetalleOrdenServicios.STATUS.CONF)

@@ -7,7 +7,7 @@ from requerimientos.querysets import RequerimientoQuerySet, AprobacionRequerimie
 from django.core.validators import MaxValueValidator
 from datetime import date
 from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
-from tambox.estados import clasificar, COMPLETO, PARCIAL, VACIO
+from tambox.estados import clasificar, PARCIAL, VACIO
 from tambox.configuracion import oficina_administracion, presupuesto, logistica, operaciones
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
@@ -222,32 +222,35 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.requerimiento.codigo + ' ' + str(self.nro_detalle)
 
     def establecer_estado_cotizado(self):
-        if self.cantidad_cotizada == 0:
+        caso = clasificar(self.cantidad_cotizada, self.cantidad)
+        if caso == VACIO:
             estado = DetalleRequerimiento.STATUS.PEND
-        elif self.cantidad_cotizada >= self.cantidad:
-            estado = DetalleRequerimiento.STATUS.COTIZ
-        elif self.cantidad_cotizada < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleRequerimiento.STATUS.COTIZ_PARC
+        else:
+            estado = DetalleRequerimiento.STATUS.COTIZ
         self.estado = estado
         return self.estado
 
     def establecer_estado_comprado(self):
-        if self.cantidad_comprada == 0:
+        caso = clasificar(self.cantidad_comprada, self.cantidad)
+        if caso == VACIO:
             estado = self.establecer_estado_cotizado()
-        elif self.cantidad_comprada >= self.cantidad:
-            estado = DetalleRequerimiento.STATUS.COMP
-        elif self.cantidad_comprada < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleRequerimiento.STATUS.COMP_PARC
+        else:
+            estado = DetalleRequerimiento.STATUS.COMP
         self.estado = estado
         return self.estado
 
     def establecer_estado_atendido(self):
-        if self.cantidad_atendida == 0:
+        caso = clasificar(self.cantidad_atendida, self.cantidad)
+        if caso == VACIO:
             estado = self.establecer_estado_comprado()
-        elif self.cantidad_atendida >= self.cantidad:
-            estado = DetalleRequerimiento.STATUS.ATEN
-        elif self.cantidad_atendida < self.cantidad:
+        elif caso == PARCIAL:
             estado = DetalleRequerimiento.STATUS.ATEN_PARC
+        else:
+            estado = DetalleRequerimiento.STATUS.ATEN
         self.estado = estado
         return self.estado
 

@@ -197,3 +197,17 @@ class ReporteInventarioTest(TestCase):
         codigos = [celda.value for celda in libro.active['B']]
 
         self.assertIn('GR00010001', codigos)
+
+
+class EstadoDeDetallePedidoTest(TestCase):
+    """Solo lee campos de la instancia, y fija la regla compartida de clasificar()."""
+
+    def test_atendido(self):
+        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=0).establecer_estado_atendido(),
+                         DetallePedido.STATUS.PEND)
+        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=4).establecer_estado_atendido(),
+                         DetallePedido.STATUS.ATEN_PARC)
+        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=10).establecer_estado_atendido(),
+                         DetallePedido.STATUS.ATEN)
+        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=12).establecer_estado_atendido(),
+                         DetallePedido.STATUS.ATEN)
