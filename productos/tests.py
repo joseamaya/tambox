@@ -99,3 +99,29 @@ class ProductoTest(TestCase):
 
     def test_creacion_servicio(self):
         self.assertEqual(self.p3.unidad_medida.codigo, 'SERV')
+
+
+class ConsultaDeStockTest(TestCase):
+    """Producto.stock recorria todos los almacenes con un .latest() cada uno, y
+    las plantillas lo invocan varias veces en la misma pagina."""
+
+    def test_una_sola_consulta_y_luego_cache(self):
+        from almacen.models import Almacen
+        baker.make(Almacen)
+        baker.make(Almacen)
+        producto = baker.make(Producto)
+
+        with self.assertNumQueries(1):
+            producto.stock
+
+        with self.assertNumQueries(0):
+            producto.stock
+
+    def test_previsto_es_una_sola_consulta(self):
+        producto = baker.make(Producto)
+
+        with self.assertNumQueries(1):
+            producto.previsto
+
+        with self.assertNumQueries(0):
+            producto.previsto

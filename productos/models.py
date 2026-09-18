@@ -119,27 +119,28 @@ class Producto(TimeStampedModel):
 
     @property
     def stock(self):
-        from almacen.models import Kardex, Almacen
-        stock = 0
-        almacenes = Almacen.objects.all()
-        for almacen in almacenes:
-            try:
-                control_producto = Kardex.objects.filter(producto=self,
-                                                         almacen=almacen).latest('fecha_operacion')
-                stock = stock + control_producto.cantidad_total
-            except Kardex.DoesNotExist:
-                pass
-        return stock
+        """Ultimo kardex de cada almacen, en una sola consulta.
+
+        Antes recorria Almacen.objects.all() lanzando un .latest() por almacen, y
+        las plantillas invocan la property varias veces en la misma pagina. El
+        resultado se memoriza para no repetirla en el mismo render.
+        """
+        if not hasattr(self, '_stock_calculado'):
+            from almacen.models import Kardex
+            ultimos = (Kardex.objects.filter(producto=self)
+                       .order_by('almacen_id', '-fecha_operacion', '-pk')
+                       .distinct('almacen_id'))
+            self._stock_calculado = sum(kardex.cantidad_total for kardex in ultimos)
+        return self._stock_calculado
 
     @property
     def previsto(self):
-        from compras.models import DetalleOrdenCompra
-        cant_prevista = 0
-        detalles = DetalleOrdenCompra.objects.filter(
-            Q(producto=self) | Q(detalle_cotizacion__detalle_requerimiento__producto=self))
-        for detalle in detalles:
-            cant_prevista = cant_prevista + detalle.cantidad
-        return cant_prevista
+        if not hasattr(self, '_previsto_calculado'):
+            from compras.models import DetalleOrdenCompra
+            self._previsto_calculado = DetalleOrdenCompra.objects.filter(
+                Q(producto=self) | Q(detalle_cotizacion__detalle_requerimiento__producto=self)
+            ).aggregate(total=Sum('cantidad'))['total'] or 0
+        return self._previsto_calculado
 
     def obtener_kardex(self, almacen, desde, hasta):
         from almacen.models import Movimiento, Kardex
