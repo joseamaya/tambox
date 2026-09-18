@@ -1,6 +1,6 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
-from model_mommy import mommy
+from model_bakery import baker
 from productos.models import UnidadMedida, GrupoProductos, Producto
 
 # Create your tests here.
@@ -20,9 +20,9 @@ from productos.models import UnidadMedida, GrupoProductos, Producto
 class UnidadMedidaTest(TestCase):
 
     def setUp(self):
-        self.um1 = mommy.make(UnidadMedida)
-        self.um2 = mommy.make(UnidadMedida)
-        self.um3 = mommy.make(UnidadMedida)
+        self.um1 = baker.make(UnidadMedida)
+        self.um2 = baker.make(UnidadMedida)
+        self.um3 = baker.make(UnidadMedida)
 
     def test_creacion_unidad_medida(self):
         self.assertTrue(isinstance(self.um1, UnidadMedida))
@@ -44,9 +44,9 @@ class UnidadMedidaTest(TestCase):
 class GrupoProductosTest(TestCase):
 
     def setUp(self):
-        self.gp1 = mommy.make(GrupoProductos, codigo='')
-        self.gp2 = mommy.make(GrupoProductos, codigo='')
-        self.gp3 = mommy.make(GrupoProductos, codigo='')
+        self.gp1 = baker.make(GrupoProductos, codigo='')
+        self.gp2 = baker.make(GrupoProductos, codigo='')
+        self.gp3 = baker.make(GrupoProductos, codigo='')
 
     def test_creacion_grupo_productos(self):
         self.assertTrue(isinstance(self.gp1, GrupoProductos))
@@ -71,11 +71,11 @@ class GrupoProductosTest(TestCase):
 class ProductoTest(TestCase):
 
     def setUp(self):
-        self.gp1 = mommy.make(GrupoProductos, codigo='')
-        self.gp2 = mommy.make(GrupoProductos, codigo='')
-        self.p1 = mommy.make(Producto, codigo='', grupo_productos=self.gp1)
-        self.p2 = mommy.make(Producto, codigo='', grupo_productos=self.gp1)
-        self.p3 = mommy.make(Producto, codigo='', grupo_productos=self.gp2, es_servicio=True)
+        self.gp1 = baker.make(GrupoProductos, codigo='')
+        self.gp2 = baker.make(GrupoProductos, codigo='')
+        self.p1 = baker.make(Producto, codigo='', grupo_productos=self.gp1)
+        self.p2 = baker.make(Producto, codigo='', grupo_productos=self.gp1)
+        self.p3 = baker.make(Producto, codigo='', grupo_productos=self.gp2, es_servicio=True)
 
     def test_creacion_producto(self):
         self.assertTrue(isinstance(self.p1, Producto))

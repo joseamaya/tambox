@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.utils.encoding import smart_str, python_2_unicode_compatible
+from django.utils.encoding import force_str
 from model_utils.models import TimeStampedModel
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
@@ -30,7 +30,7 @@ class TipoCambio(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return self.fecha
+        return str(self.fecha)
 
 
 class CuentaContable(TimeStampedModel):
@@ -57,7 +57,7 @@ class CuentaContable(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return smart_str(self.cuenta)
+        return force_str(self.cuenta)
 
 
 class FormaPago(TimeStampedModel):
@@ -82,7 +82,7 @@ class FormaPago(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return smart_str(self.descripcion)
+        return force_str(self.descripcion)
 
 
 class TipoDocumento(TimeStampedModel):
@@ -163,7 +163,6 @@ class Upload(TimeStampedModel):
     archivo = models.FileField(upload_to='archivos')
 
 
-@python_2_unicode_compatible
 class Empresa(SingletonModel):
     razon_social = models.CharField(max_length=150)
     ruc = models.CharField(max_length=11)
@@ -191,11 +190,11 @@ class Empresa(SingletonModel):
 
 
 class Configuracion(TimeStampedModel):
-    impuesto_compra = models.ForeignKey(Impuesto)
-    operaciones = models.ForeignKey(Oficina, related_name='operaciones', null=True)
-    administracion = models.ForeignKey(Oficina, related_name='administracion', null=True)
-    presupuesto = models.ForeignKey(Oficina, related_name='presupuesto', null=True)
-    logistica = models.ForeignKey(Oficina, related_name='logistica', null=True)
+    impuesto_compra = models.ForeignKey(Impuesto, on_delete=models.CASCADE)
+    operaciones = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='operaciones', null=True)
+    administracion = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='administracion', null=True)
+    presupuesto = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='presupuesto', null=True)
+    logistica = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='logistica', null=True)
 
 
 class TipoExistencia(TimeStampedModel):

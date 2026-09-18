@@ -1,5 +1,5 @@
 from django.test import TestCase
-from model_mommy import mommy
+from model_bakery import baker
 from compras.models import Proveedor, RepresentanteLegal, Cotizacion, \
     DetalleCotizacion
 from datetime import date
@@ -9,9 +9,9 @@ from datetime import date
 class ProveedorTest(TestCase):
 
     def setUp(self):
-        self.p1 = mommy.make(Proveedor)
-        self.p2 = mommy.make(Proveedor)
-        self.p3 = mommy.make(Proveedor)
+        self.p1 = baker.make(Proveedor)
+        self.p2 = baker.make(Proveedor)
+        self.p3 = baker.make(Proveedor)
 
     def test_creacion_proveedor(self):
         self.assertTrue(isinstance(self.p1, Proveedor))
@@ -35,7 +35,7 @@ class ProveedorTest(TestCase):
 class RepresentanteLegalTest(TestCase):
 
     def setUp(self):
-        self.rl1 = mommy.make(RepresentanteLegal)
+        self.rl1 = baker.make(RepresentanteLegal)
 
     def test_creacion_representante_legal(self):
         self.assertTrue(isinstance(self.rl1, RepresentanteLegal))
@@ -46,9 +46,9 @@ class CotizacionTest(TestCase):
 
     def setUp(self):
         self.fecha_actual = date.today()
-        self.c1 = mommy.make(Cotizacion, codigo='', fecha=self.fecha_actual)
-        self.c2 = mommy.make(Cotizacion, codigo='', fecha=self.fecha_actual)
-        self.c3 = mommy.make(Cotizacion, codigo='', fecha=self.fecha_actual)
+        self.c1 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
+        self.c2 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
+        self.c3 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
 
     def test_creacion_proveedor(self):
         self.assertTrue(isinstance(self.c1, Cotizacion))
@@ -69,19 +69,19 @@ class CotizacionTest(TestCase):
         self.assertEqual(self.c3.pk, self.c1.anterior())
 
     def test_estado(self):
-        dc1 = mommy.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG_PARC)
-        dc2 = mommy.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
-        dc3 = mommy.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
+        dc1 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG_PARC)
+        dc2 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
+        dc3 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
         self.c1.establecer_estado()
         self.assertEqual(self.c1.estado, Cotizacion.STATUS.ELEG_PARC)
-        dc4 = mommy.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
-        dc5 = mommy.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
-        dc6 = mommy.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
+        dc4 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
+        dc5 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
+        dc6 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
         self.c2.establecer_estado()
         self.assertEqual(self.c2.estado, Cotizacion.STATUS.ELEG)
-        dc7 = mommy.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
-        dc8 = mommy.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
-        dc9 = mommy.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
+        dc7 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
+        dc8 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
+        dc9 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
         self.c3.establecer_estado()
         self.assertEqual(self.c3.estado, Cotizacion.STATUS.DESC)
 

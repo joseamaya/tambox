@@ -6,8 +6,9 @@ from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
 from contabilidad.models import Tipo, Upload
 import datetime
 from compras.models import OrdenCompra
+from django.utils import timezone
 from django.forms import formsets
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
     CHOICES_TIPOS_MOVIMIENTO, CHOICES_ALMACENES, CHOICES_MESES, CHOICES_ANNIOS, \
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
@@ -84,14 +85,14 @@ class AlmacenForm(forms.ModelForm):
 
 class FormularioDetalleMovimiento(forms.Form):
     almacen = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
-    nombre = forms.CharField(100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    unidad = forms.CharField(6,
+    codigo = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
+    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.IntegerField(6, widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
-    precio = forms.IntegerField(7, widget=forms.TextInput(
+    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
+    precio = forms.IntegerField(widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'form-control decimal'}))
-    valor = forms.IntegerField(10, widget=forms.TextInput(
+    valor = forms.IntegerField(widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control decimal'}))
 
 
@@ -103,7 +104,7 @@ class FormularioReporteMovimientos(forms.Form):
     hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    annio = forms.CharField(4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
+    annio = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
     tipos_movimiento = forms.ChoiceField(choices=CHOICES_TIPOS_MOVIMIENTO,
                                          widget=forms.Select(attrs={'class': 'form-control'}))
@@ -115,13 +116,13 @@ class FormularioReporteMovimientos(forms.Form):
 
 
 class MovimientoForm(forms.ModelForm):
-    fecha = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hora = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    doc_referencia = forms.CharField(100, widget=forms.TextInput(
+    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    doc_referencia = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    dni_receptor = forms.CharField(8, widget=forms.TextInput(
+    dni_receptor = forms.CharField(max_length=8, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    receptor = forms.CharField(150, widget=forms.TextInput(
+    receptor = forms.CharField(max_length=150, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     cdetalles = forms.CharField(widget=forms.HiddenInput(), initial=0)
     total = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
@@ -171,24 +172,24 @@ class MovimientoForm(forms.ModelForm):
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        fecha = datetime.datetime(anio, mes, dia, horas, minutos, segundos)
+        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
         return fecha
 
     def save(self, *args, **kwargs):
         if self.tipo_movimiento == 'I':
             try:
                 self.instance.referencia = OrdenCompra.objects.get(codigo=self.cleaned_data['doc_referencia'])
-            except:
+            except ObjectDoesNotExist:
                 self.instance.referencia = None
         if self.cleaned_data['tipo_movimiento'].es_venta:
             try:
                 self.instance.productor = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
-            except:
+            except ObjectDoesNotExist:
                 self.instance.productor = None
         else:
             try:
                 self.instance.trabajador = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
-            except:
+            except ObjectDoesNotExist:
                 self.instance.trabajador = None
         self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'], self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
@@ -251,7 +252,7 @@ class FormularioConsultaStock(forms.Form):
 class CargarInventarioInicialForm(forms.ModelForm):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    fecha = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
 
     class Meta:
@@ -296,8 +297,8 @@ class PedidoForm(forms.ModelForm):
 
 class AprobacionPedidoForm(forms.ModelForm):
     cod_pedido = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    fecha = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hora = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(attrs={'size': 10,
                                                                                               'readonly': "readonly",
                                                                                               'class': 'form-control'}))
@@ -320,7 +321,7 @@ class AprobacionPedidoForm(forms.ModelForm):
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        fecha = datetime.datetime(anio, mes, dia, horas, minutos, segundos)
+        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
         return fecha
 
     def save(self, *args, **kwargs):
@@ -336,20 +337,20 @@ class AprobacionPedidoForm(forms.ModelForm):
 
 
 class FormularioPedido(forms.Form):
-    cod_pedido = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    cod_pedido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    fecha = forms.CharField(100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     observaciones = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
-    total = forms.CharField(100, widget=forms.TextInput(
+    total = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
 
 
 class FormularioDetallePedido(forms.Form):
-    codigo = forms.CharField(14, widget=forms.TextInput(
+    codigo = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 17, 'readonly': "readonly", 'class': 'entero form-control'}))
-    nombre = forms.CharField(100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
-    unidad = forms.CharField(20,
+    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
+    unidad = forms.CharField(max_length=20,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))

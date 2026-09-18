@@ -3,7 +3,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
-from django.utils.encoding import smart_str
+from django.utils.encoding import force_str
 from productos.querysets import NavegableQuerySet
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
@@ -40,7 +40,7 @@ class UnidadMedida(TimeStampedModel):
 class GrupoProductos(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=6)
     descripcion = models.CharField(max_length=100)
-    ctacontable = models.ForeignKey(CuentaContable)
+    ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE)
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -103,16 +103,16 @@ class GrupoProductos(TimeStampedModel):
 
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
-    grupo_productos = models.ForeignKey(GrupoProductos)
+    grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
     descripcion = models.CharField(max_length=100, unique=True)
     es_servicio = models.BooleanField(default=False)
-    unidad_medida = models.ForeignKey(UnidadMedida, null=True)
+    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, null=True)
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
     precio = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
-    tipo_existencia = models.ForeignKey(TipoExistencia, null=True)
+    tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, null=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -127,7 +127,7 @@ class Producto(TimeStampedModel):
                 control_producto = Kardex.objects.filter(producto=self,
                                                          almacen=almacen).latest('fecha_operacion')
                 stock = stock + control_producto.cantidad_total
-            except:
+            except Kardex.DoesNotExist:
                 pass
         return stock
 
@@ -200,4 +200,4 @@ class Producto(TimeStampedModel):
         super(Producto, self).save()
 
     def __str__(self):
-        return smart_str(self.descripcion)
+        return force_str(self.descripcion)

@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.utils.encoding import smart_str
+from django.utils.encoding import force_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
 from administracion.querysets import NavegableQuerySet
+from django.core.exceptions import ObjectDoesNotExist
 from simple_history.models import HistoricalRecords
 
 
@@ -31,16 +32,16 @@ class Profesion(TimeStampedModel):
         ordering = ['descripcion']
 
     def __str__(self):
-        return smart_str(self.descripcion)
+        return force_str(self.descripcion)
 
 
 class Trabajador(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
-    usuario = models.OneToOneField(User, null=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
     nombres = models.CharField(max_length=100)
-    profesion = models.ForeignKey(Profesion, null=True)
+    profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, null=True)
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     estado = models.BooleanField(default=True)
@@ -73,12 +74,12 @@ class Trabajador(TimeStampedModel):
     def puesto(self):
         try:
             puesto = self.puesto_set.all().filter(estado=True)[0]
-        except:
+        except IndexError:
             puesto = None
         return puesto
 
     def __str__(self):
-        return smart_str(self.apellido_paterno) + ' ' + smart_str(self.apellido_materno) + ' ' + smart_str(self.nombres)
+        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.nombres)
 
     class Meta:
         permissions = (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'),
@@ -117,7 +118,7 @@ class Productor(TimeStampedModel):
         return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
 
     def __str__(self):
-        return smart_str(self.apellido_paterno) + ' ' + smart_str(self.apellido_materno) + ' ' + smart_str(self.nombres)
+        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.nombres)
 
     class Meta:
         permissions = (('ver_detalle_productor', 'Puede ver detalle de Productor'),
@@ -131,7 +132,7 @@ class Oficina(TimeStampedModel):
     codigo = models.CharField(max_length=4, unique=True)
     nombre = models.CharField(max_length=50)
     es_gerencia = models.BooleanField(default=False)
-    dependencia = models.ForeignKey('self', related_name='superior', null=True)
+    dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -161,13 +162,13 @@ class Oficina(TimeStampedModel):
         return sig
 
     def __str__(self):
-        return smart_str(self.nombre)
+        return force_str(self.nombre)
 
 
 class Puesto(TimeStampedModel):
     nombre = models.CharField(max_length=100)
-    oficina = models.ForeignKey(Oficina)
-    trabajador = models.ForeignKey(Trabajador)
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)
@@ -219,12 +220,12 @@ class Puesto(TimeStampedModel):
 
 class NivelAprobacion(TimeStampedModel):
     descripcion = models.CharField(max_length=100)
-    nivel_superior = models.ForeignKey('self', related_name='superior', null=True)
+    nivel_superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def __str__(self):
-        return smart_str(self.descripcion)
+        return force_str(self.descripcion)
 
     def anterior(self):
         ant = NivelAprobacion.objects.anterior(self)

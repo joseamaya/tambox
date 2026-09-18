@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*- 
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Max
 from compras.models import OrdenCompra, DetalleOrdenCompra
 from contabilidad.models import TipoDocumento
-from django.utils.encoding import smart_str, python_2_unicode_compatible
+from django.utils.encoding import force_str
 from administracion.models import Oficina, Trabajador, Productor
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
@@ -14,7 +14,6 @@ from decimal import Decimal
 from simple_history.models import HistoricalRecords
 
 
-@python_2_unicode_compatible
 class Almacen(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=5)
     descripcion = models.CharField(max_length=30)
@@ -34,14 +33,14 @@ class Almacen(TimeStampedModel):
     def anterior(self):
         try:
             ant = Almacen.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             ant = Almacen.objects.all().order_by('pk').last()
         return ant.pk
 
     def siguiente(self):
         try:
             sig = Almacen.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             sig = Almacen.objects.all().order_by('pk').first()
         return sig.pk
 
@@ -64,14 +63,14 @@ class TipoMovimiento(TimeStampedModel):
     def anterior(self):
         try:
             ant = TipoMovimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             ant = TipoMovimiento.objects.all().order_by('pk').last()
         return ant.pk
 
     def siguiente(self):
         try:
             sig = TipoMovimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             sig = TipoMovimiento.objects.all().order_by('pk').first()
         return sig.pk
 
@@ -90,24 +89,24 @@ class TipoMovimiento(TimeStampedModel):
                 if cod_ant is None:
                     self.codigo = 'I00'
                 else:
-                    aux = int(cod_ant[2:3]) + 1
+                    aux = int(cod_ant[1:]) + 1
                     self.codigo = 'I' + str(aux).zfill(2)
             else:
                 if cod_ant is None:
                     self.codigo = 'S01'
                 else:
-                    aux = int(cod_ant[2:3]) + 1
+                    aux = int(cod_ant[1:]) + 1
                     self.codigo = 'S' + str(aux).zfill(2)
         super(TipoMovimiento, self).save()
 
     def __str__(self):
-        return smart_str(self.descripcion)
+        return force_str(self.descripcion)
 
 
 class Pedido(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador)
-    oficina = models.ForeignKey(Oficina)
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     fecha = models.DateField()
     observaciones = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -123,14 +122,14 @@ class Pedido(TimeStampedModel):
     def anterior(self):
         try:
             ant = Pedido.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             ant = Pedido.objects.all().order_by('pk').last()
         return ant.pk
 
     def siguiente(self):
         try:
             sig = Pedido.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             sig = Pedido.objects.all().order_by('pk').first()
         return sig.pk
 
@@ -178,8 +177,8 @@ class Pedido(TimeStampedModel):
 
 class DetallePedido(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    pedido = models.ForeignKey(Pedido)
-    producto = models.ForeignKey(Producto, null=True)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -217,17 +216,17 @@ class DetallePedido(TimeStampedModel):
 
 class Movimiento(TimeStampedModel):
     id_movimiento = models.CharField(unique=True, max_length=16)
-    tipo_movimiento = models.ForeignKey(TipoMovimiento)
-    referencia = models.ForeignKey(OrdenCompra, null=True)
-    pedido = models.ForeignKey(Pedido, null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, null=True)
+    tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)
+    referencia = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, null=True)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, null=True)
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, null=True)
     serie = models.CharField(max_length=15, null=True)
     numero = models.CharField(max_length=10, null=True)
     fecha_operacion = models.DateTimeField()
-    almacen = models.ForeignKey(Almacen)
-    oficina = models.ForeignKey(Oficina, null=True)
-    trabajador = models.ForeignKey(Trabajador, null=True)
-    productor = models.ForeignKey(Productor, null=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, null=True)
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, null=True)
+    productor = models.ForeignKey(Productor, on_delete=models.CASCADE, null=True)
     observaciones = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
@@ -238,17 +237,18 @@ class Movimiento(TimeStampedModel):
     def anterior(self):
         try:
             sig = Movimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             sig = Movimiento.objects.all().last()
         return sig.pk
 
     def siguiente(self):
         try:
             ant = Movimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             ant = Movimiento.objects.all().first()
         return ant.pk
 
+    @transaction.atomic
     def eliminar_referencia(self):
         orden = self.referencia
         requerimiento = None
@@ -271,6 +271,7 @@ class Movimiento(TimeStampedModel):
             requerimiento.establecer_estado_atendido()
             requerimiento.save()
 
+    @transaction.atomic
     def eliminar_pedido(self):
         pedido = self.pedido
         detalles = DetalleMovimiento.objects.filter(movimiento=self)
@@ -285,6 +286,7 @@ class Movimiento(TimeStampedModel):
     def eliminar_detalles(self):
         DetalleMovimiento.objects.filter(movimiento=self).delete()
 
+    @transaction.atomic
     def eliminar_kardex(self):
         movimiento = self
         almacen = movimiento.almacen
@@ -326,23 +328,22 @@ class Movimiento(TimeStampedModel):
             correlativo = str(aux).zfill(7)
             codigo = str(tipo.codigo[0:1]) + str(anio) + correlativo
             self.id_movimiento = codigo
-            self.anio = self.fecha_operacion.year,
-            self.mes = self.fecha_operacion.month,
         super(Movimiento, self).save()
 
 
 class DetalleMovimiento(TimeStampedModel):
     objects = DetalleMovimientoManager()
     nro_detalle = models.IntegerField()
-    movimiento = models.ForeignKey(Movimiento)
-    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, null=True)
-    detalle_pedido = models.ForeignKey(DetallePedido, null=True)
-    producto = models.ForeignKey(Producto)
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE)
+    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, null=True)
+    detalle_pedido = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, null=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.DecimalField(max_digits=25, decimal_places=8)
     precio = models.DecimalField(max_digits=25, decimal_places=8)
     valor = models.DecimalField(max_digits=25, decimal_places=8)
     history = HistoricalRecords()
 
+    @transaction.atomic
     def save(self, *args, **kwargs):
         movi = self.movimiento
         t_movimiento = movi.tipo_movimiento
@@ -407,9 +408,9 @@ class DetalleMovimiento(TimeStampedModel):
 
 
 class Kardex(TimeStampedModel):
-    movimiento = models.ForeignKey(Movimiento)
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE)
     nro_detalle_movimiento = models.IntegerField()
-    producto = models.ForeignKey(Producto)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     fecha_operacion = models.DateTimeField()
     cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
     precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
@@ -420,20 +421,20 @@ class Kardex(TimeStampedModel):
     cantidad_total = models.DecimalField(max_digits=25, decimal_places=8)
     precio_total = models.DecimalField(max_digits=25, decimal_places=8)
     valor_total = models.DecimalField(max_digits=25, decimal_places=8)
-    almacen = models.ForeignKey(Almacen)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     history = HistoricalRecords()
 
     def anterior(self):
         try:
             sig = Kardex.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except:
+        except IndexError:
             sig = Kardex.objects.all().last()
         return sig.pk
 
     def siguiente(self):
         try:
             ant = Kardex.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except:
+        except IndexError:
             ant = Kardex.objects.all().first()
         return ant.pk
 
@@ -451,8 +452,8 @@ class Kardex(TimeStampedModel):
 
 
 class ControlProductoAlmacen(TimeStampedModel):
-    producto = models.ForeignKey(Producto)
-    almacen = models.ForeignKey(Almacen)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     precio = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()

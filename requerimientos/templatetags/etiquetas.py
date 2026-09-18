@@ -1,5 +1,5 @@
 from django import template
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from contabilidad.models import Configuracion
 from requerimientos.settings import OFICINA_ADMINISTRACION, LOGISTICA, PRESUPUESTO
 

@@ -10,13 +10,13 @@ from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ, OFICINA_A
     OPERACIONES
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
-from simple_history.models import HistoricalRecords
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class Requerimiento(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador)
-    oficina = models.ForeignKey(Oficina)
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     motivo = models.CharField(max_length=100, blank=True)
     fecha = models.DateField()
     fecha_recepcion = models.DateField(null=True)
@@ -138,7 +138,7 @@ class Requerimiento(TimeStampedModel):
             return False
 
     @staticmethod
-    def obtener_requerimientos_visibles(self, usuario):
+    def obtener_requerimientos_visibles(usuario):
         try:
             trabajador = usuario.trabajador
             puesto_usuario = trabajador.puesto
@@ -152,7 +152,7 @@ class Requerimiento(TimeStampedModel):
                 queryset = Requerimiento.objects.requerimientos_oficina_usuario(oficina_usuario)
             else:
                 queryset = Requerimiento.objects.requerimientos_activos_por_usuario(usuario, Requerimiento.STATUS.CANC)
-        except:
+        except (AttributeError, ObjectDoesNotExist):
             queryset = []
         return queryset
 
@@ -192,8 +192,8 @@ class Requerimiento(TimeStampedModel):
 
 class DetalleRequerimiento(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    requerimiento = models.ForeignKey(Requerimiento)
-    producto = models.ForeignKey(Producto, null=True)
+    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     uso = models.TextField(null=True)
     cantidad = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_cotizada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -242,12 +242,11 @@ class DetalleRequerimiento(TimeStampedModel):
 
 
 class AprobacionRequerimiento(TimeStampedModel):
-    requerimiento = models.OneToOneField(Requerimiento, primary_key=True)
-    nivel = models.ForeignKey(NivelAprobacion)
+    requerimiento = models.OneToOneField(Requerimiento, on_delete=models.CASCADE, primary_key=True)
+    nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE)
     estado = models.BooleanField(default=True)
     motivo_desaprobacion = models.TextField(default='')
     fecha_recepcion = models.DateField(null=True)
-    history = HistoricalRecords()
     history = HistoricalRecords()
     objects = AprobacionRequerimientoQuerySet.as_manager()
 
@@ -257,7 +256,7 @@ class AprobacionRequerimiento(TimeStampedModel):
                         'Puede ver Reporte de Aprobación de Requerimientos en excel'),)
 
     def __str__(self):
-        return self.pk
+        return str(self.pk)
 
     def verificar_acceso_aprobacion(self, usuario):
         puesto_usuario = usuario.trabajador.puesto

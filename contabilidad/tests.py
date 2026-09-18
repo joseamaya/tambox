@@ -1,4 +1,4 @@
-from model_mommy import mommy
+from model_bakery import baker
 from django.test import TestCase
 from contabilidad.models import CuentaContable, FormaPago, TipoDocumento, Tipo, \
     Impuesto, Empresa, TipoExistencia
@@ -8,9 +8,9 @@ from contabilidad.models import CuentaContable, FormaPago, TipoDocumento, Tipo, 
 class TestCuentaContable(TestCase):
 
     def setUp(self):
-        self.c1 = mommy.make(CuentaContable)
-        self.c2 = mommy.make(CuentaContable)
-        self.c3 = mommy.make(CuentaContable)
+        self.c1 = baker.make(CuentaContable)
+        self.c2 = baker.make(CuentaContable)
+        self.c3 = baker.make(CuentaContable)
 
     def test_creacion_cuenta_contable(self):
         self.assertTrue(isinstance(self.c1, CuentaContable))
@@ -34,9 +34,9 @@ class TestCuentaContable(TestCase):
 class TestFormaPago(TestCase):
 
     def setUp(self):
-        self.fp1 = mommy.make(FormaPago)
-        self.fp2 = mommy.make(FormaPago)
-        self.fp3 = mommy.make(FormaPago)
+        self.fp1 = baker.make(FormaPago)
+        self.fp2 = baker.make(FormaPago)
+        self.fp3 = baker.make(FormaPago)
 
     def test_creacion_forma_pago(self):
         self.assertTrue(isinstance(self.fp1, FormaPago))
@@ -60,9 +60,9 @@ class TestFormaPago(TestCase):
 class TestTipoDocumento(TestCase):
 
     def setUp(self):
-        self.td1 = mommy.make(TipoDocumento)
-        self.td2 = mommy.make(TipoDocumento)
-        self.td3 = mommy.make(TipoDocumento)
+        self.td1 = baker.make(TipoDocumento)
+        self.td2 = baker.make(TipoDocumento)
+        self.td3 = baker.make(TipoDocumento)
 
     def test_creacion_tipo_documento(self):
         self.assertTrue(isinstance(self.td1, TipoDocumento))
@@ -86,7 +86,7 @@ class TestTipoDocumento(TestCase):
 class TestTipo(TestCase):
 
     def setUp(self):
-        self.t1 = mommy.make(Tipo)
+        self.t1 = baker.make(Tipo)
 
     def test_creacion_tipo_documento(self):
         self.assertTrue(isinstance(self.t1, Tipo))
@@ -96,9 +96,9 @@ class TestTipo(TestCase):
 class TestImpuesto(TestCase):
 
     def setUp(self):
-        self.imp1 = mommy.make(Impuesto)
-        self.imp2 = mommy.make(Impuesto)
-        self.imp3 = mommy.make(Impuesto)
+        self.imp1 = baker.make(Impuesto)
+        self.imp2 = baker.make(Impuesto)
+        self.imp3 = baker.make(Impuesto)
 
     def test_creacion_impuesto(self):
         self.assertTrue(isinstance(self.imp1, Impuesto))
@@ -122,8 +122,8 @@ class TestImpuesto(TestCase):
 class TestEmpresa(TestCase):
 
     def setUp(self):
-        self.emp1 = mommy.make(Empresa)
-        self.emp2 = mommy.make(Empresa)
+        self.emp1 = baker.make(Empresa)
+        self.emp2 = baker.make(Empresa)
 
     def test_creacion_empresa(self):
         self.assertTrue(isinstance(self.emp1, Empresa))
@@ -140,7 +140,7 @@ class TestEmpresa(TestCase):
 class TestTipoExistencia(TestCase):
 
     def setUp(self):
-        self.te1 = mommy.make(TipoExistencia)
+        self.te1 = baker.make(TipoExistencia)
 
     def test_creacion_tipo_existencia(self):
         self.assertEqual(self.te1.__str__(), self.te1.descripcion)

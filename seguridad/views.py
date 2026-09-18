@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.contrib.auth import login
 from seguridad.forms import FormularioCambioPassword, FormularioLogin
@@ -25,7 +25,7 @@ class Login(FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_success_url())
         else:
             return super(Login, self).dispatch(request, *args, **kwargs)

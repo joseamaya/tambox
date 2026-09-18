@@ -1,8 +1,8 @@
 from django.test import TestCase
 from administracion.models import Profesion, Trabajador, Oficina, Puesto
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from administracion.forms import ProfesionForm
-from model_mommy import mommy
+from model_bakery import baker
 from datetime import date
 
 """
@@ -33,9 +33,9 @@ from datetime import date
 class ProfesionTest(TestCase):
 
     def setUp(self):
-        self.p1 = mommy.make(Profesion)
-        self.p2 = mommy.make(Profesion)
-        self.p3 = mommy.make(Profesion)
+        self.p1 = baker.make(Profesion)
+        self.p2 = baker.make(Profesion)
+        self.p3 = baker.make(Profesion)
 
     def test_creacion_profesion_mommy(self):
         self.assertTrue(isinstance(self.p1, Profesion))
@@ -57,9 +57,9 @@ class ProfesionTest(TestCase):
 class TrabajadorTest(TestCase):
 
     def setUp(self):
-        self.t1 = mommy.make(Trabajador)
-        self.t2 = mommy.make(Trabajador)
-        self.t3 = mommy.make(Trabajador)
+        self.t1 = baker.make(Trabajador)
+        self.t2 = baker.make(Trabajador)
+        self.t3 = baker.make(Trabajador)
 
     def test_creacion_trabajador_mommy(self):
         self.assertTrue(isinstance(self.t1, Trabajador))
@@ -81,8 +81,8 @@ class TrabajadorTest(TestCase):
     def test_nombre_completo(self):
         self.assertEqual(self.t3.nombre_completo(),
                          self.t3.nombres + ' ' + self.t3.apellido_paterno + ' ' + self.t3.apellido_materno)
-        p = mommy.make(Profesion)
-        t = mommy.make(Trabajador, profesion=p)
+        p = baker.make(Profesion)
+        t = baker.make(Trabajador, profesion=p)
         self.assertEqual(t.nombre_completo(),
                          t.profesion.abreviatura + ' ' + t.nombres + ' ' + t.apellido_paterno + ' ' + t.apellido_materno)
 
@@ -90,9 +90,9 @@ class TrabajadorTest(TestCase):
 class OficinaTest(TestCase):
 
     def setUp(self):
-        self.o1 = mommy.make(Oficina)
-        self.o2 = mommy.make(Oficina)
-        self.o3 = mommy.make(Oficina)
+        self.o1 = baker.make(Oficina)
+        self.o2 = baker.make(Oficina)
+        self.o3 = baker.make(Oficina)
 
     def test_creacion_oficina_mommy(self):
         self.assertTrue(isinstance(self.o1, Oficina))
@@ -114,9 +114,9 @@ class OficinaTest(TestCase):
 class PuestoTest(TestCase):
 
     def setUp(self):
-        self.p1 = mommy.make(Puesto)
-        self.p2 = mommy.make(Puesto)
-        self.p3 = mommy.make(Puesto)
+        self.p1 = baker.make(Puesto)
+        self.p2 = baker.make(Puesto)
+        self.p3 = baker.make(Puesto)
 
     def test_creacion_profesion_mommy(self):
         self.assertTrue(isinstance(self.p1, Puesto))
@@ -135,6 +135,6 @@ class PuestoTest(TestCase):
         self.assertEqual(self.p3.pk, self.p1.anterior())
 
     def test_estado_puesto(self):
-        p = mommy.make(Puesto, fecha_fin=date.today())
+        p = baker.make(Puesto, fecha_fin=date.today())
         self.assertTrue(self.p1.estado)
         self.assertFalse(p.estado)
