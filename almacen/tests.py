@@ -165,3 +165,35 @@ class MovimientoTest(TestCase):
                           referencia=referencia)
         mov1.modificar_estado_referencia()
         self.assertEqual(mov1.referencia.estado, OrdenCompra.STATUS.PEND)
+
+
+class ReporteInventarioTest(TestCase):
+    """Ejecuta el armado del libro de Excel. `manage.py check` no ejecuta
+    cuerpos de funcion, asi que sin esto un nombre sin importar en la funcion
+    solo se descubriria al pedir el reporte."""
+
+    def test_genera_el_libro(self):
+        from almacen.reports import reporte_inventario
+
+        libro = reporte_inventario(date.today())
+
+        self.assertIsNotNone(libro.active)
+        self.assertEqual(libro.active['A3'].value, 'CTA CONTABLE')
+
+    def test_incluye_una_fila_por_producto(self):
+        from almacen.reports import reporte_inventario
+        from contabilidad.models import CuentaContable, TipoExistencia
+        from productos.models import GrupoProductos, Producto, UnidadMedida
+
+        cuenta = baker.make(CuentaContable)
+        grupo = baker.make(GrupoProductos, codigo='GR0001', descripcion='GRUPO UNO',
+                           ctacontable=cuenta, son_productos=True)
+        unidad = baker.make(UnidadMedida, codigo='UND01')
+        baker.make(Producto, codigo='GR00010001', descripcion='PRODUCTO UNO',
+                   grupo_productos=grupo, unidad_medida=unidad,
+                   tipo_existencia=baker.make(TipoExistencia))
+
+        libro = reporte_inventario(date.today())
+        codigos = [celda.value for celda in libro.active['B']]
+
+        self.assertIn('GR00010001', codigos)
