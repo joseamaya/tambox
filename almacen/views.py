@@ -1501,112 +1501,57 @@ class ReporteKardex(FormView):
         formatos = data.get('formatos')
         consolidado = data['consolidado']
 
-        if formatos == "XLS":
-            if consolidado == 'P':
-                return self.obtener_consolidado_productos_excel(desde, hasta, almacen)
-            elif consolidado == 'G':
-                return self.obtener_consolidado_grupos_excel(desde, hasta, almacen)
-            else:
-                if formato_sunat == 'S':
-                    return self.obtener_formato_sunat_unidades_fisicas_excel(desde, hasta, almacen)
-                elif formato_sunat == 'V':
-                    return self.obtener_formato_sunat_valorizado_excel(desde, hasta, almacen)
-                else:
-                    return self.obtener_formato_normal_excel(desde, hasta, almacen)
-        elif formatos == "PDF":
-            if consolidado == 'P':
-                return self.obtener_consolidado_productos_pdf(desde, hasta, almacen)
-            elif consolidado == 'G':
-                return self.obtener_consolidado_grupos_pdf(desde, hasta, almacen)
-            else:
-                if formato_sunat == 'S':
-                    return self.obtener_formato_sunat_unidades_fisicas_pdf(desde, hasta, almacen)
-                elif formato_sunat == 'V':
-                    return self.obtener_formato_sunat_valorizado_pdf(desde, hasta, almacen)
-                else:
-                    return self.obtener_formato_normal_pdf(desde, hasta, almacen)
+        clave = self._clave_reporte(consolidado, formato_sunat)
+        if formatos == 'XLS':
+            return self._reporte_excel(clave, desde, hasta, almacen)
+        if formatos == 'PDF':
+            return self._reporte_pdf(clave, desde, hasta, almacen)
+        return HttpResponse('Formato no soportado.', status=400)
 
-    def obtener_consolidado_productos_pdf(self, desde, hasta, almacen):
+    REPORTES_PDF = {
+        ('P', None): ('imprimir_formato_consolidado_productos', False, 'ResumenMensualDeAlmacen.pdf'),
+        ('G', None): ('imprimir_formato_consolidado_grupos', True, 'ResumenMensualDeAlmacenPorGruposYCuentas.pdf'),
+        (None, 'S'): ('imprimir_formato_sunat_unidades_fisicas_todos', False,
+                      'InventarioPermanenteUnidadesFisicas.pdf'),
+        (None, 'V'): ('imprimir_formato_sunat_valorizado_todos', False, 'InventarioPermanenteValorizado.pdf'),
+    }
+
+    REPORTES_EXCEL = {
+        ('P', None): ('obtener_consolidado_productos', 'ReporteConsolidadoKardexExcel.xlsx'),
+        ('G', None): ('obtener_consolidado_grupos', 'ReporteConsolidadoCuentasContablesAlmacen.xlsx'),
+        (None, 'S'): ('obtener_formato_sunat_unidades_fisicas_todos', 'InventarioPermanenteUnidadesFisicas.xlsx'),
+        (None, 'V'): ('obtener_formato_sunat_valorizado_todos', 'InventarioPermanenteValorizado.xlsx'),
+        (None, None): ('obtener_formato_normal_todos', 'ReporteFormatoNormalKardexTodosLosProductos.xlsx'),
+    }
+
+    def _clave_reporte(self, consolidado, formato_sunat):
+        if consolidado in ('P', 'G'):
+            return (consolidado, None)
+        return (None, formato_sunat if formato_sunat in ('S', 'V') else None)
+
+    def _respuesta_pdf(self, contenido, nombre_archivo):
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
-        pdf = reporte.imprimir_formato_consolidado_productos()
-        response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacen.pdf'
-        response.write(pdf)
+        response['Content-Disposition'] = 'attachment; filename=' + nombre_archivo
+        response.write(contenido)
         return response
 
-    def obtener_consolidado_grupos_pdf(self, desde, hasta, almacen):
-        response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, True)
-        pdf = reporte.imprimir_formato_consolidado_grupos()
-        response['Content-Disposition'] = 'attachment; filename=ResumenMensualDeAlmacenPorGruposYCuentas.pdf'
-        response.write(pdf)
-        return response
-
-    def obtener_formato_sunat_unidades_fisicas_pdf(self, desde, hasta, almacen):
-        response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
-        pdf = reporte.imprimir_formato_sunat_unidades_fisicas_todos()
-        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteUnidadesFisicas.pdf'
-        response.write(pdf)
-        return response
-
-    def obtener_formato_sunat_valorizado_pdf(self, desde, hasta, almacen):
-        response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
-        pdf = reporte.imprimir_formato_sunat_valorizado_todos()
-        response['Content-Disposition'] = 'attachment; filename=InventarioPermanenteValorizado.pdf'
-        response.write(pdf)
-        return response
-
-    def obtener_formato_normal_excel(self, desde, hasta, almacen):
-        reporte = ReporteKardexExcel()
-        excel = reporte.obtener_formato_normal_todos(desde, hasta, almacen)
-        nombre_archivo = "ReporteFormatoNormalKardexTodosLosProductos.xlsx"
+    def _respuesta_excel(self, excel, nombre_archivo):
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
+        response["Content-Disposition"] = "attachment; filename={0}".format(nombre_archivo)
         excel.save(response)
         return response
 
-    def obtener_formato_sunat_unidades_fisicas_excel(self, desde, hasta, almacen):
-        reporte = ReporteKardexExcel()
-        excel = reporte.obtener_formato_sunat_unidades_fisicas_todos(desde, hasta, almacen)
-        nombre_archivo = "InventarioPermanenteUnidadesFisicas.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        excel.save(response)
-        return response
+    def _reporte_pdf(self, clave, desde, hasta, almacen):
+        if clave not in self.REPORTES_PDF:
+            return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.', status=404)
+        metodo, agrupado, nombre_archivo = self.REPORTES_PDF[clave]
+        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, agrupado)
+        return self._respuesta_pdf(getattr(reporte, metodo)(), nombre_archivo)
 
-    def obtener_formato_sunat_valorizado_excel(self, desde, hasta, almacen):
+    def _reporte_excel(self, clave, desde, hasta, almacen):
+        metodo, nombre_archivo = self.REPORTES_EXCEL[clave]
         reporte = ReporteKardexExcel()
-        excel = reporte.obtener_formato_sunat_valorizado_todos(desde, hasta, almacen)
-        nombre_archivo = "InventarioPermanenteValorizado.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        excel.save(response)
-        return response
-
-    def obtener_consolidado_productos_excel(self, desde, hasta, almacen):
-        reporte = ReporteKardexExcel()
-        excel = reporte.obtener_consolidado_productos(desde, hasta, almacen)
-        nombre_archivo = "ReporteConsolidadoKardexExcel.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        excel.save(response)
-        return response
-
-    def obtener_consolidado_grupos_excel(self, desde, hasta, almacen):
-        reporte = ReporteKardexExcel()
-        excel = reporte.obtener_consolidado_grupos(desde, hasta, almacen)
-        nombre_archivo = "ReporteConsolidadoCuentasContablesAlmacen.xlsx"
-        response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
-        response["Content-Disposition"] = contenido
-        excel.save(response)
-        return response
+        return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, almacen), nombre_archivo)
 
 
 class ReporteStock(FormView):

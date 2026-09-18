@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from compras.models import Proveedor, Cotizacion, OrdenCompra, OrdenServicios, ConformidadServicio
-from contabilidad.models import Tipo
 from django.forms import formsets
 from requerimientos.models import Requerimiento
 from almacen.settings import MESES
@@ -34,26 +33,6 @@ class ProveedorForm(forms.ModelForm):
         if len(ruc) != 11:
             raise ValidationError('El RUC debe tener 11 dígitos.')
         return self.cleaned_data['ruc']
-
-
-class TipoStockForm(forms.ModelForm):
-    class Meta:
-        model = Tipo
-        fields = ['codigo', 'descripcion_valor']
-
-    def __init__(self, *args, **kwargs):
-        self.tabla = "tipo_stock"
-        self.descripcion_campo = "tipo_stock"
-        super(TipoStockForm, self).__init__(*args, **kwargs)
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
-
-    def save(self, *args, **kwargs):
-        self.instance.tabla = self.tabla
-        self.instance.descripcion_campo = self.descripcion_campo
-        super(TipoStockForm, self).save(*args, **kwargs)
 
 
 class DetalleCotizacionForm(forms.Form):
