@@ -24,7 +24,6 @@ import datetime
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from django.conf import settings
 from io import BytesIO
 from reportlab.platypus import Paragraph, TableStyle
 from reportlab.lib.styles import ParagraphStyle
@@ -35,11 +34,9 @@ from reportlab.pdfgen import canvas
 # from reportlab.lib.pagesizes import cm
 from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Puesto
-import csv
 import locale
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
-import os
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from contabilidad.forms import UploadForm
@@ -55,6 +52,7 @@ from datetime import date
 from compras.reports import ReporteOrdenCompra, reporte_xls_orden_compra, PDFOrdenCompra, \
     PDFOrdenServicios, PDFMemorandoConformidadServicio, PDFSolicitudCotizacion
 from tambox.configuracion import empresa, configuracion, impuesto_compra
+from tambox.vistas import CargarCsvMixin
 from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
@@ -135,25 +133,19 @@ class BusquedaProveedoresRUC(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarProveedores(FormView):
+class CargarProveedores(CargarCsvMixin, FormView):
     template_name = 'compras/cargar_proveedores.html'
     form_class = UploadForm
+    success_url = reverse_lazy('compras:proveedores')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            Proveedor.objects.get_or_create(ruc=fila[0],
-                                            defaults={'razon_social': fila[1],
-                                                      'direccion': fila[2],
-                                                      'fecha_alta': datetime.datetime.now(),
-                                                      'estado_sunat': 'ACTIVO',
-                                                      'condicion': 'HABIDO',
-                                                      'ciiu': 'CUALQUIERA'})
-        return HttpResponseRedirect(reverse('compras:proveedores'))
+    def procesar_fila(self, fila):
+        Proveedor.objects.get_or_create(ruc=fila[0],
+                                        defaults={'razon_social': fila[1],
+                                                  'direccion': fila[2],
+                                                  'fecha_alta': datetime.datetime.now(),
+                                                  'estado_sunat': 'ACTIVO',
+                                                  'condicion': 'HABIDO',
+                                                  'ciiu': 'CUALQUIERA'})
 
 
 class CrearProveedor(CreateView):

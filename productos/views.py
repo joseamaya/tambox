@@ -11,17 +11,16 @@ from django.http import HttpResponse
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from django.conf import settings
-import csv
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
-import os
 from contabilidad.forms import UploadForm
 from django.shortcuts import render
 from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
     UnidadMedidaForm
 from contabilidad.models import CuentaContable, TipoExistencia
+from tambox.importacion import leer_filas
+from tambox.vistas import CargarCsvMixin
 
 logger = logging.getLogger(__name__)
 
@@ -97,25 +96,18 @@ class BusquedaProductosCodigo(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarGrupoProductos(FormView):
+class CargarGrupoProductos(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_grupo_productos.html'
     form_class = UploadForm
+    success_url = reverse_lazy('productos:grupos_productos')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            try:
-                cuenta = CuentaContable.objects.get(cuenta=fila[0])
-                descripcion = fila[1]
-                grupo_productos, creado = GrupoProductos.objects.get_or_create(descripcion=descripcion,
-                                                                               defaults={'ctacontable': cuenta})
-            except CuentaContable.DoesNotExist:
-                pass
-        return HttpResponseRedirect(reverse('productos:grupos_productos'))
+    def procesar_fila(self, fila):
+        try:
+            cuenta = CuentaContable.objects.get(cuenta=fila[0])
+            GrupoProductos.objects.get_or_create(descripcion=fila[1],
+                                                 defaults={'ctacontable': cuenta})
+        except CuentaContable.DoesNotExist:
+            pass
 
 
 class CargarServicios(FormView):
@@ -123,13 +115,9 @@ class CargarServicios(FormView):
     form_class = UploadForm
 
     def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
         form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
         try:
-            for fila in dataReader:
+            for fila in leer_filas(form.cleaned_data['archivo']):
                 grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
                 producto, creado = Producto.objects.get_or_create(descripcion=fila[1],
                                                                   defaults={'grupo_productos': grupo,
@@ -144,12 +132,8 @@ class CargarProductos(FormView):
     form_class = UploadForm
 
     def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
         form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
-        for fila in dataReader:
+        for fila in leer_filas(form.cleaned_data['archivo']):
             try:
                 grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
                 cod_und = fila[2][0:5]

@@ -6,6 +6,7 @@ from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, Modifi
     ProfesionForm, NivelAprobacionForm, ProductorForm
 from almacen.models import TipoMovimiento
 from contabilidad.forms import UploadForm
+from tambox.vistas import CargarCsvMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
@@ -13,15 +14,12 @@ from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
     NivelAprobacion, Productor
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
-from django.conf import settings
-import csv
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User
 from openpyxl import Workbook
 from django.http import HttpResponse
 import datetime
-import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import simplejson
@@ -97,112 +95,76 @@ class BusquedaReceptorNombre(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarOficinas(FormView):
+class CargarOficinas(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
+    success_url = reverse_lazy('administracion:maestro_oficinas')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            Oficina.objects.get_or_create(codigo=fila[0],
-                                          defaults={
-                                              'nombre': fila[1],
-                                              'dependencia': Oficina.objects.get(codigo=fila[2])},
-                                          )
-        return HttpResponseRedirect(reverse('administracion:maestro_oficinas'))
+    def procesar_fila(self, fila):
+        Oficina.objects.get_or_create(codigo=fila[0],
+                                      defaults={
+                                          'nombre': fila[1],
+                                          'dependencia': Oficina.objects.get(codigo=fila[2])},
+                                      )
 
 
-class CargarProductores(FormView):
+class CargarProductores(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_productores.html'
     form_class = UploadForm
+    success_url = reverse_lazy('administracion:maestro_productores')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            dni = fila[0]
-            if dni != "":
-                appaterno = fila[1].upper()
-                apmaterno = fila[2].upper()
-                nombres = fila[3].upper()
-                try:
-                    productor, creado = Productor.objects.get_or_create(dni=dni,
-                                                                        defaults={'apellido_paterno': appaterno,
-                                                                                  'apellido_materno': apmaterno,
-                                                                                  'nombres': nombres})
-                except Exception:
-                    logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
-        return HttpResponseRedirect(reverse('administracion:maestro_productores'))
+    def procesar_fila(self, fila):
+        dni = fila[0]
+        if dni != "":
+            try:
+                Productor.objects.get_or_create(dni=dni,
+                                                defaults={'apellido_paterno': fila[1].upper(),
+                                                          'apellido_materno': fila[2].upper(),
+                                                          'nombres': fila[3].upper()})
+            except Exception:
+                logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
 
 
-class CargarTrabajadores(FormView):
+class CargarTrabajadores(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_trabajadores.html'
     form_class = UploadForm
+    success_url = reverse_lazy('administracion:maestro_trabajadores')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            usuario_hoja = fila[0]
-            if usuario_hoja != "":
-                usuario, creado = User.objects.get_or_create(username=usuario_hoja,
-                                                             defaults={'email': fila[5]}, )
-                if creado:
-                    usuario.set_unusable_password()
-                    usuario.save()
-                    trabajador, creado = Trabajador.objects.get_or_create(usuario=usuario,
-                                                                          defaults={'dni': fila[1].strip(),
-                                                                                    'apellido_paterno': fila[2],
-                                                                                    'apellido_materno': fila[3],
-                                                                                    'nombres': fila[4]})
-            else:
-                trabajador, creado = Trabajador.objects.get_or_create(dni=fila[1].strip(),
-                                                                      defaults={'apellido_paterno': fila[2],
-                                                                                'apellido_materno': fila[3],
-                                                                                'nombres': fila[4]})
-        return HttpResponseRedirect(reverse('administracion:maestro_trabajadores'))
+    def procesar_fila(self, fila):
+        usuario_hoja = fila[0]
+        if usuario_hoja != "":
+            usuario, creado = User.objects.get_or_create(username=usuario_hoja,
+                                                         defaults={'email': fila[5]}, )
+            if creado:
+                usuario.set_unusable_password()
+                usuario.save()
+                Trabajador.objects.get_or_create(usuario=usuario,
+                                                 defaults={'dni': fila[1].strip(),
+                                                           'apellido_paterno': fila[2],
+                                                           'apellido_materno': fila[3],
+                                                           'nombres': fila[4]})
+        else:
+            Trabajador.objects.get_or_create(dni=fila[1].strip(),
+                                             defaults={'apellido_paterno': fila[2],
+                                                       'apellido_materno': fila[3],
+                                                       'nombres': fila[4]})
 
 
-class CargarPuestos(FormView):
+class CargarPuestos(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_puestos.html'
     form_class = UploadForm
+    success_url = reverse_lazy('administracion:maestro_puestos')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            anio = int(fila[3][6:])
-            mes = int(fila[3][3:5])
-            dia = int(fila[3][0:2])
-            fecha = datetime.date(anio, mes, dia)
-            if fila[4] == 'SI':
-                es_jefatura = True
-            else:
-                es_jefatura = False
-            try:
-                puesto, creado = Puesto.objects.get_or_create(nombre=fila[0],
-                                                              defaults={'oficina': Oficina.objects.get(
-                                                                  codigo=fila[1].strip()),
-                                                                  'trabajador': Trabajador.objects.get(
-                                                                      dni=fila[2].strip()),
-                                                                  'fecha_inicio': fecha,
-                                                                  'es_jefatura': es_jefatura})
-            except Exception:
-                logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
-        return HttpResponseRedirect(reverse('administracion:maestro_puestos'))
+    def procesar_fila(self, fila):
+        fecha = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
+        try:
+            Puesto.objects.get_or_create(nombre=fila[0],
+                                         defaults={'oficina': Oficina.objects.get(codigo=fila[1].strip()),
+                                                   'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
+                                                   'fecha_inicio': fecha,
+                                                   'es_jefatura': fila[4] == 'SI'})
+        except Exception:
+            logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
 
 
 class CrearNivelAprobacion(CreateView):

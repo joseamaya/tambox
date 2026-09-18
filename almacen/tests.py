@@ -1,8 +1,11 @@
 from almacen.models import Almacen, TipoMovimiento, Pedido, DetallePedido, \
     Movimiento
-from django.test import TestCase
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import TestCase, override_settings
 from model_bakery import baker
 from datetime import date
+import tempfile
 from django.utils import timezone
 from compras.models import OrdenCompra
 
@@ -211,3 +214,22 @@ class EstadoDeDetallePedidoTest(TestCase):
                          DetallePedido.STATUS.ATEN)
         self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=12).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CargarCsvTest(TestCase):
+    """Ejercita de punta a punta el lector de CSV y el mixin compartido, que es
+    lo unico que garantiza que el refactor de los importadores funcione."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
+
+    def test_cargar_almacenes(self):
+        contenido = 'AL01,ALMACEN UNO\nAL02,ALMACEN DOS\n'
+        archivo = SimpleUploadedFile('almacenes.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/almacen/cargar_almacenes/', {'archivo': archivo})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(Almacen.objects.filter(codigo__in=['AL01', 'AL02']).count(), 2)
+        self.assertEqual(Almacen.objects.get(codigo='AL01').descripcion, 'ALMACEN UNO')

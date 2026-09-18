@@ -6,8 +6,6 @@ from contabilidad.models import CuentaContable, TipoDocumento, Impuesto, \
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm, CuentaContableForm, \
     ImpuestoForm, ConfiguracionForm, FormaPagoForm, TipoCambioForm
-from django.conf import settings
-import csv
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView, \
@@ -17,7 +15,7 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from contabilidad.forms import UploadForm
-import os
+from tambox.vistas import CargarCsvMixin
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 import datetime
@@ -39,53 +37,35 @@ class Tablero(View):
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
 
 
-class CargarCuentasContables(FormView):
+class CargarCuentasContables(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
+    success_url = reverse_lazy('contabilidad:cuentas_contables')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
-                                                 defaults={'descripcion': fila[1].strip()})
-        return HttpResponseRedirect(reverse('contabilidad:cuentas_contables'))
+    def procesar_fila(self, fila):
+        CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
+                                             defaults={'descripcion': fila[1].strip()})
 
 
-class CargarTiposExistencias(FormView):
+class CargarTiposExistencias(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_existencias.html'
     form_class = UploadForm
+    success_url = reverse_lazy('contabilidad:tipos_existencias')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
-                                                 defaults={'descripcion': fila[1].strip()})
-        return HttpResponseRedirect(reverse('contabilidad:tipos_existencias'))
+    def procesar_fila(self, fila):
+        TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
+                                             defaults={'descripcion': fila[1].strip()})
 
 
-class CargarTiposDocumentos(FormView):
+class CargarTiposDocumentos(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_documentos.html'
     form_class = UploadForm
+    success_url = reverse_lazy('contabilidad:tipos_documentos')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            TipoDocumento.objects.create(codigo_sunat=fila[0],
-                                         nombre=fila[1],
-                                         descripcion=fila[1])
-        return HttpResponseRedirect(reverse('contabilidad:tipos_documentos'))
+    def procesar_fila(self, fila):
+        TipoDocumento.objects.create(codigo_sunat=fila[0],
+                                     nombre=fila[1],
+                                     descripcion=fila[1])
 
 
 class CrearFormaPago(CreateView):

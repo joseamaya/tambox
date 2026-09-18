@@ -31,15 +31,12 @@ from compras.models import DetalleOrdenCompra
 from openpyxl import Workbook
 import simplejson
 import json
-from django.conf import settings
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
 from administracion.models import Puesto
 import locale
 from contabilidad.models import Tipo, TipoDocumento
-import csv
 from contabilidad.forms import UploadForm
-import os
 from django.contrib.auth.decorators import permission_required
 from django.utils.decorators import method_decorator
 from django.db.models import Q
@@ -50,6 +47,8 @@ from productos.models import Producto, GrupoProductos
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
 from tambox.configuracion import empresa, logistica
+from tambox.importacion import leer_filas
+from tambox.vistas import CargarCsvMixin
 from datetime import date
 
 locale.setlocale(locale.LC_ALL, "")
@@ -233,20 +232,14 @@ class BusquedaProductosAlmacen(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarAlmacenes(FormView):
+class CargarAlmacenes(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
+    success_url = reverse_lazy('almacen:almacenes')
 
-    def form_valid(self, form):
-        data = form.cleaned_data
-        docfile = data['archivo']
-        form.save()
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
-        for fila in dataReader:
-            Almacen.objects.create(codigo=fila[0],
-                                   descripcion=fila[1])
-        return HttpResponseRedirect(reverse('almacen:almacenes'))
+    def procesar_fila(self, fila):
+        Almacen.objects.create(codigo=fila[0],
+                               descripcion=fila[1])
 
 
 class CargarInventarioInicial(FormView):
@@ -254,7 +247,6 @@ class CargarInventarioInicial(FormView):
     form_class = CargarInventarioInicialForm
 
     def obtener_fecha_hora(self, r_fecha, r_hora):
-        print(r_hora)
         r_hora = r_hora.replace(" ", "")
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
@@ -273,9 +265,6 @@ class CargarInventarioInicial(FormView):
         almacen = data['almacenes']
         form.save()
         fecha_operacion = self.obtener_fecha_hora(fecha, hora)
-        usuario = self.request.user
-        csv_filepathname = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-        dataReader = csv.reader(open(csv_filepathname, encoding="utf8"), delimiter=',', quotechar='"')
         tipo_movimiento = TipoMovimiento.objects.get(codigo='I00')
         with transaction.atomic():
             tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')
@@ -289,7 +278,7 @@ class CargarInventarioInicial(FormView):
             cont_detalles = 1
             detalles = []
             total = 0
-            for fila in dataReader:
+            for fila in leer_filas(docfile):
                 try:
                     producto = Producto.objects.get(descripcion=fila[0].strip())
                     cantidad = Decimal(fila[1])
