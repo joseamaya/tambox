@@ -8,7 +8,7 @@ from model_utils.models import TimeStampedModel
 from django.db.models import Max
 from contabilidad.models import FormaPago, TipoCambio
 from productos.models import Producto
-from compras.querysets import NavegableQuerySet
+from tambox.querysets import NavegableQuerySet
 from compras.settings import CHOICES_ESTADO_COTIZ, CONFIGURACION
 from compras.managers import DetalleCotizacionManager, \
     DetalleConformidadServicioManager

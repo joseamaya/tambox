@@ -2,6 +2,14 @@ from django.db import models
 
 
 class NavegableQuerySet(models.query.QuerySet):
+    """Navegacion entre registros consecutivos por pk.
+
+    `anterior()` y `siguiente()` devuelven el objeto (no la pk), porque hay
+    consumidores que necesitan la instancia: el tag `url_anterior` llama a
+    `verificar_acceso()` sobre ella, y las URL montadas sobre `codigo` la
+    resuelven via `__str__`. Los modelos cuyas rutas usan `pk` exponen un
+    envoltorio que devuelve `pk`, que es lo que esperan sus plantillas.
+    """
 
     def ultimo(self):
         return self.order_by('pk').last()

@@ -6,7 +6,7 @@ from model_utils.choices import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Oficina
 from contabilidad.behaviors import SingletonModel
-from contabilidad.querysets import NavegableQuerySet
+from tambox.querysets import NavegableQuerySet
 from contabilidad.helpers import OverwriteStorage
 
 

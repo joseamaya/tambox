@@ -4,7 +4,7 @@ from model_utils.models import TimeStampedModel
 from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import force_str
-from productos.querysets import NavegableQuerySet
+from tambox.querysets import NavegableQuerySet
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
 import datetime

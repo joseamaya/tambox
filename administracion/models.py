@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import force_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
-from administracion.querysets import NavegableQuerySet
+from tambox.querysets import NavegableQuerySet
 from django.core.exceptions import ObjectDoesNotExist
 from simple_history.models import HistoricalRecords
 

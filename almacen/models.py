@@ -10,6 +10,7 @@ from model_utils import Choices
 from django.utils.translation import gettext as _
 from productos.models import Producto
 from almacen.managers import DetalleMovimientoManager
+from tambox.querysets import NavegableQuerySet
 from decimal import Decimal
 from simple_history.models import HistoricalRecords
 
@@ -30,19 +31,13 @@ class Almacen(TimeStampedModel):
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)
         ordering = ['codigo']
 
+    objects = NavegableQuerySet.as_manager()
+
     def anterior(self):
-        try:
-            ant = Almacen.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except IndexError:
-            ant = Almacen.objects.all().order_by('pk').last()
-        return ant.pk
+        return Almacen.objects.anterior(self).pk
 
     def siguiente(self):
-        try:
-            sig = Almacen.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except IndexError:
-            sig = Almacen.objects.all().order_by('pk').first()
-        return sig.pk
+        return Almacen.objects.siguiente(self).pk
 
     def __str__(self):
         return self.descripcion
@@ -60,19 +55,13 @@ class TipoMovimiento(TimeStampedModel):
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
 
+    objects = NavegableQuerySet.as_manager()
+
     def anterior(self):
-        try:
-            ant = TipoMovimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except IndexError:
-            ant = TipoMovimiento.objects.all().order_by('pk').last()
-        return ant.pk
+        return TipoMovimiento.objects.anterior(self).pk
 
     def siguiente(self):
-        try:
-            sig = TipoMovimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except IndexError:
-            sig = TipoMovimiento.objects.all().order_by('pk').first()
-        return sig.pk
+        return TipoMovimiento.objects.siguiente(self).pk
 
     class Meta:
         permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
@@ -119,19 +108,13 @@ class Pedido(TimeStampedModel):
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
+    objects = NavegableQuerySet.as_manager()
+
     def anterior(self):
-        try:
-            ant = Pedido.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except IndexError:
-            ant = Pedido.objects.all().order_by('pk').last()
-        return ant.pk
+        return Pedido.objects.anterior(self).pk
 
     def siguiente(self):
-        try:
-            sig = Pedido.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except IndexError:
-            sig = Pedido.objects.all().order_by('pk').first()
-        return sig.pk
+        return Pedido.objects.siguiente(self).pk
 
     def establecer_estado_atendido(self):
         total = 0
@@ -234,19 +217,13 @@ class Movimiento(TimeStampedModel):
     estado = models.CharField(choices=STATUS, default=STATUS.ACT, max_length=20)
     history = HistoricalRecords()
 
+    objects = NavegableQuerySet.as_manager()
+
     def anterior(self):
-        try:
-            sig = Movimiento.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except IndexError:
-            sig = Movimiento.objects.all().last()
-        return sig.pk
+        return Movimiento.objects.anterior(self).pk
 
     def siguiente(self):
-        try:
-            ant = Movimiento.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except IndexError:
-            ant = Movimiento.objects.all().first()
-        return ant.pk
+        return Movimiento.objects.siguiente(self).pk
 
     @transaction.atomic
     def eliminar_referencia(self):
@@ -424,19 +401,13 @@ class Kardex(TimeStampedModel):
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     history = HistoricalRecords()
 
+    objects = NavegableQuerySet.as_manager()
+
     def anterior(self):
-        try:
-            sig = Kardex.objects.filter(pk__lt=self.pk).order_by('-pk')[0]
-        except IndexError:
-            sig = Kardex.objects.all().last()
-        return sig.pk
+        return Kardex.objects.anterior(self).pk
 
     def siguiente(self):
-        try:
-            ant = Kardex.objects.filter(pk__gt=self.pk).order_by('pk')[0]
-        except IndexError:
-            ant = Kardex.objects.all().first()
-        return ant.pk
+        return Kardex.objects.siguiente(self).pk
 
     def __str__(self):
         return str(self.movimiento.id_movimiento) + '-' + str(
