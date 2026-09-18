@@ -26,9 +26,6 @@ from contabilidad.models import CuentaContable, TipoExistencia
 logger = logging.getLogger(__name__)
 
 
-# from productos.reports import ProductosReport
-
-# Create your views here.
 class Tablero(View):
 
     def get(self, request, *args, **kwargs):
@@ -244,14 +241,6 @@ class CrearServicio(CreateView):
 
     def get_success_url(self):
         return reverse('productos:detalle_servicio', args=[self.object.codigo])
-
-
-"""class DownloadProductosReport(View):
-
-    def get(self, request, *args, **kwargs):
-        # debemos obtener nuestro objeto classroom haciendo la consulta a la base de datos
-        report = ProductosReport()
-        return report.render_to_response()"""
 
 
 class DetalleProducto(DetailView):

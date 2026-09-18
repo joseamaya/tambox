@@ -56,5 +56,4 @@ urlpatterns = [
         name="eliminar_grupo_productos"),
     re_path(r'^eliminar_producto/$', login_required(EliminarProducto.as_view()), name="eliminar_producto"),
     re_path(r'^eliminar_servicio/$', login_required(EliminarServicio.as_view()), name="eliminar_servicio"),
-    # url(r'^descargar_reporte_productos/$', login_required(DownloadProductosReport.as_view()), name="descargar_reporte_productos"),
 ]
