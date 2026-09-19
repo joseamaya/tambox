@@ -1,6 +1,7 @@
 # Entorno / IDE
 .idea
 .vscode
+.commandcode/
 
 # Python
 __pycache__/
@@ -14,8 +15,6 @@ env/
 *.log
 staticfiles/
 media/
-local.py
-development.py
 
 # Base de datos local
 *.sqlite3
@@ -32,6 +31,7 @@ db.sqlite3
 .coverage.*
 htmlcov/
 .pytest_cache/
+.ruff_cache/
 
 # Sistema operativo
 .DS_Store
