@@ -455,6 +455,77 @@ class ReporteKardexExcelTest(TestCase):
         self.assertEqual(hoja.cell(row=5, column=8).value, 'SALDO INICIAL:')
 
 
+class ReporteKardexPorProductoTest(TestCase):
+    """Los informes de kardex por producto resolvian el saldo inicial con un
+    `latest()` por fila. `kardex_inicial_de()` lee el lote que el informe
+    precargo, y si el informe exporta un solo producto consulta ese producto:
+    los dos caminos se ejercitan aqui, porque `manage.py check` no ejecuta
+    cuerpos de funcion."""
+
+    def setUp(self):
+        from contabilidad.models import CuentaContable, TipoExistencia
+        from productos.models import GrupoProductos
+
+        self.almacen = baker.make(Almacen)
+        self.grupo = baker.make(GrupoProductos, codigo='000001',
+                                ctacontable=baker.make(CuentaContable))
+        self.producto = baker.make(Producto, codigo='', grupo_productos=self.grupo,
+                                   tipo_existencia=baker.make(TipoExistencia))
+        self.desde = date(2024, 1, 1)
+        self.hasta = date(2024, 1, 31)
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
+                   cantidad_total=Decimal('7'), valor_total=Decimal('21'),
+                   precio_total=Decimal('3'))
+
+    def test_las_tablas_del_pdf_usan_el_kardex_anterior(self):
+        from almacen.reports import ReporteKardexPDF
+        from productos.models import GrupoProductos
+
+        reporte = ReporteKardexPDF('A4', self.desde, self.hasta, self.almacen,
+                                   GrupoProductos.objects.all())
+
+        unidades = reporte.tabla_detalle_unidades_fisicas(
+            self.producto, self.desde, self.hasta, self.almacen)
+        self.assertEqual(unidades._cellvalues[2][7], '7.00')
+
+        valorizado = reporte.tabla_detalle_valorizado(
+            self.producto, self.desde, self.hasta, self.almacen)
+        self.assertTrue(valorizado._cellvalues)
+
+    def test_los_todos_precargan_el_lote(self):
+        from almacen.reports import ReporteKardexExcel
+
+        reporte = ReporteKardexExcel()
+        libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
+            self.desde, self.hasta, self.almacen)
+
+        self.assertTrue(libro.sheetnames)
+        self.assertIn(self.producto.pk, reporte.kardex_iniciales)
+
+    def test_los_todos_valorizados_precargan_el_lote(self):
+        from almacen.reports import ReporteKardexExcel
+
+        reporte = ReporteKardexExcel()
+        libro = reporte.obtener_formato_sunat_valorizado_todos(
+            self.desde, self.hasta, self.almacen)
+
+        self.assertTrue(libro.sheetnames)
+        self.assertIn(self.producto.pk, reporte.kardex_iniciales)
+
+    def test_los_formatos_de_un_solo_producto(self):
+        from almacen.reports import ReporteKardexExcel
+
+        reporte = ReporteKardexExcel()
+        for metodo in ('obtener_formato_sunat_unidades_fisicas_producto',
+                       'obtener_formato_sunat_valorizado_producto',
+                       'obtener_formato_normal_producto'):
+            with self.subTest(metodo=metodo):
+                libro = getattr(reporte, metodo)(self.producto, self.desde,
+                                                 self.hasta, self.almacen)
+                self.assertTrue(libro.sheetnames)
+
+
 class StockAjaxTest(TestCase):
     """Los endpoints de autocompletado resolvian el ultimo Kardex uno por uno.
     Esto fija el JSON que devuelven, que es lo que consume el JavaScript."""

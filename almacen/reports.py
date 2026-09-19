@@ -23,6 +23,24 @@ from openpyxl import Workbook
 from django.core.exceptions import ObjectDoesNotExist
 
 
+def kardex_inicial_de(reporte, producto, almacen, desde):
+    """Saldo inicial de un producto: el ultimo kardex anterior a `desde`.
+
+    Los informes que recorren el catalogo precargan el lote entero en
+    `reporte.kardex_iniciales` (una sola consulta); los que exportan un solo
+    producto no lo hacen y aqui se consulta ese producto. Antes cada fila
+    lanzaba un `latest('fecha_operacion')`, que ademas revienta con
+    MultipleObjectsReturned si dos movimientos comparten fecha.
+    """
+    iniciales = getattr(reporte, 'kardex_iniciales', None)
+    if iniciales is None:
+        return (Kardex.objects.filter(producto=producto, almacen=almacen,
+                                      fecha_operacion__lt=desde)
+                .order_by('-fecha_operacion', '-pk')
+                .first())
+    return iniciales.get(producto.pk)
+
+
 class ReporteMovimiento():
 
     def __init__(self, pagesize, movimiento):
@@ -318,11 +336,9 @@ class ReporteKardexPDF():
         encab_seg = ["FECHA", "TIPO (TABLA 10)", "SERIE", "NÚMERO", "", "", "", ""]
         tabla.append(encab_seg)
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
         saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
                          format(cant_saldo_inicial, '.2f')]
@@ -612,13 +628,11 @@ class ReporteKardexPDF():
         tabla.append(encab_terc)
 
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
             precio_saldo_inicial = kardex_inicial.precio_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
             precio_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -851,6 +865,7 @@ class ReporteKardexPDF():
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0, cantidad_salida=0).order_by().values(
             'producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
+        self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1012,6 +1027,7 @@ class ReporteKardexPDF():
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,
                                                   cantidad_salida=0).order_by().values('producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
+        self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1125,11 +1141,9 @@ class ReporteKardexExcel():
         ws.merge_cells('I13:I15')
 
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
         cont = 16
         ws.cell(row=cont, column=2).border = thin_border
@@ -1219,12 +1233,10 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
@@ -1414,12 +1426,10 @@ class ReporteKardexExcel():
         ws.merge_cells('O14:O15')
 
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         cont = 16
@@ -1613,11 +1623,9 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=5).border = thin_border
 
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
         cont = cont + 1
         ws.cell(row=cont, column=2).border = thin_border
@@ -1681,6 +1689,7 @@ class ReporteKardexExcel():
 
     def obtener_formato_sunat_unidades_fisicas_todos(self, desde, hasta, almacen):
         productos = Producto.objects.all().order_by('descripcion')
+        self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1795,12 +1804,10 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont - 1, start_column=15, end_row=cont, end_column=15)
         ws.cell(row=cont - 1, column=15).border = thin_border
         try:
-            kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                   almacen=almacen,
-                                                   fecha_operacion__lt=desde).latest('fecha_operacion')
+            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
             cant_saldo_inicial = kardex_inicial.cantidad_total
             valor_saldo_inicial = kardex_inicial.valor_total
-        except Kardex.DoesNotExist:
+        except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
         cont = cont + 1
@@ -1925,6 +1932,7 @@ class ReporteKardexExcel():
 
     def obtener_formato_sunat_valorizado_todos(self, desde, hasta, almacen):
         productos = Producto.objects.all().order_by('descripcion')
+        self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
