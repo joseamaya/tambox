@@ -280,8 +280,8 @@ class CargarCsvTest(TestCase):
         tipo_movimiento = baker.make(TipoMovimiento, codigo='I00', incrementa=True)
         baker.make(TipoDocumento, codigo_sunat='PEC')
         almacen = baker.make(Almacen)
-        producto_uno = baker.make(Producto, descripcion='PRODUCTO UNO', unidad_medida=None)
-        producto_dos = baker.make(Producto, descripcion='PRODUCTO DOS', unidad_medida=None)
+        producto_uno = baker.make(Producto, descripcion='PRODUCTO UNO')
+        producto_dos = baker.make(Producto, descripcion='PRODUCTO DOS')
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
         archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 

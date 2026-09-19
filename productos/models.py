@@ -100,7 +100,7 @@ class Producto(TimeStampedModel):
     grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
     descripcion = models.CharField(max_length=100, unique=True)
     es_servicio = models.BooleanField(default=False)
-    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, null=True)
+    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE)
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
     precio = models.DecimalField(max_digits=15, decimal_places=5, default=0)
