@@ -95,6 +95,18 @@ class GrupoProductos(TimeStampedModel):
                 totales['cantidad_salida'] or 0,
                 totales['valor_salida'] or 0)
 
+    @staticmethod
+    def kardex_por_lote(grupos, almacen, desde, hasta):
+        """Igual que `obtener_kardex()`, pero para todos los grupos de una vez.
+
+        Devuelve {grupo_id: (filas, cantidad_ingreso, valor_ingreso,
+        cantidad_salida, valor_salida)} con dos consultas en total.
+        """
+        from almacen.models import Kardex
+        return Kardex.kardex_por_lote(desde, hasta, por_grupo=True,
+                                      almacen=almacen,
+                                      producto__grupo_productos__in=grupos)
+
 
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
@@ -158,6 +170,20 @@ class Producto(TimeStampedModel):
                 totales['valor_ingreso'] or 0,
                 totales['cantidad_salida'] or 0,
                 totales['valor_salida'] or 0)
+
+    @staticmethod
+    def kardex_por_lote(productos, almacen, desde, hasta):
+        """Igual que `obtener_kardex()`, pero para todo el lote de una vez.
+
+        Devuelve {producto_id: (filas, cantidad_ingreso, valor_ingreso,
+        cantidad_salida, valor_salida)} con dos consultas en total, en vez de
+        dos por producto.
+        """
+        from almacen.models import Kardex, Movimiento
+        return Kardex.kardex_por_lote(desde, hasta,
+                                      almacen=almacen,
+                                      producto__in=productos,
+                                      movimiento__estado=Movimiento.STATUS.ACT)
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),

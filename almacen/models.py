@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*- 
+from datetime import timedelta
+from decimal import Decimal
+
 from django.db import models, transaction
 from django.db.models import Max, Sum
 from compras.models import OrdenCompra, DetalleOrdenCompra
@@ -433,6 +436,37 @@ class Kardex(TimeStampedModel):
                    .order_by('producto_id', '-fecha_operacion', '-pk')
                    .distinct('producto_id'))
         return {kardex.producto_id: kardex for kardex in ultimos}
+
+    @classmethod
+    def kardex_por_lote(cls, desde, hasta, por_grupo=False, **filtro):
+        """Kardex del periodo de todo el lote, en dos consultas.
+
+        Devuelve {clave: (filas, cantidad_ingreso, valor_ingreso,
+        cantidad_salida, valor_salida)}, con la misma forma que
+        `obtener_kardex()`, agrupado por producto o por grupo segun `por_grupo`.
+
+        Los informes llamaban a `obtener_kardex()` dentro del bucle, o sea dos
+        consultas por producto. Los totales se suman aqui en Python: con Decimal
+        el resultado es el mismo que el del agregado de SQL.
+        """
+        hasta = hasta + timedelta(days=1)
+        filas = (cls.objects.filter(fecha_operacion__gte=desde,
+                                    fecha_operacion__lte=hasta,
+                                    **filtro)
+                 .select_related('producto', 'movimiento__tipo_documento',
+                                 'movimiento__tipo_movimiento')
+                 .order_by('producto__descripcion', 'fecha_operacion',
+                           'cantidad_salida', 'created'))
+        lote = {}
+        for kardex in filas:
+            clave = kardex.producto.grupo_productos_id if por_grupo else kardex.producto_id
+            totales = lote.setdefault(clave, [[], Decimal(0), Decimal(0), Decimal(0), Decimal(0)])
+            totales[0].append(kardex)
+            totales[1] = totales[1] + kardex.cantidad_ingreso
+            totales[2] = totales[2] + kardex.valor_ingreso
+            totales[3] = totales[3] + kardex.cantidad_salida
+            totales[4] = totales[4] + kardex.valor_salida
+        return lote
 
     def __str__(self):
         return str(self.movimiento.id_movimiento) + '-' + str(

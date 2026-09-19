@@ -41,6 +41,21 @@ def kardex_inicial_de(reporte, producto, almacen, desde):
     return iniciales.get(producto.pk)
 
 
+def kardex_del_periodo(reporte, objeto, almacen, desde, hasta, por_grupo=False):
+    """Kardex del periodo, con sus totales, del lote que el informe precargo.
+
+    Los informes que recorren el catalogo llenan `reporte.kardex_lote` -o
+    `kardex_lote_grupos`- con dos consultas para todo el lote; los que exportan
+    un solo producto lo dejan vacio y aqui se resuelve ese producto, que es lo
+    que hacian todos antes. Un producto sin movimientos en el periodo no tiene
+    clave en el lote, y su valor es el mismo que devolvia `obtener_kardex()`.
+    """
+    lote = getattr(reporte, 'kardex_lote_grupos' if por_grupo else 'kardex_lote', None)
+    if lote is None:
+        return objeto.obtener_kardex(almacen, desde, hasta)
+    return lote.get(objeto.pk, ([], 0, 0, 0, 0))
+
+
 class ReporteMovimiento():
 
     def __init__(self, pagesize, movimiento):
@@ -344,10 +359,8 @@ class ReporteKardexPDF():
                          format(cant_saldo_inicial, '.2f')]
         cantidad_total = cant_saldo_inicial
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen,
-            desde,
-            hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
@@ -374,7 +387,7 @@ class ReporteKardexPDF():
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto = listado_kardex.count() + 2
+        total_registros_producto = len(listado_kardex) + 2
         if total_registros_producto > 11:
             self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))
 
@@ -420,6 +433,7 @@ class ReporteKardexPDF():
         total_valor_total = 0
         self.total_paginas = int(math.ceil(productos.count() / 22.0))
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
             try:
                 kardex_inicial = iniciales.get(producto.pk)
@@ -429,10 +443,8 @@ class ReporteKardexPDF():
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
 
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-                almacen,
-                desde,
-                hasta)
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+                self, producto, almacen, desde, hasta)
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
 
@@ -521,6 +533,7 @@ class ReporteKardexPDF():
         total_cantidad_total = 0
         total_valor_total = 0
         self.total_paginas = int(math.ceil(grupos.count() / 22.0))
+        self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, almacen, desde, hasta)
         for grupo in grupos:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -537,10 +550,8 @@ class ReporteKardexPDF():
                 cant_saldo_inicial += cant_saldo_inicial_producto
                 valor_saldo_inicial += valor_saldo_inicial_producto
 
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = grupo.obtener_kardex(
-                almacen,
-                desde,
-                hasta)
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+                self, grupo, almacen, desde, hasta, por_grupo=True)
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
 
@@ -655,10 +666,8 @@ class ReporteKardexPDF():
         precio_total = precio_saldo_inicial
         valor_total = valor_saldo_inicial
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen,
-            desde,
-            hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
@@ -698,7 +707,7 @@ class ReporteKardexPDF():
         tabla.append(totales)
 
         self.total_paginas += 1;
-        total_registros_producto = listado_kardex.count() + 2
+        total_registros_producto = len(listado_kardex) + 2
         if total_registros_producto > 10:
             self.total_paginas += int(math.ceil((total_registros_producto - 10) / 20.0))
 
@@ -867,6 +876,7 @@ class ReporteKardexPDF():
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
             'descripcion').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1030,6 +1040,7 @@ class ReporteKardexPDF():
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
             'descripcion').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1167,10 +1178,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen,
-            desde,
-            hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1262,8 +1271,8 @@ class ReporteKardexExcel():
         ws['L5'] = 'PRE. TOT'
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen, desde, hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
                 ws.cell(row=cont, column=2).value = kardex.fecha_operacion
@@ -1474,10 +1483,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen,
-            desde,
-            hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1649,8 +1656,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen, desde, hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1693,6 +1700,7 @@ class ReporteKardexExcel():
         productos = Producto.objects.all().order_by('descripcion').select_related(
             'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1854,10 +1862,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-            almacen,
-            desde,
-            hasta)
+        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
@@ -1937,6 +1943,7 @@ class ReporteKardexExcel():
         productos = Producto.objects.all().order_by('descripcion').select_related(
             'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1954,6 +1961,7 @@ class ReporteKardexExcel():
     def obtener_consolidado_grupos(self, desde, hasta, almacen):
         grupos = GrupoProductos.objects.filter(estado=True,
                                                son_productos=True)
+        self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, almacen, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -2020,10 +2028,8 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=6).value = valor_saldo_inicial
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = grupo.obtener_kardex(
-                almacen,
-                desde,
-                hasta)
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+                self, grupo, almacen, desde, hasta, por_grupo=True)
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
             ws.cell(row=cont, column=7).value = cantidad_ingreso
@@ -2091,6 +2097,7 @@ class ReporteKardexExcel():
         ws['K3'].border = thin_border
         cont = 4
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
             ws.cell(row=cont, column=2).value = producto.codigo
             ws.cell(row=cont, column=2).border = thin_border
@@ -2109,10 +2116,8 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=5).value = valor_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-                almacen,
-                desde,
-                hasta)
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+                self, producto, almacen, desde, hasta)
             cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
             valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
             ws.cell(row=cont, column=6).value = cantidad_ingreso
@@ -2161,6 +2166,8 @@ class ReporteKardexExcel():
         cont = 4
         ultimos = Kardex.ultimos_por_producto([prod.producto_id for prod in productos],
                                               antes_de=desde, almacen=almacen)
+        self.kardex_lote = Producto.kardex_por_lote([prod.producto_id for prod in productos],
+                                                    almacen, desde, hasta)
         for prod in productos:
             producto = prod.producto
             ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
@@ -2186,10 +2193,8 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=13).value = valor_saldo_inicial
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = producto.obtener_kardex(
-                almacen,
-                desde,
-                hasta)
+            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+                self, producto, almacen, desde, hasta)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
                     ws.cell(row=cont, column=2).value = kardex.fecha_operacion

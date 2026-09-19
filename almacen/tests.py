@@ -419,24 +419,61 @@ class ReporteKardexExcelTest(TestCase):
     `obtener_kardex()`."""
 
     def setUp(self):
-        from contabilidad.models import CuentaContable
+        from contabilidad.models import CuentaContable, TipoExistencia
         from productos.models import GrupoProductos
 
         self.almacen = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, codigo='000001',
                                 ctacontable=baker.make(CuentaContable))
-        self.producto = baker.make(Producto, codigo='', grupo_productos=self.grupo)
+        self.unidad = baker.make(UnidadMedida)
+        self.tipo_existencia = baker.make(TipoExistencia)
+        self.tipo_documento = baker.make(TipoDocumento, codigo_sunat='PEC')
+        self.tipo_movimiento = baker.make(TipoMovimiento, codigo='I01', codigo_sunat='01')
+        self.producto = baker.make(Producto, codigo='', grupo_productos=self.grupo,
+                                   unidad_medida=self.unidad,
+                                   tipo_existencia=self.tipo_existencia)
         self.desde = date(2024, 1, 1)
         self.hasta = date(2024, 1, 31)
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    fecha_operacion=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    cantidad_total=Decimal('7'), valor_total=Decimal('21'))
-        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
-                   fecha_operacion=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
-                   cantidad_total=Decimal('99'), valor_total=Decimal('99'))
+
+    def test_el_formato_sunat_no_crece_con_el_catalogo(self):
+        """Era 4 consultas por producto: dos `select_related`, el saldo inicial y
+        el `obtener_kardex()` del periodo. Ahora el lote se resuelve de una vez."""
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from almacen.reports import ReporteKardexExcel
+
+        reporte = ReporteKardexExcel()
+        reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
+        with CaptureQueriesContext(connection) as con_uno:
+            reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
+
+        for numero in range(9):
+            producto = baker.make(Producto, codigo='', grupo_productos=self.grupo,
+                                  unidad_medida=self.unidad,
+                                  tipo_existencia=self.tipo_existencia)
+            baker.make(Kardex, almacen=self.almacen, producto=producto,
+                       movimiento=baker.make(Movimiento, tipo_documento=self.tipo_documento,
+                                             tipo_movimiento=self.tipo_movimiento),
+                       fecha_operacion=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
+                       cantidad_total=Decimal('5'), valor_total=Decimal('10'))
+
+        with CaptureQueriesContext(connection) as con_diez:
+            libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
+                self.desde, self.hasta, self.almacen)
+
+        self.assertLessEqual(len(con_diez), len(con_uno))
+        self.assertLess(len(con_diez), 20)
+        self.assertEqual(len(libro.sheetnames) - 1, 10)
 
     def test_el_consolidado_usa_el_kardex_anterior_al_periodo(self):
         from almacen.reports import ReporteKardexExcel
+
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
+                   cantidad_total=Decimal('99'), valor_total=Decimal('99'))
 
         libro = ReporteKardexExcel().obtener_consolidado_productos(
             self.desde, self.hasta, self.almacen)
