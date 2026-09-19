@@ -412,8 +412,11 @@ class Kardex(TimeStampedModel):
         return Kardex.objects.siguiente(self).pk
 
     @classmethod
-    def ultimos_por_producto(cls, productos, **filtro):
+    def ultimos_por_producto(cls, productos, antes_de=None, **filtro):
         """Ultimo Kardex de cada producto del lote, en una sola consulta.
+
+        Con `antes_de` devuelve el ultimo movimiento anterior a esa fecha, que
+        es el saldo inicial de los informes de kardex.
 
         Las vistas pedian un `latest('fecha_operacion')` por producto: una
         consulta por fila y, si dos movimientos compartian fecha,
@@ -423,8 +426,10 @@ class Kardex(TimeStampedModel):
         `filtro` es el que identifica el almacen (`almacen=`, `almacen__pk=`,
         `almacen__codigo=`), porque cada vista lo tiene de una forma distinta.
         """
-        ultimos = (cls.objects.filter(producto__in=productos, **filtro)
-                   .select_related('producto__unidad_medida')
+        consulta = cls.objects.filter(producto__in=productos, **filtro)
+        if antes_de is not None:
+            consulta = consulta.filter(fecha_operacion__lt=antes_de)
+        ultimos = (consulta.select_related('producto__unidad_medida')
                    .order_by('producto_id', '-fecha_operacion', '-pk')
                    .distinct('producto_id'))
         return {kardex.producto_id: kardex for kardex in ultimos}

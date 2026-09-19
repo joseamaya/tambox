@@ -374,6 +374,43 @@ class UltimosPorProductoTest(TestCase):
         self.assertEqual(ultimos[producto.pk].pk, segundo.pk)
 
 
+class ReporteKardexConsolidadoTest(TestCase):
+    """Ejecuta las dos tablas consolidadas del kardex, donde el saldo inicial de
+    cada producto se resolvia con un `latest()` dentro del bucle. `manage.py
+    check` no ejecuta cuerpos de funcion, asi que sin esto un nombre roto dentro
+    de esas tablas solo se descubriria al pedir el PDF."""
+
+    def setUp(self):
+        from contabilidad.models import CuentaContable
+        from productos.models import GrupoProductos
+
+        self.almacen = baker.make(Almacen)
+        self.grupo = baker.make(GrupoProductos, codigo='000001',
+                                ctacontable=baker.make(CuentaContable), son_productos=True)
+        self.productos = [baker.make(Producto, codigo='', grupo_productos=self.grupo)
+                          for numero in range(3)]
+
+    def reporte(self):
+        from almacen.reports import ReporteKardexPDF
+        from productos.models import GrupoProductos
+        return ReporteKardexPDF('A4', date(2024, 1, 1), date(2024, 1, 31),
+                                self.almacen, GrupoProductos.objects.all())
+
+    def test_tabla_consolidada_de_productos(self):
+        tabla = self.reporte().tabla_detalle_consolidado_productos(Producto.objects.all())
+
+        filas = tabla._cellvalues
+        self.assertEqual(len(filas), 3 + len(self.productos))
+        self.assertIn(self.productos[0].codigo, filas[2])
+
+    def test_tabla_consolidada_de_grupos(self):
+        from productos.models import GrupoProductos
+
+        tabla = self.reporte().tabla_detalle_consolidado_grupo(GrupoProductos.objects.all())
+
+        self.assertEqual(len(tabla._cellvalues), 3 + 1)
+
+
 class StockAjaxTest(TestCase):
     """Los endpoints de autocompletado resolvian el ultimo Kardex uno por uno.
     Esto fija el JSON que devuelven, que es lo que consume el JavaScript."""

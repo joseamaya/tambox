@@ -403,14 +403,13 @@ class ReporteKardexPDF():
         total_cantidad_total = 0
         total_valor_total = 0
         self.total_paginas = int(math.ceil(productos.count() / 22.0))
+        iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             try:
-                kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                       almacen=almacen,
-                                                       fecha_operacion__lt=desde).latest('fecha_operacion')
+                kardex_inicial = iniciales.get(producto.pk)
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except Kardex.DoesNotExist:
+            except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
 
@@ -510,14 +509,13 @@ class ReporteKardexPDF():
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
             productos = Producto.objects.filter(grupo_productos=grupo)
+            iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
             for producto in productos:
                 try:
-                    kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                           almacen=almacen,
-                                                           fecha_operacion__lt=desde).latest('fecha_operacion')
+                    kardex_inicial = iniciales.get(producto.pk)
                     cant_saldo_inicial_producto = kardex_inicial.cantidad_total
                     valor_saldo_inicial_producto = kardex_inicial.valor_total
-                except Kardex.DoesNotExist:
+                except AttributeError:
                     cant_saldo_inicial_producto = 0
                     valor_saldo_inicial_producto = 0
                 cant_saldo_inicial += cant_saldo_inicial_producto
