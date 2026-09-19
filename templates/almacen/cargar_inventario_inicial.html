@@ -1,6 +1,13 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 <h3><h3>Movimientos / Cargar Inventario Inicial</h3>
+    {% if notificaciones %}
+    <div class="alert alert-danger">
+        {% for notificacion in notificaciones %}
+        <p>{{ notificacion }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
     <form role="form" method="post" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="row">

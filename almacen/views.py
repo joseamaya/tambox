@@ -252,18 +252,29 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+        tipo_movimiento = TipoMovimiento.objects.filter(codigo='I00').first()
+        tipo_documento = TipoDocumento.objects.filter(codigo_sunat='PEC').first()
+        faltantes = []
+        if tipo_movimiento is None:
+            faltantes.append('Falta el tipo de movimiento "I00" (INVENTARIO INICIAL): '
+                             'entra al tablero de Almacen para crearlo y vuelve a cargar el archivo.')
+        if tipo_documento is None:
+            faltantes.append('Falta el tipo de documento "PEC" (PECOSA): '
+                             'entra al tablero de Contabilidad para crearlo y vuelve a cargar el archivo.')
+        if faltantes:
+            return self.render_to_response(self.get_context_data(form=form,
+                                                                 notificaciones=faltantes))
         self.fecha_operacion = self.obtener_fecha_hora(data['fecha'], data['hora'])
         self.cont_detalles = 1
         self.detalles = []
         with transaction.atomic():
-            self.movimiento = Movimiento.objects.create(
-                tipo_movimiento=TipoMovimiento.objects.get(codigo='I00'),
-                tipo_documento=TipoDocumento.objects.get(codigo_sunat='PEC'),
-                almacen=data['almacenes'],
-                fecha_operacion=self.fecha_operacion,
-                observaciones='INVENTARIO INICIAL',
-                serie='SALDO',
-                numero='INICIAL')
+            self.movimiento = Movimiento.objects.create(tipo_movimiento=tipo_movimiento,
+                                                        tipo_documento=tipo_documento,
+                                                        almacen=data['almacenes'],
+                                                        fecha_operacion=self.fecha_operacion,
+                                                        observaciones='INVENTARIO INICIAL',
+                                                        serie='SALDO',
+                                                        numero='INICIAL')
             respuesta = super(CargarInventarioInicial, self).form_valid(form)
             DetalleMovimiento.objects.bulk_create(self.detalles, None, None)
             self.movimiento.save()

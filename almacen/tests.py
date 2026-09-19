@@ -274,6 +274,26 @@ class CargarCsvTest(TestCase):
         self.assertEqual(detalles[0].valor, Decimal('50'))
         self.assertEqual(detalles[1].valor, Decimal('7'))
 
+    def test_cargar_inventario_inicial_sin_datos_basicos_avisa(self):
+        """`I00` y `PEC` los crean los tableros de Almacen y Contabilidad. Si el
+        usuario no paso por ellos, antes salia un DoesNotExist y ahora la pagina
+        dice que falta y donde crearlo."""
+        almacen = baker.make(Almacen)
+        contenido = 'PRODUCTO UNO,10,5.0,50.0\n'
+        archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
+                                     {'archivo': archivo,
+                                      'fecha': '01/01/2024',
+                                      'hora': '08:30',
+                                      'almacenes': almacen.pk})
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'Falta el tipo de movimiento')
+        self.assertContains(respuesta, 'Falta el tipo de documento')
+        self.assertEqual(Movimiento.objects.count(), 0)
+        self.assertEqual(DetalleMovimiento.objects.count(), 0)
+
 
 class TotalDeMovimientoTest(TestCase):
     """Suma la columna `valor`, asi que el agregado es exacto y ademas se memoriza."""
