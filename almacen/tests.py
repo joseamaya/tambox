@@ -216,6 +216,33 @@ class ReporteInventarioTest(TestCase):
 
         self.assertIn('GR00010001', codigos)
 
+    def test_las_consultas_no_crecen_con_los_productos(self):
+        """El reporte resolvia el ultimo Kardex y la cuenta contable del grupo con
+        una consulta por producto, y ademas un `count()` por grupo."""
+        from almacen.reports import reporte_inventario
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from contabilidad.models import CuentaContable, TipoExistencia
+        from productos.models import GrupoProductos, Producto
+
+        grupo = baker.make(GrupoProductos, codigo='000001', ctacontable=baker.make(CuentaContable))
+        unidad = baker.make(UnidadMedida)
+        tipo_existencia = baker.make(TipoExistencia)
+        campos = {'grupo_productos': grupo, 'unidad_medida': unidad,
+                  'tipo_existencia': tipo_existencia}
+        baker.make(Producto, codigo='', **campos)
+
+        with CaptureQueriesContext(connection) as con_un_producto:
+            reporte_inventario(date.today())
+
+        for numero in range(9):
+            baker.make(Producto, codigo='', **campos)
+
+        with CaptureQueriesContext(connection) as con_diez:
+            reporte_inventario(date.today())
+
+        self.assertEqual(len(con_un_producto), len(con_diez))
+
 
 class EstadoDeDetallePedidoTest(TestCase):
     """Solo lee campos de la instancia, y fija la regla compartida de clasificar()."""

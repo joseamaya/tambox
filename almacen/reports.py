@@ -2243,7 +2243,7 @@ class ReporteKardexExcel():
 
 def reporte_inventario(desde):
     """Construye el libro de Excel del reporte de inventario."""
-    grupo_productos = GrupoProductos.objects.filter(estado=True)
+    grupo_productos = GrupoProductos.objects.filter(estado=True).select_related('ctacontable')
 
     wb = Workbook()
     ws = wb.active
@@ -2315,11 +2315,12 @@ def reporte_inventario(desde):
     resumen_inventario = []
     for grupo_producto in grupo_productos:
 
-        productos = Producto.objects.filter(grupo_productos=grupo_producto)
+        productos = list(Producto.objects.filter(grupo_productos=grupo_producto)
+                         .select_related('unidad_medida'))
         bandera = " "
         tempo_cuenta = ""
 
-        if productos.count() > 0:
+        if productos:
             sum_valor = 0
             ws['A' + str(cont)].alignment = Alignment(horizontal="center")
             ws.merge_cells('A' + str(cont) + ':H' + str(cont))
@@ -2327,9 +2328,10 @@ def reporte_inventario(desde):
             ws.cell(row=cont, column=1).value = grupo_producto.descripcion
             bandera = grupo_producto.descripcion
             cont += 2
+            ultimos = Kardex.ultimos_por_producto(productos)
             for producto in productos:
                 try:
-                    kardex = Kardex.objects.filter(producto=producto).latest('fecha_operacion')
+                    kardex = ultimos.get(producto.pk)
                     codigo = kardex.producto.codigo
                     descripcion = kardex.producto.descripcion
                     unidad_medida = kardex.producto.unidad_medida.descripcion
