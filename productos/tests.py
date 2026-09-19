@@ -4,7 +4,11 @@ from productos.models import UnidadMedida, GrupoProductos, Producto
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
+from django.utils import timezone
 from contabilidad.models import TipoExistencia
+from almacen.models import Almacen, Kardex
+from datetime import date, datetime
+from decimal import Decimal
 import tempfile
 
 # Create your tests here.
@@ -129,6 +133,46 @@ class ConsultaDeStockTest(TestCase):
 
         with self.assertNumQueries(0):
             producto.previsto
+
+
+class ObtenerKardexTest(TestCase):
+    """`obtener_kardex` hacia un `len()` que cargaba todas las filas y despues
+    cuatro `aggregate` por separado: cinco consultas por producto, en reportes
+    que recorren el catalogo entero."""
+
+    def setUp(self):
+        self.almacen = baker.make(Almacen)
+        self.producto = baker.make(Producto)
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
+                   cantidad_ingreso=Decimal('10'), valor_ingreso=Decimal('50'),
+                   cantidad_salida=Decimal('2'), valor_salida=Decimal('9'))
+
+    def test_los_totales_salen_de_una_sola_consulta(self):
+        with self.assertNumQueries(1):
+            listado, cantidad_i, valor_i, cantidad_s, valor_s = self.producto.obtener_kardex(
+                self.almacen, date(2024, 1, 1), date(2024, 1, 31))
+
+        self.assertEqual((cantidad_i, valor_i), (Decimal('10'), Decimal('50')))
+        self.assertEqual((cantidad_s, valor_s), (Decimal('2'), Decimal('9')))
+        self.assertEqual(listado.count(), 1)
+
+    def test_sin_movimientos_los_totales_son_cero(self):
+        with self.assertNumQueries(1):
+            _, cantidad_i, valor_i, cantidad_s, valor_s = self.producto.obtener_kardex(
+                self.almacen, date(2024, 3, 1), date(2024, 3, 31))
+
+        self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s), (0, 0, 0, 0))
+
+    def test_el_grupo_usa_el_mismo_camino(self):
+        grupo = self.producto.grupo_productos
+
+        with self.assertNumQueries(1):
+            _, cantidad_i, valor_i, cantidad_s, valor_s = grupo.obtener_kardex(
+                self.almacen, date(2024, 1, 1), date(2024, 1, 31))
+
+        self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s),
+                         (Decimal('10'), Decimal('50'), Decimal('2'), Decimal('9')))
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())

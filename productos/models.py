@@ -84,21 +84,15 @@ class GrupoProductos(TimeStampedModel):
                                                                                         'fecha_operacion',
                                                                                         'cantidad_salida',
                                                                                         'created')
-        if len(listado_kardex) > 0:
-            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
-            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
-            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
-            t_cantidad_s = cantidad_salida['cantidad_salida__sum']
-            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
-            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
-            t_valor_i = valor_ingreso['valor_ingreso__sum']
-            t_valor_s = valor_salida['valor_salida__sum']
-        else:
-            t_cantidad_i = 0
-            t_cantidad_s = 0
-            t_valor_i = 0
-            t_valor_s = 0
-        return listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s
+        totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
+                                           cantidad_salida=Sum('cantidad_salida'),
+                                           valor_ingreso=Sum('valor_ingreso'),
+                                           valor_salida=Sum('valor_salida'))
+        return (listado_kardex,
+                totales['cantidad_ingreso'] or 0,
+                totales['valor_ingreso'] or 0,
+                totales['cantidad_salida'] or 0,
+                totales['valor_salida'] or 0)
 
 
 class Producto(TimeStampedModel):
@@ -153,21 +147,15 @@ class Producto(TimeStampedModel):
                                                                        'fecha_operacion',
                                                                        'cantidad_salida',
                                                                        'created')
-        if len(listado_kardex) > 0:
-            cantidad_ingreso = listado_kardex.aggregate(Sum('cantidad_ingreso'))
-            cantidad_salida = listado_kardex.aggregate(Sum('cantidad_salida'))
-            t_cantidad_i = cantidad_ingreso['cantidad_ingreso__sum']
-            t_cantidad_s = cantidad_salida['cantidad_salida__sum']
-            valor_ingreso = listado_kardex.aggregate(Sum('valor_ingreso'))
-            valor_salida = listado_kardex.aggregate(Sum('valor_salida'))
-            t_valor_i = valor_ingreso['valor_ingreso__sum']
-            t_valor_s = valor_salida['valor_salida__sum']
-        else:
-            t_cantidad_i = 0
-            t_cantidad_s = 0
-            t_valor_i = 0
-            t_valor_s = 0
-        return (listado_kardex, t_cantidad_i, t_valor_i, t_cantidad_s, t_valor_s)
+        totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
+                                           cantidad_salida=Sum('cantidad_salida'),
+                                           valor_ingreso=Sum('valor_ingreso'),
+                                           valor_salida=Sum('valor_salida'))
+        return (listado_kardex,
+                totales['cantidad_ingreso'] or 0,
+                totales['valor_ingreso'] or 0,
+                totales['cantidad_salida'] or 0,
+                totales['valor_salida'] or 0)
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
