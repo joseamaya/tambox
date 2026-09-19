@@ -35,7 +35,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.enums import TA_JUSTIFY
 from administracion.models import Puesto
 import locale
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
@@ -153,7 +153,7 @@ class CrearProveedor(CreateView):
     template_name = 'compras/proveedor.html'
     form_class = ProveedorForm
 
-    @method_decorator(permission_required('compras.add_proveedor', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.add_proveedor'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProveedor, self).dispatch(*args, **kwargs)
 
@@ -236,7 +236,7 @@ class CrearCotizacion(CreateView):
     template_name = "compras/cotizacion.html"
     model = Cotizacion
 
-    @method_decorator(permission_required('compras.add_cotizacion', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.add_cotizacion'))
     def dispatch(self, *args, **kwargs):
         return super(CrearCotizacion, self).dispatch(*args, **kwargs)
 
@@ -306,7 +306,7 @@ class CrearOrdenCompra(CreateView):
     template_name = "compras/orden_compra.html"
     model = OrdenCompra
 
-    @method_decorator(permission_required('compras.add_ordencompra', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.add_ordencompra'))
     def dispatch(self, *args, **kwargs):
         return super(CrearOrdenCompra, self).dispatch(*args, **kwargs)
 
@@ -399,7 +399,7 @@ class CrearOrdenServicios(CreateView):
     template_name = "compras/orden_servicio.html"
     model = OrdenServicios
 
-    @method_decorator(permission_required('compras.add_ordenservicios', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.add_ordenservicios'))
     def dispatch(self, *args, **kwargs):
         return super(CrearOrdenServicios, self).dispatch(*args, **kwargs)
 
@@ -482,8 +482,7 @@ class CrearConformidadServicio(CreateView):
     template_name = "compras/conformidad_servicio.html"
     model = ConformidadServicio
 
-    @method_decorator(permission_required('compras.add_conformidadservicio',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.add_conformidadservicio'))
     def dispatch(self, *args, **kwargs):
         return super(CrearConformidadServicio, self).dispatch(*args, **kwargs)
 
@@ -575,7 +574,7 @@ class DetalleOperacionConformidadServicios(DetailView):
 class EliminarCotizacion(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('compras.delete_cotizacion', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.delete_cotizacion'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarCotizacion, self).dispatch(*args, **kwargs)
 
@@ -607,7 +606,7 @@ class EliminarCotizacion(TemplateView):
 class EliminarOrdenCompra(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('compras.delete_ordencompra', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.delete_ordencompra'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarOrdenCompra, self).dispatch(*args, **kwargs)
 
@@ -633,7 +632,7 @@ class EliminarOrdenCompra(TemplateView):
 class EliminarOrdenServicios(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('compras.delete_ordenservicios', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.delete_ordenservicios'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarOrdenServicios, self).dispatch(*args, **kwargs)
 
@@ -660,8 +659,7 @@ class EliminarOrdenServicios(TemplateView):
 class EliminarConformidadServicio(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('compras.delete_conformidadservicio',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.delete_conformidadservicio'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarConformidadServicio, self).dispatch(*args, **kwargs)
 
@@ -683,7 +681,7 @@ class EliminarConformidadServicio(TemplateView):
 class EliminarProveedor(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('compras.delete_proveedor', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.delete_proveedor'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarProveedor, self).dispatch(*args, **kwargs)
 
@@ -704,7 +702,7 @@ class ListadoProveedores(ListView):
     context_object_name = 'proveedores'
     queryset = Proveedor.objects.filter(estado=True).order_by('razon_social')
 
-    @method_decorator(permission_required('compras.ver_tabla_proveedores', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.ver_tabla_proveedores'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoProveedores, self).dispatch(*args, **kwargs)
 
@@ -715,7 +713,7 @@ class ListadoCotizaciones(ListView):
     context_object_name = 'cotizaciones'
     queryset = Cotizacion.objects.exclude(estado=Cotizacion.STATUS.CANC).order_by('codigo')
 
-    @method_decorator(permission_required('compras.ver_tabla_cotizaciones', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoCotizaciones, self).dispatch(*args, **kwargs)
 
@@ -727,7 +725,7 @@ class ListadoOrdenesCompra(ListView):
     queryset = OrdenCompra.objects.exclude(estado=OrdenCompra.STATUS.CANC).order_by('codigo')
 
     @method_decorator(
-        permission_required('compras.ver_tabla_ordenes_compra', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_ordenes_compra'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoOrdenesCompra, self).dispatch(*args, **kwargs)
 
@@ -739,7 +737,7 @@ class ListadoOrdenesServicios(ListView):
     queryset = OrdenServicios.objects.filter().order_by('codigo')
 
     @method_decorator(
-        permission_required('compras.ver_tabla_ordenes_servicios', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_ordenes_servicios'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoOrdenesServicios, self).dispatch(*args, **kwargs)
 
@@ -750,7 +748,7 @@ class ListadoOrdenesCompraPorCotizacion(ListView):
     context_object_name = 'ordenes_compra'
 
     @method_decorator(
-        permission_required('compras.ver_tabla_ordenes_compra', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_ordenes_compra'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoOrdenesCompraPorCotizacion, self).dispatch(*args, **kwargs)
 
@@ -766,7 +764,7 @@ class ListadoOrdenesServiciosPorCotizacion(ListView):
     context_object_name = 'ordenes_servicios'
 
     @method_decorator(
-        permission_required('compras.ver_tabla_ordenes_servicios', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_ordenes_servicios'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoOrdenesServiciosPorCotizacion, self).dispatch(*args, **kwargs)
 
@@ -783,7 +781,7 @@ class ListadoConformidadesServicio(ListView):
     queryset = ConformidadServicio.objects.filter(estado=True).order_by('codigo')
 
     @method_decorator(
-        permission_required('compras.ver_tabla_conformidades_servicio', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_conformidades_servicio'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoConformidadesServicio, self).dispatch(*args, **kwargs)
 
@@ -792,7 +790,7 @@ class ListadoMovimientosPorOrdenCompra(ListView):
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
-    @method_decorator(permission_required('compras.ver_tabla_movimientos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoMovimientosPorOrdenCompra, self).dispatch(*args, **kwargs)
 
@@ -807,7 +805,7 @@ class ListadoConformidadesPorOrdenServicios(ListView):
     context_object_name = 'conformidades'
 
     @method_decorator(
-        permission_required('compras.ver_tabla_conformidades_servicio', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('compras.ver_tabla_conformidades_servicio'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoConformidadesPorOrdenServicios, self).dispatch(*args, **kwargs)
 
@@ -822,7 +820,7 @@ class ModificarProveedor(UpdateView):
     template_name = 'compras/proveedor.html'
     form_class = ProveedorForm
 
-    @method_decorator(permission_required('compras.change_proveedor', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.change_proveedor'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProveedor, self).dispatch(*args, **kwargs)
 
@@ -840,7 +838,7 @@ class ModificarCotizacion(UpdateView):
     template_name = "compras/cotizacion.html"
     model = Cotizacion
 
-    @method_decorator(permission_required('compras.change_cotizacion', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.change_cotizacion'))
     def dispatch(self, *args, **kwargs):
         cotizacion = self.get_object()
         if cotizacion.estado == Cotizacion.STATUS.PEND:
@@ -981,7 +979,7 @@ class ModificarOrdenCompra(UpdateView):
     form_class = OrdenCompraForm
     model = OrdenCompra
 
-    @method_decorator(permission_required('compras.change_ordencompra', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.change_ordencompra'))
     def dispatch(self, *args, **kwargs):
         orden_compra = self.get_object()
         if orden_compra.estado == OrdenCompra.STATUS.PEND:
@@ -1118,7 +1116,7 @@ class ModificarOrdenServicios(UpdateView):
     form_class = OrdenServiciosForm
     model = OrdenServicios
 
-    @method_decorator(permission_required('compras.change_ordenservicios', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.change_ordenservicios'))
     def dispatch(self, *args, **kwargs):
         orden_servicios = self.get_object()
         if orden_servicios.estado == OrdenServicios.STATUS.PEND:

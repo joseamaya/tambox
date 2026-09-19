@@ -15,3 +15,5 @@ urlpatterns = [
                   re_path(r'^productos/', include('productos.urls', namespace='productos'))
                   # url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT})
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler403 = 'seguridad.views.permiso_denegado'

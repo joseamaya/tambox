@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from contabilidad.forms import UploadForm
 from tambox.vistas import CargarCsvMixin
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 import datetime
 
@@ -73,7 +73,7 @@ class CrearFormaPago(CreateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(permission_required('contabilidad.add_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.add_formapago'))
     def dispatch(self, *args, **kwargs):
         return super(CrearFormaPago, self).dispatch(*args, **kwargs)
 
@@ -86,7 +86,7 @@ class CrearTipoDocumento(CreateView):
     template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm
 
-    @method_decorator(permission_required('contabilidad.add_tipodocumento', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.add_tipodocumento'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoDocumento, self).dispatch(*args, **kwargs)
 
@@ -99,7 +99,7 @@ class CrearTipoCambio(CreateView):
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = TipoCambioForm
 
-    @method_decorator(permission_required('contabilidad.add_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.add_tipocambio'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoCambio, self).dispatch(*args, **kwargs)
 
@@ -113,7 +113,7 @@ class CrearCuentaContable(CreateView):
     form_class = CuentaContableForm
 
     @method_decorator(
-        permission_required('contabilidad.add_cuenta_contable', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.add_cuentacontable'))
     def dispatch(self, *args, **kwargs):
         return super(CrearCuentaContable, self).dispatch(*args, **kwargs)
 
@@ -126,7 +126,7 @@ class CrearImpuesto(CreateView):
     template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
 
-    @method_decorator(permission_required('contabilidad.add_impuesto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.add_impuesto'))
     def dispatch(self, *args, **kwargs):
         return super(CrearImpuesto, self).dispatch(*args, **kwargs)
 
@@ -139,7 +139,7 @@ class CrearConfiguracion(CreateView):
     template_name = 'contabilidad/configuracion.html'
     form_class = ConfiguracionForm
 
-    @method_decorator(permission_required('contabilidad.add_configuracion', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.add_configuracion'))
     def dispatch(self, *args, **kwargs):
         return super(CrearConfiguracion, self).dispatch(*args, **kwargs)
 
@@ -188,7 +188,7 @@ class DetalleFormaPago(DetailView):
 class EliminarFormaPago(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('contabilidad.delete_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.delete_formapago'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarFormaPago, self).dispatch(*args, **kwargs)
 
@@ -215,8 +215,7 @@ class EliminarFormaPago(TemplateView):
 class EliminarTipoDocumento(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('contabilidad.delete_tipodocumento',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.delete_tipodocumento'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarTipoDocumento, self).dispatch(*args, **kwargs)
 
@@ -243,7 +242,7 @@ class ListadoTiposDocumentos(ListView):
     queryset = TipoDocumento.objects.filter(estado=True).order_by('nombre')
 
     @method_decorator(
-        permission_required('contabilidad.ver_tabla_tipos_documentos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.ver_tabla_tipos_documentos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoTiposDocumentos, self).dispatch(*args, **kwargs)
 
@@ -254,7 +253,7 @@ class ListadoTiposCambio(ListView):
     context_object_name = 'tipos'
 
     @method_decorator(
-        permission_required('contabilidad.ver_tabla_tipos_cambio', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.ver_tabla_tipos_cambio'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoTiposCambio, self).dispatch(*args, **kwargs)
 
@@ -266,7 +265,7 @@ class ListadoCuentasContables(ListView):
     queryset = CuentaContable.objects.all().order_by('cuenta')
 
     @method_decorator(
-        permission_required('contabilidad.ver_tabla_cuentas_contables', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.ver_tabla_cuentas_contables'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoCuentasContables, self).dispatch(*args, **kwargs)
 
@@ -278,7 +277,7 @@ class ListadoTiposExistencias(ListView):
     queryset = TipoExistencia.objects.all().order_by('codigo_sunat')
 
     @method_decorator(
-        permission_required('contabilidad.ver_tabla_tipos_existencias', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.ver_tabla_tipos_existencias'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoTiposExistencias, self).dispatch(*args, **kwargs)
 
@@ -290,7 +289,7 @@ class ListadoFormasPago(ListView):
     paginate_by = 10
     queryset = FormaPago.objects.order_by('codigo')
 
-    @method_decorator(permission_required('contabilidad.ver_tabla_formas_pago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.ver_tabla_formas_pago'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoFormasPago, self).dispatch(*args, **kwargs)
 
@@ -301,7 +300,7 @@ class ListadoImpuestos(ListView):
     context_object_name = 'impuestos'
 
     @method_decorator(
-        permission_required('contabilidad.ver_tabla_impuestos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.ver_tabla_impuestos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoImpuestos, self).dispatch(*args, **kwargs)
 
@@ -311,7 +310,7 @@ class ModificarFormaPago(UpdateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(permission_required('contabilidad.change_formapago', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.change_formapago'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarFormaPago, self).dispatch(*args, **kwargs)
 
@@ -324,7 +323,7 @@ class ModificarTipoCambio(UpdateView):
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = TipoCambioForm
 
-    @method_decorator(permission_required('contabilidad.change_tipocambio', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.change_tipocambio'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoCambio, self).dispatch(*args, **kwargs)
 
@@ -338,7 +337,7 @@ class ModificarTipoDocumento(UpdateView):
     form_class = TipoDocumentoForm
 
     @method_decorator(
-        permission_required('contabilidad.change_tipodocumento', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.change_tipodocumento'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoDocumento, self).dispatch(*args, **kwargs)
 
@@ -352,7 +351,7 @@ class ModificarCuentaContable(UpdateView):
     form_class = CuentaContableForm
 
     @method_decorator(
-        permission_required('contabilidad.change_cuenta_contable', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.change_cuentacontable'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarCuentaContable, self).dispatch(*args, **kwargs)
 
@@ -366,7 +365,7 @@ class ModificarConfiguracion(UpdateView):
     form_class = ConfiguracionForm
 
     @method_decorator(
-        permission_required('contabilidad.change_configuracion', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('contabilidad.change_configuracion'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarConfiguracion, self).dispatch(*args, **kwargs)
 
@@ -379,7 +378,7 @@ class ModificarImpuesto(UpdateView):
     template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
 
-    @method_decorator(permission_required('contabilidad.change_impuesto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('contabilidad.change_impuesto'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarImpuesto, self).dispatch(*args, **kwargs)
 

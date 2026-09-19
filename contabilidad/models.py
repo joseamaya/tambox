@@ -207,6 +207,7 @@ class TipoExistencia(TimeStampedModel):
         return u'%s' % self.descripcion
 
     class Meta:
+        permissions = (('ver_tabla_tipos_existencias', 'Puede ver tabla de Tipos de Existencias'),)
         verbose_name = 'Tipo de Existencia'
         verbose_name_plural = 'Tipos de Existencias'
 

@@ -11,7 +11,7 @@ import simplejson
 from django.views.generic.detail import DetailView
 from administracion.models import Oficina, NivelAprobacion
 import locale
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 import os
 from django.db import transaction, IntegrityError
@@ -47,8 +47,7 @@ class AprobarRequerimiento(UpdateView):
     form_class = AprobacionRequerimientoForm
     success_url = reverse_lazy('requerimientos:listado_aprobacion_requerimientos')
 
-    @method_decorator(permission_required('requerimientos.change_aprobacionrequerimiento',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('requerimientos.change_aprobacionrequerimiento'))
     def dispatch(self, *args, **kwargs):
         aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
         usuario = self.request.user
@@ -191,7 +190,7 @@ class DetalleOperacionRequerimiento(DetailView):
     template_name = 'requerimientos/detalle_requerimiento.html'
 
     @method_decorator(
-        permission_required('requerimientos.ver_detalle_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('requerimientos.ver_detalle_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
         if requerimiento.verificar_acceso(self.request.user, oficina_administracion(), logistica(), presupuesto()):
@@ -204,8 +203,7 @@ class DetalleOperacionRequerimiento(DetailView):
 class EliminarRequerimiento(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('requerimientos.delete_requerimiento',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('requerimientos.delete_requerimiento'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarRequerimiento, self).dispatch(*args, **kwargs)
 
@@ -233,7 +231,7 @@ class ListadoAprobacionRequerimientos(ListView):
     context_object_name = 'aprobacion_requerimientos'
 
     @method_decorator(
-        permission_required('requerimientos.ver_tabla_requerimientos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoAprobacionRequerimientos, self).dispatch(*args, **kwargs)
 
@@ -260,7 +258,7 @@ class ListadoCotizacionesPorRequerimiento(ListView):
     template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
 
-    @method_decorator(permission_required('compras.ver_tabla_cotizaciones', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoCotizacionesPorRequerimiento, self).dispatch(*args, **kwargs)
 
@@ -281,7 +279,7 @@ class ListadoRequerimientos(ListView):
         return requerimientos_visibles
 
     @method_decorator(
-        permission_required('requerimientos.ver_tabla_requerimientos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoRequerimientos, self).dispatch(*args, **kwargs)
 
@@ -292,7 +290,7 @@ class ModificarRequerimiento(UpdateView):
     form_class = RequerimientoForm
 
     @method_decorator(
-        permission_required('requerimientos.change_requerimiento', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('requerimientos.change_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
         if (requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.USU or

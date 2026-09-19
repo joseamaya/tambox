@@ -37,7 +37,7 @@ from administracion.models import Puesto
 import locale
 from contabilidad.models import Tipo, TipoDocumento
 from contabilidad.forms import UploadForm
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 from django.db.models import Q
 from django.db import transaction, IntegrityError
@@ -106,7 +106,7 @@ class AprobarPedido(CreateView):
     template_name = 'almacen/aprobar_pedido.html'
     model = Movimiento
 
-    @method_decorator(permission_required('almacen.aprobar_pedido', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.aprobar_pedido'))
     def dispatch(self, *args, **kwargs):
         self.codigo = kwargs['codigo']
         return super(AprobarPedido, self).dispatch(*args, **kwargs)
@@ -315,7 +315,7 @@ class CrearTipoMovimiento(CreateView):
     form_class = TipoMovimientoForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
-    @method_decorator(permission_required('almacen.add_tipomovimiento', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.add_tipomovimiento'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoMovimiento, self).dispatch(*args, **kwargs)
 
@@ -449,7 +449,7 @@ class CrearPedido(CreateView):
     form_class = PedidoForm
     model = Pedido
 
-    @method_decorator(permission_required('almacen.add_pedido', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.add_pedido'))
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
@@ -554,7 +554,7 @@ class DetalleOperacionMovimiento(DetailView):
 class EliminarAlmacen(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('almacen.delete_almacen', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.delete_almacen'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarAlmacen, self).dispatch(*args, **kwargs)
 
@@ -577,7 +577,7 @@ class EliminarAlmacen(TemplateView):
 class EliminarMovimiento(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('almacen.delete_movimiento', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.delete_movimiento'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarMovimiento, self).dispatch(*args, **kwargs)
 
@@ -611,7 +611,7 @@ class EliminarMovimiento(TemplateView):
 class EliminarPedido(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('almacen.delete_pedido', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.delete_pedido'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarPedido, self).dispatch(*args, **kwargs)
 
@@ -643,7 +643,7 @@ class ListadoAprobacionPedidos(ListView):
     context_object_name = 'pedidos'
 
     @method_decorator(
-        permission_required('almacen.ver_tabla_aprobacion_pedidos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('almacen.ver_tabla_aprobacion_pedidos'))
     def dispatch(self, *args, **kwargs):
         try:
             trabajador = self.request.user.trabajador
@@ -740,7 +740,7 @@ class ListadoMovimientosPorPedido(ListView):
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
-    @method_decorator(permission_required('almacen.ver_tabla_movimientos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoMovimientosPorPedido, self).dispatch(*args, **kwargs)
 
@@ -752,7 +752,7 @@ class ListadoMovimientosPorPedido(ListView):
 
 class ModificarMovimiento(TemplateView):
 
-    @method_decorator(permission_required('almacen.change_movimiento', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.change_movimiento'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarMovimiento, self).dispatch(*args, **kwargs)
 
@@ -1023,7 +1023,7 @@ class ModificarPedido(UpdateView):
     form_class = PedidoForm
     model = Pedido
 
-    @method_decorator(permission_required('almacen.change_pedido', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('almacen.change_pedido'))
     def dispatch(self, *args, **kwargs):
         pedido = self.get_object()
         if pedido.estado == Pedido.STATUS.PEND:

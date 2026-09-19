@@ -1,7 +1,9 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
 from django.test import TestCase
+from django.urls import get_resolver
 
 from almacen.forms import FormularioReporteMovimientos
+from seguridad.permisos import permisos_declarados
 
 
 class AutorizacionTestCase(TestCase):
@@ -47,6 +49,26 @@ class AutorizacionTestCase(TestCase):
         self.client.force_login(self.usuario)
         self.assertEqual(self.client.get('/salir').status_code, 405)
         self.assertEqual(self.client.post('/salir').status_code, 302)
+
+    def test_admin_login_sigue_publico(self):
+        """Django exime AdminSite.login del middleware de login. Si esto falla,
+        el admin queda inaccesible."""
+        self.client.logout()
+
+        self.assertEqual(self.client.get('/admin/login/').status_code, 200)
+
+    def test_sin_permiso_responde_403(self):
+        """La denegacion es un 403 de verdad. Antes era un redirect a una vista
+        que respondia 200, asi que ni un monitor ni un test podian distinguirla
+        de un acceso correcto."""
+        self.client.raise_request_exception = False
+        self.client.force_login(
+            User.objects.create_user('consulta', 'consulta@example.com', 'clave-consulta-123'))
+
+        respuesta = self.client.get('/contabilidad/impuestos/')
+
+        self.assertEqual(respuesta.status_code, 403)
+        self.assertTemplateUsed(respuesta, 'seguridad/permiso_denegado.html')
 
 
 class RenderTestCase(TestCase):
@@ -101,3 +123,69 @@ class OpcionesDeFormularioTestCase(TestCase):
         codigos = [codigo for codigo, _ in formulario.fields['almacenes'].choices]
 
         self.assertIn('AL02', codigos)
+
+
+def recorrer_urls(patrones=None, prefijo='', espacio=''):
+    """Baja por el arbol de URLs y devuelve (nombre, callback) de cada vista.
+
+    El nombre sale del namespace y el nombre del patron (`seguridad:login`), y si
+    el patron no tiene nombre cae al texto del patron.
+    """
+    if patrones is None:
+        patrones = get_resolver().url_patterns
+    for patron in patrones:
+        if hasattr(patron, 'url_patterns'):
+            yield from recorrer_urls(patron.url_patterns,
+                                     prefijo + str(patron.pattern),
+                                     patron.namespace or espacio)
+        else:
+            if espacio and patron.name:
+                nombre = '%s:%s' % (espacio, patron.name)
+            else:
+                nombre = prefijo + str(patron.pattern)
+            yield nombre, patron.callback
+
+
+class URLsProtegidasTest(TestCase):
+    """El middleware de login invierte el defecto: una vista nueva nace protegida
+    aunque nadie se acuerde de envolverla (que es como se colo el hueco de
+    contabilidad, donde el `urlpatterns += [...]` final quedo fuera).
+
+    La prueba lee el mismo atributo que lee el middleware, asi que lo publico
+    tiene que ser una lista cerrada y justificada.
+    """
+
+    PUBLICAS_ESPERADAS = {
+        'seguridad:login',   # el propio login, o el middleware crea un bucle
+        'admin:login',       # Django lo exime en AdminSite.login
+    }
+
+    def test_lo_publico_es_una_lista_cerrada(self):
+        vistas = list(recorrer_urls())
+        self.assertTrue(vistas, 'No se recorrio ninguna URL')
+
+        publicas = {nombre for nombre, callback in vistas
+                    if not getattr(callback, 'login_required', True)}
+
+        self.assertEqual(self.PUBLICAS_ESPERADAS, publicas,
+                         'Cambio el conjunto de vistas publicas sin login')
+
+
+class PermisosDeclaradosTest(TestCase):
+    """Los permisos se piden por cadena, asi que uno mal escrito no rompe nada:
+    deniega a todo el mundo en silencio. El registro de `seguridad.permisos`
+    hace que se puedan comprobar."""
+
+    def test_los_permisos_declarados_existen(self):
+        get_resolver().url_patterns  # importa las vistas y llena el registro
+
+        declarados = permisos_declarados()
+        self.assertTrue(declarados, 'El registro esta vacio: no se importaron las vistas')
+
+        existentes = {'%s.%s' % (app, codename)
+                      for app, codename in Permission.objects.values_list(
+                          'content_type__app_label', 'codename')}
+
+        for permiso in declarados:
+            with self.subTest(permiso=permiso):
+                self.assertIn(permiso, existentes)

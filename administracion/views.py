@@ -20,7 +20,7 @@ from django.contrib.auth.models import User
 from openpyxl import Workbook
 from django.http import HttpResponse
 import datetime
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 import simplejson
 import json
@@ -172,7 +172,7 @@ class CrearNivelAprobacion(CreateView):
     form_class = NivelAprobacionForm
 
     @method_decorator(
-        permission_required('administracion.add_nivelaprobacion', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('administracion.add_nivelaprobacion'))
     def dispatch(self, *args, **kwargs):
         return super(CrearNivelAprobacion, self).dispatch(*args, **kwargs)
 
@@ -184,7 +184,7 @@ class CrearProfesion(CreateView):
     template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
 
-    @method_decorator(permission_required('administracion.add_profesion', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.add_profesion'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProfesion, self).dispatch(*args, **kwargs)
 
@@ -196,7 +196,7 @@ class CrearOficina(CreateView):
     template_name = 'administracion/oficina.html'
     form_class = OficinaForm
 
-    @method_decorator(permission_required('administracion.add_oficina', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.add_oficina'))
     def dispatch(self, *args, **kwargs):
         return super(CrearOficina, self).dispatch(*args, **kwargs)
 
@@ -208,7 +208,7 @@ class CrearTrabajador(CreateView):
     template_name = 'administracion/trabajador.html'
     form_class = TrabajadorForm
 
-    @method_decorator(permission_required('administracion.add_trabajador', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.add_trabajador'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTrabajador, self).dispatch(*args, **kwargs)
 
@@ -220,7 +220,7 @@ class CrearProductor(CreateView):
     template_name = 'administracion/productor.html'
     form_class = ProductorForm
 
-    @method_decorator(permission_required('administracion.add_productor', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.add_productor'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProductor, self).dispatch(*args, **kwargs)
 
@@ -232,7 +232,7 @@ class CrearPuesto(CreateView):
     template_name = 'administracion/puesto.html'
     form_class = PuestoForm
 
-    @method_decorator(permission_required('administracion.add_puesto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.add_puesto'))
     def dispatch(self, *args, **kwargs):
         return super(CrearPuesto, self).dispatch(*args, **kwargs)
 
@@ -314,7 +314,7 @@ class ModificarNivelAprobacion(UpdateView):
     form_class = NivelAprobacionForm
 
     @method_decorator(
-        permission_required('administracion.change_nivelaprobacion', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('administracion.change_nivelaprobacion'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarNivelAprobacion, self).dispatch(*args, **kwargs)
 
@@ -328,7 +328,7 @@ class ModificarProfesion(UpdateView):
     form_class = ProfesionForm
 
     @method_decorator(
-        permission_required('administracion.change_profesion', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('administracion.change_profesion'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProfesion, self).dispatch(*args, **kwargs)
 
@@ -342,7 +342,7 @@ class ModificarOficina(UpdateView):
     form_class = OficinaForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
 
-    @method_decorator(permission_required('administracion.change_oficina', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.change_oficina'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarOficina, self).dispatch(*args, **kwargs)
 
@@ -353,7 +353,7 @@ class ModificarTrabajador(UpdateView):
     form_class = TrabajadorForm
 
     @method_decorator(
-        permission_required('administracion.change_trabajador', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('administracion.change_trabajador'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTrabajador, self).dispatch(*args, **kwargs)
 
@@ -367,7 +367,7 @@ class ModificarProductor(UpdateView):
     form_class = ProductorForm
 
     @method_decorator(
-        permission_required('administracion.change_productor', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('administracion.change_productor'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProductor, self).dispatch(*args, **kwargs)
 
@@ -380,7 +380,7 @@ class ModificarPuesto(UpdateView):
     template_name = 'administracion/puesto.html'
     form_class = ModificacionPuestoForm
 
-    @method_decorator(permission_required('administracion.change_puesto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('administracion.change_puesto'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarPuesto, self).dispatch(*args, **kwargs)
 

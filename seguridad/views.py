@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_not_required
 from seguridad.forms import FormularioCambioPassword, FormularioLogin
 from django.views.generic import View
 from django.views.generic.edit import FormView
@@ -24,6 +25,7 @@ class Login(FormView):
 
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
+    @method_decorator(login_not_required)
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return HttpResponseRedirect(self.get_success_url())
@@ -48,3 +50,13 @@ class ModificarPassword(FormView):
 
 class PermisoDenegado(TemplateView):
     template_name = 'seguridad/permiso_denegado.html'
+
+
+def permiso_denegado(request, exception=None):
+    """Handler 403 del proyecto.
+
+    Renderiza la misma pagina que la vista PermisoDenegado, pero con el estado
+    HTTP correcto: cuando la denegacion era un redirect a esa vista, la respuesta
+    final era un 200 y ni un monitor ni un test podian distinguirla de un exito.
+    """
+    return render(request, 'seguridad/permiso_denegado.html', status=403)

@@ -11,7 +11,7 @@ from django.http import HttpResponse
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from django.contrib.auth.decorators import permission_required
+from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 from contabilidad.forms import UploadForm
 from django.shortcuts import render
@@ -176,7 +176,7 @@ class CrearGrupoProductos(CreateView):
     form_class = GrupoProductosForm
     success_url = reverse_lazy('productos:grupos_productos')
 
-    @method_decorator(permission_required('productos.add_grupoproductos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.add_grupoproductos'))
     def dispatch(self, *args, **kwargs):
         return super(CrearGrupoProductos, self).dispatch(*args, **kwargs)
 
@@ -189,7 +189,7 @@ class CrearProducto(CreateView):
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
-    @method_decorator(permission_required('productos.add_producto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.add_producto'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProducto, self).dispatch(*args, **kwargs)
 
@@ -201,7 +201,7 @@ class CrearUnidadMedida(CreateView):
     template_name = 'productos/unidad_medida.html'
     form_class = UnidadMedidaForm
 
-    @method_decorator(permission_required('productos.add_unidadmedida', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.add_unidadmedida'))
     def dispatch(self, *args, **kwargs):
         return super(CrearUnidadMedida, self).dispatch(*args, **kwargs)
 
@@ -219,7 +219,7 @@ class CrearServicio(CreateView):
     template_name = 'productos/servicio.html'
     form_class = ServicioForm
 
-    @method_decorator(permission_required('productos.add_producto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.add_producto'))
     def dispatch(self, *args, **kwargs):
         return super(CrearServicio, self).dispatch(*args, **kwargs)
 
@@ -250,8 +250,7 @@ class DetalleServicio(DetailView):
 class EliminarUnidadMedida(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('productos.delete_unidadmedida',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.delete_unidadmedida'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarUnidadMedida, self).dispatch(*args, **kwargs)
 
@@ -273,8 +272,7 @@ class EliminarUnidadMedida(TemplateView):
 class EliminarGrupoProductos(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('productos.delete_grupoproductos',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.delete_grupoproductos'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarGrupoProductos, self).dispatch(*args, **kwargs)
 
@@ -297,8 +295,7 @@ class EliminarGrupoProductos(TemplateView):
 class EliminarProducto(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('productos.delete_producto',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.delete_producto'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarProducto, self).dispatch(*args, **kwargs)
 
@@ -323,8 +320,7 @@ class EliminarProducto(TemplateView):
 class EliminarServicio(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(permission_required('productos.delete_producto',
-                                          reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.delete_producto'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarServicio, self).dispatch(*args, **kwargs)
 
@@ -350,7 +346,7 @@ class ListadoUnidadesMedida(ListView):
     queryset = UnidadMedida.objects.filter(estado=True).order_by('descripcion')
 
     @method_decorator(
-        permission_required('productos.ver_tabla_unidades_medida', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('productos.ver_tabla_unidades_medida'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoUnidadesMedida, self).dispatch(*args, **kwargs)
 
@@ -361,7 +357,7 @@ class ListadoServicios(ListView):
     context_object_name = 'servicios'
     queryset = Producto.objects.filter(estado=True, es_servicio=True).order_by('descripcion')
 
-    @method_decorator(permission_required('productos.ver_tabla_productos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoServicios, self).dispatch(*args, **kwargs)
 
@@ -373,7 +369,7 @@ class ListadoGruposProductos(ListView):
     queryset = GrupoProductos.objects.filter(estado=True).order_by('codigo')
 
     @method_decorator(
-        permission_required('productos.ver_tabla_grupos_productos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('productos.ver_tabla_grupos_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoGruposProductos, self).dispatch(*args, **kwargs)
 
@@ -384,7 +380,7 @@ class ListadoProductos(ListView):
     context_object_name = 'productos'
     queryset = Producto.objects.filter(es_servicio=False, estado=True).order_by('codigo')
 
-    @method_decorator(permission_required('productos.ver_tabla_productos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoProductos, self).dispatch(*args, **kwargs)
 
@@ -394,7 +390,7 @@ class ListadoProductosPorGrupo(ListView):
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
 
-    @method_decorator(permission_required('productos.ver_tabla_productos', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ListadoProductosPorGrupo, self).dispatch(*args, **kwargs)
 
@@ -409,7 +405,7 @@ class ModificarProducto(UpdateView):
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
-    @method_decorator(permission_required('productos.change_producto', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.change_producto'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProducto, self).dispatch(*args, **kwargs)
 
@@ -422,7 +418,7 @@ class ModificarUnidadMedida(UpdateView):
     template_name = 'productos/unidad_medida.html'
     form_class = UnidadMedidaForm
 
-    @method_decorator(permission_required('productos.change_unidadmedida', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.change_unidadmedida'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarUnidadMedida, self).dispatch(*args, **kwargs)
 
@@ -437,7 +433,7 @@ class ModificarGrupoProductos(UpdateView):
     success_url = reverse_lazy('productos:grupos_productos')
 
     @method_decorator(
-        permission_required('productos.change_grupoproductos', reverse_lazy('seguridad:permiso_denegado')))
+        requiere('productos.change_grupoproductos'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarGrupoProductos, self).dispatch(*args, **kwargs)
 
@@ -450,7 +446,7 @@ class ModificarServicio(UpdateView):
     template_name = 'productos/servicio.html'
     form_class = ServicioForm
 
-    @method_decorator(permission_required('productos.change_servicio', reverse_lazy('seguridad:permiso_denegado')))
+    @method_decorator(requiere('productos.change_producto'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarServicio, self).dispatch(*args, **kwargs)
 
