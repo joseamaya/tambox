@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from administracion.models import Profesion, Trabajador, Oficina, Puesto, NivelAprobacion
 from model_bakery import baker
@@ -156,3 +157,38 @@ class EstablecerNivelTest(TestCase):
         puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), fecha_fin=None)
 
         self.assertEqual(puesto.establecer_nivel(oficina), nivel)
+
+
+class TableroAdministracionTest(TestCase):
+    """Las semillas se creaban solo con la tabla vacia (`count() == 0`), asi que
+    un estado a medias —LOGISTICA presente y USUARIO ausente— no se arreglaba
+    nunca y `establecer_nivel()` fallaba para todos los requerimientos."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('jefe', 'jefe@example.com', 'clave-segura'))
+
+    def test_completa_los_niveles_que_faltan(self):
+        NivelAprobacion.objects.create(descripcion='LOGISTICA')
+
+        respuesta = self.client.get('/administracion/tablero/')
+
+        self.assertEqual(respuesta.status_code, 200)
+        usuario = NivelAprobacion.objects.get(descripcion='USUARIO')
+        self.assertEqual(usuario.nivel_superior.descripcion, 'LOGISTICA')
+
+    def test_crea_la_oficina_de_gerencia(self):
+        respuesta = self.client.get('/administracion/tablero/')
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTrue(Oficina.objects.filter(codigo='GGEN', es_gerencia=True).exists())
+
+    def test_no_duplica_lo_que_ya_existe(self):
+        Oficina.objects.create(codigo='GGEN', nombre='GERENCIA GENERAL', es_gerencia=True)
+        NivelAprobacion.objects.create(descripcion='LOGISTICA')
+
+        self.client.get('/administracion/tablero/')
+        self.client.get('/administracion/tablero/')
+
+        self.assertEqual(Oficina.objects.filter(codigo='GGEN').count(), 1)
+        self.assertEqual(NivelAprobacion.objects.filter(descripcion='LOGISTICA').count(), 1)
+        self.assertEqual(NivelAprobacion.objects.filter(descripcion='USUARIO').count(), 1)

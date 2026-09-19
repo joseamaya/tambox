@@ -32,15 +32,13 @@ class Tablero(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_oficinas = Oficina.objects.all().count()
         cant_trabajadores = Trabajador.objects.all().count()
         cant_puestos = Puesto.objects.all().count()
         cant_profesiones = Profesion.objects.all().count()
-        cant_niveles = NivelAprobacion.objects.all().count()
-        if cant_oficinas == 0:
-            Oficina.objects.create(codigo='GGEN',
-                                   nombre='GERENCIA GENERAL',
-                                   es_gerencia=True)
+        oficina, creada = Oficina.objects.get_or_create(codigo='GGEN',
+                                                       defaults={'nombre': 'GERENCIA GENERAL',
+                                                                 'es_gerencia': True})
+        if creada:
             lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
         if cant_trabajadores == 0:
             lista_notificaciones.append("No se ha registrado ningún trabajador")
@@ -48,10 +46,10 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ningún puesto")
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")
-        if cant_niveles == 0:
-            nivel_logistica = NivelAprobacion.objects.create(descripcion="LOGISTICA")
-            NivelAprobacion.objects.create(descripcion="USUARIO",
-                                                           nivel_superior=nivel_logistica)
+        nivel_logistica, creada = NivelAprobacion.objects.get_or_create(descripcion="LOGISTICA")
+        _, creado = NivelAprobacion.objects.get_or_create(descripcion="USUARIO",
+                                                         defaults={'nivel_superior': nivel_logistica})
+        if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'administracion/tablero_administracion.html', context)
