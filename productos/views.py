@@ -55,13 +55,16 @@ class BusquedaProductosDescripcion(TemplateView):
             descripcion = request.GET['descripcion']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')[:20]
+                productos = Producto.objects.filter(descripcion__icontains=descripcion).select_related(
+                    'unidad_medida').order_by('descripcion')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion, es_servicio=False).order_by(
-                    'descripcion')[:20]
+                productos = Producto.objects.filter(descripcion__icontains=descripcion,
+                                                    es_servicio=False).select_related(
+                    'unidad_medida').order_by('descripcion')[:20]
             elif tipo_busqueda == 'SERVICIOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion, es_servicio=True).order_by(
-                    'descripcion')[:20]
+                productos = Producto.objects.filter(descripcion__icontains=descripcion,
+                                                    es_servicio=True).select_related(
+                    'unidad_medida').order_by('descripcion')[:20]
 
             lista_productos = []
             for producto in productos:
@@ -81,7 +84,7 @@ class BusquedaProductosCodigo(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
-            productos = Producto.objects.filter(codigo__icontains=codigo)[:20]
+            productos = Producto.objects.filter(codigo__icontains=codigo).select_related('unidad_medida')[:20]
             lista_productos = []
             for producto in productos:
                 producto_json = {}

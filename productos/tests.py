@@ -221,3 +221,48 @@ class CargarProductosTest(TestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(list(Producto.objects.values_list('descripcion', flat=True)), ['PRODUCTO UNO'])
         self.assertEqual(UnidadMedida.objects.get(codigo='UNIDA').descripcion, 'UNIDAD X')
+
+
+class BusquedaProductosTest(TestCase):
+    """Los dos endpoints de busqueda leian `producto.unidad_medida.descripcion`
+    dentro del bucle: una consulta por resultado, en endpoints que el JavaScript
+    llama en cada tecleo."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
+        self.unidad = baker.make(UnidadMedida, codigo='UND01', descripcion='UNIDAD')
+        baker.make(Producto, codigo='COD0000001', descripcion='PRODUCTO', unidad_medida=self.unidad)
+
+    def ampliar(self, cuantos):
+        for numero in range(cuantos):
+            baker.make(Producto, descripcion='PRODUCTO %s' % numero, unidad_medida=self.unidad)
+
+    def buscar(self, url, parametros):
+        return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def test_las_consultas_no_crecen_con_los_resultados(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+
+        url = '/productos/busqueda_productos_descripcion/'
+        parametros = {'descripcion': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
+        with CaptureQueriesContext(connection) as un_resultado:
+            self.buscar(url, parametros)
+
+        self.ampliar(19)
+
+        with CaptureQueriesContext(connection) as veinte_resultados:
+            respuesta = self.buscar(url, parametros)
+
+        self.assertEqual(len(un_resultado), len(veinte_resultados))
+        datos = respuesta.json()
+        self.assertEqual(len(datos), 20)
+        self.assertEqual(datos[0]['unidad'], 'UNIDAD')
+
+    def test_busqueda_por_codigo(self):
+        respuesta = self.buscar('/productos/busqueda_productos_codigo/', {'codigo': 'COD0000001'})
+
+        self.assertEqual(respuesta.status_code, 200)
+        datos = respuesta.json()
+        self.assertEqual(len(datos), 1)
+        self.assertEqual(datos[0]['unidad'], 'UNIDAD')
