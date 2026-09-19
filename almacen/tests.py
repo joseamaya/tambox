@@ -1,16 +1,16 @@
 from almacen.models import Almacen, TipoMovimiento, Pedido, DetallePedido, \
-    Movimiento, DetalleMovimiento
+    Movimiento, DetalleMovimiento, Kardex
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from model_bakery import baker
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal
 import tempfile
 from django.utils import timezone
 from compras.models import OrdenCompra
 from contabilidad.models import TipoDocumento
-from productos.models import Producto
+from productos.models import Producto, UnidadMedida
 
 
 class AlmacenTest(TestCase):
@@ -306,3 +306,82 @@ class TotalDeMovimientoTest(TestCase):
 
         with self.assertNumQueries(0):
             movimiento.total
+
+
+class UltimosPorProductoTest(TestCase):
+    """Las vistas de stock resolvian el ultimo Kardex con un `latest()` por
+    producto: una consulta por fila y MultipleObjectsReturned si dos movimientos
+    compartian fecha."""
+
+    def setUp(self):
+        self.almacen = baker.make(Almacen)
+        self.productos = [baker.make(Producto) for _ in range(3)]
+        for producto in self.productos:
+            baker.make(Kardex, almacen=self.almacen, producto=producto,
+                       fecha_operacion=timezone.make_aware(datetime(2024, 1, 10, 9, 0)))
+
+    def test_una_consulta_para_todo_el_lote(self):
+        with self.assertNumQueries(1):
+            ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
+
+        self.assertEqual(len(ultimos), 3)
+
+    def test_el_producto_viene_cargado(self):
+        """El `select_related` es lo que evita una consulta por fila al leer
+        `kardex.producto.descripcion` en los bucles."""
+        ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
+
+        with self.assertNumQueries(0):
+            for kardex in ultimos.values():
+                kardex.producto.codigo
+                kardex.producto.unidad_medida
+
+    def test_desempata_por_pk(self):
+        producto = self.productos[0]
+        primero = Kardex.objects.get(producto=producto)
+        segundo = baker.make(Kardex, almacen=self.almacen, producto=producto,
+                             fecha_operacion=primero.fecha_operacion)
+
+        ultimos = Kardex.ultimos_por_producto([producto], almacen=self.almacen)
+
+        self.assertEqual(ultimos[producto.pk].pk, segundo.pk)
+
+
+class StockAjaxTest(TestCase):
+    """Los endpoints de autocompletado resolvian el ultimo Kardex uno por uno.
+    Esto fija el JSON que devuelven, que es lo que consume el JavaScript."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
+        self.almacen = baker.make(Almacen)
+        self.producto = baker.make(Producto, descripcion='ACERO INOXIDABLE',
+                                   unidad_medida=baker.make(UnidadMedida))
+        self.unidad = self.producto.unidad_medida
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
+                   cantidad_total=Decimal('7'), valor_total=Decimal('21'), precio_total=Decimal('3'))
+
+    def obtener(self, url):
+        return self.client.get(url, {'descripcion': 'ACERO', 'almacen': self.almacen.pk},
+                               HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+    def test_listado_stock_producto(self):
+        respuesta = self.obtener('/almacen/listado_stock_producto/')
+
+        self.assertEqual(respuesta.status_code, 200)
+        datos = respuesta.json()
+        self.assertEqual(len(datos), 1)
+        self.assertEqual(datos[0]['codigo'], self.producto.codigo)
+        self.assertEqual(datos[0]['label'], 'ACERO INOXIDABLE')
+        self.assertEqual(datos[0]['unidad'], self.unidad.codigo)
+        self.assertAlmostEqual(datos[0]['stock'], 7)
+
+    def test_busqueda_productos_almacen(self):
+        respuesta = self.obtener('/almacen/busqueda_productos_almacen/')
+
+        self.assertEqual(respuesta.status_code, 200)
+        datos = respuesta.json()
+        self.assertEqual(len(datos), 1)
+        self.assertEqual(datos[0]['codigo'], self.producto.codigo)
+        self.assertEqual(datos[0]['unidad'], self.unidad.descripcion)
+        self.assertEqual(Decimal(datos[0]['precio']), Decimal('3'))

@@ -204,12 +204,13 @@ class BusquedaProductosAlmacen(TemplateView):
             lista_productos = []
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
-            kardex_ant = Kardex.objects.filter(producto__descripcion__icontains=descripcion,
-                                               almacen__id=almacen).order_by('producto').distinct('producto__codigo')[
-                         :20]
-            for kardex in kardex_ant:
-                control = Kardex.objects.filter(producto=kardex.producto,
-                                                almacen__id=almacen).latest('fecha_operacion')
+            ids = list(Kardex.objects.filter(producto__descripcion__icontains=descripcion,
+                                             almacen__id=almacen)
+                       .order_by('producto_id').distinct('producto_id')
+                       .values_list('producto_id', flat=True)[:20])
+            ultimos = Kardex.ultimos_por_producto(ids, almacen__id=almacen)
+            for producto_id in ids:
+                control = ultimos[producto_id]
                 producto_json = {}
                 producto_json['label'] = control.producto.descripcion
                 producto_json['codigo'] = control.producto.codigo
@@ -1550,7 +1551,8 @@ class StockProductos(FormView):
         data = form.cleaned_data
         almacen = data['almacen']
         descripcion = data['descripcion']
-        productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
+        productos = list(Producto.objects.filter(descripcion__icontains=descripcion)
+                         .select_related('unidad_medida').order_by('descripcion'))
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'STOCK DE PRODUCTOS'
@@ -1564,23 +1566,21 @@ class StockProductos(FormView):
         ws.column_dimensions["B"].width = 12
         ws.column_dimensions["C"].width = 40
         cont = 4
+        ultimos = Kardex.ultimos_por_producto(productos, almacen=almacen)
         for producto in productos:
-            try:
-                kardex = Kardex.objects.filter(producto=producto,
-                                               almacen=almacen).latest('fecha_operacion')
-                codigo = kardex.producto.codigo
-                descripcion = kardex.producto.descripcion
-                unidad_medida = kardex.producto.unidad_medida.descripcion
-                stock = kardex.cantidad_total
-                precio = kardex.precio_total
-                valor = kardex.valor_total
-            except (Kardex.DoesNotExist, AttributeError):
-                codigo = producto.codigo
-                descripcion = producto.descripcion
+            kardex = ultimos.get(producto.pk)
+            codigo = producto.codigo
+            descripcion = producto.descripcion
+            if kardex is None:
                 unidad_medida = producto.unidad_medida.codigo
                 stock = 0
                 precio = 0
                 valor = 0
+            else:
+                unidad_medida = producto.unidad_medida.descripcion
+                stock = kardex.cantidad_total
+                precio = kardex.precio_total
+                valor = kardex.valor_total
             ws.cell(row=cont, column=2).value = codigo
             ws.cell(row=cont, column=3).value = descripcion
             ws.cell(row=cont, column=4).value = unidad_medida
@@ -1616,22 +1616,16 @@ class ListadoStockProducto(TemplateView):
             descripcion = request.GET['descripcion']
             almacen = request.GET['almacen']
             lista_productos = []
-            productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
+            productos = list(Producto.objects.filter(descripcion__icontains=descripcion)
+                             .select_related('unidad_medida').order_by('descripcion'))
+            ultimos = Kardex.ultimos_por_producto(productos, almacen__pk=almacen)
             for producto in productos:
-                try:
-                    kardex = Kardex.objects.filter(producto=producto,
-                                                   almacen__pk=almacen).latest('fecha_operacion')
-                    kardex_json = {}
-                    kardex_json['codigo'] = kardex.producto.codigo
-                    kardex_json['label'] = kardex.producto.descripcion
-                    kardex_json['unidad'] = kardex.producto.unidad_medida.codigo
-                    kardex_json['stock'] = kardex.cantidad_total
-                except Kardex.DoesNotExist:
-                    kardex_json = {}
-                    kardex_json['codigo'] = producto.codigo
-                    kardex_json['label'] = producto.descripcion
-                    kardex_json['unidad'] = producto.unidad_medida.codigo
-                    kardex_json['stock'] = 0
+                kardex = ultimos.get(producto.pk)
+                kardex_json = {}
+                kardex_json['codigo'] = producto.codigo
+                kardex_json['label'] = producto.descripcion
+                kardex_json['unidad'] = producto.unidad_medida.codigo
+                kardex_json['stock'] = kardex.cantidad_total if kardex else 0
                 lista_productos.append(kardex_json)
             data = simplejson.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -1861,17 +1855,18 @@ class VerificarStockParaPedido(TemplateView):
     def get(self, request, *args, **kwargs):
         almacen = request.GET['almacen']
         pedido = request.GET['pedido']
-        detalles = DetallePedido.objects.filter(pedido__codigo=pedido,
-                                                estado=DetallePedido.STATUS.PEND).order_by('nro_detalle')
+        detalles = list(DetallePedido.objects.filter(pedido__codigo=pedido,
+                                                     estado=DetallePedido.STATUS.PEND)
+                        .select_related('producto__unidad_medida').order_by('nro_detalle'))
+        ultimos = Kardex.ultimos_por_producto([detalle.producto for detalle in detalles],
+                                              almacen__codigo=almacen)
         lista_detalles = []
         for detalle in detalles:
+            control_producto = ultimos.get(detalle.producto_id)
             try:
-                control_producto = Kardex.objects.filter(producto=detalle.producto,
-                                                         almacen__codigo=almacen).latest('fecha_operacion')
-
                 stock = control_producto.cantidad_total
                 precio = control_producto.valor_total / stock
-            except (Kardex.DoesNotExist, ZeroDivisionError):
+            except (AttributeError, ZeroDivisionError):
                 stock = 0
                 precio = 0
             if stock != 0:
