@@ -4,7 +4,7 @@ from django.utils.encoding import force_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
 from tambox.querysets import NavegableQuerySet
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from simple_history.models import HistoricalRecords
 
 
@@ -50,9 +50,9 @@ class Trabajador(TimeStampedModel):
 
     def nombre_completo(self):
         if self.profesion is not None:
-            return self.profesion.abreviatura + ' ' + self.apellido_paterno + ' ' + self.apellido_materno + ' ' + self.nombres
+            return self.profesion.abreviatura + ' ' + self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
         else:
-            return self.apellido_paterno + ' ' + self.apellido_materno + ' ' + self.nombres
+            return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
 
     def anterior(self):
         ant = Trabajador.objects.anterior(self)
@@ -197,7 +197,7 @@ class Puesto(TimeStampedModel):
         return puesto_superior
 
     def establecer_nivel(self, oficina_requerimiento):
-        from tambox.configuracion import logistica, presupuesto, oficina_administracion, operaciones
+        from tambox.configuracion import logistica
         descripcion = "LOGISTICA" if (self.oficina == logistica() and self.es_jefatura) else "USUARIO"
         try:
             return NivelAprobacion.objects.get(descripcion=descripcion)

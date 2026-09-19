@@ -1,8 +1,6 @@
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from administracion.models import Profesion, Trabajador, Oficina, Puesto, NivelAprobacion
-from django.urls import reverse
-from administracion.forms import ProfesionForm
 from model_bakery import baker
 from datetime import date
 
@@ -100,16 +98,16 @@ class OficinaTest(TestCase):
         self.assertEqual(self.o1.__str__(), self.o1.nombre)
 
     def test_siguiente_oficina(self):
-        self.assertEqual(self.o3.pk, self.o2.siguiente())
+        self.assertEqual(self.o3, self.o2.siguiente())
 
     def test_anterior_oficina(self):
-        self.assertEqual(self.o2.pk, self.o3.anterior())
+        self.assertEqual(self.o2, self.o3.anterior())
 
     def test_primera_oficina(self):
-        self.assertEqual(self.o1.pk, self.o3.siguiente())
+        self.assertEqual(self.o1, self.o3.siguiente())
 
     def test_ultima_oficina(self):
-        self.assertEqual(self.o3.pk, self.o1.anterior())
+        self.assertEqual(self.o3, self.o1.anterior())
 
 
 class PuestoTest(TestCase):
