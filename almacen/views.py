@@ -41,7 +41,6 @@ from productos.models import Producto
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
 from tambox.configuracion import logistica
-from tambox.importacion import leer_filas
 from tambox.vistas import CargarCsvMixin
 from datetime import date
 
@@ -236,7 +235,7 @@ class CargarAlmacenes(CargarCsvMixin, FormView):
                                descripcion=fila[1])
 
 
-class CargarInventarioInicial(FormView):
+class CargarInventarioInicial(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = CargarInventarioInicialForm
 
@@ -253,55 +252,54 @@ class CargarInventarioInicial(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        docfile = data['archivo']
-        fecha = data['fecha']
-        hora = data['hora']
-        almacen = data['almacenes']
-        form.save()
-        fecha_operacion = self.obtener_fecha_hora(fecha, hora)
-        tipo_movimiento = TipoMovimiento.objects.get(codigo='I00')
+        self.fecha_operacion = self.obtener_fecha_hora(data['fecha'], data['hora'])
+        self.cont_detalles = 1
+        self.detalles = []
         with transaction.atomic():
-            tipo_documento = TipoDocumento.objects.get(codigo_sunat='PEC')
-            movimiento = Movimiento.objects.create(tipo_movimiento=tipo_movimiento,
-                                                   tipo_documento=tipo_documento,
-                                                   almacen=almacen,
-                                                   fecha_operacion=fecha_operacion,
-                                                   observaciones='INVENTARIO INICIAL',
-                                                   serie='SALDO',
-                                                   numero='INICIAL')
-            cont_detalles = 1
-            detalles = []
-            total = 0
-            for fila in leer_filas(docfile):
+            self.movimiento = Movimiento.objects.create(
+                tipo_movimiento=TipoMovimiento.objects.get(codigo='I00'),
+                tipo_documento=TipoDocumento.objects.get(codigo_sunat='PEC'),
+                almacen=data['almacenes'],
+                fecha_operacion=self.fecha_operacion,
+                observaciones='INVENTARIO INICIAL',
+                serie='SALDO',
+                numero='INICIAL')
+            respuesta = super(CargarInventarioInicial, self).form_valid(form)
+            DetalleMovimiento.objects.bulk_create(self.detalles, None, None)
+            self.movimiento.save()
+        return respuesta
+
+    def procesar_fila(self, fila):
+        try:
+            producto = Producto.objects.get(descripcion=fila[0].strip())
+            cantidad = Decimal(fila[1])
+            try:
+                precio = Decimal(fila[2])
+            except InvalidOperation:
+                precio = ''
+            try:
+                valor = Decimal(fila[3])
+            except InvalidOperation:
+                valor = ''
+            if precio == '':
                 try:
-                    producto = Producto.objects.get(descripcion=fila[0].strip())
-                    cantidad = Decimal(fila[1])
-                    try:
-                        precio = Decimal(fila[2])
-                    except InvalidOperation:
-                        precio = ''
-                    valor = Decimal(fila[3])
-                    if precio == '':
-                        try:
-                            precio = valor / cantidad
-                        except (InvalidOperation, ZeroDivisionError):
-                            precio = 0
-                    if valor == '':
-                        valor = cantidad * precio
-                    detalle_movimiento = DetalleMovimiento(nro_detalle=cont_detalles,
-                                                           movimiento=movimiento,
-                                                           producto=producto,
-                                                           cantidad=cantidad,
-                                                           precio=precio,
-                                                           valor=valor)
-                    detalles.append(detalle_movimiento)
-                except Producto.DoesNotExist:
-                    pass
-                total = total + valor
-                cont_detalles = cont_detalles + 1
-            DetalleMovimiento.objects.bulk_create(detalles, None, None)
-            movimiento.save()
-        return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[movimiento.id_movimiento]))
+                    precio = valor / cantidad
+                except (InvalidOperation, ZeroDivisionError):
+                    precio = 0
+            if valor == '':
+                valor = cantidad * precio
+            self.detalles.append(DetalleMovimiento(nro_detalle=self.cont_detalles,
+                                                  movimiento=self.movimiento,
+                                                  producto=producto,
+                                                  cantidad=cantidad,
+                                                  precio=precio,
+                                                  valor=valor))
+            self.cont_detalles = self.cont_detalles + 1
+        except Producto.DoesNotExist:
+            pass
+
+    def get_success_url(self):
+        return reverse('almacen:detalle_movimiento', args=[self.movimiento.id_movimiento])
 
 
 class CrearTipoMovimiento(CreateView):

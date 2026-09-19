@@ -1,6 +1,11 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from model_bakery import baker
 from productos.models import UnidadMedida, GrupoProductos, Producto
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.urls import reverse
+from contabilidad.models import TipoExistencia
+import tempfile
 
 # Create your tests here.
 """class NewUnidadMedidaTestCase(TestCase):
@@ -124,3 +129,51 @@ class ConsultaDeStockTest(TestCase):
 
         with self.assertNumQueries(0):
             producto.previsto
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CargarServiciosTest(TestCase):
+    """`CargarServicios` devolvia dentro del bucle, asi que importaba solo la
+    primera fila del CSV y el resto se perdia en silencio."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
+
+    def test_importa_todas_las_filas(self):
+        baker.make(GrupoProductos, codigo='000001')
+        contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
+        archivo = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/productos/cargar_servicios/', {'archivo': archivo})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(sorted(Producto.objects.values_list('descripcion', flat=True)),
+                         ['SERVICIO DOS', 'SERVICIO UNO'])
+
+    def test_sin_grupo_manda_a_crearlos(self):
+        contenido = 'G99,SERVICIO UNO\n'
+        archivo = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/productos/cargar_servicios/', {'archivo': archivo})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(respuesta.url, reverse('productos:crear_grupo_productos'))
+        self.assertEqual(Producto.objects.count(), 0)
+
+
+@override_settings(MEDIA_ROOT=tempfile.mkdtemp())
+class CargarProductosTest(TestCase):
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
+
+    def test_salta_la_fila_sin_tipo_de_existencia(self):
+        baker.make(GrupoProductos, codigo='000001')
+        baker.make(TipoExistencia, codigo_sunat='01')
+        contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
+        archivo = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/productos/cargar_productos/', {'archivo': archivo})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(list(Producto.objects.values_list('descripcion', flat=True)), ['PRODUCTO UNO'])
+        self.assertEqual(UnidadMedida.objects.get(codigo='UNIDA').descripcion, 'UNIDAD X')

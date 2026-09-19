@@ -19,7 +19,6 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
     UnidadMedidaForm
 from contabilidad.models import CuentaContable, TipoExistencia
-from tambox.importacion import leer_filas
 from tambox.vistas import CargarCsvMixin
 
 logger = logging.getLogger(__name__)
@@ -110,52 +109,48 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
             pass
 
 
-class CargarServicios(FormView):
+class CargarServicios(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_servicios.html'
     form_class = UploadForm
+    success_url = reverse_lazy('productos:servicios')
 
     def form_valid(self, form):
-        form.save()
         try:
-            for fila in leer_filas(form.cleaned_data['archivo']):
-                grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
-                producto, creado = Producto.objects.get_or_create(descripcion=fila[1],
-                                                                  defaults={'grupo_productos': grupo,
-                                                                            'es_servicio': True})
-            return HttpResponseRedirect(reverse('productos:servicios'))
+            return super(CargarServicios, self).form_valid(form)
         except GrupoProductos.DoesNotExist:
             return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
 
+    def procesar_fila(self, fila):
+        grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
+        Producto.objects.get_or_create(descripcion=fila[1],
+                                       defaults={'grupo_productos': grupo,
+                                                 'es_servicio': True})
 
-class CargarProductos(FormView):
+
+class CargarProductos(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_productos.html'
     form_class = UploadForm
+    success_url = reverse_lazy('productos:productos')
 
-    def form_valid(self, form):
-        form.save()
-        for fila in leer_filas(form.cleaned_data['archivo']):
-            try:
-                grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
-                cod_und = fila[2][0:5]
-                und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
-                                                                 defaults={'codigo': cod_und,
-                                                                           'descripcion': fila[2].strip()})
-                if fila[3] != '':
-                    precio = fila[3]
-                else:
-                    precio = 0
-                try:
-                    tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
-                except TipoExistencia.DoesNotExist:
-                    return HttpResponseRedirect(reverse('contabilidad:tablero'))
-                producto, creado = Producto.objects.get_or_create(descripcion=fila[1].strip(),
-                                                                  defaults={'unidad_medida': und,
-                                                                            'grupo_productos': grupo,
-                                                                            'precio': precio,
-                                                                            'tipo_existencia': tipo_existencia})
-            except Exception:
-                logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
-        return HttpResponseRedirect(reverse('productos:productos'))
+    def procesar_fila(self, fila):
+        try:
+            grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
+            cod_und = fila[2][0:5]
+            und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
+                                                             defaults={'codigo': cod_und,
+                                                                       'descripcion': fila[2].strip()})
+            if fila[3] != '':
+                precio = fila[3]
+            else:
+                precio = 0
+            tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
+            producto, creado = Producto.objects.get_or_create(descripcion=fila[1].strip(),
+                                                              defaults={'unidad_medida': und,
+                                                                        'grupo_productos': grupo,
+                                                                        'precio': precio,
+                                                                        'tipo_existencia': tipo_existencia})
+        except Exception:
+            logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
 
 
 class ConsultaStockProducto(TemplateView):

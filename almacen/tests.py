@@ -1,13 +1,16 @@
 from almacen.models import Almacen, TipoMovimiento, Pedido, DetallePedido, \
-    Movimiento
+    Movimiento, DetalleMovimiento
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from model_bakery import baker
 from datetime import date
+from decimal import Decimal
 import tempfile
 from django.utils import timezone
 from compras.models import OrdenCompra
+from contabilidad.models import TipoDocumento
+from productos.models import Producto
 
 
 class AlmacenTest(TestCase):
@@ -245,6 +248,31 @@ class CargarCsvTest(TestCase):
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(Almacen.objects.filter(codigo__in=['AL01', 'AL02']).count(), 2)
         self.assertEqual(Almacen.objects.get(codigo='AL01').descripcion, 'ALMACEN UNO')
+
+    def test_cargar_inventario_inicial(self):
+        tipo_movimiento = baker.make(TipoMovimiento, codigo='I00', incrementa=True)
+        baker.make(TipoDocumento, codigo_sunat='PEC')
+        almacen = baker.make(Almacen)
+        producto_uno = baker.make(Producto, descripcion='PRODUCTO UNO', unidad_medida=None)
+        producto_dos = baker.make(Producto, descripcion='PRODUCTO DOS', unidad_medida=None)
+        contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
+        archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
+
+        respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
+                                     {'archivo': archivo,
+                                      'fecha': '01/01/2024',
+                                      'hora': '08:30',
+                                      'almacenes': almacen.pk})
+
+        self.assertEqual(respuesta.status_code, 302)
+        movimiento = Movimiento.objects.get()
+        self.assertEqual(movimiento.tipo_movimiento, tipo_movimiento)
+        detalles = list(DetalleMovimiento.objects.order_by('nro_detalle'))
+        self.assertEqual([detalle.nro_detalle for detalle in detalles], [1, 2])
+        self.assertEqual([detalle.producto for detalle in detalles], [producto_uno, producto_dos])
+        self.assertEqual([detalle.cantidad for detalle in detalles], [Decimal('10'), Decimal('2')])
+        self.assertEqual(detalles[0].valor, Decimal('50'))
+        self.assertEqual(detalles[1].valor, Decimal('7'))
 
 
 class TotalDeMovimientoTest(TestCase):
