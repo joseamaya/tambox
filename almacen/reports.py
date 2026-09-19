@@ -2078,18 +2078,17 @@ class ReporteKardexExcel():
         ws['J3'].border = thin_border
         ws['K3'].border = thin_border
         cont = 4
+        iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             ws.cell(row=cont, column=2).value = producto.codigo
             ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = producto.descripcion
             ws.cell(row=cont, column=3).border = thin_border
             try:
-                kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                       almacen=almacen,
-                                                       fecha_operacion__lt=desde).latest('fecha_operacion')
+                kardex_inicial = iniciales.get(producto.pk)
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except Kardex.DoesNotExist:
+            except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=4).value = cant_saldo_inicial
@@ -2126,7 +2125,9 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_formato_normal_todos(self, desde, hasta, almacen):
-        productos = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
+        productos = (Kardex.objects.filter(almacen=almacen).order_by('producto')
+                     .distinct('producto__codigo')
+                     .select_related('producto__unidad_medida'))
         wb = Workbook()
         ws = wb.active
         ws['E1'] = u'Almacén: ' + almacen.descripcion
@@ -2146,6 +2147,8 @@ class ReporteKardexExcel():
         ws['L3'] = 'PRE. TOT'
         ws['M3'] = 'VALOR. TOT'
         cont = 4
+        ultimos = Kardex.ultimos_por_producto([prod.producto_id for prod in productos],
+                                              antes_de=desde, almacen=almacen)
         for prod in productos:
             producto = prod.producto
             ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
@@ -2156,12 +2159,10 @@ class ReporteKardexExcel():
             ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
             cont += 1
             try:
-                kardex_inicial = Kardex.objects.filter(producto=producto,
-                                                       almacen=almacen,
-                                                       fecha_operacion__lt=desde).latest('fecha_operacion')
+                kardex_inicial = ultimos.get(producto.pk)
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
-            except Kardex.DoesNotExist:
+            except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
             ws.cell(row=cont, column=8).value = "SALDO INICIAL:"

@@ -411,6 +411,50 @@ class ReporteKardexConsolidadoTest(TestCase):
         self.assertEqual(len(tabla._cellvalues), 3 + 1)
 
 
+class ReporteKardexExcelTest(TestCase):
+    """Los consolidados del kardex en Excel resolvian el saldo inicial con un
+    `latest()` por producto. El test fija la semantica -el ultimo kardex
+    *anterior* al periodo, no el ultimo a secas- porque en estos informes el
+    numero de consultas igual crece con el catalogo: cada fila llama ademas a
+    `obtener_kardex()`."""
+
+    def setUp(self):
+        from contabilidad.models import CuentaContable
+        from productos.models import GrupoProductos
+
+        self.almacen = baker.make(Almacen)
+        self.grupo = baker.make(GrupoProductos, codigo='000001',
+                                ctacontable=baker.make(CuentaContable))
+        self.producto = baker.make(Producto, codigo='', grupo_productos=self.grupo)
+        self.desde = date(2024, 1, 1)
+        self.hasta = date(2024, 1, 31)
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
+                   cantidad_total=Decimal('7'), valor_total=Decimal('21'))
+        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+                   fecha_operacion=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
+                   cantidad_total=Decimal('99'), valor_total=Decimal('99'))
+
+    def test_el_consolidado_usa_el_kardex_anterior_al_periodo(self):
+        from almacen.reports import ReporteKardexExcel
+
+        libro = ReporteKardexExcel().obtener_consolidado_productos(
+            self.desde, self.hasta, self.almacen)
+
+        hoja = libro.active
+        self.assertEqual(hoja.cell(row=4, column=4).value, Decimal('7'))
+        self.assertEqual(hoja.cell(row=4, column=5).value, Decimal('21'))
+
+    def test_el_formato_normal_se_genera(self):
+        from almacen.reports import ReporteKardexExcel
+
+        libro = ReporteKardexExcel().obtener_formato_normal_todos(
+            self.desde, self.hasta, self.almacen)
+
+        hoja = libro.active
+        self.assertEqual(hoja.cell(row=5, column=8).value, 'SALDO INICIAL:')
+
+
 class StockAjaxTest(TestCase):
     """Los endpoints de autocompletado resolvian el ultimo Kardex uno por uno.
     Esto fija el JSON que devuelven, que es lo que consume el JavaScript."""
