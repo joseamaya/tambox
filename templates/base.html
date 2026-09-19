@@ -156,6 +156,16 @@
     </nav>
     <div id="page-wrapper">
         <div class="container-fluid">
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                {{ message }}
+            </div>
+            {% endfor %}
+            {% endif %}
             {% block cuerpo %}
             {% endblock cuerpo %}
         </div>

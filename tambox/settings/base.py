@@ -8,6 +8,7 @@ Los valores sensibles y dependientes del entorno se leen de variables de entorno
 import os
 from pathlib import Path
 
+from django.contrib.messages import constants as message_constants
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -89,6 +90,10 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/'
 
 LOGIN_REDIRECT_URL = '/inicio/'
+
+# Bootstrap 3 no tiene `alert-error`; los mensajes de error se pintan como
+# `alert-danger` en el bloque de `base.html`.
+MESSAGE_TAGS = {message_constants.ERROR: 'danger'}
 
 LOGGING = {
     'version': 1,

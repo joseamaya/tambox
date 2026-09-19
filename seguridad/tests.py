@@ -1,6 +1,9 @@
+from django.contrib import messages
 from django.contrib.auth.models import Permission, User
-from django.test import TestCase
+from django.contrib.messages.storage.cookie import CookieStorage
+from django.test import RequestFactory, TestCase
 from django.urls import get_resolver
+from django.views.generic import TemplateView
 
 from almacen.forms import FormularioReporteMovimientos
 from seguridad.permisos import permisos_declarados
@@ -189,3 +192,20 @@ class PermisosDeclaradosTest(TestCase):
         for permiso in declarados:
             with self.subTest(permiso=permiso):
                 self.assertIn(permiso, existentes)
+
+
+class MensajesEnPantallaTest(TestCase):
+    """`base.html` no pintaba los mensajes: el context processor estaba puesto,
+    pero los `messages.error` del proyecto se perdian y el usuario no se
+    enteraba de que un guardado habia fallado."""
+
+    def test_el_error_se_ve_como_alerta_de_peligro(self):
+        peticion = RequestFactory().get('/')
+        setattr(peticion, '_messages', CookieStorage(peticion))
+        messages.error(peticion, 'Error guardando la cotizacion.')
+
+        respuesta = TemplateView.as_view(template_name='base.html')(peticion)
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'Error guardando la cotizacion.')
+        self.assertContains(respuesta, 'alert-danger')
