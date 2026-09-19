@@ -80,8 +80,15 @@ class PedidoTest(TestCase):
         self.assertEqual("PE" + str(self.pe4.fecha.year) + "000001", self.pe4.codigo)
 
     def test_actualizacion_pedido(self):
-        pe5 = baker.make(Pedido, codigo=self.pe1.pk, fecha=self.fecha_proxima)
-        self.assertEqual(pe5.pk, self.pe1.pk)
+        """`Pedido.save()` solo genera el codigo cuando esta vacio, asi que
+        guardar un pedido existente no lo duplica ni le cambia el codigo."""
+        codigo = self.pe1.codigo
+        cantidad = Pedido.objects.count()
+
+        self.pe1.save()
+
+        self.assertEqual(codigo, Pedido.objects.get(pk=self.pe1.pk).codigo)
+        self.assertEqual(cantidad, Pedido.objects.count())
 
     def test_siguiente_pedido(self):
         self.assertEqual(self.pe3.pk, self.pe2.siguiente())
@@ -161,12 +168,17 @@ class MovimientoTest(TestCase):
         mov2 = baker.make(Movimiento, id_movimiento='', fecha_operacion=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov2.pk, mov1.anterior())
 
-    def test_modificar_referencia(self):
+    def test_eliminar_referencia(self):
+        """Devuelve la orden referenciada a su estado segun lo que queda
+        ingresado. Un refactor anterior renombro el metodo a
+        `eliminar_referencia` y este test quedo apuntando al nombre viejo."""
         tipo_movimiento = baker.make(TipoMovimiento, codigo='', incrementa=True, pide_referencia=True)
-        referencia = baker.make(OrdenCompra)
+        referencia = baker.make(OrdenCompra, cotizacion=None)
         mov1 = baker.make(Movimiento, id_movimiento='', fecha_operacion=timezone.now(), tipo_movimiento=tipo_movimiento,
                           referencia=referencia)
-        mov1.modificar_estado_referencia()
+
+        mov1.eliminar_referencia()
+
         self.assertEqual(mov1.referencia.estado, OrdenCompra.STATUS.PEND)
 
 

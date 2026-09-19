@@ -69,21 +69,20 @@ class CotizacionTest(TestCase):
         self.assertEqual(self.c3.pk, self.c1.anterior())
 
     def test_estado(self):
-        dc1 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG_PARC)
-        dc2 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
-        dc3 = baker.make(DetalleCotizacion, cotizacion=self.c1, estado=DetalleCotizacion.STATUS.ELEG)
-        self.c1.establecer_estado()
-        self.assertEqual(self.c1.estado, Cotizacion.STATUS.ELEG_PARC)
-        dc4 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
-        dc5 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
-        dc6 = baker.make(DetalleCotizacion, cotizacion=self.c2, estado=DetalleCotizacion.STATUS.ELEG)
-        self.c2.establecer_estado()
-        self.assertEqual(self.c2.estado, Cotizacion.STATUS.ELEG)
-        dc7 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
-        dc8 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
-        dc9 = baker.make(DetalleCotizacion, cotizacion=self.c3, estado=DetalleCotizacion.STATUS.DESC)
-        self.c3.establecer_estado()
-        self.assertEqual(self.c3.estado, Cotizacion.STATUS.DESC)
+        """Una cotizacion refleja cuanto de lo cotizado se compro. Antes este
+        test clasificaba por el estado de los detalles con `establecer_estado`,
+        que un refactor posterior reemplazo por `establecer_estado_comprado`."""
+        baker.make(DetalleCotizacion, cotizacion=self.c1, detalle_requerimiento=None,
+                   cantidad=10, cantidad_comprada=4)
+        self.assertEqual(self.c1.establecer_estado_comprado(), Cotizacion.STATUS.ELEG_PARC)
+
+        baker.make(DetalleCotizacion, cotizacion=self.c2, detalle_requerimiento=None,
+                   cantidad=10, cantidad_comprada=10)
+        self.assertEqual(self.c2.establecer_estado_comprado(), Cotizacion.STATUS.ELEG)
+
+        baker.make(DetalleCotizacion, cotizacion=self.c3, detalle_requerimiento=None,
+                   cantidad=10, cantidad_comprada=0)
+        self.assertEqual(self.c3.establecer_estado_comprado(), Cotizacion.STATUS.DESC)
 
     def test_eliminar_referencia(self):
         pass
