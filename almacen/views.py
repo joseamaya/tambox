@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*- 
 from django.utils import timezone
 from django.shortcuts import render
-from openpyxl.styles import Alignment
-from openpyxl.styles import Border
-from openpyxl.styles import Font
-from openpyxl.styles import PatternFill
-from openpyxl.styles import Side
 
 from almacen.models import Almacen, Movimiento, Kardex, TipoMovimiento, DetalleMovimiento, ControlProductoAlmacen, \
     Pedido, DetallePedido
@@ -18,7 +13,6 @@ from almacen.forms import AlmacenForm, TipoSalidaForm, TipoMovimientoForm, Formu
     DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet, \
     AprobacionPedidoForm, FormularioReprocesoPrecio, \
     FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
-from django.db.models import Sum
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
@@ -43,10 +37,10 @@ from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from productos.models import Producto, GrupoProductos
+from productos.models import Producto
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
-from tambox.configuracion import empresa, logistica
+from tambox.configuracion import logistica
 from tambox.importacion import leer_filas
 from tambox.vistas import CargarCsvMixin
 from datetime import date
@@ -1545,7 +1539,6 @@ class StockProductos(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        desde = data['desde']
         almacen = data['almacen']
         descripcion = data['descripcion']
         productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
@@ -1612,7 +1605,6 @@ class ListadoStockProducto(TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             descripcion = request.GET['descripcion']
-            desde = request.GET['desde']
             almacen = request.GET['almacen']
             lista_productos = []
             productos = Producto.objects.filter(descripcion__icontains=descripcion).order_by('descripcion')
@@ -1805,7 +1797,6 @@ class ReportePDFProductos(View):
 
     def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type='application/pdf')
-        pdf_name = "clientes.pdf"  # llamado clientes
         # la linea 26 es por si deseas descargar el pdf a tu computadora
         # response['Content-Disposition'] = 'attachment; filename=%s' % pdf_name
         buff = BytesIO()

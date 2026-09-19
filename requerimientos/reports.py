@@ -12,8 +12,7 @@ from django.conf import settings
 from administracion.models import Puesto
 import os
 from io import BytesIO
-from tambox.configuracion import empresa, configuracion, oficina_administracion, \
-    presupuesto, logistica, operaciones
+from tambox.configuracion import empresa, logistica
 
 
 class ReporteRequerimiento():
@@ -91,7 +90,6 @@ class ReporteRequerimiento():
                               Paragraph(detalle.producto.descripcion, sp),
                               Paragraph(detalle.uso, sp)]
             lista_detalles.append(tupla_producto)
-        adicionales = [('', '', '', '', '')] * (15 - len(detalles))
         tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
         style = TableStyle(
             [
@@ -152,13 +150,11 @@ class ReporteRequerimiento():
     def tabla_firmas(self):
         requerimiento = self.requerimiento
         solicitante = requerimiento.solicitante
-        puesto_solicitante = solicitante.puesto
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
-        oficina = requerimiento.oficina
         jefatura_logistica = self.obtener_puesto(logistica(), requerimiento)
         jefe_logistica = jefatura_logistica.trabajador
         firma_solicitante = self.obtener_firma(solicitante.firma)

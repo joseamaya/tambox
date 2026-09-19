@@ -3,7 +3,7 @@ import math
 from reportlab.lib.pagesizes import letter, A4, landscape
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Image, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY, TA_RIGHT
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
 from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.units import cm
@@ -11,7 +11,7 @@ from reportlab.platypus.flowables import Spacer, PageBreak
 from django.conf import settings
 import os
 from io import BytesIO
-from almacen.models import DetalleMovimiento, Kardex, Movimiento
+from almacen.models import DetalleMovimiento, Kardex
 from tambox.configuracion import empresa, oficina_administracion, logistica
 from productos.models import Producto, GrupoProductos
 from openpyxl.styles import Alignment
@@ -20,8 +20,6 @@ from openpyxl.styles import Font
 from openpyxl.styles import PatternFill
 from openpyxl.styles import Side
 from openpyxl import Workbook
-from django.http import HttpResponse
-from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -128,7 +126,6 @@ class ReporteMovimiento():
                               format(detalle.precio, '.5f'),
                               format(detalle.valor, '.5f')]
             lista_detalles.append(tupla_producto)
-        adicionales = [('', '', '', '', '')] * (15 - len(lista_detalles))
         tabla_detalle = Table([encabezados] + lista_detalles,
                               colWidths=[1.5 * cm, 2.5 * cm, 1.5 * cm, 10 * cm, 2 * cm, 2.5 * cm])
         style = TableStyle(
@@ -221,12 +218,7 @@ class ReporteMovimiento():
         canvas.restoreState()
 
     def imprimir(self):
-        y = 300
         buffer = self.buffer
-        izquierda = ParagraphStyle('parrafos',
-                                   alignment=TA_LEFT,
-                                   fontSize=10,
-                                   fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,

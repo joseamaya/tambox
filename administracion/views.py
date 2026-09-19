@@ -14,7 +14,6 @@ from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
     NivelAprobacion, Productor
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
-from django.http.response import HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.models import User
 from openpyxl import Workbook
@@ -51,7 +50,7 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ninguna profesión")
         if cant_niveles == 0:
             nivel_logistica = NivelAprobacion.objects.create(descripcion="LOGISTICA")
-            nivel_usuario = NivelAprobacion.objects.create(descripcion="USUARIO",
+            NivelAprobacion.objects.create(descripcion="USUARIO",
                                                            nivel_superior=nivel_logistica)
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}

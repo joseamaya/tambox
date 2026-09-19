@@ -2,11 +2,6 @@
 from django.utils import timezone
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
-from openpyxl.styles import Alignment
-from openpyxl.styles import Border
-from openpyxl.styles import Color
-from openpyxl.styles import Font
-from openpyxl.styles import Side
 
 from compras.models import Proveedor, OrdenCompra, FormaPago, DetalleOrdenCompra, DetalleRequerimiento, OrdenServicios, \
     DetalleOrdenServicios, ConformidadServicio, \
@@ -24,16 +19,7 @@ import datetime
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from io import BytesIO
-from reportlab.platypus import Paragraph, TableStyle
-from reportlab.lib.styles import ParagraphStyle
-from reportlab.lib import colors
-from reportlab.platypus import Table
-from reportlab.platypus.flowables import ListFlowable
-from reportlab.pdfgen import canvas
 # from reportlab.lib.pagesizes import cm
-from reportlab.lib.enums import TA_JUSTIFY
-from administracion.models import Puesto
 import locale
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
@@ -47,11 +33,10 @@ from django.shortcuts import render, get_object_or_404
 
 from contabilidad.models import TipoCambio
 from productos.models import Producto, UnidadMedida, GrupoProductos
-from django.utils.encoding import force_str
 from datetime import date
-from compras.reports import ReporteOrdenCompra, reporte_xls_orden_compra, PDFOrdenCompra, \
+from compras.reports import reporte_xls_orden_compra, PDFOrdenCompra, \
     PDFOrdenServicios, PDFMemorandoConformidadServicio, PDFSolicitudCotizacion
-from tambox.configuracion import empresa, configuracion, impuesto_compra
+from tambox.configuracion import configuracion, impuesto_compra
 from tambox.vistas import CargarCsvMixin
 from decimal import Decimal
 
@@ -271,16 +256,11 @@ class CrearCotizacion(CreateView):
         # try:
         with transaction.atomic():
             self.object = form.save()
-            cod_orden = form.cleaned_data.get('orden')
             referencia = self.object.requerimiento
             detalles = []
-            detalles_servicios = []
             cont = 1
             for detalle_cotizacion_form in detalle_cotizacion_formset:
                 requerimiento = detalle_cotizacion_form.cleaned_data.get('requerimiento')
-                codigo = detalle_cotizacion_form.cleaned_data.get('codigo')
-                nombre = detalle_cotizacion_form.cleaned_data.get('nombre')
-                unidad = detalle_cotizacion_form.cleaned_data.get('unidad')
                 cantidad = detalle_cotizacion_form.cleaned_data.get('cantidad')
                 detalle_requerimiento = DetalleRequerimiento.objects.get(pk=requerimiento)
                 if cantidad:
@@ -355,7 +335,6 @@ class CrearOrdenCompra(CreateView):
         try:
             with transaction.atomic():
                 self.object = form.save()
-                con_igv = form.cleaned_data.get('con_impuesto')
                 referencia = self.object.cotizacion
                 detalles = []
                 cont = 1
@@ -688,7 +667,6 @@ class EliminarProveedor(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             ruc = request.POST['ruc']
-            proveedor = Proveedor.objects.get(pk=ruc)
             proveedor_json = {}
             proveedor_json['ruc'] = ruc
             Proveedor.objects.filter(pk=ruc).update(estado=False)
@@ -904,9 +882,6 @@ class ModificarCotizacion(UpdateView):
                 cont = 1
                 for detalle_cotizacion_form in detalle_cotizacion_formset:
                     detalle_requerimiento = detalle_cotizacion_form.cleaned_data.get('requerimiento')
-                    codigo = detalle_cotizacion_form.cleaned_data.get('codigo')
-                    nombre = detalle_cotizacion_form.cleaned_data.get('nombre')
-                    unidad = detalle_cotizacion_form.cleaned_data.get('unidad')
                     cantidad = detalle_cotizacion_form.cleaned_data.get('cantidad')
                     detalle_requerimiento = DetalleRequerimiento.objects.get(pk=detalle_requerimiento)
                     if cantidad:
@@ -1703,6 +1678,5 @@ class TransferenciaOrdenServicios(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TransferenciaOrdenServicios, self).get_context_data(**kwargs)
-        trabajador = self.request.user.trabajador
         context['ordenes'] = OrdenServicios.objects.filter(estado=OrdenServicios.STATUS.PEND)
         return context

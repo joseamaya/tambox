@@ -20,7 +20,6 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         self.fields['motivo_desaprobacion'].required = False
 
     def clean(self):
-        estado = self.cleaned_data['estado']
         oficina = self.instance.obtener_oficina_aprobacion_superior()
         if oficina is not None:
             try:
@@ -76,7 +75,7 @@ class FormularioDetalleRequerimiento(forms.Form):
     def clean_codigo(self):
         codigo = self.cleaned_data.get('codigo')
         try:
-            producto = Producto.objects.get(codigo=codigo)
+            Producto.objects.get(codigo=codigo)
             return self.cleaned_data['codigo']
         except Producto.DoesNotExist:
             raise ValidationError("El código no es válido.")

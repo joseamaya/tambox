@@ -1,7 +1,6 @@
 from django import forms
 from contabilidad.models import TipoDocumento, CuentaContable, Upload, \
-    Impuesto, Configuracion, FormaPago, Empresa, TipoCambio
-from django.forms.models import inlineformset_factory
+    Impuesto, Configuracion, FormaPago, TipoCambio
 
 
 class FormaPagoForm(forms.ModelForm):

@@ -9,7 +9,6 @@ from django.utils.translation import gettext as _
 from administracion.models import Oficina
 from contabilidad.behaviors import SingletonModel
 from tambox.querysets import NavegableQuerySet
-from contabilidad.helpers import OverwriteStorage
 
 
 class TipoCambio(TimeStampedModel):

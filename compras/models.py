@@ -6,7 +6,7 @@ from django.utils.translation import gettext as _
 from requerimientos.models import Requerimiento, DetalleRequerimiento
 from model_utils.models import TimeStampedModel
 from django.db.models import Max
-from contabilidad.models import FormaPago, TipoCambio
+from contabilidad.models import FormaPago
 from productos.models import Producto
 from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
@@ -14,7 +14,6 @@ from compras.settings import CHOICES_ESTADO_COTIZ
 from tambox.configuracion import configuracion
 from compras.managers import DetalleCotizacionManager, \
     DetalleConformidadServicioManager
-from decimal import Decimal
 from tambox.util import to_word
 from simple_history.models import HistoricalRecords
 

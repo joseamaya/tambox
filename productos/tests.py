@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
 from model_bakery import baker
 from productos.models import UnidadMedida, GrupoProductos, Producto
 

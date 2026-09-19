@@ -204,7 +204,6 @@ class ReporteOrdenCompra():
         return tabla_observaciones
 
     def tabla_afectacion_presupuestal(self):
-        orden = self.orden_compra
         p = ParagraphStyle('parrafos',
                            alignment=TA_JUSTIFY,
                            fontSize=8,
@@ -243,10 +242,6 @@ class ReporteOrdenCompra():
     def imprimir(self):
         y = 300
         buffer = self.buffer
-        izquierda = ParagraphStyle('parrafos',
-                                   alignment=TA_LEFT,
-                                   fontSize=10,
-                                   fontName="Times-Roman")
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
                                 leftMargin=50,
@@ -1017,7 +1012,6 @@ class PDFOrdenServicios(object):
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
         ], bulletType='1'
         )
-        p1 = Paragraph("RECIBIDO POR: ", p)
         pdf.drawString(330, y - 150, "FIRMA: ")
         pdf.line(370, y - 150, 560, y - 150)
         pdf.drawString(330, y - 170, "NOMBRE: ")
@@ -1220,7 +1214,6 @@ class PDFOrdenCompra(object):
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
         ], bulletType='1'
         )
-        p1 = Paragraph("RECIBIDO POR: ", p)
         pdf.drawString(330, y - 150, "FIRMA: ")
         pdf.line(370, y - 150, 560, y - 150)
         pdf.drawString(330, y - 170, "NOMBRE: ")

@@ -12,7 +12,6 @@ from productos.models import Producto
 from almacen.managers import DetalleMovimientoManager
 from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
-from decimal import Decimal
 from simple_history.models import HistoricalRecords
 
 

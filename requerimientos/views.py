@@ -13,7 +13,6 @@ from administracion.models import Oficina, NivelAprobacion
 import locale
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
-import os
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q

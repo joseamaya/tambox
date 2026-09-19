@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.urls import reverse, reverse_lazy
+from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_not_required
