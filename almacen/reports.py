@@ -864,7 +864,8 @@ class ReporteKardexPDF():
         elements = []
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0, cantidad_salida=0).order_by().values(
             'producto').distinct()
-        productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
+        productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
+            'descripcion').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
@@ -1026,7 +1027,8 @@ class ReporteKardexPDF():
         elements = []
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,
                                                   cantidad_salida=0).order_by().values('producto').distinct()
-        productos = Producto.objects.filter(pk__in=productos_kardex).order_by('descripcion')
+        productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
+            'descripcion').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         for producto in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
@@ -1688,7 +1690,8 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_unidades_fisicas_todos(self, desde, hasta, almacen):
-        productos = Producto.objects.all().order_by('descripcion')
+        productos = Producto.objects.all().order_by('descripcion').select_related(
+            'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         wb = Workbook()
         ws = wb.active
@@ -1931,7 +1934,8 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_valorizado_todos(self, desde, hasta, almacen):
-        productos = Producto.objects.all().order_by('descripcion')
+        productos = Producto.objects.all().order_by('descripcion').select_related(
+            'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         wb = Workbook()
         ws = wb.active

@@ -80,10 +80,11 @@ class GrupoProductos(TimeStampedModel):
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
-                                               producto__grupo_productos=self).order_by('producto__descripcion',
-                                                                                        'fecha_operacion',
-                                                                                        'cantidad_salida',
-                                                                                        'created')
+                                               producto__grupo_productos=self).select_related(
+            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__descripcion',
+                                                                                  'fecha_operacion',
+                                                                                  'cantidad_salida',
+                                                                                  'created')
         totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
                                            cantidad_salida=Sum('cantidad_salida'),
                                            valor_ingreso=Sum('valor_ingreso'),
@@ -143,10 +144,11 @@ class Producto(TimeStampedModel):
                                                movimiento__estado=Movimiento.STATUS.ACT,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
-                                               producto=self).order_by('producto__descripcion',
-                                                                       'fecha_operacion',
-                                                                       'cantidad_salida',
-                                                                       'created')
+                                               producto=self).select_related(
+            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__descripcion',
+                                                                                  'fecha_operacion',
+                                                                                  'cantidad_salida',
+                                                                                  'created')
         totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
                                            cantidad_salida=Sum('cantidad_salida'),
                                            valor_ingreso=Sum('valor_ingreso'),
