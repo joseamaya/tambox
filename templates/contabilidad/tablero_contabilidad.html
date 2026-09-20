@@ -2,18 +2,7 @@
 {% block cuerpo %}
 <h3>Tablero Contabilidad</h3>
 <hr/>
-<div class="panel panel-default">
-    <div class="panel-heading">
-        <i class="fa fa-bell fa-fw"></i>Panel de Notificaciones.
-    </div>
-    <div class="panel-body">
-        <div class="list-group">
-            {% for notificacion in notificaciones %}
-            <p class="list-group-item">{{ notificacion }}</p>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+{% include "includes/panel_notificaciones.html" %}
 {% endblock cuerpo %}
 {% block js %}
 {% endblock js %}
