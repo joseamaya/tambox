@@ -234,12 +234,6 @@ class TodasLasPaginasTest(TestCase):
         'productos:consulta_stock_producto': 'espera parametros del JavaScript',
         'productos:busqueda_productos_descripcion': 'espera parametros del JavaScript',
         'productos:busqueda_productos_codigo': 'espera parametros del JavaScript',
-        # Plantilla que no existe: decidir si se escribe o si la vista esta muerta.
-        'almacen:crear_tipo_salida': 'falta almacen/crear_tipo_salida.html',
-        'almacen:tipos_unidad_medida': 'falta almacen/tipos.html y contabilidad/tipo_list.html',
-        'almacen:tipos_stock': 'falta almacen/tipos.html y contabilidad/tipo_list.html',
-        'compras:crear_detalle_cotizacion': 'falta compras/crear_detalle_cotizacion.html',
-        'compras:crear_conformidad_servicio': "reversa 'crear_forma_pago', que no existe",
     }
 
     def setUp(self):

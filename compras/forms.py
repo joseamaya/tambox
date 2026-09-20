@@ -35,14 +35,6 @@ class ProveedorForm(forms.ModelForm):
         return self.cleaned_data['ruc']
 
 
-class DetalleCotizacionForm(forms.Form):
-    codigo = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 10, 'class': 'entero form-control'}))
-    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 140, 'class': 'form-control'}))
-    unidad = forms.CharField(max_length=6,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-
-
 class DetalleOrdenCompraForm(forms.Form):
     codigo = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))

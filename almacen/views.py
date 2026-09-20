@@ -8,7 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from almacen.forms import AlmacenForm, TipoSalidaForm, TipoMovimientoForm, FormularioReporteMovimientos, \
+from almacen.forms import AlmacenForm, TipoMovimientoForm, FormularioReporteMovimientos, \
     FormularioKardexProducto, CargarInventarioInicialForm, MovimientoForm, \
     DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet, \
     AprobacionPedidoForm, FormularioReprocesoPrecio, \
@@ -29,7 +29,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
 from administracion.models import Puesto
 import locale
-from contabilidad.models import Tipo, TipoDocumento
+from contabilidad.models import TipoDocumento
 from contabilidad.forms import UploadForm
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
@@ -325,16 +325,6 @@ class CrearTipoMovimiento(CreateView):
 
     def get_success_url(self):
         return reverse('almacen:detalle_tipo_movimiento', args=[self.object.pk])
-
-
-class CrearTipoSalida(FormView):
-    template_name = 'almacen/crear_tipo_salida.html'
-    form_class = TipoSalidaForm
-    success_url = reverse_lazy('almacen:crear_tipo_salida')
-
-    def form_valid(self, form):
-        form.save()
-        return super(CrearTipoSalida, self).form_valid(form)
 
 
 class CrearAlmacen(FormView):
@@ -677,33 +667,6 @@ class ListadoPedidos(ListView):
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
     queryset = Pedido.objects.exclude(estado=Pedido.STATUS.CANC).order_by('codigo')
-
-
-class ListadoTiposUnidadMedida(ListView):
-    model = Tipo
-    template_name = 'almacen/tipos.html'
-    context_object_name = 'tipos'
-    paginate_by = 10
-    queryset = Tipo.objects.filter(tabla="tipo_unidad_medida", descripcion_campo="tipo_unidad_medida").order_by(
-        'descripcion_valor')
-
-    def get_context_data(self, **kwargs):
-        context = super(ListadoTiposUnidadMedida, self).get_context_data(**kwargs)
-        context['tabla'] = 'tipo_unidad_medida'
-        return context
-
-
-class ListadoTiposStock(ListView):
-    model = Tipo
-    template_name = 'almacen/tipos.html'
-    context_object_name = 'tipos'
-    paginate_by = 10
-    queryset = Tipo.objects.filter(tabla="tipo_stock", descripcion_campo="tipo_stock").order_by('descripcion_valor')
-
-    def get_context_data(self, **kwargs):
-        context = super(ListadoTiposStock, self).get_context_data(**kwargs)
-        context['tabla'] = 'tipo_stock'
-        return context
 
 
 class ListadoTiposMovimiento(ListView):

@@ -7,7 +7,7 @@ from compras.models import Proveedor, OrdenCompra, FormaPago, DetalleOrdenCompra
     DetalleOrdenServicios, ConformidadServicio, \
     DetalleConformidadServicio, DetalleCotizacion, Cotizacion
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from compras.forms import ProveedorForm, DetalleCotizacionForm, CotizacionForm, OrdenCompraForm, \
+from compras.forms import ProveedorForm, CotizacionForm, OrdenCompraForm, \
     OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet, \
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet, \
     FormularioReporteOrdenesFecha
@@ -147,11 +147,6 @@ class CrearProveedor(CreateView):
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
-
-
-class CrearDetalleCotizacion(FormView):
-    template_name = 'compras/crear_detalle_cotizacion.html'
-    form_class = DetalleCotizacionForm
 
 
 class CrearDetalleOrdenCompra(TemplateView):
@@ -476,7 +471,7 @@ class CrearConformidadServicio(CreateView):
         self.object = None
         formas_pago = FormaPago.objects.all().order_by('descripcion')
         if not formas_pago:
-            return HttpResponseRedirect(reverse('compras:crear_forma_pago'))
+            return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)

@@ -9,7 +9,7 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
     ModificarOrdenServicios, CargarProveedores, \
     CrearConformidadServicio, TransferenciaOrdenServicios, ObtenerDetalleOrdenServicios, ListadoConformidadesServicio, \
     ReportePDFOrdenServicios, ReportePDFMemorandoConformidadServicio, ModificarConformidadServicio, \
-    CrearCotizacion, CrearDetalleCotizacion, ListadoCotizaciones, DetalleOperacionConformidadServicios, \
+    CrearCotizacion, ListadoCotizaciones, DetalleOperacionConformidadServicios, \
     ModificarCotizacion, TransferenciaCotizacion, ObtenerDetalleCotizacion, \
     BusquedaCotizacion, DetalleOperacionCotizacion, DetalleOperacionOrdenCompra, DetalleOperacionOrdenServicios, \
     ReportePDFSolicitudCotizacion, ListadoOrdenesCompraPorCotizacion, \
@@ -42,8 +42,6 @@ urlpatterns = [
     re_path(r'^crear_detalle_orden_servicios/$', CrearDetalleOrdenServicios.as_view(),
         name="crear_detalle_orden_servicios"),
     re_path(r'^crear_cotizacion/$', CrearCotizacion.as_view(), name="crear_cotizacion"),
-    re_path(r'^crear_detalle_cotizacion/$', CrearDetalleCotizacion.as_view(),
-        name="crear_detalle_cotizacion"),
     re_path(r'^cargar_proveedores/$', CargarProveedores.as_view(), name="cargar_proveedores"),
     re_path(r'^modificar_proveedor/(?P<pk>.+)/$', ModificarProveedor.as_view(), name="modificar_proveedor"),
     re_path(r'^modificar_orden_compra/(?P<pk>.+)/$', ModificarOrdenCompra.as_view(),

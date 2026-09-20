@@ -3,7 +3,7 @@ from django import forms
 
 from administracion.models import Productor, Trabajador
 from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
-from contabilidad.models import Tipo, Upload
+from contabilidad.models import Upload
 import datetime
 from compras.models import OrdenCompra
 from django.utils import timezone
@@ -28,22 +28,6 @@ class TipoMovimientoForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         self.instance.aestado = self.aestado
         return super(TipoMovimientoForm, self).save(*args, **kwargs)
-
-
-class TipoSalidaForm(forms.ModelForm):
-    class Meta:
-        model = Tipo
-        fields = ['codigo', 'descripcion_valor']
-
-    def __init__(self, *args, **kwargs):
-        self.tabla = "tipo_Salida"
-        self.descripcion_campo = "tipo_Salida"
-        super(TipoSalidaForm, self).__init__(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        self.instance.tabla = self.tabla
-        self.instance.descripcion_campo = self.descripcion_campo
-        super(TipoSalidaForm, self).save(*args, **kwargs)
 
 
 class AlmacenForm(forms.ModelForm):

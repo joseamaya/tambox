@@ -1,8 +1,7 @@
 from django.urls import re_path
 from almacen.views import CrearAlmacen, RegistrarIngresoAlmacen, RegistrarSalidaAlmacen, \
-    CrearTipoSalida, CrearDetalleSalida, \
-    ReportePDFProductos, CrearTipoMovimiento, ListadoAlmacenes, ListadoTiposUnidadMedida, \
-    ListadoTiposStock, Tablero, ListadoTiposMovimiento, VerificarSolicitaDocumento, \
+    CrearDetalleSalida, \
+    ReportePDFProductos, CrearTipoMovimiento, ListadoAlmacenes, Tablero, ListadoTiposMovimiento, VerificarSolicitaDocumento, \
     ReporteExcelMovimientos, ReporteExcelMovimientosPorFecha, ListadoMovimientos, CrearDetalleIngreso, \
     ConsultaStock, BusquedaProductosAlmacen, ReportePDFMovimiento, ReporteKardex, DetalleAlmacen, \
     EliminarMovimiento, ModificarAlmacen, EliminarAlmacen, DetalleTipoMovimiento, ModificarMovimiento, \
@@ -23,7 +22,6 @@ urlpatterns = [
     re_path(r'^crear_pedido/$', CrearPedido.as_view(), name="crear_pedido"),
     re_path(r'^crear_detalle_pedido/$', CrearDetallePedido.as_view(), name="crear_detalle_pedido"),
     re_path(r'^crear_tipo_movimiento/$', CrearTipoMovimiento.as_view(), name="crear_tipo_movimiento"),
-    re_path(r'^crear_tipo_salida/$', CrearTipoSalida.as_view(), name="crear_tipo_salida"),
     re_path(r'^crear_detalle_salida/$', CrearDetalleSalida.as_view(), name="crear_detalle_salida"),
     re_path(r'^crear_detalle_ingreso/$', CrearDetalleIngreso.as_view(), name="crear_detalle_ingreso"),
     re_path(r'^crear_almacen/$', CrearAlmacen.as_view(), name="crear_almacen"),
@@ -32,8 +30,6 @@ urlpatterns = [
     re_path(r'^listado_ingresos/$', ListadoIngresos.as_view(), name="listado_ingresos"),
     re_path(r'^listado_salidas/$', ListadoSalidas.as_view(), name="listado_salidas"),
     re_path(r'^pedidos/$', ListadoPedidos.as_view(), name="pedidos"),
-    re_path(r'^tipos_unidad_medida/$', ListadoTiposUnidadMedida.as_view(), name="tipos_unidad_medida"),
-    re_path(r'^tipos_stock/$', ListadoTiposStock.as_view(), name="tipos_stock"),
     re_path(r'^tipos_movimientos/$', ListadoTiposMovimiento.as_view(), name="tipos_movimientos"),
     re_path(r'^modificar_almacen/(?P<pk>.+)/$', ModificarAlmacen.as_view(), name="modificar_almacen"),
     re_path(r'^modificar_movimiento/(?P<pk>.+)/$', ModificarMovimiento.as_view(),
