@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.models import Permission, User
 from django.contrib.messages.storage.cookie import CookieStorage
 from django.test import RequestFactory, TestCase
-from django.urls import get_resolver
+from django.urls import NoReverseMatch, get_resolver, reverse
 from django.views.generic import TemplateView
 
 from almacen.forms import FormularioReporteMovimientos
@@ -192,6 +192,77 @@ class PermisosDeclaradosTest(TestCase):
         for permiso in declarados:
             with self.subTest(permiso=permiso):
                 self.assertIn(permiso, existentes)
+
+
+class TodasLasPaginasTest(TestCase):
+    """Pide con sesion todas las URLs invertibles y exige que ninguna devuelva
+    500.
+
+    Es la red que hace seguro tocar plantillas: sin esto, un `{% include %}` mal
+    armado al deduplicar plantillas solo se descubriria al abrir la pagina.
+
+    `PENDIENTES` es la deuda conocida y la lista tiene que ser exacta: la prueba
+    compara el conjunto de fallos con estas claves, asi que arreglar una pagina
+    obliga a sacarla de aqui, y romper una nueva falla de inmediato.
+    """
+
+    PENDIENTES = {
+        # Endpoints que el JavaScript llama con la cabecera X-Requested-With y
+        # parametros; sin ellos la vista cae por el `if` y devuelve None.
+        'almacen:crear_detalle_pedido': 'espera parametros del JavaScript',
+        'almacen:crear_detalle_salida': 'espera parametros del JavaScript',
+        'almacen:crear_detalle_ingreso': 'espera parametros del JavaScript',
+        'almacen:consulta_stock': 'espera parametros del JavaScript',
+        'almacen:busqueda_productos_almacen': 'espera parametros del JavaScript',
+        'almacen:listado_stock_producto': 'espera parametros del JavaScript',
+        'almacen:verificar_solicita_documento': 'espera el parametro "tipo"',
+        'almacen:verificar_pide_referencia': 'espera el parametro "tipo"',
+        'almacen:verificar_stock_para_pedido': 'espera el parametro "almacen"',
+        'compras:crear_detalle_orden_compra': 'espera parametros del JavaScript',
+        'compras:crear_detalle_orden_servicios': 'espera parametros del JavaScript',
+        'compras:busqueda_cotizacion': 'espera parametros del JavaScript',
+        'compras:busqueda_proveedores_razon_social': 'espera parametros del JavaScript',
+        'compras:busqueda_proveedores_ruc': 'espera parametros del JavaScript',
+        'compras:obtener_detalle_cotizacion': 'espera parametros del JavaScript',
+        'compras:obtener_detalle_orden_compra': 'espera parametros del JavaScript',
+        'compras:obtener_detalle_orden_servicios': 'espera parametros del JavaScript',
+        'contabilidad:obtener_tipo_cambio': 'espera parametros del JavaScript',
+        'administracion:busqueda_receptor_dni': 'espera parametros del JavaScript',
+        'administracion:busqueda_receptor_nombre': 'espera parametros del JavaScript',
+        'requerimientos:crear_detalle_requerimiento': 'espera parametros del JavaScript',
+        'requerimientos:obtener_detalle_requerimiento': 'espera parametros del JavaScript',
+        'productos:consulta_stock_producto': 'espera parametros del JavaScript',
+        'productos:busqueda_productos_descripcion': 'espera parametros del JavaScript',
+        'productos:busqueda_productos_codigo': 'espera parametros del JavaScript',
+        # Plantilla que no existe: decidir si se escribe o si la vista esta muerta.
+        'almacen:crear_tipo_salida': 'falta almacen/crear_tipo_salida.html',
+        'almacen:tipos_unidad_medida': 'falta almacen/tipos.html y contabilidad/tipo_list.html',
+        'almacen:tipos_stock': 'falta almacen/tipos.html y contabilidad/tipo_list.html',
+        'compras:crear_detalle_cotizacion': 'falta compras/crear_detalle_cotizacion.html',
+        'compras:crear_conformidad_servicio': "reversa 'crear_forma_pago', que no existe",
+    }
+
+    def setUp(self):
+        self.usuario = User.objects.create_superuser('navegante', 'navegante@example.com',
+                                                     'clave-segura-123')
+        self.client.force_login(self.usuario)
+
+    def test_ninguna_pagina_responde_500(self):
+        fallos = {}
+        for nombre, _ in recorrer_urls():
+            try:
+                url = reverse(nombre)
+            except NoReverseMatch:
+                continue    # necesita argumentos: la cubren los tests de su vista
+            try:
+                respuesta = self.client.get(url, raise_request_exception=False)
+                estado = respuesta.status_code
+            except Exception as error:
+                estado = '%s: %s' % (type(error).__name__, error)
+            if not isinstance(estado, int) or estado >= 500:
+                fallos[nombre] = '%s (%s) -> %s' % (nombre, url, estado)
+
+        self.assertEqual(sorted(fallos), sorted(self.PENDIENTES))
 
 
 class MensajesEnPantallaTest(TestCase):

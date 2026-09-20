@@ -637,10 +637,6 @@ class EliminarPedido(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class InicioOperaciones(TemplateView):
-    template_name = "inicio_operaciones.html"
-
-
 class ListadoAprobacionPedidos(ListView):
     model = Pedido
     template_name = 'almacen/listado_pedidos.html'
