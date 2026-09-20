@@ -60,12 +60,7 @@
                         <label>Motivo:</label>
                         {% if form.motivo.errors %}
                         {% for error in form.motivo.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.motivo }}
@@ -78,12 +73,7 @@
                         <label>Fecha:</label>
                         {% if form.fecha.errors %}
                         {% for error in form.fecha.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.fecha }}
@@ -92,12 +82,7 @@
                         <label>Mes en que se necesita:</label>
                         {% if form.mes.errors %}
                         {% for error in form.mes.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.mes }}
@@ -106,12 +91,7 @@
                         <label>Año en que se necesita:</label>
                         {% if form.annio.errors %}
                         {% for error in form.annio.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.annio }}
@@ -120,12 +100,7 @@
                         <label>Informe:</label>
                         {% if form.informe.errors %}
                         {% for error in form.informe.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.informe }}
@@ -138,12 +113,7 @@
                         <div class="checkbox">
                             {% if form.entrega_directa_solicitante.errors %}
                             {% for error in form.entrega_directa_solicitante.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
@@ -186,12 +156,7 @@
                             <td>
                                 {% if detalle_requerimiento_form.codigo.errors %}
                                 {% for error in detalle_requerimiento_form.codigo.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_requerimiento_form.codigo }}
@@ -199,12 +164,7 @@
                             <td>
                                 {% if detalle_requerimiento_form.producto.errors %}
                                 {% for error in detalle_requerimiento_form.producto.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_requerimiento_form.producto }}
@@ -212,12 +172,7 @@
                             <td>
                                 {% if detalle_requerimiento_form.unidad.errors %}
                                 {% for error in detalle_requerimiento_form.unidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_requerimiento_form.unidad }}
@@ -225,12 +180,7 @@
                             <td>
                                 {% if detalle_requerimiento_form.cantidad.errors %}
                                 {% for error in detalle_requerimiento_form.cantidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_requerimiento_form.cantidad }}
@@ -238,12 +188,7 @@
                             <td>
                                 {% if detalle_requerimiento_form.uso.errors %}
                                 {% for error in detalle_requerimiento_form.uso.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_requerimiento_form.uso }}

@@ -49,12 +49,7 @@
                     <label>Descripción:</label>
                     {% if form.descripcion.errors %}
                     {% for error in form.descripcion.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     <h3>{{ form.descripcion }}</h3>
@@ -69,24 +64,14 @@
                     <label>CUENTA:</label>
                     {% if form.cuenta.errors %}
                     {% for error in form.cuenta.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     <p>{{ form.cuenta }}</p>
                     <label>DEPRECIACIÓN: </label>
                     {% if form.depreciacion.errors %}
                     {% for error in form.depreciacion.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     <p>{{ form.depreciacion }}</p>

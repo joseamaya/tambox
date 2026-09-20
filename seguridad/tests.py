@@ -235,6 +235,27 @@ class TodasLasPaginasTest(TestCase):
         self.assertEqual(sorted(fallos), sorted(self.PENDIENTES))
 
 
+class ErroresDeFormularioTest(TestCase):
+    """Los bloques de error de los formularios son dos includes compartidos.
+
+    El test de paginas no ejerce este caso: pide los formularios sin errores, y
+    un `{% include %}` dentro de un `{% if %}` falso no se renderiza, asi que un
+    include roto solo se veria cuando un formulario falla de verdad.
+    """
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('errores', 'errores@example.com',
+                                                              'clave-segura-123'))
+
+    def test_el_error_de_un_campo_se_ve(self):
+        respuesta = self.client.post(reverse('contabilidad:crear_cuenta_contable'), {})
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTrue(respuesta.context['form'].errors)
+        self.assertContains(respuesta, 'Error:')
+        self.assertContains(respuesta, 'alert-danger')
+
+
 class MensajesEnPantallaTest(TestCase):
     """`base.html` no pintaba los mensajes: el context processor estaba puesto,
     pero los `messages.error` del proyecto se perdian y el usuario no se

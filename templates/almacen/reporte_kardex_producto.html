@@ -17,12 +17,7 @@
                         <label>Almacén:</label>
                         {% if form.almacenes.errors %}
                         {% for error in form.almacenes.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.almacenes }}
@@ -31,12 +26,7 @@
                         <label>Desde:</label>
                         {% if form.desde.errors %}
                         {% for error in form.desde.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.desde }}
@@ -45,12 +35,7 @@
                         <label>Hasta:</label>
                         {% if form.hasta.errors %}
                         {% for error in form.hasta.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.hasta }}
@@ -63,12 +48,7 @@
                         <label for="codigo">Codigo de Producto: </label>
                         {% if form.cod_producto.errors %}
                         {% for error in form.cod_producto.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.cod_producto }}
@@ -77,12 +57,7 @@
                         <label for="descripcion">Descripcion de Producto: </label>
                         {% if form.desc_producto.errors %}
                         {% for error in form.desc_producto.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.desc_producto }}
@@ -95,12 +70,7 @@
                         <label for="codigo">FORMATO PARA SUNAT : </label>
                         {% if form.formato_sunat.errors %}
                         {% for error in form.formato_sunat.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.formato_sunat }}
@@ -114,12 +84,7 @@
                         <label for="codigo">ESCOJA EL FORMATO: </label>
                         {% if form.formatos.errors %}
                         {% for error in form.formatos.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.formatos }}

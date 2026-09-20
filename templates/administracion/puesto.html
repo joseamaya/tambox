@@ -48,12 +48,7 @@
                     <label>Descripción:</label>
                     {% if form.nombre.errors %}
                     {% for error in form.nombre.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     <h3>{{ form.nombre }}</h3>
@@ -82,36 +77,21 @@
                             <label>TRABAJADOR:</label>
                             {% if form.trabajador.errors %}
                             {% for error in form.trabajador.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             {{ form.trabajador }}
                             <label>OFICINA:</label>
                             {% if form.oficina.errors %}
                             {% for error in form.oficina.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             {{ form.oficina }}
                             <label>FECHA INICIO:</label>
                             {% if form.fecha_inicio.errors %}
                             {% for error in form.fecha_inicio.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             {{ form.fecha_inicio }}
@@ -120,12 +100,7 @@
                             <label>FECHA FIN:</label>
                             {% if form.fecha_fin.errors %}
                             {% for error in form.fecha_fin.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             {{ form.fecha_fin }}

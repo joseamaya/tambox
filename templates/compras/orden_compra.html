@@ -42,12 +42,7 @@
     <hr/>
     <div class="panel panel-primary">
         {% if form.non_field_errors %}
-        <div class="alert alert-danger alert-dismissible" role="alert">
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            {{ form.non_field_errors }}
-        </div>
+        {% include "includes/errores_generales.html" %}
         {% endif %}
         <div class="panel-body">
             {% csrf_token %}
@@ -68,12 +63,7 @@
                         <label>RUC:</label>
                         {% if form.ruc.errors %}
                         {% for error in form.ruc.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.ruc }}
@@ -82,12 +72,7 @@
                         <label>Razón Social:</label>
                         {% if form.razon_social.errors %}
                         {% for error in form.razon_social.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.razon_social }}
@@ -96,12 +81,7 @@
                         <label>DIRECCIÓN:</label>
                         {% if form.direccion.errors %}
                         {% for error in form.direccion.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.direccion }}
@@ -114,12 +94,7 @@
                         <label>FECHA:</label>
                         {% if form.fecha.errors %}
                         {% for error in form.fecha.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.fecha }}
@@ -128,12 +103,7 @@
                         <label>FORMA DE PAGO:</label>
                         {% if form.forma_pago.errors %}
                         {% for error in form.forma_pago.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.forma_pago }}
@@ -142,12 +112,7 @@
                         <label>COTIZACION:</label>
                         {% if form.referencia.errors %}
                         {% for error in form.referencia.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.referencia }}
@@ -166,12 +131,7 @@
                         <div class="checkbox">
                             {% if form.con_impuesto.errors %}
                             {% for error in form.con_impuesto.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
@@ -183,12 +143,7 @@
                         <div class="checkbox">
                             {% if form.dolares.errors %}
                             {% for error in form.dolares.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
@@ -233,12 +188,7 @@
                                 {{ detalle_orden_compra_form.cotizacion }}
                                 {% if detalle_orden_compra_form.codigo.errors %}
                                 {% for error in detalle_orden_compra_form.codigo.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.codigo }}
@@ -246,12 +196,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.nombre.errors %}
                                 {% for error in detalle_orden_compra_form.nombre.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.nombre }}
@@ -259,12 +204,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.unidad.errors %}
                                 {% for error in detalle_orden_compra_form.unidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.unidad }}
@@ -272,12 +212,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.cantidad.errors %}
                                 {% for error in detalle_orden_compra_form.cantidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.cantidad }}
@@ -285,12 +220,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.precio.errors %}
                                 {% for error in detalle_orden_compra_form.precio.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.precio }}
@@ -298,12 +228,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.impuesto.errors %}
                                 {% for error in detalle_orden_compra_form.impuesto.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.impuesto }}
@@ -311,12 +236,7 @@
                             <td>
                                 {% if detalle_orden_compra_form.valor.errors %}
                                 {% for error in detalle_orden_compra_form.valor.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_orden_compra_form.valor }}
@@ -345,12 +265,7 @@
                             <td WIDTH="550">
                                 {% if form.total_letras.errors %}
                                 {% for error in form.total_letras.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ form.total_letras }}
@@ -361,12 +276,7 @@
                             <td>
                                 {% if form.subtotal.errors %}
                                 {% for error in form.subtotal.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ form.subtotal }}
@@ -386,12 +296,7 @@
                             <td>
                                 {% if form.impuesto.errors %}
                                 {% for error in form.impuesto.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ form.impuesto }}
@@ -411,12 +316,7 @@
                             <td>
                                 {% if form.total.errors %}
                                 {% for error in form.total.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ form.total }}
@@ -433,12 +333,7 @@
                     <label>OBSERVACIONES:</label>
                     {% if form.observaciones.errors %}
                     {% for error in form.observaciones.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     {{ form.observaciones }}

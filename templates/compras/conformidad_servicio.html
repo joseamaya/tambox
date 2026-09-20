@@ -50,12 +50,7 @@
                         <label>FECHA:</label>
                         {% if form.fecha.errors %}
                         {% for error in form.fecha.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.fecha }}
@@ -64,12 +59,7 @@
                         <label>Orden de Servicios:</label>
                         {% if form.referencia.errors %}
                         {% for error in form.referencia.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.referencia }}
@@ -87,12 +77,7 @@
                         <label>Doc. Sustento:</label>
                         {% if form.doc_sustento.errors %}
                         {% for error in form.doc_sustento.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.doc_sustento }}
@@ -101,12 +86,7 @@
                         <label>Archivo:</label>
                         {% if form.archivo.errors %}
                         {% for error in form.archivo.errors %}
-                        <div class="alert alert-danger alert-dismissible" role="alert">
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                            <strong>Error: </strong> {{ error|escape }}
-                        </div>
+                        {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
                         {{ form.archivo }}
@@ -135,12 +115,7 @@
                             <td>
                                 {% if detalle_conformidad_servicio_form.cantidad.errors %}
                                 {% for error in detalle_conformidad_servicio_form.cantidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_conformidad_servicio_form.cantidad }}
@@ -148,12 +123,7 @@
                             <td>
                                 {% if detalle_conformidad_servicio_form.nombre.errors %}
                                 {% for error in detalle_conformidad_servicio_form.nombre.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_conformidad_servicio_form.nombre }}
@@ -161,12 +131,7 @@
                             <td>
                                 {% if detalle_conformidad_servicio_form.unidad.errors %}
                                 {% for error in detalle_conformidad_servicio_form.unidad.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_conformidad_servicio_form.unidad }}
@@ -175,12 +140,7 @@
                             <td>
                                 {% if detalle_conformidad_servicio_form.precio.errors %}
                                 {% for error in detalle_conformidad_servicio_form.precio.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_conformidad_servicio_form.precio }}
@@ -188,12 +148,7 @@
                             <td>
                                 {% if detalle_conformidad_servicio_form.valor.errors %}
                                 {% for error in detalle_conformidad_servicio_form.valor.errors %}
-                                <div class="alert alert-danger alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>Error: </strong> {{ error|escape }}
-                                </div>
+                                {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_conformidad_servicio_form.valor }}

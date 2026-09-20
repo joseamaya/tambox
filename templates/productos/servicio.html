@@ -48,12 +48,7 @@
                     <label>Descripción:</label>
                     {% if form.descripcion.errors %}
                     {% for error in form.descripcion.errors %}
-                    <div class="alert alert-danger alert-dismissible" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <strong>Error: </strong> {{ error|escape }}
-                    </div>
+                    {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
                     <p>{{ form.descripcion }}
@@ -80,36 +75,21 @@
                             <label>CODIGO:</label>
                             {% if form.codigo.errors %}
                             {% for error in form.codigo.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <p>{{ object.codigo }}</p>
                             <label>GRUPO SERVICIOS:</label>
                             {% if form.grupo_productos.errors %}
                             {% for error in form.grupo_productos.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <p>{{ form.grupo_productos }}</p>
                             <label>UNIDAD DE MEDIDA:</label>
                             {% if form.unidad_medida.errors %}
                             {% for error in form.unidad_medida.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <p>{{ object.unidad_medida }}</p>
@@ -118,12 +98,7 @@
                             <label>PRECIO:</label>
                             {% if form.precio.errors %}
                             {% for error in form.precio.errors %}
-                            <div class="alert alert-danger alert-dismissible" role="alert">
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                                <strong>Error: </strong> {{ error|escape }}
-                            </div>
+                            {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             {{ form.precio }}
