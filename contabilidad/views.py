@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from contabilidad.forms import UploadForm
-from tambox.vistas import CargarCsvMixin
+from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 import datetime
@@ -393,7 +393,7 @@ class ModificarImpuesto(UpdateView):
         return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])
 
 
-class ObtenerTipoCambio(TemplateView):
+class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

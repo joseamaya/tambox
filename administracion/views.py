@@ -6,7 +6,7 @@ from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, Modifi
     ProfesionForm, NivelAprobacionForm, ProductorForm
 from almacen.models import TipoMovimiento
 from contabilidad.forms import UploadForm
-from tambox.vistas import CargarCsvMixin
+from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
@@ -55,7 +55,7 @@ class Tablero(View):
         return render(request, 'administracion/tablero_administracion.html', context)
 
 
-class BusquedaReceptorDni(TemplateView):
+class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
@@ -71,7 +71,7 @@ class BusquedaReceptorDni(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaReceptorNombre(TemplateView):
+class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             nombre = request.GET['nombre']

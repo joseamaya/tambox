@@ -19,7 +19,7 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
     UnidadMedidaForm
 from contabilidad.models import CuentaContable, TipoExistencia
-from tambox.vistas import CargarCsvMixin
+from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class Tablero(View):
         return render(request, 'productos/tablero_productos.html', context)
 
 
-class BusquedaProductosDescripcion(TemplateView):
+class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -79,7 +79,7 @@ class BusquedaProductosDescripcion(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProductosCodigo(TemplateView):
+class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -156,7 +156,7 @@ class CargarProductos(CargarCsvMixin, FormView):
             logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
 
 
-class ConsultaStockProducto(TemplateView):
+class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

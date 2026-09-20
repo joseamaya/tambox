@@ -33,6 +33,7 @@ from tambox.configuracion import configuracion, oficina_administracion, \
 locale.setlocale(locale.LC_ALL, "")
 
 
+from tambox.vistas import SoloAjaxMixin
 class Tablero(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
@@ -68,7 +69,7 @@ class AprobarRequerimiento(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CrearDetalleRequerimiento(FormView):
+class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
@@ -379,7 +380,7 @@ class ModificarRequerimiento(UpdateView):
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
-class ObtenerDetalleRequerimiento(TemplateView):
+class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             requerimiento = request.GET['requerimiento']

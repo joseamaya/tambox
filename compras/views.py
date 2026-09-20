@@ -37,7 +37,7 @@ from datetime import date
 from compras.reports import reporte_xls_orden_compra, PDFOrdenCompra, \
     PDFOrdenServicios, PDFMemorandoConformidadServicio, PDFSolicitudCotizacion
 from tambox.configuracion import configuracion, impuesto_compra
-from tambox.vistas import CargarCsvMixin
+from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
@@ -70,7 +70,7 @@ class Tablero(View):
         return render(request, 'compras/tablero_compras.html', context)
 
 
-class BusquedaCotizacion(TemplateView):
+class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -84,7 +84,7 @@ class BusquedaCotizacion(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProveedoresRazonSocial(TemplateView):
+class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -102,7 +102,7 @@ class BusquedaProveedoresRazonSocial(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProveedoresRUC(TemplateView):
+class BusquedaProveedoresRUC(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -149,7 +149,7 @@ class CrearProveedor(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CrearDetalleOrdenCompra(TemplateView):
+class CrearDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -181,7 +181,7 @@ class CrearDetalleOrdenCompra(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetalleOrdenServicios(TemplateView):
+class CrearDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1209,7 +1209,7 @@ class ModificarOrdenServicios(UpdateView):
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
-class ObtenerDetalleCotizacion(TemplateView):
+class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1284,7 +1284,7 @@ class ObtenerDetalleCotizacion(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ObtenerDetalleOrdenCompra(TemplateView):
+class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
     def obtener_fecha(self, r_fecha):
         anio = int(r_fecha[6:])
@@ -1342,7 +1342,7 @@ class ObtenerDetalleOrdenCompra(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ObtenerDetalleOrdenServicios(TemplateView):
+class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

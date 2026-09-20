@@ -1,4 +1,20 @@
+from django.http import HttpResponseBadRequest
+
 from tambox.importacion import leer_filas
+
+
+class SoloAjaxMixin(object):
+    """Para las vistas que solo existen para el JavaScript del sistema.
+
+    Antes cada una verificaba la cabecera dentro de su `get` y, si faltaba,
+    caia por el `if` y devolvia None: Django lo convierte en un 500. Aqui la
+    peticion que no viene del JavaScript recibe un 400, que es lo que es.
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
+            return HttpResponseBadRequest('Esta direccion responde al JavaScript del sistema.')
+        return super(SoloAjaxMixin, self).dispatch(request, *args, **kwargs)
 
 
 class CargarCsvMixin(object):

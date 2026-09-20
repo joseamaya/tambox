@@ -41,7 +41,7 @@ from productos.models import Producto
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
 from tambox.configuracion import logistica
-from tambox.vistas import CargarCsvMixin
+from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from datetime import date
 
 locale.setlocale(locale.LC_ALL, "")
@@ -197,7 +197,7 @@ class AprobarPedido(CreateView):
                                                              detalle_salida_formset=detalle_salida_formset))
 
 
-class BusquedaProductosAlmacen(TemplateView):
+class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -356,7 +356,7 @@ class CrearAlmacen(FormView):
         return super(CrearDetalleSalida, self).form_valid(form)'''
 
 
-class CrearDetalleSalida(TemplateView):
+class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -384,7 +384,7 @@ class CrearDetalleSalida(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetallePedido(TemplateView):
+class CrearDetallePedido(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -408,7 +408,7 @@ class CrearDetallePedido(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetalleIngreso(TemplateView):
+class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -512,7 +512,7 @@ class CrearPedido(CreateView):
                                                              detalle_pedido_formset=detalle_pedido_formset))
 
 
-class ConsultaStock(TemplateView):
+class ConsultaStock(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             almacen = request.GET['almacen']
@@ -1568,7 +1568,7 @@ class StockProductos(FormView):
         return response
 
 
-class ListadoStockProducto(TemplateView):
+class ListadoStockProducto(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1791,7 +1791,7 @@ class ReportePDFProductos(View):
         return response
 
 
-class VerificarSolicitaDocumento(TemplateView):
+class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
@@ -1800,7 +1800,7 @@ class VerificarSolicitaDocumento(TemplateView):
         return JsonResponse(json_object)
 
 
-class VerificarPideReferencia(TemplateView):
+class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
@@ -1809,7 +1809,7 @@ class VerificarPideReferencia(TemplateView):
         return JsonResponse(json_object)
 
 
-class VerificarStockParaPedido(TemplateView):
+class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         almacen = request.GET['almacen']

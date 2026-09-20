@@ -206,34 +206,10 @@ class TodasLasPaginasTest(TestCase):
     obliga a sacarla de aqui, y romper una nueva falla de inmediato.
     """
 
+    # Vacio: no queda ninguna pagina que responda 500. La prueba compara el
+    # conjunto de fallos con estas claves, asi que si una pagina nueva empieza a
+    # fallar aparece aqui de inmediato, y si se arregla hay que sacarla.
     PENDIENTES = {
-        # Endpoints que el JavaScript llama con la cabecera X-Requested-With y
-        # parametros; sin ellos la vista cae por el `if` y devuelve None.
-        'almacen:crear_detalle_pedido': 'espera parametros del JavaScript',
-        'almacen:crear_detalle_salida': 'espera parametros del JavaScript',
-        'almacen:crear_detalle_ingreso': 'espera parametros del JavaScript',
-        'almacen:consulta_stock': 'espera parametros del JavaScript',
-        'almacen:busqueda_productos_almacen': 'espera parametros del JavaScript',
-        'almacen:listado_stock_producto': 'espera parametros del JavaScript',
-        'almacen:verificar_solicita_documento': 'espera el parametro "tipo"',
-        'almacen:verificar_pide_referencia': 'espera el parametro "tipo"',
-        'almacen:verificar_stock_para_pedido': 'espera el parametro "almacen"',
-        'compras:crear_detalle_orden_compra': 'espera parametros del JavaScript',
-        'compras:crear_detalle_orden_servicios': 'espera parametros del JavaScript',
-        'compras:busqueda_cotizacion': 'espera parametros del JavaScript',
-        'compras:busqueda_proveedores_razon_social': 'espera parametros del JavaScript',
-        'compras:busqueda_proveedores_ruc': 'espera parametros del JavaScript',
-        'compras:obtener_detalle_cotizacion': 'espera parametros del JavaScript',
-        'compras:obtener_detalle_orden_compra': 'espera parametros del JavaScript',
-        'compras:obtener_detalle_orden_servicios': 'espera parametros del JavaScript',
-        'contabilidad:obtener_tipo_cambio': 'espera parametros del JavaScript',
-        'administracion:busqueda_receptor_dni': 'espera parametros del JavaScript',
-        'administracion:busqueda_receptor_nombre': 'espera parametros del JavaScript',
-        'requerimientos:crear_detalle_requerimiento': 'espera parametros del JavaScript',
-        'requerimientos:obtener_detalle_requerimiento': 'espera parametros del JavaScript',
-        'productos:consulta_stock_producto': 'espera parametros del JavaScript',
-        'productos:busqueda_productos_descripcion': 'espera parametros del JavaScript',
-        'productos:busqueda_productos_codigo': 'espera parametros del JavaScript',
     }
 
     def setUp(self):
