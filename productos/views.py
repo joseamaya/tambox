@@ -43,27 +43,27 @@ class Dashboard(View):
         if cant_grupos_suministros == 0:
             lista_notificaciones.append("No se ha creado ningún grupo de productos")
         if cant_servicios == 0:
-            lista_notificaciones.append("No se ha creado ningún servicio")
+            lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'productos/tablero_productos.html', context)
 
 
 class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
 
-    required_params = ('description', 'tipo_busqueda')
+    required_params = ('description', 'search_type')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             description = request.GET['description']
-            tipo_busqueda = request.GET['tipo_busqueda']
-            if tipo_busqueda == 'TODOS':
+            search_type = request.GET['search_type']
+            if search_type == 'TODOS':
                 productos = Product.objects.filter(description__icontains=description).select_related(
                     'unit_of_measure').order_by('description')[:20]
-            elif tipo_busqueda == 'PRODUCTOS':
+            elif search_type == 'PRODUCTOS':
                 productos = Product.objects.filter(description__icontains=description,
                                                     is_service=False).select_related(
                     'unit_of_measure').order_by('description')[:20]
-            elif tipo_busqueda == 'SERVICIOS':
+            elif search_type == 'SERVICIOS':
                 productos = Product.objects.filter(description__icontains=description,
                                                     is_service=True).select_related(
                     'unit_of_measure').order_by('description')[:20]
@@ -74,7 +74,7 @@ class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
                 producto_json['label'] = product.description
                 producto_json['code'] = product.code
                 producto_json['description'] = product.description
-                producto_json['unidad'] = product.unit_of_measure.description
+                producto_json['unit'] = product.unit_of_measure.description
                 producto_json['price'] = str(product.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
@@ -95,7 +95,7 @@ class ProductCodeSearch(AjaxOnlyMixin, TemplateView):
                 producto_json['label'] = product.code
                 producto_json['code'] = product.code
                 producto_json['description'] = product.description
-                producto_json['unidad'] = product.unit_of_measure.description
+                producto_json['unit'] = product.unit_of_measure.description
                 producto_json['price'] = str(product.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
@@ -264,7 +264,7 @@ class UnitOfMeasureDelete(TemplateView):
             id = request.POST['id']
             unit_of_measure = UnitOfMeasure.objects.get(pk=id)
             unidad_medida_json = {}
-            unidad_medida_json['unidad'] = unit_of_measure.unidad
+            unidad_medida_json['unit'] = unit_of_measure.unit
             if len(unit_of_measure.products.all()) > 0:
                 unidad_medida_json['productos'] = 'SI'
             else:
@@ -332,10 +332,10 @@ class ServiceDelete(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            servicio = Product.objects.get(code=code)
+            service = Product.objects.get(code=code)
             servicio_json = {}
             servicio_json['code'] = code
-            if len(servicio.service_order_details.all()) > 0:
+            if len(service.service_order_details.all()) > 0:
                 servicio_json['ordenes'] = 'SI'
             else:
                 servicio_json['ordenes'] = 'NO'
@@ -539,10 +539,10 @@ class UnitOfMeasureExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for unidad in unidades:
-            ws.cell(row=cont, column=2).value = unidad.code
-            ws.cell(row=cont, column=3).value = unidad.description
-            ws.cell(row=cont, column=4).value = unidad.is_active
+        for unit in unidades:
+            ws.cell(row=cont, column=2).value = unit.code
+            ws.cell(row=cont, column=3).value = unit.description
+            ws.cell(row=cont, column=4).value = unit.is_active
             cont = cont + 1
         nombre_archivo = "UnidadesMedida.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -564,10 +564,10 @@ class ServiceExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for servicio in servicios:
-            ws.cell(row=cont, column=2).value = servicio.code
-            ws.cell(row=cont, column=3).value = servicio.description
-            ws.cell(row=cont, column=4).value = servicio.is_active
+        for service in servicios:
+            ws.cell(row=cont, column=2).value = service.code
+            ws.cell(row=cont, column=3).value = service.description
+            ws.cell(row=cont, column=4).value = service.is_active
             cont = cont + 1
         nombre_archivo = "ServiceList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

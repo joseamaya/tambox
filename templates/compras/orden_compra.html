@@ -47,7 +47,7 @@
         <div class="panel-body">
             {% csrf_token %}
             <div class="form-group">
-                {{ form.impuesto_actual }}
+                {{ form.current_tax }}
                 {% if object %}
                 <div class="row">
                     <div class="col-md-2">
@@ -135,7 +135,7 @@
                             {% endfor %}
                             {% endif %}
                             <label>
-                                {{ form.with_tax }} Con impuesto
+                                {{ form.with_tax }} Con tax
                             </label>
                         </div>
                     </div>
@@ -202,12 +202,12 @@
                                 {{ detalle_orden_compra_form.name }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.unidad.errors %}
-                                {% for error in detalle_orden_compra_form.unidad.errors %}
+                                {% if detalle_orden_compra_form.unit.errors %}
+                                {% for error in detalle_orden_compra_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.unidad }}
+                                {{ detalle_orden_compra_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_orden_compra_form.quantity.errors %}
@@ -226,12 +226,12 @@
                                 {{ detalle_orden_compra_form.price }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.impuesto.errors %}
-                                {% for error in detalle_orden_compra_form.impuesto.errors %}
+                                {% if detalle_orden_compra_form.tax.errors %}
+                                {% for error in detalle_orden_compra_form.tax.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.impuesto }}
+                                {{ detalle_orden_compra_form.tax }}
                             </td>
                             <td>
                                 {% if detalle_orden_compra_form.amount.errors %}
@@ -294,12 +294,12 @@
                                 IGV
                             </td>
                             <td>
-                                {% if form.impuesto.errors %}
-                                {% for error in form.impuesto.errors %}
+                                {% if form.tax.errors %}
+                                {% for error in form.tax.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.impuesto }}
+                                {{ form.tax }}
                             </td>
                             <td WIDTH="60">
                             </td>
@@ -350,10 +350,10 @@
 <script>
 $(document).ready(function() 
 {
-	var porc_impuesto = parseFloat($("#id_impuesto_actual").val());
+	var porc_impuesto = parseFloat($("#id_current_tax").val());
 	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
 	var subtotal=parseFloat($('#id_subtotal').val());
-	var impuesto_total = parseFloat($('#id_impuesto').val());
+	var impuesto_total = parseFloat($('#id_tax').val());
 	var total=parseFloat($('#id_total').val());
 	var with_tax = false;
 	var tipo_cambio = 1;
@@ -391,10 +391,10 @@ $(document).ready(function()
 		var valorConIGV = 0;
 		var valorSinIGV = 0;
 		var imp = 0;
-		$(".impuesto").each(function()
+		$(".tax").each(function()
 		{
 			var id_input = $(this).prop('id');
-			var id = id_input.replace("impuesto","");
+			var id = id_input.replace("tax","");
 			var price = $("#"+id+"price").val();
 			var quantity = $("#"+id+"quantity").val();
 			if (with_tax)
@@ -410,12 +410,12 @@ $(document).ready(function()
 				imp = parseFloat(valorConIGV - valorSinIGV)
 			}
 			$("#"+id+"amount").val(valorSinIGV.toFixed(5));
-			$("#"+id+"impuesto").val(imp.toFixed(5));
+			$("#"+id+"tax").val(imp.toFixed(5));
 			subtotal = subtotal + parseFloat(valorSinIGV);
 			impuesto_total = impuesto_total + parseFloat(imp);
 			total = subtotal + impuesto_total;
 			$("#id_subtotal").val(subtotal.toFixed(2));
-			$("#id_impuesto").val(impuesto_total.toFixed(2));
+			$("#id_tax").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
 			$("#id_total_in_words").val(NumeroALetras(total));
 		});
@@ -469,13 +469,13 @@ $(document).ready(function()
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
 		var amount = $("#"+id+"amount").val();
-		var imp = $("#"+id+"impuesto").val();
+		var imp = $("#"+id+"tax").val();
 		subtotal=subtotal-parseFloat(amount);
 		impuesto_total = impuesto_total - parseFloat(imp)
 		total = subtotal + impuesto_total;
 		$(parent).remove();
 		$("#id_subtotal").val(subtotal.toFixed(2));
-		$("#id_impuesto").val(impuesto_total.toFixed(2));
+		$("#id_tax").val(impuesto_total.toFixed(2));
 		$("#id_total").val(total.toFixed(2));
 		$("#id_total_in_words").val(NumeroALetras(total));
 		contDetalles = contDetalles - 1;
@@ -504,7 +504,7 @@ $(document).ready(function()
 		if (price != "" && quantity != "")
 		{
 			var valorAnt = $("#"+id+"amount").val();
-			var impAnt = $("#"+id+"impuesto").val();
+			var impAnt = $("#"+id+"tax").val();
 			if (with_tax)
 			{
 				var valorConIGV = parseFloat(quantity) * parseFloat(price);
@@ -518,12 +518,12 @@ $(document).ready(function()
 				var imp = parseFloat(valorConIGV - valorSinIGV)
 			}
 			$("#"+id+"amount").val(valorSinIGV.toFixed(5));
-			$("#"+id+"impuesto").val(imp.toFixed(5));
+			$("#"+id+"tax").val(imp.toFixed(5));
 			subtotal = subtotal - parseFloat(valorAnt) + parseFloat(valorSinIGV);
 			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
 			total = subtotal + impuesto_total;
 			$("#id_subtotal").val(subtotal.toFixed(2));
-			$("#id_impuesto").val(impuesto_total.toFixed(2));
+			$("#id_tax").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
 			$("#id_total_in_words").val(NumeroALetras(total));
 		}
@@ -543,10 +543,10 @@ $(document).ready(function()
 						"<tr class='detalle_orden_compra_formset'>" +
 						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
-						"<td>" + item.impuesto + "</td>" +
+						"<td>" + item.tax + "</td>" +
 						"<td>" + item.amount + "</td>" +
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
@@ -567,7 +567,7 @@ $(document).ready(function()
 			{
 				$.ajax({
 				  url: "{% url 'productos:product_description_search' %}",
-				  data: {'description': request.term,'tipo_busqueda': 'PRODUCTOS' },
+				  data: {'description': request.term,'search_type': 'PRODUCTOS' },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -581,7 +581,7 @@ $(document).ready(function()
 				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"unit").val(ui.item.unit);
 				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
@@ -616,7 +616,7 @@ $(document).ready(function()
 	{		
 		var quotation = $("#quotation").val();		
 		contDetalles = 0;
-		var impuesto = 0;
+		var tax = 0;
 		subtotal=0;
 		impuesto_total = 0;
 		total=0;
@@ -635,7 +635,7 @@ $(document).ready(function()
 	    });
 		
 		$.ajax({
-			data : {'quotation': quotation, 'tipo_busqueda': 'PRODUCTOS'},
+			data : {'quotation': quotation, 'search_type': 'PRODUCTOS'},
 			url : "{% url 'compras:quotation_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
@@ -645,16 +645,16 @@ $(document).ready(function()
 					"<tr class='detalle_orden_compra_formset'>" +
 						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
-						"<td>" + item.impuesto + "</td>" +
+						"<td>" + item.tax + "</td>" +
 						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = contDetalles + 1;
 					var val_temp = $("#id_form-"+i+"-amount").val()
-					var imp_temp = $("#id_form-"+i+"-impuesto").val()
+					var imp_temp = $("#id_form-"+i+"-tax").val()
 					total = total + parseFloat(val_temp);
 					impuesto_total = impuesto_total + parseFloat(imp_temp);					
 				});
@@ -662,7 +662,7 @@ $(document).ready(function()
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
 				$("#id_reference").val(quotation);				
 				$("#id_subtotal").val(subtotal.toFixed(2));
-				$("#id_impuesto").val(impuesto_total.toFixed(2));
+				$("#id_tax").val(impuesto_total.toFixed(2));
 				$("#id_total").val(total.toFixed(2));
 				$("#id_total_in_words").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);

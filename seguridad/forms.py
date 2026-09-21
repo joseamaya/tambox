@@ -6,39 +6,39 @@ from django.contrib.auth import logout
 
 
 class PasswordChangeForm(forms.Form):
-    password_actual = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password_nueva = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password_verificacion = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password_confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(PasswordChangeForm, self).__init__(*args, **kwargs)
 
     def clean_password_actual(self):
-        if self.cleaned_data.get('password_actual') and not self.request.user.check_password(
-                self.cleaned_data['password_actual']):
+        if self.cleaned_data.get('old_password') and not self.request.user.check_password(
+                self.cleaned_data['old_password']):
             raise ValidationError('La contraseña ingresada no es la actual.')
-        return self.cleaned_data['password_actual']
+        return self.cleaned_data['old_password']
 
     def clean_password_nueva(self):
-        if self.cleaned_data.get('password_nueva') and not len(self.cleaned_data['password_nueva']) > 6:
+        if self.cleaned_data.get('new_password') and not len(self.cleaned_data['new_password']) > 6:
             raise ValidationError('La nueva contraseña no cumple los requisitos de seguridad mínimos.')
-        return self.cleaned_data['password_nueva']
+        return self.cleaned_data['new_password']
 
     def clean_password_verificacion(self):
-        if self.cleaned_data.get('password_nueva') and self.cleaned_data.get('password_verificacion') and \
-                self.cleaned_data['password_nueva'] != self.cleaned_data['password_verificacion']:
+        if self.cleaned_data.get('new_password') and self.cleaned_data.get('password_confirmation') and \
+                self.cleaned_data['new_password'] != self.cleaned_data['password_confirmation']:
             raise ValidationError('Las contraseñas no coinciden')
-        return self.cleaned_data['password_verificacion']
+        return self.cleaned_data['password_confirmation']
 
     def clean(self):
         usuario = self.request.user
-        password_actual = self.cleaned_data.get('password_actual')
-        password_nueva = self.cleaned_data.get('password_nueva')
-        password_verificacion = self.cleaned_data.get('password_verificacion')
-        if password_actual and password_nueva and password_verificacion:
-            password_nueva = self.clean_password_nueva()
-            usuario.set_password(password_nueva)
+        old_password = self.cleaned_data.get('old_password')
+        new_password = self.cleaned_data.get('new_password')
+        password_confirmation = self.cleaned_data.get('password_confirmation')
+        if old_password and new_password and password_confirmation:
+            new_password = self.clean_password_nueva()
+            usuario.set_password(new_password)
             usuario.save()
             logout(self.request)
 

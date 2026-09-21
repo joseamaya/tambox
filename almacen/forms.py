@@ -47,7 +47,7 @@ class MovementDetailForm(forms.Form):
     warehouse = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    unidad = forms.CharField(max_length=6,
+    unit = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
@@ -58,39 +58,39 @@ class MovementDetailForm(forms.Form):
 
 
 class MovementReportForm(forms.Form):
-    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
+    search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=PARAMETROS)
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     month = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
-    tipos_movimiento = forms.ChoiceField(choices=[],
+    movement_types = forms.ChoiceField(choices=[],
                                          widget=forms.Select(attrs={'class': 'form-control'}))
-    almacenes = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
+    warehouses = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(MovementReportForm, self).__init__(*args, **kwargs)
-        self.fields['tipos_movimiento'].choices = movement_type_choices()
-        self.fields['almacenes'].choices = warehouse_choices()
+        self.fields['movement_types'].choices = movement_type_choices()
+        self.fields['warehouses'].choices = warehouse_choices()
 
     def clean_hasta(self):
-        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
-        return self.cleaned_data['hasta']
+        self.cleaned_data['end_date'] = self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
+        return self.cleaned_data['end_date']
 
 
 class MovementForm(forms.ModelForm):
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    doc_referencia = forms.CharField(max_length=100, widget=forms.TextInput(
+    time = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    reference_document = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    dni_receptor = forms.CharField(max_length=8, widget=forms.TextInput(
+    receiver_dni = forms.CharField(max_length=8, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    receptor = forms.CharField(max_length=150, widget=forms.TextInput(
+    receiver = forms.CharField(max_length=150, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    cdetalles = forms.CharField(widget=forms.HiddenInput(), initial=0)
+    details_count = forms.CharField(widget=forms.HiddenInput(), initial=0)
     total = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
@@ -103,9 +103,9 @@ class MovementForm(forms.ModelForm):
         self.fields['number'].required = False
         self.fields['notes'].required = False
         self.fields['office'].required = False
-        self.fields['dni_receptor'].required = False
-        self.fields['receptor'].required = False
-        self.fields['doc_referencia'].required = False
+        self.fields['receiver_dni'].required = False
+        self.fields['receiver'].required = False
+        self.fields['reference_document'].required = False
         if self.movement_type == 'I':
             self.fields['movement_type'].queryset = MovementType.objects.filter(increases=True)
         elif self.movement_type == 'S':
@@ -116,19 +116,19 @@ class MovementForm(forms.ModelForm):
             })
 
     def clean_dni_receptor(self):
-        dni_receptor = self.cleaned_data.get('dni_receptor')
-        if dni_receptor != "":
+        receiver_dni = self.cleaned_data.get('receiver_dni')
+        if receiver_dni != "":
             if self.cleaned_data['movement_type'].is_sale:
                 try:
-                    Producer.objects.get(dni=self.cleaned_data['dni_receptor'])
+                    Producer.objects.get(dni=self.cleaned_data['receiver_dni'])
                 except Producer.DoesNotExist:
                     raise ValidationError("El DNI no corresponde a ningun productor")
             else:
                 try:
-                    Worker.objects.get(dni=self.cleaned_data['dni_receptor'])
+                    Worker.objects.get(dni=self.cleaned_data['receiver_dni'])
                 except Worker.DoesNotExist:
                     raise ValidationError("El DNI no correspone a ningun trabajador")
-        return self.cleaned_data['dni_receptor']
+        return self.cleaned_data['receiver_dni']
 
     def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
@@ -144,20 +144,20 @@ class MovementForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         if self.movement_type == 'I':
             try:
-                self.instance.reference = PurchaseOrder.objects.get(code=self.cleaned_data['doc_referencia'])
+                self.instance.reference = PurchaseOrder.objects.get(code=self.cleaned_data['reference_document'])
             except ObjectDoesNotExist:
                 self.instance.reference = None
         if self.cleaned_data['movement_type'].is_sale:
             try:
-                self.instance.producer = Producer.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.producer = Producer.objects.get(dni=self.cleaned_data['receiver_dni'])
             except ObjectDoesNotExist:
                 self.instance.producer = None
         else:
             try:
-                self.instance.worker = Worker.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.worker = Worker.objects.get(dni=self.cleaned_data['receiver_dni'])
             except ObjectDoesNotExist:
                 self.instance.worker = None
-        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['time'])
         return super(MovementForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -167,59 +167,59 @@ class MovementForm(forms.ModelForm):
 
 
 class KardexProductForm(forms.Form):
-    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
+    warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    consolidado = forms.ChoiceField(choices=CHOICES_CONSOLIDADO, widget=forms.RadioSelect, required=False)
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    consolidated = forms.ChoiceField(choices=CHOICES_CONSOLIDADO, widget=forms.RadioSelect, required=False)
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    cod_producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    desc_producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),
+    product_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+    product_description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),
                                     required=False)
-    formato_sunat = forms.ChoiceField(choices=FORMATOS_SUNAT, widget=forms.RadioSelect, required=False)
-    formatos = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect)
+    sunat_format = forms.ChoiceField(choices=FORMATOS_SUNAT, widget=forms.RadioSelect, required=False)
+    formats = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect)
 
 
 class ProductMovementForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
     def clean_hasta(self):
-        self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
-        return self.cleaned_data['hasta']
+        self.cleaned_data['end_date'] = self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
+        return self.cleaned_data['end_date']
 
 
 class PriceReprocessForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    seleccion = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
+    selection = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
 
 
 class StockQueryForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
 
 
 class InitialInventoryImportForm(forms.ModelForm):
-    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
+    warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hora = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
+    time = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
 
     class Meta:
         model = Upload
@@ -262,9 +262,9 @@ class OrderForm(forms.ModelForm):
 
 
 class OrderApprovalForm(forms.ModelForm):
-    cod_pedido = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
+    order_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    time = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(attrs={'size': 10,
                                                                                               'readonly': "readonly",
                                                                                               'class': 'form-control'}))
@@ -291,8 +291,8 @@ class OrderApprovalForm(forms.ModelForm):
         return date
 
     def save(self, *args, **kwargs):
-        self.instance.order = Order.objects.get(code=self.cleaned_data['cod_pedido'])
-        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.order = Order.objects.get(code=self.cleaned_data['order_code'])
+        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['time'])
         self.instance.movement_type = MovementType.objects.get(code="S01")
         self.instance.office = self.instance.order.office
         return super(OrderApprovalForm, self).save(*args, **kwargs)
@@ -303,8 +303,8 @@ class OrderApprovalForm(forms.ModelForm):
 
 
 class OrderHeaderForm(forms.Form):
-    cod_pedido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
+    order_code = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
@@ -316,18 +316,18 @@ class OrderDetailForm(forms.Form):
     code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 17, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
-    unidad = forms.CharField(max_length=20,
+    unit = forms.CharField(max_length=20,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
 
 
 class InboundDetailForm(forms.Form):
-    orden_compra = forms.CharField(widget=forms.HiddenInput())
+    purchase_order = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8,
@@ -354,7 +354,7 @@ class OutboundDetailForm(forms.Form):
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
@@ -404,7 +404,7 @@ class BaseOrderDetailFormSet(formsets.BaseFormSet):
 class InventoryQueryForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
+    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
 

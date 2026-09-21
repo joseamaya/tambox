@@ -196,12 +196,12 @@
                                 {{ detalle_orden_servicios_form.name }}
                             </td>
                             <td>
-                                {% if detalle_orden_servicios_form.unidad.errors %}
-                                {% for error in detalle_orden_servicios_form.unidad.errors %}
+                                {% if detalle_orden_servicios_form.unit.errors %}
+                                {% for error in detalle_orden_servicios_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_servicios_form.unidad }}
+                                {{ detalle_orden_servicios_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_orden_servicios_form.quantity.errors %}
@@ -280,12 +280,12 @@
                                 IMPUESTO
                             </td>
                             <td>
-                                {% if form.impuesto.errors %}
-                                {% for error in form.impuesto.errors %}
+                                {% if form.tax.errors %}
+                                {% for error in form.tax.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.impuesto }}
+                                {{ form.tax }}
                             </td>
                             <td WIDTH="60">
                             </td>
@@ -453,7 +453,7 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 						"<tr class='detalle_orden_servicios_formset'>" +
 						"<td>" + item.quotation + item.code + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
 						"<td>" + item.amount + "</td>" +
@@ -476,7 +476,7 @@ $(document).ready(function()
 			{
 				$.ajax({
 				  url: "{% url 'productos:product_description_search' %}",
-				  data: {'description': request.term,'tipo_busqueda': 'SERVICIOS' },
+				  data: {'description': request.term,'search_type': 'SERVICIOS' },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -490,7 +490,7 @@ $(document).ready(function()
 				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"unit").val(ui.item.unit);
 				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
@@ -523,7 +523,7 @@ $(document).ready(function()
 	{		
 		var quotation = $("#quotation").val();		
 		var cont = 0;
-		var impuesto = 0;
+		var tax = 0;
 		subtotal=0;
 		impuesto_total = 0;
 		total=0;
@@ -543,7 +543,7 @@ $(document).ready(function()
 	    });
 		
 		$.ajax({
-			data : {'quotation': quotation, 'tipo_busqueda': 'SERVICIOS'},
+			data : {'quotation': quotation, 'search_type': 'SERVICIOS'},
 			url : "{% url 'compras:quotation_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
@@ -552,7 +552,7 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_orden_servicios_formset'>" +						
 						"<td>" + item.quotation + item.code + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
 						"<td>" + item.amount + "</td>" +
@@ -624,7 +624,7 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var cont=0;
-		$('#id_cdetalles').val(ultimo_item);
+		$('#id_details_count').val(ultimo_item);
 		var payment_method = $('#id_payment_method').val();
 		var tax_id = $('#id_tax_id').val();
 		var date = $('#id_date').val().trim();

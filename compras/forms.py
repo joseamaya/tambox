@@ -38,7 +38,7 @@ class SupplierForm(forms.ModelForm):
 class PurchaseOrderDetailForm(forms.Form):
     code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    unidad = forms.CharField(max_length=6,
+    unit = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
@@ -52,7 +52,7 @@ class ServiceOrderDetailForm(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    servicio = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    service = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
     price = forms.DecimalField(max_digits=15, decimal_places=5,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
@@ -61,7 +61,7 @@ class ServiceOrderDetailForm(forms.Form):
 
 
 class OrderDateReportForm(forms.Form):
-    tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
+    search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=PARAMETROS_BUSQUEDA)
     start_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                    label='Fecha de Inicio:', required=False)
@@ -129,10 +129,10 @@ class PurchaseOrderForm(forms.ModelForm):
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    impuesto_actual = forms.CharField(widget=forms.HiddenInput())
+    current_tax = forms.CharField(widget=forms.HiddenInput())
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    impuesto = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    tax = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
@@ -182,7 +182,7 @@ class ServiceOrderForm(forms.ModelForm):
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    impuesto = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    tax = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
@@ -259,7 +259,7 @@ class QuotationDetailForm(forms.Form):
         attrs={'size': 14, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 120, 'readonly': "readonly", 'class': 'form-control'}))
-    unidad = forms.CharField(max_length=6,
+    unit = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
@@ -270,12 +270,12 @@ class PurchaseOrderDetailLineForm(forms.Form):
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
-    impuesto = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    tax = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'impuesto decimal form-control'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
@@ -285,7 +285,7 @@ class ServiceOrderDetailLineForm(forms.Form):
     quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
     price = forms.DecimalField(max_digits=15, decimal_places=5,
@@ -298,7 +298,7 @@ class ServiceConformityDetailLineForm(forms.Form):
     service_order = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
-    servicio = forms.CharField(
+    service = forms.CharField(
         widget=forms.TextInput(attrs={'size': 35, 'readonly': "readonly", 'class': 'form-control'}))
     use = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}),
                           required=False)

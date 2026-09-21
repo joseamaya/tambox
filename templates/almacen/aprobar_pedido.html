@@ -39,7 +39,7 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.cod_pedido }}
+                        {{ form.order_code }}
                     </div>
                 </div>
                 <div class="row">
@@ -68,7 +68,7 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.hora }}
+                        {{ form.time }}
                     </div>
                 </div>
             </div>
@@ -108,12 +108,12 @@
                                 {{ detalle_salida_form.name }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.unidad.errors %}
-                                {% for error in detalle_salida_form.unidad.errors %}
+                                {% if detalle_salida_form.unit.errors %}
+                                {% for error in detalle_salida_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.unidad }}
+                                {{ detalle_salida_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.quantity.errors %}
@@ -183,7 +183,7 @@
             <div id="popup"></div>
             <div class="row">
                 <div class="col-lg-4">
-                    <input type="hidden" name="cdetalles" id="cdetalles" value={{ cant_detalles }}>
+                    <input type="hidden" name="details_count" id="details_count" value={{ cant_detalles }}>
                 </div>
             </div>
         </div>
@@ -200,7 +200,7 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
 	$("#id_date").datepicker();
-	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
 	$("#id_warehouse").on('change',verificar_stock_para_pedido);
 	
 	function agregarCero(n)
@@ -235,7 +235,7 @@ $(document).ready(function()
 					"<tr class='detalle_ingreso_formset'>" +
 						"<td>" + item.order + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
 						"<td>" + item.amount + "</td>" +
@@ -279,7 +279,7 @@ $(document).ready(function()
 		var quantity = $(this).val();
 		var id = id_cantidad.replace("quantity","");
 		var code = $("#code"+id).val();
-		var warehouse = $('#id_almacenes').val();
+		var warehouse = $('#id_warehouses').val();
 		$.ajax({
 	      url: "{% url 'almacen:stock_query' %}",
 	      data: {
@@ -302,8 +302,8 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var cont=0;
-		$('#cdetalles').val(ultimo_item);
-		var warehouse = $('#id_almacenes').val().trim();
+		$('#details_count').val(ultimo_item);
+		var warehouse = $('#id_warehouses').val().trim();
 		var date = $('#id_date').val().trim();
 		if(warehouse != '') 
 		{			

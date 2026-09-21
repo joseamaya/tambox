@@ -177,7 +177,7 @@
                         </td>
                         <td>{{ detail.quantity|floatformat:5 }}</td>
                         <td>{{ detail.price_without_tax|floatformat:5 }}</td>
-                        <td>{{ detail.impuesto|floatformat:5 }}</td>
+                        <td>{{ detail.tax|floatformat:5 }}</td>
                         <td>{{ detail.amount_without_tax|floatformat:5 }}</td>
                     </tr>
                     {% endfor %}
@@ -189,7 +189,7 @@
                         <td>{{ detail.product.unit_of_measure.description }}</td>
                         <td>{{ detail.quantity|floatformat:5 }}</td>
                         <td>{{ detail.price_without_tax|floatformat:5 }}</td>
-                        <td>{{ detail.impuesto|floatformat:5 }}</td>
+                        <td>{{ detail.tax|floatformat:5 }}</td>
                         <td>{{ detail.amount_without_tax|floatformat:5 }}</td>
                     </tr>
                     {% endfor %}
@@ -216,7 +216,7 @@
                             IGV:
                         </td>
                         <td>
-                            {{ object.impuesto|floatformat:2 }}
+                            {{ object.tax|floatformat:2 }}
                         </td>
                     </tr>
                     <tr>

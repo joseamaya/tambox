@@ -172,7 +172,7 @@ class EstadosDeDetalleTest(TestCase):
 
 
 class TotalesDeOrdenCompraTest(TestCase):
-    """`total` y `total_in_words` encadenan `subtotal` e `impuesto`, y las
+    """`total` y `total_in_words` encadenan `subtotal` e `tax`, y las
     plantillas las invocan mas de una vez: sin memorizar se repiten las
     consultas. No se convierten en agregados SQL porque redondean fila a fila."""
 
@@ -183,11 +183,11 @@ class TotalesDeOrdenCompraTest(TestCase):
             order.subtotal
 
         with self.assertNumQueries(1):
-            order.impuesto
+            order.tax
 
         with self.assertNumQueries(0):
             order.subtotal
-            order.impuesto
+            order.tax
             order.total
 
     def test_los_detalles_usan_la_cache_del_prefetch(self):
@@ -200,4 +200,4 @@ class TotalesDeOrdenCompraTest(TestCase):
         with self.assertNumQueries(0):
             for order in ordenes:
                 order.subtotal
-                order.impuesto
+                order.tax

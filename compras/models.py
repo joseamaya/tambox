@@ -278,11 +278,11 @@ class PurchaseOrder(TimeStampedModel):
 
     @property
     def total(self):
-        total = self.subtotal + self.impuesto
+        total = self.subtotal + self.tax
         return total
 
     @property
-    def impuesto(self):
+    def tax(self):
         """Se memoriza: `total` y `total_in_words` la encadenan, y las plantillas
         las invocan mas de una vez en la misma pagina.
 
@@ -293,7 +293,7 @@ class PurchaseOrder(TimeStampedModel):
         if not hasattr(self, '_impuesto_calculado'):
             imp = 0
             for detail in self.details.all():
-                imp = imp + detail.impuesto
+                imp = imp + detail.tax
             self._impuesto_calculado = imp
         return self._impuesto_calculado
 
@@ -390,7 +390,7 @@ class PurchaseOrderDetail(TimeStampedModel):
         return round(amount_with_tax, 5)
 
     @property
-    def impuesto(self):
+    def tax(self):
         monto_impuesto = configuration().purchase_tax.amount
         if self.order.with_tax:
             imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
@@ -440,7 +440,7 @@ class ServiceOrder(TimeStampedModel):
         return self._subtotal_calculado
 
     @property
-    def impuesto(self):
+    def tax(self):
         return 0
 
     @property
@@ -543,7 +543,7 @@ class ServiceOrderDetail(TimeStampedModel):
         return round(self.price * self.quantity, 5)
 
     @property
-    def impuesto(self):
+    def tax(self):
         return 0
 
     class Meta:

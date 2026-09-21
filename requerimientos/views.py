@@ -76,7 +76,7 @@ class RequirementDetailCreate(AjaxOnlyMixin, FormView):
             det = {}
             det['code'] = ''
             det['product'] = ''
-            det['unidad'] = ''
+            det['unit'] = ''
             det['quantity'] = '0'
             det['use'] = ''
             lista_detalles.append(det)
@@ -86,7 +86,7 @@ class RequirementDetailCreate(AjaxOnlyMixin, FormView):
                 detalle_json = {}
                 detalle_json['code'] = str(form['code'])
                 detalle_json['product'] = str(form['product'])
-                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['unit'] = str(form['unit'])
                 detalle_json['quantity'] = str(form['quantity'])
                 detalle_json['use'] = str(form['use'])
                 lista_json.append(detalle_json)
@@ -328,13 +328,13 @@ class RequirementUpdate(UpdateView):
                 d = {'code': detail.product.code,
                      'product': detail.product.description,
                      'quantity': detail.quantity,
-                     'unidad': detail.product.unit_of_measure.code,
+                     'unit': detail.product.unit_of_measure.code,
                      'use': detail.use}
             except AttributeError:
                 d = {'code': '',
                      'product': detail.otro,
                      'quantity': detail.quantity,
-                     'unidad': '',
+                     'unit': '',
                      'use': detail.use}
             detalles_data.append(d)
         detalle_requerimiento_formset = RequirementDetailFormSet(initial=detalles_data)
@@ -385,16 +385,16 @@ class RequirementUpdate(UpdateView):
 
 class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    required_params = ('requirement', 'tipo_busqueda')
+    required_params = ('requirement', 'search_type')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             requirement = request.GET['requirement']
-            tipo_busqueda = request.GET['tipo_busqueda']
-            if tipo_busqueda == 'TODOS':
+            search_type = request.GET['search_type']
+            if search_type == 'TODOS':
                 detalles = RequirementDetail.objects.filter(
                     Q(status=RequirementDetail.STATUS.PEND) | Q(status=RequirementDetail.STATUS.COTIZ),
                     requirement__code=requirement).order_by('line_number')
-            elif tipo_busqueda == 'PRODUCTOS':
+            elif search_type == 'PRODUCTOS':
                 detalles = RequirementDetail.objects.filter(Q(status=RequirementDetail.STATUS.PEND) |
                                                                Q(status=RequirementDetail.STATUS.COTIZ),
                                                                requirement__code=requirement,
@@ -406,7 +406,7 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                 try:
                     det['code'] = detail.product.code
                     det['name'] = detail.product.description
-                    det['unidad'] = detail.product.unit_of_measure.code
+                    det['unit'] = detail.product.unit_of_measure.code
                     # det['use'] = detail.use
                     det['quantity'] = str(detail.quantity - detail.served_quantity)
                     # det['price'] = str(detail.product.price)
@@ -421,7 +421,7 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                 detalle_json['requirement'] = str(form['requirement'])
                 detalle_json['code'] = str(form['code'])
                 detalle_json['name'] = str(form['name'])
-                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['unit'] = str(form['unit'])
                 detalle_json['quantity'] = str(form['quantity'])
                 lista_json.append(detalle_json)
             data = json.dumps(lista_json)

@@ -170,12 +170,12 @@
                                 {{ detalle_requerimiento_form.product }}
                             </td>
                             <td>
-                                {% if detalle_requerimiento_form.unidad.errors %}
-                                {% for error in detalle_requerimiento_form.unidad.errors %}
+                                {% if detalle_requerimiento_form.unit.errors %}
+                                {% for error in detalle_requerimiento_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_requerimiento_form.unidad }}
+                                {{ detalle_requerimiento_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_requerimiento_form.quantity.errors %}
@@ -236,7 +236,7 @@ $(document).ready(function()
 						"<tr class='detalle_requerimiento_formset'>" +
 							"<td>" + item.code + "</td>" +
 							"<td>" + item.product + "</td>" +
-							"<td>" + item.unidad + "</td>" +
+							"<td>" + item.unit + "</td>" +
 							"<td>" + item.quantity + "</td>" +
 							"<td>" + item.use + "</td>" +
 							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
@@ -260,7 +260,7 @@ $(document).ready(function()
 			{
 			    $.ajax({
 			      url: "{% url 'productos:product_description_search' %}",
-			      data: {'description': request.term,'tipo_busqueda': 'TODOS'},
+			      data: {'description': request.term,'search_type': 'TODOS'},
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -274,7 +274,7 @@ $(document).ready(function()
 			var id = id_product.replace("product", "");
 			$("#"+id+"code").val(ui.item.code);
 			$("#"+id+"product").val(ui.item.description);
-			$("#"+id+"unidad").val(ui.item.unidad);
+			$("#"+id+"unit").val(ui.item.unit);
 			return false;
 		  },
 		});

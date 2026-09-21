@@ -24,12 +24,12 @@
                     </div>
                     <div class="col-md-4">
                         <label>Al:</label>
-                        {% if form.desde.errors %}
-                        {% for error in form.desde.errors %}
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.desde }}
+                        {{ form.start_date }}
                     </div>
                 </div>
             </div>
@@ -46,7 +46,7 @@ var todos_productos = [];
 var pagina = 1;
 var total_paginas = 0;
 
-$("#id_desde").datepicker();
+$("#id_start_date").datepicker();
 
 });
 

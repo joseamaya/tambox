@@ -28,8 +28,8 @@ from openpyxl.styles import Side
 
 class PurchaseOrderReport():
 
-    def __init__(self, pagesize, orden_compra):
-        self.orden_compra = orden_compra
+    def __init__(self, pagesize, purchase_order):
+        self.purchase_order = purchase_order
         self.buffer = BytesIO()
         if pagesize == 'A4':
             self.pagesize = A4
@@ -38,7 +38,7 @@ class PurchaseOrderReport():
         self.width, self.height = self.pagesize
 
     def header_table(self, styles):
-        orden_compra = self.orden_compra
+        purchase_order = self.purchase_order
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -51,8 +51,8 @@ class PurchaseOrderReport():
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
         tax_id = Paragraph("R.U.C." + company().tax_id, sp)
-        encabezado = [[image, nro, tax_id], ['', u"N°" + orden_compra.code,
-                                           company().district + " " + orden_compra.date.strftime('%d de %b de %Y')]]
+        encabezado = [[image, nro, tax_id], ['', u"N°" + purchase_order.code,
+                                           company().district + " " + purchase_order.date.strftime('%d de %b de %Y')]]
         header_table = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         header_table.setStyle(TableStyle(
             [
@@ -66,7 +66,7 @@ class PurchaseOrderReport():
         return header_table
 
     def data_table(self, styles):
-        order = self.orden_compra
+        order = self.purchase_order
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
@@ -102,7 +102,7 @@ class PurchaseOrderReport():
         return tabla_detalle
 
     def tabla_detalle(self):
-        order = self.orden_compra
+        order = self.purchase_order
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
         detalles = PurchaseOrderDetail.objects.filter(order=order).order_by('pk')
         sp = ParagraphStyle('parrafos')
@@ -144,7 +144,7 @@ class PurchaseOrderReport():
         return tabla_detalle
 
     def total_in_words_table(self):
-        order = self.orden_compra
+        order = self.purchase_order
         total_in_words = [("SON: " + order.total_in_words, '')]
         total_in_words_table = Table(total_in_words, colWidths=[17.5 * cm, 2.5 * cm])
         total_in_words_table.setStyle(TableStyle(
@@ -156,7 +156,7 @@ class PurchaseOrderReport():
         return total_in_words_table
 
     def others_table(self):
-        order = self.orden_compra
+        order = self.purchase_order
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
@@ -185,7 +185,7 @@ class PurchaseOrderReport():
         return others_table
 
     def notes_table(self):
-        order = self.orden_compra
+        order = self.purchase_order
         p = ParagraphStyle('parrafos',
                            alignment=TA_JUSTIFY,
                            fontSize=8,
@@ -545,7 +545,7 @@ def purchase_order_xls_report(order):
     ws['G' + str(fila_total + 1)] = 'IMPUESTO 18% IGV'
     ws['I' + str(fila_total + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total + 1)] = order.impuesto
+    ws['I' + str(fila_total + 1)] = order.tax
     ws.merge_cells('G' + str(fila_total + 2) + ':H' + str(fila_total + 2))
     ws['G' + str(fila_total + 2)].alignment = Alignment(horizontal="center")
     ws['G' + str(fila_total + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -920,7 +920,7 @@ class ServiceOrderPdf(object):
                 detalles.append(
                     (detail.line_number, detail.quantity, Paragraph(description, p), detail.price, detail.amount))
 
-        # detalles = [(detail.line_number, detail.quantity, Paragraph(detail.servicio.description+'-'+detail.description,p), detail.price,detail.amount) for detail in ServiceOrderDetail.objects.filter(order=order)]
+        # detalles = [(detail.line_number, detail.quantity, Paragraph(detail.service.description+'-'+detail.description,p), detail.price,detail.amount) for detail in ServiceOrderDetail.objects.filter(order=order)]
         adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
@@ -965,7 +965,7 @@ class ServiceOrderPdf(object):
         pdf.drawString(445, y + 40, u"SUB-TOTAL: ")
         pdf.drawString(445, y + 20, u"IGV: ")
         pdf.drawString(445, y, u"TOTAL: ")
-        total = [[order.subtotal], [str(order.impuesto)], [str(order.total)]]
+        total = [[order.subtotal], [str(order.tax)], [str(order.total)]]
         total_table = Table(total, colWidths=[2.5 * cm])
         total_table.setStyle(TableStyle(
             [
@@ -1167,7 +1167,7 @@ class PurchaseOrderPdf(object):
         pdf.drawString(445, y + 40, u"SUB-TOTAL: ")
         pdf.drawString(445, y + 20, u"IGV: ")
         pdf.drawString(445, y, u"TOTAL: S/")
-        total = [[round(order.subtotal, 2)], [round(order.impuesto, 2)], [round(order.total, 2)]]
+        total = [[round(order.subtotal, 2)], [round(order.tax, 2)], [round(order.total, 2)]]
         total_table = Table(total, colWidths=[2.5 * cm])
         total_table.setStyle(TableStyle(
             [

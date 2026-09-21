@@ -34,21 +34,21 @@
             </tr>
             </thead>
             <tbody>
-            {% for orden_compra in ordenes_compra %}
+            {% for purchase_order in ordenes_compra %}
             {% if perms.compras.ver_detalle_orden_compra %}
-            <tr onclick="location.href='{% url 'compras:purchase_order_detail' orden_compra.pk %}';">
+            <tr onclick="location.href='{% url 'compras:purchase_order_detail' purchase_order.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ orden_compra.code }}</td>
-                {% if orden_compra.quotation %}
-                <td>{{ orden_compra.quotation }}</td>
+                <td>{{ purchase_order.code }}</td>
+                {% if purchase_order.quotation %}
+                <td>{{ purchase_order.quotation }}</td>
                 {% else %}
                 <td>Ninguna</td>
                 {% endif %}
-                <td>{{ orden_compra.date|date:"d/m/y" }}</td>
-                <td>{{ orden_compra.created|date:"d/m/y" }}</td>
-                <td>{{ orden_compra.get_status_display }}</td>
+                <td>{{ purchase_order.date|date:"d/m/y" }}</td>
+                <td>{{ purchase_order.created|date:"d/m/y" }}</td>
+                <td>{{ purchase_order.get_status_display }}</td>
             </tr>
             {% endfor %}
             </tbody>

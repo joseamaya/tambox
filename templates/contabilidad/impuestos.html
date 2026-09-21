@@ -32,15 +32,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for impuesto in impuestos %}
+            {% for tax in impuestos %}
             {% if perms.contabilidad.ver_detalle_impuesto %}
-            <tr onclick="location.href='{% url 'contabilidad:tax_detail' impuesto.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:tax_detail' tax.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ impuesto.abbreviation }}</td>
-                <td>{{ impuesto.description }}</td>
-                <td>{{ impuesto.amount }}</td>
+                <td>{{ tax.abbreviation }}</td>
+                <td>{{ tax.description }}</td>
+                <td>{{ tax.amount }}</td>
             </tr>
             {% endfor %}
             </tbody>

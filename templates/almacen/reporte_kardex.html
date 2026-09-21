@@ -15,30 +15,30 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Almacén:</label>
-                        {% if form.almacenes.errors %}
-                        {% for error in form.almacenes.errors %}
+                        {% if form.warehouses.errors %}
+                        {% for error in form.warehouses.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacenes }}
+                        {{ form.warehouses }}
                     </div>
                     <div class="col-md-4">
                         <label>Desde:</label>
-                        {% if form.desde.errors %}
-                        {% for error in form.desde.errors %}
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.desde }}
+                        {{ form.start_date }}
                     </div>
                     <div class="col-md-4">
                         <label>Hasta:</label>
-                        {% if form.hasta.errors %}
-                        {% for error in form.desde.errors %}
+                        {% if form.end_date.errors %}
+                        {% for error in form.start_date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.hasta }}
+                        {{ form.end_date }}
                     </div>
                 </div>
             </div>
@@ -46,12 +46,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">CONSOLIDADO : </label>
-                        {% if form.consolidado.errors %}
-                        {% for error in form.consolidado.errors %}
+                        {% if form.consolidated.errors %}
+                        {% for error in form.consolidated.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.consolidado }}
+                        {{ form.consolidated }}
                     </div>
                 </div>
             </div>
@@ -59,12 +59,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">FORMATO PARA SUNAT: </label>
-                        {% if form.formato_sunat.errors %}
-                        {% for error in form.formato_sunat.errors %}
+                        {% if form.sunat_format.errors %}
+                        {% for error in form.sunat_format.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.formato_sunat }}
+                        {{ form.sunat_format }}
                     </div>
                 </div>
             </div>
@@ -72,12 +72,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">ESCOJA EL FORMATO: </label>
-                        {% if form.formatos.errors %}
-                        {% for error in form.formatos.errors %}
+                        {% if form.formats.errors %}
+                        {% for error in form.formats.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.formatos }}
+                        {{ form.formats }}
                     </div>
                 </div>
             </div>
@@ -87,18 +87,18 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$("#id_desde").datepicker();
-$("#id_hasta").datepicker();
-$("input[name='formato_sunat']").change(function() {
+$("#id_start_date").datepicker();
+$("#id_end_date").datepicker();
+$("input[name='sunat_format']").change(function() {
     if(this.checked)
     {
-        $("input[name='consolidado']").attr("disabled", true);
+        $("input[name='consolidated']").attr("disabled", true);
     }
 });
-$("input[name='consolidado']").change(function() {
+$("input[name='consolidated']").change(function() {
     if(this.checked)
     {
-        $("input[name='formato_sunat']").attr("disabled", true);
+        $("input[name='sunat_format']").attr("disabled", true);
     }
 });
 

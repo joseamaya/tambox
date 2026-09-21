@@ -63,12 +63,12 @@ class ReceiverDniSearch(AjaxOnlyMixin, TemplateView):
             dni = request.GET['dni']
             movement_type = MovementType.objects.get(pk=request.GET['movement_type'])
             if movement_type.is_sale:
-                receptor = Producer.objects.get(dni=dni)
+                receiver = Producer.objects.get(dni=dni)
             else:
-                receptor = Worker.objects.get(dni=dni)
+                receiver = Worker.objects.get(dni=dni)
             receptor_json = {}
-            receptor_json['dni'] = receptor.dni
-            receptor_json['full_name'] = str(receptor.full_name())
+            receptor_json['dni'] = receiver.dni
+            receptor_json['full_name'] = str(receiver.full_name())
             data = simplejson.dumps(receptor_json)
             return HttpResponse(data, 'application/json')
 
@@ -87,10 +87,10 @@ class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
                     Q(last_name__icontains=name) | Q(
                         first_name__icontains=name))[:20]
             lista_receptores = []
-            for receptor in receptores:
+            for receiver in receptores:
                 receptor_json = {}
-                receptor_json['label'] = str(receptor.full_name())
-                receptor_json['dni'] = receptor.dni
+                receptor_json['label'] = str(receiver.full_name())
+                receptor_json['dni'] = receiver.dni
                 lista_receptores.append(receptor_json)
             data = json.dumps(lista_receptores)
             return HttpResponse(data, 'application/json')

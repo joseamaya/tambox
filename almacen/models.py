@@ -30,7 +30,7 @@ class Warehouse(TimeStampedModel):
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
                        ('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'),
                        ('ver_detalle_almacen', 'Puede ver detalle Almacén'),
-                       ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'),
+                       ('ver_tabla_almacenes', 'Puede ver tabla de warehouses'),
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)
         ordering = ['code']
 
@@ -440,7 +440,7 @@ class Kardex(TimeStampedModel):
         return {kardex.product_id: kardex for kardex in last_records}
 
     @classmethod
-    def kardex_by_batch(cls, desde, hasta, por_grupo=False, **filtro):
+    def kardex_by_batch(cls, start_date, end_date, por_grupo=False, **filtro):
         """Kardex del periodo de todo el lote, en dos consultas.
 
         Devuelve {clave: (filas, in_quantity, in_amount,
@@ -453,9 +453,9 @@ class Kardex(TimeStampedModel):
         """
         from tambox.dates import aware
 
-        desde, hasta = aware(desde), aware(hasta) + timedelta(days=1)
-        filas = (cls.objects.filter(operation_date__gte=desde,
-                                    operation_date__lte=hasta,
+        start_date, end_date = aware(start_date), aware(end_date) + timedelta(days=1)
+        filas = (cls.objects.filter(operation_date__gte=start_date,
+                                    operation_date__lte=end_date,
                                     **filtro)
                  .select_related('product', 'movement__document_type',
                                  'movement__movement_type')

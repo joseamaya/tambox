@@ -23,8 +23,8 @@ from openpyxl import Workbook
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def initial_kardex_of(report, product, warehouse, desde):
-    """Saldo inicial de un producto: el ultimo kardex anterior a `desde`.
+def initial_kardex_of(report, product, warehouse, start_date):
+    """Saldo inicial de un producto: el ultimo kardex anterior a `start_date`.
 
     Los informes que recorren el catalogo precargan el lote entero en
     `report.kardex_iniciales` (una sola consulta); los que exportan un solo
@@ -34,17 +34,17 @@ def initial_kardex_of(report, product, warehouse, desde):
     """
     from tambox.dates import aware
 
-    desde = aware(desde)
+    start_date = aware(start_date)
     iniciales = getattr(report, 'kardex_iniciales', None)
     if iniciales is None:
         return (Kardex.objects.filter(product=product, warehouse=warehouse,
-                                      operation_date__lt=desde)
+                                      operation_date__lt=start_date)
                 .order_by('-operation_date', '-pk')
                 .first())
     return iniciales.get(product.pk)
 
 
-def kardex_for_period(report, objeto, warehouse, desde, hasta, por_grupo=False):
+def kardex_for_period(report, objeto, warehouse, start_date, end_date, por_grupo=False):
     """Kardex del periodo, con sus totales, del lote que el informe precargo.
 
     Los informes que recorren el catalogo llenan `report.kardex_lote` -o
@@ -55,7 +55,7 @@ def kardex_for_period(report, objeto, warehouse, desde, hasta, por_grupo=False):
     """
     lote = getattr(report, 'kardex_lote_grupos' if por_grupo else 'kardex_lote', None)
     if lote is None:
-        return objeto.get_kardex(warehouse, desde, hasta)
+        return objeto.get_kardex(warehouse, start_date, end_date)
     return lote.get(objeto.pk, ([], 0, 0, 0, 0))
 
 
@@ -118,9 +118,9 @@ class MovementReport():
         operacion = Paragraph(u"OPERACIÓN: " + movement.movement_type.description, izquierda)
         warehouse = Paragraph(u"ALMACÉN: " + movement.warehouse.code + "-" + movement.warehouse.description, izquierda)
         try:
-            orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movement.reference.code, izquierda)
+            purchase_order = Paragraph(u"ORDEN DE COMPRA: " + movement.reference.code, izquierda)
         except (ObjectDoesNotExist, AttributeError):
-            orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
+            purchase_order = Paragraph(u"REFERENCIA: -", izquierda)
         try:
             documento = Paragraph(
                 u"DOCUMENTO: " + movement.document_type.description + " SERIE:" + movement.series + u" NÚMERO:" + movement.number,
@@ -134,7 +134,7 @@ class MovementReport():
         encabezado = [[operacion, ''],
                       [warehouse, ''],
                       [supplier, ''],
-                      [orden_compra, ''],
+                      [purchase_order, ''],
                       [documento, ''],
                       [order, '']]
         data_table = Table(encabezado, colWidths=[11 * cm, 9 * cm])
@@ -283,9 +283,9 @@ class MovementReport():
 
 class KardexPdfReport():
 
-    def __init__(self, pagesize, desde, hasta, warehouse, grupos):
-        self.desde = desde
-        self.hasta = hasta
+    def __init__(self, pagesize, start_date, end_date, warehouse, grupos):
+        self.start_date = start_date
+        self.end_date = end_date
         self.warehouse = warehouse
         self.grupos = grupos
         self.total_paginas = 0
@@ -340,7 +340,7 @@ class KardexPdfReport():
         header_table.setStyle(style)
         return header_table
 
-    def physical_units_detail_table(self, product, desde, hasta, warehouse):
+    def physical_units_detail_table(self, product, start_date, end_date, warehouse):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "",
@@ -354,16 +354,16 @@ class KardexPdfReport():
         encab_seg = ["FECHA", "TIPO (TABLA 10)", "SERIE", "NÚMERO", "", "", "", ""]
         tabla.append(encab_seg)
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
-        saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
+        saldo_inicial = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
                          format(cant_saldo_inicial, '.2f')]
         total_quantity = cant_saldo_inicial
         tabla.append(saldo_inicial)
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
 
         for kardex in listado_kardex:
             try:
@@ -416,8 +416,8 @@ class KardexPdfReport():
 
     def consolidated_product_detail_table(self, productos):
         warehouse = self.warehouse
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         tabla = []
         encabezado1 = ["CODIGO", u"DENOMINACIÓN", u"UNIDAD", u"CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"",
                        u"SALIDAS", u"", u"SALDO",
@@ -435,8 +435,8 @@ class KardexPdfReport():
         total_cantidad_total = 0
         total_valor_total = 0
         self.total_paginas = int(math.ceil(productos.count() / 22.0))
-        iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             try:
                 kardex_inicial = iniciales.get(product.pk)
@@ -447,7 +447,7 @@ class KardexPdfReport():
                 valor_saldo_inicial = 0
 
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, product, warehouse, desde, hasta)
+                self, product, warehouse, start_date, end_date)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
 
@@ -518,8 +518,8 @@ class KardexPdfReport():
 
     def consolidated_group_detail_table(self, grupos):
         warehouse = self.warehouse
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         tabla = []
         encabezado1 = ["CODIGO", "NOMBRE", "CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
                        u""]
@@ -536,12 +536,12 @@ class KardexPdfReport():
         total_cantidad_total = 0
         total_valor_total = 0
         self.total_paginas = int(math.ceil(grupos.count() / 22.0))
-        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, desde, hasta)
+        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, start_date, end_date)
         for grupo in grupos:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
             productos = Product.objects.filter(product_group=grupo)
-            iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
+            iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
             for product in productos:
                 try:
                     kardex_inicial = iniciales.get(product.pk)
@@ -554,7 +554,7 @@ class KardexPdfReport():
                 valor_saldo_inicial += valor_saldo_inicial_producto
 
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, grupo, warehouse, desde, hasta, por_grupo=True)
+                self, grupo, warehouse, start_date, end_date, por_grupo=True)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
 
@@ -621,7 +621,7 @@ class KardexPdfReport():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def valued_detail_table(self, product, desde, hasta, warehouse):
+    def valued_detail_table(self, product, start_date, end_date, warehouse):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "", "", "",
@@ -642,7 +642,7 @@ class KardexPdfReport():
         tabla.append(encab_terc)
 
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
             precio_saldo_inicial = kardex_inicial.total_price
             valor_saldo_inicial = kardex_inicial.total_amount
@@ -659,7 +659,7 @@ class KardexPdfReport():
         else:
             valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
 
-        saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16',
+        saldo_inicial = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16',
                          format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
                          format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
                          cant_saldo_inicial, precio_saldo_inicial, valor_saldo_inicial]
@@ -670,7 +670,7 @@ class KardexPdfReport():
         total_amount = valor_saldo_inicial
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
 
         for kardex in listado_kardex:
             try:
@@ -743,8 +743,8 @@ class KardexPdfReport():
         return tabla_detalle
 
     def render_sunat_physical_units_product_format(self, product):
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
         self.valorizado = False
@@ -760,7 +760,7 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
+        periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
         tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
@@ -784,24 +784,24 @@ class KardexPdfReport():
         description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(
+        unit = Paragraph(
             u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
             izquierda)
-        elements.append(unidad)
+        elements.append(unit)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
+        unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
-        elements.append(unidad)
+        elements.append(unit)
         elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.physical_units_detail_table(product, desde, hasta, warehouse))
+        elements.append(self.physical_units_detail_table(product, start_date, end_date, warehouse))
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
 
     def render_sunat_valued_product_format(self, product):
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
         self.valorizado = True
@@ -817,7 +817,7 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
+        periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
         tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
@@ -841,24 +841,24 @@ class KardexPdfReport():
         description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(
+        unit = Paragraph(
             u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
             izquierda)
-        elements.append(unidad)
+        elements.append(unit)
         elements.append(Spacer(1, 0.25 * cm))
-        unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
+        unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                            izquierda)
-        elements.append(unidad)
+        elements.append(unit)
         elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.valued_detail_table(product, desde, hasta, warehouse))
+        elements.append(self.valued_detail_table(product, start_date, end_date, warehouse))
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
 
     def render_sunat_physical_units_all_format(self):
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
         self.valorizado = False
@@ -878,10 +878,10 @@ class KardexPdfReport():
             'product').distinct()
         productos = Product.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
-            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
+            periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
@@ -906,16 +906,16 @@ class KardexPdfReport():
             description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(
+            unit = Paragraph(
                 u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
                 izquierda)
-            elements.append(unidad)
+            elements.append(unit)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
+            unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                                izquierda)
-            elements.append(unidad)
+            elements.append(unit)
             elements.append(Spacer(1, 0.5 * cm))
-            elements.append(self.physical_units_detail_table(product, desde, hasta, warehouse))
+            elements.append(self.physical_units_detail_table(product, start_date, end_date, warehouse))
             elements.append(PageBreak())
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
@@ -955,7 +955,7 @@ class KardexPdfReport():
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
-        periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
+        periodo = "PERIODO: " + self.start_date.strftime('%d/%m/%Y') + ' - ' + self.end_date.strftime('%d/%m/%Y')
         pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
         encabezado = [[image, titulo, pagina], [ruc_empresa, periodo, ""]]
         header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
@@ -1021,8 +1021,8 @@ class KardexPdfReport():
         return pdf
 
     def render_sunat_valued_all_format(self):
-        desde = self.desde
-        hasta = self.hasta
+        start_date = self.start_date
+        end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
         self.valorizado = True
@@ -1042,10 +1042,10 @@ class KardexPdfReport():
                                                   out_quantity=0).order_by().values('product').distinct()
         productos = Product.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
-            periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
+            periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1070,16 +1070,16 @@ class KardexPdfReport():
             description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(
+            unit = Paragraph(
                 u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
                 izquierda)
-            elements.append(unidad)
+            elements.append(unit)
             elements.append(Spacer(1, 0.25 * cm))
-            unidad = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
+            unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
                                izquierda)
-            elements.append(unidad)
+            elements.append(unit)
             elements.append(Spacer(1, 0.5 * cm))
-            elements.append(self.valued_detail_table(product, desde, hasta, warehouse))
+            elements.append(self.valued_detail_table(product, start_date, end_date, warehouse))
             elements.append(PageBreak())
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
@@ -1089,7 +1089,7 @@ class KardexPdfReport():
 
 class KardexExcelReport():
 
-    def get_sunat_physical_units_product(self, product, desde, hasta, warehouse):
+    def get_sunat_physical_units_product(self, product, start_date, end_date, warehouse):
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1110,7 +1110,7 @@ class KardexExcelReport():
 
         ws['D1'] = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
         ws.merge_cells('D1:G1')
-        ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws['B3'] = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
         ws['B4'] = u"RUC:" + company().tax_id
         ws.merge_cells('B4:E4')
@@ -1157,7 +1157,7 @@ class KardexExcelReport():
         ws.merge_cells('I13:I15')
 
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
@@ -1182,7 +1182,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=9).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
@@ -1221,7 +1221,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=9).border = thin_border
         return wb
 
-    def get_normal_format_product(self, product, desde, hasta, warehouse):
+    def get_normal_format_product(self, product, start_date, end_date, warehouse):
         wb = Workbook()
         ws = wb.active
         ws.column_dimensions["C"].width = 14
@@ -1236,7 +1236,7 @@ class KardexExcelReport():
         ws.column_dimensions["M"].width = 15
         ws['E1'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('E1:G1')
-        ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws['H1'] = 'Periodo: ' + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         cont = 3
         ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
@@ -1247,7 +1247,7 @@ class KardexExcelReport():
         ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1275,7 +1275,7 @@ class KardexExcelReport():
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
                 ws.cell(row=cont, column=2).value = kardex.operation_date
@@ -1340,7 +1340,7 @@ class KardexExcelReport():
             cont = cont + 2
         return wb
 
-    def get_sunat_valued_product(self, product, desde, hasta, warehouse):
+    def get_sunat_valued_product(self, product, start_date, end_date, warehouse):
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1361,7 +1361,7 @@ class KardexExcelReport():
 
         ws['H1'] = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
         ws.merge_cells('H1:K1')
-        ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws['B3'] = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
         ws['B4'] = u"RUC:" + company().tax_id
         ws.merge_cells('B4:E4')
@@ -1440,7 +1440,7 @@ class KardexExcelReport():
         ws.merge_cells('O14:O15')
 
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1487,7 +1487,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=15).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
@@ -1563,7 +1563,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=15).border = thin_border
         return wb
 
-    def get_sunat_physical_units_excel_by_product(self, ws, thin_border, cont, product, desde, hasta,
+    def get_sunat_physical_units_excel_by_product(self, ws, thin_border, cont, product, start_date, end_date,
                                                                   warehouse):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
@@ -1579,7 +1579,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=4).value = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime(
+        ws.cell(row=cont, column=2).value = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime(
             '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
@@ -1635,7 +1635,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=5).border = thin_border
 
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
@@ -1660,7 +1660,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=9).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
@@ -1699,11 +1699,11 @@ class KardexExcelReport():
         ws.cell(row=cont, column=9).border = thin_border
         return ws
 
-    def get_sunat_physical_units_all(self, desde, hasta, warehouse):
+    def get_sunat_physical_units_all(self, start_date, end_date, warehouse):
         productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1713,12 +1713,12 @@ class KardexExcelReport():
         cont = 1
         for product in productos:
             ws.title = product.code
-            self.get_sunat_physical_units_excel_by_product(ws, thin_border, cont, product, desde,
-                                                                           hasta, warehouse)
+            self.get_sunat_physical_units_excel_by_product(ws, thin_border, cont, product, start_date,
+                                                                           end_date, warehouse)
             ws = wb.create_sheet("Hoja")
         return wb
 
-    def get_sunat_valued_excel_by_product(self, ws, thin_border, cont, product, desde, hasta,
+    def get_sunat_valued_excel_by_product(self, ws, thin_border, cont, product, start_date, end_date,
                                                             warehouse):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
@@ -1734,7 +1734,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=4).value = u'REGISTRO DE INVENTARIO PERMANENTE VALORIZADO'
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime(
+        ws.cell(row=cont, column=2).value = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime(
             '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
@@ -1818,7 +1818,7 @@ class KardexExcelReport():
         ws.merge_cells(start_row=cont - 1, start_column=15, end_row=cont, end_column=15)
         ws.cell(row=cont - 1, column=15).border = thin_border
         try:
-            kardex_inicial = initial_kardex_of(self, product, warehouse, desde)
+            kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1866,7 +1866,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=15).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-            self, product, warehouse, desde, hasta)
+            self, product, warehouse, start_date, end_date)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
@@ -1942,11 +1942,11 @@ class KardexExcelReport():
         ws.cell(row=cont, column=15).border = thin_border
         return ws
 
-    def get_sunat_valued_all(self, desde, hasta, warehouse):
+    def get_sunat_valued_all(self, start_date, end_date, warehouse):
         productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1956,15 +1956,15 @@ class KardexExcelReport():
         cont = 1
         for product in productos:
             ws.title = product.code
-            self.get_sunat_valued_excel_by_product(ws, thin_border, cont, product, desde, hasta,
+            self.get_sunat_valued_excel_by_product(ws, thin_border, cont, product, start_date, end_date,
                                                                      warehouse)
             ws = wb.create_sheet("Hoja")
         return wb
 
-    def get_consolidated_groups(self, desde, hasta, warehouse):
+    def get_consolidated_groups(self, start_date, end_date, warehouse):
         grupos = ProductGroup.objects.filter(is_active=True,
                                                contains_products=True)
-        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, desde, hasta)
+        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1984,7 +1984,7 @@ class KardexExcelReport():
         ws.column_dimensions["L"].width = 14
         ws['D1'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('D1:F1')
-        ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + '-' + hasta.strftime('%d/%m/%Y')
+        ws['H1'] = 'Periodo: ' + start_date.strftime('%d/%m/%Y') + '-' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'NOMBRE'
@@ -2019,7 +2019,7 @@ class KardexExcelReport():
             try:
                 kardex_inicial = Kardex.objects.filter(product__product_group=grupo,
                                                        warehouse=warehouse,
-                                                       operation_date__lt=desde).latest('operation_date')
+                                                       operation_date__lt=start_date).latest('operation_date')
                 cant_saldo_inicial = kardex_inicial.total_quantity
                 valor_saldo_inicial = kardex_inicial.total_amount
             except Kardex.DoesNotExist:
@@ -2032,7 +2032,7 @@ class KardexExcelReport():
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, grupo, warehouse, desde, hasta, por_grupo=True)
+                self, grupo, warehouse, start_date, end_date, por_grupo=True)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
             ws.cell(row=cont, column=7).value = in_quantity
@@ -2056,7 +2056,7 @@ class KardexExcelReport():
             cont += 1
         return wb
 
-    def get_consolidated_products(self, desde, hasta, warehouse):
+    def get_consolidated_products(self, start_date, end_date, warehouse):
         productos = Product.objects.all().order_by('description')
         wb = Workbook()
         thin_border = Border(left=Side(style='thin'),
@@ -2076,7 +2076,7 @@ class KardexExcelReport():
         ws.column_dimensions["K"].width = 12
         ws['D1'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('D1:F1')
-        ws['G1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws['G1'] = 'Periodo: ' + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('G1:I1')
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'NOMBRE'
@@ -2099,8 +2099,8 @@ class KardexExcelReport():
         ws['J3'].border = thin_border
         ws['K3'].border = thin_border
         cont = 4
-        iniciales = Kardex.last_by_product(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, desde, hasta)
+        iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=2).border = thin_border
@@ -2120,7 +2120,7 @@ class KardexExcelReport():
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, product, warehouse, desde, hasta)
+                self, product, warehouse, start_date, end_date)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
             ws.cell(row=cont, column=6).value = in_quantity
@@ -2144,7 +2144,7 @@ class KardexExcelReport():
             cont += 1
         return wb
 
-    def get_normal_format_all(self, desde, hasta, warehouse):
+    def get_normal_format_all(self, start_date, end_date, warehouse):
         productos = (Kardex.objects.filter(warehouse=warehouse).order_by('product')
                      .distinct('product__code')
                      .select_related('product__unit_of_measure'))
@@ -2152,7 +2152,7 @@ class KardexExcelReport():
         ws = wb.active
         ws['E1'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('E1:G1')
-        ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
+        ws['H1'] = 'Periodo: ' + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         ws['B3'] = 'FECHA'
         ws['C3'] = 'NRO_DOC'
@@ -2168,9 +2168,9 @@ class KardexExcelReport():
         ws['M3'] = 'VALOR. TOT'
         cont = 4
         last_records = Kardex.last_by_product([prod.product_id for prod in productos],
-                                              antes_de=desde, warehouse=warehouse)
+                                              antes_de=start_date, warehouse=warehouse)
         self.kardex_lote = Product.kardex_by_batch([prod.product_id for prod in productos],
-                                                    warehouse, desde, hasta)
+                                                    warehouse, start_date, end_date)
         for prod in productos:
             product = prod.product
             ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
@@ -2197,7 +2197,7 @@ class KardexExcelReport():
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, product, warehouse, desde, hasta)
+                self, product, warehouse, start_date, end_date)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
                     ws.cell(row=cont, column=2).value = kardex.operation_date
@@ -2260,7 +2260,7 @@ class KardexExcelReport():
         return wb
 
 
-def inventory_report(desde):
+def inventory_report(start_date):
     """Construye el libro de Excel del reporte de inventario."""
     product_group = ProductGroup.objects.filter(is_active=True).select_related('account')
 
@@ -2273,7 +2273,7 @@ def inventory_report(desde):
                              top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['A2'].fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
     ws['A2'].font = Font(name='Calibri', size=11, bold=True)
-    ws['A2'] = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
+    ws['A2'] = 'INVENTARIO AL ' + start_date.strftime('%d.%m.%y')
 
     ws.row_dimensions[3].height = 25
 
@@ -2494,7 +2494,7 @@ def inventory_report(desde):
                                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws.cell(row=cont - 1, column=1).fill = PatternFill(start_color='66FFCC', end_color='66FFCC', fill_type='solid')
     ws.cell(row=cont - 1, column=1).font = Font(name='Calibri', size=11, bold=True)
-    ws.cell(row=cont - 1, column=1).value = 'INVENTARIO AL ' + desde.strftime('%d.%m.%y')
+    ws.cell(row=cont - 1, column=1).value = 'INVENTARIO AL ' + start_date.strftime('%d.%m.%y')
 
     ws.row_dimensions[3].height = 25
 

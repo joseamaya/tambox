@@ -75,12 +75,12 @@ class ProductGroup(TimeStampedModel):
     def __str__(self):
         return self.description
 
-    def get_kardex(self, warehouse, desde, hasta):
+    def get_kardex(self, warehouse, start_date, end_date):
         from almacen.models import Kardex
-        desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
+        start_date, end_date = aware(start_date), aware(end_date) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(warehouse=warehouse,
-                                               operation_date__gte=desde,
-                                               operation_date__lte=hasta,
+                                               operation_date__gte=start_date,
+                                               operation_date__lte=end_date,
                                                product__product_group=self).select_related(
             'movement__document_type', 'movement__movement_type').order_by('product__description',
                                                                                   'operation_date',
@@ -97,14 +97,14 @@ class ProductGroup(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_by_batch(grupos, warehouse, desde, hasta):
+    def kardex_by_batch(grupos, warehouse, start_date, end_date):
         """Igual que `get_kardex()`, pero para todos los grupos de una vez.
 
         Devuelve {grupo_id: (filas, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total.
         """
         from almacen.models import Kardex
-        return Kardex.kardex_by_batch(desde, hasta, por_grupo=True,
+        return Kardex.kardex_by_batch(start_date, end_date, por_grupo=True,
                                       warehouse=warehouse,
                                       product__product_group__in=grupos)
 
@@ -150,13 +150,13 @@ class Product(TimeStampedModel):
             ).aggregate(total=Sum('quantity'))['total'] or 0
         return self._previsto_calculado
 
-    def get_kardex(self, warehouse, desde, hasta):
+    def get_kardex(self, warehouse, start_date, end_date):
         from almacen.models import Movement, Kardex
-        desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
+        start_date, end_date = aware(start_date), aware(end_date) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(warehouse=warehouse,
                                                movement__status=Movement.STATUS.ACT,
-                                               operation_date__gte=desde,
-                                               operation_date__lte=hasta,
+                                               operation_date__gte=start_date,
+                                               operation_date__lte=end_date,
                                                product=self).select_related(
             'movement__document_type', 'movement__movement_type').order_by('product__description',
                                                                                   'operation_date',
@@ -173,7 +173,7 @@ class Product(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_by_batch(productos, warehouse, desde, hasta):
+    def kardex_by_batch(productos, warehouse, start_date, end_date):
         """Igual que `get_kardex()`, pero para todo el lote de una vez.
 
         Devuelve {product_id: (filas, in_quantity, in_amount,
@@ -181,7 +181,7 @@ class Product(TimeStampedModel):
         dos por producto.
         """
         from almacen.models import Kardex, Movement
-        return Kardex.kardex_by_batch(desde, hasta,
+        return Kardex.kardex_by_batch(start_date, end_date,
                                       warehouse=warehouse,
                                       product__in=productos,
                                       movement__status=Movement.STATUS.ACT)

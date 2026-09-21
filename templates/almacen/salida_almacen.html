@@ -77,12 +77,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
-                        {% if form.hora.errors %}
-                        {% for error in form.hora.errors %}
+                        {% if form.time.errors %}
+                        {% for error in form.time.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.hora }}
+                        {{ form.time }}
                     </div>
                 </div>
             </div>
@@ -99,21 +99,21 @@
                     </div>
                     <div class="col-md-2">
                         <label>DNI Receptor:</label>
-                        {% if form.dni_receptor.errors %}
-                        {% for error in form.dni_receptor.errors %}
+                        {% if form.receiver_dni.errors %}
+                        {% for error in form.receiver_dni.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.dni_receptor }}
+                        {{ form.receiver_dni }}
                     </div>
                     <div class="col-md-7">
                         <label>Receptor:</label>
-                        {% if form.receptor.errors %}
-                        {% for error in form.receptor.errors %}
+                        {% if form.receiver.errors %}
+                        {% for error in form.receiver.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.receptor }}
+                        {{ form.receiver }}
                     </div>
 
                 </div>
@@ -197,12 +197,12 @@
                                 {{ detalle_salida_form.name }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.unidad.errors %}
-                                {% for error in detalle_salida_form.unidad.errors %}
+                                {% if detalle_salida_form.unit.errors %}
+                                {% for error in detalle_salida_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.unidad }}
+                                {{ detalle_salida_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.quantity.errors %}
@@ -272,7 +272,7 @@
             <div id="popup"></div>
             <div class="row">
                 <div class="col-lg-4">
-                    {{ form.cdetalles }}
+                    {{ form.details_count }}
                 </div>
             </div>
         </div>
@@ -289,18 +289,18 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
 	$("#id_date").datepicker();
-	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
+	$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
 	$("#id_movement_type").on('change',verificar_tipo_salida);
 
 	function verificar_tipo_salida()
 	{
-		$('#id_dni_receptor').prop("readonly", false);
-		$('#id_receptor').prop("readonly", false);
+		$('#id_receiver_dni').prop("readonly", false);
+		$('#id_receiver').prop("readonly", false);
 	}
 
-	$("#id_dni_receptor").keyup(function()
+	$("#id_receiver_dni").keyup(function()
 	{
-		var dni=$("#id_dni_receptor").val();
+		var dni=$("#id_receiver_dni").val();
 		var movement_type = $("#id_movement_type").val();
 		if(dni.length==8)
 		{
@@ -309,18 +309,18 @@ $(document).ready(function()
 		      data: {'dni': dni, 'movement_type':movement_type},
 		      success: function(data)
 		      {
-		    	  $("#id_receptor").val(data.full_name);
+		    	  $("#id_receiver").val(data.full_name);
 		    	  event.preventDefault();
 		      }
 		    });
 		}
 	});
 
-	$("#id_receptor").autocomplete({
+	$("#id_receiver").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'administracion:receiver_name_search' %}",
-	      data: {'name': $("#id_receptor").val(), 'movement_type':$("#id_movement_type").val()},
+	      data: {'name': $("#id_receiver").val(), 'movement_type':$("#id_movement_type").val()},
 	      success: function( data )
 	      {
 	          response( data );
@@ -329,8 +329,8 @@ $(document).ready(function()
 	  },
 	  minLength: 2,
 	  select: function( event, ui ) {
-		$("#id_dni_receptor").val(ui.item.dni);
-		$("#id_receptor").val(ui.item.label);
+		$("#id_receiver_dni").val(ui.item.dni);
+		$("#id_receiver").val(ui.item.label);
 		return false;
 	  },
 	});
@@ -365,7 +365,7 @@ $(document).ready(function()
 						"<tr class='detalle_salida_formset'>" +
 							"<td>" + item.code + "</td>" +
 							"<td>" + item.name + "</td>" +
-							"<td>" + item.unidad + "</td>" +
+							"<td>" + item.unit + "</td>" +
 							"<td>" + item.quantity + "</td>" +
 							"<td>" + item.price + "</td>" +
 							"<td>" + item.amount + "</td>" +
@@ -407,7 +407,7 @@ $(document).ready(function()
 				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"unit").val(ui.item.unit);
 				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
@@ -455,7 +455,7 @@ $(document).ready(function()
 	{
 		var cont=0;
 		tipo_salida = $('#id_movement_type').val();
-		$('#id_cdetalles').val(ultimo_item);
+		$('#id_details_count').val(ultimo_item);
 		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
 		var document_type;

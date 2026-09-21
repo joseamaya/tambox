@@ -37,15 +37,15 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for unidad in unidades %}
+                {% for unit in unidades %}
                 {% if perms.productos.ver_detalle_unidad_medida %}
-                <tr onclick="location.href='{% url 'productos:unit_of_measure_detail' unidad.pk %}';">
+                <tr onclick="location.href='{% url 'productos:unit_of_measure_detail' unit.pk %}';">
                     {% else %}
                 <tr>
                     {% endif %}
-                    <td>{{ unidad.code }}</td>
-                    <td>{{ unidad.sunat_code }}</td>
-                    <td>{{ unidad.description }}</td>
+                    <td>{{ unit.code }}</td>
+                    <td>{{ unit.sunat_code }}</td>
+                    <td>{{ unit.description }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
@@ -95,12 +95,12 @@ $(document).ready(function()
 	   		{
 	   			if(data.productos=='NO')
 	   			{
-	   				alert("Unidad de Medida "+data.unidad+ " eliminada");
+	   				alert("Unidad de Medida "+data.unit+ " eliminada");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.productos=='SI')
 	   			{
-	   				alert("La unidad "+data.unidad+" no puede eliminarse");	
+	   				alert("La unit "+data.unit+" no puede eliminarse");	
 	   			}    			
 	   		}
 	   	});

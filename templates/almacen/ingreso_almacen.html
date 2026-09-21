@@ -92,21 +92,21 @@
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
-                        {% if form.hora.errors %}
-                        {% for error in form.hora.errors %}
+                        {% if form.time.errors %}
+                        {% for error in form.time.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.hora }}
+                        {{ form.time }}
                     </div>
                     <div class="col-md-3">
                         <label>Referencia:</label>
-                        {% if form.doc_referencia.errors %}
-                        {% for error in form.doc_referencia.errors %}
+                        {% if form.reference_document.errors %}
+                        {% for error in form.reference_document.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.doc_referencia }}
+                        {{ form.reference_document }}
                     </div>
                     <div class="col-md-3">
                         <label>Busq. de Referencia:</label>
@@ -181,7 +181,7 @@
                         {% for detalle_ingreso_form in detalle_ingreso_formset %}
                         <tr class="detalle_ingreso_formset">
                             <td>
-                                {{ detalle_ingreso_form.orden_compra }}
+                                {{ detalle_ingreso_form.purchase_order }}
                                 {% if detalle_ingreso_form.code.errors %}
                                 {% for error in detalle_ingreso_form.code.errors %}
                                 {% include "includes/error.html" %}
@@ -198,12 +198,12 @@
                                 {{ detalle_ingreso_form.name }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.unidad.errors %}
-                                {% for error in detalle_ingreso_form.unidad.errors %}
+                                {% if detalle_ingreso_form.unit.errors %}
+                                {% for error in detalle_ingreso_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.unidad }}
+                                {{ detalle_ingreso_form.unit }}
                             </td>
                             <td>
                                 {% if detalle_ingreso_form.quantity.errors %}
@@ -279,7 +279,7 @@
             <div id="popup"></div>
             <div class="row">
                 <div class="col-lg-4">
-                    {{ form.cdetalles }}
+                    {{ form.details_count }}
                 </div>
             </div>
         </div>
@@ -295,9 +295,9 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	$("#id_date").datepicker();
 	{% if object %}
-		$('#id_hora').wickedpicker({now: "{{ movement.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
+		$('#id_time').wickedpicker({now: "{{ movement.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
 	{% else %}
-		$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
+		$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
 	{% endif %}
 	verificar_pide_referencia();
 	$("#id_movement_type").on('change',establecer_pide_referencia);
@@ -385,9 +385,9 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
-						"<td>" + item.orden_compra + item.code + "</td>" +
+						"<td>" + item.purchase_order + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
 						"<td>" + item.amount + "</td>" +
@@ -410,7 +410,7 @@ $(document).ready(function()
 			{
 				$.ajax({
 				  url: "{% url 'productos:product_description_search' %}",
-				  data: {'description': request.term,'tipo_busqueda': 'PRODUCTOS' },
+				  data: {'description': request.term,'search_type': 'PRODUCTOS' },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -424,7 +424,7 @@ $(document).ready(function()
 				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unidad").val(ui.item.unidad);
+				$("#"+id+"unit").val(ui.item.unit);
 				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
@@ -456,12 +456,12 @@ $(document).ready(function()
 	
 	function transferirOrden()
 	{		
-		var orden_compra = $("#orden_compra").val();
+		var purchase_order = $("#purchase_order").val();
 		var date = $("#id_date").val();
 		var cont = 0;
 		ventana_transferencia.dialog( "close" );
 		$.ajax({
-			data : {'orden_compra': orden_compra, 'date':date},
+			data : {'purchase_order': purchase_order, 'date':date},
 			url : "{% url 'compras:purchase_order_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
@@ -472,9 +472,9 @@ $(document).ready(function()
 						cont = i+1;
 						$("#detalles tbody").append(
 						"<tr class='detalle_ingreso_formset'>" +
-							"<td>" + item.orden_compra + item.code + "</td>" +
+							"<td>" + item.purchase_order + item.code + "</td>" +
 							"<td>" + item.name + "</td>" +
-							"<td>" + item.unidad + "</td>" +
+							"<td>" + item.unit + "</td>" +
 							"<td>" + item.quantity + "</td>" +
 							"<td>" + item.price + "</td>" +
 							"<td>" + item.amount + "</td>" +
@@ -487,7 +487,7 @@ $(document).ready(function()
 					contDetalles = cont;
 					ultimo_item = cont;
 					$("#id_form-TOTAL_FORMS").val(cont);
-					$("#id_doc_referencia").val(orden_compra);
+					$("#id_reference_document").val(purchase_order);
 					$("#id_total").val(total.toFixed(5));
 					$('#id_crear_detalle').prop("disabled", true );
 					$(".decimal").keydown(validar_decimales);
@@ -511,7 +511,7 @@ $(document).ready(function()
 	{
 		var cont=0;
 		tipo_ingreso = $('#id_movement_type').val();
-		$('#id_cdetalles').val(ultimo_item);
+		$('#id_details_count').val(ultimo_item);
 		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
 		var solicita_documento = $('#id_document_type').is(':enabled');

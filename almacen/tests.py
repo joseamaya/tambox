@@ -206,9 +206,9 @@ class ReporteInventarioTest(TestCase):
         account_number = baker.make(Account)
         grupo = baker.make(ProductGroup, code='GR0001', description='GRUPO UNO',
                            account=account_number, contains_products=True)
-        unidad = baker.make(UnitOfMeasure, code='UND01')
+        unit = baker.make(UnitOfMeasure, code='UND01')
         baker.make(Product, code='GR00010001', description='PRODUCTO UNO',
-                   product_group=grupo, unit_of_measure=unidad,
+                   product_group=grupo, unit_of_measure=unit,
                    stock_type=baker.make(StockType))
 
         libro = inventory_report(date.today())
@@ -226,9 +226,9 @@ class ReporteInventarioTest(TestCase):
         from productos.models import ProductGroup, Product
 
         grupo = baker.make(ProductGroup, code='000001', account=baker.make(Account))
-        unidad = baker.make(UnitOfMeasure)
+        unit = baker.make(UnitOfMeasure)
         stock_type = baker.make(StockType)
-        campos = {'product_group': grupo, 'unit_of_measure': unidad,
+        campos = {'product_group': grupo, 'unit_of_measure': unit,
                   'stock_type': stock_type}
         baker.make(Product, code='', **campos)
 
@@ -268,7 +268,7 @@ class CargarCsvTest(TestCase):
 
     def test_cargar_almacenes(self):
         contenido = 'AL01,ALMACEN UNO\nAL02,ALMACEN DOS\n'
-        file = SimpleUploadedFile('almacenes.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('warehouses.csv', contenido.encode('utf8'), content_type='text/csv')
 
         respuesta = self.client.post('/almacen/warehouse_import/', {'file': file})
 
@@ -288,8 +288,8 @@ class CargarCsvTest(TestCase):
         respuesta = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
-                                      'hora': '08:30',
-                                      'almacenes': warehouse.pk})
+                                      'time': '08:30',
+                                      'warehouses': warehouse.pk})
 
         self.assertEqual(respuesta.status_code, 302)
         movement = Movement.objects.get()
@@ -312,8 +312,8 @@ class CargarCsvTest(TestCase):
         respuesta = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
-                                      'hora': '08:30',
-                                      'almacenes': warehouse.pk})
+                                      'time': '08:30',
+                                      'warehouses': warehouse.pk})
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'Falta el tipo de movimiento')
@@ -425,15 +425,15 @@ class ReporteKardexExcelTest(TestCase):
         self.warehouse = baker.make(Warehouse)
         self.grupo = baker.make(ProductGroup, code='000001',
                                 account=baker.make(Account))
-        self.unidad = baker.make(UnitOfMeasure)
+        self.unit = baker.make(UnitOfMeasure)
         self.stock_type = baker.make(StockType)
         self.document_type = baker.make(DocumentType, sunat_code='PEC')
         self.movement_type = baker.make(MovementType, code='I01', sunat_code='01')
         self.product = baker.make(Product, code='', product_group=self.grupo,
-                                   unit_of_measure=self.unidad,
+                                   unit_of_measure=self.unit,
                                    stock_type=self.stock_type)
-        self.desde = date(2024, 1, 1)
-        self.hasta = date(2024, 1, 31)
+        self.start_date = date(2024, 1, 1)
+        self.end_date = date(2024, 1, 31)
         baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'))
@@ -446,13 +446,13 @@ class ReporteKardexExcelTest(TestCase):
         from almacen.reports import KardexExcelReport
 
         report = KardexExcelReport()
-        report.get_sunat_physical_units_all(self.desde, self.hasta, self.warehouse)
+        report.get_sunat_physical_units_all(self.start_date, self.end_date, self.warehouse)
         with CaptureQueriesContext(connection) as con_uno:
-            report.get_sunat_physical_units_all(self.desde, self.hasta, self.warehouse)
+            report.get_sunat_physical_units_all(self.start_date, self.end_date, self.warehouse)
 
         for number in range(9):
             product = baker.make(Product, code='', product_group=self.grupo,
-                                  unit_of_measure=self.unidad,
+                                  unit_of_measure=self.unit,
                                   stock_type=self.stock_type)
             baker.make(Kardex, warehouse=self.warehouse, product=product,
                        movement=baker.make(Movement, document_type=self.document_type,
@@ -462,7 +462,7 @@ class ReporteKardexExcelTest(TestCase):
 
         with CaptureQueriesContext(connection) as con_diez:
             libro = report.get_sunat_physical_units_all(
-                self.desde, self.hasta, self.warehouse)
+                self.start_date, self.end_date, self.warehouse)
 
         self.assertLessEqual(len(con_diez), len(con_uno))
         self.assertLess(len(con_diez), 20)
@@ -476,7 +476,7 @@ class ReporteKardexExcelTest(TestCase):
                    total_quantity=Decimal('99'), total_amount=Decimal('99'))
 
         libro = KardexExcelReport().get_consolidated_products(
-            self.desde, self.hasta, self.warehouse)
+            self.start_date, self.end_date, self.warehouse)
 
         hoja = libro.active
         self.assertEqual(hoja.cell(row=4, column=4).value, Decimal('7'))
@@ -486,7 +486,7 @@ class ReporteKardexExcelTest(TestCase):
         from almacen.reports import KardexExcelReport
 
         libro = KardexExcelReport().get_normal_format_all(
-            self.desde, self.hasta, self.warehouse)
+            self.start_date, self.end_date, self.warehouse)
 
         hoja = libro.active
         self.assertEqual(hoja.cell(row=5, column=8).value, 'SALDO INICIAL:')
@@ -508,8 +508,8 @@ class ReporteKardexPorProductoTest(TestCase):
                                 account=baker.make(Account))
         self.product = baker.make(Product, code='', product_group=self.grupo,
                                    stock_type=baker.make(StockType))
-        self.desde = date(2024, 1, 1)
-        self.hasta = date(2024, 1, 31)
+        self.start_date = date(2024, 1, 1)
+        self.end_date = date(2024, 1, 31)
         baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'),
@@ -519,15 +519,15 @@ class ReporteKardexPorProductoTest(TestCase):
         from almacen.reports import KardexPdfReport
         from productos.models import ProductGroup
 
-        report = KardexPdfReport('A4', self.desde, self.hasta, self.warehouse,
+        report = KardexPdfReport('A4', self.start_date, self.end_date, self.warehouse,
                                    ProductGroup.objects.all())
 
         unidades = report.physical_units_detail_table(
-            self.product, self.desde, self.hasta, self.warehouse)
+            self.product, self.start_date, self.end_date, self.warehouse)
         self.assertEqual(unidades._cellvalues[2][7], '7.00')
 
         valorizado = report.valued_detail_table(
-            self.product, self.desde, self.hasta, self.warehouse)
+            self.product, self.start_date, self.end_date, self.warehouse)
         self.assertTrue(valorizado._cellvalues)
 
     def test_los_todos_precargan_el_lote(self):
@@ -535,7 +535,7 @@ class ReporteKardexPorProductoTest(TestCase):
 
         report = KardexExcelReport()
         libro = report.get_sunat_physical_units_all(
-            self.desde, self.hasta, self.warehouse)
+            self.start_date, self.end_date, self.warehouse)
 
         self.assertTrue(libro.sheetnames)
         self.assertIn(self.product.pk, report.kardex_iniciales)
@@ -545,7 +545,7 @@ class ReporteKardexPorProductoTest(TestCase):
 
         report = KardexExcelReport()
         libro = report.get_sunat_valued_all(
-            self.desde, self.hasta, self.warehouse)
+            self.start_date, self.end_date, self.warehouse)
 
         self.assertTrue(libro.sheetnames)
         self.assertIn(self.product.pk, report.kardex_iniciales)
@@ -558,8 +558,8 @@ class ReporteKardexPorProductoTest(TestCase):
                        'get_sunat_valued_product',
                        'get_normal_format_product'):
             with self.subTest(metodo=metodo):
-                libro = getattr(report, metodo)(self.product, self.desde,
-                                                 self.hasta, self.warehouse)
+                libro = getattr(report, metodo)(self.product, self.start_date,
+                                                 self.end_date, self.warehouse)
                 self.assertTrue(libro.sheetnames)
 
 
@@ -572,7 +572,7 @@ class StockAjaxTest(TestCase):
         self.warehouse = baker.make(Warehouse)
         self.product = baker.make(Product, description='ACERO INOXIDABLE',
                                    unit_of_measure=baker.make(UnitOfMeasure))
-        self.unidad = self.product.unit_of_measure
+        self.unit = self.product.unit_of_measure
         baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'), total_price=Decimal('3'))
@@ -589,7 +589,7 @@ class StockAjaxTest(TestCase):
         self.assertEqual(len(datos), 1)
         self.assertEqual(datos[0]['code'], self.product.code)
         self.assertEqual(datos[0]['label'], 'ACERO INOXIDABLE')
-        self.assertEqual(datos[0]['unidad'], self.unidad.code)
+        self.assertEqual(datos[0]['unit'], self.unit.code)
         self.assertAlmostEqual(datos[0]['stock'], 7)
 
     def test_busqueda_productos_almacen(self):
@@ -599,5 +599,5 @@ class StockAjaxTest(TestCase):
         datos = respuesta.json()
         self.assertEqual(len(datos), 1)
         self.assertEqual(datos[0]['code'], self.product.code)
-        self.assertEqual(datos[0]['unidad'], self.unidad.description)
+        self.assertEqual(datos[0]['unit'], self.unit.description)
         self.assertEqual(Decimal(datos[0]['price']), Decimal('3'))

@@ -15,30 +15,30 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Almacén:</label>
-                        {% if form.almacenes.errors %}
-                        {% for error in form.almacenes.errors %}
+                        {% if form.warehouses.errors %}
+                        {% for error in form.warehouses.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacenes }}
+                        {{ form.warehouses }}
                     </div>
                     <div class="col-md-4">
                         <label>Desde:</label>
-                        {% if form.desde.errors %}
-                        {% for error in form.desde.errors %}
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.desde }}
+                        {{ form.start_date }}
                     </div>
                     <div class="col-md-4">
                         <label>Hasta:</label>
-                        {% if form.hasta.errors %}
-                        {% for error in form.hasta.errors %}
+                        {% if form.end_date.errors %}
+                        {% for error in form.end_date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.hasta }}
+                        {{ form.end_date }}
                     </div>
                 </div>
             </div>
@@ -46,21 +46,21 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">Codigo de Producto: </label>
-                        {% if form.cod_producto.errors %}
-                        {% for error in form.cod_producto.errors %}
+                        {% if form.product_code.errors %}
+                        {% for error in form.product_code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.cod_producto }}
+                        {{ form.product_code }}
                     </div>
                     <div class="col-md-8">
                         <label for="description">Descripcion de Producto: </label>
-                        {% if form.desc_producto.errors %}
-                        {% for error in form.desc_producto.errors %}
+                        {% if form.product_description.errors %}
+                        {% for error in form.product_description.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.desc_producto }}
+                        {{ form.product_description }}
                     </div>
                 </div>
             </div>
@@ -68,12 +68,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">FORMATO PARA SUNAT : </label>
-                        {% if form.formato_sunat.errors %}
-                        {% for error in form.formato_sunat.errors %}
+                        {% if form.sunat_format.errors %}
+                        {% for error in form.sunat_format.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.formato_sunat }}
+                        {{ form.sunat_format }}
                     </div>
                 </div>
             </div>
@@ -82,12 +82,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">ESCOJA EL FORMATO: </label>
-                        {% if form.formatos.errors %}
-                        {% for error in form.formatos.errors %}
+                        {% if form.formats.errors %}
+                        {% for error in form.formats.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.formatos }}
+                        {{ form.formats }}
                     </div>
                 </div>
             </div>
@@ -99,14 +99,14 @@
 
 {% block js %}
 <script>
-$("#id_desde").datepicker();
-$("#id_hasta").datepicker();
+$("#id_start_date").datepicker();
+$("#id_end_date").datepicker();
 
-$("#id_desc_producto").autocomplete({
+$("#id_product_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
       url: "{% url 'productos:product_description_search' %}",
-      data: {'description': $("#id_desc_producto").val(), 'tipo_busqueda': 'PRODUCTOS'},
+      data: {'description': $("#id_product_description").val(), 'search_type': 'PRODUCTOS'},
       success: function( data ) 
       {
           response( data );
@@ -116,8 +116,8 @@ $("#id_desc_producto").autocomplete({
   minLength: 2,
   select: function( event, ui ) 
   {
-	$("#id_cod_producto").val(ui.item.code);
-	$("#id_desc_producto").val(ui.item.description);
+	$("#id_product_code").val(ui.item.code);
+	$("#id_product_description").val(ui.item.description);
 	return false;
   },
 });

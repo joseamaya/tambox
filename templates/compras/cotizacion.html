@@ -169,12 +169,12 @@
                                 {{ form.name }}
                             </td>
                             <td>
-                                {% if form.unidad.errors %}
-                                {% for error in form.unidad.errors %}
+                                {% if form.unit.errors %}
+                                {% for error in form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.unidad }}
+                                {{ form.unit }}
                             </td>
                             <td>
                                 {% if form.quantity.errors %}
@@ -304,7 +304,7 @@ $(document).ready(function()
 		$('#detalles td').parent().remove();
 		$.ajax(
 		{
-			data : { 'requirement' : requirement,'tipo_busqueda': 'PRODUCTOS' },
+			data : { 'requirement' : requirement,'search_type': 'PRODUCTOS' },
 			url : "{% url 'requerimientos:requirement_detail_fetch' %}",
 			type : 'get',
 			success : function(data) 
@@ -317,7 +317,7 @@ $(document).ready(function()
 						"<td>" + cont + "</td>" +
 						"<td>" + item.requirement + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
-						"<td>" + item.unidad + "</td>" +
+						"<td>" + item.unit + "</td>" +
 						"<td>" + item.quantity + "</td>" +	
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");

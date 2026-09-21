@@ -58,7 +58,7 @@ class BaseRequirementDetailFormSet(formsets.BaseFormSet):
 class RequirementDetailProductForm(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    unidad = forms.CharField(max_length=6,
+    unit = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
@@ -69,7 +69,7 @@ class RequirementDetailForm(forms.Form):
     code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
     quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
-    unidad = forms.CharField(required=False,
+    unit = forms.CharField(required=False,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     use = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
 

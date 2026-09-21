@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for warehouse in almacenes %}
+            {% for warehouse in warehouses %}
             {% if perms.almacen.ver_detalle_almacen %}
             <tr onclick="location.href='{% url 'almacen:warehouse_detail' warehouse.pk %}';">
                 {% else %}

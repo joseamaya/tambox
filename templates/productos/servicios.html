@@ -36,14 +36,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for servicio in servicios %}
+            {% for service in servicios %}
             {% if perms.productos.ver_detalle_producto %}
-            <tr onclick="location.href='{% url 'productos:service_detail' servicio.pk %}';">
+            <tr onclick="location.href='{% url 'productos:service_detail' service.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ servicio.code }}</td>
-                <td>{{ servicio.description }}</td>
+                <td>{{ service.code }}</td>
+                <td>{{ service.description }}</td>
             </tr>
             {% endfor %}
             </tbody>

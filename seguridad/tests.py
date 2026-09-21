@@ -111,7 +111,7 @@ class OpcionesDeFormularioTestCase(TestCase):
 
         Warehouse.objects.create(code='AL01', description='ALMACEN UNO')
         formulario = MovementReportForm()
-        codes = [code for code, _ in formulario.fields['almacenes'].choices]
+        codes = [code for code, _ in formulario.fields['warehouses'].choices]
 
         self.assertIn('AL01', codes)
 
@@ -119,11 +119,11 @@ class OpcionesDeFormularioTestCase(TestCase):
         from almacen.models import Warehouse
 
         formulario = MovementReportForm()
-        self.assertEqual([], list(formulario.fields['almacenes'].choices))
+        self.assertEqual([], list(formulario.fields['warehouses'].choices))
 
         Warehouse.objects.create(code='AL02', description='ALMACEN DOS')
         formulario = MovementReportForm()
-        codes = [code for code, _ in formulario.fields['almacenes'].choices]
+        codes = [code for code, _ in formulario.fields['warehouses'].choices]
 
         self.assertIn('AL02', codes)
 

@@ -230,12 +230,12 @@ class BusquedaProductosTest(TestCase):
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
-        self.unidad = baker.make(UnitOfMeasure, code='UND01', description='UNIDAD')
-        baker.make(Product, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unidad)
+        self.unit = baker.make(UnitOfMeasure, code='UND01', description='UNIDAD')
+        baker.make(Product, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unit)
 
     def extend(self, cuantos):
         for number in range(cuantos):
-            baker.make(Product, description='PRODUCTO %s' % number, unit_of_measure=self.unidad)
+            baker.make(Product, description='PRODUCTO %s' % number, unit_of_measure=self.unit)
 
     def search(self, url, parametros):
         return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -245,7 +245,7 @@ class BusquedaProductosTest(TestCase):
         from django.test.utils import CaptureQueriesContext
 
         url = '/productos/product_description_search/'
-        parametros = {'description': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
+        parametros = {'description': 'PRODUCTO', 'search_type': 'TODOS'}
         with CaptureQueriesContext(connection) as un_resultado:
             self.search(url, parametros)
 
@@ -257,7 +257,7 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(len(un_resultado), len(veinte_resultados))
         datos = respuesta.json()
         self.assertEqual(len(datos), 20)
-        self.assertEqual(datos[0]['unidad'], 'UNIDAD')
+        self.assertEqual(datos[0]['unit'], 'UNIDAD')
 
     def test_busqueda_por_code(self):
         respuesta = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
@@ -265,4 +265,4 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()
         self.assertEqual(len(datos), 1)
-        self.assertEqual(datos[0]['unidad'], 'UNIDAD')
+        self.assertEqual(datos[0]['unit'], 'UNIDAD')

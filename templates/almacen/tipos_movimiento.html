@@ -39,7 +39,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for tipo in tipos_movimiento %}
+            {% for tipo in movement_types %}
             {% if perms.almacen.ver_detalle_tipo_movimiento %}
             <tr onclick="location.href='{% url 'almacen:movement_type_detail' tipo.pk %}';">
                 {% else %}

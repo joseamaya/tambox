@@ -65,7 +65,7 @@ class Dashboard(View):
         if cant_grupos_suministros == 0:
             lista_notificaciones.append("No se ha creado ningún grupo de productos")
         if cant_servicios == 0:
-            lista_notificaciones.append("No se ha creado ningún servicio")
+            lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'compras/tablero_compras.html', context)
 
@@ -165,10 +165,10 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['quotation'] = '0'
             det['code'] = ''
             det['name'] = ''
-            det['unidad'] = ''
+            det['unit'] = ''
             det['quantity'] = '0'
             det['price'] = '0'
-            det['impuesto'] = '0'
+            det['tax'] = '0'
             det['amount'] = '0'
             lista_detalles.append(det)
             formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
@@ -178,10 +178,10 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
                 detalle_json['quotation'] = str(form['quotation'])
                 detalle_json['code'] = str(form['code'])
                 detalle_json['name'] = str(form['name'])
-                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['unit'] = str(form['unit'])
                 detalle_json['quantity'] = str(form['quantity'])
                 detalle_json['price'] = str(form['price'])
-                detalle_json['impuesto'] = str(form['impuesto'])
+                detalle_json['tax'] = str(form['tax'])
                 detalle_json['amount'] = str(form['amount'])
                 lista_json.append(detalle_json)
             data = json.dumps(lista_json)
@@ -197,7 +197,7 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['quotation'] = '0'
             det['code'] = ''
             det['name'] = ''
-            det['unidad'] = ''
+            det['unit'] = ''
             det['quantity'] = '0'
             det['price'] = '0'
             det['amount'] = '0'
@@ -209,7 +209,7 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
                 detalle_json['quotation'] = str(form['quotation'])
                 detalle_json['code'] = str(form['code'])
                 detalle_json['name'] = str(form['name'])
-                detalle_json['unidad'] = str(form['unidad'])
+                detalle_json['unit'] = str(form['unit'])
                 detalle_json['quantity'] = str(form['quantity'])
                 detalle_json['price'] = str(form['price'])
                 detalle_json['amount'] = str(form['amount'])
@@ -301,10 +301,10 @@ class PurchaseOrderCreate(CreateView):
             return HttpResponseRedirect(reverse('contabilidad:configuration'))
         initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['code'] = PurchaseOrder.objects.last_record()
-        initial['impuesto_actual'] = monto_impuesto
+        initial['current_tax'] = monto_impuesto
         initial['total'] = 0
         initial['subtotal'] = 0
-        initial['impuesto'] = 0
+        initial['tax'] = 0
         initial['total_in_words'] = ''
         return initial
 
@@ -347,8 +347,8 @@ class PurchaseOrderCreate(CreateView):
                     quantity = detalle_orden_compra_form.cleaned_data.get('quantity')
                     price = detalle_orden_compra_form.cleaned_data.get('price')
                     amount = detalle_orden_compra_form.cleaned_data.get('amount')
-                    impuesto = detalle_orden_compra_form.cleaned_data.get('impuesto')
-                    if quantity and price and amount and impuesto:
+                    tax = detalle_orden_compra_form.cleaned_data.get('tax')
+                    if quantity and price and amount and tax:
                         try:
                             quotation_detail = QuotationDetail.objects.get(pk=quotation)
                             purchase_order_detail = PurchaseOrderDetail(quotation_detail=quotation_detail,
@@ -390,7 +390,7 @@ class ServiceOrderCreate(CreateView):
         initial['code'] = ServiceOrder.objects.last_record()
         initial['total'] = 0
         initial['subtotal'] = 0
-        initial['impuesto'] = 0
+        initial['tax'] = 0
         initial['total_in_words'] = ''
         return initial
 
@@ -777,8 +777,8 @@ class MovementListByPurchaseOrder(ListView):
         return super(MovementListByPurchaseOrder, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        orden_compra = PurchaseOrder.objects.get(pk=self.kwargs['order'])
-        queryset = orden_compra.movements.all()
+        purchase_order = PurchaseOrder.objects.get(pk=self.kwargs['order'])
+        queryset = purchase_order.movements.all()
         return queryset
 
 
@@ -862,7 +862,7 @@ class QuotationUpdate(UpdateView):
             d = {'requirement': detail.requirement_detail.pk,
                  'code': detail.requirement_detail.product.code,
                  'name': detail.requirement_detail.product.description,
-                 'unidad': detail.requirement_detail.product.unit_of_measure.code,
+                 'unit': detail.requirement_detail.product.unit_of_measure.code,
                  'quantity': detail.quantity}
             detalles_data.append(d)
         detalle_cotizacion_formset = QuotationDetailFormSet(initial=detalles_data)
@@ -962,8 +962,8 @@ class PurchaseOrderUpdate(UpdateView):
 
     @method_decorator(requires('compras.change_purchaseorder'))
     def dispatch(self, *args, **kwargs):
-        orden_compra = self.get_object()
-        if orden_compra.status == PurchaseOrder.STATUS.PEND:
+        purchase_order = self.get_object()
+        if purchase_order.status == PurchaseOrder.STATUS.PEND:
             return super(PurchaseOrderUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -983,19 +983,19 @@ class PurchaseOrderUpdate(UpdateView):
                     d = {'quotation': detail.quotation_detail.pk,
                          'code': detail.quotation_detail.requirement_detail.product.code,
                          'name': detail.quotation_detail.requirement_detail.product.description,
-                         'unidad': detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
+                         'unit': detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
                          'quantity': detail.quantity,
                          'price': detail.price,
-                         'impuesto': detail.impuesto,
+                         'tax': detail.tax,
                          'amount': detail.amount}
                 except (ObjectDoesNotExist, AttributeError):
                     d = {'quotation': '0',
                          'code': detail.product.code,
                          'name': detail.product.description,
-                         'unidad': detail.product.unit_of_measure.code,
+                         'unit': detail.product.unit_of_measure.code,
                          'quantity': detail.quantity,
                          'price': detail.price,
-                         'impuesto': detail.impuesto,
+                         'tax': detail.tax,
                          'amount': detail.amount_without_tax}
                 detalles_data.append(d)
             detalle_orden_compra_formset = PurchaseOrderDetailFormSet(initial=detalles_data)
@@ -1023,10 +1023,10 @@ class PurchaseOrderUpdate(UpdateView):
             monto_impuesto = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuration'))
-        initial['impuesto_actual'] = monto_impuesto
+        initial['current_tax'] = monto_impuesto
         initial['total'] = order.total
         initial['subtotal'] = order.subtotal
-        initial['impuesto'] = order.impuesto
+        initial['tax'] = order.tax
         initial['total_in_words'] = order.total_in_words
         initial['notes'] = order.notes
         return initial
@@ -1063,8 +1063,8 @@ class PurchaseOrderUpdate(UpdateView):
                     quantity = detalle_orden_compra_form.cleaned_data.get('quantity')
                     price = detalle_orden_compra_form.cleaned_data.get('price')
                     amount = detalle_orden_compra_form.cleaned_data.get('amount')
-                    impuesto = detalle_orden_compra_form.cleaned_data.get('impuesto')
-                    if quantity and price and amount and impuesto:
+                    tax = detalle_orden_compra_form.cleaned_data.get('tax')
+                    if quantity and price and amount and tax:
                         try:
                             quotation_detail = QuotationDetail.objects.get(pk=quotation)
                             purchase_order_detail = PurchaseOrderDetail(quotation_detail=quotation_detail,
@@ -1123,7 +1123,7 @@ class ServiceOrderUpdate(UpdateView):
         initial['process'] = order.process
         initial['total'] = order.total
         initial['subtotal'] = order.subtotal
-        initial['impuesto'] = order.impuesto
+        initial['tax'] = order.tax
         initial['total_in_words'] = order.total_in_words
         initial['notes'] = order.notes
         return initial
@@ -1140,7 +1140,7 @@ class ServiceOrderUpdate(UpdateView):
                     d = {'quotation': detail.quotation_detail.pk,
                          'code': detail.quotation_detail.requirement_detail.product.code,
                          'name': detail.quotation_detail.requirement_detail.product.description,
-                         'unidad': detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
+                         'unit': detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
                          'quantity': detail.quantity,
                          'price': detail.price,
                          'amount': detail.amount}
@@ -1148,7 +1148,7 @@ class ServiceOrderUpdate(UpdateView):
                     d = {'quotation': '0',
                          'code': detail.product.code,
                          'name': detail.product.description,
-                         'unidad': detail.product.unit_of_measure.code,
+                         'unit': detail.product.unit_of_measure.code,
                          'quantity': detail.quantity,
                          'price': detail.price,
                          'amount': detail.amount}
@@ -1222,13 +1222,13 @@ class ServiceOrderUpdate(UpdateView):
 
 class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    required_params = ('quotation', 'tipo_busqueda')
+    required_params = ('quotation', 'search_type')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             quotation = request.GET['quotation']
-            tipo_busqueda = request.GET['tipo_busqueda']
-            if tipo_busqueda == 'PRODUCTOS':
+            search_type = request.GET['search_type']
+            if search_type == 'PRODUCTOS':
                 detalles = QuotationDetail.objects.filter(
                     Q(status=QuotationDetail.STATUS.PEND) | Q(status=QuotationDetail.STATUS.ELEG_PARC),
                     quotation__code=quotation,
@@ -1237,7 +1237,7 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                     monto_impuesto = purchase_tax().amount
                 except AttributeError:
                     monto_impuesto = 0
-            elif tipo_busqueda == 'SERVICIOS':
+            elif search_type == 'SERVICIOS':
                 monto_impuesto = 1
                 detalles = QuotationDetail.objects.filter(quotation__code=quotation,
                                                             requirement_detail__product__is_service=True).order_by(
@@ -1254,42 +1254,42 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                     quantity = detail.quantity - detail.requirement_detail.purchased_quantity
                     det['quantity'] = str(quantity)
                     amount = detail.requirement_detail.product.price * quantity
-                    if tipo_busqueda == 'PRODUCTOS':
-                        det['unidad'] = detail.requirement_detail.product.unit_of_measure.code
+                    if search_type == 'PRODUCTOS':
+                        det['unit'] = detail.requirement_detail.product.unit_of_measure.code
                         base = amount / (monto_impuesto + 1)
-                        det['impuesto'] = str(round(amount - base, 5))
+                        det['tax'] = str(round(amount - base, 5))
                         det['amount'] = str(round(amount, 5))
-                    elif tipo_busqueda == 'SERVICIOS':
-                        det['unidad'] = detail.requirement_detail.product.unit_of_measure.code
+                    elif search_type == 'SERVICIOS':
+                        det['unit'] = detail.requirement_detail.product.unit_of_measure.code
                         det['amount'] = str(round(amount))
                     lista_detalles.append(det)
                 except (ObjectDoesNotExist, AttributeError):
                     pass
-            if tipo_busqueda == 'PRODUCTOS':
+            if search_type == 'PRODUCTOS':
                 formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
-            elif tipo_busqueda == 'SERVICIOS':
+            elif search_type == 'SERVICIOS':
                 formset = ServiceOrderDetailFormSet(initial=lista_detalles)
             lista_json = []
-            if tipo_busqueda == 'PRODUCTOS':
+            if search_type == 'PRODUCTOS':
                 for form in formset:
                     detalle_json = {}
                     detalle_json['quotation'] = str(form['quotation'])
                     detalle_json['code'] = str(form['code'])
                     detalle_json['name'] = str(form['name'])
                     detalle_json['price'] = str(form['price'])
-                    detalle_json['unidad'] = str(form['unidad'])
+                    detalle_json['unit'] = str(form['unit'])
                     detalle_json['quantity'] = str(form['quantity'])
-                    detalle_json['impuesto'] = str(form['impuesto'])
+                    detalle_json['tax'] = str(form['tax'])
                     detalle_json['amount'] = str(form['amount'])
                     lista_json.append(detalle_json)
-            elif tipo_busqueda == 'SERVICIOS':
+            elif search_type == 'SERVICIOS':
                 for form in formset:
                     detalle_json = {}
                     detalle_json['quotation'] = str(form['quotation'])
                     detalle_json['code'] = str(form['code'])
                     detalle_json['name'] = str(form['name'])
                     detalle_json['price'] = str(form['price'])
-                    detalle_json['unidad'] = str(form['unidad'])
+                    detalle_json['unit'] = str(form['unit'])
                     detalle_json['quantity'] = str(form['quantity'])
                     detalle_json['amount'] = str(form['amount'])
                     lista_json.append(detalle_json)
@@ -1299,7 +1299,7 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
 class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    required_params = ('orden_compra', 'date')
+    required_params = ('purchase_order', 'date')
 
     def get_date(self, r_date):
         anio = int(r_date[6:])
@@ -1310,10 +1310,10 @@ class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            orden_compra = PurchaseOrder.objects.get(code=request.GET['orden_compra'])
+            purchase_order = PurchaseOrder.objects.get(code=request.GET['purchase_order'])
             date = self.get_date(request.GET['date'])
             tipo_cambio = 1
-            if orden_compra.in_dollars:
+            if purchase_order.in_dollars:
                 try:
                     tipo_cambio = ExchangeRate.objects.get(date=date).amount
                 except ExchangeRate.DoesNotExist:
@@ -1321,36 +1321,36 @@ class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
             lista_detalles = []
             lista_json = []
             if tipo_cambio > 0:
-                detalles = PurchaseOrderDetail.objects.filter(order=orden_compra,
+                detalles = PurchaseOrderDetail.objects.filter(order=purchase_order,
                                                              status=PurchaseOrderDetail.STATUS.PEND).order_by(
                     'line_number')
                 for detail in detalles:
                     det = {}
-                    det['orden_compra'] = detail.id
+                    det['purchase_order'] = detail.id
                     try:
                         det['code'] = detail.quotation_detail.requirement_detail.product.code
                         det['name'] = detail.quotation_detail.requirement_detail.product.description
                         det['quantity'] = str(detail.quantity - detail.received_quantity)
                         det['price'] = str(round(Decimal(detail.price_without_tax) * tipo_cambio, 5))
-                        det['unidad'] = detail.quotation_detail.requirement_detail.product.unit_of_measure.code
+                        det['unit'] = detail.quotation_detail.requirement_detail.product.unit_of_measure.code
                         det['amount'] = str(round(Decimal(detail.amount_without_tax) * tipo_cambio, 5))
                     except (ObjectDoesNotExist, AttributeError):
                         det['code'] = detail.product.code
                         det['name'] = detail.product.description
                         det['quantity'] = str(detail.quantity - detail.received_quantity)
                         det['price'] = str(round(Decimal(detail.price_without_tax) * tipo_cambio, 5))
-                        det['unidad'] = detail.product.unit_of_measure.code
+                        det['unit'] = detail.product.unit_of_measure.code
                         det['amount'] = str(round(Decimal(detail.amount_without_tax) * tipo_cambio, 5))
                     lista_detalles.append(det)
                 formset = InboundDetailFormSet(initial=lista_detalles)
                 for form in formset:
                     detalle_json = {}
-                    detalle_json['orden_compra'] = str(form['orden_compra'])
+                    detalle_json['purchase_order'] = str(form['purchase_order'])
                     detalle_json['code'] = str(form['code'])
                     detalle_json['name'] = str(form['name'])
                     detalle_json['quantity'] = str(form['quantity'])
                     detalle_json['price'] = str(form['price'])
-                    detalle_json['unidad'] = str(form['unidad'])
+                    detalle_json['unit'] = str(form['unit'])
                     detalle_json['amount'] = str(form['amount'])
                     lista_json.append(detalle_json)
             data = json.dumps(lista_json)
@@ -1373,7 +1373,7 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                     det = {}
                     det['service_order'] = detail.id
                     det['code'] = detail.quotation_detail.requirement_detail.product.code
-                    det['servicio'] = detail.quotation_detail.requirement_detail.product.description
+                    det['service'] = detail.quotation_detail.requirement_detail.product.description
                     det['use'] = detail.quotation_detail.requirement_detail.use
                     det['price'] = str(detail.price)
                     det['quantity'] = str(detail.quantity)
@@ -1382,7 +1382,7 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                     det = {}
                     det['service_order'] = detail.id
                     det['code'] = detail.product.code
-                    det['servicio'] = detail.product.description
+                    det['service'] = detail.product.description
                     det['use'] = detail.product.unit_of_measure.description
                     det['price'] = str(detail.price)
                     det['quantity'] = str(detail.quantity)
@@ -1393,7 +1393,7 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
             for form in formset:
                 detalle_json = {}
                 detalle_json['service_order'] = str(form['service_order'])
-                detalle_json['servicio'] = str(form['servicio'])
+                detalle_json['service'] = str(form['service'])
                 detalle_json['use'] = str(form['use'])
                 detalle_json['price'] = str(form['price'])
                 detalle_json['quantity'] = str(form['quantity'])
@@ -1512,10 +1512,10 @@ class ServiceOrderExcelReportByDate(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        tipo_busqueda = data['tipo_busqueda']
+        search_type = data['search_type']
         wb = Workbook()
         ws = wb.active
-        if tipo_busqueda == 'F':
+        if search_type == 'F':
             p_start_date = data['start_date']
             p_fecha_final = data['end_date']
             anio = int(p_start_date[6:])
@@ -1535,7 +1535,7 @@ class ServiceOrderExcelReportByDate(FormView):
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
             ordenes_servicios = ServiceOrder.objects.filter(date__range=[start_date, fecha_final])
-        elif tipo_busqueda == 'M':
+        elif search_type == 'M':
             month = data['month'].strip()
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR MES'
@@ -1545,7 +1545,7 @@ class ServiceOrderExcelReportByDate(FormView):
             ws['D3'] = 'AÑO'
             ws['E3'] = year
             ordenes_servicios = ServiceOrder.objects.filter(date__month=month, date__year=year)
-        elif tipo_busqueda == 'A':
+        elif search_type == 'A':
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR AÑO'
             ws.merge_cells('B2:H2')
@@ -1592,10 +1592,10 @@ class PurchaseOrderExcelReportByDate(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        tipo_busqueda = data['tipo_busqueda']
+        search_type = data['search_type']
         wb = Workbook()
         ws = wb.active
-        if tipo_busqueda == 'F':
+        if search_type == 'F':
             p_start_date = data['start_date']
             p_fecha_final = data['end_date']
             anio = int(p_start_date[6:])
@@ -1615,7 +1615,7 @@ class PurchaseOrderExcelReportByDate(FormView):
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
             ordenes_compra = PurchaseOrder.objects.filter(date__range=[start_date, fecha_final])
-        elif tipo_busqueda == 'M':
+        elif search_type == 'M':
             month = data['month'].strip()
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR MES'
@@ -1625,7 +1625,7 @@ class PurchaseOrderExcelReportByDate(FormView):
             ws['D3'] = 'AÑO'
             ws['E3'] = year
             ordenes_compra = PurchaseOrder.objects.filter(date__month=month, date__year=year)
-        elif tipo_busqueda == 'A':
+        elif search_type == 'A':
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR AÑO'
             ws.merge_cells('B2:H2')
@@ -1643,20 +1643,20 @@ class PurchaseOrderExcelReportByDate(FormView):
             'supplier', 'payment_method', 'quotation__supplier'
         ).prefetch_related('details')
         cont = 6
-        for orden_compra in ordenes_compra:
-            ws.cell(row=cont, column=2).value = orden_compra.code
-            ws.cell(row=cont, column=3).value = orden_compra.date
+        for purchase_order in ordenes_compra:
+            ws.cell(row=cont, column=2).value = purchase_order.code
+            ws.cell(row=cont, column=3).value = purchase_order.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
-                ws.cell(row=cont, column=4).value = orden_compra.quotation.supplier.business_name
+                ws.cell(row=cont, column=4).value = purchase_order.quotation.supplier.business_name
             except ObjectDoesNotExist:
-                ws.cell(row=cont, column=4).value = orden_compra.supplier.business_name
-            ws.cell(row=cont, column=5).value = orden_compra.total
-            ws.cell(row=cont, column=6).value = orden_compra.payment_method.description
+                ws.cell(row=cont, column=4).value = purchase_order.supplier.business_name
+            ws.cell(row=cont, column=5).value = purchase_order.total
+            ws.cell(row=cont, column=6).value = purchase_order.payment_method.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=7).value = orden_compra.created
+            ws.cell(row=cont, column=7).value = purchase_order.created
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=8).value = orden_compra.get_status_display()
+            ws.cell(row=cont, column=8).value = purchase_order.get_status_display()
             cont = cont + 1
         nombre_archivo = "ReporteOrdenesCompra.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

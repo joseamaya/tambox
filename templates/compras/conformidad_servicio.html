@@ -129,12 +129,12 @@
                                 {{ detalle_conformidad_servicio_form.name }}
                             </td>
                             <td>
-                                {% if detalle_conformidad_servicio_form.unidad.errors %}
-                                {% for error in detalle_conformidad_servicio_form.unidad.errors %}
+                                {% if detalle_conformidad_servicio_form.unit.errors %}
+                                {% for error in detalle_conformidad_servicio_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_conformidad_servicio_form.unidad }}
+                                {{ detalle_conformidad_servicio_form.unit }}
                             </td>
 
                             <td>
@@ -263,7 +263,7 @@ $(document).ready(function()
 					"<tr class='detalle_conformidad_servicio_formset'>" +
 						item.service_order +
 						"<td>" + item.quantity + "</td>" +
-						"<td>" + item.servicio + "</td>" +
+						"<td>" + item.service + "</td>" +
 						"<td>" + item.use + "</td>" +						
 						"<td>" + item.price + "</td>" +
 						"<td>" + item.amount + "</td>" +
@@ -296,7 +296,7 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var cont=0;
-		$('#id_cdetalles').val(ultimo_item);
+		$('#id_details_count').val(ultimo_item);
 		var date = $('#id_date').val().trim();
 		var service_order = $('#id_reference').val().trim();
 		var supporting_document = $('#id_supporting_document').val().trim();
