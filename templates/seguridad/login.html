@@ -25,7 +25,7 @@
                 </div>
                 <div class="panel-body">
                     {% if form.non_field_errors %}
-                    {% include "includes/errores_generales.html" %}
+                    {% include "includes/general_errors.html" %}
                     {% endif %}
                     <form role="form" method="post" id='form_login' action="{% url 'seguridad:login' %}">
                         {% csrf_token %}

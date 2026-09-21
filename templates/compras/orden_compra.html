@@ -42,7 +42,7 @@
     <hr/>
     <div class="panel panel-primary">
         {% if form.non_field_errors %}
-        {% include "includes/errores_generales.html" %}
+        {% include "includes/general_errors.html" %}
         {% endif %}
         <div class="panel-body">
             {% csrf_token %}
