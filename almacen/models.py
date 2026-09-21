@@ -20,7 +20,7 @@ from simple_history.models import HistoricalRecords
 
 class Almacen(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=5)
-    description = models.CharField(max_length=30)
+    description = models.CharField(max_length=30, verbose_name='Descripción')
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
 
@@ -50,7 +50,7 @@ class Almacen(TimeStampedModel):
 class TipoMovimiento(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=10)
     codigo_sunat = models.CharField(max_length=2)
-    description = models.CharField(max_length=25)
+    description = models.CharField(max_length=25, verbose_name='Descripción')
     incrementa = models.BooleanField()
     pide_referencia = models.BooleanField(default=False)
     es_compra = models.BooleanField(default=False)

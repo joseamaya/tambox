@@ -200,7 +200,7 @@ class Configuracion(TimeStampedModel):
 
 class TipoExistencia(TimeStampedModel):
     codigo_sunat = models.CharField(primary_key=True, max_length=2)
-    description = models.CharField(max_length=50)
+    description = models.CharField(max_length=50, verbose_name='Descripción')
 
     def __str__(self):
         return u'%s' % self.description

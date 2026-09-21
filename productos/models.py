@@ -112,7 +112,7 @@ class GrupoProductos(TimeStampedModel):
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
     grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
-    description = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=100, unique=True, verbose_name='Descripción')
     es_servicio = models.BooleanField(default=False)
     unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE)
     marca = models.CharField(max_length=40, blank=True)
