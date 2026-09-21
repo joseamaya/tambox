@@ -86,6 +86,11 @@ def template_identifiers(source):
     return identifiers
 
 
+def template_files():
+    for path in sorted((ROOT / 'templates').rglob('*.html')):
+        yield path
+
+
 def source_files():
     for pattern in ('*/*.py', '*/*/*.py', '*/*/*/*.py', 'templates/**/*.html'):
         for path in sorted(ROOT.glob(pattern)):
@@ -97,6 +102,14 @@ def source_files():
 
 def findings():
     found = {}
+    for path in template_files():
+        for segment in split_segments(path.stem):
+            if segment in ALLOWED_WORDS:
+                continue
+            if segment in SPANISH_WORDS:
+                key = str(path.relative_to(ROOT))
+                found.setdefault(key, set()).add(path.stem)
+                break
     for path in source_files():
         source = path.read_text(encoding='utf8')
         if path.suffix == '.py':
