@@ -61,7 +61,7 @@ class TipoMovimientoTest(TestCase):
         self.assertEqual(self.tm3.pk, self.tm1.anterior())
 
     def test_tipo_movimiento_ingreso(self):
-        tm1 = baker.make(TipoMovimiento, code='', incrementa=True)
+        tm1 = baker.make(TipoMovimiento, code='', increases=True)
         self.assertEqual("I", tm1.code[0])
 
 
@@ -130,21 +130,21 @@ class MovimientoTest(TestCase):
         self.assertEqual(mov1.__str__(), mov1.id_movimiento)
 
     def test_creacion_movimiento_ingreso(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=True)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual("I" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.id_movimiento)
         self.assertEqual("I" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.id_movimiento)
 
     def test_creacion_movimiento_salida(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=False)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual("S" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.id_movimiento)
         self.assertEqual("S" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.id_movimiento)
 
     def test_siguiente_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=True)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov3 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
@@ -152,7 +152,7 @@ class MovimientoTest(TestCase):
         self.assertEqual(mov3.pk, mov2.siguiente())
 
     def test_anterior_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=False)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov3 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
@@ -160,13 +160,13 @@ class MovimientoTest(TestCase):
         self.assertEqual(mov2.pk, mov3.anterior())
 
     def test_primer_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=True)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov1.pk, mov2.siguiente())
 
     def test_ultimo_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=False)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov2.pk, mov1.anterior())
@@ -175,7 +175,7 @@ class MovimientoTest(TestCase):
         """Devuelve la orden referenciada a su estado segun lo que queda
         ingresado. Un refactor anterior renombro el metodo a
         `eliminar_referencia` y este test quedo apuntando al nombre viejo."""
-        tipo_movimiento = baker.make(TipoMovimiento, code='', incrementa=True, pide_referencia=True)
+        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True, requires_reference=True)
         referencia = baker.make(OrdenCompra, cotizacion=None)
         mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento,
                           referencia=referencia)
@@ -205,7 +205,7 @@ class ReporteInventarioTest(TestCase):
 
         cuenta = baker.make(CuentaContable)
         grupo = baker.make(GrupoProductos, code='GR0001', description='GRUPO UNO',
-                           ctacontable=cuenta, son_productos=True)
+                           ctacontable=cuenta, contains_products=True)
         unidad = baker.make(UnidadMedida, code='UND01')
         baker.make(Producto, code='GR00010001', description='PRODUCTO UNO',
                    grupo_productos=grupo, unidad_medida=unidad,
@@ -277,7 +277,7 @@ class CargarCsvTest(TestCase):
         self.assertEqual(Almacen.objects.get(code='AL01').description, 'ALMACEN UNO')
 
     def test_cargar_inventario_inicial(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='I00', incrementa=True)
+        tipo_movimiento = baker.make(TipoMovimiento, code='I00', increases=True)
         baker.make(TipoDocumento, sunat_code='PEC')
         almacen = baker.make(Almacen)
         producto_uno = baker.make(Producto, description='PRODUCTO UNO')
@@ -386,7 +386,7 @@ class ReporteKardexConsolidadoTest(TestCase):
 
         self.almacen = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
-                                ctacontable=baker.make(CuentaContable), son_productos=True)
+                                ctacontable=baker.make(CuentaContable), contains_products=True)
         self.productos = [baker.make(Producto, code='', grupo_productos=self.grupo)
                           for numero in range(3)]
 

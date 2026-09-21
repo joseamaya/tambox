@@ -28,10 +28,10 @@ class Tablero(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_productos = Producto.objects.filter(es_servicio=False).count()
+        cant_productos = Producto.objects.filter(is_service=False).count()
         cant_tipos_unidad_medida = UnidadMedida.objects.count()
         cant_grupos_suministros = GrupoProductos.objects.count()
-        cant_servicios = Producto.objects.filter(es_servicio=True).count()
+        cant_servicios = Producto.objects.filter(is_service=True).count()
         unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
@@ -61,11 +61,11 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
                     'unidad_medida').order_by('description')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
                 productos = Producto.objects.filter(description__icontains=description,
-                                                    es_servicio=False).select_related(
+                                                    is_service=False).select_related(
                     'unidad_medida').order_by('description')[:20]
             elif tipo_busqueda == 'SERVICIOS':
                 productos = Producto.objects.filter(description__icontains=description,
-                                                    es_servicio=True).select_related(
+                                                    is_service=True).select_related(
                     'unidad_medida').order_by('description')[:20]
 
             lista_productos = []
@@ -131,7 +131,7 @@ class CargarServicios(CargarCsvMixin, FormView):
         grupo = GrupoProductos.objects.get(code=fila[0].strip())
         Producto.objects.get_or_create(description=fila[1],
                                        defaults={'grupo_productos': grupo,
-                                                 'es_servicio': True})
+                                                 'is_service': True})
 
 
 class CargarProductos(CargarCsvMixin, FormView):
@@ -359,7 +359,7 @@ class ListadoServicios(ListView):
     model = Producto
     template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
-    queryset = Producto.objects.filter(is_active=True, es_servicio=True).order_by('description')
+    queryset = Producto.objects.filter(is_active=True, is_service=True).order_by('description')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -382,7 +382,7 @@ class ListadoProductos(ListView):
     model = Producto
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
-    queryset = Producto.objects.filter(es_servicio=False, is_active=True).order_by('code')
+    queryset = Producto.objects.filter(is_service=False, is_active=True).order_by('code')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -553,7 +553,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
 class ReporteExcelServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        servicios = Producto.objects.filter(es_servicio=True, is_active=True).order_by('code')
+        servicios = Producto.objects.filter(is_service=True, is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE SERVICIOS'

@@ -27,7 +27,7 @@ class GrupoProductosForm(forms.ModelForm):
 
     class Meta:
         model = GrupoProductos
-        fields = ['description', 'ctacontable', 'son_productos']
+        fields = ['description', 'ctacontable', 'contains_products']
 
 
 class ProductoForm(forms.ModelForm):
@@ -61,7 +61,7 @@ class ServicioForm(forms.ModelForm):
             })
 
     def save(self, *args, **kwargs):
-        self.instance.es_servicio = True
+        self.instance.is_service = True
         return super(ServicioForm, self).save(*args, **kwargs)
 
     class Meta:

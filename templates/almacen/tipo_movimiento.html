@@ -51,19 +51,19 @@
                             <label>CODIGO:</label>
                             <p>{{ object.code }}</p>
                             <label>INCREMENTA:</label>
-                            {% if form.incrementa.errors %}
-                            {% for error in form.incrementa.errors %}
+                            {% if form.increases.errors %}
+                            {% for error in form.increases.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.incrementa }}</p>
+                            <p>{{ form.increases }}</p>
                             <label>PIDE REFERENCIA:</label>
-                            {% if form.pide_referencia.errors %}
-                            {% for error in form.pide_referencia.errors %}
+                            {% if form.requires_reference.errors %}
+                            {% for error in form.requires_reference.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.pide_referencia }}</p>
+                            <p>{{ form.requires_reference }}</p>
                         </div>
                         <div class="col-lg-4">
                             <label>CÓDIGO SUNAT:</label>
@@ -74,19 +74,19 @@
                             {% endif %}
                             <p>{{ form.sunat_code }}</p>
                             <label>ES COMPRA:</label>
-                            {% if form.es_compra.errors %}
-                            {% for error in form.es_compra.errors %}
+                            {% if form.is_purchase.errors %}
+                            {% for error in form.is_purchase.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.es_compra }}</p>
+                            <p>{{ form.is_purchase }}</p>
                             <label>ES VENTA:</label>
-                            {% if form.es_venta.errors %}
-                            {% for error in form.es_venta.errors %}
+                            {% if form.is_sale.errors %}
+                            {% for error in form.is_sale.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.es_venta }}</p>
+                            <p>{{ form.is_sale }}</p>
                         </div>
                     </div>
                 </div>

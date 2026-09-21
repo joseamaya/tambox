@@ -55,29 +55,29 @@ class Tablero(View):
         cod_mov_salida_pedido = 'S01'
         lista_notificaciones = []
         cant_almacenes = Almacen.objects.count()
-        cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(
+        cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(increases=True).exclude(
             code=cod_mov_invent_ini).count()
-        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
+        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(increases=False).count()
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_invent_ini,
                                                                        defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'sunat_code': '16',
-                                                                                 'incrementa': True,
+                                                                                 'increases': True,
                                                                                  'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_ingreso_compra,
                                                                        defaults={'description': 'INGRESO POR COMPRA',
                                                                                  'sunat_code': '02',
-                                                                                 'incrementa': True,
-                                                                                 'pide_referencia': True,
+                                                                                 'increases': True,
+                                                                                 'requires_reference': True,
                                                                                  'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_salida_pedido,
                                                                        defaults={'description': 'SALIDA POR PEDIDO',
                                                                                  'sunat_code': '10',
-                                                                                 'incrementa': False,
-                                                                                 'pide_referencia': True,
+                                                                                 'increases': False,
+                                                                                 'requires_reference': True,
                                                                                  'is_active': True})
         inventario_inicial = Movimiento.objects.filter(tipo_movimiento__code=cod_mov_invent_ini).count()
         if creado:
@@ -133,7 +133,7 @@ class AprobarPedido(CreateView):
             puestos = trabajador.positions.all().filter(is_active=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
-            if puestos[0].es_jefatura and puestos[0].oficina == logistica():
+            if puestos[0].is_leadership and puestos[0].oficina == logistica():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalles = DetallePedido.objects.filter(pedido=pedido, status=DetallePedido.STATUS.PEND)
@@ -456,7 +456,7 @@ class CrearPedido(CreateView):
         puesto = trabajador.puesto
         if puesto is None:
             return HttpResponseRedirect(reverse('administracion:crear_puesto'))
-        if puesto.es_jefatura or puesto.es_asistente:
+        if puesto.is_leadership or puesto.is_assistant:
             return super(CrearPedido, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -501,7 +501,7 @@ class CrearPedido(CreateView):
                                                       quantity=quantity))
                         cont = cont + 1
                 DetallePedido.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), es_jefatura=True, is_active=True)
+                puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), is_leadership=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
                 destinatario = jefe_logistica.usuario.email
                 correo_creacion_pedido(destinatario, self.object)
@@ -647,7 +647,7 @@ class ListadoAprobacionPedidos(ListView):
             puestos = trabajador.positions.all().filter(is_active=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
-            if puestos[0].es_jefatura and puestos[0].oficina == logistica():
+            if puestos[0].is_leadership and puestos[0].oficina == logistica():
                 return super(ListadoAprobacionPedidos, self).dispatch(*args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -692,14 +692,14 @@ class ListadoIngresos(ListView):
     model = Movimiento
     template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True)
+    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__increases=True)
 
 
 class ListadoSalidas(ListView):
     model = Movimiento
     template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False)
+    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__increases=False)
 
 
 class ListadoMovimientosPorPedido(ListView):
@@ -729,7 +729,7 @@ class ModificarMovimiento(TemplateView):
         if movimiento.status == Movimiento.STATUS.CANC:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         tipo_movimiento = movimiento.tipo_movimiento
-        if tipo_movimiento.incrementa:
+        if tipo_movimiento.increases:
             return HttpResponseRedirect(reverse('almacen:modificar_ingreso_almacen', args=[movimiento.pk]))
         else:
             return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movimiento.pk]))
@@ -1152,7 +1152,7 @@ class RegistrarIngresoAlmacen(CreateView):
     def get(self, request, *args, **kwargs):
         self.object = None
         cod_tipo_mov = 'I00'
-        tipos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(code=cod_tipo_mov)
+        tipos_ingreso = TipoMovimiento.objects.filter(increases=True).exclude(code=cod_tipo_mov)
         if not tipos_ingreso:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
         almacenes = Almacen.objects.all()
@@ -1236,7 +1236,7 @@ class RegistrarSalidaAlmacen(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        tipos_salida = TipoMovimiento.objects.filter(incrementa=False)
+        tipos_salida = TipoMovimiento.objects.filter(increases=False)
         if not tipos_salida:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
         almacenes = Almacen.objects.filter()
@@ -1469,7 +1469,7 @@ class ReprocesoPrecio(FormView):
                 precio_ant = 0
                 valor_ant = 0
             tipo_mov = detalle.movimiento.tipo_movimiento
-            if tipo_mov.incrementa:
+            if tipo_mov.increases:
                 detalle.total_quantity = cantidad_ant + detalle.in_quantity
                 detalle.total_price = detalle.in_price
                 detalle.total_amount = valor_ant + detalle.in_amount
@@ -1815,7 +1815,7 @@ class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
-        json_object = {'pide_referencia': tipo_movimiento.pide_referencia}
+        json_object = {'requires_reference': tipo_movimiento.requires_reference}
         return JsonResponse(json_object)
 
 

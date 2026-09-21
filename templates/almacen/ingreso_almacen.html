@@ -360,7 +360,7 @@ $(document).ready(function()
 			type : 'get',
 			success : function(data)
 			{
-				if(data.pide_referencia)
+				if(data.requires_reference)
 				{
 					$('#id_transferencia_referencia').prop("disabled", false);
 					$('#id_crear_detalle').prop("disabled", true);

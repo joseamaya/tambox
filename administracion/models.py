@@ -129,7 +129,7 @@ class Productor(TimeStampedModel):
 class Oficina(TimeStampedModel):
     code = models.CharField(max_length=4, unique=True)
     name = models.CharField(max_length=50)
-    es_gerencia = models.BooleanField(default=False)
+    is_management = models.BooleanField(default=False)
     dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
@@ -146,7 +146,7 @@ class Oficina(TimeStampedModel):
     @property
     def gerencia(self):
         oficina_superior = self.dependencia
-        if oficina_superior.es_gerencia:
+        if oficina_superior.is_management:
             return oficina_superior
         else:
             return oficina_superior.gerencia
@@ -169,8 +169,8 @@ class Puesto(TimeStampedModel):
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='positions')
     start_date = models.DateField()
     end_date = models.DateField(null=True)
-    es_jefatura = models.BooleanField(default=False)
-    es_asistente = models.BooleanField(default=False)
+    is_leadership = models.BooleanField(default=False)
+    is_assistant = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -186,7 +186,7 @@ class Puesto(TimeStampedModel):
     @property
     def puesto_superior(self):
         puestos_superiores = Puesto.objects.filter(oficina=self.oficina,
-                                                   es_jefatura=True,
+                                                   is_leadership=True,
                                                    is_active=True)
         if puestos_superiores.count() > 0:
             puesto_superior = puestos_superiores[0]
@@ -196,7 +196,7 @@ class Puesto(TimeStampedModel):
 
     def establecer_nivel(self, oficina_requerimiento):
         from tambox.configuracion import logistica
-        description = "LOGISTICA" if (self.oficina == logistica() and self.es_jefatura) else "USUARIO"
+        description = "LOGISTICA" if (self.oficina == logistica() and self.is_leadership) else "USUARIO"
         try:
             return NivelAprobacion.objects.get(description=description)
         except NivelAprobacion.DoesNotExist:

@@ -83,7 +83,7 @@ class ProductoTest(TestCase):
         self.gp2 = baker.make(GrupoProductos, code='')
         self.p1 = baker.make(Producto, code='', grupo_productos=self.gp1)
         self.p2 = baker.make(Producto, code='', grupo_productos=self.gp1)
-        self.p3 = baker.make(Producto, code='', grupo_productos=self.gp2, es_servicio=True)
+        self.p3 = baker.make(Producto, code='', grupo_productos=self.gp2, is_service=True)
 
     def test_creacion_producto(self):
         self.assertTrue(isinstance(self.p1, Producto))

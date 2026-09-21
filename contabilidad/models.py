@@ -38,7 +38,7 @@ class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True, max_length=12)
     description = models.CharField(max_length=150)
     depreciacion = models.DecimalField(max_digits=18, decimal_places=2, default=0)
-    divisionaria = models.BooleanField(default=False)
+    is_divisional = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
@@ -177,7 +177,7 @@ class Empresa(SingletonModel):
     puerto_correo = models.IntegerField(default=25)
     usuario = models.EmailField()
     password = models.CharField(max_length=20)
-    usa_tls = models.BooleanField(default=True)
+    uses_tls = models.BooleanField(default=True)
 
     def __str__(self):
         return u'%s' % self.business_name

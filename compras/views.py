@@ -48,10 +48,10 @@ class Tablero(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         cant_proveedores = Proveedor.objects.count()
-        cant_productos = Producto.objects.filter(es_servicio=False).count()
+        cant_productos = Producto.objects.filter(is_service=False).count()
         cant_tipos_unidad_medida = UnidadMedida.objects.count()
         cant_grupos_suministros = GrupoProductos.objects.count()
-        cant_servicios = Producto.objects.filter(es_servicio=True).count()
+        cant_servicios = Producto.objects.filter(is_service=True).count()
         unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if cant_proveedores == 0:
@@ -1227,7 +1227,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                 detalles = DetalleCotizacion.objects.filter(
                     Q(status=DetalleCotizacion.STATUS.PEND) | Q(status=DetalleCotizacion.STATUS.ELEG_PARC),
                     cotizacion__code=cotizacion,
-                    detalle_requerimiento__producto__es_servicio=False).order_by('line_number')
+                    detalle_requerimiento__producto__is_service=False).order_by('line_number')
                 try:
                     monto_impuesto = impuesto_compra().amount
                 except AttributeError:
@@ -1235,7 +1235,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
             elif tipo_busqueda == 'SERVICIOS':
                 monto_impuesto = 1
                 detalles = DetalleCotizacion.objects.filter(cotizacion__code=cotizacion,
-                                                            detalle_requerimiento__producto__es_servicio=True).order_by(
+                                                            detalle_requerimiento__producto__is_service=True).order_by(
                     'line_number')
 
             lista_detalles = []
@@ -1308,7 +1308,7 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             orden_compra = OrdenCompra.objects.get(code=request.GET['orden_compra'])
             date = self.obtener_date(request.GET['date'])
             tipo_cambio = 1
-            if orden_compra.dolares:
+            if orden_compra.in_dollars:
                 try:
                     tipo_cambio = TipoCambio.objects.get(date=date).amount
                 except TipoCambio.DoesNotExist:

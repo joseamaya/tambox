@@ -229,8 +229,8 @@ class OrdenCompra(TimeStampedModel):
                      ('ING_PARC', _('INGRESADA PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
-    con_impuesto = models.BooleanField(default=False)
-    dolares = models.BooleanField(default=False)
+    with_tax = models.BooleanField(default=False)
+    in_dollars = models.BooleanField(default=False)
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -355,7 +355,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def precio_con_igv(self):
-        if self.orden.con_impuesto:
+        if self.orden.with_tax:
             precio_con_igv = self.price
         else:
             monto_impuesto = configuracion().impuesto_compra.amount
@@ -364,7 +364,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def precio_sin_igv(self):
-        if self.orden.con_impuesto:
+        if self.orden.with_tax:
             monto_impuesto = configuracion().impuesto_compra.amount
             precio_sin_igv = round(self.price / (monto_impuesto + 1), 5)
         else:
@@ -373,7 +373,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def valor_sin_igv(self):
-        if self.orden.con_impuesto:
+        if self.orden.with_tax:
             monto_impuesto = configuracion().impuesto_compra.amount
             valor_sin_igv = (self.price * self.quantity) / (monto_impuesto + 1)
         else:
@@ -382,7 +382,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def valor_con_igv(self):
-        if self.orden.con_impuesto:
+        if self.orden.with_tax:
             valor_con_igv = self.price * self.quantity
         else:
             monto_impuesto = configuracion().impuesto_compra.amount
@@ -392,7 +392,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     @property
     def impuesto(self):
         monto_impuesto = configuracion().impuesto_compra.amount
-        if self.orden.con_impuesto:
+        if self.orden.with_tax:
             imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
         else:
             imp = self.price * self.quantity * monto_impuesto

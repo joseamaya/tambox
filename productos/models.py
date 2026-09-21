@@ -42,7 +42,7 @@ class GrupoProductos(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=6)
     description = models.CharField(max_length=100)
     ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE, related_name='product_groups')
-    son_productos = models.BooleanField(default=True)
+    contains_products = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -113,7 +113,7 @@ class Producto(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=10, verbose_name='Código')
     grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE, related_name='products')
     description = models.CharField(max_length=100, unique=True, verbose_name='Descripción')
-    es_servicio = models.BooleanField(default=False)
+    is_service = models.BooleanField(default=False)
     unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, related_name='products')
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
@@ -211,7 +211,7 @@ class Producto(TimeStampedModel):
             else:
                 aux = int(cod_ant) + 1
                 self.code = str(aux).zfill(10)
-            if self.es_servicio:
+            if self.is_service:
                 unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                            defaults={'description': 'SERVICIO'})
                 self.unidad_medida = unidad_medida

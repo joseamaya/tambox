@@ -42,14 +42,14 @@
         </div>
         <div class="row">
             <div class="col-lg-2">
-                {% if object.es_jefatura %}
+                {% if object.is_leadership %}
                 <p>ES JEFATURA</p>
                 {% else %}
                 <p>NO ES JEFATURA</p>
                 {% endif %}
             </div>
             <div class="col-lg-3">
-                {% if object.es_asistente %}
+                {% if object.is_assistant %}
                 <p>ES ASISTENTE</p>
                 {% else %}
                 <p>NO ES ASISTENTE</p>

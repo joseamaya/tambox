@@ -169,7 +169,7 @@ class CrearRequerimiento(CreateView):
                                                              uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
-                puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, es_jefatura=True, is_active=True)
+                puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.trabajador
                 destinatario = jefe.usuario.email
                 if jefe.pk != self.object.solicitante.pk:
@@ -245,7 +245,7 @@ class ListadoAprobacionRequerimientos(ListView):
         puesto = trabajador.puesto
         if puesto is None:
             return HttpResponseRedirect(reverse('administracion:crear_puesto'))
-        if not puesto.es_jefatura:
+        if not puesto.is_leadership:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)
 

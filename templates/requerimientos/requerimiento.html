@@ -111,13 +111,13 @@
                 <div class="row">
                     <div class="col-md-5">
                         <div class="checkbox">
-                            {% if form.entrega_directa_solicitante.errors %}
-                            {% for error in form.entrega_directa_solicitante.errors %}
+                            {% if form.direct_delivery_to_requester.errors %}
+                            {% for error in form.direct_delivery_to_requester.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
-                                {{ form.entrega_directa_solicitante }} Entrega Directamente al Solicitante
+                                {{ form.direct_delivery_to_requester }} Entrega Directamente al Solicitante
                             </label>
                         </div>
                     </div>

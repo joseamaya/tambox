@@ -37,7 +37,7 @@ class Tablero(View):
         cant_profesiones = Profesion.objects.all().count()
         oficina, creada = Oficina.objects.get_or_create(code='GGEN',
                                                        defaults={'name': 'GERENCIA GENERAL',
-                                                                 'es_gerencia': True})
+                                                                 'is_management': True})
         if creada:
             lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
         if cant_trabajadores == 0:
@@ -62,7 +62,7 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
-            if tipo_movimiento.es_venta:
+            if tipo_movimiento.is_sale:
                 receptor = Productor.objects.get(dni=dni)
             else:
                 receptor = Trabajador.objects.get(dni=dni)
@@ -80,7 +80,7 @@ class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             name = request.GET['name']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
-            if tipo_movimiento.es_venta:
+            if tipo_movimiento.is_sale:
                 receptores = Productor.objects.filter(last_name__icontains=name)[:20]
             else:
                 receptores = Trabajador.objects.filter(
@@ -160,7 +160,7 @@ class CargarPuestos(CargarCsvMixin, FormView):
                                          defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
                                                    'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
                                                    'start_date': date,
-                                                   'es_jefatura': fila[4] == 'SI'})
+                                                   'is_leadership': fila[4] == 'SI'})
         except Exception:
             logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
 
@@ -467,7 +467,7 @@ class ReporteExcelPuestos(TemplateView):
             ws.cell(row=cont, column=4).value = puesto.trabajador.nombre_completo()
             ws.cell(row=cont, column=5).value = puesto.start_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=6).value = puesto.end_date
-            if puesto.es_jefatura:
+            if puesto.is_leadership:
                 ws.cell(row=cont, column=7).value = "SI"
             else:
                 ws.cell(row=cont, column=7).value = "NO"

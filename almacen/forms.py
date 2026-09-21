@@ -17,7 +17,7 @@ from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
 class TipoMovimientoForm(forms.ModelForm):
     class Meta:
         model = TipoMovimiento
-        fields = ['description', 'sunat_code', 'incrementa', 'pide_referencia', 'es_compra', 'es_venta']
+        fields = ['description', 'sunat_code', 'increases', 'requires_reference', 'is_purchase', 'is_sale']
 
     def __init__(self, *args, **kwargs):
         self.aestado = True
@@ -107,9 +107,9 @@ class MovimientoForm(forms.ModelForm):
         self.fields['receptor'].required = False
         self.fields['doc_referencia'].required = False
         if self.tipo_movimiento == 'I':
-            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(incrementa=True)
+            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(increases=True)
         elif self.tipo_movimiento == 'S':
-            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(incrementa=False)
+            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(increases=False)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -118,7 +118,7 @@ class MovimientoForm(forms.ModelForm):
     def clean_dni_receptor(self):
         dni_receptor = self.cleaned_data.get('dni_receptor')
         if dni_receptor != "":
-            if self.cleaned_data['tipo_movimiento'].es_venta:
+            if self.cleaned_data['tipo_movimiento'].is_sale:
                 try:
                     Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
                 except Productor.DoesNotExist:
@@ -147,7 +147,7 @@ class MovimientoForm(forms.ModelForm):
                 self.instance.referencia = OrdenCompra.objects.get(code=self.cleaned_data['doc_referencia'])
             except ObjectDoesNotExist:
                 self.instance.referencia = None
-        if self.cleaned_data['tipo_movimiento'].es_venta:
+        if self.cleaned_data['tipo_movimiento'].is_sale:
             try:
                 self.instance.productor = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:

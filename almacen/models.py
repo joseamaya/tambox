@@ -51,10 +51,10 @@ class TipoMovimiento(TimeStampedModel):
     code = models.CharField(unique=True, max_length=10, verbose_name='Código')
     sunat_code = models.CharField(max_length=2)
     description = models.CharField(max_length=25, verbose_name='Descripción')
-    incrementa = models.BooleanField()
-    pide_referencia = models.BooleanField(default=False)
-    es_compra = models.BooleanField(default=False)
-    es_venta = models.BooleanField(default=False)
+    increases = models.BooleanField()
+    requires_reference = models.BooleanField(default=False)
+    is_purchase = models.BooleanField(default=False)
+    is_sale = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True, verbose_name='Estado')
     history = HistoricalRecords()
 
@@ -74,10 +74,10 @@ class TipoMovimiento(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            tipo_mov_ant = TipoMovimiento.objects.filter(incrementa=self.incrementa).aggregate(Max('code'))
+            tipo_mov_ant = TipoMovimiento.objects.filter(increases=self.increases).aggregate(Max('code'))
             cod_ant = tipo_mov_ant['code__max']
 
-            if self.incrementa:
+            if self.increases:
                 if cod_ant is None:
                     self.code = 'I00'
                 else:
@@ -300,7 +300,7 @@ class Movimiento(TimeStampedModel):
         if self.id_movimiento == '':
             tipo = self.tipo_movimiento
             anio = self.operation_date.year
-            mov_ant = Movimiento.objects.filter(tipo_movimiento__incrementa=tipo.incrementa,
+            mov_ant = Movimiento.objects.filter(tipo_movimiento__increases=tipo.increases,
                                                 operation_date__year=anio).aggregate(Max('id_movimiento'))
             id_ant = mov_ant['id_movimiento__max']
             if id_ant is None:
@@ -335,7 +335,7 @@ class DetalleMovimiento(TimeStampedModel):
                         movimiento=movi,
                         movement_line_number=self.line_number,
                         almacen=movi.almacen)
-        if t_movimiento.incrementa:
+        if t_movimiento.increases:
             kardex.in_quantity = self.quantity
             kardex.in_price = self.price
             kardex.in_amount = val

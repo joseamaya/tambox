@@ -344,9 +344,9 @@ $(document).ready(function()
 	$("#id_date").datepicker();
 	$(".decimal").keydown(validar_decimales);
 	
-	$("#id_ruc").keyup(function() 
+	$("#id_tax_id").keyup(function() 
 	{
-		var tax_id=$("#id_ruc").val();
+		var tax_id=$("#id_tax_id").val();
 		
 		if(tax_id.length==11)
 		{	
@@ -355,8 +355,8 @@ $(document).ready(function()
 		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
-		    	  $("#id_razon_social").val(data.business_name);
-		    	  $("#id_direccion").val(data.address);
+		    	  $("#id_business_name").val(data.business_name);
+		    	  $("#id_address").val(data.address);
 		    	  removeLoading();
 		    	  event.preventDefault();
 		      }
@@ -364,11 +364,11 @@ $(document).ready(function()
 		}
 	});
 	
-	$("#id_razon_social").autocomplete({
+	$("#id_business_name").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
-	      data: {'business_name': $("#id_razon_social").val()},
+	      data: {'business_name': $("#id_business_name").val()},
 	      success: function( data ) 
 	      {
 	          response( data );
@@ -377,9 +377,9 @@ $(document).ready(function()
 	  },
 	  minLength: 2,
 	  select: function( event, ui ) {
-		$("#id_ruc").val(ui.item.tax_id);
-		$("#id_razon_social").val(ui.item.label);
-		$("#id_direccion").val(ui.item.address);
+		$("#id_tax_id").val(ui.item.tax_id);
+		$("#id_business_name").val(ui.item.label);
+		$("#id_address").val(ui.item.address);
 		return false;
 	  },
 	});
@@ -535,9 +535,9 @@ $(document).ready(function()
 	      data: {'code': cotizacion},
 	      success: function(data) 
 	      {
-	    	  $("#id_ruc").val(data.tax_id);
-	    	  $("#id_razon_social").val(data.business_name);
-	    	  $("#id_direccion").val(data.address);
+	    	  $("#id_tax_id").val(data.tax_id);
+	    	  $("#id_business_name").val(data.business_name);
+	    	  $("#id_address").val(data.address);
 	    	  event.preventDefault();
 	      }
 	    });
@@ -626,7 +626,7 @@ $(document).ready(function()
 		var cont=0;
 		$('#id_cdetalles').val(ultimo_item);
 		var forma_pago = $('#id_forma_pago').val();
-		var tax_id = $('#id_ruc').val();
+		var tax_id = $('#id_tax_id').val();
 		var date = $('#id_date').val().trim();
 		if(tax_id != '')
 		{					

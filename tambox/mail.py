@@ -12,7 +12,7 @@ try:
     my_port = empresa.puerto_correo
     my_username = empresa.usuario
     my_password = empresa.password
-    my_use_tls = empresa.usa_tls
+    my_use_tls = empresa.uses_tls
     connection = get_connection(host=my_host,
                                 port=my_port,
                                 username=my_username,

@@ -105,7 +105,7 @@ class CotizacionForm(forms.ModelForm):
         cleaned_data = super(CotizacionForm, self).clean()
         tax_id = cleaned_data.get('tax_id')
         referencia = cleaned_data.get('referencia')
-        cotizacion = Cotizacion.objects.filter(proveedor__ruc=tax_id,
+        cotizacion = Cotizacion.objects.filter(proveedor__tax_id=tax_id,
                                                requerimiento=referencia)
         if len(cotizacion) > 0:
             raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
@@ -145,7 +145,7 @@ class OrdenCompraForm(forms.ModelForm):
         self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
         for field in iter(self.fields):
-            if field != 'con_impuesto' and field != 'dolares':
+            if field != 'with_tax' and field != 'in_dollars':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -170,7 +170,7 @@ class OrdenCompraForm(forms.ModelForm):
 
     class Meta:
         model = OrdenCompra
-        fields = ['code', 'forma_pago', 'date', 'notes', 'con_impuesto', 'dolares']
+        fields = ['code', 'forma_pago', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
 class OrdenServiciosForm(forms.ModelForm):

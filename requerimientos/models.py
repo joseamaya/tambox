@@ -25,7 +25,7 @@ class Requerimiento(TimeStampedModel):
     annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     notes = models.TextField()
     informe = models.FileField(upload_to='informes', null=True)
-    entrega_directa_solicitante = models.BooleanField(default=False)
+    direct_delivery_to_requester = models.BooleanField(default=False)
     STATUS = CHOICES_ESTADO_REQ
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
@@ -136,11 +136,11 @@ class Requerimiento(TimeStampedModel):
         oficina_usuario = puesto_usuario.oficina
         if (usuario.is_staff
                 or solicitante == trabajador
-                or (oficina_usuario == self.oficina and puesto_usuario.es_jefatura)
+                or (oficina_usuario == self.oficina and puesto_usuario.is_leadership)
                 or ((oficina_usuario == self.oficina.gerencia
                      or oficina_usuario == oficina_administracion
                      or oficina_usuario == logistica
-                     or oficina_usuario == presupuesto) and puesto_usuario.es_jefatura)):
+                     or oficina_usuario == presupuesto) and puesto_usuario.is_leadership)):
             return True
         else:
             return False
@@ -152,11 +152,11 @@ class Requerimiento(TimeStampedModel):
             puesto_usuario = trabajador.puesto
             oficina_usuario = puesto_usuario.oficina
             if (((
-                         oficina_usuario == oficina_administracion() or oficina_usuario == presupuesto()) and puesto_usuario.es_jefatura) or
-                    (oficina_usuario == logistica() and (puesto_usuario.es_jefatura or puesto_usuario.es_asistente)) or
+                         oficina_usuario == oficina_administracion() or oficina_usuario == presupuesto()) and puesto_usuario.is_leadership) or
+                    (oficina_usuario == logistica() and (puesto_usuario.is_leadership or puesto_usuario.is_assistant)) or
                     usuario.is_staff):
                 queryset = Requerimiento.objects.all()
-            elif puesto_usuario.es_jefatura:
+            elif puesto_usuario.is_leadership:
                 queryset = Requerimiento.objects.requerimientos_oficina_usuario(oficina_usuario)
             else:
                 queryset = Requerimiento.objects.requerimientos_activos_por_usuario(usuario, Requerimiento.STATUS.CANC)
@@ -200,7 +200,7 @@ class Requerimiento(TimeStampedModel):
     def crear_aprobacion_inicial(self, puesto):
         """Crea la aprobacion del primer nivel. Requiere que el requerimiento ya
         tenga pk, por eso se llama despues de guardar."""
-        if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
+        if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.is_leadership:
             niveles_aprobacion = NivelAprobacion.objects.filter(description="JEFATURA")
             if niveles_aprobacion.count() > 0:
                 AprobacionRequerimiento.objects.create(requerimiento=self,
@@ -315,7 +315,7 @@ class AprobacionRequerimiento(TimeStampedModel):
         puesto_usuario = usuario.worker.puesto
         oficina_usuario = puesto_usuario.oficina
         queryset = []
-        if oficina_usuario == logistica() and puesto_usuario.es_jefatura:
+        if oficina_usuario == logistica() and puesto_usuario.is_leadership:
             queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__status=Requerimiento.STATUS.CANC),
                                                               nivel__description="USUARIO",
                                                               is_active=True)

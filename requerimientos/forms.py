@@ -23,7 +23,7 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         oficina = self.instance.obtener_oficina_aprobacion_superior()
         if oficina is not None:
             try:
-                puesto_jefe = Puesto.objects.get(oficina=oficina, es_jefatura=True, is_active=True)
+                puesto_jefe = Puesto.objects.get(oficina=oficina, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.trabajador
                 destinatario = jefe.usuario.email
                 correo_creacion_requerimiento(destinatario, self.instance.requerimiento)
@@ -97,7 +97,7 @@ class RequerimientoForm(forms.ModelForm):
         self.fields['notes'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
-            if field != 'entrega_directa_solicitante':
+            if field != 'direct_delivery_to_requester':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -113,7 +113,7 @@ class RequerimientoForm(forms.ModelForm):
     class Meta:
         model = Requerimiento
         fields = ['code', 'motivo', 'date', 'mes', 'annio', 'notes', 'informe',
-                  'entrega_directa_solicitante']
+                  'direct_delivery_to_requester']
 
 
 DetalleRequerimientoFormSet = formsets.formset_factory(FormularioDetalleRequerimiento, BaseDetalleRequerimientoFormSet,

@@ -34,12 +34,12 @@ class ProfesionForm(forms.ModelForm):
 class OficinaForm(forms.ModelForm):
     class Meta:
         model = Oficina
-        fields = ['code', 'name', 'dependencia', 'es_gerencia']
+        fields = ['code', 'name', 'dependencia', 'is_management']
 
     def __init__(self, *args, **kwargs):
         super(OficinaForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field != 'es_gerencia':
+            if field != 'is_management':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
@@ -86,20 +86,20 @@ class ProductorForm(forms.ModelForm):
 class PuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
+        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):
         super(PuestoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field != 'es_jefatura' and field != 'es_asistente':
+            if field != 'is_leadership' and field != 'is_assistant':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
         self.fields['start_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].required = False
-        self.fields['es_jefatura'].required = False
-        self.fields['es_asistente'].required = False
+        self.fields['is_leadership'].required = False
+        self.fields['is_assistant'].required = False
         self.fields['trabajador'].queryset = Trabajador.objects.exclude(
             pk__in=Puesto.objects.filter(end_date__isnull=True).values('trabajador'))
 
@@ -107,17 +107,17 @@ class PuestoForm(forms.ModelForm):
 class ModificacionPuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
+        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):
         super(ModificacionPuestoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field != 'es_jefatura' and field != 'es_asistente':
+            if field != 'is_leadership' and field != 'is_assistant':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
         self.fields['start_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].required = False
-        self.fields['es_jefatura'].required = False
-        self.fields['es_asistente'].required = False
+        self.fields['is_leadership'].required = False
+        self.fields['is_assistant'].required = False

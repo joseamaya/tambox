@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-5">
         {% if perms.almacen.add_movimiento %}
-        {% if object.tipo_movimiento.incrementa %}
+        {% if object.tipo_movimiento.increases %}
         <a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
         {% else %}
         <a href="{% url 'almacen:registrar_salida' %}" class="btn btn-primary">Crear</a>

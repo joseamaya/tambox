@@ -716,12 +716,12 @@ class PDFMemorandoConformidadServicio(object):
     def obtener_puesto(self, oficina, conformidad):
         try:
             puesto = Puesto.objects.get(oficina=oficina,
-                                        es_jefatura=True,
+                                        is_leadership=True,
                                         start_date__lte=conformidad.date,
                                         end_date=None)
         except Puesto.DoesNotExist:
             puesto = Puesto.objects.get(oficina=oficina,
-                                        es_jefatura=True,
+                                        is_leadership=True,
                                         start_date__lte=conformidad.date,
                                         end_date__gte=conformidad.date)
         return puesto
@@ -729,12 +729,12 @@ class PDFMemorandoConformidadServicio(object):
     def puesto_superior(self, oficina, conformidad):
         try:
             puesto_superior = Puesto.objects.get(oficina=oficina,
-                                                 es_jefatura=True,
+                                                 is_leadership=True,
                                                  start_date__lte=conformidad.date,
                                                  end_date=None)
         except Puesto.DoesNotExist:
             puesto_superior = Puesto.objects.get(oficina=oficina,
-                                                 es_jefatura=True,
+                                                 is_leadership=True,
                                                  start_date__lte=conformidad.date,
                                                  end_date__gte=conformidad.date)
         return puesto_superior
@@ -763,7 +763,7 @@ class PDFMemorandoConformidadServicio(object):
         y = 690
         if puesto_solicitante.oficina.code == 'GGEN':
             puesto_gerente = self.obtener_puesto(configuracion().administracion, conformidad)
-        elif puesto_solicitante.oficina.code == 'GOPE' and not puesto_solicitante.es_jefatura:
+        elif puesto_solicitante.oficina.code == 'GOPE' and not puesto_solicitante.is_leadership:
             puesto_gerente = self.obtener_puesto(requerimiento.oficina, conformidad)
         else:
             puesto_gerente = self.obtener_puesto(gerencia_inmediata, conformidad)

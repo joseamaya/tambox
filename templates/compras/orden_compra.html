@@ -129,25 +129,25 @@
                 <div class="row">
                     <div class="col-md-2">
                         <div class="checkbox">
-                            {% if form.con_impuesto.errors %}
-                            {% for error in form.con_impuesto.errors %}
+                            {% if form.with_tax.errors %}
+                            {% for error in form.with_tax.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
-                                {{ form.con_impuesto }} Con impuesto
+                                {{ form.with_tax }} Con impuesto
                             </label>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="checkbox">
-                            {% if form.dolares.errors %}
-                            {% for error in form.dolares.errors %}
+                            {% if form.in_dollars.errors %}
+                            {% for error in form.in_dollars.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
                             <label>
-                                {{ form.dolares }} En Dolares
+                                {{ form.in_dollars }} En Dolares
                             </label>
                         </div>
                     </div>
@@ -355,10 +355,10 @@ $(document).ready(function()
 	var subtotal=parseFloat($('#id_subtotal').val());
 	var impuesto_total = parseFloat($('#id_impuesto').val());
 	var total=parseFloat($('#id_total').val());
-	var con_impuesto = false;
+	var with_tax = false;
 	var tipo_cambio = 1;
 
-	$('#id_dolares').change(function()
+	$('#id_in_dollars').change(function()
 	{
 		var date = $('#id_date').val();
 		if (date != "")
@@ -375,7 +375,7 @@ $(document).ready(function()
 				else
 				{
 					alert("No existe tipo de cambio para la fecha seleccionada");
-					$('#id_dolares').prop('checked',false);
+					$('#id_in_dollars').prop('checked',false);
 				}
 
 			  }
@@ -383,8 +383,8 @@ $(document).ready(function()
 		}
 	});
 
-	$('#id_con_impuesto').change(function(){
-		con_impuesto = $('#id_con_impuesto').prop('checked');
+	$('#id_with_tax').change(function(){
+		with_tax = $('#id_with_tax').prop('checked');
 		subtotal = 0;
 		impuesto_total = 0;
 		total = 0;
@@ -397,7 +397,7 @@ $(document).ready(function()
 			var id = id_input.replace("impuesto","");
 			var price = $("#"+id+"price").val();
 			var quantity = $("#"+id+"quantity").val();
-			if (con_impuesto)
+			if (with_tax)
 			{
 				valorConIGV = parseFloat(quantity) * parseFloat(price);
 				valorSinIGV = valorConIGV / (porc_impuesto+1);
@@ -423,9 +423,9 @@ $(document).ready(function()
 
 	$("#id_date").datepicker();	
 	
-	$("#id_ruc").keyup(function() 
+	$("#id_tax_id").keyup(function() 
 	{
-		var tax_id=$("#id_ruc").val();
+		var tax_id=$("#id_tax_id").val();
 		
 		if(tax_id.length==11)
 		{	
@@ -434,8 +434,8 @@ $(document).ready(function()
 		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
-		    	  $("#id_razon_social").val(data.business_name);
-		    	  $("#id_direccion").val(data.address);
+		    	  $("#id_business_name").val(data.business_name);
+		    	  $("#id_address").val(data.address);
 		    	  removeLoading();
 		    	  event.preventDefault();
 		      }
@@ -443,11 +443,11 @@ $(document).ready(function()
 		}
 	});
 	
-	$("#id_razon_social").autocomplete({
+	$("#id_business_name").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
-	      data: {'business_name': $("#id_razon_social").val()},
+	      data: {'business_name': $("#id_business_name").val()},
 	      success: function( data ) 
 	      {
 	          response( data );
@@ -456,9 +456,9 @@ $(document).ready(function()
 	  },
 	  minLength: 2,
 	  select: function( event, ui ) {
-		$("#id_ruc").val(ui.item.tax_id);
-		$("#id_razon_social").val(ui.item.label);
-		$("#id_direccion").val(ui.item.address);
+		$("#id_tax_id").val(ui.item.tax_id);
+		$("#id_business_name").val(ui.item.label);
+		$("#id_address").val(ui.item.address);
 		return false;
 	  },
 	});
@@ -505,7 +505,7 @@ $(document).ready(function()
 		{
 			var valorAnt = $("#"+id+"amount").val();
 			var impAnt = $("#"+id+"impuesto").val();
-			if (con_impuesto)
+			if (with_tax)
 			{
 				var valorConIGV = parseFloat(quantity) * parseFloat(price);
 				var valorSinIGV = valorConIGV / (porc_impuesto+1);
@@ -591,7 +591,7 @@ $(document).ready(function()
 	$('#id_transferencia_cotizacion').click(function(e)
 	{
 		$('#id_crear_detalle').prop("disabled", true);
-		$('#id_ruc').prop("readonly", "readonly");
+		$('#id_tax_id').prop("readonly", "readonly");
 	    e.preventDefault();
 	    ventana_transferencia = $('#popup').dialog(
 		{
@@ -627,9 +627,9 @@ $(document).ready(function()
 	      data: {'code': cotizacion},
 	      success: function(data) 
 	      {
-	    	  $("#id_ruc").val(data.tax_id);
-	    	  $("#id_razon_social").val(data.business_name);
-	    	  $("#id_direccion").val(data.address);
+	    	  $("#id_tax_id").val(data.tax_id);
+	    	  $("#id_business_name").val(data.business_name);
+	    	  $("#id_address").val(data.address);
 	    	  event.preventDefault();
 	      }
 	    });
@@ -720,7 +720,7 @@ $(document).ready(function()
 	{
 		var cont=0;
 		var forma_pago = $('#id_forma_pago').val();
-		var tax_id = $('#id_ruc').val();
+		var tax_id = $('#id_tax_id').val();
 		var date = $('#id_date').val().trim();
 		if(tax_id != '')
 		{					

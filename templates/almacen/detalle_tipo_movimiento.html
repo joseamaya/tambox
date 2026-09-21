@@ -52,13 +52,13 @@
                         <label>CODIGO:</label>
                         <p>{{ object.code }}</p>
                         <label>INCREMENTA:</label>
-                        {% if object.incrementa %}
+                        {% if object.increases %}
                         <p>SI</p>
                         {% else %}
                         <p>NO</p>
                         {% endif %}
                         <label>PIDE REFERENCIA:</label>
-                        {% if object.pide_referencia %}
+                        {% if object.requires_reference %}
                         <p>SI</p>
                         {% else %}
                         <p>NO</p>
@@ -68,13 +68,13 @@
                         <label>CODIGO SUNAT:</label>
                         <p>{{ object.sunat_code }}</p>
                         <label>ES COMPRA:</label>
-                        {% if object.es_compra %}
+                        {% if object.is_purchase %}
                         <p>SI</p>
                         {% else %}
                         <p>NO</p>
                         {% endif %}
                         <label>ES VENTA:</label>
-                        {% if object.es_venta %}
+                        {% if object.is_sale %}
                         <p>SI</p>
                         {% else %}
                         <p>NO</p>

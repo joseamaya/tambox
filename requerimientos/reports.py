@@ -60,7 +60,7 @@ class ReporteRequerimiento():
         date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.date.strftime('%d/%m/%Y'), izquierda)
         mes = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)
         para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requerimiento.annio), izquierda)
-        if requerimiento.entrega_directa_solicitante:
+        if requerimiento.direct_delivery_to_requester:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
@@ -137,12 +137,12 @@ class ReporteRequerimiento():
     def obtener_puesto(self, oficina, requerimiento):
         try:
             jefatura = Puesto.objects.get(oficina=oficina,
-                                          es_jefatura=True,
+                                          is_leadership=True,
                                           start_date__lte=requerimiento.date,
                                           end_date=None)
         except Puesto.DoesNotExist:
             jefatura = Puesto.objects.get(oficina=oficina,
-                                          es_jefatura=True,
+                                          is_leadership=True,
                                           start_date__lte=requerimiento.date,
                                           end_date__gte=requerimiento.date)
         return jefatura

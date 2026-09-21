@@ -82,7 +82,7 @@ class ReporteMovimiento():
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
 
-        if movimiento.tipo_movimiento.incrementa:
+        if movimiento.tipo_movimiento.increases:
             nota = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
@@ -221,7 +221,7 @@ class ReporteMovimiento():
                                    fontName="Times-Roman")
         nombre_oficina_administracion = Paragraph(oficina_administracion().name, izquierda)
         nombre_oficina_logistica = Paragraph(logistica().name, izquierda)
-        if movimiento.tipo_movimiento.incrementa:
+        if movimiento.tipo_movimiento.increases:
             total = [[nombre_oficina_administracion, '', nombre_oficina_logistica]]
             tabla_firmas = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
             tabla_firmas.setStyle(TableStyle(
@@ -1012,7 +1012,7 @@ class ReporteKardexPDF():
 
         elements = []
         grupos = GrupoProductos.objects.filter(is_active=True,
-                                               son_productos=True).order_by('description')
+                                               contains_products=True).order_by('description')
         elements.append(self.tabla_detalle_consolidado_grupo(grupos))
 
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
@@ -1963,7 +1963,7 @@ class ReporteKardexExcel():
 
     def obtener_consolidado_grupos(self, desde, hasta, almacen):
         grupos = GrupoProductos.objects.filter(is_active=True,
-                                               son_productos=True)
+                                               contains_products=True)
         self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, almacen, desde, hasta)
         wb = Workbook()
         ws = wb.active

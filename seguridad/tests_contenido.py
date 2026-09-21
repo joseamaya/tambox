@@ -103,7 +103,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         respuesta = self.client.get(reverse('almacen:crear_tipo_movimiento'))
 
         self.assertEqual(respuesta.status_code, 200)
-        self.assertContains(respuesta, 'name="incrementa"')
+        self.assertContains(respuesta, 'name="increases"')
 
     def test_la_lista_de_unidades_de_medida_muestra_la_description(self):
         baker.make('productos.UnidadMedida', code='UND01', description='UNIDAD-XYZ')
