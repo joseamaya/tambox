@@ -40,7 +40,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         tipo = baker.make(MovementType, description='TIPO-XYZ')
         baker.make(Movement, movement_type=tipo)
 
-        respuesta = self.client.get(reverse('almacen:movimientos'))
+        respuesta = self.client.get(reverse('almacen:movement_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'TIPO-XYZ')
@@ -50,7 +50,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         movement = baker.make(Movement)
         baker.make('almacen.MovementDetail', movement=movement, product=product)
 
-        respuesta = self.client.get(reverse('almacen:detalle_movimiento', args=[movement.pk]))
+        respuesta = self.client.get(reverse('almacen:movement_detail_view', args=[movement.pk]))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
@@ -100,7 +100,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_un_formulario_sigue_pintando_sus_campos(self):
         """El widget lleva el nombre del campo del formulario, asi que si el campo
         se renombra y la plantilla no lo sigue, el cuadro desaparece de la pagina."""
-        respuesta = self.client.get(reverse('almacen:crear_tipo_movimiento'))
+        respuesta = self.client.get(reverse('almacen:movement_type_create'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'name="increases"')
@@ -132,7 +132,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_almacenes_muestra_la_description(self):
         baker.make('almacen.Warehouse', code='AL01', description='ALMACEN-XYZ')
 
-        respuesta = self.client.get(reverse('almacen:almacenes'))
+        respuesta = self.client.get(reverse('almacen:warehouse_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'ALMACEN-XYZ')
@@ -140,7 +140,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_tipos_de_movimiento_muestra_la_description(self):
         baker.make('almacen.MovementType', code='T01', description='MOVIMIENTO-XYZ')
 
-        respuesta = self.client.get(reverse('almacen:tipos_movimientos'))
+        respuesta = self.client.get(reverse('almacen:movement_type_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'MOVIMIENTO-XYZ')

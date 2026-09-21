@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.almacen.add_order %}
-        <a href="{% url 'almacen:crear_pedido' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'almacen:order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.almacen.cargar_pedidos %}
         <a href="#" class="btn btn-default">Importar</a>

@@ -5,12 +5,12 @@
     <div class="col-lg-5">
         {% if perms.almacen.add_movement %}
         {% if object.movement_type.increases %}
-        <a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
         {% else %}
-        <a href="{% url 'almacen:registrar_salida' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'almacen:outbound_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% endif %}
-        <a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a>
+        <a class="btn btn-primary" href="{% url 'almacen:movement_update' object.pk %}">Editar</a>
         {% if perms.almacen.delete_movement %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
@@ -24,7 +24,7 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'almacen:movimiento_pdf' object.pk %}">
+                    <a href="{% url 'almacen:movement_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -35,15 +35,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.anterior %}';">
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movimientos' %}';">
+                    onclick="location.href='{% url 'almacen:movement_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -241,13 +241,13 @@ $(document).ready(function()
 		var mySpinner = setupLoading();
 		$.ajax({
 			data : {'movement_id' : "{{ object.pk }}" },
-			url : "{% url 'almacen:eliminar_movimiento' %}",
+			url : "{% url 'almacen:movement_delete' %}",
 			type : 'post',
 			success : function(data)
 			{
 				removeLoading(mySpinner);
 				alert("Movimiento " + data.movement_id + " eliminado");
-				$(location).attr('href', "{% url 'almacen:movimientos' %}");
+				$(location).attr('href', "{% url 'almacen:movement_list' %}");
 			},
 			error: function (request, status, error)
 			{

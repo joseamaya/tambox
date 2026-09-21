@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:listado_salidas' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:outbound_list' %}'">
                 Cancelar
             </button>
         </div>
@@ -17,16 +17,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.anterior %}';">
+                        onclick="location.href='{% url 'almacen:movement_update' movement.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:movement_update' movement.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:listado_salidas' %}';">
+                        onclick="location.href='{% url 'almacen:outbound_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -356,7 +356,7 @@ $(document).ready(function()
 		if(alm != '') 
 		{			
 			$.ajax({
-				url : "{% url 'almacen:crear_detalle_salida' %}",
+				url : "{% url 'almacen:outbound_detail_create' %}",
 				type : 'get',
 				success : function(data)
 				{
@@ -392,7 +392,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'almacen:busqueda_productos_almacen' %}",
+				  url: "{% url 'almacen:product_warehouse_search' %}",
 				  data: {'warehouse': $("#id_warehouse").val(),'description': request.term },
 			      success: function( data ) 
 			      {
@@ -423,7 +423,7 @@ $(document).ready(function()
 		var id_product = $(this).prop('id');
 		var id = id_product.replace("quantity", "");
 		$.ajax({
-	      url: "{% url 'almacen:consulta_stock' %}",
+	      url: "{% url 'almacen:stock_query' %}",
 	      data: {
 	    	  'warehouse': $("#id_warehouse").val(),
 	    	  'code': $("#"+id+"code").val()

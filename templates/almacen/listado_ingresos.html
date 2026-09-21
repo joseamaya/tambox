@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.almacen.add_movement %}
-        <a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.almacen.cargar_movimientos %}
         <a href="#" class="btn btn-default">Importar</a>
@@ -36,7 +36,7 @@
             <tbody>
             {% for movement in movimientos %}
             {% if perms.almacen.ver_detalle_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:detalle_movimiento' movement.pk %}';">
+            <tr onclick="location.href='{% url 'almacen:movement_detail_view' movement.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -88,7 +88,7 @@ $(document).ready(function()
     	var movement_id = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'movement_id': movement_id},
-    		url : "{% url 'almacen:eliminar_movimiento' %}",
+    		url : "{% url 'almacen:movement_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

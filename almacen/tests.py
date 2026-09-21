@@ -270,7 +270,7 @@ class CargarCsvTest(TestCase):
         contenido = 'AL01,ALMACEN UNO\nAL02,ALMACEN DOS\n'
         file = SimpleUploadedFile('almacenes.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/cargar_almacenes/', {'file': file})
+        respuesta = self.client.post('/almacen/warehouse_import/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(Warehouse.objects.filter(code__in=['AL01', 'AL02']).count(), 2)
@@ -285,7 +285,7 @@ class CargarCsvTest(TestCase):
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
         file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
+        respuesta = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
@@ -309,7 +309,7 @@ class CargarCsvTest(TestCase):
         contenido = 'PRODUCTO UNO,10,5.0,50.0\n'
         file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
+        respuesta = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
@@ -582,7 +582,7 @@ class StockAjaxTest(TestCase):
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_listado_stock_producto(self):
-        respuesta = self.obtener('/almacen/listado_stock_producto/')
+        respuesta = self.obtener('/almacen/product_stock_list/')
 
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()
@@ -593,7 +593,7 @@ class StockAjaxTest(TestCase):
         self.assertAlmostEqual(datos[0]['stock'], 7)
 
     def test_busqueda_productos_almacen(self):
-        respuesta = self.obtener('/almacen/busqueda_productos_almacen/')
+        respuesta = self.obtener('/almacen/product_warehouse_search/')
 
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()

@@ -168,7 +168,7 @@ $("#id_buscar").click(function()
 	if(warehouse!="")
 	{
 		$.ajax({
-			url: "{% url 'almacen:listado_stock_producto' %}",
+			url: "{% url 'almacen:product_stock_list' %}",
 			data:
 			{
 				'description': $("#id_description").val(),

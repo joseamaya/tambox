@@ -17,12 +17,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.pk %}'">
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:listado_ingresos' %}'">
+                    onclick="location.href='{% url 'almacen:inbound_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -31,16 +31,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.anterior %}';">
+                        onclick="location.href='{% url 'almacen:movement_update' movement.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:movement_update' movement.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movimientos' %}';">
+                        onclick="location.href='{% url 'almacen:movement_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -356,7 +356,7 @@ $(document).ready(function()
 		tipo_ingreso = $('#id_movement_type').val();
 		$.ajax({
 			data : {'tipo': tipo_ingreso},
-			url : "{% url 'almacen:verificar_pide_referencia' %}",
+			url : "{% url 'almacen:verify_reference_required' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -378,7 +378,7 @@ $(document).ready(function()
 	{
 		e.preventDefault();
 		$.ajax({
-			url : "{% url 'almacen:crear_detalle_ingreso' %}",
+			url : "{% url 'almacen:inbound_detail_create' %}",
 			type : 'get',
 			success : function(data)
 			{

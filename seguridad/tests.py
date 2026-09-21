@@ -30,9 +30,9 @@ class AutorizacionTestCase(TestCase):
 
     def test_eliminar_por_get_no_permitido(self):
         self.client.force_login(self.usuario)
-        for url in ['/almacen/eliminar_almacen/',
-                    '/almacen/eliminar_movimiento/',
-                    '/almacen/eliminar_pedido/',
+        for url in ['/almacen/warehouse_delete/',
+                    '/almacen/movement_delete/',
+                    '/almacen/order_delete/',
                     '/compras/supplier_delete/',
                     '/compras/purchase_order_delete/',
                     '/compras/quotation_delete/',
@@ -94,7 +94,7 @@ class RenderTestCase(TestCase):
         for url in ['/contabilidad/tax_list/',
                     '/contabilidad/payment_method_list/',
                     '/administracion/dashboard/',
-                    '/almacen/tablero/']:
+                    '/almacen/dashboard/']:
             respuesta = self.client.get(url)
             self.assertIn(respuesta.status_code, (200, 302), url)
             if respuesta.status_code == 200:

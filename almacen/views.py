@@ -188,7 +188,7 @@ class OrderApprove(CreateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(detalles, None, order)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.movement_id]))
+                return HttpResponseRedirect(reverse('almacen:movement_detail_view', args=[self.object.movement_id]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -231,7 +231,7 @@ class ProductWarehouseSearch(SoloAjaxMixin, TemplateView):
 class WarehouseImport(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
-    success_url = reverse_lazy('almacen:almacenes')
+    success_url = reverse_lazy('almacen:warehouse_list')
 
     def procesar_fila(self, fila):
         Warehouse.objects.create(code=fila[0],
@@ -313,26 +313,26 @@ class InitialInventoryImport(CargarCsvMixin, FormView):
             pass
 
     def get_success_url(self):
-        return reverse('almacen:detalle_movimiento', args=[self.movement.movement_id])
+        return reverse('almacen:movement_detail_view', args=[self.movement.movement_id])
 
 
 class MovementTypeCreate(CreateView):
     template_name = 'almacen/tipo_movimiento.html'
     form_class = MovementTypeForm
-    success_url = reverse_lazy('almacen:tipos_movimientos')
+    success_url = reverse_lazy('almacen:movement_type_list')
 
     @method_decorator(requiere('almacen.add_movementtype'))
     def dispatch(self, *args, **kwargs):
         return super(MovementTypeCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('almacen:detalle_tipo_movimiento', args=[self.object.pk])
+        return reverse('almacen:movement_type_detail', args=[self.object.pk])
 
 
 class WarehouseCreate(FormView):
     template_name = 'almacen/almacen.html'
     form_class = WarehouseForm
-    success_url = reverse_lazy('almacen:almacenes')
+    success_url = reverse_lazy('almacen:warehouse_list')
 
     def form_valid(self, form):
         form.save()
@@ -342,7 +342,7 @@ class WarehouseCreate(FormView):
 '''class OutboundDetailCreate(FormView):
     template_name = 'almacen/crear_detalle_salida.html'
     form_class = MovementDetailForm
-    success_url = reverse_lazy('almacen:crear_detalle_salida')
+    success_url = reverse_lazy('almacen:outbound_detail_create')
     
     def get(self, request, *args, **kwargs):
         self.warehouse = kwargs['warehouse']
@@ -733,9 +733,9 @@ class MovementUpdate(TemplateView):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         movement_type = movement.movement_type
         if movement_type.increases:
-            return HttpResponseRedirect(reverse('almacen:modificar_ingreso_almacen', args=[movement.pk]))
+            return HttpResponseRedirect(reverse('almacen:inbound_update', args=[movement.pk]))
         else:
-            return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movement.pk]))
+            return HttpResponseRedirect(reverse('almacen:outbound_update', args=[movement.pk]))
 
 
 class InboundUpdate(UpdateView):
@@ -787,7 +787,7 @@ class InboundUpdate(UpdateView):
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_ingreso_formset=detalle_ingreso_formset))
         else:
-            return HttpResponseRedirect(reverse('almacen:listado_ingresos'))
+            return HttpResponseRedirect(reverse('almacen:inbound_list'))
 
     def get_initial(self):
         initial = super(InboundUpdate, self).get_initial()
@@ -858,7 +858,7 @@ class InboundUpdate(UpdateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(detalles, reference, None)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
+                return HttpResponseRedirect(reverse('almacen:movement_detail_view', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -974,7 +974,7 @@ class OutboundUpdate(UpdateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(detalles, reference, self.object.order)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
+                return HttpResponseRedirect(reverse('almacen:movement_detail_view', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -987,7 +987,7 @@ class WarehouseUpdate(UpdateView):
     model = Warehouse
     template_name = 'almacen/almacen.html'
     form_class = WarehouseForm
-    success_url = reverse_lazy('almacen:almacenes')
+    success_url = reverse_lazy('almacen:warehouse_list')
 
 
 class OrderUpdate(UpdateView):
@@ -1161,7 +1161,7 @@ class InboundCreate(CreateView):
         cod_tipo_mov = 'I00'
         tipos_ingreso = MovementType.objects.filter(increases=True).exclude(code=cod_tipo_mov)
         if not tipos_ingreso:
-            return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
+            return HttpResponseRedirect(reverse('almacen:movement_type_create'))
         almacenes = Warehouse.objects.all()
         cant_suministros = Product.objects.count()
         if almacenes.count() > 0:
@@ -1171,7 +1171,7 @@ class InboundCreate(CreateView):
                 detalle_ingreso_formset = InboundDetailFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_ingreso_formset=detalle_ingreso_formset))
-        return HttpResponseRedirect(reverse('almacen:tablero'))
+        return HttpResponseRedirect(reverse('almacen:dashboard'))
 
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -1216,7 +1216,7 @@ class InboundCreate(CreateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(detalles, reference, None)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
+                return HttpResponseRedirect(reverse('almacen:movement_detail_view', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -1246,10 +1246,10 @@ class OutboundCreate(CreateView):
         self.object = None
         tipos_salida = MovementType.objects.filter(increases=False)
         if not tipos_salida:
-            return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
+            return HttpResponseRedirect(reverse('almacen:movement_type_create'))
         almacenes = Warehouse.objects.filter()
         if not almacenes:
-            return HttpResponseRedirect(reverse('almacen:crear_almacen'))
+            return HttpResponseRedirect(reverse('almacen:warehouse_create'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
@@ -1289,7 +1289,7 @@ class OutboundCreate(CreateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(detalles, reference, None)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
+                return HttpResponseRedirect(reverse('almacen:movement_detail_view', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -1506,7 +1506,7 @@ class PriceReprocess(FormView):
             listado_kardex = Kardex.objects.filter(warehouse=warehouse).order_by('product').distinct('product__code')
             for kardex in listado_kardex:
                 self.reprocesar_precio_producto(kardex.product, warehouse, desde)
-        return HttpResponseRedirect(reverse('almacen:tablero'))
+        return HttpResponseRedirect(reverse('almacen:dashboard'))
 
 
 class ProductStock(FormView):

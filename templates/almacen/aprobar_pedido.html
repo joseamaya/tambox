@@ -13,14 +13,14 @@
         <div class="col-lg-2 text-right">
             <div class="btn-group">
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' order.anterior %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' order.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
-                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:pedidos' %}';">
+                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:order_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -219,7 +219,7 @@ $(document).ready(function()
 		var warehouse = $('#id_warehouse').val();
 		$.ajax({			
 			data : {'warehouse': warehouse, 'order': "{{ order.code }}" },
-			url : "{% url 'almacen:verificar_stock_para_pedido' %}",
+			url : "{% url 'almacen:verify_stock_for_order' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -281,7 +281,7 @@ $(document).ready(function()
 		var code = $("#code"+id).val();
 		var warehouse = $('#id_almacenes').val();
 		$.ajax({
-	      url: "{% url 'almacen:consulta_stock' %}",
+	      url: "{% url 'almacen:stock_query' %}",
 	      data: {
 	    	  'warehouse': warehouse,
 	    	  'code': code

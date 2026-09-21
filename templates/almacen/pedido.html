@@ -15,7 +15,7 @@
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:pedidos' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:order_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -24,15 +24,15 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' order.anterior %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' order.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:pedidos' %}';">
+                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:order_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -65,7 +65,7 @@
                 </div>
                 <div class="col-lg-2">
                     <div class='form-group'>
-                        <a id="id_crear_detalle" href="{% url 'almacen:crear_detalle_pedido' %}"
+                        <a id="id_crear_detalle" href="{% url 'almacen:order_detail_create' %}"
                            class="btn btn-info btn-block">
                             <span class="glyphicon glyphicon-plus">DETALLE</span>
                         </a>
@@ -170,7 +170,7 @@ $(document).ready(function()
 	{
 		e.preventDefault();					
 		$.ajax({
-			url : "{% url 'almacen:crear_detalle_salida' %}",
+			url : "{% url 'almacen:outbound_detail_create' %}",
 			type : 'get',
 			success : function(data)
 			{

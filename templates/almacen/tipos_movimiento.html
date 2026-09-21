@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.almacen.add_movementtype %}
-        <a href="{% url 'almacen:crear_tipo_movimiento' %}" class="btn btn-primary">
+        <a href="{% url 'almacen:movement_type_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.almacen.ver_reporte_tipos_movimientos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:maestro_tipos_movimientos_excel' %}';">
+                    onclick="location.href='{% url 'almacen:movement_type_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -41,7 +41,7 @@
             <tbody>
             {% for tipo in tipos_movimiento %}
             {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:detalle_tipo_movimiento' tipo.pk %}';">
+            <tr onclick="location.href='{% url 'almacen:movement_type_detail' tipo.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
