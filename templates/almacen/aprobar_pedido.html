@@ -50,7 +50,7 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacen }}
+                        {{ form.warehouse }}
                     </div>
                     <div class="col-md-3">
                         <label>Fecha:</label>
@@ -201,7 +201,7 @@ $(document).ready(function()
 	var tipo_salida;	
 	$("#id_date").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
-	$("#id_almacen").on('change',verificar_stock_para_pedido);
+	$("#id_warehouse").on('change',verificar_stock_para_pedido);
 	
 	function agregarCero(n)
 	{
@@ -216,9 +216,9 @@ $(document).ready(function()
 	
 	function verificar_stock_para_pedido()
 	{	
-		var almacen = $('#id_almacen').val();
+		var warehouse = $('#id_warehouse').val();
 		$.ajax({			
-			data : {'almacen': almacen, 'order': "{{ order.code }}" },
+			data : {'warehouse': warehouse, 'order': "{{ order.code }}" },
 			url : "{% url 'almacen:verificar_stock_para_pedido' %}",
 			type : 'get',
 			success : function(data)
@@ -279,11 +279,11 @@ $(document).ready(function()
 		var quantity = $(this).val();
 		var id = id_cantidad.replace("quantity","");
 		var code = $("#code"+id).val();
-		var almacen = $('#id_almacenes').val();
+		var warehouse = $('#id_almacenes').val();
 		$.ajax({
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
-	    	  'almacen': almacen,
+	    	  'warehouse': warehouse,
 	    	  'code': code
 	   	  },
 	      success: function(data) 
@@ -303,9 +303,9 @@ $(document).ready(function()
 	{
 		var cont=0;
 		$('#cdetalles').val(ultimo_item);
-		var almacen = $('#id_almacenes').val().trim();
+		var warehouse = $('#id_almacenes').val().trim();
 		var date = $('#id_date').val().trim();
-		if(almacen != '') 
+		if(warehouse != '') 
 		{			
 			if(date != '')
 			{					

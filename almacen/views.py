@@ -83,7 +83,7 @@ class Tablero(View):
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
         if cant_almacenes == 0:
-            lista_notificaciones.append("No se ha creado ningún almacen")
+            lista_notificaciones.append("No se ha creado ningún almacén")
         if cant_tipos_movimientos_ingreso == 0:
             lista_notificaciones.append("No se ha creado ningún tipo de movimiento de ingreso")
         if cant_tipos_movimientos_salida == 0:
@@ -199,18 +199,18 @@ class AprobarPedido(CreateView):
 
 class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('description', 'almacen')
+    parametros_requeridos = ('description', 'warehouse')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_productos = []
             description = request.GET['description']
-            almacen = request.GET['almacen']
+            warehouse = request.GET['warehouse']
             ids = list(Kardex.objects.filter(product__description__icontains=description,
-                                             almacen__id=almacen)
+                                             warehouse__id=warehouse)
                        .order_by('product_id').distinct('product_id')
                        .values_list('product_id', flat=True)[:20])
-            ultimos = Kardex.ultimos_por_producto(ids, almacen__id=almacen)
+            ultimos = Kardex.ultimos_por_producto(ids, warehouse__id=warehouse)
             for product_id in ids:
                 control = ultimos[product_id]
                 producto_json = {}
@@ -273,7 +273,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
         with transaction.atomic():
             self.movement = Movimiento.objects.create(movement_type=movement_type,
                                                         document_type=document_type,
-                                                        almacen=data['almacenes'],
+                                                        warehouse=data['almacenes'],
                                                         operation_date=self.operation_date,
                                                         notes='INVENTARIO INICIAL',
                                                         series='SALDO',
@@ -345,12 +345,12 @@ class CrearAlmacen(FormView):
     success_url = reverse_lazy('almacen:crear_detalle_salida')
     
     def get(self, request, *args, **kwargs):
-        self.almacen = kwargs['almacen']
+        self.warehouse = kwargs['warehouse']
         return super(CrearDetalleSalida, self).get(request, *args, **kwargs)
     
     def get_initial(self):
         initial = super(CrearDetalleSalida, self).get_initial()        
-        initial['almacen'] = self.almacen       
+        initial['warehouse'] = self.warehouse       
         return initial
 
     def form_valid(self, form):
@@ -517,13 +517,13 @@ class CrearPedido(CreateView):
 
 class ConsultaStock(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('almacen', 'code')
+    parametros_requeridos = ('warehouse', 'code')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            almacen = request.GET['almacen']
+            warehouse = request.GET['warehouse']
             code = request.GET['code']
             control_producto = Kardex.objects.filter(product__code=code,
-                                                     almacen__id=almacen).latest('operation_date')
+                                                     warehouse__id=warehouse).latest('operation_date')
             producto_json = {}
             producto_json['stock'] = control_producto.total_quantity
             data = simplejson.dumps(producto_json)
@@ -562,11 +562,11 @@ class EliminarAlmacen(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            almacen = Almacen.objects.get(pk=code)
+            warehouse = Almacen.objects.get(pk=code)
             almacen_json = {}
-            almacen_json['code'] = almacen.code
-            almacen_json['description'] = almacen.description
-            if len(almacen.movements.all()) > 0:
+            almacen_json['code'] = warehouse.code
+            almacen_json['description'] = warehouse.description
+            if len(warehouse.movements.all()) > 0:
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
@@ -594,7 +594,7 @@ class EliminarMovimiento(TemplateView):
                 movement.eliminar_pedido()
             detalle_kardex = Kardex.objects.filter(movement=movement)
             for kardex in detalle_kardex:
-                control = ControlProductoAlmacen.objects.get(product=kardex.product, almacen=kardex.almacen)
+                control = ControlProductoAlmacen.objects.get(product=kardex.product, warehouse=kardex.warehouse)
                 if kardex.in_quantity > 0:
                     control.stock = control.stock - kardex.in_quantity
                 elif kardex.out_quantity > 0:
@@ -795,7 +795,7 @@ class ModificarIngresoAlmacen(UpdateView):
         initial['movement_id'] = movement.movement_id
         initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
         initial['hora'] = movement.operation_date.strftime('%H : %M : %S')
-        initial['almacen'] = movement.almacen
+        initial['warehouse'] = movement.warehouse
         initial['movement_type'] = movement.movement_type
         initial['doc_referencia'] = movement.reference
         initial['document_type'] = movement.document_type
@@ -913,7 +913,7 @@ class ModificarSalidaAlmacen(UpdateView):
         initial['movement_id'] = movement.movement_id
         initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
         initial['hora'] = movement.operation_date.strftime('%H : %M : %S')
-        initial['almacenes'] = movement.almacen
+        initial['almacenes'] = movement.warehouse
         initial['tipos_salida'] = movement.movement_type
         initial['office'] = movement.office
         initial['reference'] = movement.reference
@@ -1088,12 +1088,12 @@ class MovimientosPorProducto(FormView):
         data = form.cleaned_data
         desde = data['desde']
         hasta = data['hasta']
-        almacen = data['almacen']
+        warehouse = data['warehouse']
         product = Producto.objects.get(code=data['product'])
-        return self.obtener_movimientos(desde, hasta, almacen, product)
+        return self.obtener_movimientos(desde, hasta, warehouse, product)
 
-    def obtener_movimientos(self, desde, hasta, almacen, product):
-        detalles = DetalleMovimiento.objects.filter(movement__almacen=almacen,
+    def obtener_movimientos(self, desde, hasta, warehouse, product):
+        detalles = DetalleMovimiento.objects.filter(movement__warehouse=warehouse,
                                                     product=product,
                                                     movement__operation_date__gte=desde,
                                                     movement__operation_date__lte=hasta).order_by(
@@ -1102,7 +1102,7 @@ class MovimientosPorProducto(FormView):
         ws = wb.active
         ws['B1'] = u'Producto: ' + product.description
         ws.merge_cells('B1:I1')
-        ws['B2'] = u'Almacén: ' + almacen.description
+        ws['B2'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('B2:D2')
         ws['E2'] = 'Periodo: Desde: ' + desde.strftime('%d/%m/%Y') + ' Hasta: ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('E2:H2')
@@ -1309,9 +1309,9 @@ class ReporteExcelAlmacenes(TemplateView):
         ws['B3'] = 'CODIGO'
         ws['C3'] = 'DESCRIPCIÓN'
         cont = 4
-        for almacen in almacenes:
-            ws.cell(row=cont, column=2).value = almacen.code
-            ws.cell(row=cont, column=3).value = almacen.description
+        for warehouse in almacenes:
+            ws.cell(row=cont, column=2).value = warehouse.code
+            ws.cell(row=cont, column=3).value = warehouse.description
             cont = cont + 1
         nombre_archivo = "ListadoAlmacenes.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1384,13 +1384,13 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
         product = Producto.objects.get(code=cod_prod)
         desde = data.get('desde')
         hasta = data.get('hasta')
-        almacen = data.get('almacenes')
+        warehouse = data.get('almacenes')
         formato_sunat = data.get('formato_sunat')
         formatos = data.get('formatos')
 
         if formatos == 'XLS':
             metodo, nombre_archivo = self.REPORTES_EXCEL[self._formato_sunat(formato_sunat)]
-            excel = getattr(ReporteKardexExcel(), metodo)(product, desde, hasta, almacen)
+            excel = getattr(ReporteKardexExcel(), metodo)(product, desde, hasta, warehouse)
             return self._respuesta_excel(excel, nombre_archivo)
         if formatos == 'PDF':
             clave = self._formato_sunat(formato_sunat)
@@ -1398,7 +1398,7 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
                 return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.',
                                     status=404)
             metodo, nombre_archivo = self.REPORTES_PDF[clave]
-            reporte = ReporteKardexPDF('A4', desde, hasta, almacen, False)
+            reporte = ReporteKardexPDF('A4', desde, hasta, warehouse, False)
             return self._respuesta_pdf(getattr(reporte, metodo)(product), nombre_archivo)
         return HttpResponse('Formato no soportado.', status=400)
 
@@ -1411,16 +1411,16 @@ class ReporteKardex(RespuestaReporteMixin, FormView):
         data = form.cleaned_data
         desde = data.get('desde')
         hasta = data['hasta']
-        almacen = data.get('almacenes')
+        warehouse = data.get('almacenes')
         formato_sunat = data.get('formato_sunat')
         formatos = data.get('formatos')
         consolidado = data['consolidado']
 
         clave = self._clave_reporte(consolidado, formato_sunat)
         if formatos == 'XLS':
-            return self._reporte_excel(clave, desde, hasta, almacen)
+            return self._reporte_excel(clave, desde, hasta, warehouse)
         if formatos == 'PDF':
-            return self._reporte_pdf(clave, desde, hasta, almacen)
+            return self._reporte_pdf(clave, desde, hasta, warehouse)
         return HttpResponse('Formato no soportado.', status=400)
 
     REPORTES_PDF = {
@@ -1444,26 +1444,26 @@ class ReporteKardex(RespuestaReporteMixin, FormView):
             return (consolidado, None)
         return (None, formato_sunat if formato_sunat in ('S', 'V') else None)
 
-    def _reporte_pdf(self, clave, desde, hasta, almacen):
+    def _reporte_pdf(self, clave, desde, hasta, warehouse):
         if clave not in self.REPORTES_PDF:
             return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.', status=404)
         metodo, agrupado, nombre_archivo = self.REPORTES_PDF[clave]
-        reporte = ReporteKardexPDF('A4', desde, hasta, almacen, agrupado)
+        reporte = ReporteKardexPDF('A4', desde, hasta, warehouse, agrupado)
         return self._respuesta_pdf(getattr(reporte, metodo)(), nombre_archivo)
 
-    def _reporte_excel(self, clave, desde, hasta, almacen):
+    def _reporte_excel(self, clave, desde, hasta, warehouse):
         metodo, nombre_archivo = self.REPORTES_EXCEL[clave]
         reporte = ReporteKardexExcel()
-        return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, almacen), nombre_archivo)
+        return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, warehouse), nombre_archivo)
 
 
 class ReprocesoPrecio(FormView):
     template_name = 'almacen/reproceso_precio.html'
     form_class = FormularioReprocesoPrecio
 
-    def reprocesar_precio_producto(self, product, almacen, desde):
+    def reprocesar_precio_producto(self, product, warehouse, desde):
         detalles = Kardex.objects.filter(product=product,
-                                         almacen=almacen,
+                                         warehouse=warehouse,
                                          operation_date__gte=desde).order_by('operation_date')
         indice = 0
         for detalle in detalles:
@@ -1496,16 +1496,16 @@ class ReprocesoPrecio(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         desde = data['desde']
-        almacen = data['almacen']
+        warehouse = data['warehouse']
         seleccion = data['seleccion']
         if seleccion == 'P':
             cod_prod = data['product']
             product = Producto.objects.get(code=cod_prod)
-            self.reprocesar_precio_producto(product, almacen, desde)
+            self.reprocesar_precio_producto(product, warehouse, desde)
         else:
-            listado_kardex = Kardex.objects.filter(almacen=almacen).order_by('product').distinct('product__code')
+            listado_kardex = Kardex.objects.filter(warehouse=warehouse).order_by('product').distinct('product__code')
             for kardex in listado_kardex:
-                self.reprocesar_precio_producto(kardex.product, almacen, desde)
+                self.reprocesar_precio_producto(kardex.product, warehouse, desde)
         return HttpResponseRedirect(reverse('almacen:tablero'))
 
 
@@ -1520,7 +1520,7 @@ class StockProductos(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        almacen = data['almacen']
+        warehouse = data['warehouse']
         description = data['description']
         productos = list(Producto.objects.filter(description__icontains=description)
                          .select_related('unit_of_measure').order_by('description'))
@@ -1537,7 +1537,7 @@ class StockProductos(FormView):
         ws.column_dimensions["B"].width = 12
         ws.column_dimensions["C"].width = 40
         cont = 4
-        ultimos = Kardex.ultimos_por_producto(productos, almacen=almacen)
+        ultimos = Kardex.ultimos_por_producto(productos, warehouse=warehouse)
         for product in productos:
             kardex = ultimos.get(product.pk)
             code = product.code
@@ -1582,16 +1582,16 @@ class StockProductos(FormView):
 
 class ListadoStockProducto(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('description', 'almacen')
+    parametros_requeridos = ('description', 'warehouse')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             description = request.GET['description']
-            almacen = request.GET['almacen']
+            warehouse = request.GET['warehouse']
             lista_productos = []
             productos = list(Producto.objects.filter(description__icontains=description)
                              .select_related('unit_of_measure').order_by('description'))
-            ultimos = Kardex.ultimos_por_producto(productos, almacen__pk=almacen)
+            ultimos = Kardex.ultimos_por_producto(productos, warehouse__pk=warehouse)
             for product in productos:
                 kardex = ultimos.get(product.pk)
                 kardex_json = {}
@@ -1613,7 +1613,7 @@ class ReporteExcelMovimientos(FormView):
         tipo_busqueda = data['tipo_busqueda']
         p_almacen = data['almacenes']
         p_tipo_movimiento = data['tipos_movimiento']
-        almacen = Almacen.objects.get(code=p_almacen)
+        warehouse = Almacen.objects.get(code=p_almacen)
         movement_type = TipoMovimiento.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
@@ -1622,7 +1622,7 @@ class ReporteExcelMovimientos(FormView):
             fecha_final = data['hasta']
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.description
+            ws['B2'] = 'ALMACEN: ' + warehouse.description
             ws.merge_cells('B2:D2')
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + movement_type.description
             ws.merge_cells('E2:H2')
@@ -1633,13 +1633,13 @@ class ReporteExcelMovimientos(FormView):
             ws['E3'] = fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
             movimientos = Movimiento.objects.filter(operation_date__range=[start_date, fecha_final],
-                                                    movement_type=movement_type, almacen=almacen)
+                                                    movement_type=movement_type, warehouse=warehouse)
         elif tipo_busqueda == 'M':
             month = data['month'].strip()
             year = data['year'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR MES'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.description
+            ws['B2'] = 'ALMACEN: ' + warehouse.description
             ws.merge_cells('B2:D2')
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + movement_type.description
             ws.merge_cells('E2:H2')
@@ -1650,12 +1650,12 @@ class ReporteExcelMovimientos(FormView):
             movimientos = Movimiento.objects.filter(operation_date__month=month,
                                                     operation_date__year=year,
                                                     movement_type=movement_type,
-                                                    almacen=almacen)
+                                                    warehouse=warehouse)
         elif tipo_busqueda == 'A':
             year = data['year'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR AÑO'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.description
+            ws['B2'] = 'ALMACEN: ' + warehouse.description
             ws.merge_cells('B2:D2')
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + movement_type.description
             ws.merge_cells('E2:H2')
@@ -1663,7 +1663,7 @@ class ReporteExcelMovimientos(FormView):
             ws['C3'] = year
             movimientos = Movimiento.objects.filter(operation_date__year=year,
                                                     movement_type=movement_type,
-                                                    almacen=almacen)
+                                                    warehouse=warehouse)
         ws['B5'] = 'ID_MOVIMIENTO'
         ws['C5'] = 'TIPO_DOCUMENTO'
         ws['D5'] = 'SERIE'
@@ -1702,7 +1702,7 @@ class ReporteExcelMovimientosPorFecha(View):
     def get(self, request, *args, **kwargs):
         p_start_date = kwargs['start_date']
         p_fecha_final = kwargs['end_date']
-        p_almacen = kwargs['almacen']
+        p_almacen = kwargs['warehouse']
         p_tipo_movimiento = kwargs['movement_type']
         anio = int(p_start_date[6:])
         month = int(p_start_date[3:5])
@@ -1712,13 +1712,13 @@ class ReporteExcelMovimientosPorFecha(View):
         month = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
         fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
-        almacen = Almacen.objects.get(code=p_almacen)
+        warehouse = Almacen.objects.get(code=p_almacen)
         movement_type = TipoMovimiento.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
         ws.merge_cells('B1:H1')
-        ws['B2'] = 'ALMACEN: ' + almacen.description
+        ws['B2'] = 'ALMACEN: ' + warehouse.description
         ws.merge_cells('B2:D2')
         ws['E2'] = 'TIPO DE MOVIMIENTO: ' + movement_type.description
         ws.merge_cells('E2:H2')
@@ -1729,7 +1729,7 @@ class ReporteExcelMovimientosPorFecha(View):
         ws['E3'] = p_fecha_final
         ws['F3'].number_format = 'dd/mm/yyyy'
         movimientos = Movimiento.objects.filter(operation_date__range=[start_date, fecha_final],
-                                                movement_type=movement_type, almacen=almacen)
+                                                movement_type=movement_type, warehouse=warehouse)
         ws['B5'] = 'ID_MOVIMIENTO'
         ws['C5'] = 'TIPO_DOCUMENTO'
         ws['D5'] = 'SERIE'
@@ -1829,16 +1829,16 @@ class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
 
 class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('almacen', 'order')
+    parametros_requeridos = ('warehouse', 'order')
 
     def get(self, request, *args, **kwargs):
-        almacen = request.GET['almacen']
+        warehouse = request.GET['warehouse']
         order = request.GET['order']
         detalles = list(DetallePedido.objects.filter(order__code=order,
                                                      status=DetallePedido.STATUS.PEND)
                         .select_related('product__unit_of_measure').order_by('line_number'))
         ultimos = Kardex.ultimos_por_producto([detalle.product for detalle in detalles],
-                                              almacen__code=almacen)
+                                              warehouse__code=warehouse)
         lista_detalles = []
         for detalle in detalles:
             control_producto = ultimos.get(detalle.product_id)

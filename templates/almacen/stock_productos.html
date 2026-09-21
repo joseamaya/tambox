@@ -16,12 +16,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Almacén:</label>
-                        {% if form.almacen.errors %}
-                        {% for error in form.almacen.errors %}
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacen }}
+                        {{ form.warehouse }}
                     </div>
                     <div class="col-md-4">
                         <label>Al:</label>
@@ -164,8 +164,8 @@ $("#id_buscar").click(function()
 {
 	$("#tabla tbody > tr").remove();
 	$("#tabla tbody").append("<tr><td colspan=\"4\">Cargando....</td></tr>");
-	var almacen = $("#id_almacen").val();
-	if(almacen!="")
+	var warehouse = $("#id_warehouse").val();
+	if(warehouse!="")
 	{
 		$.ajax({
 			url: "{% url 'almacen:listado_stock_producto' %}",
@@ -173,7 +173,7 @@ $("#id_buscar").click(function()
 			{
 				'description': $("#id_description").val(),
 				'desde': $("#id_desde").val(),
-				'almacen': almacen
+				'warehouse': warehouse
 			},
 			success: function( data )
 			{
@@ -194,7 +194,7 @@ $("#id_buscar").click(function()
 		});
 	}
 	else{
-		alert("Por favor seleccione un almacen");
+		alert("Por favor seleccione un almacén");
 	}
 });
 

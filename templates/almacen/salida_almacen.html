@@ -59,12 +59,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Almacén:</label>
-                        {% if form.almacen.errors %}
-                        {% for error in form.almacen.errors %}
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacen }}
+                        {{ form.warehouse }}
                     </div>
                     <div class="col-md-3">
                         <label>Fecha:</label>
@@ -352,7 +352,7 @@ $(document).ready(function()
 	$('#crear_detalle').click(function(e)
 	{
 		e.preventDefault();
-		var alm=$('#id_almacen').val().trim();
+		var alm=$('#id_warehouse').val().trim();
 		if(alm != '') 
 		{			
 			$.ajax({
@@ -393,7 +393,7 @@ $(document).ready(function()
 			{
 				$.ajax({
 				  url: "{% url 'almacen:busqueda_productos_almacen' %}",
-				  data: {'almacen': $("#id_almacen").val(),'description': request.term },
+				  data: {'warehouse': $("#id_warehouse").val(),'description': request.term },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -425,7 +425,7 @@ $(document).ready(function()
 		$.ajax({
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
-	    	  'almacen': $("#id_almacen").val(),
+	    	  'warehouse': $("#id_warehouse").val(),
 	    	  'code': $("#"+id+"code").val()
 	   	  },
 	      success: function(data) 
@@ -456,14 +456,14 @@ $(document).ready(function()
 		var cont=0;
 		tipo_salida = $('#id_movement_type').val();
 		$('#id_cdetalles').val(ultimo_item);
-		var almacen = $('#id_almacen').val().trim();
+		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
 		var document_type;
 		var series;
 		var number;
 		if(tipo_salida != '') 
 		{			
-			if(almacen != '') 
+			if(warehouse != '') 
 			{			
 				if(date != '')
 				{					

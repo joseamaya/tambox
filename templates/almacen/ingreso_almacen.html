@@ -72,12 +72,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Almacén:</label>
-                        {% if form.almacen.errors %}
-                        {% for error in form.almacen.errors %}
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacen }}
+                        {{ form.warehouse }}
                     </div>
                 </div>
                 <div class="row">
@@ -512,7 +512,7 @@ $(document).ready(function()
 		var cont=0;
 		tipo_ingreso = $('#id_movement_type').val();
 		$('#id_cdetalles').val(ultimo_item);
-		var almacen = $('#id_almacen').val().trim();
+		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
 		var solicita_documento = $('#id_document_type').is(':enabled');
 		var document_type;
@@ -520,7 +520,7 @@ $(document).ready(function()
 		var number;
 		if(tipo_ingreso != '') 
 		{			
-			if(almacen != '') 
+			if(warehouse != '') 
 			{			
 				if(date != '')
 				{					

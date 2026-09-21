@@ -28,7 +28,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar almacen"></div>
+<div id="dialog-confirm" title="Eliminar warehouse"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
@@ -104,10 +104,10 @@
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
-								alert("almacen " + data.description
+								alert("warehouse " + data.description
 										+ " eliminado");
 							} else if (data.relaciones == 'SI') {
-								alert("almacen " + data.description
+								alert("warehouse " + data.description
 										+ " no puede eliminarse");
 							}
 						}

@@ -141,9 +141,9 @@ class ObtenerKardexTest(TestCase):
     que recorren el catalogo entero."""
 
     def setUp(self):
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.product = baker.make(Producto)
-        baker.make(Kardex, almacen=self.almacen, product=self.product,
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
                    in_quantity=Decimal('10'), in_amount=Decimal('50'),
                    out_quantity=Decimal('2'), out_amount=Decimal('9'))
@@ -151,7 +151,7 @@ class ObtenerKardexTest(TestCase):
     def test_los_totales_salen_de_una_sola_consulta(self):
         with self.assertNumQueries(1):
             listado, cantidad_i, valor_i, cantidad_s, valor_s = self.product.obtener_kardex(
-                self.almacen, date(2024, 1, 1), date(2024, 1, 31))
+                self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
         self.assertEqual((cantidad_i, valor_i), (Decimal('10'), Decimal('50')))
         self.assertEqual((cantidad_s, valor_s), (Decimal('2'), Decimal('9')))
@@ -160,7 +160,7 @@ class ObtenerKardexTest(TestCase):
     def test_sin_movimientos_los_totales_son_cero(self):
         with self.assertNumQueries(1):
             _, cantidad_i, valor_i, cantidad_s, valor_s = self.product.obtener_kardex(
-                self.almacen, date(2024, 3, 1), date(2024, 3, 31))
+                self.warehouse, date(2024, 3, 1), date(2024, 3, 31))
 
         self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s), (0, 0, 0, 0))
 
@@ -169,7 +169,7 @@ class ObtenerKardexTest(TestCase):
 
         with self.assertNumQueries(1):
             _, cantidad_i, valor_i, cantidad_s, valor_s = grupo.obtener_kardex(
-                self.almacen, date(2024, 1, 1), date(2024, 1, 31))
+                self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
         self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s),
                          (Decimal('10'), Decimal('50'), Decimal('2'), Decimal('9')))

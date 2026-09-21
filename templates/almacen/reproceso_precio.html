@@ -15,12 +15,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Almacén:</label>
-                        {% if form.almacen.errors %}
-                        {% for error in form.almacen.errors %}
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.almacen }}
+                        {{ form.warehouse }}
                     </div>
                     <div class="col-md-4">
                         <label>Desde:</label>

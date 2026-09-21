@@ -36,14 +36,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for almacen in almacenes %}
+            {% for warehouse in almacenes %}
             {% if perms.almacen.ver_detalle_almacen %}
-            <tr onclick="location.href='{% url 'almacen:detalle_almacen' almacen.pk %}';">
+            <tr onclick="location.href='{% url 'almacen:detalle_almacen' warehouse.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ almacen.code }}</td>
-                <td>{{ almacen.description }}</td>
+                <td>{{ warehouse.code }}</td>
+                <td>{{ warehouse.description }}</td>
             </tr>
             {% endfor %}
             </tbody>

@@ -44,7 +44,7 @@ class AlmacenForm(forms.ModelForm):
 
 
 class FormularioDetalleMovimiento(forms.Form):
-    almacen = forms.CharField(widget=forms.HiddenInput())
+    warehouse = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
@@ -162,7 +162,7 @@ class MovimientoForm(forms.ModelForm):
 
     class Meta:
         model = Movimiento
-        fields = ['movement_id', 'movement_type', 'document_type', 'series', 'number', 'almacen', 'office',
+        fields = ['movement_id', 'movement_type', 'document_type', 'series', 'number', 'warehouse', 'office',
                   'notes']
 
 
@@ -182,7 +182,7 @@ class FormularioKardexProducto(forms.Form):
 
 
 class FormularioMovimientosProducto(forms.Form):
-    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -197,7 +197,7 @@ class FormularioMovimientosProducto(forms.Form):
 
 
 class FormularioReprocesoPrecio(forms.Form):
-    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -207,7 +207,7 @@ class FormularioReprocesoPrecio(forms.Form):
 
 
 class FormularioConsultaStock(forms.Form):
-    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -299,7 +299,7 @@ class AprobacionPedidoForm(forms.ModelForm):
 
     class Meta:
         model = Movimiento
-        fields = ['almacen', 'notes']
+        fields = ['warehouse', 'notes']
 
 
 class FormularioPedido(forms.Form):
@@ -402,7 +402,7 @@ class BaseDetallePedidoFormSet(formsets.BaseFormSet):
 
 
 class FormularioConsultaInventario(forms.Form):
-    almacen = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))

@@ -210,7 +210,7 @@ class Movimiento(TimeStampedModel):
     series = models.CharField(max_length=15, null=True)
     number = models.CharField(max_length=10, null=True)
     operation_date = models.DateTimeField()
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movements')
+    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movements')
     office = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='movements', null=True)
     worker = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='movements', null=True)
     producer = models.ForeignKey(Productor, on_delete=models.CASCADE, related_name='movements', null=True)
@@ -270,11 +270,11 @@ class Movimiento(TimeStampedModel):
     @transaction.atomic
     def eliminar_kardex(self):
         movement = self
-        almacen = movement.almacen
+        warehouse = movement.warehouse
         detalle_kardex = Kardex.objects.filter(movement=movement,
-                                               almacen=almacen)
+                                               warehouse=warehouse)
         for kardex in detalle_kardex:
-            control = ControlProductoAlmacen.objects.get(product=kardex.product, almacen=almacen)
+            control = ControlProductoAlmacen.objects.get(product=kardex.product, warehouse=warehouse)
             control.stock = control.stock - kardex.in_quantity
             control.save()
             kardex.delete()
@@ -334,7 +334,7 @@ class DetalleMovimiento(TimeStampedModel):
                         operation_date=movi.operation_date,
                         movement=movi,
                         movement_line_number=self.line_number,
-                        almacen=movi.almacen)
+                        warehouse=movi.warehouse)
         if t_movimiento.increases:
             kardex.in_quantity = self.quantity
             kardex.in_price = self.price
@@ -344,7 +344,7 @@ class DetalleMovimiento(TimeStampedModel):
             kardex.out_amount = 0
             try:
                 kardex_ant = Kardex.objects.filter(product=self.product,
-                                                   almacen=self.movement.almacen,
+                                                   warehouse=self.movement.warehouse,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
                 kardex.total_quantity = self.quantity + kardex_ant.total_quantity
                 kardex.total_amount = val + kardex_ant.total_amount
@@ -362,7 +362,7 @@ class DetalleMovimiento(TimeStampedModel):
             kardex.out_amount = val
             try:
                 kardex_ant = Kardex.objects.filter(product=self.product,
-                                                   almacen=self.movement.almacen,
+                                                   warehouse=self.movement.warehouse,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
                 kardex.total_quantity = kardex_ant.total_quantity - self.quantity
                 kardex.total_amount = kardex_ant.total_amount - val
@@ -377,7 +377,7 @@ class DetalleMovimiento(TimeStampedModel):
             precio_control = kardex.total_amount / kardex.total_quantity
 
         control_producto, creado = ControlProductoAlmacen.objects.update_or_create(
-            almacen=self.movement.almacen,
+            warehouse=self.movement.warehouse,
             product=self.product,
             defaults={'stock': kardex.total_quantity,
                       'price': precio_control}
@@ -403,7 +403,7 @@ class Kardex(TimeStampedModel):
     total_quantity = models.DecimalField(max_digits=25, decimal_places=8)
     total_price = models.DecimalField(max_digits=25, decimal_places=8)
     total_amount = models.DecimalField(max_digits=25, decimal_places=8)
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='kardex_entries')
+    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='kardex_entries')
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()
@@ -426,8 +426,8 @@ class Kardex(TimeStampedModel):
         MultipleObjectsReturned. Aqui el desempate es por `pk`, asi que el
         resultado es el mismo pero determinista.
 
-        `filtro` es el que identifica el almacen (`almacen=`, `almacen__pk=`,
-        `almacen__code=`), porque cada vista lo tiene de una forma distinta.
+        `filtro` es el que identifica el almacén (`warehouse=`, `warehouse__pk=`,
+        `warehouse__code=`), porque cada vista lo tiene de una forma distinta.
         """
         from tambox.dates import aware
 
@@ -487,12 +487,12 @@ class Kardex(TimeStampedModel):
 
 class ControlProductoAlmacen(TimeStampedModel):
     product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='warehouse_controls')
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='warehouse_controls')
+    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='warehouse_controls')
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()
 
     class Meta:
-        unique_together = (('product', 'almacen'),)
+        unique_together = (('product', 'warehouse'),)
         permissions = (('ver_reporte_stock_excel', 'Puede ver Reporte de Stock'),
                        ('ver_reporte_inventario_excel', 'Puede ver Inventario de Stock'),)

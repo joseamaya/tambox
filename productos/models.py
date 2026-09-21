@@ -75,10 +75,10 @@ class GrupoProductos(TimeStampedModel):
     def __str__(self):
         return self.description
 
-    def obtener_kardex(self, almacen, desde, hasta):
+    def obtener_kardex(self, warehouse, desde, hasta):
         from almacen.models import Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
-        listado_kardex = Kardex.objects.filter(almacen=almacen,
+        listado_kardex = Kardex.objects.filter(warehouse=warehouse,
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
                                                product__product_group=self).select_related(
@@ -97,7 +97,7 @@ class GrupoProductos(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_por_lote(grupos, almacen, desde, hasta):
+    def kardex_por_lote(grupos, warehouse, desde, hasta):
         """Igual que `obtener_kardex()`, pero para todos los grupos de una vez.
 
         Devuelve {grupo_id: (filas, in_quantity, in_amount,
@@ -105,7 +105,7 @@ class GrupoProductos(TimeStampedModel):
         """
         from almacen.models import Kardex
         return Kardex.kardex_por_lote(desde, hasta, por_grupo=True,
-                                      almacen=almacen,
+                                      warehouse=warehouse,
                                       product__product_group__in=grupos)
 
 
@@ -127,17 +127,17 @@ class Producto(TimeStampedModel):
 
     @property
     def stock(self):
-        """Ultimo kardex de cada almacen, en una sola consulta.
+        """Ultimo kardex de cada almacén, en una sola consulta.
 
-        Antes recorria Almacen.objects.all() lanzando un .latest() por almacen, y
+        Antes recorria Almacen.objects.all() lanzando un .latest() por almacén, y
         las plantillas invocan la property varias veces en la misma pagina. El
         resultado se memoriza para no repetirla en el mismo render.
         """
         if not hasattr(self, '_stock_calculado'):
             from almacen.models import Kardex
             ultimos = (Kardex.objects.filter(product=self)
-                       .order_by('almacen_id', '-operation_date', '-pk')
-                       .distinct('almacen_id'))
+                       .order_by('warehouse_id', '-operation_date', '-pk')
+                       .distinct('warehouse_id'))
             self._stock_calculado = sum(kardex.total_quantity for kardex in ultimos)
         return self._stock_calculado
 
@@ -150,10 +150,10 @@ class Producto(TimeStampedModel):
             ).aggregate(total=Sum('quantity'))['total'] or 0
         return self._previsto_calculado
 
-    def obtener_kardex(self, almacen, desde, hasta):
+    def obtener_kardex(self, warehouse, desde, hasta):
         from almacen.models import Movimiento, Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
-        listado_kardex = Kardex.objects.filter(almacen=almacen,
+        listado_kardex = Kardex.objects.filter(warehouse=warehouse,
                                                movement__status=Movimiento.STATUS.ACT,
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
@@ -173,7 +173,7 @@ class Producto(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_por_lote(productos, almacen, desde, hasta):
+    def kardex_por_lote(productos, warehouse, desde, hasta):
         """Igual que `obtener_kardex()`, pero para todo el lote de una vez.
 
         Devuelve {product_id: (filas, in_quantity, in_amount,
@@ -182,7 +182,7 @@ class Producto(TimeStampedModel):
         """
         from almacen.models import Kardex, Movimiento
         return Kardex.kardex_por_lote(desde, hasta,
-                                      almacen=almacen,
+                                      warehouse=warehouse,
                                       product__in=productos,
                                       movement__status=Movimiento.STATUS.ACT)
 

@@ -279,7 +279,7 @@ class CargarCsvTest(TestCase):
     def test_cargar_inventario_inicial(self):
         movement_type = baker.make(TipoMovimiento, code='I00', increases=True)
         baker.make(TipoDocumento, sunat_code='PEC')
-        almacen = baker.make(Almacen)
+        warehouse = baker.make(Almacen)
         producto_uno = baker.make(Producto, description='PRODUCTO UNO')
         producto_dos = baker.make(Producto, description='PRODUCTO DOS')
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
@@ -289,7 +289,7 @@ class CargarCsvTest(TestCase):
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
-                                      'almacenes': almacen.pk})
+                                      'almacenes': warehouse.pk})
 
         self.assertEqual(respuesta.status_code, 302)
         movement = Movimiento.objects.get()
@@ -305,7 +305,7 @@ class CargarCsvTest(TestCase):
         """`I00` y `PEC` los crean los tableros de Almacen y Contabilidad. Si el
         usuario no paso por ellos, antes salia un DoesNotExist y ahora la pagina
         dice que falta y donde crearlo."""
-        almacen = baker.make(Almacen)
+        warehouse = baker.make(Almacen)
         contenido = 'PRODUCTO UNO,10,5.0,50.0\n'
         file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
@@ -313,7 +313,7 @@ class CargarCsvTest(TestCase):
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
-                                      'almacenes': almacen.pk})
+                                      'almacenes': warehouse.pk})
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'Falta el tipo de movimiento')
@@ -341,22 +341,22 @@ class UltimosPorProductoTest(TestCase):
     compartian date."""
 
     def setUp(self):
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.productos = [baker.make(Producto) for _ in range(3)]
         for product in self.productos:
-            baker.make(Kardex, almacen=self.almacen, product=product,
+            baker.make(Kardex, warehouse=self.warehouse, product=product,
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)))
 
     def test_una_consulta_para_todo_el_lote(self):
         with self.assertNumQueries(1):
-            ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
+            ultimos = Kardex.ultimos_por_producto(self.productos, warehouse=self.warehouse)
 
         self.assertEqual(len(ultimos), 3)
 
     def test_el_producto_viene_cargado(self):
         """El `select_related` es lo que evita una consulta por fila al leer
         `kardex.product.description` en los bucles."""
-        ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
+        ultimos = Kardex.ultimos_por_producto(self.productos, warehouse=self.warehouse)
 
         with self.assertNumQueries(0):
             for kardex in ultimos.values():
@@ -366,10 +366,10 @@ class UltimosPorProductoTest(TestCase):
     def test_desempata_por_pk(self):
         product = self.productos[0]
         primero = Kardex.objects.get(product=product)
-        segundo = baker.make(Kardex, almacen=self.almacen, product=product,
+        segundo = baker.make(Kardex, warehouse=self.warehouse, product=product,
                              operation_date=primero.operation_date)
 
-        ultimos = Kardex.ultimos_por_producto([product], almacen=self.almacen)
+        ultimos = Kardex.ultimos_por_producto([product], warehouse=self.warehouse)
 
         self.assertEqual(ultimos[product.pk].pk, segundo.pk)
 
@@ -384,7 +384,7 @@ class ReporteKardexConsolidadoTest(TestCase):
         from contabilidad.models import CuentaContable
         from productos.models import GrupoProductos
 
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
                                 account=baker.make(CuentaContable), contains_products=True)
         self.productos = [baker.make(Producto, code='', product_group=self.grupo)
@@ -394,7 +394,7 @@ class ReporteKardexConsolidadoTest(TestCase):
         from almacen.reports import ReporteKardexPDF
         from productos.models import GrupoProductos
         return ReporteKardexPDF('A4', date(2024, 1, 1), date(2024, 1, 31),
-                                self.almacen, GrupoProductos.objects.all())
+                                self.warehouse, GrupoProductos.objects.all())
 
     def test_tabla_consolidada_de_productos(self):
         tabla = self.reporte().tabla_detalle_consolidado_productos(Producto.objects.all())
@@ -422,7 +422,7 @@ class ReporteKardexExcelTest(TestCase):
         from contabilidad.models import CuentaContable, TipoExistencia
         from productos.models import GrupoProductos
 
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
                                 account=baker.make(CuentaContable))
         self.unidad = baker.make(UnidadMedida)
@@ -434,7 +434,7 @@ class ReporteKardexExcelTest(TestCase):
                                    stock_type=self.stock_type)
         self.desde = date(2024, 1, 1)
         self.hasta = date(2024, 1, 31)
-        baker.make(Kardex, almacen=self.almacen, product=self.product,
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'))
 
@@ -446,15 +446,15 @@ class ReporteKardexExcelTest(TestCase):
         from almacen.reports import ReporteKardexExcel
 
         reporte = ReporteKardexExcel()
-        reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
+        reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.warehouse)
         with CaptureQueriesContext(connection) as con_uno:
-            reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
+            reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.warehouse)
 
         for number in range(9):
             product = baker.make(Producto, code='', product_group=self.grupo,
                                   unit_of_measure=self.unidad,
                                   stock_type=self.stock_type)
-            baker.make(Kardex, almacen=self.almacen, product=product,
+            baker.make(Kardex, warehouse=self.warehouse, product=product,
                        movement=baker.make(Movimiento, document_type=self.document_type,
                                              movement_type=self.movement_type),
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
@@ -462,7 +462,7 @@ class ReporteKardexExcelTest(TestCase):
 
         with CaptureQueriesContext(connection) as con_diez:
             libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
-                self.desde, self.hasta, self.almacen)
+                self.desde, self.hasta, self.warehouse)
 
         self.assertLessEqual(len(con_diez), len(con_uno))
         self.assertLess(len(con_diez), 20)
@@ -471,12 +471,12 @@ class ReporteKardexExcelTest(TestCase):
     def test_el_consolidado_usa_el_kardex_anterior_al_periodo(self):
         from almacen.reports import ReporteKardexExcel
 
-        baker.make(Kardex, almacen=self.almacen, product=self.product,
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
                    total_quantity=Decimal('99'), total_amount=Decimal('99'))
 
         libro = ReporteKardexExcel().obtener_consolidado_productos(
-            self.desde, self.hasta, self.almacen)
+            self.desde, self.hasta, self.warehouse)
 
         hoja = libro.active
         self.assertEqual(hoja.cell(row=4, column=4).value, Decimal('7'))
@@ -486,7 +486,7 @@ class ReporteKardexExcelTest(TestCase):
         from almacen.reports import ReporteKardexExcel
 
         libro = ReporteKardexExcel().obtener_formato_normal_todos(
-            self.desde, self.hasta, self.almacen)
+            self.desde, self.hasta, self.warehouse)
 
         hoja = libro.active
         self.assertEqual(hoja.cell(row=5, column=8).value, 'SALDO INICIAL:')
@@ -503,14 +503,14 @@ class ReporteKardexPorProductoTest(TestCase):
         from contabilidad.models import CuentaContable, TipoExistencia
         from productos.models import GrupoProductos
 
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
                                 account=baker.make(CuentaContable))
         self.product = baker.make(Producto, code='', product_group=self.grupo,
                                    stock_type=baker.make(TipoExistencia))
         self.desde = date(2024, 1, 1)
         self.hasta = date(2024, 1, 31)
-        baker.make(Kardex, almacen=self.almacen, product=self.product,
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'),
                    total_price=Decimal('3'))
@@ -519,15 +519,15 @@ class ReporteKardexPorProductoTest(TestCase):
         from almacen.reports import ReporteKardexPDF
         from productos.models import GrupoProductos
 
-        reporte = ReporteKardexPDF('A4', self.desde, self.hasta, self.almacen,
+        reporte = ReporteKardexPDF('A4', self.desde, self.hasta, self.warehouse,
                                    GrupoProductos.objects.all())
 
         unidades = reporte.tabla_detalle_unidades_fisicas(
-            self.product, self.desde, self.hasta, self.almacen)
+            self.product, self.desde, self.hasta, self.warehouse)
         self.assertEqual(unidades._cellvalues[2][7], '7.00')
 
         valorizado = reporte.tabla_detalle_valorizado(
-            self.product, self.desde, self.hasta, self.almacen)
+            self.product, self.desde, self.hasta, self.warehouse)
         self.assertTrue(valorizado._cellvalues)
 
     def test_los_todos_precargan_el_lote(self):
@@ -535,7 +535,7 @@ class ReporteKardexPorProductoTest(TestCase):
 
         reporte = ReporteKardexExcel()
         libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
-            self.desde, self.hasta, self.almacen)
+            self.desde, self.hasta, self.warehouse)
 
         self.assertTrue(libro.sheetnames)
         self.assertIn(self.product.pk, reporte.kardex_iniciales)
@@ -545,7 +545,7 @@ class ReporteKardexPorProductoTest(TestCase):
 
         reporte = ReporteKardexExcel()
         libro = reporte.obtener_formato_sunat_valorizado_todos(
-            self.desde, self.hasta, self.almacen)
+            self.desde, self.hasta, self.warehouse)
 
         self.assertTrue(libro.sheetnames)
         self.assertIn(self.product.pk, reporte.kardex_iniciales)
@@ -559,7 +559,7 @@ class ReporteKardexPorProductoTest(TestCase):
                        'obtener_formato_normal_producto'):
             with self.subTest(metodo=metodo):
                 libro = getattr(reporte, metodo)(self.product, self.desde,
-                                                 self.hasta, self.almacen)
+                                                 self.hasta, self.warehouse)
                 self.assertTrue(libro.sheetnames)
 
 
@@ -569,16 +569,16 @@ class StockAjaxTest(TestCase):
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
-        self.almacen = baker.make(Almacen)
+        self.warehouse = baker.make(Almacen)
         self.product = baker.make(Producto, description='ACERO INOXIDABLE',
                                    unit_of_measure=baker.make(UnidadMedida))
         self.unidad = self.product.unit_of_measure
-        baker.make(Kardex, almacen=self.almacen, product=self.product,
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'), total_price=Decimal('3'))
 
     def obtener(self, url):
-        return self.client.get(url, {'description': 'ACERO', 'almacen': self.almacen.pk},
+        return self.client.get(url, {'description': 'ACERO', 'warehouse': self.warehouse.pk},
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_listado_stock_producto(self):
