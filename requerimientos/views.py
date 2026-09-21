@@ -19,13 +19,13 @@ from django.db.models import Q
 from django.contrib import messages
 from requerimientos.models import RequirementApproval, Requirement, \
     RequirementDetail
-from requerimientos.forms import AprobacionRequerimientoForm, RequerimientoForm, DetalleRequerimientoFormSet
+from requerimientos.forms import RequirementApprovalForm, RequirementForm, RequirementDetailFormSet
 from compras.forms import QuotationDetailFormSet
 from compras.models import Quotation
 from productos.models import Product
 from requerimientos.mail import correo_creacion_requerimiento
 from openpyxl import Workbook
-from requerimientos.reports import ReporteRequerimiento
+from requerimientos.reports import RequirementReport
 from datetime import date
 from tambox.configuracion import configuracion, oficina_administracion, \
     logistica, presupuesto
@@ -41,10 +41,10 @@ class Dashboard(View):
         return render(request, 'requerimientos/tablero_requerimientos.html', context)
 
 
-class AprobarRequerimiento(UpdateView):
+class RequirementApprove(UpdateView):
     model = RequirementApproval
     template_name = 'requerimientos/aprobar_requerimiento.html'
-    form_class = AprobacionRequerimientoForm
+    form_class = RequirementApprovalForm
     success_url = reverse_lazy('requerimientos:listado_aprobacion_requerimientos')
 
     @method_decorator(requiere('requerimientos.change_requirementapproval'))
@@ -52,12 +52,12 @@ class AprobarRequerimiento(UpdateView):
         aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
         usuario = self.request.user
         if aprobacion_requerimiento.verificar_acceso_aprobacion(usuario):
-            return super(AprobarRequerimiento, self).dispatch(*args, **kwargs)
+            return super(RequirementApprove, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_form_kwargs(self):
-        kwargs = super(AprobarRequerimiento, self).get_form_kwargs()
+        kwargs = super(RequirementApprove, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
@@ -69,7 +69,7 @@ class AprobarRequerimiento(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
+class RequirementDetailCreate(SoloAjaxMixin, FormView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
@@ -80,7 +80,7 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
             det['quantity'] = '0'
             det['use'] = ''
             lista_detalles.append(det)
-            formset = DetalleRequerimientoFormSet(initial=lista_detalles)
+            formset = RequirementDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -94,19 +94,19 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearRequerimiento(CreateView):
+class RequirementCreate(CreateView):
     template_name = 'requerimientos/requerimiento.html'
-    form_class = RequerimientoForm
+    form_class = RequirementForm
     model = Requirement
     context_object_name = 'requirement'
 
     def get_form_kwargs(self):
-        kwargs = super(CrearRequerimiento, self).get_form_kwargs()
+        kwargs = super(RequirementCreate, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
-        initial = super(CrearRequerimiento, self).get_initial()
+        initial = super(RequirementCreate, self).get_initial()
         initial['year'] = date.today().year
         initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['month'] = date.today().month
@@ -135,7 +135,7 @@ class CrearRequerimiento(CreateView):
         if configuracion() is not None:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_requerimiento_formset = DetalleRequerimientoFormSet()
+            detalle_requerimiento_formset = RequirementDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_requerimiento_formset=detalle_requerimiento_formset))
         else:
@@ -145,7 +145,7 @@ class CrearRequerimiento(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_requerimiento_formset = DetalleRequerimientoFormSet(request.POST)
+        detalle_requerimiento_formset = RequirementDetailFormSet(request.POST)
         if form.is_valid() and detalle_requerimiento_formset.is_valid():
             return self.form_valid(form, detalle_requerimiento_formset)
         else:
@@ -184,7 +184,7 @@ class CrearRequerimiento(CreateView):
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
-class DetalleOperacionRequerimiento(DetailView):
+class RequirementDetailView(DetailView):
     model = Requirement
     context_object_name = 'requirement'
     slug_field = 'code'
@@ -196,18 +196,18 @@ class DetalleOperacionRequerimiento(DetailView):
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
         if requirement.verificar_acceso(self.request.user, oficina_administracion(), logistica(), presupuesto()):
-            return super(DetalleOperacionRequerimiento, self).dispatch(*args, **kwargs)
+            return super(RequirementDetailView, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(
                 reverse('requerimientos:requirement_detail', args=[requirement.siguiente()]))
 
 
-class EliminarRequerimiento(TemplateView):
+class RequirementDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('requerimientos.delete_requirement'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarRequerimiento, self).dispatch(*args, **kwargs)
+        return super(RequirementDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -227,7 +227,7 @@ class EliminarRequerimiento(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ListadoAprobacionRequerimientos(ListView):
+class RequirementApprovalList(ListView):
     model = RequirementApproval
     template_name = 'requerimientos/listado_aprobacion_requerimientos.html'
     context_object_name = 'aprobacion_requerimientos'
@@ -235,7 +235,7 @@ class ListadoAprobacionRequerimientos(ListView):
     @method_decorator(
         requiere('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoAprobacionRequerimientos, self).dispatch(*args, **kwargs)
+        return super(RequirementApprovalList, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         try:
@@ -249,20 +249,20 @@ class ListadoAprobacionRequerimientos(ListView):
             return HttpResponseRedirect(reverse('administracion:crear_puesto'))
         if not puesto.is_leadership:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
-        return super(ListadoAprobacionRequerimientos, self).get(request, *args, **kwargs)
+        return super(RequirementApprovalList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
         return RequirementApproval.obtener_aprobaciones_pendientes(self.request.user)
 
 
-class ListadoCotizacionesPorRequerimiento(ListView):
+class QuotationListByRequirement(ListView):
     model = Quotation
     template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
 
     @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoCotizacionesPorRequerimiento, self).dispatch(*args, **kwargs)
+        return super(QuotationListByRequirement, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         requirement = Requirement.objects.get(pk=self.kwargs['requirement'])
@@ -270,7 +270,7 @@ class ListadoCotizacionesPorRequerimiento(ListView):
         return queryset
 
 
-class ListadoRequerimientos(ListView):
+class RequirementList(ListView):
     model = Requirement
     template_name = 'requerimientos/listado_requerimientos.html'
     context_object_name = 'requerimientos'
@@ -283,14 +283,14 @@ class ListadoRequerimientos(ListView):
     @method_decorator(
         requiere('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoRequerimientos, self).dispatch(*args, **kwargs)
+        return super(RequirementList, self).dispatch(*args, **kwargs)
 
 
-class ModificarRequerimiento(UpdateView):
+class RequirementUpdate(UpdateView):
     template_name = 'requerimientos/requerimiento.html'
     model = Requirement
     context_object_name = 'requirement'
-    form_class = RequerimientoForm
+    form_class = RequirementForm
 
     @method_decorator(
         requiere('requerimientos.change_requirement'))
@@ -299,22 +299,22 @@ class ModificarRequerimiento(UpdateView):
         if (requirement.approval.is_active == RequirementApproval.NIVEL.USU or
                 requirement.approval.is_active == RequirementApproval.NIVEL.JEF or
                 self.request.user.is_superuser):
-            return super(ModificarRequerimiento, self).dispatch(*args, **kwargs)
+            return super(RequirementUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_form_kwargs(self):
-        kwargs = super(ModificarRequerimiento, self).get_form_kwargs()
+        kwargs = super(RequirementUpdate, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
-        initial = super(ModificarRequerimiento, self).get_initial()
+        initial = super(RequirementUpdate, self).get_initial()
         initial['date'] = self.object.date.strftime('%d/%m/%Y')
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(ModificarRequerimiento, self).get_context_data(**kwargs)
+        context = super(RequirementUpdate, self).get_context_data(**kwargs)
         return context
 
     def get(self, request, *args, **kwargs):
@@ -337,7 +337,7 @@ class ModificarRequerimiento(UpdateView):
                      'unidad': '',
                      'use': detalle.use}
             detalles_data.append(d)
-        detalle_requerimiento_formset = DetalleRequerimientoFormSet(initial=detalles_data)
+        detalle_requerimiento_formset = RequirementDetailFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
@@ -345,7 +345,7 @@ class ModificarRequerimiento(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_requerimiento_formset = DetalleRequerimientoFormSet(request.POST)
+        detalle_requerimiento_formset = RequirementDetailFormSet(request.POST)
         if form.is_valid() and detalle_requerimiento_formset.is_valid():
             return self.form_valid(form, detalle_requerimiento_formset)
         else:
@@ -383,7 +383,7 @@ class ModificarRequerimiento(UpdateView):
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
-class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
+class RequirementDetailFetch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('requirement', 'tipo_busqueda')
     def get(self, request, *args, **kwargs):
@@ -428,18 +428,18 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class TransferenciaRequerimiento(TemplateView):
+class RequirementTransfer(TemplateView):
     template_name = 'requerimientos/transferencia_requerimiento.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TransferenciaRequerimiento, self).get_context_data(**kwargs)
+        context = super(RequirementTransfer, self).get_context_data(**kwargs)
         # requerimientos = Requirement.objects.all()
         requerimientos = Requirement.obtener_requerimientos_listos_transferencia()
         context['requerimientos'] = requerimientos
         return context
 
 
-class ReporteExcelRequerimientos(TemplateView):
+class RequirementExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
         requerimientos = Requirement.objects.requerimientos_activos_por_usuario(request.user,
                                                                                   Requirement.STATUS.CANC)
@@ -461,7 +461,7 @@ class ReporteExcelRequerimientos(TemplateView):
             ws.cell(row=cont, column=6).value = requirement.created
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "ListadoRequerimientos.xlsx"
+        nombre_archivo = "RequirementList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -469,12 +469,12 @@ class ReporteExcelRequerimientos(TemplateView):
         return response
 
 
-class ReportePDFRequerimiento(View):
+class RequirementPdfReport(View):
     def get(self, request, *args, **kwargs):
         code = kwargs['code']
         requirement = Requirement.objects.get(code=code)
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteRequerimiento('A4', requirement)
+        reporte = RequirementReport('A4', requirement)
         pdf = reporte.imprimir()
         response.write(pdf)
         return response

@@ -4,12 +4,12 @@ from django.db.models import Max
 from tambox.querysets import NavegableQuerySet
 
 
-class AnteriorQuerySet(models.query.QuerySet):
+class PreviousQuerySet(models.query.QuerySet):
     def requerimiento_anterior(self, anio):
         return self.filter(created__year=anio).aggregate(Max('code'))
 
 
-class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
+class RequirementQuerySet(NavegableQuerySet, PreviousQuerySet):
     def requerimientos_activos_por_usuario(self, usuario, estado):
         return self.filter(requester__user=usuario).exclude(status=estado).order_by('code')
 
@@ -24,7 +24,7 @@ class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
         return self.filter(office__in=oficinas)
 
 
-class AprobacionRequerimientoQuerySet(models.query.QuerySet):
+class RequirementApprovalQuerySet(models.query.QuerySet):
     def aprobaciones_pendientes_oficina_usuario(self, requerimientos, level):
         return self.filter(requirement__in=requerimientos, level=level, is_active=True)
 

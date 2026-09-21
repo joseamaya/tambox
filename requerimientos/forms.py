@@ -8,14 +8,14 @@ from requerimientos.mail import correo_creacion_requerimiento
 from productos.models import Product
 
 
-class AprobacionRequerimientoForm(forms.ModelForm):
+class RequirementApprovalForm(forms.ModelForm):
     class Meta:
         model = RequirementApproval
         fields = ['is_active', 'rejection_reason']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        super(AprobacionRequerimientoForm, self).__init__(*args, **kwargs)
+        super(RequirementApprovalForm, self).__init__(*args, **kwargs)
         self.fields['rejection_reason'].widget.attrs['readonly'] = True
         self.fields['rejection_reason'].required = False
 
@@ -35,12 +35,12 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         puesto_usuario = usuario.worker.puesto
         oficina_requerimiento = self.instance.requirement.office
         self.instance.level = puesto_usuario.establecer_nivel(oficina_requerimiento)
-        return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
+        return super(RequirementApprovalForm, self).save(*args, **kwargs)
 
 
-class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
+class BaseRequirementDetailFormSet(formsets.BaseFormSet):
     def __init__(self, *args, **kwargs):
-        super(BaseDetalleRequerimientoFormSet, self).__init__(*args, **kwargs)
+        super(BaseRequirementDetailFormSet, self).__init__(*args, **kwargs)
         for form in self.forms:
             form.empty_permitted = False
 
@@ -55,7 +55,7 @@ class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
                 )
 
 
-class FormularioDetalleRequerimientoProducto(forms.Form):
+class RequirementDetailProductForm(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
@@ -65,7 +65,7 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
     use = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
-class FormularioDetalleRequerimiento(forms.Form):
+class RequirementDetailForm(forms.Form):
     code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
     quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
@@ -87,10 +87,10 @@ class FormularioDetalleRequerimiento(forms.Form):
         return self.cleaned_data['quantity']
 
 
-class RequerimientoForm(forms.ModelForm):
+class RequirementForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        super(RequerimientoForm, self).__init__(*args, **kwargs)
+        super(RequirementForm, self).__init__(*args, **kwargs)
         self.fields['reason'].required = False
         self.fields['report'].required = False
         self.fields['code'].required = False
@@ -108,7 +108,7 @@ class RequerimientoForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.requester = self.request.user.worker
-        return super(RequerimientoForm, self).save(*args, **kwargs)
+        return super(RequirementForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Requirement
@@ -116,5 +116,5 @@ class RequerimientoForm(forms.ModelForm):
                   'direct_delivery_to_requester']
 
 
-DetalleRequerimientoFormSet = formsets.formset_factory(FormularioDetalleRequerimiento, BaseDetalleRequerimientoFormSet,
+RequirementDetailFormSet = formsets.formset_factory(RequirementDetailForm, BaseRequirementDetailFormSet,
                                                        0)

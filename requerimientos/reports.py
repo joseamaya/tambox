@@ -15,7 +15,7 @@ from io import BytesIO
 from tambox.configuracion import empresa, logistica
 
 
-class ReporteRequerimiento():
+class RequirementReport():
 
     def __init__(self, pagesize, requirement):
         self.requirement = requirement

@@ -3,7 +3,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 from administracion.models import Worker, Office, ApprovalLevel
 from productos.models import Product
-from requerimientos.querysets import RequerimientoQuerySet, AprobacionRequerimientoQuerySet
+from requerimientos.querysets import RequirementQuerySet, RequirementApprovalQuerySet
 from django.core.validators import MaxValueValidator
 from datetime import date
 from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
@@ -29,7 +29,7 @@ class Requirement(TimeStampedModel):
     STATUS = CHOICES_ESTADO_REQ
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
-    objects = RequerimientoQuerySet.as_manager()
+    objects = RequirementQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -271,7 +271,7 @@ class RequirementApproval(TimeStampedModel):
     rejection_reason = models.TextField(default='')
     received_date = models.DateField(null=True)
     history = HistoricalRecords()
-    objects = AprobacionRequerimientoQuerySet.as_manager()
+    objects = RequirementApprovalQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_tabla_aprobacion_requerimientos', 'Puede ver tabla de Aprobación de Requerimientos'),
