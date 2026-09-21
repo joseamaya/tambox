@@ -131,7 +131,7 @@ class AprobarPedido(CreateView):
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.positions.all().filter(is_active=True)
-            if trabajador.firma == '':
+            if trabajador.signature == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].is_leadership and puestos[0].oficina == logistica():
                 form_class = self.get_form_class()
@@ -188,7 +188,7 @@ class AprobarPedido(CreateView):
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
                 DetalleMovimiento.objects.bulk_create(detalles, None, pedido)
-                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.id_movimiento]))
+                return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.movement_id]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -313,7 +313,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
             pass
 
     def get_success_url(self):
-        return reverse('almacen:detalle_movimiento', args=[self.movimiento.id_movimiento])
+        return reverse('almacen:detalle_movimiento', args=[self.movimiento.movement_id])
 
 
 class CrearTipoMovimiento(CreateView):
@@ -451,7 +451,7 @@ class CrearPedido(CreateView):
             trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
-        if trabajador.firma == '':
+        if trabajador.signature == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
         puesto = trabajador.puesto
         if puesto is None:
@@ -581,8 +581,8 @@ class EliminarMovimiento(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            id_movimiento = request.POST['id_movimiento']
-            movimiento = Movimiento.objects.get(pk=id_movimiento)
+            movement_id = request.POST['movement_id']
+            movimiento = Movimiento.objects.get(pk=movement_id)
             orden = movimiento.referencia
             pedido = movimiento.pedido
             if orden is not None:
@@ -598,10 +598,10 @@ class EliminarMovimiento(TemplateView):
                     control.stock = control.stock + kardex.out_quantity
                 control.save()
                 kardex.delete()
-            Movimiento.objects.filter(pk=id_movimiento).update(status=Movimiento.STATUS.CANC, referencia=None)
+            Movimiento.objects.filter(pk=movement_id).update(status=Movimiento.STATUS.CANC, referencia=None)
             DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
             movimiento_json = {}
-            movimiento_json['id_movimiento'] = id_movimiento
+            movimiento_json['movement_id'] = movement_id
             data = simplejson.dumps(movimiento_json)
             return HttpResponse(data, 'application/json')
 
@@ -645,7 +645,7 @@ class ListadoAprobacionPedidos(ListView):
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
             puestos = trabajador.positions.all().filter(is_active=True)
-            if trabajador.firma == '':
+            if trabajador.signature == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].is_leadership and puestos[0].oficina == logistica():
                 return super(ListadoAprobacionPedidos, self).dispatch(*args, **kwargs)
@@ -788,7 +788,7 @@ class ModificarIngresoAlmacen(UpdateView):
     def get_initial(self):
         initial = super(ModificarIngresoAlmacen, self).get_initial()
         movimiento = self.object
-        initial['id_movimiento'] = movimiento.id_movimiento
+        initial['movement_id'] = movimiento.movement_id
         initial['date'] = movimiento.operation_date.strftime('%d/%m/%Y')
         initial['hora'] = movimiento.operation_date.strftime('%H : %M : %S')
         initial['almacen'] = movimiento.almacen
@@ -905,7 +905,7 @@ class ModificarSalidaAlmacen(UpdateView):
         initial = super(ModificarSalidaAlmacen, self).get_initial()
         movimiento = self.object
         self.detalles = DetalleMovimiento.objects.filter(movimiento=movimiento)
-        initial['id_movimiento'] = movimiento.id_movimiento
+        initial['movement_id'] = movimiento.movement_id
         initial['date'] = movimiento.operation_date.strftime('%d/%m/%Y')
         initial['hora'] = movimiento.operation_date.strftime('%H : %M : %S')
         initial['almacenes'] = movimiento.almacen
@@ -1667,7 +1667,7 @@ class ReporteExcelMovimientos(FormView):
         cont = 6
         movimientos = movimientos.order_by('operation_date')
         for movimiento in movimientos:
-            ws.cell(row=cont, column=2).value = movimiento.id_movimiento
+            ws.cell(row=cont, column=2).value = movimiento.movement_id
             try:
                 ws.cell(row=cont, column=3).value = movimiento.document_type.description
             except ObjectDoesNotExist:
@@ -1731,7 +1731,7 @@ class ReporteExcelMovimientosPorFecha(View):
         ws['H5'] = 'FECHA_CREACION'
         cont = 6
         for movimiento in movimientos:
-            ws.cell(row=cont, column=2).value = movimiento.id_movimiento
+            ws.cell(row=cont, column=2).value = movimiento.movement_id
             ws.cell(row=cont, column=3).value = movimiento.document_type
             ws.cell(row=cont, column=4).value = movimiento.series
             ws.cell(row=cont, column=5).value = movimiento.number
@@ -1752,8 +1752,8 @@ class ReporteExcelMovimientosPorFecha(View):
 class ReportePDFMovimiento(View):
 
     def get(self, request, *args, **kwargs):
-        id_movimiento = kwargs['id_movimiento']
-        movimiento = Movimiento.objects.get(pk=id_movimiento)
+        movement_id = kwargs['movement_id']
+        movimiento = Movimiento.objects.get(pk=movement_id)
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteMovimiento('A4', movimiento)
         pdf = reporte.imprimir()

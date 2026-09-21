@@ -125,50 +125,50 @@ class DetallePedidoTest(TestCase):
 class MovimientoTest(TestCase):
 
     def test_creacion_movimiento(self):
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now())
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now())
         self.assertTrue(isinstance(mov1, Movimiento))
-        self.assertEqual(mov1.__str__(), mov1.id_movimiento)
+        self.assertEqual(mov1.__str__(), mov1.movement_id)
 
     def test_creacion_movimiento_ingreso(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        self.assertEqual("I" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.id_movimiento)
-        self.assertEqual("I" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.id_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        self.assertEqual("I" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.movement_id)
+        self.assertEqual("I" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.movement_id)
 
     def test_creacion_movimiento_salida(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        self.assertEqual("S" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.id_movimiento)
-        self.assertEqual("S" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.id_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        self.assertEqual("S" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.movement_id)
+        self.assertEqual("S" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.movement_id)
 
     def test_siguiente_movimiento(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov3 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov2.pk, mov1.siguiente())
         self.assertEqual(mov3.pk, mov2.siguiente())
 
     def test_anterior_movimiento(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov3 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov1.pk, mov2.anterior())
         self.assertEqual(mov2.pk, mov3.anterior())
 
     def test_primer_movimiento(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov1.pk, mov2.siguiente())
 
     def test_ultimo_movimiento(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
         self.assertEqual(mov2.pk, mov1.anterior())
 
     def test_eliminar_referencia(self):
@@ -177,7 +177,7 @@ class MovimientoTest(TestCase):
         `eliminar_referencia` y este test quedo apuntando al nombre viejo."""
         tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True, requires_reference=True)
         referencia = baker.make(OrdenCompra, cotizacion=None)
-        mov1 = baker.make(Movimiento, id_movimiento='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento,
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento,
                           referencia=referencia)
 
         mov1.eliminar_referencia()

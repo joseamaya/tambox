@@ -49,7 +49,7 @@ class OficinaForm(forms.ModelForm):
 class TrabajadorForm(forms.ModelForm):
     class Meta:
         model = Trabajador
-        fields = ['dni', 'last_name', 'first_name', 'profesion', 'user', 'firma']
+        fields = ['dni', 'last_name', 'first_name', 'profesion', 'user', 'signature']
 
     def __init__(self, *args, **kwargs):
         super(TrabajadorForm, self).__init__(*args, **kwargs)

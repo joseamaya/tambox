@@ -40,7 +40,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ movimiento.id_movimiento }}</td>
+                <td>{{ movimiento.movement_id }}</td>
                 <td>{{ movimiento.tipo_movimiento }}</td>
                 <td>{{ movimiento.operation_date|date:"d/m/y" }}</td>
                 <td>{{ movimiento.almacen }}</td>
@@ -85,14 +85,14 @@ $(document).ready(function()
     function borrarMovimiento()
 	{
     	var id_boton= $(borrarSeleccionado).prop('id');
-    	var id_movimiento = id_boton.replace("elim_","");
+    	var movement_id = id_boton.replace("elim_","");
     	$.ajax({
-    		data : {'id_movimiento': id_movimiento},
+    		data : {'movement_id': movement_id},
     		url : "{% url 'almacen:eliminar_movimiento' %}",
     		type : 'post',
     		success : function(data)
     		{
-    			alert("Movimiento "+data.id_movimiento+ " eliminado");
+    			alert("Movimiento "+data.movement_id+ " eliminado");
     			table.row('.selected').remove().draw(false);
     		}
     	});

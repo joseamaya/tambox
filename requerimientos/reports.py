@@ -129,10 +129,10 @@ class ReporteRequerimiento():
                            fontName="Times-Roman")
         if firma_trabajador != '':
             archivo_firma = os.path.join(settings.MEDIA_ROOT, str(firma_trabajador))
-            firma = Image(archivo_firma, width=90, height=50, hAlign='CENTER')
+            signature = Image(archivo_firma, width=90, height=50, hAlign='CENTER')
         else:
-            firma = Paragraph(u"Firma No Encontrada", p)
-        return firma
+            signature = Paragraph(u"Firma No Encontrada", p)
+        return signature
 
     def obtener_puesto(self, oficina, requerimiento):
         try:
@@ -157,8 +157,8 @@ class ReporteRequerimiento():
         encabezados = [(u'Recepción', '', '', '', '', '')]
         jefatura_logistica = self.obtener_puesto(logistica(), requerimiento)
         jefe_logistica = jefatura_logistica.trabajador
-        firma_solicitante = self.obtener_firma(solicitante.firma)
-        firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.firma)
+        firma_solicitante = self.obtener_firma(solicitante.signature)
+        firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.signature)
         solicitante = requerimiento.solicitante.nombre_completo()
         cuerpo = [('', '', '', '', '', '')]
         if requerimiento.approval.level.description == "USUARIO" and requerimiento.approval.is_active:

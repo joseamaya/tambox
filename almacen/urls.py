@@ -53,7 +53,7 @@ urlpatterns = [
     re_path(
         r'^movimientos_date/(?P<start_date>\d{2}/\d{2}/\d{4})/(?P<end_date>\d{2}/\d{2}/\d{4})/(?P<almacen>.+)/(?P<tipo_movimiento>.+)/$',
         ReporteExcelMovimientosPorFecha.as_view(), name="movimientos_date"),
-    re_path(r'^movimiento_pdf/(?P<id_movimiento>.+)/$', ReportePDFMovimiento.as_view(),
+    re_path(r'^movimiento_pdf/(?P<movement_id>.+)/$', ReportePDFMovimiento.as_view(),
         name="movimiento_pdf"),
     re_path(r'^reporte_kardex/$', ReporteKardex.as_view(), name="reporte_kardex"),
     re_path(r'^eliminar_movimiento/$', EliminarMovimiento.as_view(), name="eliminar_movimiento"),

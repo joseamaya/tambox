@@ -120,7 +120,7 @@ class CrearRequerimiento(CreateView):
             trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
-        if trabajador.firma == '':
+        if trabajador.signature == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
         puesto = trabajador.puesto
         if puesto is None:
@@ -240,7 +240,7 @@ class ListadoAprobacionRequerimientos(ListView):
             trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
-        if trabajador.firma == '':
+        if trabajador.signature == '':
             return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[trabajador.pk]))
         puesto = trabajador.puesto
         if puesto is None:

@@ -211,7 +211,7 @@ class ReporteOrdenCompra():
         hoja_afectacion = Paragraph(u"HOJA DE AFECTACIÓN PRESUPUESTAL: ", p)
         importante = Paragraph(u"IMPORTANTE: ", p)
         recibido = Paragraph(u"RECIBIDO POR: ", p)
-        firma = Paragraph(u"FIRMA: ", p)
+        signature = Paragraph(u"FIRMA: ", p)
         name = Paragraph(u"NOMBRE: ", p)
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
@@ -226,7 +226,7 @@ class ReporteOrdenCompra():
         datos_otros = [[hoja_afectacion, ''],
                        [importante, recibido],
                        [lista, ''],
-                       ['', firma],
+                       ['', signature],
                        ['', name],
                        ['', dni],
                        ]
@@ -828,7 +828,7 @@ class PDFMemorandoConformidadServicio(object):
         detalle_orden.wrapOn(pdf, 800, 600)
         detalle_orden.drawOn(pdf, 40, y + 75)
 
-    def firma(self, pdf, x_texto, y_texto, texto, x_ini_linea, x_fin_linea, y_linea):
+    def signature(self, pdf, x_texto, y_texto, texto, x_ini_linea, x_fin_linea, y_linea):
         pdf.drawString(x_texto, y_texto, texto)
         pdf.line(x_ini_linea, y_linea, x_fin_linea, y_linea)
 
@@ -840,10 +840,10 @@ class PDFMemorandoConformidadServicio(object):
         y = 300
         self.detalle(pdf, y, conformidad)
         pdf.setFont("Times-Roman", 8)
-        self.firma(pdf, 170, y - 50, "GERENCIA", 120, 265, y - 40)
-        self.firma(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
-        self.firma(pdf, 130, y - 150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y - 140)
-        self.firma(pdf, 350, y - 150, "UNIDAD DE LOGÍSTICA", 320, 470, y - 140)
+        self.signature(pdf, 170, y - 50, "GERENCIA", 120, 265, y - 40)
+        self.signature(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
+        self.signature(pdf, 130, y - 150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y - 140)
+        self.signature(pdf, 350, y - 150, "UNIDAD DE LOGÍSTICA", 320, 470, y - 140)
         pdf.drawCentredString(300, y - 280, empresa().address())
         pdf.showPage()
         pdf.save()

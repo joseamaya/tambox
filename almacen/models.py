@@ -202,7 +202,7 @@ class DetallePedido(TimeStampedModel):
 
 
 class Movimiento(TimeStampedModel):
-    id_movimiento = models.CharField(unique=True, max_length=16)
+    movement_id = models.CharField(unique=True, max_length=16)
     tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE, related_name='movements')
     referencia = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='movements', null=True)
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='movements', null=True)
@@ -291,25 +291,25 @@ class Movimiento(TimeStampedModel):
         permissions = (('ver_detalle_movimiento', 'Puede ver detalle de Movimiento'),
                        ('ver_tabla_movimientos', 'Puede ver tabla de Movimientos'),
                        ('ver_reporte_movimientos_excel', 'Puede ver Reporte de Movimientos en excel'),)
-        ordering = ['id_movimiento']
+        ordering = ['movement_id']
 
     def __str__(self):
-        return self.id_movimiento
+        return self.movement_id
 
     def save(self, *args, **kwargs):
-        if self.id_movimiento == '':
+        if self.movement_id == '':
             tipo = self.tipo_movimiento
             anio = self.operation_date.year
             mov_ant = Movimiento.objects.filter(tipo_movimiento__increases=tipo.increases,
-                                                operation_date__year=anio).aggregate(Max('id_movimiento'))
-            id_ant = mov_ant['id_movimiento__max']
+                                                operation_date__year=anio).aggregate(Max('movement_id'))
+            id_ant = mov_ant['movement_id__max']
             if id_ant is None:
                 aux = 1
             else:
                 aux = int(id_ant[-7:]) + 1
             correlativo = str(aux).zfill(7)
             code = str(tipo.code[0:1]) + str(anio) + correlativo
-            self.id_movimiento = code
+            self.movement_id = code
         super(Movimiento, self).save()
 
 
@@ -473,7 +473,7 @@ class Kardex(TimeStampedModel):
         return lote
 
     def __str__(self):
-        return str(self.movimiento.id_movimiento) + '-' + str(
+        return str(self.movimiento.movement_id) + '-' + str(
             self.movement_line_number) + '-' + self.producto.description
 
     class Meta:

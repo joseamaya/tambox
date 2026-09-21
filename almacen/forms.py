@@ -97,7 +97,7 @@ class MovimientoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.tipo_movimiento = kwargs.pop("tipo_movimiento")
         super(MovimientoForm, self).__init__(*args, **kwargs)
-        self.fields['id_movimiento'].required = False
+        self.fields['movement_id'].required = False
         self.fields['document_type'].required = False
         self.fields['series'].required = False
         self.fields['number'].required = False
@@ -162,7 +162,7 @@ class MovimientoForm(forms.ModelForm):
 
     class Meta:
         model = Movimiento
-        fields = ['id_movimiento', 'tipo_movimiento', 'document_type', 'series', 'number', 'almacen', 'oficina',
+        fields = ['movement_id', 'tipo_movimiento', 'document_type', 'series', 'number', 'almacen', 'oficina',
                   'notes']
 
 

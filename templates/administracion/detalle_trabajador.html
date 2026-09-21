@@ -31,7 +31,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-2">
-                <a href="{{ object.foto.url }}" class="thumbnail"> <img src="{{ object.foto.url }}"
+                <a href="{{ object.photo.url }}" class="thumbnail"> <img src="{{ object.photo.url }}"
                                                                         alt="Foto Trabajador"
                                                                         style="width: 120px; height: 90px">
                 </a>
@@ -69,9 +69,9 @@
                         <p></p>
                         {% endif %}
                         <label>FIRMA:</label>
-                        {% if object.firma %}
-                        <a href="{{ object.firma.url }}" class="thumbnail">
-                            <img src="{{ object.firma.url }}" alt="Firma Trabajador" style="width: 120px; height: 90px">
+                        {% if object.signature %}
+                        <a href="{{ object.signature.url }}" class="thumbnail">
+                            <img src="{{ object.signature.url }}" alt="Firma Trabajador" style="width: 120px; height: 90px">
                         </a>
                         {% endif %}
                     </div>

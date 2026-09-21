@@ -86,10 +86,10 @@ class ReporteMovimiento():
             nota = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
-        id_movimiento = Paragraph(movimiento.id_movimiento, sp)
+        movement_id = Paragraph(movimiento.movement_id, sp)
         date = Paragraph("FECHA: " + movimiento.operation_date.strftime('%d/%m/%y'), sp)
         encabezado = [[image, nota, date],
-                      ['', id_movimiento, '']
+                      ['', movement_id, '']
                       ]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
@@ -1280,7 +1280,7 @@ class ReporteKardexExcel():
             for kardex in listado_kardex:
                 ws.cell(row=cont, column=2).value = kardex.operation_date
                 ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
-                ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
+                ws.cell(row=cont, column=3).value = kardex.movimiento.movement_id
                 ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
                 ws.cell(row=cont, column=5).value = kardex.in_quantity
                 ws.cell(row=cont, column=5).number_format = '#.00000'
@@ -2202,7 +2202,7 @@ class ReporteKardexExcel():
                 for kardex in listado_kardex:
                     ws.cell(row=cont, column=2).value = kardex.operation_date
                     ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
-                    ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
+                    ws.cell(row=cont, column=3).value = kardex.movimiento.movement_id
                     ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
                     ws.cell(row=cont, column=5).value = kardex.in_quantity
                     ws.cell(row=cont, column=6).value = kardex.in_price
