@@ -117,7 +117,7 @@ class CrearRequerimiento(CreateView):
         if not oficinas:
             return HttpResponseRedirect(reverse('administracion:crear_oficina'))
         try:
-            trabajador = self.request.user.trabajador
+            trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
@@ -213,7 +213,7 @@ class EliminarRequerimiento(TemplateView):
             requerimiento = Requerimiento.objects.get(code=code)
             requerimiento_json = {}
             requerimiento_json['code'] = code
-            cotizaciones = requerimiento.cotizacion_set.all()
+            cotizaciones = requerimiento.quotations.all()
             if len(cotizaciones) > 0:
                 requerimiento_json['cotizaciones'] = 'SI'
             else:
@@ -237,7 +237,7 @@ class ListadoAprobacionRequerimientos(ListView):
 
     def get(self, request, *args, **kwargs):
         try:
-            trabajador = self.request.user.trabajador
+            trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
@@ -264,7 +264,7 @@ class ListadoCotizacionesPorRequerimiento(ListView):
 
     def get_queryset(self):
         requerimiento = Requerimiento.objects.get(pk=self.kwargs['requerimiento'])
-        queryset = requerimiento.cotizacion_set.all()
+        queryset = requerimiento.quotations.all()
         return queryset
 
 
@@ -293,8 +293,8 @@ class ModificarRequerimiento(UpdateView):
         requiere('requerimientos.change_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
-        if (requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.USU or
-                requerimiento.aprobacionrequerimiento.estado == AprobacionRequerimiento.NIVEL.JEF or
+        if (requerimiento.approval.estado == AprobacionRequerimiento.NIVEL.USU or
+                requerimiento.approval.estado == AprobacionRequerimiento.NIVEL.JEF or
                 self.request.user.is_superuser):
             return super(ModificarRequerimiento, self).dispatch(*args, **kwargs)
         else:
@@ -454,7 +454,7 @@ class ReporteExcelRequerimientos(TemplateView):
             ws.cell(row=cont, column=2).value = requerimiento.code
             ws.cell(row=cont, column=3).value = requerimiento.oficina.name
             ws.cell(row=cont, column=4).value = requerimiento.get_estado_display()
-            ws.cell(row=cont, column=5).value = requerimiento.aprobacionrequerimiento.get_estado_display()
+            ws.cell(row=cont, column=5).value = requerimiento.approval.get_estado_display()
             ws.cell(row=cont, column=6).value = requerimiento.created
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1

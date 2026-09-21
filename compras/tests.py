@@ -191,11 +191,11 @@ class TotalesDeOrdenCompraTest(TestCase):
             orden.total
 
     def test_los_detalles_usan_la_cache_del_prefetch(self):
-        """`subtotal` recorre detalleordencompra_set y no un .filter(): solo asi
+        """`subtotal` recorre details y no un .filter(): solo asi
         prefetch_related evita una consulta por orden en los reportes."""
         baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
 
-        ordenes = list(OrdenCompra.objects.prefetch_related('detalleordencompra_set'))
+        ordenes = list(OrdenCompra.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
             for orden in ordenes:

@@ -178,7 +178,7 @@ class EstadosDeRequerimientoTest(TestCase):
         for quantity in (10, 20, 30):
             self._requerimiento(quantity=quantity)
 
-        requerimientos = list(Requerimiento.objects.prefetch_related('detallerequerimiento_set'))
+        requerimientos = list(Requerimiento.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
             for requerimiento in requerimientos:

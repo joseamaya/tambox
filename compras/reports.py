@@ -654,7 +654,7 @@ class PDFSolicitudCotizacion(object):
 
     def detalle(self, pdf, y, cotizacion):
         encabezados = ('Nro', 'Descripción', 'Unidad', 'Cantidad')
-        detalles = cotizacion.detallecotizacion_set.all()
+        detalles = cotizacion.details.all()
         lista_detalles = []
         for detalle in detalles:
             tupla_producto = (detalle.nro_detalle, detalle.detalle_requerimiento.producto.description,

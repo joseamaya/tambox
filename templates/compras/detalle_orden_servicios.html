@@ -164,7 +164,7 @@
                     </thead>
                     <tbody>
                     {% if object.cotizacion %}
-                    {% for detalle in object.detalleordenservicios_set.all %}
+                    {% for detalle in object.details.all %}
                     <tr>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.conformed_quantity }}</td>
@@ -176,7 +176,7 @@
                     </tr>
                     {% endfor %}
                     {% else %}
-                    {% for detalle in object.detalleordenservicios_set.all %}
+                    {% for detalle in object.details.all %}
                     <tr>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.producto.description }}</td>

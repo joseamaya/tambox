@@ -161,9 +161,9 @@ class ReporteRequerimiento():
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.firma)
         solicitante = requerimiento.solicitante.nombre_completo()
         cuerpo = [('', '', '', '', '', '')]
-        if requerimiento.aprobacionrequerimiento.nivel.description == "USUARIO" and requerimiento.aprobacionrequerimiento.estado:
+        if requerimiento.approval.nivel.description == "USUARIO" and requerimiento.approval.estado:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
-        elif requerimiento.aprobacionrequerimiento.nivel.description == "LOGISTICA" and requerimiento.aprobacionrequerimiento.estado:
+        elif requerimiento.approval.nivel.description == "LOGISTICA" and requerimiento.approval.estado:
             cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:

@@ -37,10 +37,10 @@ class Profesion(TimeStampedModel):
 
 class Trabajador(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker', null=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
-    profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, null=True)
+    profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     estado = models.BooleanField(default=True)
@@ -72,7 +72,7 @@ class Trabajador(TimeStampedModel):
     @property
     def puesto(self):
         try:
-            puesto = self.puesto_set.all().filter(estado=True)[0]
+            puesto = self.positions.all().filter(estado=True)[0]
         except IndexError:
             puesto = None
         return puesto
@@ -165,8 +165,8 @@ class Oficina(TimeStampedModel):
 
 class Puesto(TimeStampedModel):
     name = models.CharField(max_length=100)
-    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='positions')
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='positions')
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)

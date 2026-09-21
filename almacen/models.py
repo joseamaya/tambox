@@ -97,8 +97,8 @@ class TipoMovimiento(TimeStampedModel):
 
 class Pedido(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
-    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='orders')
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='orders')
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -164,8 +164,8 @@ class Pedido(TimeStampedModel):
 
 class DetallePedido(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='details')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -203,17 +203,17 @@ class DetallePedido(TimeStampedModel):
 
 class Movimiento(TimeStampedModel):
     id_movimiento = models.CharField(unique=True, max_length=16)
-    tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)
-    referencia = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, null=True)
-    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, null=True)
+    tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE, related_name='movements')
+    referencia = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='movements', null=True)
+    pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='movements', null=True)
+    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='movements', null=True)
     serie = models.CharField(max_length=15, null=True)
     numero = models.CharField(max_length=10, null=True)
     operation_date = models.DateTimeField()
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
-    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, null=True)
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, null=True)
-    productor = models.ForeignKey(Productor, on_delete=models.CASCADE, null=True)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movements')
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='movements', null=True)
+    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='movements', null=True)
+    productor = models.ForeignKey(Productor, on_delete=models.CASCADE, related_name='movements', null=True)
     notes = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
@@ -316,10 +316,10 @@ class Movimiento(TimeStampedModel):
 class DetalleMovimiento(TimeStampedModel):
     objects = DetalleMovimientoManager()
     nro_detalle = models.IntegerField()
-    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE)
-    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, null=True)
-    detalle_pedido = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, null=True)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='details')
+    detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, related_name='movement_details', null=True)
+    detalle_pedido = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, related_name='movement_details', null=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='movement_details')
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
     price = models.DecimalField(max_digits=25, decimal_places=8)
     amount = models.DecimalField(max_digits=25, decimal_places=8)
@@ -390,9 +390,9 @@ class DetalleMovimiento(TimeStampedModel):
 
 
 class Kardex(TimeStampedModel):
-    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE)
+    movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='kardex_entries')
     nro_detalle_movimiento = models.IntegerField()
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='kardex_entries')
     operation_date = models.DateTimeField()
     cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
     precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
@@ -403,7 +403,7 @@ class Kardex(TimeStampedModel):
     cantidad_total = models.DecimalField(max_digits=25, decimal_places=8)
     precio_total = models.DecimalField(max_digits=25, decimal_places=8)
     valor_total = models.DecimalField(max_digits=25, decimal_places=8)
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='kardex_entries')
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()
@@ -486,8 +486,8 @@ class Kardex(TimeStampedModel):
 
 
 class ControlProductoAlmacen(TimeStampedModel):
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='warehouse_controls')
+    almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='warehouse_controls')
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()

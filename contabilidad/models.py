@@ -191,7 +191,7 @@ class Empresa(SingletonModel):
 
 
 class Configuracion(TimeStampedModel):
-    impuesto_compra = models.ForeignKey(Impuesto, on_delete=models.CASCADE)
+    impuesto_compra = models.ForeignKey(Impuesto, on_delete=models.CASCADE, related_name='configurations')
     operaciones = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='operaciones', null=True)
     administracion = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='administracion', null=True)
     presupuesto = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='presupuesto', null=True)

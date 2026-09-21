@@ -45,8 +45,8 @@
                 {% endif %}
                 <td>{{ requerimiento.code }}</td>
                 <td>{{ requerimiento.oficina }}</td>
-                <td>{{ requerimiento.aprobacionrequerimiento.nivel }}</td>
-                {% if requerimiento.aprobacionrequerimiento.estado %}
+                <td>{{ requerimiento.approval.nivel }}</td>
+                {% if requerimiento.approval.estado %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>

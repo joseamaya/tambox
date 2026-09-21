@@ -85,7 +85,7 @@ class Proveedor(TimeStampedModel):
     correo = models.EmailField(null=True)
     estado_sunat = models.CharField(max_length=50)
     condicion = models.CharField(max_length=50)
-    representantes = models.ManyToManyField(RepresentanteLegal)
+    representantes = models.ManyToManyField(RepresentanteLegal, related_name='suppliers')
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
     estado = models.BooleanField(default=True)
@@ -112,8 +112,8 @@ class Proveedor(TimeStampedModel):
 
 class Cotizacion(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, null=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='quotations')
+    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='quotations', null=True)
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
@@ -190,8 +190,8 @@ class Cotizacion(TimeStampedModel):
 class DetalleCotizacion(TimeStampedModel):
     objects = DetalleCotizacionManager()
     nro_detalle = models.IntegerField()
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE)
-    detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, null=True)
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='details')
+    detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, related_name='quotation_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -219,10 +219,10 @@ class DetalleCotizacion(TimeStampedModel):
 
 class OrdenCompra(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, null=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
     date = models.DateField()
-    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE)
+    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='purchase_orders')
     notes = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
@@ -292,7 +292,7 @@ class OrdenCompra(TimeStampedModel):
         """
         if not hasattr(self, '_impuesto_calculado'):
             imp = 0
-            for detalle in self.detalleordencompra_set.all():
+            for detalle in self.details.all():
                 imp = imp + detalle.impuesto
             self._impuesto_calculado = imp
         return self._impuesto_calculado
@@ -301,7 +301,7 @@ class OrdenCompra(TimeStampedModel):
     def subtotal(self):
         if not hasattr(self, '_subtotal_calculado'):
             subtotal = 0
-            for detalle in self.detalleordencompra_set.all():
+            for detalle in self.details.all():
                 subtotal = subtotal + detalle.valor_sin_igv
             self._subtotal_calculado = subtotal
         return self._subtotal_calculado
@@ -339,9 +339,9 @@ class OrdenCompra(TimeStampedModel):
 class DetalleOrdenCompra(TimeStampedModel):
     objects = DetalleOrdenManager()
     nro_detalle = models.IntegerField()
-    orden = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE)
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, null=True)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
+    orden = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='details')
+    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
     received_quantity = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8)
@@ -415,9 +415,9 @@ class DetalleOrdenCompra(TimeStampedModel):
 
 class OrdenServicios(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, null=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
-    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE)
+    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='service_orders')
     proceso = models.CharField(max_length=50, default='')
     report_name = models.CharField(max_length=150, default='')
     informe = models.FileField(upload_to='informes', null=True)
@@ -436,7 +436,7 @@ class OrdenServicios(TimeStampedModel):
     def subtotal(self):
         if not hasattr(self, '_subtotal_calculado'):
             self._subtotal_calculado = sum(detalle.amount
-                                           for detalle in self.detalleordenservicios_set.all())
+                                           for detalle in self.details.all())
         return self._subtotal_calculado
 
     @property
@@ -524,9 +524,9 @@ class OrdenServicios(TimeStampedModel):
 class DetalleOrdenServicios(TimeStampedModel):
     objects = DetalleOrdenManager()
     nro_detalle = models.IntegerField()
-    orden = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE)
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, null=True)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
+    orden = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='details')
+    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='service_order_details', null=True)
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='service_order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     conformed_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     price = models.DecimalField(max_digits=15, decimal_places=5)
@@ -564,7 +564,7 @@ class DetalleOrdenServicios(TimeStampedModel):
 
 class ConformidadServicio(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE)
+    orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='conformities')
     doc_sustento = models.CharField(max_length=50)
     file = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
@@ -627,7 +627,7 @@ class ConformidadServicio(TimeStampedModel):
 class DetalleConformidadServicio(TimeStampedModel):
     objects = DetalleConformidadServicioManager()
     nro_detalle = models.IntegerField()
-    conformidad = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE)
-    detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, null=True)
+    conformidad = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE, related_name='details')
+    detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, related_name='conformity_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     history = HistoricalRecords()

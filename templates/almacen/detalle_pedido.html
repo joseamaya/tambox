@@ -103,7 +103,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.detallepedido_set.all %}
+                    {% for detalle in object.details.all %}
                     <tr>
                         <td>{{ detalle.producto.code }}</td>
                         <td>{{ detalle.producto.description }}</td>

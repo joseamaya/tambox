@@ -264,7 +264,7 @@ class EliminarUnidadMedida(TemplateView):
             unidad_medida = UnidadMedida.objects.get(pk=id)
             unidad_medida_json = {}
             unidad_medida_json['unidad'] = unidad_medida.unidad
-            if len(unidad_medida.producto_set.all()) > 0:
+            if len(unidad_medida.products.all()) > 0:
                 unidad_medida_json['productos'] = 'SI'
             else:
                 unidad_medida_json['productos'] = 'NO'
@@ -287,7 +287,7 @@ class EliminarGrupoProductos(TemplateView):
             grupo_productos_json = {}
             grupo_productos_json['code'] = grupo_productos.code
             grupo_productos_json['description'] = grupo_productos.description
-            if len(grupo_productos.producto_set.all()) > 0:
+            if len(grupo_productos.products.all()) > 0:
                 grupo_productos_json['productos'] = 'SI'
             else:
                 grupo_productos_json['productos'] = 'NO'
@@ -310,9 +310,9 @@ class EliminarProducto(TemplateView):
             producto_json = {}
             producto_json['code'] = producto.code
             producto_json['description'] = producto.description
-            if len(producto.detallerequerimiento_set.all()) > 0:
+            if len(producto.details.all()) > 0:
                 producto_json['relaciones'] = 'SI'
-            elif len(producto.detallemovimiento_set.all()) > 0:
+            elif len(producto.details.all()) > 0:
                 producto_json['relaciones'] = 'SI'
             else:
                 producto_json['relaciones'] = 'NO'
@@ -334,7 +334,7 @@ class EliminarServicio(TemplateView):
             servicio = Producto.objects.get(code=code)
             servicio_json = {}
             servicio_json['code'] = code
-            if len(servicio.detalleordenservicio_set.all()) > 0:
+            if len(servicio.service_order_details.all()) > 0:
                 servicio_json['ordenes'] = 'SI'
             else:
                 servicio_json['ordenes'] = 'NO'
@@ -400,7 +400,7 @@ class ListadoProductosPorGrupo(ListView):
 
     def get_queryset(self):
         grupo = GrupoProductos.objects.get(pk=self.kwargs['grupo'])
-        queryset = grupo.producto_set.all()
+        queryset = grupo.products.all()
         return queryset
 
 

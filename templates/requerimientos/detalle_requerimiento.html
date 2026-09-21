@@ -7,14 +7,14 @@
         {% if perms.requerimientos.add_requerimiento %}
         <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
-        {% if object.aprobacionrequerimiento.nivel == "USU" or object.aprobacionrequerimiento.nivel == "JEF" %}
+        {% if object.approval.nivel == "USU" or object.approval.nivel == "JEF" %}
         {% if object.estado %}
         {% if perms.requerimientos.change_requerimiento %}
         <a class="btn btn-warning" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% endif %}
-        {% if object.aprobacionrequerimiento.estado == "PEND" or object.aprobacionrequerimiento.estado == "APROB_JEF" %}
+        {% if object.approval.estado == "PEND" or object.approval.estado == "APROB_JEF" %}
         {% if object.estado == "PEND" %}
         {% if perms.requerimientos.delete_requerimiento %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
@@ -88,7 +88,7 @@
             </div>
             <div class="col-md-2">
                 <label>Estado Aprob:</label>
-                {% if object.aprobacionrequerimiento.estado %}
+                {% if object.approval.estado %}
                 <p>APROBADO</p>
                 {% else %}
                 <p>DESAPROBADO</p>
@@ -106,7 +106,7 @@
             </div>
             <div class="col-md-3">
                 <label>Nivel Aprob:</label>
-                <p>{{ object.aprobacionrequerimiento.nivel }}</p>
+                <p>{{ object.approval.nivel }}</p>
             </div>
         </div>
         <div class="row">
@@ -161,7 +161,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.detallerequerimiento_set.all %}
+                    {% for detalle in object.details.all %}
                     <tr>
                         {% if detalle.producto %}
                         <td>{{ detalle.producto.description }}</td>

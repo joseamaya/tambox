@@ -126,11 +126,11 @@ class AprobarPedido(CreateView):
         form = self.get_form(form_class)
         pedido = Pedido.objects.get(code=self.code)
         try:
-            trabajador = self.request.user.trabajador
+            trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
-            puestos = trabajador.puesto_set.all().filter(estado=True)
+            puestos = trabajador.positions.all().filter(estado=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == logistica():
@@ -448,7 +448,7 @@ class CrearPedido(CreateView):
     @method_decorator(requiere('almacen.add_pedido'))
     def dispatch(self, *args, **kwargs):
         try:
-            trabajador = self.request.user.trabajador
+            trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         if trabajador.firma == '':
@@ -563,7 +563,7 @@ class EliminarAlmacen(TemplateView):
             almacen_json = {}
             almacen_json['code'] = almacen.code
             almacen_json['description'] = almacen.description
-            if len(almacen.movimiento_set.all()) > 0:
+            if len(almacen.movements.all()) > 0:
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
@@ -617,7 +617,7 @@ class EliminarPedido(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             pedido = Pedido.objects.get(pk=code)
-            movimientos = pedido.movimiento_set.all()
+            movimientos = pedido.movements.all()
             almacen_json = {}
             almacen_json['code'] = pedido.code
             if len(movimientos) > 0:
@@ -640,11 +640,11 @@ class ListadoAprobacionPedidos(ListView):
         requiere('almacen.ver_tabla_aprobacion_pedidos'))
     def dispatch(self, *args, **kwargs):
         try:
-            trabajador = self.request.user.trabajador
+            trabajador = self.request.user.worker
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
-            puestos = trabajador.puesto_set.all().filter(estado=True)
+            puestos = trabajador.positions.all().filter(estado=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == logistica():
@@ -713,7 +713,7 @@ class ListadoMovimientosPorPedido(ListView):
 
     def get_queryset(self):
         pedido = Pedido.objects.get(pk=self.kwargs['pedido'])
-        queryset = pedido.movimiento_set.all()
+        queryset = pedido.movements.all()
         return queryset
 
 

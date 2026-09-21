@@ -32,7 +32,7 @@ class AprobacionRequerimientoForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         usuario = self.request.user
-        puesto_usuario = usuario.trabajador.puesto
+        puesto_usuario = usuario.worker.puesto
         oficina_requerimiento = self.instance.requerimiento.oficina
         self.instance.nivel = puesto_usuario.establecer_nivel(oficina_requerimiento)
         return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
@@ -107,7 +107,7 @@ class RequerimientoForm(forms.ModelForm):
                 })
 
     def save(self, *args, **kwargs):
-        self.instance.solicitante = self.request.user.trabajador
+        self.instance.solicitante = self.request.user.worker
         return super(RequerimientoForm, self).save(*args, **kwargs)
 
     class Meta:

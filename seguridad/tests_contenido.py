@@ -64,7 +64,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'ORD-XYZ')
 
     def test_el_detalle_de_requerimiento_muestra_el_producto(self):
-        """La vista lee `request.user.trabajador`, asi que el grafo tiene que
+        """La vista lee `request.user.worker`, asi que el grafo tiene que
         colgar del usuario que navega, no de uno cualquiera."""
         NivelAprobacion.objects.get_or_create(description='USUARIO')
         oficina = baker.make(Oficina)

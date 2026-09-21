@@ -564,12 +564,12 @@ class EliminarCotizacion(TemplateView):
             cotizacion = Cotizacion.objects.get(code=code)
             cotizacion_json = {}
             cotizacion_json['code'] = code
-            ordenes_servicios = cotizacion.ordenservicios_set.all()
+            ordenes_servicios = cotizacion.service_orders.all()
             if len(ordenes_servicios) > 0:
                 cotizacion_json['ordenes'] = 'SI'
             else:
                 cotizacion_json['ordenes'] = 'NO'
-                ordenes_compras = cotizacion.ordencompra_set.all()
+                ordenes_compras = cotizacion.purchase_orders.all()
                 if len(ordenes_compras) > 0:
                     cotizacion_json['ordenes'] = 'SI'
                 else:
@@ -596,7 +596,7 @@ class EliminarOrdenCompra(TemplateView):
             orden = OrdenCompra.objects.get(code=code)
             movimiento_json = {}
             movimiento_json['code'] = code
-            if len(orden.movimiento_set.all()) > 0:
+            if len(orden.movements.all()) > 0:
                 movimiento_json['movimientos'] = 'SI'
             else:
                 movimiento_json['movimientos'] = 'NO'
@@ -622,7 +622,7 @@ class EliminarOrdenServicios(TemplateView):
             orden = OrdenServicios.objects.get(code=code)
             orden_json = {}
             orden_json['code'] = code
-            if len(orden.conformidadservicio_set.all()) > 0:
+            if len(orden.conformities.all()) > 0:
                 orden_json['conformidades'] = 'SI'
             else:
                 orden_json['conformidades'] = 'NO'
@@ -733,7 +733,7 @@ class ListadoOrdenesCompraPorCotizacion(ListView):
 
     def get_queryset(self):
         cotizacion = Cotizacion.objects.get(pk=self.kwargs['cotizacion'])
-        queryset = cotizacion.ordencompra_set.all()
+        queryset = cotizacion.purchase_orders.all()
         return queryset
 
 
@@ -749,7 +749,7 @@ class ListadoOrdenesServiciosPorCotizacion(ListView):
 
     def get_queryset(self):
         cotizacion = Cotizacion.objects.get(pk=self.kwargs['cotizacion'])
-        queryset = cotizacion.ordenservicios_set.all()
+        queryset = cotizacion.service_orders.all()
         return queryset
 
 
@@ -775,7 +775,7 @@ class ListadoMovimientosPorOrdenCompra(ListView):
 
     def get_queryset(self):
         orden_compra = OrdenCompra.objects.get(pk=self.kwargs['orden'])
-        queryset = orden_compra.movimiento_set.all()
+        queryset = orden_compra.movements.all()
         return queryset
 
 
@@ -790,7 +790,7 @@ class ListadoConformidadesPorOrdenServicios(ListView):
 
     def get_queryset(self):
         orden_servicios = OrdenServicios.objects.get(pk=self.kwargs['orden'])
-        queryset = orden_servicios.conformidadservicio_set.all()
+        queryset = orden_servicios.conformities.all()
         return queryset
 
 
@@ -1556,7 +1556,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
         ws['H5'] = 'ESTADO'
         ordenes_servicios = ordenes_servicios.select_related(
             'proveedor', 'forma_pago', 'cotizacion__proveedor'
-        ).prefetch_related('detalleordenservicios_set')
+        ).prefetch_related('details')
         cont = 6
         for orden in ordenes_servicios:
             ws.cell(row=cont, column=2).value = orden.code
@@ -1636,7 +1636,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         ws['H5'] = 'ESTADO'
         ordenes_compra = ordenes_compra.select_related(
             'proveedor', 'forma_pago', 'cotizacion__proveedor'
-        ).prefetch_related('detalleordencompra_set')
+        ).prefetch_related('details')
         cont = 6
         for orden_compra in ordenes_compra:
             ws.cell(row=cont, column=2).value = orden_compra.code

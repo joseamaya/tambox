@@ -41,7 +41,7 @@ class UnidadMedida(TimeStampedModel):
 class GrupoProductos(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=6)
     description = models.CharField(max_length=100)
-    ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE)
+    ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE, related_name='product_groups')
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -111,16 +111,16 @@ class GrupoProductos(TimeStampedModel):
 
 class Producto(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=10, verbose_name='Código')
-    grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
+    grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE, related_name='products')
     description = models.CharField(max_length=100, unique=True, verbose_name='Descripción')
     es_servicio = models.BooleanField(default=False)
-    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE)
+    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, related_name='products')
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
     price = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
-    tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, null=True)
+    tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, related_name='products', null=True)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()

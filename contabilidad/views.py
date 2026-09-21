@@ -199,7 +199,7 @@ class EliminarFormaPago(TemplateView):
             forma_pago_json = {}
             forma_pago_json['code'] = forma_pago.code
             forma_pago_json['description'] = forma_pago.description
-            if len(forma_pago.ordencompra_set.all()) > 0:
+            if len(forma_pago.purchase_orders.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
             elif len(forma_pago.detalleordencompra_set.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
@@ -226,7 +226,7 @@ class EliminarTipoDocumento(TemplateView):
             tipo_documento_json = {}
             tipo_documento_json['codigo_sunat'] = tipo_documento.codigo_sunat
             tipo_documento_json['name'] = tipo_documento.name
-            if len(tipo_documento.movimiento_set.all()) > 0:
+            if len(tipo_documento.movements.all()) > 0:
                 tipo_documento_json['relaciones'] = 'SI'
             else:
                 tipo_documento_json['relaciones'] = 'NO'

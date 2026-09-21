@@ -251,8 +251,8 @@ class PedidoForm(forms.ModelForm):
                 })
 
     def save(self, *args, **kwargs):
-        self.instance.solicitante = self.request.user.trabajador
-        puestos = self.request.user.trabajador.puesto_set.all().filter(estado=True)
+        self.instance.solicitante = self.request.user.worker
+        puestos = self.request.user.worker.positions.all().filter(estado=True)
         self.instance.oficina = puestos[0].oficina
         return super(PedidoForm, self).save(*args, **kwargs)
 

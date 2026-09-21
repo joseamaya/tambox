@@ -16,8 +16,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 class Requerimiento(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
-    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
+    solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='requirements')
+    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='requirements')
     motivo = models.CharField(max_length=100, blank=True)
     date = models.DateField()
     received_date = models.DateField(null=True)
@@ -58,21 +58,21 @@ class Requerimiento(TimeStampedModel):
         """
         if not hasattr(self, '_total_calculado'):
             self._total_calculado = sum(detalle.quantity
-                                        for detalle in self.detallerequerimiento_set.all())
+                                        for detalle in self.details.all())
         return self._total_calculado
 
     @property
     def total_cotizado(self):
         if not hasattr(self, '_total_cotizado_calculado'):
             self._total_cotizado_calculado = sum(detalle.quoted_quantity
-                                                 for detalle in self.detallerequerimiento_set.all())
+                                                 for detalle in self.details.all())
         return self._total_cotizado_calculado
 
     @property
     def total_comprado(self):
         if not hasattr(self, '_total_comprado_calculado'):
             self._total_comprado_calculado = sum(detalle.purchased_quantity
-                                                 for detalle in self.detallerequerimiento_set.all())
+                                                 for detalle in self.details.all())
         return self._total_comprado_calculado
 
     def __str__(self):
@@ -131,7 +131,7 @@ class Requerimiento(TimeStampedModel):
 
     def verificar_acceso(self, usuario, oficina_administracion, logistica, presupuesto):
         solicitante = self.solicitante
-        trabajador = usuario.trabajador
+        trabajador = usuario.worker
         puesto_usuario = trabajador.puesto
         oficina_usuario = puesto_usuario.oficina
         if (usuario.is_staff
@@ -148,7 +148,7 @@ class Requerimiento(TimeStampedModel):
     @staticmethod
     def obtener_requerimientos_visibles(usuario):
         try:
-            trabajador = usuario.trabajador
+            trabajador = usuario.worker
             puesto_usuario = trabajador.puesto
             oficina_usuario = puesto_usuario.oficina
             if (((
@@ -168,8 +168,8 @@ class Requerimiento(TimeStampedModel):
     def obtener_requerimientos_listos_transferencia():
         listado_requerimientos = []
         requerimientos = Requerimiento.objects.filter(
-            aprobacionrequerimiento__nivel__description="LOGISTICA",
-            aprobacionrequerimiento__estado=True).prefetch_related('detallerequerimiento_set')
+            approval__nivel__description="LOGISTICA",
+            approval__estado=True).prefetch_related('details')
         for requerimiento in requerimientos:
             total = requerimiento.total
             total_comprado = requerimiento.total_comprado
@@ -212,8 +212,8 @@ class Requerimiento(TimeStampedModel):
 
 class DetalleRequerimiento(TimeStampedModel):
     nro_detalle = models.IntegerField()
-    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
+    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='details')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='requirement_details', null=True)
     uso = models.TextField(null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     quoted_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -265,8 +265,8 @@ class DetalleRequerimiento(TimeStampedModel):
 
 
 class AprobacionRequerimiento(TimeStampedModel):
-    requerimiento = models.OneToOneField(Requerimiento, on_delete=models.CASCADE, primary_key=True)
-    nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE)
+    requerimiento = models.OneToOneField(Requerimiento, on_delete=models.CASCADE, related_name='approval', primary_key=True)
+    nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE, related_name='approvals')
     estado = models.BooleanField(default=True)
     motivo_desaprobacion = models.TextField(default='')
     received_date = models.DateField(null=True)
@@ -282,7 +282,7 @@ class AprobacionRequerimiento(TimeStampedModel):
         return str(self.pk)
 
     def verificar_acceso_aprobacion(self, usuario):
-        puesto_usuario = usuario.trabajador.puesto
+        puesto_usuario = usuario.worker.puesto
         oficina_requerimiento = self.requerimiento.oficina
         nivel_actual = puesto_usuario.establecer_nivel(oficina_requerimiento)
         nivel_anterior = nivel_actual.superior.all()[0]
@@ -312,7 +312,7 @@ class AprobacionRequerimiento(TimeStampedModel):
 
     @staticmethod
     def obtener_aprobaciones_pendientes(usuario):
-        puesto_usuario = usuario.trabajador.puesto
+        puesto_usuario = usuario.worker.puesto
         oficina_usuario = puesto_usuario.oficina
         queryset = []
         if oficina_usuario == logistica() and puesto_usuario.es_jefatura:
