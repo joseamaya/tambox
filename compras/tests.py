@@ -112,30 +112,30 @@ class ReportesPDFTest(TestCase):
 
     def test_orden_compra(self):
         from compras.models import PurchaseOrder
-        from compras.reports import PDFOrdenCompra
+        from compras.reports import PurchaseOrderPdf
 
         order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
-        contenido = PDFOrdenCompra().imprimir(order)
+        contenido = PurchaseOrderPdf().imprimir(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
     def test_orden_servicios(self):
         from compras.models import ServiceOrder
-        from compras.reports import PDFOrdenServicios
+        from compras.reports import ServiceOrderPdf
 
         order = baker.make(ServiceOrder, supplier=baker.make(Supplier))
 
-        contenido = PDFOrdenServicios().imprimir(order)
+        contenido = ServiceOrderPdf().imprimir(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
     def test_solicitud_cotizacion_sin_logo(self):
-        from compras.reports import PDFSolicitudCotizacion
+        from compras.reports import QuotationRequestPdf
 
         quotation = baker.make(Quotation, supplier=baker.make(Supplier))
 
-        contenido = PDFSolicitudCotizacion().imprimir(quotation)
+        contenido = QuotationRequestPdf().imprimir(quotation)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 

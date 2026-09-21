@@ -8,14 +8,14 @@ from compras.settings import PARAMETROS_BUSQUEDA
 from django.core.exceptions import ValidationError
 
 
-class ProveedorForm(forms.ModelForm):
+class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
         fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
                   'registration_date']
 
     def __init__(self, *args, **kwargs):
-        super(ProveedorForm, self).__init__(*args, **kwargs)
+        super(SupplierForm, self).__init__(*args, **kwargs)
         self.fields['ciiu'].required = False
         self.fields['phone'].required = False
         self.fields['email'].required = False
@@ -35,7 +35,7 @@ class ProveedorForm(forms.ModelForm):
         return self.cleaned_data['tax_id']
 
 
-class DetalleOrdenCompraForm(forms.Form):
+class PurchaseOrderDetailForm(forms.Form):
     code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
@@ -48,7 +48,7 @@ class DetalleOrdenCompraForm(forms.Form):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
-class DetalleOrdenServicioForm(forms.Form):
+class ServiceOrderDetailForm(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
@@ -60,7 +60,7 @@ class DetalleOrdenServicioForm(forms.Form):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
-class FormularioReporteOrdenesFecha(forms.Form):
+class OrderDateReportForm(forms.Form):
     tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=PARAMETROS_BUSQUEDA)
     start_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
@@ -72,7 +72,7 @@ class FormularioReporteOrdenesFecha(forms.Form):
                             required=False)
 
 
-class CotizacionForm(forms.ModelForm):
+class QuotationForm(forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -83,7 +83,7 @@ class CotizacionForm(forms.ModelForm):
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}), required=False)
 
     def __init__(self, *args, **kwargs):
-        super(CotizacionForm, self).__init__(*args, **kwargs)
+        super(QuotationForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
@@ -102,7 +102,7 @@ class CotizacionForm(forms.ModelForm):
         return self.cleaned_data['order']
 
     def clean(self):
-        cleaned_data = super(CotizacionForm, self).clean()
+        cleaned_data = super(QuotationForm, self).clean()
         tax_id = cleaned_data.get('tax_id')
         reference = cleaned_data.get('reference')
         quotation = Quotation.objects.filter(supplier__tax_id=tax_id,
@@ -115,14 +115,14 @@ class CotizacionForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
         self.instance.requirement = Requirement.objects.get(pk=self.cleaned_data['reference'])
-        return super(CotizacionForm, self).save(*args, **kwargs)
+        return super(QuotationForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Quotation
         fields = ['code', 'date', 'notes']
 
 
-class OrdenCompraForm(forms.ModelForm):
+class PurchaseOrderForm(forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -139,7 +139,7 @@ class OrdenCompraForm(forms.ModelForm):
     total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
-        super(OrdenCompraForm, self).__init__(*args, **kwargs)
+        super(PurchaseOrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['reference'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
@@ -166,14 +166,14 @@ class OrdenCompraForm(forms.ModelForm):
         except Quotation.DoesNotExist:
             self.instance.quotation = None
             self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
-        return super(OrdenCompraForm, self).save(*args, **kwargs)
+        return super(PurchaseOrderForm, self).save(*args, **kwargs)
 
     class Meta:
         model = PurchaseOrder
         fields = ['code', 'payment_method', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
-class OrdenServiciosForm(forms.ModelForm):
+class ServiceOrderForm(forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -189,7 +189,7 @@ class OrdenServiciosForm(forms.ModelForm):
     total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
-        super(OrdenServiciosForm, self).__init__(*args, **kwargs)
+        super(ServiceOrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['process'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
@@ -218,21 +218,21 @@ class OrdenServiciosForm(forms.ModelForm):
         except Quotation.DoesNotExist:
             self.instance.quotation = None
             self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
-        return super(OrdenServiciosForm, self).save(*args, **kwargs)
+        return super(ServiceOrderForm, self).save(*args, **kwargs)
 
     class Meta:
         model = ServiceOrder
         fields = ['code', 'payment_method', 'process', 'notes', 'date', 'report_name', 'report']
 
 
-class ConformidadServicioForm(forms.ModelForm):
+class ServiceConformityForm(forms.ModelForm):
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     subtotal = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
-        super(ConformidadServicioForm, self).__init__(*args, **kwargs)
+        super(ServiceConformityForm, self).__init__(*args, **kwargs)
         self.fields['total'].widget.attrs['readonly'] = True
         self.fields['total_in_words'].widget.attrs['readonly'] = True
         self.fields['code'].required = False
@@ -246,14 +246,14 @@ class ConformidadServicioForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.service_order = ServiceOrder.objects.get(pk=self.cleaned_data['reference'])
-        return super(ConformidadServicioForm, self).save(*args, **kwargs)
+        return super(ServiceConformityForm, self).save(*args, **kwargs)
 
     class Meta:
         model = ServiceConformity
         fields = ['code', 'supporting_document', 'file', 'date', 'total', 'total_in_words']
 
 
-class FormularioDetalleCotizacion(forms.Form):
+class QuotationDetailForm(forms.Form):
     requirement = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 14, 'readonly': "readonly", 'class': 'entero form-control'}))
@@ -265,7 +265,7 @@ class FormularioDetalleCotizacion(forms.Form):
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
 
 
-class FormularioDetalleOrdenCompra(forms.Form):
+class PurchaseOrderDetailLineForm(forms.Form):
     quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
@@ -281,7 +281,7 @@ class FormularioDetalleOrdenCompra(forms.Form):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
-class FormularioDetalleOrdenServicios(forms.Form):
+class ServiceOrderDetailLineForm(forms.Form):
     quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
@@ -294,7 +294,7 @@ class FormularioDetalleOrdenServicios(forms.Form):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
-class FormularioDetalleConformidadServicio(forms.Form):
+class ServiceConformityDetailLineForm(forms.Form):
     service_order = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
@@ -308,7 +308,7 @@ class FormularioDetalleConformidadServicio(forms.Form):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
-class BaseDetalleCotizacionFormSet(formsets.BaseFormSet):
+class BaseQuotationDetailFormSet(formsets.BaseFormSet):
 
     def clean(self):
         for form in self.forms:
@@ -321,7 +321,7 @@ class BaseDetalleCotizacionFormSet(formsets.BaseFormSet):
                 )
 
 
-class BaseDetalleOrdenCompraFormSet(formsets.BaseFormSet):
+class BasePurchaseOrderDetailFormSet(formsets.BaseFormSet):
 
     def clean(self):
         for form in self.forms:
@@ -334,7 +334,7 @@ class BaseDetalleOrdenCompraFormSet(formsets.BaseFormSet):
                 )
 
 
-class BaseDetalleOrdenServiciosFormSet(formsets.BaseFormSet):
+class BaseServiceOrderDetailFormSet(formsets.BaseFormSet):
 
     def clean(self):
         for form in self.forms:
@@ -347,7 +347,7 @@ class BaseDetalleOrdenServiciosFormSet(formsets.BaseFormSet):
                 )
 
 
-class BaseDetalleConformidadServicioFormSet(formsets.BaseFormSet):
+class BaseServiceConformityDetailFormSet(formsets.BaseFormSet):
 
     def clean(self):
         for form in self.forms:
@@ -360,9 +360,9 @@ class BaseDetalleConformidadServicioFormSet(formsets.BaseFormSet):
                 )
 
 
-DetalleCotizacionFormSet = formsets.formset_factory(FormularioDetalleCotizacion, BaseDetalleCotizacionFormSet, 0)
-DetalleOrdenCompraFormSet = formsets.formset_factory(FormularioDetalleOrdenCompra, BaseDetalleOrdenCompraFormSet, 0)
-DetalleOrdenServiciosFormSet = formsets.formset_factory(FormularioDetalleOrdenServicios,
-                                                        BaseDetalleOrdenServiciosFormSet, 0)
-DetalleConformidadServicioFormSet = formsets.formset_factory(FormularioDetalleConformidadServicio,
-                                                             BaseDetalleConformidadServicioFormSet, 0)
+DetalleCotizacionFormSet = formsets.formset_factory(QuotationDetailForm, BaseQuotationDetailFormSet, 0)
+DetalleOrdenCompraFormSet = formsets.formset_factory(PurchaseOrderDetailLineForm, BasePurchaseOrderDetailFormSet, 0)
+DetalleOrdenServiciosFormSet = formsets.formset_factory(ServiceOrderDetailLineForm,
+                                                        BaseServiceOrderDetailFormSet, 0)
+DetalleConformidadServicioFormSet = formsets.formset_factory(ServiceConformityDetailLineForm,
+                                                             BaseServiceConformityDetailFormSet, 0)

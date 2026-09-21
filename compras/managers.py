@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 
-class DetalleCotizacionManager(models.Manager):
+class QuotationDetailManager(models.Manager):
 
     def bulk_create(self, objs, requirement, order):
         if requirement is not None:
@@ -43,7 +43,7 @@ class DetalleCotizacionManager(models.Manager):
                 self.guardar_detalle_orden_servicio(order, detalle)
 
 
-class DetalleConformidadServicioManager(models.Manager):
+class ServiceConformityDetailManager(models.Manager):
 
     def bulk_create(self, objs, order):
         if order is not None:

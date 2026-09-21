@@ -26,7 +26,7 @@ from openpyxl.styles import Font
 from openpyxl.styles import Side
 
 
-class ReporteOrdenCompra():
+class PurchaseOrderReport():
 
     def __init__(self, pagesize, orden_compra):
         self.orden_compra = orden_compra
@@ -616,7 +616,7 @@ def reporte_xls_orden_compra(order):
     return wb
 
 
-class PDFSolicitudCotizacion(object):
+class QuotationRequestPdf(object):
 
     def cabecera(self, pdf, quotation):
         try:
@@ -711,7 +711,7 @@ class PDFSolicitudCotizacion(object):
 
 
 
-class PDFMemorandoConformidadServicio(object):
+class ServiceConformityMemoPdf(object):
 
     def obtener_puesto(self, office, conformity):
         try:
@@ -853,7 +853,7 @@ class PDFMemorandoConformidadServicio(object):
 
 
 
-class PDFOrdenServicios(object):
+class ServiceOrderPdf(object):
 
     def cabecera(self, pdf, order):
         try:
@@ -1067,7 +1067,7 @@ class PDFOrdenServicios(object):
 
 
 
-class PDFOrdenCompra(object):
+class PurchaseOrderPdf(object):
 
     def cabecera(self, pdf, order):
         try:

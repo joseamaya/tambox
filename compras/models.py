@@ -12,8 +12,8 @@ from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
 from compras.settings import CHOICES_ESTADO_COTIZ
 from tambox.configuracion import configuracion
-from compras.managers import DetalleCotizacionManager, \
-    DetalleConformidadServicioManager
+from compras.managers import QuotationDetailManager, \
+    ServiceConformityDetailManager
 from tambox.util import to_word
 from simple_history.models import HistoricalRecords
 
@@ -188,7 +188,7 @@ class Quotation(TimeStampedModel):
 
 
 class QuotationDetail(TimeStampedModel):
-    objects = DetalleCotizacionManager()
+    objects = QuotationDetailManager()
     line_number = models.IntegerField()
     quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, related_name='details')
     requirement_detail = models.ForeignKey(RequirementDetail, on_delete=models.CASCADE, related_name='quotation_details', null=True)
@@ -625,7 +625,7 @@ class ServiceConformity(TimeStampedModel):
 
 
 class ServiceConformityDetail(TimeStampedModel):
-    objects = DetalleConformidadServicioManager()
+    objects = ServiceConformityDetailManager()
     line_number = models.IntegerField()
     conformity = models.ForeignKey(ServiceConformity, on_delete=models.CASCADE, related_name='details')
     service_order_detail = models.ForeignKey(ServiceOrderDetail, on_delete=models.CASCADE, related_name='conformity_details', null=True)

@@ -7,10 +7,10 @@ from compras.models import Supplier, PurchaseOrder, PaymentMethod, PurchaseOrder
     ServiceOrderDetail, ServiceConformity, \
     ServiceConformityDetail, QuotationDetail, Quotation
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from compras.forms import ProveedorForm, CotizacionForm, OrdenCompraForm, \
-    OrdenServiciosForm, ConformidadServicioForm, DetalleOrdenCompraFormSet, \
+from compras.forms import SupplierForm, QuotationForm, PurchaseOrderForm, \
+    ServiceOrderForm, ServiceConformityForm, DetalleOrdenCompraFormSet, \
     DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet, \
-    FormularioReporteOrdenesFecha
+    OrderDateReportForm
 from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
@@ -34,8 +34,8 @@ from django.shortcuts import render, get_object_or_404
 from contabilidad.models import ExchangeRate
 from productos.models import Product, UnitOfMeasure, ProductGroup
 from datetime import date
-from compras.reports import reporte_xls_orden_compra, PDFOrdenCompra, \
-    PDFOrdenServicios, PDFMemorandoConformidadServicio, PDFSolicitudCotizacion
+from compras.reports import reporte_xls_orden_compra, PurchaseOrderPdf, \
+    ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.configuracion import configuracion, purchase_tax
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from decimal import Decimal
@@ -70,7 +70,7 @@ class Dashboard(View):
         return render(request, 'compras/tablero_compras.html', context)
 
 
-class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
+class QuotationSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('code',)
 
@@ -86,7 +86,7 @@ class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
+class SupplierNameSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('business_name',)
 
@@ -106,7 +106,7 @@ class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProveedoresRUC(SoloAjaxMixin, TemplateView):
+class SupplierTaxIdSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('tax_id',)
 
@@ -124,7 +124,7 @@ class BusquedaProveedoresRUC(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarProveedores(CargarCsvMixin, FormView):
+class SupplierImport(CargarCsvMixin, FormView):
     template_name = 'compras/cargar_proveedores.html'
     form_class = UploadForm
     success_url = reverse_lazy('compras:proveedores')
@@ -139,15 +139,15 @@ class CargarProveedores(CargarCsvMixin, FormView):
                                                   'ciiu': 'CUALQUIERA'})
 
 
-class CrearProveedor(CreateView):
+class SupplierCreate(CreateView):
     model = Supplier
     context_object_name = 'supplier'
     template_name = 'compras/proveedor.html'
-    form_class = ProveedorForm
+    form_class = SupplierForm
 
     @method_decorator(requiere('compras.add_supplier'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearProveedor, self).dispatch(*args, **kwargs)
+        return super(SupplierCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('compras:detalle_proveedor', args=[self.object.pk])
@@ -156,7 +156,7 @@ class CrearProveedor(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class CrearDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
+class PurchaseOrderDetailCreate(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -188,7 +188,7 @@ class CrearDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
+class ServiceOrderDetailCreate(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -218,18 +218,18 @@ class CrearDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearCotizacion(CreateView):
-    form_class = CotizacionForm
+class QuotationCreate(CreateView):
+    form_class = QuotationForm
     template_name = "compras/cotizacion.html"
     model = Quotation
     context_object_name = 'quotation'
 
     @method_decorator(requiere('compras.add_quotation'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearCotizacion, self).dispatch(*args, **kwargs)
+        return super(QuotationCreate, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
-        initial = super(CrearCotizacion, self).get_initial()
+        initial = super(QuotationCreate, self).get_initial()
         initial['date'] = date.today().strftime('%d/%m/%Y')
         return initial
 
@@ -284,17 +284,17 @@ class CrearCotizacion(CreateView):
                                                              detalle_cotizacion_formset=detalle_cotizacion_formset))
 
 
-class CrearOrdenCompra(CreateView):
-    form_class = OrdenCompraForm
+class PurchaseOrderCreate(CreateView):
+    form_class = PurchaseOrderForm
     template_name = "compras/orden_compra.html"
     model = PurchaseOrder
 
     @method_decorator(requiere('compras.add_purchaseorder'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearOrdenCompra, self).dispatch(*args, **kwargs)
+        return super(PurchaseOrderCreate, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
-        initial = super(CrearOrdenCompra, self).get_initial()
+        initial = super(PurchaseOrderCreate, self).get_initial()
         try:
             monto_impuesto = purchase_tax().amount
         except AttributeError:
@@ -376,17 +376,17 @@ class CrearOrdenCompra(CreateView):
                                                              detalle_orden_compra_formset=detalle_orden_compra_formset))
 
 
-class CrearOrdenServicios(CreateView):
-    form_class = OrdenServiciosForm
+class ServiceOrderCreate(CreateView):
+    form_class = ServiceOrderForm
     template_name = "compras/orden_servicio.html"
     model = ServiceOrder
 
     @method_decorator(requiere('compras.add_serviceorder'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearOrdenServicios, self).dispatch(*args, **kwargs)
+        return super(ServiceOrderCreate, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
-        initial = super(CrearOrdenServicios, self).get_initial()
+        initial = super(ServiceOrderCreate, self).get_initial()
         initial['code'] = ServiceOrder.objects.ultimo()
         initial['total'] = 0
         initial['subtotal'] = 0
@@ -459,17 +459,17 @@ class CrearOrdenServicios(CreateView):
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
-class CrearConformidadServicio(CreateView):
-    form_class = ConformidadServicioForm
+class ServiceConformityCreate(CreateView):
+    form_class = ServiceConformityForm
     template_name = "compras/conformidad_servicio.html"
     model = ServiceConformity
 
     @method_decorator(requiere('compras.add_serviceconformity'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearConformidadServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceConformityCreate, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
-        initial = super(CrearConformidadServicio, self).get_initial()
+        initial = super(ServiceConformityCreate, self).get_initial()
         initial['total'] = 0
         initial['subtotal'] = 0
         initial['total_in_words'] = ''
@@ -528,38 +528,38 @@ class CrearConformidadServicio(CreateView):
                                                              detalle_conformidad_servicio_form=detalle_conformidad_servicio_formset))
 
 
-class DetalleProveedor(DetailView):
+class SupplierDetail(DetailView):
     model = Supplier
     template_name = 'compras/detalle_proveedor.html'
 
 
-class DetalleOperacionCotizacion(DetailView):
+class QuotationDetailView(DetailView):
     model = Quotation
     context_object_name = 'quotation'
     template_name = 'compras/detalle_cotizacion.html'
 
 
-class DetalleOperacionOrdenCompra(DetailView):
+class PurchaseOrderDetailView(DetailView):
     model = PurchaseOrder
     template_name = 'compras/detalle_orden_compra.html'
 
 
-class DetalleOperacionOrdenServicios(DetailView):
+class ServiceOrderDetailView(DetailView):
     model = ServiceOrder
     template_name = 'compras/detalle_orden_servicios.html'
 
 
-class DetalleOperacionConformidadServicios(DetailView):
+class ServiceConformityDetailView(DetailView):
     model = ServiceConformity
     template_name = 'compras/detalle_conformidad_servicios.html'
 
 
-class EliminarCotizacion(TemplateView):
+class QuotationDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('compras.delete_quotation'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarCotizacion, self).dispatch(*args, **kwargs)
+        return super(QuotationDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -586,12 +586,12 @@ class EliminarCotizacion(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarOrdenCompra(TemplateView):
+class PurchaseOrderDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('compras.delete_purchaseorder'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarOrdenCompra, self).dispatch(*args, **kwargs)
+        return super(PurchaseOrderDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -612,12 +612,12 @@ class EliminarOrdenCompra(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarOrdenServicios(TemplateView):
+class ServiceOrderDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('compras.delete_serviceorder'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarOrdenServicios, self).dispatch(*args, **kwargs)
+        return super(ServiceOrderDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -639,12 +639,12 @@ class EliminarOrdenServicios(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarConformidadServicio(TemplateView):
+class ServiceConformityDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('compras.delete_serviceconformity'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarConformidadServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceConformityDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -661,12 +661,12 @@ class EliminarConformidadServicio(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarProveedor(TemplateView):
+class SupplierDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('compras.delete_supplier'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarProveedor, self).dispatch(*args, **kwargs)
+        return super(SupplierDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -678,7 +678,7 @@ class EliminarProveedor(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ListadoProveedores(ListView):
+class SupplierList(ListView):
     model = Supplier
     template_name = 'compras/proveedores.html'
     context_object_name = 'proveedores'
@@ -686,10 +686,10 @@ class ListadoProveedores(ListView):
 
     @method_decorator(requiere('compras.ver_tabla_proveedores'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoProveedores, self).dispatch(*args, **kwargs)
+        return super(SupplierList, self).dispatch(*args, **kwargs)
 
 
-class ListadoCotizaciones(ListView):
+class QuotationList(ListView):
     model = Quotation
     template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
@@ -697,10 +697,10 @@ class ListadoCotizaciones(ListView):
 
     @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoCotizaciones, self).dispatch(*args, **kwargs)
+        return super(QuotationList, self).dispatch(*args, **kwargs)
 
 
-class ListadoOrdenesCompra(ListView):
+class PurchaseOrderList(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_compra.html'
     context_object_name = 'ordenes_compra'
@@ -709,10 +709,10 @@ class ListadoOrdenesCompra(ListView):
     @method_decorator(
         requiere('compras.ver_tabla_ordenes_compra'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoOrdenesCompra, self).dispatch(*args, **kwargs)
+        return super(PurchaseOrderList, self).dispatch(*args, **kwargs)
 
 
-class ListadoOrdenesServicios(ListView):
+class ServiceOrderList(ListView):
     model = ServiceOrder
     template_name = 'compras/ordenes_servicios.html'
     context_object_name = 'ordenes_servicios'
@@ -721,10 +721,10 @@ class ListadoOrdenesServicios(ListView):
     @method_decorator(
         requiere('compras.ver_tabla_ordenes_servicios'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoOrdenesServicios, self).dispatch(*args, **kwargs)
+        return super(ServiceOrderList, self).dispatch(*args, **kwargs)
 
 
-class ListadoOrdenesCompraPorCotizacion(ListView):
+class PurchaseOrderListByQuotation(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_compra.html'
     context_object_name = 'ordenes_compra'
@@ -732,7 +732,7 @@ class ListadoOrdenesCompraPorCotizacion(ListView):
     @method_decorator(
         requiere('compras.ver_tabla_ordenes_compra'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoOrdenesCompraPorCotizacion, self).dispatch(*args, **kwargs)
+        return super(PurchaseOrderListByQuotation, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         quotation = Quotation.objects.get(pk=self.kwargs['quotation'])
@@ -740,7 +740,7 @@ class ListadoOrdenesCompraPorCotizacion(ListView):
         return queryset
 
 
-class ListadoOrdenesServiciosPorCotizacion(ListView):
+class ServiceOrderListByQuotation(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_servicios.html'
     context_object_name = 'ordenes_servicios'
@@ -748,7 +748,7 @@ class ListadoOrdenesServiciosPorCotizacion(ListView):
     @method_decorator(
         requiere('compras.ver_tabla_ordenes_servicios'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoOrdenesServiciosPorCotizacion, self).dispatch(*args, **kwargs)
+        return super(ServiceOrderListByQuotation, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         quotation = Quotation.objects.get(pk=self.kwargs['quotation'])
@@ -756,7 +756,7 @@ class ListadoOrdenesServiciosPorCotizacion(ListView):
         return queryset
 
 
-class ListadoConformidadesServicio(ListView):
+class ServiceConformityList(ListView):
     model = ServiceConformity
     template_name = 'compras/conformidades_servicio.html'
     context_object_name = 'conformidades'
@@ -765,16 +765,16 @@ class ListadoConformidadesServicio(ListView):
     @method_decorator(
         requiere('compras.ver_tabla_conformidades_servicio'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoConformidadesServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceConformityList, self).dispatch(*args, **kwargs)
 
 
-class ListadoMovimientosPorOrdenCompra(ListView):
+class MovementListByPurchaseOrder(ListView):
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
     @method_decorator(requiere('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoMovimientosPorOrdenCompra, self).dispatch(*args, **kwargs)
+        return super(MovementListByPurchaseOrder, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         orden_compra = PurchaseOrder.objects.get(pk=self.kwargs['order'])
@@ -782,14 +782,14 @@ class ListadoMovimientosPorOrdenCompra(ListView):
         return queryset
 
 
-class ListadoConformidadesPorOrdenServicios(ListView):
+class ServiceConformityListByServiceOrder(ListView):
     template_name = 'compras/conformidades_servicio.html'
     context_object_name = 'conformidades'
 
     @method_decorator(
         requiere('compras.ver_tabla_conformidades_servicio'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoConformidadesPorOrdenServicios, self).dispatch(*args, **kwargs)
+        return super(ServiceConformityListByServiceOrder, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         service_order = ServiceOrder.objects.get(pk=self.kwargs['order'])
@@ -797,27 +797,27 @@ class ListadoConformidadesPorOrdenServicios(ListView):
         return queryset
 
 
-class ModificarProveedor(UpdateView):
+class SupplierUpdate(UpdateView):
     model = Supplier
     context_object_name = 'supplier'
     template_name = 'compras/proveedor.html'
-    form_class = ProveedorForm
+    form_class = SupplierForm
 
     @method_decorator(requiere('compras.change_supplier'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarProveedor, self).dispatch(*args, **kwargs)
+        return super(SupplierUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('compras:detalle_proveedor', args=[self.object.pk])
 
     def get_initial(self):
-        initial = super(ModificarProveedor, self).get_initial()
+        initial = super(SupplierUpdate, self).get_initial()
         initial['registration_date'] = self.object.registration_date.strftime('%d/%m/%Y')
         return initial
 
 
-class ModificarCotizacion(UpdateView):
-    form_class = CotizacionForm
+class QuotationUpdate(UpdateView):
+    form_class = QuotationForm
     template_name = "compras/cotizacion.html"
     model = Quotation
     context_object_name = 'quotation'
@@ -826,12 +826,12 @@ class ModificarCotizacion(UpdateView):
     def dispatch(self, *args, **kwargs):
         quotation = self.get_object()
         if quotation.status == Quotation.STATUS.PEND:
-            return super(ModificarCotizacion, self).dispatch(*args, **kwargs)
+            return super(QuotationUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_initial(self):
-        initial = super(ModificarCotizacion, self).get_initial()
+        initial = super(QuotationUpdate, self).get_initial()
         quotation = self.object
         initial['code'] = quotation.code
         initial['tax_id'] = quotation.supplier.tax_id
@@ -846,7 +846,7 @@ class ModificarCotizacion(UpdateView):
         quotation = self.object
         detalles = QuotationDetail.objects.filter(quotation=quotation).order_by('line_number')
         cant_detalles = detalles.count()
-        context = super(ModificarCotizacion, self).get_context_data(**kwargs)
+        context = super(QuotationUpdate, self).get_context_data(**kwargs)
         context['quotation'] = quotation
         context['detalles'] = detalles
         context['cant_detalles'] = cant_detalles
@@ -906,9 +906,9 @@ class ModificarCotizacion(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class ModificarConformidadServicio(UpdateView):
+class ServiceConformityUpdate(UpdateView):
     template_name = 'compras/conformidad_servicio.html'
-    form_class = ConformidadServicioForm
+    form_class = ServiceConformityForm
     model = ServiceConformity
 
     def get(self, request, *args, **kwargs):
@@ -918,7 +918,7 @@ class ModificarConformidadServicio(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
     def get_initial(self):
-        initial = super(ModificarConformidadServicio, self).get_initial()
+        initial = super(ServiceConformityUpdate, self).get_initial()
         conformity = self.object
         initial['cod_conformidad_servicio'] = conformity.code
         initial['service_order'] = conformity.service_order
@@ -930,7 +930,7 @@ class ModificarConformidadServicio(UpdateView):
         conformity = self.object
         detalles = ServiceConformityDetail.objects.filter(conformity=conformity)
         cant_detalles = detalles.count()
-        context = super(ModificarConformidadServicio, self).get_context_data(**kwargs)
+        context = super(ServiceConformityUpdate, self).get_context_data(**kwargs)
         context['conformity'] = conformity
         context['detalles'] = detalles
         context['cant_detalles'] = cant_detalles
@@ -955,16 +955,16 @@ class ModificarConformidadServicio(UpdateView):
             messages.error(self.request, 'Error guardando el requerimiento.')
 
 
-class ModificarOrdenCompra(UpdateView):
+class PurchaseOrderUpdate(UpdateView):
     template_name = 'compras/orden_compra.html'
-    form_class = OrdenCompraForm
+    form_class = PurchaseOrderForm
     model = PurchaseOrder
 
     @method_decorator(requiere('compras.change_purchaseorder'))
     def dispatch(self, *args, **kwargs):
         orden_compra = self.get_object()
         if orden_compra.status == PurchaseOrder.STATUS.PEND:
-            return super(ModificarOrdenCompra, self).dispatch(*args, **kwargs)
+            return super(PurchaseOrderUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
@@ -1005,7 +1005,7 @@ class ModificarOrdenCompra(UpdateView):
             return HttpResponseRedirect(reverse('compras:ordenes_compra'))
 
     def get_initial(self):
-        initial = super(ModificarOrdenCompra, self).get_initial()
+        initial = super(PurchaseOrderUpdate, self).get_initial()
         order = self.object
         quotation = order.quotation
         if quotation is None:
@@ -1033,7 +1033,7 @@ class ModificarOrdenCompra(UpdateView):
 
     def get_context_data(self, **kwargs):
         order = self.object
-        context = super(ModificarOrdenCompra, self).get_context_data(**kwargs)
+        context = super(PurchaseOrderUpdate, self).get_context_data(**kwargs)
         context['order'] = order
         return context
 
@@ -1092,21 +1092,21 @@ class ModificarOrdenCompra(UpdateView):
                                                              detalle_orden_compra_formset=detalle_orden_compra_formset))
 
 
-class ModificarOrdenServicios(UpdateView):
+class ServiceOrderUpdate(UpdateView):
     template_name = 'compras/orden_servicio.html'
-    form_class = OrdenServiciosForm
+    form_class = ServiceOrderForm
     model = ServiceOrder
 
     @method_decorator(requiere('compras.change_serviceorder'))
     def dispatch(self, *args, **kwargs):
         service_order = self.get_object()
         if service_order.status == ServiceOrder.STATUS.PEND:
-            return super(ModificarOrdenServicios, self).dispatch(*args, **kwargs)
+            return super(ServiceOrderUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_initial(self):
-        initial = super(ModificarOrdenServicios, self).get_initial()
+        initial = super(ServiceOrderUpdate, self).get_initial()
         order = self.object
         quotation = order.quotation
         if quotation is None:
@@ -1161,7 +1161,7 @@ class ModificarOrdenServicios(UpdateView):
 
     def get_context_data(self, **kwargs):
         order = self.object
-        context = super(ModificarOrdenServicios, self).get_context_data(**kwargs)
+        context = super(ServiceOrderUpdate, self).get_context_data(**kwargs)
         context['order'] = order
         return context
 
@@ -1220,7 +1220,7 @@ class ModificarOrdenServicios(UpdateView):
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
-class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
+class QuotationDetailFetch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('quotation', 'tipo_busqueda')
 
@@ -1297,7 +1297,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
+class PurchaseOrderDetailFetch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('orden_compra', 'date')
 
@@ -1357,7 +1357,7 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
+class ServiceOrderDetailFetch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('service_order',)
 
@@ -1403,28 +1403,28 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-"""class ReportePDFOrdenCompra(View):
+"""class PurchaseOrderPdfReport(View):
     
     def get(self, request, *args, **kwargs): 
         code = kwargs['pk']
         order = PurchaseOrder.objects.get(code=code)        
         response = HttpResponse(content_type='application/pdf')                
-        reporte = ReporteOrdenCompra('A4',order)
+        reporte = PurchaseOrderReport('A4',order)
         pdf = reporte.imprimir()        
         response.write(pdf)
         return response"""
 
 
-class ReportePDFOrdenCompra(View):
+class PurchaseOrderPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         order = PurchaseOrder.objects.get(pk=kwargs['pk'])
         response = HttpResponse(content_type='application/pdf')
-        response.write(PDFOrdenCompra().imprimir(order))
+        response.write(PurchaseOrderPdf().imprimir(order))
         return response
 
 
-class ReporteXLSOrdenCompra(TemplateView):
+class PurchaseOrderXlsReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         order = get_object_or_404(PurchaseOrder, pk=kwargs['pk'])
@@ -1436,34 +1436,34 @@ class ReporteXLSOrdenCompra(TemplateView):
         return response
 
 
-class ReportePDFOrdenServicios(View):
+class ServiceOrderPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         order = ServiceOrder.objects.get(code=kwargs['code'])
         response = HttpResponse(content_type='application/pdf')
-        response.write(PDFOrdenServicios().imprimir(order))
+        response.write(ServiceOrderPdf().imprimir(order))
         return response
 
 
-class ReportePDFMemorandoConformidadServicio(View):
+class ServiceConformityMemoPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         conformity = ServiceConformity.objects.get(code=kwargs['code'])
         response = HttpResponse(content_type='application/pdf')
-        response.write(PDFMemorandoConformidadServicio().imprimir(conformity))
+        response.write(ServiceConformityMemoPdf().imprimir(conformity))
         return response
 
 
-class ReportePDFSolicitudCotizacion(View):
+class QuotationRequestPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         quotation = Quotation.objects.get(code=kwargs['code'])
         response = HttpResponse(content_type='application/pdf')
-        response.write(PDFSolicitudCotizacion().imprimir(quotation))
+        response.write(QuotationRequestPdf().imprimir(quotation))
         return response
 
 
-class ReporteExcelProveedores(TemplateView):
+class SupplierExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         proveedores = Supplier.objects.all().order_by('tax_id')
@@ -1498,7 +1498,7 @@ class ReporteExcelProveedores(TemplateView):
             ws.cell(row=cont, column=11).value = supplier.registration_date
             ws.cell(row=cont, column=11).number_format = 'dd/mm/yyyy'
             cont = cont + 1
-        nombre_archivo = "ListadoProveedores.xlsx"
+        nombre_archivo = "SupplierList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -1506,8 +1506,8 @@ class ReporteExcelProveedores(TemplateView):
         return response
 
 
-class ReporteExcelOrdenesServiciosFecha(FormView):
-    form_class = FormularioReporteOrdenesFecha
+class ServiceOrderExcelReportByDate(FormView):
+    form_class = OrderDateReportForm
     template_name = "compras/reporte_ordenes.html"
 
     def form_valid(self, form):
@@ -1586,8 +1586,8 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
         return response
 
 
-class ReporteExcelOrdenesCompraFecha(FormView):
-    form_class = FormularioReporteOrdenesFecha
+class PurchaseOrderExcelReportByDate(FormView):
+    form_class = OrderDateReportForm
     template_name = "compras/reporte_ordenes.html"
 
     def form_valid(self, form):
@@ -1666,29 +1666,29 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         return response
 
 
-class TransferenciaCotizacion(TemplateView):
+class QuotationTransfer(TemplateView):
     template_name = 'compras/transferencia_cotizacion.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TransferenciaCotizacion, self).get_context_data(**kwargs)
+        context = super(QuotationTransfer, self).get_context_data(**kwargs)
         context['cotizaciones'] = Quotation.objects.filter(status=Quotation.STATUS.PEND)
         return context
 
 
-class TransferenciaOrdenCompra(TemplateView):
+class PurchaseOrderTransfer(TemplateView):
     template_name = 'compras/transferencia_orden_compra.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TransferenciaOrdenCompra, self).get_context_data(**kwargs)
+        context = super(PurchaseOrderTransfer, self).get_context_data(**kwargs)
         context['ordenes'] = PurchaseOrder.objects.filter(
             Q(status=PurchaseOrder.STATUS.PEND) | Q(status=PurchaseOrder.STATUS.ING_PARC))
         return context
 
 
-class TransferenciaOrdenServicios(TemplateView):
+class ServiceOrderTransfer(TemplateView):
     template_name = 'compras/transferencia_orden_servicios.html'
 
     def get_context_data(self, **kwargs):
-        context = super(TransferenciaOrdenServicios, self).get_context_data(**kwargs)
+        context = super(ServiceOrderTransfer, self).get_context_data(**kwargs)
         context['ordenes'] = ServiceOrder.objects.filter(status=ServiceOrder.STATUS.PEND)
         return context
