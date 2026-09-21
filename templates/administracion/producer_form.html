@@ -1,22 +1,23 @@
-{% extends "administracion/base_administracion.html" %} {% block cuerpo %}
+{% extends "administracion/base_administration.html" %}
+{% block cuerpo %}
 {% if object %}
-<h3>Profesiones / {{ object.description }}</h3>
+<h3>Productores / Nuevo</h3>
 {% else %}
-<h3>Profesiones / Nuevo</h3>
+<h3>Productores / {{ object.full_name }}</h3>
 {% endif %}
-<form role="form" method="post">
+<form role="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'administracion:profession_detail' object.pk %}'">
+                    onclick="location.href='{% url 'administracion:producer_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'administracion:profession_list' %}'">
+                    onclick="location.href='{% url 'administracion:producer_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:profession_update' object.previous %}';">
+                        onclick="location.href='{% url 'administracion:producer_update' object.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:profession_update' object.next %}';">
+                        onclick="location.href='{% url 'administracion:producer_update' object.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:profession_list' %}';">
+                        onclick="location.href='{% url 'administracion:producer_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -45,13 +46,8 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-lg-7">
-                    <label>Descripción:</label>
-                    {% if form.description.errors %}
-                    {% for error in form.description.errors %}
-                    {% include "includes/error.html" %}
-                    {% endfor %}
-                    {% endif %}
-                    <h3>{{ form.description }}</h3>
+                    <label>Nombre Completo:</label>
+                    <h3>{{ object.full_name }}</h3>
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group"></div>
@@ -60,37 +56,37 @@
             <br>
             <ul class="nav nav-tabs">
                 <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
-                <li><a data-toggle="tab" href="#seguridad">Seguridad</a></li>
             </ul>
             <div class="tab-content">
                 <div id="general" class="tab-pane fade in active">
                     <br>
                     <div class="row">
                         <div class="col-lg-4">
-                            <label>ABREVIATURA:</label>
-                            {% if form.abbreviation.errors %}
-                            {% for error in form.abbreviation.errors %}
+                            <label>DNI:</label>
+                            {% if form.dni.errors %}
+                            {% for error in form.dni.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.abbreviation }}</p>
+                            <p>{{ form.dni }}</p>
+                            <label>APELLIDOS:</label>
+                            {% if form.last_name.errors %}
+                            {% for error in form.last_name.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.last_name }}</p>
                         </div>
-                        <div class="col-lg-4"></div>
-                        <div class="col-lg-4"></div>
-                    </div>
-                </div>
-                <div id="seguridad" class="tab-pane fade">
-                    <br>
-                    <div class="row">
                         <div class="col-lg-4">
-                            <label>USUARIO:</label>
-                            {% if form.user.errors %}
-                            {% for error in form.user.errors %}
+                            <label>NOMBRES:</label>
+                            {% if form.first_name.errors %}
+                            {% for error in form.first_name.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.user }}</p>
+                            <p>{{ form.first_name }}</p>
                         </div>
+                        <div class="col-lg-4"></div>
                     </div>
                 </div>
             </div>

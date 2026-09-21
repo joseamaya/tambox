@@ -1,24 +1,23 @@
-{% extends "administracion/base_administracion.html" %}
+{% extends "administracion/base_administration.html" %}
 {% block cuerpo %}
-<h3>Trabajadores</h3>
+<h3>Productores</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_worker %}
-        <a href="{% url 'administracion:worker_create' %}" class="btn btn-primary">
+        {% if perms.administracion.add_producer %}
+        <a href="{% url 'administracion:producer_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.administracion.cargar_trabajadores %}
-        <a href="{% url 'administracion:worker_import' %}" class="btn btn-default">
+        {% if perms.administracion.cargar_productores %}
+        <a href="{% url 'administracion:producer_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.administracion.ver_reporte_trabajadores_excel %}
-            <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:worker_excel_report' %}';">
+            {% if perms.administracion.ver_reporte_productores_excel %}
+            <button class="btn btn-default" type="button">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -37,15 +36,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for worker in workers %}
-            {% if perms.administracion.ver_detalle_trabajador %}
-            <tr onclick="return abrir_modal('{% url 'administracion:worker_detail' worker.pk %}','Worker / {{ worker.first_name }} {{ worker.last_name }}')">
+            {% for producer in productores %}
+            {% if perms.administracion.ver_detalle_productor %}
+            <tr onclick="return abrir_modal('{% url 'administracion:producer_detail' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}
-                <td>{{ worker.dni }}</td>
-                <td>{{ worker.last_name }}</td>
-                <td>{{ worker.first_name }}</td>
+                <td>{{ producer.dni }}</td>
+                <td>{{ producer.last_name }}</td>
+                <td>{{ producer.first_name }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -56,21 +55,20 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function()
-{
+$(document).ready(function() 
+{	
     var table = $('#table').dataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }
     } );
-
-    $('#tabla tr').hover(function()
+ 
+    $('#tabla tr').hover(function() 
 	{
 		$(this).css("cursor","pointer");
-	});
-
+	}); 
+    
 });
-
 function abrir_modal(url, titulo)
 {
 	ventana_transferencia = $('#popup').dialog(

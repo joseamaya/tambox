@@ -1,24 +1,24 @@
-{% extends "administracion/base_administracion.html" %}
+{% extends "administracion/base_administration.html" %}
 {% block cuerpo %}
-<h3>Puestos</h3>
+<h3>Profesiones</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_position %}
-        <a href="{% url 'administracion:position_create' %}" class="btn btn-primary">
+        {% if perms.administracion.add_profession %}
+        <a href="{% url 'administracion:profession_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.administracion.cargar_puestos %}
-        <a href="{% url 'administracion:position_import' %}" class="btn btn-default">
+        {% if perms.administracion.cargar_profesiones %}
+        <a href="#" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.administracion.ver_reporte_puestos_excel %}
+            {% if perms.administracion.ver_reporte_profesiones_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:position_excel_report' %}';">
+                    onclick="location.href='{% url 'administracion:profession_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -31,21 +31,19 @@
         <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
-                <th class="text-center">NOMBRE</th>
-                <th class="text-center">TRABAJADOR</th>
-                <th class="text-center">OFICINA</th>
+                <th class="text-center">ABREV.</th>
+                <th class="text-center">DESCRIPCIÓN</th>
             </tr>
             </thead>
             <tbody>
-            {% for position in positions %}
+            {% for profession in profesiones %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:position_detail' position.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:profession_detail' profession.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ position.name }}</td>
-                <td>{{ position.worker }}</td>
-                <td>{{ position.office }}</td>
+                <td>{{ profession.abbreviation }}</td>
+                <td>{{ profession.description }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -66,8 +64,7 @@ $(document).ready(function()
     $('#tabla tr').hover(function() 
 	{
 		$(this).css("cursor","pointer");
-	}); 
-    
+	});   
 });
 
 </script>
