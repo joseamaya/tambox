@@ -15,7 +15,7 @@ class ProveedorTest(TestCase):
 
     def test_creacion_proveedor(self):
         self.assertTrue(isinstance(self.p1, Proveedor))
-        self.assertEqual(self.p1.__str__(), self.p1.razon_social)
+        self.assertEqual(self.p1.__str__(), self.p1.business_name)
 
     def test_siguiente_proveedor(self):
         self.assertEqual(self.p2.pk, self.p1.siguiente())

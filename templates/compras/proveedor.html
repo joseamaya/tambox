@@ -1,7 +1,7 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Proveedores / {{ object.razon_social }}</h3>
+<h3>Proveedores / {{ object.business_name }}</h3>
 {% else %}
 <h3>Proveedores / Nuevo</h3>
 {% endif %}
@@ -53,12 +53,12 @@
                 </div>
                 <div class="col-lg-7">
                     <label>RAZÓN SOCIAL:</label>
-                    {% if form.razon_social.errors %}
-                    {% for error in form.razon_social.errors %}
+                    {% if form.business_name.errors %}
+                    {% for error in form.business_name.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <h3>{{ form.razon_social }}</h3>
+                    <h3>{{ form.business_name }}</h3>
                 </div>
                 <div class="col-lg-3">
                     <div class="btn-group">
@@ -83,33 +83,33 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <label>RUC:</label>
-                            {% if form.ruc.errors %}
-                            {% for error in form.ruc.errors %}
+                            {% if form.tax_id.errors %}
+                            {% for error in form.tax_id.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.ruc }}</p>
+                            <p>{{ form.tax_id }}</p>
                             <label>DIRECCIÓN:</label>
-                            {% if form.direccion.errors %}
-                            {% for error in form.direccion.errors %}
+                            {% if form.address.errors %}
+                            {% for error in form.address.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.direccion }}</p>
+                            <p>{{ form.address }}</p>
                             <label>ESTADO SUNAT: </label>
-                            {% if form.estado_sunat.errors %}
-                            {% for error in form.estado_sunat.errors %}
+                            {% if form.sunat_status.errors %}
+                            {% for error in form.sunat_status.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.estado_sunat }}</p>
+                            <p>{{ form.sunat_status }}</p>
                             <label>CONDICIÓN: </label>
-                            {% if form.condicion.errors %}
-                            {% for error in form.condicion.errors %}
+                            {% if form.sunat_condition.errors %}
+                            {% for error in form.sunat_condition.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.condicion }}</p>
+                            <p>{{ form.sunat_condition }}</p>
                         </div>
                         <div class="col-lg-4">
                             <label>CIIU: </label>
@@ -127,19 +127,19 @@
                             {% endif %}
                             <p>{{ form.registration_date }}</p>
                             <label>TELÉFONO: </label>
-                            {% if form.telefono.errors %}
-                            {% for error in form.telefono.errors %}
+                            {% if form.phone.errors %}
+                            {% for error in form.phone.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.telefono }}</p>
+                            <p>{{ form.phone }}</p>
                             <label>EMAIL: </label>
-                            {% if form.correo.errors %}
-                            {% for error in form.correo.errors %}
+                            {% if form.email.errors %}
+                            {% for error in form.email.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.correo }}</p>
+                            <p>{{ form.email }}</p>
                         </div>
                         <div class="col-lg-4"></div>
                     </div>

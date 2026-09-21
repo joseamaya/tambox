@@ -63,9 +63,9 @@ class DetalleOrdenManager(models.Manager):
 
 
 class RepresentanteLegal(TimeStampedModel):
-    documento = models.CharField(primary_key=True, max_length=11)
+    document = models.CharField(primary_key=True, max_length=11)
     name = models.CharField(max_length=150)
-    cargo = models.CharField(max_length=50)
+    position = models.CharField(max_length=50)
     history = HistoricalRecords()
 
     class Meta:
@@ -78,13 +78,13 @@ class RepresentanteLegal(TimeStampedModel):
 
 
 class Proveedor(TimeStampedModel):
-    ruc = models.CharField(unique=True, max_length=11)
-    razon_social = models.CharField(max_length=150)
-    direccion = models.CharField(max_length=200)
-    telefono = models.CharField(max_length=15, null=True)
-    correo = models.EmailField(null=True)
-    estado_sunat = models.CharField(max_length=50)
-    condicion = models.CharField(max_length=50)
+    tax_id = models.CharField(unique=True, max_length=11)
+    business_name = models.CharField(max_length=150)
+    address = models.CharField(max_length=200)
+    phone = models.CharField(max_length=15, null=True)
+    email = models.EmailField(null=True)
+    sunat_status = models.CharField(max_length=50)
+    sunat_condition = models.CharField(max_length=50)
     representantes = models.ManyToManyField(RepresentanteLegal, related_name='suppliers')
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
@@ -96,7 +96,7 @@ class Proveedor(TimeStampedModel):
         permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
                        ('ver_tabla_proveedores', 'Puede ver tabla de Proveedores'),
                        ('ver_reporte_proveedores_excel', 'Puede ver Reporte Proveedores en excel'),)
-        ordering = ['ruc']
+        ordering = ['tax_id']
 
     def anterior(self):
         ant = Proveedor.objects.anterior(self)
@@ -107,7 +107,7 @@ class Proveedor(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return force_str(self.razon_social)
+        return force_str(self.business_name)
 
 
 class Cotizacion(TimeStampedModel):

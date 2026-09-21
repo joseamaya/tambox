@@ -11,28 +11,28 @@ from django.core.exceptions import ValidationError
 class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
-        fields = ['ruc', 'razon_social', 'direccion', 'telefono', 'correo', 'estado_sunat', 'condicion', 'ciiu',
+        fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
                   'registration_date']
 
     def __init__(self, *args, **kwargs):
         super(ProveedorForm, self).__init__(*args, **kwargs)
         self.fields['ciiu'].required = False
-        self.fields['telefono'].required = False
-        self.fields['correo'].required = False
-        self.fields['estado_sunat'].required = False
-        self.fields['condicion'].required = False
+        self.fields['phone'].required = False
+        self.fields['email'].required = False
+        self.fields['sunat_status'].required = False
+        self.fields['sunat_condition'].required = False
         self.fields['registration_date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
-            if field == 'ruc':
+            if field == 'tax_id':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control quantity'
                 })
 
     def clean_ruc(self):
-        ruc = self.cleaned_data.get('ruc')
-        if len(ruc) != 11:
+        tax_id = self.cleaned_data.get('tax_id')
+        if len(tax_id) != 11:
             raise ValidationError('El RUC debe tener 11 dígitos.')
-        return self.cleaned_data['ruc']
+        return self.cleaned_data['tax_id']
 
 
 class DetalleOrdenCompraForm(forms.Form):
@@ -73,9 +73,9 @@ class FormularioReporteOrdenesFecha(forms.Form):
 
 
 class CotizacionForm(forms.ModelForm):
-    ruc = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    razon_social = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    direccion = forms.CharField(max_length=100, widget=forms.TextInput(
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     referencia = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -103,9 +103,9 @@ class CotizacionForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super(CotizacionForm, self).clean()
-        ruc = cleaned_data.get('ruc')
+        tax_id = cleaned_data.get('tax_id')
         referencia = cleaned_data.get('referencia')
-        cotizacion = Cotizacion.objects.filter(proveedor__ruc=ruc,
+        cotizacion = Cotizacion.objects.filter(proveedor__ruc=tax_id,
                                                requerimiento=referencia)
         if len(cotizacion) > 0:
             raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
@@ -113,7 +113,7 @@ class CotizacionForm(forms.ModelForm):
             return cleaned_data
 
     def save(self, *args, **kwargs):
-        self.instance.proveedor = Proveedor.objects.get(ruc=self.cleaned_data['ruc'])
+        self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
         self.instance.requerimiento = Requerimiento.objects.get(pk=self.cleaned_data['referencia'])
         return super(CotizacionForm, self).save(*args, **kwargs)
 
@@ -123,9 +123,9 @@ class CotizacionForm(forms.ModelForm):
 
 
 class OrdenCompraForm(forms.ModelForm):
-    ruc = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    razon_social = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    direccion = forms.CharField(max_length=100, widget=forms.TextInput(
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     referencia = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -165,7 +165,7 @@ class OrdenCompraForm(forms.ModelForm):
             self.instance.cotizacion = Cotizacion.objects.get(code=self.cleaned_data['referencia'])
         except Cotizacion.DoesNotExist:
             self.instance.cotizacion = None
-            self.instance.proveedor = Proveedor.objects.get(ruc=self.cleaned_data['ruc'])
+            self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenCompraForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -174,9 +174,9 @@ class OrdenCompraForm(forms.ModelForm):
 
 
 class OrdenServiciosForm(forms.ModelForm):
-    ruc = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    razon_social = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    direccion = forms.CharField(max_length=100, widget=forms.TextInput(
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     referencia = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -217,7 +217,7 @@ class OrdenServiciosForm(forms.ModelForm):
             self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
         except Cotizacion.DoesNotExist:
             self.instance.cotizacion = None
-            self.instance.proveedor = Proveedor.objects.get(ruc=self.cleaned_data['ruc'])
+            self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenServiciosForm, self).save(*args, **kwargs)
 
     class Meta:

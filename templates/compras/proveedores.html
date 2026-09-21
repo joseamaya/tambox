@@ -42,8 +42,8 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ proveedor.ruc }}</td>
-                <td>{{ proveedor.razon_social }}</td>
+                <td>{{ proveedor.tax_id }}</td>
+                <td>{{ proveedor.business_name }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -84,14 +84,14 @@ $(document).ready(function()
 	function borrarProveedor()
 	{
 	   	var id_boton= $(borrarSeleccionado).prop('id');
-	   	var ruc = id_boton.replace("elim_","");
+	   	var tax_id = id_boton.replace("elim_","");
 	   	$.ajax({
-	   		data : {'ruc': ruc},
+	   		data : {'tax_id': tax_id},
 	   		url : "{% url 'compras:eliminar_proveedor' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{
-	   			alert("Proveedor "+data.ruc+ " eliminado");
+	   			alert("Proveedor "+data.tax_id+ " eliminado");
 	   			table.row('.selected').remove().draw(false);	   			    			
 	   		}
 	   	});

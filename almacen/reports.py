@@ -109,10 +109,10 @@ class ReporteMovimiento():
                                    fontName="Times-Roman")
         try:
             if movimiento.referencia.cotizacion is not None:
-                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.cotizacion.proveedor.razon_social,
+                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.cotizacion.proveedor.business_name,
                                       izquierda)
             else:
-                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.razon_social, izquierda)
+                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.business_name, izquierda)
         except (ObjectDoesNotExist, AttributeError):
             proveedor = Paragraph(u"PROVEEDOR:", izquierda)
         operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.description, izquierda)
@@ -250,7 +250,7 @@ class ReporteMovimiento():
     def pie_pagina(self, canvas, doc):
         canvas.saveState()
         canvas.setFont('Times-Roman', 10)
-        canvas.drawCentredString(300, 20, empresa().direccion())
+        canvas.drawCentredString(300, 20, empresa().address())
         canvas.restoreState()
 
     def imprimir(self):
@@ -763,15 +763,15 @@ class ReporteKardexPDF():
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
-        ruc = Paragraph(u"RUC:" + empresa().ruc, izquierda)
-        elements.append(ruc)
+        tax_id = Paragraph(u"RUC:" + empresa().tax_id, izquierda)
+        elements.append(tax_id)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social,
+        business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name,
                                  izquierda)
-        elements.append(razon_social)
+        elements.append(business_name)
         elements.append(Spacer(1, 0.25 * cm))
-        direccion = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().direccion(), izquierda)
-        elements.append(direccion)
+        address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
+        elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
         code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
         elements.append(code)
@@ -820,15 +820,15 @@ class ReporteKardexPDF():
         periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'), izquierda)
         elements.append(periodo)
         elements.append(Spacer(1, 0.25 * cm))
-        ruc = Paragraph(u"RUC:" + empresa().ruc, izquierda)
-        elements.append(ruc)
+        tax_id = Paragraph(u"RUC:" + empresa().tax_id, izquierda)
+        elements.append(tax_id)
         elements.append(Spacer(1, 0.25 * cm))
-        razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social,
+        business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name,
                                  izquierda)
-        elements.append(razon_social)
+        elements.append(business_name)
         elements.append(Spacer(1, 0.25 * cm))
-        direccion = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().direccion(), izquierda)
-        elements.append(direccion)
+        address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
+        elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
         code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
         elements.append(code)
@@ -885,15 +885,15 @@ class ReporteKardexPDF():
                                 izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
-            ruc = Paragraph(u"RUC:" + empresa().ruc, izquierda)
-            elements.append(ruc)
+            tax_id = Paragraph(u"RUC:" + empresa().tax_id, izquierda)
+            elements.append(tax_id)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social,
+            business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name,
                                      izquierda)
-            elements.append(razon_social)
+            elements.append(business_name)
             elements.append(Spacer(1, 0.25 * cm))
-            direccion = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().direccion(), izquierda)
-            elements.append(direccion)
+            address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
+            elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
             code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
             elements.append(code)
@@ -950,7 +950,7 @@ class ReporteKardexPDF():
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
-        ruc_empresa = "RUC: " + empresa().ruc
+        ruc_empresa = "RUC: " + empresa().tax_id
         if self.grupos:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
@@ -982,7 +982,7 @@ class ReporteKardexPDF():
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
-        ruc_empresa = "RUC: " + empresa().ruc
+        ruc_empresa = "RUC: " + empresa().tax_id
         if self.valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
@@ -1049,15 +1049,15 @@ class ReporteKardexPDF():
                                 izquierda)
             elements.append(periodo)
             elements.append(Spacer(1, 0.25 * cm))
-            ruc = Paragraph(u"RUC:" + empresa().ruc, izquierda)
-            elements.append(ruc)
+            tax_id = Paragraph(u"RUC:" + empresa().tax_id, izquierda)
+            elements.append(tax_id)
             elements.append(Spacer(1, 0.25 * cm))
-            razon_social = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social,
+            business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name,
                                      izquierda)
-            elements.append(razon_social)
+            elements.append(business_name)
             elements.append(Spacer(1, 0.25 * cm))
-            direccion = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().direccion(), izquierda)
-            elements.append(direccion)
+            address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
+            elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
             code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
             elements.append(code)
@@ -1112,11 +1112,11 @@ class ReporteKardexExcel():
         ws.merge_cells('D1:G1')
         ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
-        ws['B4'] = u"RUC:" + empresa().ruc
+        ws['B4'] = u"RUC:" + empresa().tax_id
         ws.merge_cells('B4:E4')
-        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social
+        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name
         ws.merge_cells('B5:K5')
-        ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().direccion()
+        ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells('B6:E6')
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
         ws.merge_cells('B7:E7')
@@ -1363,11 +1363,11 @@ class ReporteKardexExcel():
         ws.merge_cells('H1:K1')
         ws['B3'] = "PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
-        ws['B4'] = u"RUC:" + empresa().ruc
+        ws['B4'] = u"RUC:" + empresa().tax_id
         ws.merge_cells('B4:E4')
-        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social
+        ws['B5'] = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name
         ws.merge_cells('B5:K5')
-        ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().direccion()
+        ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells('B6:E6')
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
         ws.merge_cells('B7:E7')
@@ -1583,13 +1583,13 @@ class ReporteKardexExcel():
             '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"RUC:" + empresa().ruc
+        ws.cell(row=cont, column=2).value = u"RUC:" + empresa().tax_id
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social
+        ws.cell(row=cont, column=2).value = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=11)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().direccion()
+        ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
@@ -1738,13 +1738,13 @@ class ReporteKardexExcel():
             '%d/%m/%Y')
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"RUC:" + empresa().ruc
+        ws.cell(row=cont, column=2).value = u"RUC:" + empresa().tax_id
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().razon_social
+        ws.cell(row=cont, column=2).value = u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + empresa().business_name
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=11)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().direccion()
+        ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.code

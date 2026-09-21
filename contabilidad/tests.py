@@ -127,14 +127,14 @@ class TestEmpresa(TestCase):
 
     def test_creacion_empresa(self):
         self.assertTrue(isinstance(self.emp1, Empresa))
-        self.assertEqual(self.emp1.__str__(), self.emp1.razon_social)
+        self.assertEqual(self.emp1.__str__(), self.emp1.business_name)
 
     def test_patron_singleton(self):
         self.assertEqual(self.emp1, self.emp2)
 
     def test_direccion_empresa(self):
-        direccion = self.emp1.lugar + ' ' + self.emp1.calle + ' ' + self.emp1.distrito
-        self.assertEqual(direccion, self.emp1.direccion())
+        address = self.emp1.lugar + ' ' + self.emp1.calle + ' ' + self.emp1.distrito
+        self.assertEqual(address, self.emp1.address())
 
 
 class TestTipoExistencia(TestCase):

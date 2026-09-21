@@ -165,8 +165,8 @@ class Upload(TimeStampedModel):
 
 
 class Empresa(SingletonModel):
-    razon_social = models.CharField(max_length=150)
-    ruc = models.CharField(max_length=11)
+    business_name = models.CharField(max_length=150)
+    tax_id = models.CharField(max_length=11)
     logo = models.ImageField(upload_to='configuracion')
     lugar = models.CharField(max_length=150, default='')
     calle = models.CharField(max_length=150, default='')
@@ -180,9 +180,9 @@ class Empresa(SingletonModel):
     usa_tls = models.BooleanField(default=True)
 
     def __str__(self):
-        return u'%s' % self.razon_social
+        return u'%s' % self.business_name
 
-    def direccion(self):
+    def address(self):
         return self.lugar + ' ' + self.calle + ' ' + self.distrito
 
     class Meta:

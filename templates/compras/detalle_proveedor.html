@@ -1,5 +1,5 @@
 {% extends "compras/base_compras.html" %} {% block cuerpo %}
-<h3>Proveedores / {{ object.razon_social }}</h3>
+<h3>Proveedores / {{ object.business_name }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_proveedor %} <a
@@ -42,7 +42,7 @@
                 </a>
             </div>
             <div class="col-lg-7">
-                <h3>{{ object.razon_social }}</h3>
+                <h3>{{ object.business_name }}</h3>
                 {% if object.es_locador %}
                 <p>ES LOCADOR</p>
                 {% endif %}
@@ -70,13 +70,13 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <label>RUC:</label>
-                        <p>{{ object.ruc }}</p>
+                        <p>{{ object.tax_id }}</p>
                         <label>DIRECCIÓN:</label>
-                        <p>{{ object.direccion }}</p>
+                        <p>{{ object.address }}</p>
                         <label>ESTADO SUNAT: </label>
                         <p>{{ object.is_active_sunat }}</p>
                         <label>CONDICION: </label>
-                        <p>{{ object.condicion }}</p>
+                        <p>{{ object.sunat_condition }}</p>
                     </div>
                     <div class="col-lg-4">
                         <label>CIIU: </label>
@@ -84,9 +84,9 @@
                         <label>FECHA DE ALTA: </label>
                         <p>{{ object.registration_date|date:"d/m/Y" }}</p>
                         <label>TELEFONO: </label>
-                        <p>{{ object.telefono }}</p>
+                        <p>{{ object.phone }}</p>
                         <label>EMAIL: </label>
-                        <p>{{ object.correo }}</p>
+                        <p>{{ object.email }}</p>
                     </div>
                     <div class="col-lg-4">
                         <label>FECHA REGISTRO: </label>

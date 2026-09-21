@@ -89,30 +89,30 @@
         <div class="row">
             <div class="col-md-2">
                 <label>RUC:</label>
-                <p>{{ object.cotizacion.proveedor.ruc }}</p>
+                <p>{{ object.cotizacion.proveedor.tax_id }}</p>
             </div>
             <div class="col-md-4">
                 <label>Razón Social:</label>
-                <p>{{ object.cotizacion.proveedor.razon_social }}</p>
+                <p>{{ object.cotizacion.proveedor.business_name }}</p>
             </div>
             <div class="col-md-6">
                 <label>DIRECCIÓN:</label>
-                <p>{{ object.cotizacion.proveedor.direccion }}</p>
+                <p>{{ object.cotizacion.proveedor.address }}</p>
             </div>
         </div>
         {% else %}
         <div class="row">
             <div class="col-md-2">
                 <label>RUC:</label>
-                <p>{{ object.proveedor.ruc }}</p>
+                <p>{{ object.proveedor.tax_id }}</p>
             </div>
             <div class="col-md-4">
                 <label>Razón Social:</label>
-                <p>{{ object.proveedor.razon_social }}</p>
+                <p>{{ object.proveedor.business_name }}</p>
             </div>
             <div class="col-md-6">
                 <label>DIRECCIÓN:</label>
-                <p>{{ object.proveedor.direccion }}</p>
+                <p>{{ object.proveedor.address }}</p>
             </div>
         </div>
         {% endif %}

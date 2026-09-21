@@ -50,8 +50,8 @@ class ReporteOrdenCompra():
             imagen = Paragraph(u"LOGO", sp)
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
-        ruc = Paragraph("R.U.C." + empresa().ruc, sp)
-        encabezado = [[imagen, nro, ruc], ['', u"N°" + orden_compra.code,
+        tax_id = Paragraph("R.U.C." + empresa().tax_id, sp)
+        encabezado = [[imagen, nro, tax_id], ['', u"N°" + orden_compra.code,
                                            empresa().distrito + " " + orden_compra.date.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
@@ -76,13 +76,13 @@ class ReporteOrdenCompra():
             proveedor = orden.proveedor
         else:
             proveedor = orden.cotizacion.proveedor
-        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + proveedor.razon_social, izquierda)
-        ruc_proveedor = Paragraph(u"R.U.C.: " + proveedor.ruc, izquierda)
-        direccion = Paragraph(u"DIRECCIÓN: " + proveedor.direccion, izquierda)
+        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + proveedor.business_name, izquierda)
+        ruc_proveedor = Paragraph(u"R.U.C.: " + proveedor.tax_id, izquierda)
+        address = Paragraph(u"DIRECCIÓN: " + proveedor.address, izquierda)
         try:
-            telefono = Paragraph(u"TELÉFONO: " + proveedor.telefono, izquierda)
+            phone = Paragraph(u"TELÉFONO: " + proveedor.phone, izquierda)
         except TypeError:
-            telefono = Paragraph(u"TELÉFONO: -", izquierda)
+            phone = Paragraph(u"TELÉFONO: -", izquierda)
         try:
             referencia = Paragraph(
                 u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name,
@@ -91,7 +91,7 @@ class ReporteOrdenCompra():
             referencia = Paragraph(u"REFERENCIA: ", izquierda)
         proceso = Paragraph(u"PROCESO: " + orden.proceso, izquierda)
         nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ", izquierda)
-        datos = [[razon_social_proveedor, ruc_proveedor], [direccion, telefono], [referencia, ''], [proceso, ''],
+        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [referencia, ''], [proceso, ''],
                  [nota, '']]
         tabla_detalle = Table(datos, colWidths=[11 * cm, 9 * cm])
         tabla_detalle.setStyle(TableStyle(
@@ -167,7 +167,7 @@ class ReporteOrdenCompra():
         datos_otros = [
             [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
              sub_total, orden.subtotal],
-            [Paragraph(empresa().direccion(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.description, p),
+            [Paragraph(empresa().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.description, p),
              igv, str(orden.igv)],
             ['', '', '', total, str(orden.total)],
             ]
@@ -216,8 +216,8 @@ class ReporteOrdenCompra():
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
-            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().business_name), p),
+            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -333,7 +333,7 @@ def reporte_xls_orden_compra(orden):
     ws['C14'].alignment = Alignment(horizontal="center")
     ws['C14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C14'] = orden.proveedor.razon_social
+    ws['C14'] = orden.proveedor.business_name
     ws['H14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H14'] = 'FECHA'
@@ -353,7 +353,7 @@ def reporte_xls_orden_compra(orden):
     ws['H15'] = 'RUC/NIT'
     ws['I15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I15'] = proveedor.ruc
+    ws['I15'] = proveedor.tax_id
     ws['B16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['B16'] = 'DIRECCIÓN'
@@ -361,14 +361,14 @@ def reporte_xls_orden_compra(orden):
     ws['C16'].alignment = Alignment(horizontal="center")
     ws['C16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C16'] = proveedor.direccion
+    ws['C16'] = proveedor.address
     ws['H16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H16'] = 'TELÉFONO'
     ws['I16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     try:
-        ws['I16'] = proveedor.telefono
+        ws['I16'] = proveedor.phone
     except TypeError:
         ws['I16'] = '-'
     ws['B17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -378,7 +378,7 @@ def reporte_xls_orden_compra(orden):
     ws['C14'].alignment = Alignment(horizontal="center")
     ws['C17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C17'] = proveedor.correo
+    ws['C17'] = proveedor.email
     ws['H17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H17'] = 'RPM/RPC'
@@ -396,7 +396,7 @@ def reporte_xls_orden_compra(orden):
     ws['D20'].alignment = Alignment(horizontal="center")
     ws['D20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['D20'] = str(empresa().direccion())
+    ws['D20'] = str(empresa().address())
     ws.merge_cells('G20:H20')
     ws['G20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
@@ -638,16 +638,16 @@ class PDFSolicitudCotizacion(object):
         tabla_encabezado.drawOn(pdf, 200, 800)
         pdf.drawString(270, 780, u"N°" + cotizacion.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + cotizacion.proveedor.razon_social)
-        pdf.drawString(440, 750, u"R.U.C.: " + cotizacion.proveedor.ruc)
-        direccion = cotizacion.proveedor.direccion
-        if len(direccion) > 60:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion[0:60])
-            pdf.drawString(105, 720, direccion[60:])
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + cotizacion.proveedor.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + cotizacion.proveedor.tax_id)
+        address = cotizacion.proveedor.address
+        if len(address) > 60:
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
+            pdf.drawString(105, 720, address[60:])
         else:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + cotizacion.proveedor.telefono)
+            pdf.drawString(440, 730, u"TELÉFONO: " + cotizacion.proveedor.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         pdf.drawString(40, 710, u"FECHA: " + cotizacion.date.strftime('%d/%m/%Y'))
@@ -844,7 +844,7 @@ class PDFMemorandoConformidadServicio(object):
         self.firma(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
         self.firma(pdf, 130, y - 150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y - 140)
         self.firma(pdf, 350, y - 150, "UNIDAD DE LOGÍSTICA", 320, 470, y - 140)
-        pdf.drawCentredString(300, y - 280, empresa().direccion())
+        pdf.drawCentredString(300, y - 280, empresa().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()
@@ -864,7 +864,7 @@ class PDFOrdenServicios(object):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
+        pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°" + orden.code)
         pdf.setFont("Times-Roman", 10)
@@ -875,16 +875,16 @@ class PDFOrdenServicios(object):
             proveedor = orden.proveedor
         else:
             proveedor = orden.cotizacion.proveedor
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.razon_social)
-        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.ruc)
-        direccion = proveedor.direccion
-        if len(direccion) > 60:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion[0:60])
-            pdf.drawString(105, 720, direccion[60:])
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.tax_id)
+        address = proveedor.address
+        if len(address) > 60:
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
+            pdf.drawString(105, 720, address[60:])
         else:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.telefono)
+            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
@@ -1005,8 +1005,8 @@ class PDFOrdenServicios(object):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
-            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().business_name), p),
+            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1058,7 +1058,7 @@ class PDFOrdenServicios(object):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, empresa().direccion())
+        pdf.drawCentredString(300, y - 280, empresa().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()
@@ -1078,7 +1078,7 @@ class PDFOrdenCompra(object):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
+        pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° " + orden.code)
         pdf.setFont("Times-Roman", 10)
@@ -1090,16 +1090,16 @@ class PDFOrdenCompra(object):
             proveedor = orden.proveedor
         else:
             proveedor = orden.cotizacion.proveedor
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.razon_social)
-        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.ruc)
-        direccion = proveedor.direccion
-        if len(direccion) > 60:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion[0:60])
-            pdf.drawString(105, 720, direccion[60:])
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.tax_id)
+        address = proveedor.address
+        if len(address) > 60:
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
+            pdf.drawString(105, 720, address[60:])
         else:
-            pdf.drawString(40, 730, u"DIRECCIÓN: " + direccion)
+            pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.telefono)
+            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
@@ -1150,7 +1150,7 @@ class PDFOrdenCompra(object):
 
     def otros(self, pdf, y, orden):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(empresa().direccion(), u"INMEDIATA", orden.forma_pago.description)]
+        otros = [(empresa().address(), u"INMEDIATA", orden.forma_pago.description)]
         tabla_otros = Table([encabezados_otros] + otros, colWidths=[6 * cm, 3.5 * cm, 4.5 * cm],
                             rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
@@ -1207,8 +1207,8 @@ class PDFOrdenCompra(object):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().razon_social), p),
-            Paragraph("El " + force_str(empresa().razon_social) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(empresa().business_name), p),
+            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1260,7 +1260,7 @@ class PDFOrdenCompra(object):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, empresa().direccion())
+        pdf.drawCentredString(300, y - 280, empresa().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()

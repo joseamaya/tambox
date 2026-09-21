@@ -79,27 +79,27 @@ class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
             code = request.GET['code']
             cotizacion = Cotizacion.objects.get(code=code)
             cotizacion_json = {}
-            cotizacion_json['ruc'] = cotizacion.proveedor.ruc
-            cotizacion_json['razon_social'] = cotizacion.proveedor.razon_social
-            cotizacion_json['direccion'] = cotizacion.proveedor.direccion
+            cotizacion_json['tax_id'] = cotizacion.proveedor.tax_id
+            cotizacion_json['business_name'] = cotizacion.proveedor.business_name
+            cotizacion_json['address'] = cotizacion.proveedor.address
             data = simplejson.dumps(cotizacion_json)
             return HttpResponse(data, 'application/json')
 
 
 class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('razon_social',)
+    parametros_requeridos = ('business_name',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            razon_social = request.GET['razon_social']
-            proveedores = Proveedor.objects.filter(razon_social__icontains=razon_social)[:20]
+            business_name = request.GET['business_name']
+            proveedores = Proveedor.objects.filter(business_name__icontains=business_name)[:20]
             lista_proveedores = []
             for proveedor in proveedores:
                 proveedor_json = {}
-                proveedor_json['label'] = proveedor.razon_social
-                proveedor_json['ruc'] = proveedor.ruc
-                proveedor_json['direccion'] = proveedor.direccion
+                proveedor_json['label'] = proveedor.business_name
+                proveedor_json['tax_id'] = proveedor.tax_id
+                proveedor_json['address'] = proveedor.address
                 proveedor_json['orden'] = str(OrdenServicios.objects.ultimo())
                 lista_proveedores.append(proveedor_json)
             data = json.dumps(lista_proveedores)
@@ -108,16 +108,16 @@ class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
 
 class BusquedaProveedoresRUC(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('ruc',)
+    parametros_requeridos = ('tax_id',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            ruc = request.GET['ruc']
-            proveedor = Proveedor.objects.get(ruc=ruc)
+            tax_id = request.GET['tax_id']
+            proveedor = Proveedor.objects.get(tax_id=tax_id)
             proveedor_json = {}
-            proveedor_json['razon_social'] = proveedor.razon_social
-            proveedor_json['direccion'] = proveedor.direccion
-            proveedor_json['estado'] = proveedor.estado_sunat
+            proveedor_json['business_name'] = proveedor.business_name
+            proveedor_json['address'] = proveedor.address
+            proveedor_json['estado'] = proveedor.sunat_status
             proveedor_json['es_locador'] = proveedor.es_locador
             proveedor_json['orden'] = str(OrdenServicios.objects.ultimo())
             data = simplejson.dumps(proveedor_json)
@@ -130,12 +130,12 @@ class CargarProveedores(CargarCsvMixin, FormView):
     success_url = reverse_lazy('compras:proveedores')
 
     def procesar_fila(self, fila):
-        Proveedor.objects.get_or_create(ruc=fila[0],
-                                        defaults={'razon_social': fila[1],
-                                                  'direccion': fila[2],
+        Proveedor.objects.get_or_create(tax_id=fila[0],
+                                        defaults={'business_name': fila[1],
+                                                  'address': fila[2],
                                                   'registration_date': datetime.datetime.now(),
-                                                  'estado_sunat': 'ACTIVO',
-                                                  'condicion': 'HABIDO',
+                                                  'sunat_status': 'ACTIVO',
+                                                  'sunat_condition': 'HABIDO',
                                                   'ciiu': 'CUALQUIERA'})
 
 
@@ -667,10 +667,10 @@ class EliminarProveedor(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            ruc = request.POST['ruc']
+            tax_id = request.POST['tax_id']
             proveedor_json = {}
-            proveedor_json['ruc'] = ruc
-            Proveedor.objects.filter(pk=ruc).update(is_active=False)
+            proveedor_json['tax_id'] = tax_id
+            Proveedor.objects.filter(pk=tax_id).update(is_active=False)
             data = simplejson.dumps(proveedor_json)
             return HttpResponse(data, 'application/json')
 
@@ -679,7 +679,7 @@ class ListadoProveedores(ListView):
     model = Proveedor
     template_name = 'compras/proveedores.html'
     context_object_name = 'proveedores'
-    queryset = Proveedor.objects.filter(is_active=True).order_by('razon_social')
+    queryset = Proveedor.objects.filter(is_active=True).order_by('business_name')
 
     @method_decorator(requiere('compras.ver_tabla_proveedores'))
     def dispatch(self, *args, **kwargs):
@@ -829,9 +829,9 @@ class ModificarCotizacion(UpdateView):
         initial = super(ModificarCotizacion, self).get_initial()
         cotizacion = self.object
         initial['code'] = cotizacion.code
-        initial['ruc'] = cotizacion.proveedor.ruc
-        initial['razon_social'] = cotizacion.proveedor.razon_social
-        initial['direccion'] = cotizacion.proveedor.direccion
+        initial['tax_id'] = cotizacion.proveedor.tax_id
+        initial['business_name'] = cotizacion.proveedor.business_name
+        initial['address'] = cotizacion.proveedor.address
         initial['date'] = cotizacion.date.strftime('%d/%m/%Y')
         initial['referencia'] = cotizacion.requerimiento
         initial['notes'] = cotizacion.notes
@@ -1008,9 +1008,9 @@ class ModificarOrdenCompra(UpdateView):
         else:
             proveedor = orden.cotizacion.proveedor
         initial['code'] = orden.code
-        initial['ruc'] = proveedor.ruc
-        initial['razon_social'] = proveedor.razon_social
-        initial['direccion'] = proveedor.direccion
+        initial['tax_id'] = proveedor.tax_id
+        initial['business_name'] = proveedor.business_name
+        initial['address'] = proveedor.address
         initial['date'] = orden.date.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
@@ -1109,9 +1109,9 @@ class ModificarOrdenServicios(UpdateView):
         else:
             proveedor = orden.cotizacion.proveedor
         initial['code'] = orden.code
-        initial['ruc'] = proveedor.ruc
-        initial['razon_social'] = proveedor.razon_social
-        initial['direccion'] = proveedor.direccion
+        initial['tax_id'] = proveedor.tax_id
+        initial['business_name'] = proveedor.business_name
+        initial['address'] = proveedor.address
         initial['date'] = orden.date.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
@@ -1461,7 +1461,7 @@ class ReportePDFSolicitudCotizacion(View):
 class ReporteExcelProveedores(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        proveedores = Proveedor.objects.all().order_by('ruc')
+        proveedores = Proveedor.objects.all().order_by('tax_id')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PROVEEDORES'
@@ -1478,13 +1478,13 @@ class ReporteExcelProveedores(TemplateView):
         ws['K3'] = 'FECHA_ALTA'
         cont = 4
         for proveedor in proveedores:
-            ws.cell(row=cont, column=2).value = proveedor.ruc
-            ws.cell(row=cont, column=3).value = proveedor.razon_social
-            ws.cell(row=cont, column=4).value = proveedor.direccion
-            ws.cell(row=cont, column=5).value = proveedor.telefono
-            ws.cell(row=cont, column=6).value = proveedor.correo
-            ws.cell(row=cont, column=7).value = proveedor.estado_sunat
-            ws.cell(row=cont, column=8).value = proveedor.condicion
+            ws.cell(row=cont, column=2).value = proveedor.tax_id
+            ws.cell(row=cont, column=3).value = proveedor.business_name
+            ws.cell(row=cont, column=4).value = proveedor.address
+            ws.cell(row=cont, column=5).value = proveedor.phone
+            ws.cell(row=cont, column=6).value = proveedor.email
+            ws.cell(row=cont, column=7).value = proveedor.sunat_status
+            ws.cell(row=cont, column=8).value = proveedor.sunat_condition
             try:
                 ws.cell(row=cont, column=9).value = proveedor.representante.name
             except ObjectDoesNotExist:
@@ -1563,9 +1563,9 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws.cell(row=cont, column=3).value = orden.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
-                ws.cell(row=cont, column=4).value = orden.cotizacion.proveedor.razon_social
+                ws.cell(row=cont, column=4).value = orden.cotizacion.proveedor.business_name
             except ObjectDoesNotExist:
-                ws.cell(row=cont, column=4).value = orden.proveedor.razon_social
+                ws.cell(row=cont, column=4).value = orden.proveedor.business_name
             ws.cell(row=cont, column=5).value = orden.total
             ws.cell(row=cont, column=6).value = orden.forma_pago.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
@@ -1643,9 +1643,9 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws.cell(row=cont, column=3).value = orden_compra.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
-                ws.cell(row=cont, column=4).value = orden_compra.cotizacion.proveedor.razon_social
+                ws.cell(row=cont, column=4).value = orden_compra.cotizacion.proveedor.business_name
             except ObjectDoesNotExist:
-                ws.cell(row=cont, column=4).value = orden_compra.proveedor.razon_social
+                ws.cell(row=cont, column=4).value = orden_compra.proveedor.business_name
             ws.cell(row=cont, column=5).value = orden_compra.total
             ws.cell(row=cont, column=6).value = orden_compra.forma_pago.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'

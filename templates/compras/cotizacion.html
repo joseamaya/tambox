@@ -66,30 +66,30 @@
                 <div class="row">
                     <div class="col-md-2">
                         <label>RUC:</label>
-                        {% if form.ruc.errors %}
-                        {% for error in form.ruc.errors %}
+                        {% if form.tax_id.errors %}
+                        {% for error in form.tax_id.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.ruc }}
+                        {{ form.tax_id }}
                     </div>
                     <div class="col-md-4">
                         <label>Razón Social:</label>
-                        {% if form.razon_social.errors %}
-                        {% for error in form.razon_social.errors %}
+                        {% if form.business_name.errors %}
+                        {% for error in form.business_name.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.razon_social }}
+                        {{ form.business_name }}
                     </div>
                     <div class="col-md-6">
                         <label>Dirección:</label>
-                        {% if form.direccion.errors %}
-                        {% for error in form.direccion.errors %}
+                        {% if form.address.errors %}
+                        {% for error in form.address.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.direccion }}
+                        {{ form.address }}
                     </div>
                 </div>
             </div>
@@ -222,7 +222,7 @@ $(document).ready(function()
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
-	      data: {'razon_social': $("#id_razon_social").val()},
+	      data: {'business_name': $("#id_razon_social").val()},
 	      success: function( data ) 
 	      {
 	          response( data );
@@ -231,9 +231,9 @@ $(document).ready(function()
 	  },
 	  minLength: 2,
 	  select: function( event, ui ) {
-		$("#id_ruc").val(ui.item.ruc);
+		$("#id_ruc").val(ui.item.tax_id);
 		$("#id_razon_social").val(ui.item.label);
-		$("#id_direccion").val(ui.item.direccion);
+		$("#id_direccion").val(ui.item.address);
 		if(ui.item.es_locador)
 		{		    		  
 			$("#id_orden").attr("readonly", false);
@@ -249,16 +249,16 @@ $(document).ready(function()
 	
 	$("#id_ruc").keyup(function() 
 	{
-		var ruc=$("#id_ruc").val();
-		if(ruc.length==11)
+		var tax_id=$("#id_ruc").val();
+		if(tax_id.length==11)
 		{
 			$.ajax({
 		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
-		      data: {'ruc': ruc},
+		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
-		    	  $("#id_razon_social").val(data.razon_social);
-		    	  $("#id_direccion").val(data.direccion);
+		    	  $("#id_razon_social").val(data.business_name);
+		    	  $("#id_direccion").val(data.address);
 		    	  if(data.es_locador)
 		    	  {		    		  
 		    		  $("#id_orden").attr("readonly", false);
@@ -349,9 +349,9 @@ $(document).ready(function()
 	
 	$("form").submit(function(event) 
 	{
-		var ruc = $('#id_ruc').val();
+		var tax_id = $('#id_ruc').val();
 		var date = $('#id_date').val().trim();
-		if(ruc != '')
+		if(tax_id != '')
 		{					
 			if(date != '')
 			{					
@@ -371,7 +371,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha ingresado el ruc del proveedor");
+			alert("No ha ingresado el tax_id del proveedor");
 		}
 		event.preventDefault();
 	});
