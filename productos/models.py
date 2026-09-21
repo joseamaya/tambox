@@ -41,7 +41,7 @@ class UnidadMedida(TimeStampedModel):
 class GrupoProductos(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=6)
     description = models.CharField(max_length=100)
-    ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE, related_name='product_groups')
+    account = models.ForeignKey(CuentaContable, on_delete=models.CASCADE, related_name='product_groups')
     contains_products = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -81,8 +81,8 @@ class GrupoProductos(TimeStampedModel):
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
-                                               producto__grupo_productos=self).select_related(
-            'movimiento__document_type', 'movimiento__tipo_movimiento').order_by('producto__description',
+                                               product__product_group=self).select_related(
+            'movement__document_type', 'movement__movement_type').order_by('product__description',
                                                                                   'operation_date',
                                                                                   'out_quantity',
                                                                                   'created')
@@ -106,21 +106,21 @@ class GrupoProductos(TimeStampedModel):
         from almacen.models import Kardex
         return Kardex.kardex_por_lote(desde, hasta, por_grupo=True,
                                       almacen=almacen,
-                                      producto__grupo_productos__in=grupos)
+                                      product__product_group__in=grupos)
 
 
 class Producto(TimeStampedModel):
     code = models.CharField(primary_key=True, max_length=10, verbose_name='Código')
-    grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE, related_name='products')
+    product_group = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE, related_name='products')
     description = models.CharField(max_length=100, unique=True, verbose_name='Descripción')
     is_service = models.BooleanField(default=False)
-    unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, related_name='products')
+    unit_of_measure = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE, related_name='products')
     brand = models.CharField(max_length=40, blank=True)
     model = models.CharField(max_length=40, blank=True)
     price = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     minimum_stock = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     image = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
-    tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, related_name='products', null=True)
+    stock_type = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, related_name='products', null=True)
     is_active = models.BooleanField(default=True, verbose_name='Estado')
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -135,7 +135,7 @@ class Producto(TimeStampedModel):
         """
         if not hasattr(self, '_stock_calculado'):
             from almacen.models import Kardex
-            ultimos = (Kardex.objects.filter(producto=self)
+            ultimos = (Kardex.objects.filter(product=self)
                        .order_by('almacen_id', '-operation_date', '-pk')
                        .distinct('almacen_id'))
             self._stock_calculado = sum(kardex.total_quantity for kardex in ultimos)
@@ -146,7 +146,7 @@ class Producto(TimeStampedModel):
         if not hasattr(self, '_previsto_calculado'):
             from compras.models import DetalleOrdenCompra
             self._previsto_calculado = DetalleOrdenCompra.objects.filter(
-                Q(producto=self) | Q(detalle_cotizacion__detalle_requerimiento__producto=self)
+                Q(product=self) | Q(quotation_detail__requirement_detail__product=self)
             ).aggregate(total=Sum('quantity'))['total'] or 0
         return self._previsto_calculado
 
@@ -154,11 +154,11 @@ class Producto(TimeStampedModel):
         from almacen.models import Movimiento, Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
-                                               movimiento__status=Movimiento.STATUS.ACT,
+                                               movement__status=Movimiento.STATUS.ACT,
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
-                                               producto=self).select_related(
-            'movimiento__document_type', 'movimiento__tipo_movimiento').order_by('producto__description',
+                                               product=self).select_related(
+            'movement__document_type', 'movement__movement_type').order_by('product__description',
                                                                                   'operation_date',
                                                                                   'out_quantity',
                                                                                   'created')
@@ -176,15 +176,15 @@ class Producto(TimeStampedModel):
     def kardex_por_lote(productos, almacen, desde, hasta):
         """Igual que `obtener_kardex()`, pero para todo el lote de una vez.
 
-        Devuelve {producto_id: (filas, in_quantity, in_amount,
+        Devuelve {product_id: (filas, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total, en vez de
         dos por producto.
         """
         from almacen.models import Kardex, Movimiento
         return Kardex.kardex_por_lote(desde, hasta,
                                       almacen=almacen,
-                                      producto__in=productos,
-                                      movimiento__status=Movimiento.STATUS.ACT)
+                                      product__in=productos,
+                                      movement__status=Movimiento.STATUS.ACT)
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -204,17 +204,17 @@ class Producto(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            prod_ant = Producto.objects.filter(grupo_productos=self.grupo_productos).aggregate(Max('code'))
+            prod_ant = Producto.objects.filter(product_group=self.product_group).aggregate(Max('code'))
             cod_ant = prod_ant['code__max']
             if cod_ant is None:
-                self.code = self.grupo_productos.code + '0001'
+                self.code = self.product_group.code + '0001'
             else:
                 aux = int(cod_ant) + 1
                 self.code = str(aux).zfill(10)
             if self.is_service:
-                unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
+                unit_of_measure, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                            defaults={'description': 'SERVICIO'})
-                self.unidad_medida = unidad_medida
+                self.unit_of_measure = unit_of_measure
         super(Producto, self).save()
 
     def __str__(self):

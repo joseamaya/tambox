@@ -38,12 +38,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label for="code">Codigo de Producto: </label>
-                        {% if form.producto.errors %}
-                        {% for error in form.producto.errors %}
+                        {% if form.product.errors %}
+                        {% for error in form.product.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.producto }}
+                        {{ form.product }}
                     </div>
                     <div class="col-md-9">
                         <label for="description">Descripcion de Producto: </label>
@@ -154,7 +154,7 @@ $("#id_description").autocomplete({
   minLength: 2,
   select: function( event, ui )
   {
-	$("#id_producto").val(ui.item.code);
+	$("#id_product").val(ui.item.code);
 	$("#id_description").val(ui.item.label);
 	return false;
   },

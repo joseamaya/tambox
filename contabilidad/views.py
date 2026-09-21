@@ -195,15 +195,15 @@ class EliminarFormaPago(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            forma_pago = FormaPago.objects.get(pk=code)
+            payment_method = FormaPago.objects.get(pk=code)
             forma_pago_json = {}
-            forma_pago_json['code'] = forma_pago.code
-            forma_pago_json['description'] = forma_pago.description
-            if len(forma_pago.purchase_orders.all()) > 0:
+            forma_pago_json['code'] = payment_method.code
+            forma_pago_json['description'] = payment_method.description
+            if len(payment_method.purchase_orders.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
-            elif len(forma_pago.detalleordencompra_set.all()) > 0:
+            elif len(payment_method.detalleordencompra_set.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
-            elif len(forma_pago.detallemovimiento_set.all()) > 0:
+            elif len(payment_method.detallemovimiento_set.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
             else:
                 forma_pago_json['relaciones'] = 'NO'
@@ -449,10 +449,10 @@ class ReporteExcelFormasPago(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'DIAS_CREDITO'
         cont = 4
-        for forma_pago in formas_pago:
-            ws.cell(row=cont, column=2).value = forma_pago.code
-            ws.cell(row=cont, column=3).value = forma_pago.description
-            ws.cell(row=cont, column=4).value = forma_pago.credit_days
+        for payment_method in formas_pago:
+            ws.cell(row=cont, column=2).value = payment_method.code
+            ws.cell(row=cont, column=3).value = payment_method.description
+            ws.cell(row=cont, column=4).value = payment_method.credit_days
             cont = cont + 1
         nombre_archivo = "ListadoFormasPago.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

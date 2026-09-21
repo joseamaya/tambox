@@ -37,15 +37,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for producto in productos %}
+            {% for product in productos %}
             {% if perms.productos.ver_detalle_producto %}
-            <tr onclick="location.href='{% url 'productos:detalle_producto' producto.pk %}';">
+            <tr onclick="location.href='{% url 'productos:detalle_producto' product.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ producto.code }}</td>
-                <td>{{ producto.description }}</td>
-                <td>{{ producto.grupo_productos }}</td>
+                <td>{{ product.code }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.product_group }}</td>
             </tr>
             {% endfor %}
             </tbody>

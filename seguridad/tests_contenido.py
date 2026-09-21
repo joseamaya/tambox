@@ -1,7 +1,7 @@
 """Afirman valores renderizados, no solo que la pagina responda.
 
 Django pinta vacio, sin error, cuando una plantilla referencia un campo que ya no
-existe: `{{ producto.description }}` deja la celda en blanco y `{% if campo %}` se
+existe: `{{ product.description }}` deja la celda en blanco y `{% if campo %}` se
 vuelve falso. El test que recorre todas las URLs solo ve errores duros, asi que sin
 estos tests un renombrado puede dejar una columna vacia con la suite en verde.
 
@@ -38,7 +38,7 @@ class ContenidoDeLasPaginasTest(TestCase):
 
     def test_la_lista_de_movimientos_muestra_el_tipo(self):
         tipo = baker.make(TipoMovimiento, description='TIPO-XYZ')
-        baker.make(Movimiento, tipo_movimiento=tipo)
+        baker.make(Movimiento, movement_type=tipo)
 
         respuesta = self.client.get(reverse('almacen:movimientos'))
 
@@ -46,11 +46,11 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'TIPO-XYZ')
 
     def test_el_detalle_de_movimiento_muestra_el_producto(self):
-        producto = baker.make(Producto, description='PRODUCTO-XYZ')
-        movimiento = baker.make(Movimiento)
-        baker.make('almacen.DetalleMovimiento', movimiento=movimiento, producto=producto)
+        product = baker.make(Producto, description='PRODUCTO-XYZ')
+        movement = baker.make(Movimiento)
+        baker.make('almacen.DetalleMovimiento', movement=movement, product=product)
 
-        respuesta = self.client.get(reverse('almacen:detalle_movimiento', args=[movimiento.pk]))
+        respuesta = self.client.get(reverse('almacen:detalle_movimiento', args=[movement.pk]))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
@@ -67,16 +67,16 @@ class ContenidoDeLasPaginasTest(TestCase):
         """La vista lee `request.user.worker`, asi que el grafo tiene que
         colgar del usuario que navega, no de uno cualquiera."""
         NivelAprobacion.objects.get_or_create(description='USUARIO')
-        oficina = baker.make(Oficina)
-        trabajador = baker.make(Trabajador, user=self.usuario)
-        baker.make(Puesto, oficina=oficina, trabajador=trabajador, end_date=None)
-        requerimiento = baker.make(Requerimiento, solicitante=trabajador, oficina=oficina)
-        producto = baker.make(Producto, description='PRODUCTO-XYZ')
+        office = baker.make(Oficina)
+        worker = baker.make(Trabajador, user=self.usuario)
+        baker.make(Puesto, office=office, worker=worker, end_date=None)
+        requirement = baker.make(Requerimiento, requester=worker, office=office)
+        product = baker.make(Producto, description='PRODUCTO-XYZ')
         baker.make('requerimientos.DetalleRequerimiento',
-                   requerimiento=requerimiento, producto=producto)
+                   requirement=requirement, product=product)
 
-        respuesta = self.client.get(reverse('requerimientos:detalle_requerimiento',
-                                            args=[requerimiento.code]))
+        respuesta = self.client.get(reverse('requerimientos:requirement_detail',
+                                            args=[requirement.code]))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')

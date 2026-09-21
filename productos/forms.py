@@ -27,7 +27,7 @@ class GrupoProductosForm(forms.ModelForm):
 
     class Meta:
         model = GrupoProductos
-        fields = ['description', 'ctacontable', 'contains_products']
+        fields = ['description', 'account', 'contains_products']
 
 
 class ProductoForm(forms.ModelForm):
@@ -48,7 +48,7 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['description', 'grupo_productos', 'unidad_medida', 'brand', 'model', 'price', 'tipo_existencia']
+        fields = ['description', 'product_group', 'unit_of_measure', 'brand', 'model', 'price', 'stock_type']
 
 
 class ServicioForm(forms.ModelForm):
@@ -66,4 +66,4 @@ class ServicioForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['description', 'grupo_productos', 'price']
+        fields = ['description', 'product_group', 'price']

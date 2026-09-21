@@ -36,14 +36,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for profesion in profesiones %}
+            {% for profession in profesiones %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:detalle_profesion' profesion.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:detalle_profesion' profession.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ profesion.abbreviation }}</td>
-                <td>{{ profesion.description }}</td>
+                <td>{{ profession.abbreviation }}</td>
+                <td>{{ profession.description }}</td>
             </tr>
             {% endfor %}
             </tbody>

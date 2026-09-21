@@ -37,22 +37,22 @@
             </tr>
             </thead>
             <tbody>
-            {% for requerimiento in requerimientos %}
+            {% for requirement in requerimientos %}
             {% if perms.requerimientos.ver_detalle_requerimiento %}
-            <tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.code %}';">
+            <tr onclick="location.href='{% url 'requerimientos:requirement_detail' requirement.code %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ requerimiento.code }}</td>
-                <td>{{ requerimiento.oficina }}</td>
-                <td>{{ requerimiento.approval.level }}</td>
-                {% if requerimiento.approval.is_active %}
+                <td>{{ requirement.code }}</td>
+                <td>{{ requirement.office }}</td>
+                <td>{{ requirement.approval.level }}</td>
+                {% if requirement.approval.is_active %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>
                 {% endif %}
-                <td>{{ requerimiento.get_status_display }}</td>
-                <td>{{ requerimiento.created|date:"d/m/y" }}</td>
+                <td>{{ requirement.get_status_display }}</td>
+                <td>{{ requirement.created|date:"d/m/y" }}</td>
             </tr>
             {% endfor %}
             </tbody>

@@ -20,20 +20,20 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         self.fields['rejection_reason'].required = False
 
     def clean(self):
-        oficina = self.instance.obtener_oficina_aprobacion_superior()
-        if oficina is not None:
+        office = self.instance.obtener_oficina_aprobacion_superior()
+        if office is not None:
             try:
-                puesto_jefe = Puesto.objects.get(oficina=oficina, is_leadership=True, is_active=True)
-                jefe = puesto_jefe.trabajador
+                puesto_jefe = Puesto.objects.get(office=office, is_leadership=True, is_active=True)
+                jefe = puesto_jefe.worker
                 destinatario = jefe.user.email
-                correo_creacion_requerimiento(destinatario, self.instance.requerimiento)
+                correo_creacion_requerimiento(destinatario, self.instance.requirement)
             except Puesto.DoesNotExist:
                 raise ValidationError("No existe el puesto superior, imposible continuar.")
 
     def save(self, *args, **kwargs):
         usuario = self.request.user
         puesto_usuario = usuario.worker.puesto
-        oficina_requerimiento = self.instance.requerimiento.oficina
+        oficina_requerimiento = self.instance.requirement.office
         self.instance.level = puesto_usuario.establecer_nivel(oficina_requerimiento)
         return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
 
@@ -68,7 +68,7 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
 class FormularioDetalleRequerimiento(forms.Form):
     code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
     quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
-    producto = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(required=False,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     use = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
@@ -107,7 +107,7 @@ class RequerimientoForm(forms.ModelForm):
                 })
 
     def save(self, *args, **kwargs):
-        self.instance.solicitante = self.request.user.worker
+        self.instance.requester = self.request.user.worker
         return super(RequerimientoForm, self).save(*args, **kwargs)
 
     class Meta:

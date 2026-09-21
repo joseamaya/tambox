@@ -95,21 +95,21 @@ class MovimientoForm(forms.ModelForm):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
-        self.tipo_movimiento = kwargs.pop("tipo_movimiento")
+        self.movement_type = kwargs.pop("movement_type")
         super(MovimientoForm, self).__init__(*args, **kwargs)
         self.fields['movement_id'].required = False
         self.fields['document_type'].required = False
         self.fields['series'].required = False
         self.fields['number'].required = False
         self.fields['notes'].required = False
-        self.fields['oficina'].required = False
+        self.fields['office'].required = False
         self.fields['dni_receptor'].required = False
         self.fields['receptor'].required = False
         self.fields['doc_referencia'].required = False
-        if self.tipo_movimiento == 'I':
-            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(increases=True)
-        elif self.tipo_movimiento == 'S':
-            self.fields['tipo_movimiento'].queryset = TipoMovimiento.objects.filter(increases=False)
+        if self.movement_type == 'I':
+            self.fields['movement_type'].queryset = TipoMovimiento.objects.filter(increases=True)
+        elif self.movement_type == 'S':
+            self.fields['movement_type'].queryset = TipoMovimiento.objects.filter(increases=False)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -118,7 +118,7 @@ class MovimientoForm(forms.ModelForm):
     def clean_dni_receptor(self):
         dni_receptor = self.cleaned_data.get('dni_receptor')
         if dni_receptor != "":
-            if self.cleaned_data['tipo_movimiento'].is_sale:
+            if self.cleaned_data['movement_type'].is_sale:
                 try:
                     Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
                 except Productor.DoesNotExist:
@@ -142,27 +142,27 @@ class MovimientoForm(forms.ModelForm):
         return date
 
     def save(self, *args, **kwargs):
-        if self.tipo_movimiento == 'I':
+        if self.movement_type == 'I':
             try:
-                self.instance.referencia = OrdenCompra.objects.get(code=self.cleaned_data['doc_referencia'])
+                self.instance.reference = OrdenCompra.objects.get(code=self.cleaned_data['doc_referencia'])
             except ObjectDoesNotExist:
-                self.instance.referencia = None
-        if self.cleaned_data['tipo_movimiento'].is_sale:
+                self.instance.reference = None
+        if self.cleaned_data['movement_type'].is_sale:
             try:
-                self.instance.productor = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.producer = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
-                self.instance.productor = None
+                self.instance.producer = None
         else:
             try:
-                self.instance.trabajador = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.worker = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
-                self.instance.trabajador = None
+                self.instance.worker = None
         self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Movimiento
-        fields = ['movement_id', 'tipo_movimiento', 'document_type', 'series', 'number', 'almacen', 'oficina',
+        fields = ['movement_id', 'movement_type', 'document_type', 'series', 'number', 'almacen', 'office',
                   'notes']
 
 
@@ -188,7 +188,7 @@ class FormularioMovimientosProducto(forms.Form):
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
     def clean_hasta(self):
@@ -201,7 +201,7 @@ class FormularioReprocesoPrecio(forms.Form):
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     seleccion = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
 
@@ -211,7 +211,7 @@ class FormularioConsultaStock(forms.Form):
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
 
 
@@ -251,9 +251,9 @@ class PedidoForm(forms.ModelForm):
                 })
 
     def save(self, *args, **kwargs):
-        self.instance.solicitante = self.request.user.worker
+        self.instance.requester = self.request.user.worker
         puestos = self.request.user.worker.positions.all().filter(is_active=True)
-        self.instance.oficina = puestos[0].oficina
+        self.instance.office = puestos[0].office
         return super(PedidoForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -291,10 +291,10 @@ class AprobacionPedidoForm(forms.ModelForm):
         return date
 
     def save(self, *args, **kwargs):
-        self.instance.pedido = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
+        self.instance.order = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
         self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
-        self.instance.tipo_movimiento = TipoMovimiento.objects.get(code="S01")
-        self.instance.oficina = self.instance.pedido.oficina
+        self.instance.movement_type = TipoMovimiento.objects.get(code="S01")
+        self.instance.office = self.instance.order.office
         return super(AprobacionPedidoForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -350,7 +350,7 @@ class BaseDetalleIngresoFormSet(formsets.BaseFormSet):
 
 
 class FormularioDetalleSalida(forms.Form):
-    pedido = forms.CharField(widget=forms.HiddenInput(), required=False)
+    order = forms.CharField(widget=forms.HiddenInput(), required=False)
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))

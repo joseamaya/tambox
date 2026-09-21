@@ -66,32 +66,32 @@ class ReporteOrdenCompra():
         return tabla_encabezado
 
     def tabla_datos(self, styles):
-        orden = self.orden_compra
+        order = self.orden_compra
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
-        cotizacion = orden.cotizacion
-        if cotizacion is None:
-            proveedor = orden.proveedor
+        quotation = order.quotation
+        if quotation is None:
+            supplier = order.supplier
         else:
-            proveedor = orden.cotizacion.proveedor
-        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + proveedor.business_name, izquierda)
-        ruc_proveedor = Paragraph(u"R.U.C.: " + proveedor.tax_id, izquierda)
-        address = Paragraph(u"DIRECCIÓN: " + proveedor.address, izquierda)
+            supplier = order.quotation.supplier
+        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + supplier.business_name, izquierda)
+        ruc_proveedor = Paragraph(u"R.U.C.: " + supplier.tax_id, izquierda)
+        address = Paragraph(u"DIRECCIÓN: " + supplier.address, izquierda)
         try:
-            phone = Paragraph(u"TELÉFONO: " + proveedor.phone, izquierda)
+            phone = Paragraph(u"TELÉFONO: " + supplier.phone, izquierda)
         except TypeError:
             phone = Paragraph(u"TELÉFONO: -", izquierda)
         try:
-            referencia = Paragraph(
-                u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name,
+            reference = Paragraph(
+                u"REFERENCIA: " + order.quotation.requirement.code + " - " + order.quotation.requirement.office.name,
                 izquierda)
         except (ObjectDoesNotExist, AttributeError):
-            referencia = Paragraph(u"REFERENCIA: ", izquierda)
-        process = Paragraph(u"PROCESO: " + orden.process, izquierda)
+            reference = Paragraph(u"REFERENCIA: ", izquierda)
+        process = Paragraph(u"PROCESO: " + order.process, izquierda)
         nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ", izquierda)
-        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [referencia, ''], [process, ''],
+        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [reference, ''], [process, ''],
                  [nota, '']]
         tabla_detalle = Table(datos, colWidths=[11 * cm, 9 * cm])
         tabla_detalle.setStyle(TableStyle(
@@ -102,9 +102,9 @@ class ReporteOrdenCompra():
         return tabla_detalle
 
     def tabla_detalle(self):
-        orden = self.orden_compra
+        order = self.orden_compra
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = DetalleOrdenCompra.objects.filter(orden=orden).order_by('pk')
+        detalles = DetalleOrdenCompra.objects.filter(order=order).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -115,16 +115,16 @@ class ReporteOrdenCompra():
                 tupla_producto = [Paragraph(str(detalle.line_number), sp),
                                   Paragraph(str(detalle.quantity), sp),
                                   Paragraph(
-                                      detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
+                                      detalle.quotation_detail.requirement_detail.product.unit_of_measure.description,
                                       sp),
-                                  Paragraph(detalle.detalle_cotizacion.detalle_requerimiento.producto.description, sp),
+                                  Paragraph(detalle.quotation_detail.requirement_detail.product.description, sp),
                                   Paragraph(str(detalle.price), sp),
                                   Paragraph(str(detalle.amount), sp)]
             except (ObjectDoesNotExist, AttributeError):
                 tupla_producto = [Paragraph(str(detalle.line_number), sp),
                                   Paragraph(str(detalle.quantity), sp),
-                                  Paragraph(detalle.producto.unidad_medida.description, sp),
-                                  Paragraph(detalle.producto.description, sp),
+                                  Paragraph(detalle.product.unit_of_measure.description, sp),
+                                  Paragraph(detalle.product.description, sp),
                                   Paragraph(str(detalle.price), sp),
                                   Paragraph(str(detalle.amount), sp)]
             lista_detalles.append(tupla_producto)
@@ -144,8 +144,8 @@ class ReporteOrdenCompra():
         return tabla_detalle
 
     def tabla_total_letras(self):
-        orden = self.orden_compra
-        total_in_words = [("SON: " + orden.total_in_words, '')]
+        order = self.orden_compra
+        total_in_words = [("SON: " + order.total_in_words, '')]
         tabla_total_letras = Table(total_in_words, colWidths=[17.5 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
@@ -156,7 +156,7 @@ class ReporteOrdenCompra():
         return tabla_total_letras
 
     def tabla_otros(self):
-        orden = self.orden_compra
+        order = self.orden_compra
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
@@ -166,10 +166,10 @@ class ReporteOrdenCompra():
         total = Paragraph(u"TOTAL: ", p)
         datos_otros = [
             [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
-             sub_total, orden.subtotal],
-            [Paragraph(empresa().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(orden.forma_pago.description, p),
-             igv, str(orden.igv)],
-            ['', '', '', total, str(orden.total)],
+             sub_total, order.subtotal],
+            [Paragraph(empresa().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(order.payment_method.description, p),
+             igv, str(order.igv)],
+            ['', '', '', total, str(order.total)],
             ]
         tabla_otros = Table(datos_otros, colWidths=[5.5 * cm, 5 * cm, 5 * cm, 2 * cm, 2.5 * cm])
         tabla_otros.setStyle(TableStyle(
@@ -185,12 +185,12 @@ class ReporteOrdenCompra():
         return tabla_otros
 
     def tabla_observaciones(self):
-        orden = self.orden_compra
+        order = self.orden_compra
         p = ParagraphStyle('parrafos',
                            alignment=TA_JUSTIFY,
                            fontSize=8,
                            fontName="Times-Roman")
-        obs = Paragraph("OBSERVACIONES: " + orden.notes, p)
+        obs = Paragraph("OBSERVACIONES: " + order.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -274,14 +274,14 @@ class ReporteOrdenCompra():
         return pdf
 
 
-def reporte_xls_orden_compra(orden):
+def reporte_xls_orden_compra(order):
     """Construye el libro de Excel de la orden de compra."""
     detalle_index = 0
-    cotizacion = orden.cotizacion
-    if cotizacion is None:
-        proveedor = orden.proveedor
+    quotation = order.quotation
+    if quotation is None:
+        supplier = order.supplier
     else:
-        proveedor = orden.cotizacion.proveedor
+        supplier = order.quotation.supplier
     wb = Workbook()
     ws = wb.active
 
@@ -333,13 +333,13 @@ def reporte_xls_orden_compra(orden):
     ws['C14'].alignment = Alignment(horizontal="center")
     ws['C14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C14'] = orden.proveedor.business_name
+    ws['C14'] = order.supplier.business_name
     ws['H14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H14'] = 'FECHA'
     ws['I14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I14'] = orden.date
+    ws['I14'] = order.date
     ws['B15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['B15'] = 'CONTACTO'
@@ -353,7 +353,7 @@ def reporte_xls_orden_compra(orden):
     ws['H15'] = 'RUC/NIT'
     ws['I15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I15'] = proveedor.tax_id
+    ws['I15'] = supplier.tax_id
     ws['B16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['B16'] = 'DIRECCIÓN'
@@ -361,14 +361,14 @@ def reporte_xls_orden_compra(orden):
     ws['C16'].alignment = Alignment(horizontal="center")
     ws['C16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C16'] = proveedor.address
+    ws['C16'] = supplier.address
     ws['H16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H16'] = 'TELÉFONO'
     ws['I16'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     try:
-        ws['I16'] = proveedor.phone
+        ws['I16'] = supplier.phone
     except TypeError:
         ws['I16'] = '-'
     ws['B17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -378,7 +378,7 @@ def reporte_xls_orden_compra(orden):
     ws['C14'].alignment = Alignment(horizontal="center")
     ws['C17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['C17'] = proveedor.email
+    ws['C17'] = supplier.email
     ws['H17'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['H17'] = 'RPM/RPC'
@@ -507,17 +507,17 @@ def reporte_xls_orden_compra(orden):
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['I30'] = 'TOTAL'
 
-    for item in DetalleOrdenCompra.objects.filter(orden=orden):
+    for item in DetalleOrdenCompra.objects.filter(order=order):
         fila = 31 + detalle_index
         ws['B' + str(fila)].alignment = Alignment(horizontal="center")
         ws['B' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['B' + str(fila)] = item.producto.unidad_medida.description
+        ws['B' + str(fila)] = item.product.unit_of_measure.description
         ws.merge_cells('C' + str(fila) + ':F' + str(fila))
         ws['C' + str(fila)].alignment = Alignment(horizontal="center")
         ws['C' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['C' + str(fila)] = item.producto.description
+        ws['C' + str(fila)] = item.product.description
         ws['G' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws['G' + str(fila)] = item.quantity
@@ -537,7 +537,7 @@ def reporte_xls_orden_compra(orden):
     ws['G' + str(fila_total)] = 'SUBTOTAL'
     ws['I' + str(fila_total)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total)] = orden.subtotal
+    ws['I' + str(fila_total)] = order.subtotal
     ws.merge_cells('G' + str(fila_total + 1) + ':H' + str(fila_total + 1))
     ws['G' + str(fila_total + 1)].alignment = Alignment(horizontal="center")
     ws['G' + str(fila_total + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -545,7 +545,7 @@ def reporte_xls_orden_compra(orden):
     ws['G' + str(fila_total + 1)] = 'IMPUESTO 18% IGV'
     ws['I' + str(fila_total + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total + 1)] = orden.impuesto
+    ws['I' + str(fila_total + 1)] = order.impuesto
     ws.merge_cells('G' + str(fila_total + 2) + ':H' + str(fila_total + 2))
     ws['G' + str(fila_total + 2)].alignment = Alignment(horizontal="center")
     ws['G' + str(fila_total + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -553,13 +553,13 @@ def reporte_xls_orden_compra(orden):
     ws['G' + str(fila_total + 2)] = 'TOTAL'
     ws['I' + str(fila_total + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total + 2)] = orden.total
+    ws['I' + str(fila_total + 2)] = order.total
 
     ws['B' + str(fila_total + 7)] = 'SON:'
     ws.merge_cells('C' + str(fila_total + 7) + ':I' + str(fila_total + 7))
     ws['C' + str(fila_total + 7)].font = Font(underline="single")
     ws['C' + str(fila_total + 7)].alignment = Alignment(horizontal="center")
-    ws['C' + str(fila_total + 7)] = orden.total_in_words
+    ws['C' + str(fila_total + 7)] = order.total_in_words
 
     fila_pago = fila_total + 9
     ws.merge_cells('E' + str(fila_pago) + ':F' + str(fila_pago))
@@ -568,7 +568,7 @@ def reporte_xls_orden_compra(orden):
     ws.merge_cells('G' + str(fila_pago) + ':I' + str(fila_pago))
     ws['G' + str(fila_pago)].alignment = Alignment(horizontal="center")
     ws['G' + str(fila_pago)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago)] = orden.forma_pago.description
+    ws['G' + str(fila_pago)] = order.payment_method.description
     ws.merge_cells('E' + str(fila_pago + 1) + ':F' + str(fila_pago + 1))
     ws['E' + str(fila_pago + 1)] = 'BANCO'
     ws.merge_cells('G' + str(fila_pago + 1) + ':I' + str(fila_pago + 1))
@@ -618,7 +618,7 @@ def reporte_xls_orden_compra(orden):
 
 class PDFSolicitudCotizacion(object):
 
-    def cabecera(self, pdf, cotizacion):
+    def cabecera(self, pdf, quotation):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
@@ -636,29 +636,29 @@ class PDFSolicitudCotizacion(object):
         ))
         tabla_encabezado.wrapOn(pdf, 800, 600)
         tabla_encabezado.drawOn(pdf, 200, 800)
-        pdf.drawString(270, 780, u"N°" + cotizacion.code)
+        pdf.drawString(270, 780, u"N°" + quotation.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + cotizacion.proveedor.business_name)
-        pdf.drawString(440, 750, u"R.U.C.: " + cotizacion.proveedor.tax_id)
-        address = cotizacion.proveedor.address
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + quotation.supplier.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + quotation.supplier.tax_id)
+        address = quotation.supplier.address
         if len(address) > 60:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
             pdf.drawString(105, 720, address[60:])
         else:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + cotizacion.proveedor.phone)
+            pdf.drawString(440, 730, u"TELÉFONO: " + quotation.supplier.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
-        pdf.drawString(40, 710, u"FECHA: " + cotizacion.date.strftime('%d/%m/%Y'))
+        pdf.drawString(40, 710, u"FECHA: " + quotation.date.strftime('%d/%m/%Y'))
 
-    def detalle(self, pdf, y, cotizacion):
+    def detalle(self, pdf, y, quotation):
         encabezados = ('Nro', 'Descripción', 'Unidad', 'Cantidad')
-        detalles = cotizacion.details.all()
+        detalles = quotation.details.all()
         lista_detalles = []
         for detalle in detalles:
-            tupla_producto = (detalle.line_number, detalle.detalle_requerimiento.producto.description,
-                              detalle.detalle_requerimiento.producto.unidad_medida.description, detalle.quantity)
+            tupla_producto = (detalle.line_number, detalle.requirement_detail.product.description,
+                              detalle.requirement_detail.product.unit_of_measure.description, detalle.quantity)
             lista_detalles.append(tupla_producto)
         adicionales = [('', '', '', '')] * (15 - len(detalles))
         tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
@@ -674,12 +674,12 @@ class PDFSolicitudCotizacion(object):
         tabla_detalle.wrapOn(pdf, 800, 600)
         tabla_detalle.drawOn(pdf, 40, y + 80)
 
-    def cuadro_observaciones(self, pdf, y, cotizacion):
+    def cuadro_observaciones(self, pdf, y, quotation):
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        obs = Paragraph("OBSERVACIONES: " + cotizacion.notes, p)
+        obs = Paragraph("OBSERVACIONES: " + quotation.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[18 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -693,16 +693,16 @@ class PDFSolicitudCotizacion(object):
         tabla_observaciones.wrapOn(pdf, 800, 600)
         tabla_observaciones.drawOn(pdf, 40, y + 20)
 
-    def imprimir(self, cotizacion):
+    def imprimir(self, quotation):
         """Devuelve el PDF ya generado."""
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
-        self.cabecera(pdf, cotizacion)
+        self.cabecera(pdf, quotation)
         y = 300
-        self.detalle(pdf, y, cotizacion)
-        self.cuadro_observaciones(pdf, y, cotizacion)
+        self.detalle(pdf, y, quotation)
+        self.cuadro_observaciones(pdf, y, quotation)
         ''''
-        self.firmas(pdf, y, cotizacion)'''
+        self.firmas(pdf, y, quotation)'''
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()
@@ -713,33 +713,33 @@ class PDFSolicitudCotizacion(object):
 
 class PDFMemorandoConformidadServicio(object):
 
-    def obtener_puesto(self, oficina, conformidad):
+    def obtener_puesto(self, office, conformity):
         try:
-            puesto = Puesto.objects.get(oficina=oficina,
+            puesto = Puesto.objects.get(office=office,
                                         is_leadership=True,
-                                        start_date__lte=conformidad.date,
+                                        start_date__lte=conformity.date,
                                         end_date=None)
         except Puesto.DoesNotExist:
-            puesto = Puesto.objects.get(oficina=oficina,
+            puesto = Puesto.objects.get(office=office,
                                         is_leadership=True,
-                                        start_date__lte=conformidad.date,
-                                        end_date__gte=conformidad.date)
+                                        start_date__lte=conformity.date,
+                                        end_date__gte=conformity.date)
         return puesto
 
-    def puesto_superior(self, oficina, conformidad):
+    def puesto_superior(self, office, conformity):
         try:
-            puesto_superior = Puesto.objects.get(oficina=oficina,
+            puesto_superior = Puesto.objects.get(office=office,
                                                  is_leadership=True,
-                                                 start_date__lte=conformidad.date,
+                                                 start_date__lte=conformity.date,
                                                  end_date=None)
         except Puesto.DoesNotExist:
-            puesto_superior = Puesto.objects.get(oficina=oficina,
+            puesto_superior = Puesto.objects.get(office=office,
                                                  is_leadership=True,
-                                                 start_date__lte=conformidad.date,
-                                                 end_date__gte=conformidad.date)
+                                                 start_date__lte=conformity.date,
+                                                 end_date__gte=conformity.date)
         return puesto_superior
 
-    def cabecera(self, pdf, conformidad):
+    def cabecera(self, pdf, conformity):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
@@ -748,32 +748,32 @@ class PDFMemorandoConformidadServicio(object):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(130, 750, u"MEMORANDO DE CONFORMIDAD DEL SERVICIO")
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 730, u"N°" + conformidad.code)
+        pdf.drawString(250, 730, u"N°" + conformity.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + conformidad.date.strftime('%d de %b de %Y'))
-        pdf.drawString(475, 710, conformidad.orden_servicios.code)
-        requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
-        gerencia_inmediata = requerimiento.oficina.gerencia
-        solicitante = requerimiento.solicitante
-        puesto_solicitante = solicitante.puesto
+        pdf.drawString(430, 780, empresa().district + " " + conformity.date.strftime('%d de %b de %Y'))
+        pdf.drawString(475, 710, conformity.service_order.code)
+        requirement = conformity.service_order.quotation.requirement
+        gerencia_inmediata = requirement.office.gerencia
+        requester = requirement.requester
+        puesto_solicitante = requester.puesto
         if puesto_solicitante is None:
-            puesto_solicitante = self.obtener_puesto(requerimiento.oficina, conformidad)
-        puesto_jefe_inmediato = self.puesto_superior(requerimiento.oficina, conformidad)
-        jefe_inmediato = puesto_jefe_inmediato.trabajador
+            puesto_solicitante = self.obtener_puesto(requirement.office, conformity)
+        puesto_jefe_inmediato = self.puesto_superior(requirement.office, conformity)
+        jefe_inmediato = puesto_jefe_inmediato.worker
         y = 690
-        if puesto_solicitante.oficina.code == 'GGEN':
-            puesto_gerente = self.obtener_puesto(configuracion().administracion, conformidad)
-        elif puesto_solicitante.oficina.code == 'GOPE' and not puesto_solicitante.is_leadership:
-            puesto_gerente = self.obtener_puesto(requerimiento.oficina, conformidad)
+        if puesto_solicitante.office.code == 'GGEN':
+            puesto_gerente = self.obtener_puesto(configuracion().administracion, conformity)
+        elif puesto_solicitante.office.code == 'GOPE' and not puesto_solicitante.is_leadership:
+            puesto_gerente = self.obtener_puesto(requirement.office, conformity)
         else:
-            puesto_gerente = self.obtener_puesto(gerencia_inmediata, conformidad)
-        gerente = puesto_gerente.trabajador
+            puesto_gerente = self.obtener_puesto(gerencia_inmediata, conformity)
+        gerente = puesto_gerente.worker
         if puesto_gerente.pk == puesto_jefe_inmediato.pk or puesto_jefe_inmediato.pk == puesto_solicitante.pk:
             pdf.drawString(50, y, u"A           :    " + gerente.nombre_completo())
             y = y - 20
             pdf.drawString(50, y, u"                   " + puesto_gerente.name)
             y = y - 20
-            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.trabajador.nombre_completo())
+            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.worker.nombre_completo())
             y = y - 20
             pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
             y = y - 50
@@ -786,7 +786,7 @@ class PDFMemorandoConformidadServicio(object):
             y = y - 20
             pdf.drawString(50, y, u"                   " + puesto_jefe_inmediato.name)
             y = y - 20
-            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.trabajador.nombre_completo())
+            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.worker.nombre_completo())
             y = y - 20
             pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
             y = y - 30
@@ -796,12 +796,12 @@ class PDFMemorandoConformidadServicio(object):
         estilo_parrafo.fontName = "Times-Roman"
         cadena_parrafo = u"""Mediante el presente comunico a Ud. que el servicio requerido con REQ DE BIENES Y SERV. N° %s, 
         ha sido concluido a satisfacción, según %s, lo que comunicamos para que proceda al pago del servicio correspondiente que 
-        se detalla como sigue: """ % (requerimiento.code, conformidad.supporting_document)
+        se detalla como sigue: """ % (requirement.code, conformity.supporting_document)
         p1 = Paragraph(cadena_parrafo, estilo_parrafo)
         p1.wrapOn(pdf, 500, y - 20)
         p1.drawOn(pdf, 40, y - 20)
 
-    def detalle(self, pdf, y, conformidad):
+    def detalle(self, pdf, y, conformity):
         encabezados = ('ITEM', 'DETALLE DEL SERVICIO')
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
@@ -809,8 +809,8 @@ class PDFMemorandoConformidadServicio(object):
         p.fontName = "Times-Roman"
         detalles = []
         cont = 0
-        for detalle in DetalleConformidadServicio.objects.filter(conformidad=conformidad):
-            description = detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description + '-' + detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.use
+        for detalle in DetalleConformidadServicio.objects.filter(conformity=conformity):
+            description = detalle.service_order_detail.quotation_detail.requirement_detail.product.description + '-' + detalle.service_order_detail.quotation_detail.requirement_detail.use
             if len(description) > 58:
                 cont = cont + 1
             detalles.append((detalle.line_number, Paragraph(description, p)))
@@ -832,13 +832,13 @@ class PDFMemorandoConformidadServicio(object):
         pdf.drawString(x_texto, y_texto, texto)
         pdf.line(x_ini_linea, y_linea, x_fin_linea, y_linea)
 
-    def imprimir(self, conformidad):
+    def imprimir(self, conformity):
         """Devuelve el PDF ya generado."""
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
-        self.cabecera(pdf, conformidad)
+        self.cabecera(pdf, conformity)
         y = 300
-        self.detalle(pdf, y, conformidad)
+        self.detalle(pdf, y, conformity)
         pdf.setFont("Times-Roman", 8)
         self.signature(pdf, 170, y - 50, "GERENCIA", 120, 265, y - 40)
         self.signature(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
@@ -855,7 +855,7 @@ class PDFMemorandoConformidadServicio(object):
 
 class PDFOrdenServicios(object):
 
-    def cabecera(self, pdf, orden):
+    def cabecera(self, pdf, order):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
@@ -866,38 +866,38 @@ class PDFOrdenServicios(object):
         pdf.setFont("Times-Roman", 11)
         pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 780, u"N°" + orden.code)
+        pdf.drawString(250, 780, u"N°" + order.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + orden.date.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().district + " " + order.date.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
-        cotizacion = orden.cotizacion
-        if cotizacion is None:
-            proveedor = orden.proveedor
+        quotation = order.quotation
+        if quotation is None:
+            supplier = order.supplier
         else:
-            proveedor = orden.cotizacion.proveedor
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.business_name)
-        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.tax_id)
-        address = proveedor.address
+            supplier = order.quotation.supplier
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + supplier.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + supplier.tax_id)
+        address = supplier.address
         if len(address) > 60:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
             pdf.drawString(105, 720, address[60:])
         else:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.phone)
+            pdf.drawString(440, 730, u"TELÉFONO: " + supplier.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name)
+                           u"REFERENCIA: " + order.quotation.requirement.code + " - " + order.quotation.requirement.office.name)
         except (ObjectDoesNotExist, AttributeError):
-            pdf.drawString(40, 710, u"REFERENCIA: " + orden.report_name)
+            pdf.drawString(40, 710, u"REFERENCIA: " + order.report_name)
 
-        pdf.drawString(40, 690, u"PROCESO: " + orden.process)
+        pdf.drawString(40, 690, u"PROCESO: " + order.process)
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(40, 670, u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ")
 
-    def detalle(self, pdf, y, orden):
+    def detalle(self, pdf, y, order):
         encabezados = ('Item', 'Cantidad', u'Descripción', 'Precio', 'Total')
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
@@ -906,21 +906,21 @@ class PDFOrdenServicios(object):
         detalles = []
         cont = 0
 
-        for detalle in DetalleOrdenServicios.objects.filter(orden=orden):
+        for detalle in DetalleOrdenServicios.objects.filter(order=order):
             try:
-                description = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
+                description = detalle.quotation_detail.requirement_detail.product.description
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
                     (detalle.line_number, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
             except (ObjectDoesNotExist, AttributeError):
-                description = detalle.producto.description
+                description = detalle.product.description
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
                     (detalle.line_number, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
 
-        # detalles = [(detalle.line_number, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
+        # detalles = [(detalle.line_number, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(order=order)]
         adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
@@ -936,7 +936,7 @@ class PDFOrdenServicios(object):
         detalle_orden.wrapOn(pdf, 800, 600)
         detalle_orden.drawOn(pdf, 40, y + 75)
         # Letras
-        total_in_words = [("SON: " + orden.total_in_words, '')]
+        total_in_words = [("SON: " + order.total_in_words, '')]
         tabla_total_letras = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
@@ -947,7 +947,7 @@ class PDFOrdenServicios(object):
         tabla_total_letras.wrapOn(pdf, 800, 600)
         tabla_total_letras.drawOn(pdf, 40, y + 55)
 
-    def otros(self, pdf, y, orden):
+    def otros(self, pdf, y, order):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
         otros = [('', u" DÍAS", "")]
         tabla_otros = Table([encabezados_otros] + otros, colWidths=[6 * cm, 3.5 * cm, 4.5 * cm],
@@ -961,11 +961,11 @@ class PDFOrdenServicios(object):
         tabla_otros.wrapOn(pdf, 800, 600)
         tabla_otros.drawOn(pdf, 40, y + 5)
 
-    def cuadro_total(self, pdf, y, orden):
+    def cuadro_total(self, pdf, y, order):
         pdf.drawString(445, y + 40, u"SUB-TOTAL: ")
         pdf.drawString(445, y + 20, u"IGV: ")
         pdf.drawString(445, y, u"TOTAL: ")
-        total = [[orden.subtotal], [str(orden.impuesto)], [str(orden.total)]]
+        total = [[order.subtotal], [str(order.impuesto)], [str(order.total)]]
         tabla_total = Table(total, colWidths=[2.5 * cm])
         tabla_total.setStyle(TableStyle(
             [
@@ -977,12 +977,12 @@ class PDFOrdenServicios(object):
         tabla_total.wrapOn(pdf, 800, 600)
         tabla_total.drawOn(pdf, 495, y - 2)
 
-    def cuadro_observaciones(self, pdf, y, orden):
+    def cuadro_observaciones(self, pdf, y, order):
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
         p.fontSize = 10
         p.fontName = "Times-Roman"
-        obs = Paragraph("Observaciones: " + orden.notes, p)
+        obs = Paragraph("Observaciones: " + order.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -1042,16 +1042,16 @@ class PDFOrdenServicios(object):
         tabla_date.wrapOn(pdf, 800, 600)
         tabla_date.drawOn(pdf, 510, y - 120)
 
-    def imprimir(self, orden):
+    def imprimir(self, order):
         """Devuelve el PDF ya generado."""
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
-        self.cabecera(pdf, orden)
+        self.cabecera(pdf, order)
         y = 300
-        self.detalle(pdf, y, orden)
-        self.otros(pdf, y, orden)
-        self.cuadro_total(pdf, y, orden)
-        self.cuadro_observaciones(pdf, y, orden)
+        self.detalle(pdf, y, order)
+        self.otros(pdf, y, order)
+        self.cuadro_total(pdf, y, order)
+        self.cuadro_observaciones(pdf, y, order)
         self.afectacion_presupuesta(pdf)
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(115, y - 250, "Elaborado por")
@@ -1069,7 +1069,7 @@ class PDFOrdenServicios(object):
 
 class PDFOrdenCompra(object):
 
-    def cabecera(self, pdf, orden):
+    def cabecera(self, pdf, order):
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
@@ -1080,48 +1080,48 @@ class PDFOrdenCompra(object):
         pdf.setFont("Times-Roman", 11)
         pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 780, u"N° " + orden.code)
+        pdf.drawString(250, 780, u"N° " + order.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + orden.date.strftime(
-            '%d de %b de %Y'))  # orden.date.strftime('%d de %B de %Y')
+        pdf.drawString(430, 780, empresa().district + " " + order.date.strftime(
+            '%d de %b de %Y'))  # order.date.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
-        cotizacion = orden.cotizacion
-        if cotizacion is None:
-            proveedor = orden.proveedor
+        quotation = order.quotation
+        if quotation is None:
+            supplier = order.supplier
         else:
-            proveedor = orden.cotizacion.proveedor
-        pdf.drawString(40, 750, u"SEÑOR(ES): " + proveedor.business_name)
-        pdf.drawString(440, 750, u"R.U.C.: " + proveedor.tax_id)
-        address = proveedor.address
+            supplier = order.quotation.supplier
+        pdf.drawString(40, 750, u"SEÑOR(ES): " + supplier.business_name)
+        pdf.drawString(440, 750, u"R.U.C.: " + supplier.tax_id)
+        address = supplier.address
         if len(address) > 60:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address[0:60])
             pdf.drawString(105, 720, address[60:])
         else:
             pdf.drawString(40, 730, u"DIRECCIÓN: " + address)
         try:
-            pdf.drawString(440, 730, u"TELÉFONO: " + proveedor.phone)
+            pdf.drawString(440, 730, u"TELÉFONO: " + supplier.phone)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name)
+                           u"REFERENCIA: " + order.quotation.requirement.code + " - " + order.quotation.requirement.office.name)
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: -")
         pdf.drawString(40, 690, u"PROCESO: -")
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(40, 670, u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ")
 
-    def detalle(self, pdf, y, orden):
+    def detalle(self, pdf, y, order):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total')
         try:
             detalles = [(detalle.line_number, detalle.quantity,
-                         detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
-                         detalle.detalle_cotizacion.detalle_requerimiento.producto.description, detalle.price,
-                         round(detalle.amount, 5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+                         detalle.quotation_detail.requirement_detail.product.unit_of_measure.description,
+                         detalle.quotation_detail.requirement_detail.product.description, detalle.price,
+                         round(detalle.amount, 5)) for detalle in DetalleOrdenCompra.objects.filter(order=order)]
         except (ObjectDoesNotExist, AttributeError):
-            detalles = [(detalle.line_number, detalle.quantity, detalle.producto.unidad_medida.description,
-                         detalle.producto.description, detalle.price, round(detalle.price, 5)) for detalle in
-                        DetalleOrdenCompra.objects.filter(orden=orden)]
+            detalles = [(detalle.line_number, detalle.quantity, detalle.product.unit_of_measure.description,
+                         detalle.product.description, detalle.price, round(detalle.price, 5)) for detalle in
+                        DetalleOrdenCompra.objects.filter(order=order)]
         adicionales = [('', '', '', '', '', '')] * (15 - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 2 * cm, 9.3 * cm, 2 * cm, 2.5 * cm])
@@ -1137,7 +1137,7 @@ class PDFOrdenCompra(object):
         detalle_orden.wrapOn(pdf, 800, 600)
         detalle_orden.drawOn(pdf, 40, y + 75)
         # Letras
-        total_in_words = [("SON: " + orden.total_in_words, '')]
+        total_in_words = [("SON: " + order.total_in_words, '')]
         tabla_total_letras = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
@@ -1148,9 +1148,9 @@ class PDFOrdenCompra(object):
         tabla_total_letras.wrapOn(pdf, 800, 600)
         tabla_total_letras.drawOn(pdf, 40, y + 55)
 
-    def otros(self, pdf, y, orden):
+    def otros(self, pdf, y, order):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(empresa().address(), u"INMEDIATA", orden.forma_pago.description)]
+        otros = [(empresa().address(), u"INMEDIATA", order.payment_method.description)]
         tabla_otros = Table([encabezados_otros] + otros, colWidths=[6 * cm, 3.5 * cm, 4.5 * cm],
                             rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
@@ -1163,11 +1163,11 @@ class PDFOrdenCompra(object):
         tabla_otros.wrapOn(pdf, 800, 600)
         tabla_otros.drawOn(pdf, 40, y + 5)
 
-    def cuadro_total(self, pdf, y, orden):
+    def cuadro_total(self, pdf, y, order):
         pdf.drawString(445, y + 40, u"SUB-TOTAL: ")
         pdf.drawString(445, y + 20, u"IGV: ")
         pdf.drawString(445, y, u"TOTAL: S/")
-        total = [[round(orden.subtotal, 2)], [round(orden.impuesto, 2)], [round(orden.total, 2)]]
+        total = [[round(order.subtotal, 2)], [round(order.impuesto, 2)], [round(order.total, 2)]]
         tabla_total = Table(total, colWidths=[2.5 * cm])
         tabla_total.setStyle(TableStyle(
             [
@@ -1179,12 +1179,12 @@ class PDFOrdenCompra(object):
         tabla_total.wrapOn(pdf, 800, 600)
         tabla_total.drawOn(pdf, 495, y - 2)
 
-    def cuadro_observaciones(self, pdf, y, orden):
+    def cuadro_observaciones(self, pdf, y, order):
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
         p.fontSize = 10
         p.fontName = "Times-Roman"
-        obs = Paragraph("Observaciones: " + orden.notes, p)
+        obs = Paragraph("Observaciones: " + order.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -1244,16 +1244,16 @@ class PDFOrdenCompra(object):
         tabla_date.wrapOn(pdf, 800, 600)
         tabla_date.drawOn(pdf, 510, y - 120)
 
-    def imprimir(self, orden):
+    def imprimir(self, order):
         """Devuelve el PDF ya generado."""
         buffer = BytesIO()
         pdf = canvas.Canvas(buffer)
-        self.cabecera(pdf, orden)
+        self.cabecera(pdf, order)
         y = 300
-        self.detalle(pdf, y, orden)
-        self.otros(pdf, y, orden)
-        self.cuadro_total(pdf, y, orden)
-        self.cuadro_observaciones(pdf, y, orden)
+        self.detalle(pdf, y, order)
+        self.otros(pdf, y, order)
+        self.cuadro_total(pdf, y, order)
+        self.cuadro_observaciones(pdf, y, order)
         self.afectacion_presupuesta(pdf)
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(115, y - 250, "Elaborado por")

@@ -40,7 +40,7 @@ class Trabajador(TimeStampedModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker', null=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
-    profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
+    profession = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
     signature = models.ImageField(upload_to='firmas')
     photo = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     is_active = models.BooleanField(default=True)
@@ -48,8 +48,8 @@ class Trabajador(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def nombre_completo(self):
-        if self.profesion is not None:
-            return self.profesion.abbreviation + ' ' + self.first_name + ' ' + self.last_name
+        if self.profession is not None:
+            return self.profession.abbreviation + ' ' + self.first_name + ' ' + self.last_name
         else:
             return self.first_name + ' ' + self.last_name
 
@@ -130,7 +130,7 @@ class Oficina(TimeStampedModel):
     code = models.CharField(max_length=4, unique=True)
     name = models.CharField(max_length=50)
     is_management = models.BooleanField(default=False)
-    dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
+    dependency = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -145,7 +145,7 @@ class Oficina(TimeStampedModel):
 
     @property
     def gerencia(self):
-        oficina_superior = self.dependencia
+        oficina_superior = self.dependency
         if oficina_superior.is_management:
             return oficina_superior
         else:
@@ -165,8 +165,8 @@ class Oficina(TimeStampedModel):
 
 class Puesto(TimeStampedModel):
     name = models.CharField(max_length=100)
-    oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='positions')
-    trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='positions')
+    office = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='positions')
+    worker = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='positions')
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     is_leadership = models.BooleanField(default=False)
@@ -185,7 +185,7 @@ class Puesto(TimeStampedModel):
 
     @property
     def puesto_superior(self):
-        puestos_superiores = Puesto.objects.filter(oficina=self.oficina,
+        puestos_superiores = Puesto.objects.filter(office=self.office,
                                                    is_leadership=True,
                                                    is_active=True)
         if puestos_superiores.count() > 0:
@@ -196,7 +196,7 @@ class Puesto(TimeStampedModel):
 
     def establecer_nivel(self, oficina_requerimiento):
         from tambox.configuracion import logistica
-        description = "LOGISTICA" if (self.oficina == logistica() and self.is_leadership) else "USUARIO"
+        description = "LOGISTICA" if (self.office == logistica() and self.is_leadership) else "USUARIO"
         try:
             return NivelAprobacion.objects.get(description=description)
         except NivelAprobacion.DoesNotExist:

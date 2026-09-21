@@ -26,12 +26,12 @@
                             </tr>
                             </tfoot>
                             <tbody>
-                            {% for cotizacion in cotizaciones %}
+                            {% for quotation in cotizaciones %}
                             <tr>
-                                <td>{{ cotizacion.code }}</td>
-                                <td>{{ cotizacion.requerimiento }}</td>
-                                <td>{{ cotizacion.proveedor }}</td>
-                                <td>{{ cotizacion.date|date:"d/m/Y" }}</td>
+                                <td>{{ quotation.code }}</td>
+                                <td>{{ quotation.requirement }}</td>
+                                <td>{{ quotation.supplier }}</td>
+                                <td>{{ quotation.date|date:"d/m/Y" }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
@@ -39,7 +39,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <input type="hidden" name="cotizacion" id="cotizacion">
+                    <input type="hidden" name="quotation" id="quotation">
                 </div>
             </div>
         </div>
@@ -67,8 +67,8 @@ $(document).ready(function()
         {
 	        table.$('tr.selected').removeClass('selected');
 	        $(this).addClass('selected');
-	        var cotizacion = $(this).find('td.sorting_1').text();
-	        $('#cotizacion').val(cotizacion);           
+	        var quotation = $(this).find('td.sorting_1').text();
+	        $('#quotation').val(quotation);           
         }
     }); 
     

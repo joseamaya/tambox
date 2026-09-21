@@ -20,9 +20,9 @@ from simple_history.models import HistoricalRecords
 
 class DetalleOrdenManager(models.Manager):
 
-    def bulk_create(self, objs, cotizacion):
-        if cotizacion is not None:
-            self.guardar_detalles_con_referencia(objs, cotizacion)
+    def bulk_create(self, objs, quotation):
+        if quotation is not None:
+            self.guardar_detalles_con_referencia(objs, quotation)
         else:
             self.guardar_detalles_sin_referencia(objs)
 
@@ -32,29 +32,29 @@ class DetalleOrdenManager(models.Manager):
             cot.establecer_estado_comprado()
             cot.save()
 
-    def actualizar_detalle_cotizaciones(self, detalle_requerimiento):
-        if detalle_requerimiento.status == DetalleRequerimiento.STATUS.COMP:
-            DetalleCotizacion.objects.filter(detalle_requerimiento=detalle_requerimiento,
+    def actualizar_detalle_cotizaciones(self, requirement_detail):
+        if requirement_detail.status == DetalleRequerimiento.STATUS.COMP:
+            DetalleCotizacion.objects.filter(requirement_detail=requirement_detail,
                                              status=DetalleCotizacion.STATUS.PEND).update(
                 status=DetalleCotizacion.STATUS.DESC)
 
-    def guardar_detalles_con_referencia(self, objs, cotizacion):
-        requerimiento = cotizacion.requerimiento
+    def guardar_detalles_con_referencia(self, objs, quotation):
+        requirement = quotation.requirement
         for detalle in objs:
-            detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity + detalle.quantity
-            detalle_cotizacion.establecer_estado_comprado()
-            detalle_cotizacion.save()
-            detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity + detalle_cotizacion.purchased_quantity
-            detalle_requerimiento.establecer_estado_comprado()
-            detalle_requerimiento.save()
-            self.actualizar_detalle_cotizaciones(detalle_requerimiento)
+            quotation_detail = detalle.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity + detalle.quantity
+            quotation_detail.establecer_estado_comprado()
+            quotation_detail.save()
+            requirement_detail = quotation_detail.requirement_detail
+            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity + quotation_detail.purchased_quantity
+            requirement_detail.establecer_estado_comprado()
+            requirement_detail.save()
+            self.actualizar_detalle_cotizaciones(requirement_detail)
             detalle.save()
-        requerimiento.establecer_estado_comprado()
-        requerimiento.save()
-        cotizacion.establecer_estado_comprado()
-        cotizacion.save()
+        requirement.establecer_estado_comprado()
+        requirement.save()
+        quotation.establecer_estado_comprado()
+        quotation.save()
         self.actualizar_cotizaciones()
 
     def guardar_detalles_sin_referencia(self, objs):
@@ -112,8 +112,8 @@ class Proveedor(TimeStampedModel):
 
 class Cotizacion(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='quotations')
-    requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='quotations', null=True)
+    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='quotations')
+    requirement = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='quotations', null=True)
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
@@ -134,23 +134,23 @@ class Cotizacion(TimeStampedModel):
         self.save()
 
     def eliminar_referencia(self):
-        cotizacion = self
-        requerimiento = cotizacion.requerimiento
-        detalles = DetalleCotizacion.objects.filter(cotizacion=cotizacion)
+        quotation = self
+        requirement = quotation.requirement
+        detalles = DetalleCotizacion.objects.filter(quotation=quotation)
         for detalle in detalles:
-            detalle_requerimiento = detalle.detalle_requerimiento
-            if detalle_requerimiento.quoted_quantity > 0:
-                detalle_requerimiento.quoted_quantity = detalle_requerimiento.quoted_quantity - detalle.quantity
-            detalle_requerimiento.establecer_estado_cotizado()
-            detalle_requerimiento.save()
-        requerimiento.establecer_estado_cotizado()
-        requerimiento.save()
-        DetalleCotizacion.objects.filter(cotizacion=cotizacion).delete()
+            requirement_detail = detalle.requirement_detail
+            if requirement_detail.quoted_quantity > 0:
+                requirement_detail.quoted_quantity = requirement_detail.quoted_quantity - detalle.quantity
+            requirement_detail.establecer_estado_cotizado()
+            requirement_detail.save()
+        requirement.establecer_estado_cotizado()
+        requirement.save()
+        DetalleCotizacion.objects.filter(quotation=quotation).delete()
 
     def establecer_estado_comprado(self):
         total = 0
         total_comprado = 0
-        for detalle in DetalleCotizacion.objects.filter(cotizacion=self):
+        for detalle in DetalleCotizacion.objects.filter(quotation=self):
             total = total + detalle.quantity
             total_comprado = total_comprado + detalle.purchased_quantity
         caso = clasificar(total_comprado, total)
@@ -164,7 +164,7 @@ class Cotizacion(TimeStampedModel):
         return self.status
 
     class Meta:
-        unique_together = (('proveedor', 'requerimiento'),)
+        unique_together = (('supplier', 'requirement'),)
         permissions = (('ver_detalle_cotizacion', 'Puede ver detalle de Cotización'),
                        ('ver_tabla_cotizaciones', 'Puede ver tabla Cotizaciones'),
                        ('ver_reporte_cotizaciones_excel', 'Puede ver Reporte de Cotizaciones en excel'),
@@ -190,8 +190,8 @@ class Cotizacion(TimeStampedModel):
 class DetalleCotizacion(TimeStampedModel):
     objects = DetalleCotizacionManager()
     line_number = models.IntegerField()
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='details')
-    detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, related_name='quotation_details', null=True)
+    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='details')
+    requirement_detail = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, related_name='quotation_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -219,10 +219,10 @@ class DetalleCotizacion(TimeStampedModel):
 
 class OrdenCompra(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
+    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
+    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
     date = models.DateField()
-    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='purchase_orders')
+    payment_method = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='purchase_orders')
     notes = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
@@ -244,26 +244,26 @@ class OrdenCompra(TimeStampedModel):
         return sig.pk
 
     def eliminar_referencia(self):
-        cotizacion = self.cotizacion
-        requerimiento = cotizacion.requerimiento
-        detalles = DetalleOrdenCompra.objects.filter(orden=self)
+        quotation = self.quotation
+        requirement = quotation.requirement
+        detalles = DetalleOrdenCompra.objects.filter(order=self)
         for detalle in detalles:
-            detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity - detalle.quantity
-            detalle_cotizacion.establecer_estado_comprado()
-            detalle_cotizacion.save()
-            detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity - detalle.quantity
-            detalle_requerimiento.establecer_estado_comprado()
-            detalle_requerimiento.save()
-        cotizacion.establecer_estado_comprado()
-        requerimiento.establecer_estado_comprado()
-        cotizacion.save()
+            quotation_detail = detalle.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
+            quotation_detail.establecer_estado_comprado()
+            quotation_detail.save()
+            requirement_detail = quotation_detail.requirement_detail
+            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detalle.quantity
+            requirement_detail.establecer_estado_comprado()
+            requirement_detail.save()
+        quotation.establecer_estado_comprado()
+        requirement.establecer_estado_comprado()
+        quotation.save()
 
     def establecer_estado(self):
         total = 0
         total_ingresado = 0
-        for detalle in DetalleOrdenCompra.objects.filter(orden=self):
+        for detalle in DetalleOrdenCompra.objects.filter(order=self):
             total = total + detalle.quantity
             total_ingresado = total_ingresado + detalle.received_quantity
         caso = clasificar(total_ingresado, total)
@@ -339,9 +339,9 @@ class OrdenCompra(TimeStampedModel):
 class DetalleOrdenCompra(TimeStampedModel):
     objects = DetalleOrdenManager()
     line_number = models.IntegerField()
-    orden = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='details')
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
+    order = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='details')
+    quotation_detail = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
+    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
     received_quantity = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8)
@@ -355,7 +355,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def precio_con_igv(self):
-        if self.orden.with_tax:
+        if self.order.with_tax:
             precio_con_igv = self.price
         else:
             monto_impuesto = configuracion().purchase_tax.amount
@@ -364,7 +364,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def precio_sin_igv(self):
-        if self.orden.with_tax:
+        if self.order.with_tax:
             monto_impuesto = configuracion().purchase_tax.amount
             precio_sin_igv = round(self.price / (monto_impuesto + 1), 5)
         else:
@@ -373,7 +373,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def valor_sin_igv(self):
-        if self.orden.with_tax:
+        if self.order.with_tax:
             monto_impuesto = configuracion().purchase_tax.amount
             valor_sin_igv = (self.price * self.quantity) / (monto_impuesto + 1)
         else:
@@ -382,7 +382,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
     @property
     def valor_con_igv(self):
-        if self.orden.with_tax:
+        if self.order.with_tax:
             valor_con_igv = self.price * self.quantity
         else:
             monto_impuesto = configuracion().purchase_tax.amount
@@ -392,7 +392,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     @property
     def impuesto(self):
         monto_impuesto = configuracion().purchase_tax.amount
-        if self.orden.with_tax:
+        if self.order.with_tax:
             imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
         else:
             imp = self.price * self.quantity * monto_impuesto
@@ -415,9 +415,9 @@ class DetalleOrdenCompra(TimeStampedModel):
 
 class OrdenServicios(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='service_orders', null=True)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='service_orders', null=True)
-    forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='service_orders')
+    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    payment_method = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='service_orders')
     process = models.CharField(max_length=50, default='')
     report_name = models.CharField(max_length=150, default='')
     report = models.FileField(upload_to='informes', null=True)
@@ -462,26 +462,26 @@ class OrdenServicios(TimeStampedModel):
         return sig.pk
 
     def eliminar_referencia(self):
-        cotizacion = self.cotizacion
-        requerimiento = self.cotizacion
-        detalles = DetalleOrdenServicios.objects.filter(orden=self)
+        quotation = self.quotation
+        requirement = self.quotation
+        detalles = DetalleOrdenServicios.objects.filter(order=self)
         for detalle in detalles:
-            detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity - detalle.quantity
-            detalle_cotizacion.establecer_estado_comprado()
-            detalle_cotizacion.save()
-            detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity - detalle.quantity
-            detalle_requerimiento.establecer_estado_comprado()
-            detalle_requerimiento.save()
-        cotizacion.establecer_estado_comprado()
-        requerimiento.establecer_estado_comprado()
-        cotizacion.save()
+            quotation_detail = detalle.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
+            quotation_detail.establecer_estado_comprado()
+            quotation_detail.save()
+            requirement_detail = quotation_detail.requirement_detail
+            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detalle.quantity
+            requirement_detail.establecer_estado_comprado()
+            requirement_detail.save()
+        quotation.establecer_estado_comprado()
+        requirement.establecer_estado_comprado()
+        quotation.save()
 
     def establecer_estado(self):
         total = 0
         total_conforme = 0
-        for detalle in DetalleOrdenServicios.objects.filter(orden=self):
+        for detalle in DetalleOrdenServicios.objects.filter(order=self):
             total = total + detalle.quantity
             total_conforme = total_conforme + detalle.conformed_quantity
         caso = clasificar(total_conforme, total)
@@ -524,9 +524,9 @@ class OrdenServicios(TimeStampedModel):
 class DetalleOrdenServicios(TimeStampedModel):
     objects = DetalleOrdenManager()
     line_number = models.IntegerField()
-    orden = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='details')
-    detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='service_order_details', null=True)
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='service_order_details', null=True)
+    order = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='details')
+    quotation_detail = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='service_order_details', null=True)
+    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='service_order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     conformed_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     price = models.DecimalField(max_digits=15, decimal_places=5)
@@ -564,7 +564,7 @@ class DetalleOrdenServicios(TimeStampedModel):
 
 class ConformidadServicio(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='conformities')
+    service_order = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='conformities')
     supporting_document = models.CharField(max_length=50)
     file = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
@@ -589,23 +589,23 @@ class ConformidadServicio(TimeStampedModel):
         return sig.pk
 
     def eliminar_referencia(self):
-        orden = self.orden_servicios
-        cotizacion = orden.cotizacion
-        requerimiento = cotizacion.requerimiento
-        detalles = DetalleConformidadServicio.objects.filter(conformidad=self)
+        order = self.service_order
+        quotation = order.quotation
+        requirement = quotation.requirement
+        detalles = DetalleConformidadServicio.objects.filter(conformity=self)
         for detalle in detalles:
-            detalle_orden = detalle.detalle_orden_servicios
+            detalle_orden = detalle.service_order_detail
             detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detalle.quantity
             detalle_orden.establecer_estado_atendido()
             detalle_orden.save()
-            detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.served_quantity = detalle_requerimiento.served_quantity - detalle.quantity
-            detalle_requerimiento.establecer_estado_atendido()
-            detalle_requerimiento.save()
-        orden.establecer_estado()
-        orden.save()
-        requerimiento.establecer_estado_atendido()
-        requerimiento.save()
+            requirement_detail = detalle_orden.quotation_detail.requirement_detail
+            requirement_detail.served_quantity = requirement_detail.served_quantity - detalle.quantity
+            requirement_detail.establecer_estado_atendido()
+            requirement_detail.save()
+        order.establecer_estado()
+        order.save()
+        requirement.establecer_estado_atendido()
+        requirement.save()
 
     def save(self, *args, **kwargs):
         if self.code == '':
@@ -627,7 +627,7 @@ class ConformidadServicio(TimeStampedModel):
 class DetalleConformidadServicio(TimeStampedModel):
     objects = DetalleConformidadServicioManager()
     line_number = models.IntegerField()
-    conformidad = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE, related_name='details')
-    detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, related_name='conformity_details', null=True)
+    conformity = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE, related_name='details')
+    service_order_detail = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, related_name='conformity_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     history = HistoricalRecords()

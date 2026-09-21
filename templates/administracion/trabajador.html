@@ -87,12 +87,12 @@
                             {% endif %}
                             <p>{{ form.first_name }}</p>
                             <label>PROFESIÓN:</label>
-                            {% if form.profesion.errors %}
-                            {% for error in form.profesion.errors %}
+                            {% if form.profession.errors %}
+                            {% for error in form.profession.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.profesion }}</p>
+                            <p>{{ form.profession }}</p>
                             <label>FIRMA:</label>
                             {% if form.signature.errors %}
                             {% for error in form.signature.errors %}

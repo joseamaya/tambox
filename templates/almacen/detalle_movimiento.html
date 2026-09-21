@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-5">
         {% if perms.almacen.add_movimiento %}
-        {% if object.tipo_movimiento.increases %}
+        {% if object.movement_type.increases %}
         <a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
         {% else %}
         <a href="{% url 'almacen:registrar_salida' %}" class="btn btn-primary">Crear</a>
@@ -35,11 +35,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.anterior %}';">
+                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -74,7 +74,7 @@
         <div class="row">
             <div class="col-md-3">
                 <label>Tipo de Ingreso:</label>
-                <p>{{ object.tipo_movimiento }}</p>
+                <p>{{ object.movement_type }}</p>
             </div>
             <div class="col-md-3">
                 <label>Almacen:</label>
@@ -92,28 +92,28 @@
         <div class="row">
             <div class="col-md-3">
                 <label>Oficina a atender:</label>
-                {% if object.oficina %}
-                <p><a href="{% url 'administracion:detalle_oficina' object.oficina.pk %}">{{ object.oficina }}</a></p>
+                {% if object.office %}
+                <p><a href="{% url 'administracion:detalle_oficina' object.office.pk %}">{{ object.office }}</a></p>
                 {% else %}
                 <p>NINGUNA</p>
                 {% endif %}
             </div>
             <div class="col-md-2">
                 <label>DNI Receptor:</label>
-                {% if object.productor %}
-                <p>{{ object.productor.dni }}</p>
-                {% elif object.trabajador.dni %}
-                <p>{{ object.trabajador.dni }}</p>
+                {% if object.producer %}
+                <p>{{ object.producer.dni }}</p>
+                {% elif object.worker.dni %}
+                <p>{{ object.worker.dni }}</p>
                 {% else %}
                 <p>--</p>
                 {% endif %}
             </div>
             <div class="col-md-7">
                 <label>Receptor:</label>
-                {% if object.productor %}
-                <p>{{ object.productor.nombre_completo }}</p>
-                {% elif object.trabajador.dni %}
-                <p>{{ object.trabajador.nombre_completo }}</p>
+                {% if object.producer %}
+                <p>{{ object.producer.nombre_completo }}</p>
+                {% elif object.worker.dni %}
+                <p>{{ object.worker.nombre_completo }}</p>
                 {% else %}
                 <p>--</p>
                 {% endif %}
@@ -148,8 +148,8 @@
         <div class="row">
             <div class="col-md-3">
                 <label>Referencia:</label>
-                {% if object.referencia %}
-                <p><a href="{% url 'compras:detalle_orden_compra' object.referencia.pk %}">{{ object.referencia }}</a>
+                {% if object.reference %}
+                <p><a href="{% url 'compras:purchase_order_detail' object.reference.pk %}">{{ object.reference }}</a>
                 </p>
                 {% else %}
                 <p>NINGUNA</p>
@@ -157,8 +157,8 @@
             </div>
             <div class="col-md-3">
                 <label>Pedido:</label>
-                {% if object.pedido %}
-                <p><a href="{% url 'almacen:detalle_pedido' object.pedido.pk %}">{{ object.pedido }}</a></p>
+                {% if object.order %}
+                <p><a href="{% url 'almacen:order_detail' object.order.pk %}">{{ object.order }}</a></p>
                 {% else %}
                 <p>NINGUNO</p>
                 {% endif %}
@@ -181,9 +181,9 @@
                     <tbody>
                     {% for detalle in object.details.all %}
                     <tr>
-                        <td>{{ detalle.producto.code }}</td>
-                        <td>{{ detalle.producto.description }}</td>
-                        <td>{{ detalle.producto.unidad_medida.description }}</td>
+                        <td>{{ detalle.product.code }}</td>
+                        <td>{{ detalle.product.description }}</td>
+                        <td>{{ detalle.product.unit_of_measure.description }}</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.price }}</td>
                         <td>{{ detalle.amount }}</td>

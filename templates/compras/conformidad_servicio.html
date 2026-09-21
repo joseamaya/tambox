@@ -1,7 +1,7 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Conformidades de Servicio / {{ orden.pk }}</h3>
+<h3>Conformidades de Servicio / {{ order.pk }}</h3>
 {% else %}
 <h3>Conformidades de Servicio / Nuevo</h3>
 {% endif %}
@@ -11,7 +11,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformidad.pk %}'">
+                    onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformity.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -25,11 +25,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformidad.anterior %}';">
+                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformity.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformidad.siguiente %}';">
+                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformity.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -57,12 +57,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Orden de Servicios:</label>
-                        {% if form.referencia.errors %}
-                        {% for error in form.referencia.errors %}
+                        {% if form.reference.errors %}
+                        {% for error in form.reference.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.referencia }}
+                        {{ form.reference }}
                     </div>
                     <div class="col-md-3">
                         <label>Busq. de Orden:</label>
@@ -111,7 +111,7 @@
                         {{ detalle_conformidad_servicio_formset.management_form }}
                         {% for detalle_conformidad_servicio_form in detalle_conformidad_servicio_formset %}
                         <tr class="detalle_conformidad_servicio_formset">
-                            {{ detalle_conformidad_servicio_form.cotizacion }}
+                            {{ detalle_conformidad_servicio_form.quotation }}
                             <td>
                                 {% if detalle_conformidad_servicio_form.quantity.errors %}
                                 {% for error in detalle_conformidad_servicio_form.quantity.errors %}
@@ -248,12 +248,12 @@ $(document).ready(function()
 	
 	function transferirOrdenServicios()
 	{		
-		var orden_servicios = $("#id_orden_servicios").val();
+		var service_order = $("#id_service_order").val();
 		var cont = 0;
 		ventana_transferencia.dialog("close");
 		
 		$.ajax({
-			data : {'orden_servicios': orden_servicios},
+			data : {'service_order': service_order},
 			url : "{% url 'compras:obtener_detalle_orden_servicios' %}",
 			type : 'get',
 			success : function(data)
@@ -261,7 +261,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_conformidad_servicio_formset'>" +
-						item.orden_servicios +
+						item.service_order +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.servicio + "</td>" +
 						"<td>" + item.use + "</td>" +						
@@ -278,7 +278,7 @@ $(document).ready(function()
 				total = subtotal;
 				$("#id_form-TOTAL_FORMS").val(cont);
 				total = subtotal;
-				$("#id_referencia").val(orden_servicios);
+				$("#id_reference").val(service_order);
 				$("#id_subtotal").val(subtotal.toFixed(5));
 				$("#id_total").val(total.toFixed(5));
 				$("#id_total_in_words").val(NumeroALetras(total));
@@ -298,11 +298,11 @@ $(document).ready(function()
 		var cont=0;
 		$('#id_cdetalles').val(ultimo_item);
 		var date = $('#id_date').val().trim();
-		var orden_servicios = $('#id_referencia').val().trim();
+		var service_order = $('#id_reference').val().trim();
 		var supporting_document = $('#id_supporting_document').val().trim();
 		if(date != '')
 		{					
-			if(orden_servicios != '')
+			if(service_order != '')
 			{
 				if(supporting_document != '')
 				{

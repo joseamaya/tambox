@@ -47,7 +47,7 @@
                             <tbody>
                             {% for aprobacion in aprobacion_requerimientos %}
                             <tr>
-                                <td>{{ aprobacion.requerimiento }}</td>
+                                <td>{{ aprobacion.requirement }}</td>
                                 <td>{{ aprobacion.level }}</td>
                                 <td class="text-center">
                                     <a class="btn btn-small"
@@ -57,13 +57,13 @@
                                 </td>
                                 <td>
                                     <a class="btn btn-small"
-                                       href="{% url 'requerimientos:detalle_requerimiento' aprobacion.requerimiento.pk %}">
+                                       href="{% url 'requerimientos:requirement_detail' aprobacion.requirement.pk %}">
                                         <span class="glyphicon glyphicon-folder-open"></span>
                                     </a>
                                 </td>
                                 <td>
-                                    {% if aprobacion.requerimiento.report %}
-                                    <a class="btn btn-small" href="/media/{{ aprobacion.requerimiento.report.url }}">
+                                    {% if aprobacion.requirement.report %}
+                                    <a class="btn btn-small" href="/media/{{ aprobacion.requirement.report.url }}">
                                         <span class="glyphicon glyphicon-file"></span>
                                     </a>
                                     {% endif %}

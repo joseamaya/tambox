@@ -85,12 +85,12 @@
                             <label>CODIGO:</label>
                             <p>{{ object.code }}</p>
                             <label>CTA. CONTABLE: </label>
-                            {% if form.ctacontable.errors %}
-                            {% for error in form.ctacontable.errors %}
+                            {% if form.account.errors %}
+                            {% for error in form.account.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.ctacontable }}</p>
+                            <p>{{ form.account }}</p>
                         </div>
                         <div class="col-lg-4"></div>
                         <div class="col-lg-4"></div>

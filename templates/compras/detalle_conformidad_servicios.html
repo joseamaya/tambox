@@ -55,8 +55,8 @@
                 <div class="col-md-3">
                     <label>Orden de Servicios:</label>
                     <p>
-                        <a href="{% url 'compras:detalle_orden_servicios' object.orden_servicios.pk %}">{{
-                            object.orden_servicios }}</a>
+                        <a href="{% url 'compras:service_order_detail' object.service_order.pk %}">{{
+                            object.service_order }}</a>
                     </p>
                 </div>
                 <div class="col-md-5">
@@ -81,14 +81,14 @@
                     <tbody>
                     {% for detalle in object.details.all %}
                     <tr>
-                        <td>{{ detalle.detalle_orden_servicios.quantity }}</td>
+                        <td>{{ detalle.service_order_detail.quantity }}</td>
                         <td>{{
-                            detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description
+                            detalle.service_order_detail.quotation_detail.requirement_detail.product.description
                             }}
                         </td>
-                        <td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.use }}</td>
-                        <td>{{ detalle.detalle_orden_servicios.price }}</td>
-                        <td>{{ detalle.detalle_orden_servicios.amount }}</td>
+                        <td>{{ detalle.service_order_detail.quotation_detail.requirement_detail.use }}</td>
+                        <td>{{ detalle.service_order_detail.price }}</td>
+                        <td>{{ detalle.service_order_detail.amount }}</td>
                     </tr>
                     {% endfor %}
                     <tr>

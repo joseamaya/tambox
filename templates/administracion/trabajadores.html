@@ -37,15 +37,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for trabajador in trabajadores %}
+            {% for worker in trabajadores %}
             {% if perms.administracion.ver_detalle_trabajador %}
-            <tr onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' trabajador.pk %}','Trabajador / {{ trabajador.first_name }} {{ trabajador.last_name }}')">
+            <tr onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' worker.pk %}','Trabajador / {{ worker.first_name }} {{ worker.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}
-                <td>{{ trabajador.dni }}</td>
-                <td>{{ trabajador.last_name }}</td>
-                <td>{{ trabajador.first_name }}</td>
+                <td>{{ worker.dni }}</td>
+                <td>{{ worker.last_name }}</td>
+                <td>{{ worker.first_name }}</td>
             </tr>
             {% endfor %}
             </tbody>

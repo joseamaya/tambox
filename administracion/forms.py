@@ -34,7 +34,7 @@ class ProfesionForm(forms.ModelForm):
 class OficinaForm(forms.ModelForm):
     class Meta:
         model = Oficina
-        fields = ['code', 'name', 'dependencia', 'is_management']
+        fields = ['code', 'name', 'dependency', 'is_management']
 
     def __init__(self, *args, **kwargs):
         super(OficinaForm, self).__init__(*args, **kwargs)
@@ -43,13 +43,13 @@ class OficinaForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['dependencia'].required = False
+        self.fields['dependency'].required = False
 
 
 class TrabajadorForm(forms.ModelForm):
     class Meta:
         model = Trabajador
-        fields = ['dni', 'last_name', 'first_name', 'profesion', 'user', 'signature']
+        fields = ['dni', 'last_name', 'first_name', 'profession', 'user', 'signature']
 
     def __init__(self, *args, **kwargs):
         super(TrabajadorForm, self).__init__(*args, **kwargs)
@@ -62,7 +62,7 @@ class TrabajadorForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['profesion'].required = False
+        self.fields['profession'].required = False
 
 
 class ProductorForm(forms.ModelForm):
@@ -86,7 +86,7 @@ class ProductorForm(forms.ModelForm):
 class PuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
+        fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):
         super(PuestoForm, self).__init__(*args, **kwargs)
@@ -100,14 +100,14 @@ class PuestoForm(forms.ModelForm):
         self.fields['end_date'].required = False
         self.fields['is_leadership'].required = False
         self.fields['is_assistant'].required = False
-        self.fields['trabajador'].queryset = Trabajador.objects.exclude(
-            pk__in=Puesto.objects.filter(end_date__isnull=True).values('trabajador'))
+        self.fields['worker'].queryset = Trabajador.objects.exclude(
+            pk__in=Puesto.objects.filter(end_date__isnull=True).values('worker'))
 
 
 class ModificacionPuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
+        fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):
         super(ModificacionPuestoForm, self).__init__(*args, **kwargs)

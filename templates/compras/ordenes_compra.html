@@ -36,13 +36,13 @@
             <tbody>
             {% for orden_compra in ordenes_compra %}
             {% if perms.compras.ver_detalle_orden_compra %}
-            <tr onclick="location.href='{% url 'compras:detalle_orden_compra' orden_compra.pk %}';">
+            <tr onclick="location.href='{% url 'compras:purchase_order_detail' orden_compra.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
                 <td>{{ orden_compra.code }}</td>
-                {% if orden_compra.cotizacion %}
-                <td>{{ orden_compra.cotizacion }}</td>
+                {% if orden_compra.quotation %}
+                <td>{{ orden_compra.quotation }}</td>
                 {% else %}
                 <td>Ninguna</td>
                 {% endif %}

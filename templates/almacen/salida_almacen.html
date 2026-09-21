@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Movimientos / {{ movimiento.movement_id }}</h3>
+<h3>Movimientos / {{ movement.movement_id }}</h3>
 {% else %}
 <h3>Movimientos / Nueva Salida de Almacen</h3>
 {% endif %}
@@ -17,11 +17,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movimiento.anterior %}';">
+                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movimiento.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -50,12 +50,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Tipo de Salida:</label>
-                        {% if form.tipo_movimiento.errors %}
-                        {% for error in form.tipo_movimiento.errors %}
+                        {% if form.movement_type.errors %}
+                        {% for error in form.movement_type.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.tipo_movimiento }}
+                        {{ form.movement_type }}
                     </div>
                     <div class="col-md-3">
                         <label>Almacén:</label>
@@ -90,12 +90,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Oficina a atender:</label>
-                        {% if form.oficina.errors %}
-                        {% for error in form.oficina.errors %}
+                        {% if form.office.errors %}
+                        {% for error in form.office.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.oficina }}
+                        {{ form.office }}
                     </div>
                     <div class="col-md-2">
                         <label>DNI Receptor:</label>
@@ -185,7 +185,7 @@
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.pedido }}
+                                {{ detalle_salida_form.order }}
                                 {{ detalle_salida_form.code }}
                             </td>
                             <td>
@@ -290,7 +290,7 @@ $(document).ready(function()
 	var tipo_salida;	
 	$("#id_date").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
-	$("#id_tipo_movimiento").on('change',verificar_tipo_salida);
+	$("#id_movement_type").on('change',verificar_tipo_salida);
 
 	function verificar_tipo_salida()
 	{
@@ -301,12 +301,12 @@ $(document).ready(function()
 	$("#id_dni_receptor").keyup(function()
 	{
 		var dni=$("#id_dni_receptor").val();
-		var tipo_movimiento = $("#id_tipo_movimiento").val();
+		var movement_type = $("#id_movement_type").val();
 		if(dni.length==8)
 		{
 			$.ajax({
 		      url: "{% url 'administracion:busqueda_receptor_dni' %}",
-		      data: {'dni': dni, 'tipo_movimiento':tipo_movimiento},
+		      data: {'dni': dni, 'movement_type':movement_type},
 		      success: function(data)
 		      {
 		    	  $("#id_receptor").val(data.nombre_completo);
@@ -320,7 +320,7 @@ $(document).ready(function()
 	  	source: function(request, response){
 	    $.ajax({
 	      url: "{% url 'administracion:busqueda_receptor_name' %}",
-	      data: {'name': $("#id_receptor").val(), 'tipo_movimiento':$("#id_tipo_movimiento").val()},
+	      data: {'name': $("#id_receptor").val(), 'movement_type':$("#id_movement_type").val()},
 	      success: function( data )
 	      {
 	          response( data );
@@ -403,8 +403,8 @@ $(document).ready(function()
 		    minLength: 2,
 		    select: function( event, ui ) 
 		    {
-		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("name", "");
+		    	var id_product = $(this).prop('id');
+				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
@@ -420,8 +420,8 @@ $(document).ready(function()
 		var price = 0;
 		var amount = 0;
 		var valorTemp = 0;
-		var id_producto = $(this).prop('id');
-		var id = id_producto.replace("quantity", "");
+		var id_product = $(this).prop('id');
+		var id = id_product.replace("quantity", "");
 		$.ajax({
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
@@ -454,7 +454,7 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var cont=0;
-		tipo_salida = $('#id_tipo_movimiento').val();
+		tipo_salida = $('#id_movement_type').val();
 		$('#id_cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacen').val().trim();
 		var date = $('#id_date').val().trim();

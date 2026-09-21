@@ -32,7 +32,7 @@ class Tablero(View):
         cant_tipos_unidad_medida = UnidadMedida.objects.count()
         cant_grupos_suministros = GrupoProductos.objects.count()
         cant_servicios = Producto.objects.filter(is_service=True).count()
-        unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
+        unit_of_measure, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
@@ -58,24 +58,24 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
                 productos = Producto.objects.filter(description__icontains=description).select_related(
-                    'unidad_medida').order_by('description')[:20]
+                    'unit_of_measure').order_by('description')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
                 productos = Producto.objects.filter(description__icontains=description,
                                                     is_service=False).select_related(
-                    'unidad_medida').order_by('description')[:20]
+                    'unit_of_measure').order_by('description')[:20]
             elif tipo_busqueda == 'SERVICIOS':
                 productos = Producto.objects.filter(description__icontains=description,
                                                     is_service=True).select_related(
-                    'unidad_medida').order_by('description')[:20]
+                    'unit_of_measure').order_by('description')[:20]
 
             lista_productos = []
-            for producto in productos:
+            for product in productos:
                 producto_json = {}
-                producto_json['label'] = producto.description
-                producto_json['code'] = producto.code
-                producto_json['description'] = producto.description
-                producto_json['unidad'] = producto.unidad_medida.description
-                producto_json['price'] = str(producto.price)
+                producto_json['label'] = product.description
+                producto_json['code'] = product.code
+                producto_json['description'] = product.description
+                producto_json['unidad'] = product.unit_of_measure.description
+                producto_json['price'] = str(product.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -88,15 +88,15 @@ class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
-            productos = Producto.objects.filter(code__icontains=code).select_related('unidad_medida')[:20]
+            productos = Producto.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
             lista_productos = []
-            for producto in productos:
+            for product in productos:
                 producto_json = {}
-                producto_json['label'] = producto.code
-                producto_json['code'] = producto.code
-                producto_json['description'] = producto.description
-                producto_json['unidad'] = producto.unidad_medida.description
-                producto_json['price'] = str(producto.price)
+                producto_json['label'] = product.code
+                producto_json['code'] = product.code
+                producto_json['description'] = product.description
+                producto_json['unidad'] = product.unit_of_measure.description
+                producto_json['price'] = str(product.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -111,7 +111,7 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
         try:
             account_number = CuentaContable.objects.get(account_number=fila[0])
             GrupoProductos.objects.get_or_create(description=fila[1],
-                                                 defaults={'ctacontable': account_number})
+                                                 defaults={'account': account_number})
         except CuentaContable.DoesNotExist:
             pass
 
@@ -130,7 +130,7 @@ class CargarServicios(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         grupo = GrupoProductos.objects.get(code=fila[0].strip())
         Producto.objects.get_or_create(description=fila[1],
-                                       defaults={'grupo_productos': grupo,
+                                       defaults={'product_group': grupo,
                                                  'is_service': True})
 
 
@@ -150,12 +150,12 @@ class CargarProductos(CargarCsvMixin, FormView):
                 price = fila[3]
             else:
                 price = 0
-            tipo_existencia = TipoExistencia.objects.get(sunat_code=fila[4].strip())
-            producto, creado = Producto.objects.get_or_create(description=fila[1].strip(),
-                                                              defaults={'unidad_medida': und,
-                                                                        'grupo_productos': grupo,
+            stock_type = TipoExistencia.objects.get(sunat_code=fila[4].strip())
+            product, creado = Producto.objects.get_or_create(description=fila[1].strip(),
+                                                              defaults={'unit_of_measure': und,
+                                                                        'product_group': grupo,
                                                                         'price': price,
-                                                                        'tipo_existencia': tipo_existencia})
+                                                                        'stock_type': stock_type})
         except Exception:
             logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
 
@@ -167,9 +167,9 @@ class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
-            producto = Producto.objects.get(code=code)
+            product = Producto.objects.get(code=code)
             producto_json = {}
-            producto_json['stock'] = producto.stock
+            producto_json['stock'] = product.stock
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
@@ -190,6 +190,7 @@ class CrearGrupoProductos(CreateView):
 
 class CrearProducto(CreateView):
     model = Producto
+    context_object_name = 'product'
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
@@ -261,10 +262,10 @@ class EliminarUnidadMedida(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
-            unidad_medida = UnidadMedida.objects.get(pk=id)
+            unit_of_measure = UnidadMedida.objects.get(pk=id)
             unidad_medida_json = {}
-            unidad_medida_json['unidad'] = unidad_medida.unidad
-            if len(unidad_medida.products.all()) > 0:
+            unidad_medida_json['unidad'] = unit_of_measure.unidad
+            if len(unit_of_measure.products.all()) > 0:
                 unidad_medida_json['productos'] = 'SI'
             else:
                 unidad_medida_json['productos'] = 'NO'
@@ -283,11 +284,11 @@ class EliminarGrupoProductos(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            grupo_productos = GrupoProductos.objects.get(pk=code)
+            product_group = GrupoProductos.objects.get(pk=code)
             grupo_productos_json = {}
-            grupo_productos_json['code'] = grupo_productos.code
-            grupo_productos_json['description'] = grupo_productos.description
-            if len(grupo_productos.products.all()) > 0:
+            grupo_productos_json['code'] = product_group.code
+            grupo_productos_json['description'] = product_group.description
+            if len(product_group.products.all()) > 0:
                 grupo_productos_json['productos'] = 'SI'
             else:
                 grupo_productos_json['productos'] = 'NO'
@@ -306,13 +307,13 @@ class EliminarProducto(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            producto = Producto.objects.get(pk=code)
+            product = Producto.objects.get(pk=code)
             producto_json = {}
-            producto_json['code'] = producto.code
-            producto_json['description'] = producto.description
-            if len(producto.details.all()) > 0:
+            producto_json['code'] = product.code
+            producto_json['description'] = product.description
+            if len(product.details.all()) > 0:
                 producto_json['relaciones'] = 'SI'
-            elif len(producto.details.all()) > 0:
+            elif len(product.details.all()) > 0:
                 producto_json['relaciones'] = 'SI'
             else:
                 producto_json['relaciones'] = 'NO'
@@ -406,6 +407,7 @@ class ListadoProductosPorGrupo(ListView):
 
 class ModificarProducto(UpdateView):
     model = Producto
+    context_object_name = 'product'
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
@@ -476,17 +478,17 @@ class ReporteExcelProductos(TemplateView):
         ws['I3'] = 'PRECIO'
         ws['J3'] = 'CREADO'
         cont = 4
-        for producto in productos:
-            ws.cell(row=cont, column=2).value = producto.code
-            ws.cell(row=cont, column=3).value = producto.description
-            ws.cell(row=cont, column=4).value = producto.desc_abreviada
-            ws.cell(row=cont, column=5).value = producto.grupo_productos.description
-            ws.cell(row=cont, column=6).value = producto.unidad_medida.description
-            ws.cell(row=cont, column=7).value = producto.brand
-            ws.cell(row=cont, column=8).value = producto.model
-            ws.cell(row=cont, column=9).value = producto.price
+        for product in productos:
+            ws.cell(row=cont, column=2).value = product.code
+            ws.cell(row=cont, column=3).value = product.description
+            ws.cell(row=cont, column=4).value = product.desc_abreviada
+            ws.cell(row=cont, column=5).value = product.product_group.description
+            ws.cell(row=cont, column=6).value = product.unit_of_measure.description
+            ws.cell(row=cont, column=7).value = product.brand
+            ws.cell(row=cont, column=8).value = product.model
+            ws.cell(row=cont, column=9).value = product.price
             ws.cell(row=cont, column=9).number_format = '#.00000'
-            ws.cell(row=cont, column=10).value = producto.created
+            ws.cell(row=cont, column=10).value = product.created
             ws.cell(row=cont, column=10).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
         nombre_archivo = "ListadoProductos.xlsx"
@@ -510,11 +512,11 @@ class ReporteExcelGruposProductos(TemplateView):
         ws['D3'] = 'CTA_CONTABLE'
         ws['E3'] = 'CREADO'
         cont = 4
-        for grupo_productos in grupos_productos:
-            ws.cell(row=cont, column=2).value = grupo_productos.code
-            ws.cell(row=cont, column=3).value = grupo_productos.description
-            ws.cell(row=cont, column=4).value = grupo_productos.ctacontable.account_number
-            ws.cell(row=cont, column=5).value = grupo_productos.created
+        for product_group in grupos_productos:
+            ws.cell(row=cont, column=2).value = product_group.code
+            ws.cell(row=cont, column=3).value = product_group.description
+            ws.cell(row=cont, column=4).value = product_group.account.account_number
+            ws.cell(row=cont, column=5).value = product_group.created
             ws.cell(row=cont, column=5).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
         nombre_archivo = "ListadoGruposProductos.xlsx"

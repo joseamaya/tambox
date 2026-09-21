@@ -23,7 +23,7 @@ from openpyxl import Workbook
 from django.core.exceptions import ObjectDoesNotExist
 
 
-def kardex_inicial_de(reporte, producto, almacen, desde):
+def kardex_inicial_de(reporte, product, almacen, desde):
     """Saldo inicial de un producto: el ultimo kardex anterior a `desde`.
 
     Los informes que recorren el catalogo precargan el lote entero en
@@ -37,11 +37,11 @@ def kardex_inicial_de(reporte, producto, almacen, desde):
     desde = aware(desde)
     iniciales = getattr(reporte, 'kardex_iniciales', None)
     if iniciales is None:
-        return (Kardex.objects.filter(producto=producto, almacen=almacen,
+        return (Kardex.objects.filter(product=product, almacen=almacen,
                                       operation_date__lt=desde)
                 .order_by('-operation_date', '-pk')
                 .first())
-    return iniciales.get(producto.pk)
+    return iniciales.get(product.pk)
 
 
 def kardex_del_periodo(reporte, objeto, almacen, desde, hasta, por_grupo=False):
@@ -61,8 +61,8 @@ def kardex_del_periodo(reporte, objeto, almacen, desde, hasta, por_grupo=False):
 
 class ReporteMovimiento():
 
-    def __init__(self, pagesize, movimiento):
-        self.movimiento = movimiento
+    def __init__(self, pagesize, movement):
+        self.movement = movement
         self.buffer = BytesIO()
         if pagesize == 'A4':
             self.pagesize = A4
@@ -71,7 +71,7 @@ class ReporteMovimiento():
         self.width, self.height = self.pagesize
 
     def tabla_encabezado(self, styles):
-        movimiento = self.movimiento
+        movement = self.movement
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -82,12 +82,12 @@ class ReporteMovimiento():
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
-        if movimiento.tipo_movimiento.increases:
+        if movement.movement_type.increases:
             nota = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
-        movement_id = Paragraph(movimiento.movement_id, sp)
-        date = Paragraph("FECHA: " + movimiento.operation_date.strftime('%d/%m/%y'), sp)
+        movement_id = Paragraph(movement.movement_id, sp)
+        date = Paragraph("FECHA: " + movement.operation_date.strftime('%d/%m/%y'), sp)
         encabezado = [[image, nota, date],
                       ['', movement_id, '']
                       ]
@@ -102,41 +102,41 @@ class ReporteMovimiento():
         return tabla_encabezado
 
     def tabla_datos(self, styles):
-        movimiento = self.movimiento
+        movement = self.movement
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
         try:
-            if movimiento.referencia.cotizacion is not None:
-                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.cotizacion.proveedor.business_name,
+            if movement.reference.quotation is not None:
+                supplier = Paragraph(u"PROVEEDOR: " + movement.reference.quotation.supplier.business_name,
                                       izquierda)
             else:
-                proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.business_name, izquierda)
+                supplier = Paragraph(u"PROVEEDOR: " + movement.reference.supplier.business_name, izquierda)
         except (ObjectDoesNotExist, AttributeError):
-            proveedor = Paragraph(u"PROVEEDOR:", izquierda)
-        operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.description, izquierda)
-        almacen = Paragraph(u"ALMACÉN: " + movimiento.almacen.code + "-" + movimiento.almacen.description, izquierda)
+            supplier = Paragraph(u"PROVEEDOR:", izquierda)
+        operacion = Paragraph(u"OPERACIÓN: " + movement.movement_type.description, izquierda)
+        almacen = Paragraph(u"ALMACÉN: " + movement.almacen.code + "-" + movement.almacen.description, izquierda)
         try:
-            orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movimiento.referencia.code, izquierda)
+            orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movement.reference.code, izquierda)
         except (ObjectDoesNotExist, AttributeError):
             orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
         try:
             documento = Paragraph(
-                u"DOCUMENTO: " + movimiento.document_type.description + " SERIE:" + movimiento.series + u" NÚMERO:" + movimiento.number,
+                u"DOCUMENTO: " + movement.document_type.description + " SERIE:" + movement.series + u" NÚMERO:" + movement.number,
                 izquierda)
         except (ObjectDoesNotExist, TypeError):
             documento = ""
         try:
-            pedido = Paragraph(u"PEDIDO: " + movimiento.pedido.code, izquierda)
+            order = Paragraph(u"PEDIDO: " + movement.order.code, izquierda)
         except (ObjectDoesNotExist, AttributeError):
-            pedido = ""
+            order = ""
         encabezado = [[operacion, ''],
                       [almacen, ''],
-                      [proveedor, ''],
+                      [supplier, ''],
                       [orden_compra, ''],
                       [documento, ''],
-                      [pedido, '']]
+                      [order, '']]
         tabla_datos = Table(encabezado, colWidths=[11 * cm, 9 * cm])
         tabla_datos.setStyle(TableStyle(
             [
@@ -146,9 +146,9 @@ class ReporteMovimiento():
         return tabla_datos
 
     def tabla_detalle(self):
-        movimiento = self.movimiento
+        movement = self.movement
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = DetalleMovimiento.objects.filter(movimiento=movimiento).order_by('pk')
+        detalles = DetalleMovimiento.objects.filter(movement=movement).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -157,8 +157,8 @@ class ReporteMovimiento():
         for detalle in detalles:
             tupla_producto = [str(detalle.line_number),
                               format(detalle.quantity, '.5f'),
-                              str(detalle.producto.unidad_medida.code),
-                              detalle.producto.description,
+                              str(detalle.product.unit_of_measure.code),
+                              detalle.product.description,
                               format(detalle.price, '.5f'),
                               format(detalle.amount, '.5f')]
             lista_detalles.append(tupla_producto)
@@ -175,14 +175,14 @@ class ReporteMovimiento():
         return tabla_detalle
 
     def tabla_total(self):
-        movimiento = self.movimiento
+        movement = self.movement
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
 
         texto_total = Paragraph("Total: ", izquierda)
-        total = Paragraph(str(round(movimiento.total, 2)), izquierda)
+        total = Paragraph(str(round(movement.total, 2)), izquierda)
         total = [['', texto_total, total]]
         tabla_total = Table(total, colWidths=[15.5 * cm, 2 * cm, 2.5 * cm])
         tabla_total.setStyle(TableStyle(
@@ -195,12 +195,12 @@ class ReporteMovimiento():
         return tabla_total
 
     def tabla_observaciones(self):
-        movimiento = self.movimiento
+        movement = self.movement
         p = ParagraphStyle('parrafos',
                            alignment=TA_JUSTIFY,
                            fontSize=8,
                            fontName="Times-Roman")
-        obs = Paragraph("OBSERVACIONES: " + movimiento.notes, p)
+        obs = Paragraph("OBSERVACIONES: " + movement.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -214,14 +214,14 @@ class ReporteMovimiento():
         return tabla_observaciones
 
     def tabla_firmas(self):
-        movimiento = self.movimiento
+        movement = self.movement
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_CENTER,
                                    fontSize=8,
                                    fontName="Times-Roman")
         nombre_oficina_administracion = Paragraph(oficina_administracion().name, izquierda)
         nombre_oficina_logistica = Paragraph(logistica().name, izquierda)
-        if movimiento.tipo_movimiento.increases:
+        if movement.movement_type.increases:
             total = [[nombre_oficina_administracion, '', nombre_oficina_logistica]]
             tabla_firmas = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
             tabla_firmas.setStyle(TableStyle(
@@ -232,8 +232,8 @@ class ReporteMovimiento():
                 ]
             ))
         else:
-            solicitante = Paragraph('SOLICITANTE', izquierda)
-            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica, '', solicitante]]
+            requester = Paragraph('SOLICITANTE', izquierda)
+            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica, '', requester]]
             tabla_firmas = Table(total, colWidths=[5 * cm, 1 * cm, 5 * cm, 1 * cm, 5 * cm])
             tabla_firmas.setStyle(TableStyle(
                 [
@@ -340,7 +340,7 @@ class ReporteKardexPDF():
         tabla_encabezado.setStyle(style)
         return tabla_encabezado
 
-    def tabla_detalle_unidades_fisicas(self, producto, desde, hasta, almacen):
+    def tabla_detalle_unidades_fisicas(self, product, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "",
@@ -354,7 +354,7 @@ class ReporteKardexPDF():
         encab_seg = ["FECHA", "TIPO (TABLA 10)", "SERIE", "NÚMERO", "", "", "", ""]
         tabla.append(encab_seg)
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
@@ -363,25 +363,25 @@ class ReporteKardexPDF():
         total_quantity = cant_saldo_inicial
         tabla.append(saldo_inicial)
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
-                document_type = kardex.movimiento.document_type.sunat_code
+                document_type = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 document_type = '-'
             try:
-                tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
+                movement_type = kardex.movement.movement_type.sunat_code
             except ObjectDoesNotExist:
-                tipo_movimiento = "-"
+                movement_type = "-"
 
             total_quantity = kardex.total_quantity
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           document_type,
-                          kardex.movimiento.series,
-                          kardex.movimiento.number,
-                          tipo_movimiento,
+                          kardex.movement.series,
+                          kardex.movement.number,
+                          movement_type,
                           format(kardex.in_quantity, '.2f'),
                           format(kardex.out_quantity, '.2f'),
                           format(total_quantity, '.2f')])
@@ -437,9 +437,9 @@ class ReporteKardexPDF():
         self.total_paginas = int(math.ceil(productos.count() / 22.0))
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
-        for producto in productos:
+        for product in productos:
             try:
-                kardex_inicial = iniciales.get(producto.pk)
+                kardex_inicial = iniciales.get(product.pk)
                 cant_saldo_inicial = kardex_inicial.total_quantity
                 valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
@@ -447,7 +447,7 @@ class ReporteKardexPDF():
                 valor_saldo_inicial = 0
 
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-                self, producto, almacen, desde, hasta)
+                self, product, almacen, desde, hasta)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
 
@@ -472,10 +472,10 @@ class ReporteKardexPDF():
             else:
                 total_amount = format(total_amount, '.3f')
 
-            registro = [producto.code,
-                        producto.description,
-                        producto.unidad_medida.description,
-                        producto.grupo_productos.ctacontable,
+            registro = [product.code,
+                        product.description,
+                        product.unit_of_measure.description,
+                        product.product_group.account,
                         format(cant_saldo_inicial, '.3f'),
                         valor_saldo_inicial,
                         format(in_quantity, '.3f'),
@@ -540,11 +540,11 @@ class ReporteKardexPDF():
         for grupo in grupos:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
-            productos = Producto.objects.filter(grupo_productos=grupo)
+            productos = Producto.objects.filter(product_group=grupo)
             iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
-            for producto in productos:
+            for product in productos:
                 try:
-                    kardex_inicial = iniciales.get(producto.pk)
+                    kardex_inicial = iniciales.get(product.pk)
                     cant_saldo_inicial_producto = kardex_inicial.total_quantity
                     valor_saldo_inicial_producto = kardex_inicial.total_amount
                 except AttributeError:
@@ -581,7 +581,7 @@ class ReporteKardexPDF():
 
             registro = [grupo.code,
                         grupo.description,
-                        grupo.ctacontable.account_number,
+                        grupo.account.account_number,
                         format(cant_saldo_inicial, '.5f'),
                         valor_saldo_inicial,
                         format(in_quantity, '.5f'),
@@ -621,7 +621,7 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def tabla_detalle_valorizado(self, producto, desde, hasta, almacen):
+    def tabla_detalle_valorizado(self, product, desde, hasta, almacen):
         tabla = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "", "", "",
@@ -642,7 +642,7 @@ class ReporteKardexPDF():
         tabla.append(encab_terc)
 
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
             precio_saldo_inicial = kardex_inicial.total_price
             valor_saldo_inicial = kardex_inicial.total_amount
@@ -670,17 +670,17 @@ class ReporteKardexPDF():
         total_amount = valor_saldo_inicial
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
-                document_type = kardex.movimiento.document_type.sunat_code
+                document_type = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 document_type = '-'
             try:
-                tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
+                movement_type = kardex.movement.movement_type.sunat_code
             except ObjectDoesNotExist:
-                tipo_movimiento = "-"
+                movement_type = "-"
 
             total_quantity = format(kardex.total_quantity, '.2f')
             total_price = format(kardex.total_price, '.2f')
@@ -690,9 +690,9 @@ class ReporteKardexPDF():
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           document_type,
-                          kardex.movimiento.series,
-                          kardex.movimiento.number,
-                          tipo_movimiento,
+                          kardex.movement.series,
+                          kardex.movement.number,
+                          movement_type,
                           format(kardex.in_quantity, '.2f'),
                           format(kardex.in_price, '.2f'),
                           format(kardex.in_amount, '.2f'),
@@ -742,7 +742,7 @@ class ReporteKardexPDF():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def imprimir_formato_sunat_unidades_fisicas_producto(self, producto):
+    def imprimir_formato_sunat_unidades_fisicas_producto(self, product):
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
@@ -773,19 +773,19 @@ class ReporteKardexPDF():
         address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
         elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
-        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
+        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+        description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -793,13 +793,13 @@ class ReporteKardexPDF():
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
+        elements.append(self.tabla_detalle_unidades_fisicas(product, desde, hasta, almacen))
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
         return pdf
 
-    def imprimir_formato_sunat_valorizado_producto(self, producto):
+    def imprimir_formato_sunat_valorizado_producto(self, product):
         desde = self.desde
         hasta = self.hasta
         almacen = self.almacen
@@ -830,19 +830,19 @@ class ReporteKardexPDF():
         address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
         elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
-        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
+        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+        description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -850,7 +850,7 @@ class ReporteKardexPDF():
                            izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.5 * cm))
-        elements.append(self.tabla_detalle_valorizado(producto, desde, hasta, almacen))
+        elements.append(self.tabla_detalle_valorizado(product, desde, hasta, almacen))
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
         buffer.close()
@@ -875,12 +875,12 @@ class ReporteKardexPDF():
 
         elements = []
         productos_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
-            'producto').distinct()
+            'product').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
-            'description').select_related('unidad_medida', 'tipo_existencia')
+            'description').select_related('unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
-        for producto in productos:
+        for product in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
@@ -895,19 +895,19 @@ class ReporteKardexPDF():
             address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
             elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
-            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
+            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+            description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -915,7 +915,7 @@ class ReporteKardexPDF():
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.5 * cm))
-            elements.append(self.tabla_detalle_unidades_fisicas(producto, desde, hasta, almacen))
+            elements.append(self.tabla_detalle_unidades_fisicas(product, desde, hasta, almacen))
             elements.append(PageBreak())
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
@@ -1039,12 +1039,12 @@ class ReporteKardexPDF():
 
         elements = []
         productos_kardex = Kardex.objects.exclude(in_quantity=0,
-                                                  out_quantity=0).order_by().values('producto').distinct()
+                                                  out_quantity=0).order_by().values('product').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
-            'description').select_related('unidad_medida', 'tipo_existencia')
+            'description').select_related('unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
-        for producto in productos:
+        for product in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
@@ -1059,19 +1059,19 @@ class ReporteKardexPDF():
             address = Paragraph(u"ESTABLECIMIENTO (1): " + empresa().address(), izquierda)
             elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
-            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + producto.code, izquierda)
+            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+            description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1079,7 +1079,7 @@ class ReporteKardexPDF():
                                izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.5 * cm))
-            elements.append(self.tabla_detalle_valorizado(producto, desde, hasta, almacen))
+            elements.append(self.tabla_detalle_valorizado(product, desde, hasta, almacen))
             elements.append(PageBreak())
         doc.build(elements, onFirstPage=self._header, onLaterPages=self._header)
         pdf = buffer.getvalue()
@@ -1089,7 +1089,7 @@ class ReporteKardexPDF():
 
 class ReporteKardexExcel():
 
-    def obtener_formato_sunat_unidades_fisicas_producto(self, producto, desde, hasta, almacen):
+    def obtener_formato_sunat_unidades_fisicas_producto(self, product, desde, hasta, almacen):
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1118,15 +1118,15 @@ class ReporteKardexExcel():
         ws.merge_cells('B5:K5')
         ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells('B6:E6')
-        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
+        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + product.code
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
+            'B8'] = u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description
         ws.merge_cells('B8:G8')
-        ws['B9'] = u"DESCRIPCIÓN: " + producto.description
+        ws['B9'] = u"DESCRIPCIÓN: " + product.description
         ws.merge_cells('B9:E9')
         ws[
-            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.code + " - " + producto.unidad_medida.description
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.code + " - " + product.unit_of_measure.description
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1157,7 +1157,7 @@ class ReporteKardexExcel():
         ws.merge_cells('I13:I15')
 
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
@@ -1182,21 +1182,21 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.series
+            ws.cell(row=cont, column=4).value = kardex.movement.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.number
+            ws.cell(row=cont, column=5).value = kardex.movement.number
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
+            ws.cell(row=cont, column=6).value = kardex.movement.movement_type.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
             ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
@@ -1221,7 +1221,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).border = thin_border
         return wb
 
-    def obtener_formato_normal_producto(self, producto, desde, hasta, almacen):
+    def obtener_formato_normal_producto(self, product, desde, hasta, almacen):
         wb = Workbook()
         ws = wb.active
         ws.column_dimensions["C"].width = 14
@@ -1239,15 +1239,15 @@ class ReporteKardexExcel():
         ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         cont = 3
-        ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.code
+        ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
-        ws.cell(row=cont, column=4).value = u" Denominación: " + producto.description
+        ws.cell(row=cont, column=4).value = u" Denominación: " + product.description
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
-        ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.description
+        ws.cell(row=cont, column=11).value = " Unidad: " + product.unit_of_measure.description
         ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1275,13 +1275,13 @@ class ReporteKardexExcel():
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
                 ws.cell(row=cont, column=2).value = kardex.operation_date
                 ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
-                ws.cell(row=cont, column=3).value = kardex.movimiento.movement_id
-                ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
+                ws.cell(row=cont, column=3).value = kardex.movement.movement_id
+                ws.cell(row=cont, column=4).value = kardex.movement.movement_type.code
                 ws.cell(row=cont, column=5).value = kardex.in_quantity
                 ws.cell(row=cont, column=5).number_format = '#.00000'
                 ws.cell(row=cont, column=6).value = kardex.in_price
@@ -1340,7 +1340,7 @@ class ReporteKardexExcel():
             cont = cont + 2
         return wb
 
-    def obtener_formato_sunat_valorizado_producto(self, producto, desde, hasta, almacen):
+    def obtener_formato_sunat_valorizado_producto(self, product, desde, hasta, almacen):
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1369,15 +1369,15 @@ class ReporteKardexExcel():
         ws.merge_cells('B5:K5')
         ws['B6'] = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells('B6:E6')
-        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
+        ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + product.code
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
+            'B8'] = u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description
         ws.merge_cells('B8:G8')
-        ws['B9'] = u"DESCRIPCIÓN: " + producto.description
+        ws['B9'] = u"DESCRIPCIÓN: " + product.description
         ws.merge_cells('B9:E9')
         ws[
-            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.code + " - " + producto.unidad_medida.description
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.code + " - " + product.unit_of_measure.description
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1440,7 +1440,7 @@ class ReporteKardexExcel():
         ws.merge_cells('O14:O15')
 
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1487,21 +1487,21 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.series
+            ws.cell(row=cont, column=4).value = kardex.movement.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.number
+            ws.cell(row=cont, column=5).value = kardex.movement.number
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
+            ws.cell(row=cont, column=6).value = kardex.movement.movement_type.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
             ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
@@ -1563,7 +1563,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).border = thin_border
         return wb
 
-    def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta,
+    def obtener_formato_sunat_unidades_fisicas_excel_por_producto(self, ws, thin_border, cont, product, desde, hasta,
                                                                   almacen):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
@@ -1592,18 +1592,18 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
+        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + product.code
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
+                column=2).value = u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
+        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + product.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.code + " - " + producto.unidad_medida.description
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.code + " - " + product.unit_of_measure.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1635,7 +1635,7 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=5).border = thin_border
 
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
@@ -1660,21 +1660,21 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.series
+            ws.cell(row=cont, column=4).value = kardex.movement.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.number
+            ws.cell(row=cont, column=5).value = kardex.movement.number
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
+            ws.cell(row=cont, column=6).value = kardex.movement.movement_type.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
             ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
@@ -1701,7 +1701,7 @@ class ReporteKardexExcel():
 
     def obtener_formato_sunat_unidades_fisicas_todos(self, desde, hasta, almacen):
         productos = Producto.objects.all().order_by('description').select_related(
-            'unidad_medida', 'tipo_existencia')
+            'unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         wb = Workbook()
@@ -1711,14 +1711,14 @@ class ReporteKardexExcel():
                              top=Side(style='thin'),
                              bottom=Side(style='thin'))
         cont = 1
-        for producto in productos:
-            ws.title = producto.code
-            self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws, thin_border, cont, producto, desde,
+        for product in productos:
+            ws.title = product.code
+            self.obtener_formato_sunat_unidades_fisicas_excel_por_producto(ws, thin_border, cont, product, desde,
                                                                            hasta, almacen)
             ws = wb.create_sheet("Hoja")
         return wb
 
-    def obtener_formato_sunat_valorizado_excel_por_producto(self, ws, thin_border, cont, producto, desde, hasta,
+    def obtener_formato_sunat_valorizado_excel_por_producto(self, ws, thin_border, cont, product, desde, hasta,
                                                             almacen):
         ws.column_dimensions["C"].width = 15
         ws.column_dimensions["F"].width = 12
@@ -1747,18 +1747,18 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=2).value = u"ESTABLECIMIENTO (1): " + empresa().address()
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
+        ws.cell(row=cont, column=2).value = u"CÓDIGO DE LA EXISTENCIA: " + product.code
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
+                column=2).value = u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
+        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + product.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.code + " - " + producto.unidad_medida.description
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.code + " - " + product.unit_of_measure.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1818,7 +1818,7 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont - 1, start_column=15, end_row=cont, end_column=15)
         ws.cell(row=cont - 1, column=15).border = thin_border
         try:
-            kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
+            kardex_inicial = kardex_inicial_de(self, product, almacen, desde)
             cant_saldo_inicial = kardex_inicial.total_quantity
             valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
@@ -1866,21 +1866,21 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).border = thin_border
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-            self, producto, almacen, desde, hasta)
+            self, product, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movement.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.series
+            ws.cell(row=cont, column=4).value = kardex.movement.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.number
+            ws.cell(row=cont, column=5).value = kardex.movement.number
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
+            ws.cell(row=cont, column=6).value = kardex.movement.movement_type.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
             ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
@@ -1944,7 +1944,7 @@ class ReporteKardexExcel():
 
     def obtener_formato_sunat_valorizado_todos(self, desde, hasta, almacen):
         productos = Producto.objects.all().order_by('description').select_related(
-            'unidad_medida', 'tipo_existencia')
+            'unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         wb = Workbook()
@@ -1954,9 +1954,9 @@ class ReporteKardexExcel():
                              top=Side(style='thin'),
                              bottom=Side(style='thin'))
         cont = 1
-        for producto in productos:
-            ws.title = producto.code
-            self.obtener_formato_sunat_valorizado_excel_por_producto(ws, thin_border, cont, producto, desde, hasta,
+        for product in productos:
+            ws.title = product.code
+            self.obtener_formato_sunat_valorizado_excel_por_producto(ws, thin_border, cont, product, desde, hasta,
                                                                      almacen)
             ws = wb.create_sheet("Hoja")
         return wb
@@ -2014,10 +2014,10 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = grupo.description
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = grupo.ctacontable.account_number
+            ws.cell(row=cont, column=4).value = grupo.account.account_number
             ws.cell(row=cont, column=4).border = thin_border
             try:
-                kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
+                kardex_inicial = Kardex.objects.filter(product__product_group=grupo,
                                                        almacen=almacen,
                                                        operation_date__lt=desde).latest('operation_date')
                 cant_saldo_inicial = kardex_inicial.total_quantity
@@ -2101,13 +2101,13 @@ class ReporteKardexExcel():
         cont = 4
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
-        for producto in productos:
-            ws.cell(row=cont, column=2).value = producto.code
+        for product in productos:
+            ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=2).border = thin_border
-            ws.cell(row=cont, column=3).value = producto.description
+            ws.cell(row=cont, column=3).value = product.description
             ws.cell(row=cont, column=3).border = thin_border
             try:
-                kardex_inicial = iniciales.get(producto.pk)
+                kardex_inicial = iniciales.get(product.pk)
                 cant_saldo_inicial = kardex_inicial.total_quantity
                 valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
@@ -2120,7 +2120,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-                self, producto, almacen, desde, hasta)
+                self, product, almacen, desde, hasta)
             total_quantity = cant_saldo_inicial + in_quantity - out_quantity
             total_amount = valor_saldo_inicial + in_amount - out_amount
             ws.cell(row=cont, column=6).value = in_quantity
@@ -2145,9 +2145,9 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_formato_normal_todos(self, desde, hasta, almacen):
-        productos = (Kardex.objects.filter(almacen=almacen).order_by('producto')
-                     .distinct('producto__code')
-                     .select_related('producto__unidad_medida'))
+        productos = (Kardex.objects.filter(almacen=almacen).order_by('product')
+                     .distinct('product__code')
+                     .select_related('product__unit_of_measure'))
         wb = Workbook()
         ws = wb.active
         ws['E1'] = u'Almacén: ' + almacen.description
@@ -2167,21 +2167,21 @@ class ReporteKardexExcel():
         ws['L3'] = 'PRE. TOT'
         ws['M3'] = 'VALOR. TOT'
         cont = 4
-        ultimos = Kardex.ultimos_por_producto([prod.producto_id for prod in productos],
+        ultimos = Kardex.ultimos_por_producto([prod.product_id for prod in productos],
                                               antes_de=desde, almacen=almacen)
-        self.kardex_lote = Producto.kardex_por_lote([prod.producto_id for prod in productos],
+        self.kardex_lote = Producto.kardex_por_lote([prod.product_id for prod in productos],
                                                     almacen, desde, hasta)
         for prod in productos:
-            producto = prod.producto
-            ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.code
+            product = prod.product
+            ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
             ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
-            ws.cell(row=cont, column=4).value = u" Denominación: " + producto.description
+            ws.cell(row=cont, column=4).value = u" Denominación: " + product.description
             ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
-            ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.description
+            ws.cell(row=cont, column=11).value = " Unidad: " + product.unit_of_measure.description
             ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
             cont += 1
             try:
-                kardex_inicial = ultimos.get(producto.pk)
+                kardex_inicial = ultimos.get(product.pk)
                 cant_saldo_inicial = kardex_inicial.total_quantity
                 valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
@@ -2197,13 +2197,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
-                self, producto, almacen, desde, hasta)
+                self, product, almacen, desde, hasta)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
                     ws.cell(row=cont, column=2).value = kardex.operation_date
                     ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
-                    ws.cell(row=cont, column=3).value = kardex.movimiento.movement_id
-                    ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
+                    ws.cell(row=cont, column=3).value = kardex.movement.movement_id
+                    ws.cell(row=cont, column=4).value = kardex.movement.movement_type.code
                     ws.cell(row=cont, column=5).value = kardex.in_quantity
                     ws.cell(row=cont, column=6).value = kardex.in_price
                     ws.cell(row=cont, column=6).number_format = '#.00000'
@@ -2262,7 +2262,7 @@ class ReporteKardexExcel():
 
 def reporte_inventario(desde):
     """Construye el libro de Excel del reporte de inventario."""
-    grupo_productos = GrupoProductos.objects.filter(is_active=True).select_related('ctacontable')
+    product_group = GrupoProductos.objects.filter(is_active=True).select_related('account')
 
     wb = Workbook()
     ws = wb.active
@@ -2332,10 +2332,10 @@ def reporte_inventario(desde):
     cont = 5
     total_final = 0
     resumen_inventario = []
-    for grupo_producto in grupo_productos:
+    for grupo_producto in product_group:
 
-        productos = list(Producto.objects.filter(grupo_productos=grupo_producto)
-                         .select_related('unidad_medida'))
+        productos = list(Producto.objects.filter(product_group=grupo_producto)
+                         .select_related('unit_of_measure'))
         bandera = " "
         tempo_cuenta = ""
 
@@ -2348,12 +2348,12 @@ def reporte_inventario(desde):
             bandera = grupo_producto.description
             cont += 2
             ultimos = Kardex.ultimos_por_producto(productos)
-            for producto in productos:
+            for product in productos:
                 try:
-                    kardex = ultimos.get(producto.pk)
-                    code = kardex.producto.code
-                    description = kardex.producto.description
-                    unidad_medida = kardex.producto.unidad_medida.description
+                    kardex = ultimos.get(product.pk)
+                    code = kardex.product.code
+                    description = kardex.product.description
+                    unit_of_measure = kardex.product.unit_of_measure.description
                     stock = kardex.total_quantity
                     price = kardex.total_price
                     amount = kardex.total_amount
@@ -2361,9 +2361,9 @@ def reporte_inventario(desde):
                     sum_valor += amount
 
                 except (Kardex.DoesNotExist, AttributeError):
-                    code = producto.code
-                    description = producto.description
-                    unidad_medida = producto.unidad_medida.code
+                    code = product.code
+                    description = product.description
+                    unit_of_measure = product.unit_of_measure.code
                     stock = 0
                     price = 0
                     amount = 0
@@ -2374,8 +2374,8 @@ def reporte_inventario(desde):
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.account_number
-                tempo_cuenta = grupo_producto.ctacontable.account_number
+                ws.cell(row=cont, column=1).value = grupo_producto.account.account_number
+                tempo_cuenta = grupo_producto.account.account_number
                 ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
                 ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"),
                                                             right=Side(border_style="thin"),
@@ -2414,7 +2414,7 @@ def reporte_inventario(desde):
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=6).value = unidad_medida
+                ws.cell(row=cont, column=6).value = unit_of_measure
 
                 temp_precio = format(price, '.3f')
                 if temp_precio == '-0.000':

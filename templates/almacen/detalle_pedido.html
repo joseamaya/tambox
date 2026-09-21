@@ -39,11 +39,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_pedido' pedido.anterior %}';">
+                    onclick="location.href='{% url 'almacen:order_detail' order.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:detalle_pedido' pedido.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:order_detail' order.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -65,11 +65,11 @@
             </div>
             <div class="col-md-4">
                 <label>Solicitante:</label>
-                <p>{{ object.solicitante }}</p>
+                <p>{{ object.requester }}</p>
             </div>
             <div class="col-md-6">
                 <label>Oficina:</label>
-                <p>{{ object.oficina }}</p>
+                <p>{{ object.office }}</p>
             </div>
         </div>
         <div class="row">
@@ -105,9 +105,9 @@
                     <tbody>
                     {% for detalle in object.details.all %}
                     <tr>
-                        <td>{{ detalle.producto.code }}</td>
-                        <td>{{ detalle.producto.description }}</td>
-                        <td>{{ detalle.producto.unidad_medida.description }}</td>
+                        <td>{{ detalle.product.code }}</td>
+                        <td>{{ detalle.product.description }}</td>
+                        <td>{{ detalle.product.unit_of_measure.description }}</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.served_quantity }}</td>
                     </tr>

@@ -6,7 +6,7 @@
         {% if perms.compras.add_cotizacion %} <a
             href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if cotizacion.status == "PEND" %}
+        {% if quotation.status == "PEND" %}
         {% if perms.compras.change_cotizacion %}
         <a class="btn btn-warning" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a>
         {% endif %}
@@ -51,11 +51,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.anterior %}';">
+                    onclick="location.href='{% url 'compras:quotation_detail' quotation.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.siguiente %}';">
+                    onclick="location.href='{% url 'compras:quotation_detail' quotation.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -90,15 +90,15 @@
         <div class="row">
             <div class="col-md-2">
                 <label>RUC:</label>
-                <p>{{ object.proveedor.tax_id }}</p>
+                <p>{{ object.supplier.tax_id }}</p>
             </div>
             <div class="col-md-4">
                 <label>Razón Social:</label>
-                <p>{{ object.proveedor.business_name }}</p>
+                <p>{{ object.supplier.business_name }}</p>
             </div>
             <div class="col-md-6">
                 <label>Dirección:</label>
-                <p>{{ object.proveedor.address }}</p>
+                <p>{{ object.supplier.address }}</p>
             </div>
         </div>
         <div class="row">
@@ -108,8 +108,8 @@
             </div>
             <div class="col-md-3">
                 <label>Referencia:</label>
-                <p><a href="{% url 'requerimientos:detalle_requerimiento' object.requerimiento.pk %}">{{
-                    object.requerimiento }}</a></p>
+                <p><a href="{% url 'requerimientos:requirement_detail' object.requirement.pk %}">{{
+                    object.requirement }}</a></p>
             </div>
         </div>
         <hr/>
@@ -128,9 +128,9 @@
                     <tbody>
                     {% for detalle in object.details.all %}
                     <tr>
-                        <td>{{ detalle.detalle_requerimiento.producto.code }}</td>
-                        <td>{{ detalle.detalle_requerimiento.producto.description }}</td>
-                        <td>{{ detalle.detalle_requerimiento.producto.unidad_medida.description }}</td>
+                        <td>{{ detalle.requirement_detail.product.code }}</td>
+                        <td>{{ detalle.requirement_detail.product.description }}</td>
+                        <td>{{ detalle.requirement_detail.product.unit_of_measure.description }}</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.purchased_quantity }}</td>
                     </tr>
@@ -179,7 +179,7 @@ $(document).ready(function()
 				if (data.ordenes == 'NO') 
 				{
 					alert("Cotización " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:detalle_cotizacion' cotizacion.siguiente %}");
+					$(location).attr('href', "{% url 'compras:quotation_detail' quotation.siguiente %}");
 				} 
 				else if (data.ordenes == 'SI') 
 				{

@@ -24,15 +24,15 @@
                             </tr>
                             </tfoot>
                             <tbody>
-                            {% for orden in ordenes %}
+                            {% for order in ordenes %}
                             <tr>
-                                <td>{{ orden.code }}</td>
-                                {% if orden.cotizacion %}
-                                <td>{{ orden.cotizacion.proveedor }}</td>
+                                <td>{{ order.code }}</td>
+                                {% if order.quotation %}
+                                <td>{{ order.quotation.supplier }}</td>
                                 {% else %}
-                                <td>{{ orden.proveedor }}</td>
+                                <td>{{ order.supplier }}</td>
                                 {% endif %}
-                                <td>{{ orden.date|date:"d/m/Y" }}</td>
+                                <td>{{ order.date|date:"d/m/Y" }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>

@@ -111,11 +111,11 @@ class DetallePedidoTest(TestCase):
     def setUp(self):
         self.fecha_actual = date.today()
         self.pe1 = baker.make(Pedido, code='', date=self.fecha_actual)
-        self.dpe1 = baker.make(DetallePedido, pedido=self.pe1)
+        self.dpe1 = baker.make(DetallePedido, order=self.pe1)
 
     def test_creacion_detalle_pedido(self):
         self.assertTrue(isinstance(self.dpe1, DetallePedido))
-        self.assertEqual(self.dpe1.__str__(), self.dpe1.pedido.code + ' ' + str(self.dpe1.line_number))
+        self.assertEqual(self.dpe1.__str__(), self.dpe1.order.code + ' ' + str(self.dpe1.line_number))
 
     def test_cantidad_por_atender(self):
         resultado = self.dpe1.quantity - self.dpe1.served_quantity
@@ -130,59 +130,59 @@ class MovimientoTest(TestCase):
         self.assertEqual(mov1.__str__(), mov1.movement_id)
 
     def test_creacion_movimiento_ingreso(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=True)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual("I" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.movement_id)
         self.assertEqual("I" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.movement_id)
 
     def test_creacion_movimiento_salida(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=False)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual("S" + str(mov1.operation_date.year) + str(1).zfill(7), mov1.movement_id)
         self.assertEqual("S" + str(mov2.operation_date.year) + str(2).zfill(7), mov2.movement_id)
 
     def test_siguiente_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=True)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual(mov2.pk, mov1.siguiente())
         self.assertEqual(mov3.pk, mov2.siguiente())
 
     def test_anterior_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=False)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov3 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual(mov1.pk, mov2.anterior())
         self.assertEqual(mov2.pk, mov3.anterior())
 
     def test_primer_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=True)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual(mov1.pk, mov2.siguiente())
 
     def test_ultimo_movimiento(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=False)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
-        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento)
+        movement_type = baker.make(TipoMovimiento, code='', increases=False)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
+        mov2 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type)
         self.assertEqual(mov2.pk, mov1.anterior())
 
     def test_eliminar_referencia(self):
         """Devuelve la orden referenciada a su estado segun lo que queda
         ingresado. Un refactor anterior renombro el metodo a
         `eliminar_referencia` y este test quedo apuntando al nombre viejo."""
-        tipo_movimiento = baker.make(TipoMovimiento, code='', increases=True, requires_reference=True)
-        referencia = baker.make(OrdenCompra, cotizacion=None)
-        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), tipo_movimiento=tipo_movimiento,
-                          referencia=referencia)
+        movement_type = baker.make(TipoMovimiento, code='', increases=True, requires_reference=True)
+        reference = baker.make(OrdenCompra, quotation=None)
+        mov1 = baker.make(Movimiento, movement_id='', operation_date=timezone.now(), movement_type=movement_type,
+                          reference=reference)
 
         mov1.eliminar_referencia()
 
-        self.assertEqual(mov1.referencia.status, OrdenCompra.STATUS.PEND)
+        self.assertEqual(mov1.reference.status, OrdenCompra.STATUS.PEND)
 
 
 class ReporteInventarioTest(TestCase):
@@ -205,11 +205,11 @@ class ReporteInventarioTest(TestCase):
 
         account_number = baker.make(CuentaContable)
         grupo = baker.make(GrupoProductos, code='GR0001', description='GRUPO UNO',
-                           ctacontable=account_number, contains_products=True)
+                           account=account_number, contains_products=True)
         unidad = baker.make(UnidadMedida, code='UND01')
         baker.make(Producto, code='GR00010001', description='PRODUCTO UNO',
-                   grupo_productos=grupo, unidad_medida=unidad,
-                   tipo_existencia=baker.make(TipoExistencia))
+                   product_group=grupo, unit_of_measure=unidad,
+                   stock_type=baker.make(TipoExistencia))
 
         libro = reporte_inventario(date.today())
         codigos = [celda.value for celda in libro.active['B']]
@@ -225,11 +225,11 @@ class ReporteInventarioTest(TestCase):
         from contabilidad.models import CuentaContable, TipoExistencia
         from productos.models import GrupoProductos, Producto
 
-        grupo = baker.make(GrupoProductos, code='000001', ctacontable=baker.make(CuentaContable))
+        grupo = baker.make(GrupoProductos, code='000001', account=baker.make(CuentaContable))
         unidad = baker.make(UnidadMedida)
-        tipo_existencia = baker.make(TipoExistencia)
-        campos = {'grupo_productos': grupo, 'unidad_medida': unidad,
-                  'tipo_existencia': tipo_existencia}
+        stock_type = baker.make(TipoExistencia)
+        campos = {'product_group': grupo, 'unit_of_measure': unidad,
+                  'stock_type': stock_type}
         baker.make(Producto, code='', **campos)
 
         with CaptureQueriesContext(connection) as con_un_producto:
@@ -277,7 +277,7 @@ class CargarCsvTest(TestCase):
         self.assertEqual(Almacen.objects.get(code='AL01').description, 'ALMACEN UNO')
 
     def test_cargar_inventario_inicial(self):
-        tipo_movimiento = baker.make(TipoMovimiento, code='I00', increases=True)
+        movement_type = baker.make(TipoMovimiento, code='I00', increases=True)
         baker.make(TipoDocumento, sunat_code='PEC')
         almacen = baker.make(Almacen)
         producto_uno = baker.make(Producto, description='PRODUCTO UNO')
@@ -292,11 +292,11 @@ class CargarCsvTest(TestCase):
                                       'almacenes': almacen.pk})
 
         self.assertEqual(respuesta.status_code, 302)
-        movimiento = Movimiento.objects.get()
-        self.assertEqual(movimiento.tipo_movimiento, tipo_movimiento)
+        movement = Movimiento.objects.get()
+        self.assertEqual(movement.movement_type, movement_type)
         detalles = list(DetalleMovimiento.objects.order_by('line_number'))
         self.assertEqual([detalle.line_number for detalle in detalles], [1, 2])
-        self.assertEqual([detalle.producto for detalle in detalles], [producto_uno, producto_dos])
+        self.assertEqual([detalle.product for detalle in detalles], [producto_uno, producto_dos])
         self.assertEqual([detalle.quantity for detalle in detalles], [Decimal('10'), Decimal('2')])
         self.assertEqual(detalles[0].amount, Decimal('50'))
         self.assertEqual(detalles[1].amount, Decimal('7'))
@@ -326,25 +326,25 @@ class TotalDeMovimientoTest(TestCase):
     """Suma la columna `amount`, asi que el agregado es exacto y ademas se memoriza."""
 
     def test_se_calcula_una_sola_vez(self):
-        movimiento = baker.make(Movimiento)
+        movement = baker.make(Movimiento)
 
         with self.assertNumQueries(1):
-            movimiento.total
+            movement.total
 
         with self.assertNumQueries(0):
-            movimiento.total
+            movement.total
 
 
 class UltimosPorProductoTest(TestCase):
     """Las vistas de stock resolvian el ultimo Kardex con un `latest()` por
-    producto: una consulta por fila y MultipleObjectsReturned si dos movimientos
+    product: una consulta por fila y MultipleObjectsReturned si dos movimientos
     compartian date."""
 
     def setUp(self):
         self.almacen = baker.make(Almacen)
         self.productos = [baker.make(Producto) for _ in range(3)]
-        for producto in self.productos:
-            baker.make(Kardex, almacen=self.almacen, producto=producto,
+        for product in self.productos:
+            baker.make(Kardex, almacen=self.almacen, product=product,
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)))
 
     def test_una_consulta_para_todo_el_lote(self):
@@ -355,23 +355,23 @@ class UltimosPorProductoTest(TestCase):
 
     def test_el_producto_viene_cargado(self):
         """El `select_related` es lo que evita una consulta por fila al leer
-        `kardex.producto.description` en los bucles."""
+        `kardex.product.description` en los bucles."""
         ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
 
         with self.assertNumQueries(0):
             for kardex in ultimos.values():
-                kardex.producto.code
-                kardex.producto.unidad_medida
+                kardex.product.code
+                kardex.product.unit_of_measure
 
     def test_desempata_por_pk(self):
-        producto = self.productos[0]
-        primero = Kardex.objects.get(producto=producto)
-        segundo = baker.make(Kardex, almacen=self.almacen, producto=producto,
+        product = self.productos[0]
+        primero = Kardex.objects.get(product=product)
+        segundo = baker.make(Kardex, almacen=self.almacen, product=product,
                              operation_date=primero.operation_date)
 
-        ultimos = Kardex.ultimos_por_producto([producto], almacen=self.almacen)
+        ultimos = Kardex.ultimos_por_producto([product], almacen=self.almacen)
 
-        self.assertEqual(ultimos[producto.pk].pk, segundo.pk)
+        self.assertEqual(ultimos[product.pk].pk, segundo.pk)
 
 
 class ReporteKardexConsolidadoTest(TestCase):
@@ -386,8 +386,8 @@ class ReporteKardexConsolidadoTest(TestCase):
 
         self.almacen = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
-                                ctacontable=baker.make(CuentaContable), contains_products=True)
-        self.productos = [baker.make(Producto, code='', grupo_productos=self.grupo)
+                                account=baker.make(CuentaContable), contains_products=True)
+        self.productos = [baker.make(Producto, code='', product_group=self.grupo)
                           for number in range(3)]
 
     def reporte(self):
@@ -424,17 +424,17 @@ class ReporteKardexExcelTest(TestCase):
 
         self.almacen = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
-                                ctacontable=baker.make(CuentaContable))
+                                account=baker.make(CuentaContable))
         self.unidad = baker.make(UnidadMedida)
-        self.tipo_existencia = baker.make(TipoExistencia)
+        self.stock_type = baker.make(TipoExistencia)
         self.document_type = baker.make(TipoDocumento, sunat_code='PEC')
-        self.tipo_movimiento = baker.make(TipoMovimiento, code='I01', sunat_code='01')
-        self.producto = baker.make(Producto, code='', grupo_productos=self.grupo,
-                                   unidad_medida=self.unidad,
-                                   tipo_existencia=self.tipo_existencia)
+        self.movement_type = baker.make(TipoMovimiento, code='I01', sunat_code='01')
+        self.product = baker.make(Producto, code='', product_group=self.grupo,
+                                   unit_of_measure=self.unidad,
+                                   stock_type=self.stock_type)
         self.desde = date(2024, 1, 1)
         self.hasta = date(2024, 1, 31)
-        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+        baker.make(Kardex, almacen=self.almacen, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'))
 
@@ -451,12 +451,12 @@ class ReporteKardexExcelTest(TestCase):
             reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
 
         for number in range(9):
-            producto = baker.make(Producto, code='', grupo_productos=self.grupo,
-                                  unidad_medida=self.unidad,
-                                  tipo_existencia=self.tipo_existencia)
-            baker.make(Kardex, almacen=self.almacen, producto=producto,
-                       movimiento=baker.make(Movimiento, document_type=self.document_type,
-                                             tipo_movimiento=self.tipo_movimiento),
+            product = baker.make(Producto, code='', product_group=self.grupo,
+                                  unit_of_measure=self.unidad,
+                                  stock_type=self.stock_type)
+            baker.make(Kardex, almacen=self.almacen, product=product,
+                       movement=baker.make(Movimiento, document_type=self.document_type,
+                                             movement_type=self.movement_type),
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
                        total_quantity=Decimal('5'), total_amount=Decimal('10'))
 
@@ -471,7 +471,7 @@ class ReporteKardexExcelTest(TestCase):
     def test_el_consolidado_usa_el_kardex_anterior_al_periodo(self):
         from almacen.reports import ReporteKardexExcel
 
-        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+        baker.make(Kardex, almacen=self.almacen, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
                    total_quantity=Decimal('99'), total_amount=Decimal('99'))
 
@@ -505,12 +505,12 @@ class ReporteKardexPorProductoTest(TestCase):
 
         self.almacen = baker.make(Almacen)
         self.grupo = baker.make(GrupoProductos, code='000001',
-                                ctacontable=baker.make(CuentaContable))
-        self.producto = baker.make(Producto, code='', grupo_productos=self.grupo,
-                                   tipo_existencia=baker.make(TipoExistencia))
+                                account=baker.make(CuentaContable))
+        self.product = baker.make(Producto, code='', product_group=self.grupo,
+                                   stock_type=baker.make(TipoExistencia))
         self.desde = date(2024, 1, 1)
         self.hasta = date(2024, 1, 31)
-        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+        baker.make(Kardex, almacen=self.almacen, product=self.product,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'),
                    total_price=Decimal('3'))
@@ -523,11 +523,11 @@ class ReporteKardexPorProductoTest(TestCase):
                                    GrupoProductos.objects.all())
 
         unidades = reporte.tabla_detalle_unidades_fisicas(
-            self.producto, self.desde, self.hasta, self.almacen)
+            self.product, self.desde, self.hasta, self.almacen)
         self.assertEqual(unidades._cellvalues[2][7], '7.00')
 
         valorizado = reporte.tabla_detalle_valorizado(
-            self.producto, self.desde, self.hasta, self.almacen)
+            self.product, self.desde, self.hasta, self.almacen)
         self.assertTrue(valorizado._cellvalues)
 
     def test_los_todos_precargan_el_lote(self):
@@ -538,7 +538,7 @@ class ReporteKardexPorProductoTest(TestCase):
             self.desde, self.hasta, self.almacen)
 
         self.assertTrue(libro.sheetnames)
-        self.assertIn(self.producto.pk, reporte.kardex_iniciales)
+        self.assertIn(self.product.pk, reporte.kardex_iniciales)
 
     def test_los_todos_valorizados_precargan_el_lote(self):
         from almacen.reports import ReporteKardexExcel
@@ -548,7 +548,7 @@ class ReporteKardexPorProductoTest(TestCase):
             self.desde, self.hasta, self.almacen)
 
         self.assertTrue(libro.sheetnames)
-        self.assertIn(self.producto.pk, reporte.kardex_iniciales)
+        self.assertIn(self.product.pk, reporte.kardex_iniciales)
 
     def test_los_formatos_de_un_solo_producto(self):
         from almacen.reports import ReporteKardexExcel
@@ -558,7 +558,7 @@ class ReporteKardexPorProductoTest(TestCase):
                        'obtener_formato_sunat_valorizado_producto',
                        'obtener_formato_normal_producto'):
             with self.subTest(metodo=metodo):
-                libro = getattr(reporte, metodo)(self.producto, self.desde,
+                libro = getattr(reporte, metodo)(self.product, self.desde,
                                                  self.hasta, self.almacen)
                 self.assertTrue(libro.sheetnames)
 
@@ -570,10 +570,10 @@ class StockAjaxTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
         self.almacen = baker.make(Almacen)
-        self.producto = baker.make(Producto, description='ACERO INOXIDABLE',
-                                   unidad_medida=baker.make(UnidadMedida))
-        self.unidad = self.producto.unidad_medida
-        baker.make(Kardex, almacen=self.almacen, producto=self.producto,
+        self.product = baker.make(Producto, description='ACERO INOXIDABLE',
+                                   unit_of_measure=baker.make(UnidadMedida))
+        self.unidad = self.product.unit_of_measure
+        baker.make(Kardex, almacen=self.almacen, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
                    total_quantity=Decimal('7'), total_amount=Decimal('21'), total_price=Decimal('3'))
 
@@ -587,7 +587,7 @@ class StockAjaxTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()
         self.assertEqual(len(datos), 1)
-        self.assertEqual(datos[0]['code'], self.producto.code)
+        self.assertEqual(datos[0]['code'], self.product.code)
         self.assertEqual(datos[0]['label'], 'ACERO INOXIDABLE')
         self.assertEqual(datos[0]['unidad'], self.unidad.code)
         self.assertAlmostEqual(datos[0]['stock'], 7)
@@ -598,6 +598,6 @@ class StockAjaxTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()
         self.assertEqual(len(datos), 1)
-        self.assertEqual(datos[0]['code'], self.producto.code)
+        self.assertEqual(datos[0]['code'], self.product.code)
         self.assertEqual(datos[0]['unidad'], self.unidad.description)
         self.assertEqual(Decimal(datos[0]['price']), Decimal('3'))

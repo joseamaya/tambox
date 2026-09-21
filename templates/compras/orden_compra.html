@@ -1,7 +1,7 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Órdenes de Compra / {{ orden.pk }}</h3>
+<h3>Órdenes de Compra / {{ order.pk }}</h3>
 {% else %}
 <h3>Órdenes de Compra / Nuevo</h3>
 {% endif %}
@@ -11,7 +11,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_orden_compra' orden.pk %}'">
+                    onclick="location.href='{% url 'compras:purchase_order_detail' order.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -24,11 +24,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_compra' orden.anterior %}';">
+                        onclick="location.href='{% url 'compras:modificar_orden_compra' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_compra' orden.siguiente %}';">
+                        onclick="location.href='{% url 'compras:modificar_orden_compra' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -101,21 +101,21 @@
                     </div>
                     <div class="col-md-4">
                         <label>FORMA DE PAGO:</label>
-                        {% if form.forma_pago.errors %}
-                        {% for error in form.forma_pago.errors %}
+                        {% if form.payment_method.errors %}
+                        {% for error in form.payment_method.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.forma_pago }}
+                        {{ form.payment_method }}
                     </div>
                     <div class="col-md-2">
                         <label>COTIZACION:</label>
-                        {% if form.referencia.errors %}
-                        {% for error in form.referencia.errors %}
+                        {% if form.reference.errors %}
+                        {% for error in form.reference.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.referencia }}
+                        {{ form.reference }}
                     </div>
                     <div class="col-md-3">
                         <label>BUSQ. DE COTIZACIÓN:</label>
@@ -185,7 +185,7 @@
                         {% for detalle_orden_compra_form in detalle_orden_compra_formset %}
                         <tr class="detalle_orden_compra_formset">
                             <td>
-                                {{ detalle_orden_compra_form.cotizacion }}
+                                {{ detalle_orden_compra_form.quotation }}
                                 {% if detalle_orden_compra_form.code.errors %}
                                 {% for error in detalle_orden_compra_form.code.errors %}
                                 {% include "includes/error.html" %}
@@ -541,7 +541,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 						"<tr class='detalle_orden_compra_formset'>" +
-						"<td>" + item.cotizacion + item.code + "</td>" +
+						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +
@@ -577,8 +577,8 @@ $(document).ready(function()
 		    minLength: 2,
 		    select: function( event, ui ) 
 		    {
-		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("name", "");
+		    	var id_product = $(this).prop('id');
+				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
@@ -614,7 +614,7 @@ $(document).ready(function()
 	
 	function transferirCotizacion()
 	{		
-		var cotizacion = $("#cotizacion").val();		
+		var quotation = $("#quotation").val();		
 		contDetalles = 0;
 		var impuesto = 0;
 		subtotal=0;
@@ -624,7 +624,7 @@ $(document).ready(function()
 		$('#detalles td').parent().remove();
 		$.ajax({
 	      url: "{% url 'compras:busqueda_cotizacion' %}",
-	      data: {'code': cotizacion},
+	      data: {'code': quotation},
 	      success: function(data) 
 	      {
 	    	  $("#id_tax_id").val(data.tax_id);
@@ -635,7 +635,7 @@ $(document).ready(function()
 	    });
 		
 		$.ajax({
-			data : {'cotizacion': cotizacion, 'tipo_busqueda': 'PRODUCTOS'},
+			data : {'quotation': quotation, 'tipo_busqueda': 'PRODUCTOS'},
 			url : "{% url 'compras:obtener_detalle_cotizacion' %}",
 			type : 'get',
 			success : function(data)
@@ -643,7 +643,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_orden_compra_formset'>" +
-						"<td>" + item.cotizacion + item.code + "</td>" +
+						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +
@@ -660,7 +660,7 @@ $(document).ready(function()
 				});
 				subtotal = total - impuesto_total;
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
-				$("#id_referencia").val(cotizacion);				
+				$("#id_reference").val(quotation);				
 				$("#id_subtotal").val(subtotal.toFixed(2));
 				$("#id_impuesto").val(impuesto_total.toFixed(2));
 				$("#id_total").val(total.toFixed(2));
@@ -719,14 +719,14 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var cont=0;
-		var forma_pago = $('#id_forma_pago').val();
+		var payment_method = $('#id_payment_method').val();
 		var tax_id = $('#id_tax_id').val();
 		var date = $('#id_date').val().trim();
 		if(tax_id != '')
 		{					
 			if(date != '')
 			{					
-				if(forma_pago)
+				if(payment_method)
 				{
 					if (contDetalles > 0)
 					{
@@ -756,7 +756,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha ingresado el tax_id del proveedor");
+			alert("No ha ingresado el RUC del proveedor");
 		}
 		event.preventDefault();
 	});

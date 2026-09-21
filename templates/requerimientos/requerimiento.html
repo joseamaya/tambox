@@ -1,7 +1,7 @@
 {% extends "requerimientos/base_requerimientos.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Requerimientos / {{ requerimiento.pk }}</h3>
+<h3>Requerimientos / {{ requirement.pk }}</h3>
 {% else %}
 <h3>Requerimientos / Nuevo</h3>
 {% endif %}
@@ -11,7 +11,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.pk %}'">
+                    onclick="location.href='{% url 'requerimientos:requirement_detail' requirement.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -162,12 +162,12 @@
                                 {{ detalle_requerimiento_form.code }}
                             </td>
                             <td>
-                                {% if detalle_requerimiento_form.producto.errors %}
-                                {% for error in detalle_requerimiento_form.producto.errors %}
+                                {% if detalle_requerimiento_form.product.errors %}
+                                {% for error in detalle_requerimiento_form.product.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_requerimiento_form.producto }}
+                                {{ detalle_requerimiento_form.product }}
                             </td>
                             <td>
                                 {% if detalle_requerimiento_form.unidad.errors %}
@@ -235,7 +235,7 @@ $(document).ready(function()
 						$("#detalles tbody").append( 
 						"<tr class='detalle_requerimiento_formset'>" +
 							"<td>" + item.code + "</td>" +
-							"<td>" + item.producto + "</td>" +
+							"<td>" + item.product + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.quantity + "</td>" +
 							"<td>" + item.use + "</td>" +
@@ -270,10 +270,10 @@ $(document).ready(function()
 		  minLength: 2,
 		  select: function( event, ui ) 
 		  {
-			var id_producto = $(this).prop('id');
-			var id = id_producto.replace("producto", "");
+			var id_product = $(this).prop('id');
+			var id = id_product.replace("product", "");
 			$("#"+id+"code").val(ui.item.code);
-			$("#"+id+"producto").val(ui.item.description);
+			$("#"+id+"product").val(ui.item.description);
 			$("#"+id+"unidad").val(ui.item.unidad);
 			return false;
 		  },

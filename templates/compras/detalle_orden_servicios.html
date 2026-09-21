@@ -43,11 +43,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_orden_servicios' object.anterior %}';">
+                    onclick="location.href='{% url 'compras:service_order_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_orden_servicios' object.siguiente %}';">
+                    onclick="location.href='{% url 'compras:service_order_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -81,34 +81,34 @@
                     <p>{{ object.get_status_display }}</p>
                 </div>
             </div>
-            {% if object.cotizacion %}
+            {% if object.quotation %}
             <div class="row">
                 <div class="col-md-2">
                     <label>RUC:</label>
-                    <p>{{ object.cotizacion.proveedor.tax_id }}</p>
+                    <p>{{ object.quotation.supplier.tax_id }}</p>
                 </div>
                 <div class="col-md-4">
                     <label>Razón Social:</label>
-                    <p>{{ object.cotizacion.proveedor.business_name }}</p>
+                    <p>{{ object.quotation.supplier.business_name }}</p>
                 </div>
                 <div class="col-md-6">
                     <label>Dirección:</label>
-                    <p>{{ object.cotizacion.proveedor.address }}</p>
+                    <p>{{ object.quotation.supplier.address }}</p>
                 </div>
             </div>
             {% else %}
             <div class="row">
                 <div class="col-md-2">
                     <label>RUC:</label>
-                    <p>{{ object.proveedor.tax_id }}</p>
+                    <p>{{ object.supplier.tax_id }}</p>
                 </div>
                 <div class="col-md-4">
                     <label>Razón Social:</label>
-                    <p>{{ object.proveedor.business_name }}</p>
+                    <p>{{ object.supplier.business_name }}</p>
                 </div>
                 <div class="col-md-6">
                     <label>DIRECCIÓN:</label>
-                    <p>{{ object.proveedor.address }}</p>
+                    <p>{{ object.supplier.address }}</p>
                 </div>
             </div>
             {% endif %}
@@ -117,7 +117,7 @@
             <div class="row">
                 <div class="col-md-3">
                     <label>FORMA DE PAGO:</label>
-                    <p>{{ object.forma_pago }}</p>
+                    <p>{{ object.payment_method }}</p>
                 </div>
                 <div class="col-md-3">
                     <label>FECHA:</label>
@@ -125,8 +125,8 @@
                 </div>
                 <div class="col-md-3">
                     <label>Referencia:</label>
-                    {% if object.cotizacion %}
-                    <p><a href="{% url 'compras:detalle_cotizacion' object.cotizacion.pk %}">{{ object.cotizacion }}</a>
+                    {% if object.quotation %}
+                    <p><a href="{% url 'compras:quotation_detail' object.quotation.pk %}">{{ object.quotation }}</a>
                     </p>
                     {% else %}
                     <p>Ninguna</p>
@@ -163,13 +163,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% if object.cotizacion %}
+                    {% if object.quotation %}
                     {% for detalle in object.details.all %}
                     <tr>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.conformed_quantity }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
+                        <td>{{ detalle.quotation_detail.requirement_detail.product.description }}</td>
+                        <td>{{ detalle.quotation_detail.requirement_detail.product.unit_of_measure.description }}
                         </td>
                         <td>{{ detalle.price }}</td>
                         <td>{{ detalle.amount }}</td>
@@ -179,8 +179,8 @@
                     {% for detalle in object.details.all %}
                     <tr>
                         <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.producto.description }}</td>
-                        <td>{{ detalle.producto.unidad_medida.description }}</td>
+                        <td>{{ detalle.product.description }}</td>
+                        <td>{{ detalle.product.unit_of_measure.description }}</td>
                         <td>{{ detalle.price }}</td>
                         <td>{{ detalle.amount }}</td>
                     </tr>
@@ -265,7 +265,7 @@ $(document).ready(function()
 				if (data.conformidades == 'NO')
 				{
 					alert("Orden de Servicios " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:detalle_orden_servicios' object.siguiente %}");
+					$(location).attr('href', "{% url 'compras:service_order_detail' object.siguiente %}");
 				} 
 				else if (data.conformidades == 'SI') 
 				{

@@ -1,7 +1,7 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Solicitudes de Cotización / {{ cotizacion.pk }}</h3>
+<h3>Solicitudes de Cotización / {{ quotation.pk }}</h3>
 {% else %}
 <h3>Solicitudes de Cotización / Nuevo</h3>
 {% endif %}
@@ -12,7 +12,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.pk %}'">
+                    onclick="location.href='{% url 'compras:quotation_detail' quotation.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -26,11 +26,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.anterior %}';">
+                        onclick="location.href='{% url 'compras:modificar_cotizacion' quotation.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_cotizacion' cotizacion.siguiente %}';">
+                        onclick="location.href='{% url 'compras:modificar_cotizacion' quotation.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -106,12 +106,12 @@
                     </div>
                     <div class="col-md-2">
                         <label>Referencia:</label>
-                        {% if form.referencia.errors %}
-                        {% for error in form.referencia.errors %}
+                        {% if form.reference.errors %}
+                        {% for error in form.reference.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.referencia }}
+                        {{ form.reference }}
                     </div>
                     <div class="col-md-3">
                         <label>Busq. de Requerimiento:</label>
@@ -121,12 +121,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Orden:</label>
-                        {% if form.orden.errors %}
-                        {% for error in form.orden.errors %}
+                        {% if form.order.errors %}
+                        {% for error in form.order.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.orden }}
+                        {{ form.order }}
                     </div>
                 </div>
             </div>
@@ -152,7 +152,7 @@
                                 {{ forloop.counter0|add:1 }}
                             </td>
                             <td>
-                                {{ form.requerimiento }}
+                                {{ form.requirement }}
                                 {% if form.code.errors %}
                                 {% for error in form.code.errors %}
                                 {% include "includes/error.html" %}
@@ -236,12 +236,12 @@ $(document).ready(function()
 		$("#id_address").val(ui.item.address);
 		if(ui.item.es_locador)
 		{		    		  
-			$("#id_orden").attr("readonly", false);
-			$("#id_orden").val(ui.item.orden);
+			$("#id_order").attr("readonly", false);
+			$("#id_order").val(ui.item.order);
 		}
 		else
 		{
-			$("#id_orden").attr("readonly", true);
+			$("#id_order").attr("readonly", true);
 		}
 		event.preventDefault();
 	  },
@@ -261,11 +261,11 @@ $(document).ready(function()
 		    	  $("#id_address").val(data.address);
 		    	  if(data.es_locador)
 		    	  {		    		  
-		    		  $("#id_orden").attr("readonly", false);
-		    		  $("#id_orden").val(data.orden);
+		    		  $("#id_order").attr("readonly", false);
+		    		  $("#id_order").val(data.order);
 		    	  }
 		    	  else{
-		    		  $("#id_orden").attr("readonly", true);
+		    		  $("#id_order").attr("readonly", true);
 		    	  }
 		    	  event.preventDefault();
 		      }
@@ -297,14 +297,14 @@ $(document).ready(function()
 	
 	function transferirRequerimiento() 
 	{
-		var requerimiento = $("#requerimiento").val();
-		var notes = $("#" + requerimiento).val();
+		var requirement = $("#requirement").val();
+		var notes = $("#" + requirement).val();
 		var cont = 0;
 		ventana_transferencia.dialog("close");
 		$('#detalles td').parent().remove();
 		$.ajax(
 		{
-			data : { 'requerimiento' : requerimiento,'tipo_busqueda': 'PRODUCTOS' },
+			data : { 'requirement' : requirement,'tipo_busqueda': 'PRODUCTOS' },
 			url : "{% url 'requerimientos:obtener_detalle_requerimiento' %}",
 			type : 'get',
 			success : function(data) 
@@ -315,7 +315,7 @@ $(document).ready(function()
 					$("#detalles tbody").append(
 					"<tr class='detalle_cotizacion_formset'>" +				
 						"<td>" + cont + "</td>" +
-						"<td>" + item.requerimiento + item.code + "</td>" +
+						"<td>" + item.requirement + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +	
@@ -325,7 +325,7 @@ $(document).ready(function()
 				contDetalles = cont;
 				ultimo_item = cont;
 				$("#id_form-TOTAL_FORMS").val(cont);
-				$("#id_referencia").val(requerimiento);
+				$("#id_reference").val(requirement);
 				$("#id_observaciones").val(notes);
 			}
 		});
@@ -371,7 +371,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha ingresado el tax_id del proveedor");
+			alert("No ha ingresado el RUC del proveedor");
 		}
 		event.preventDefault();
 	});

@@ -26,11 +26,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_proveedor' proveedor.anterior %}';">
+                        onclick="location.href='{% url 'compras:modificar_proveedor' supplier.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_proveedor' proveedor.siguiente %}';">
+                        onclick="location.href='{% url 'compras:modificar_proveedor' supplier.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}

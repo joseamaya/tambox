@@ -34,22 +34,22 @@
             </tr>
             </thead>
             <tbody>
-            {% for orden_servicios in ordenes_servicios %}
+            {% for service_order in ordenes_servicios %}
             {% if perms.compras.ver_detalle_orden_servicios %}
-            <tr onclick="location.href='{% url 'compras:detalle_orden_servicios' orden_servicios.pk %}';">
+            <tr onclick="location.href='{% url 'compras:service_order_detail' service_order.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ orden_servicios.code }}</td>
-                {% if orden_servicios.cotizacion %}
-                <td>{{ orden_servicios.cotizacion.proveedor }}</td>
-                <td>{{ orden_servicios.cotizacion }}</td>
+                <td>{{ service_order.code }}</td>
+                {% if service_order.quotation %}
+                <td>{{ service_order.quotation.supplier }}</td>
+                <td>{{ service_order.quotation }}</td>
                 {% else %}
-                <td>{{ orden_servicios.proveedor }}</td>
+                <td>{{ service_order.supplier }}</td>
                 <td>Ninguna</td>
                 {% endif %}
-                <td>{{ orden_servicios.date|date:"d/m/y" }}</td>
-                <td>{{ orden_servicios.get_status_display }}</td>
+                <td>{{ service_order.date|date:"d/m/y" }}</td>
+                <td>{{ service_order.get_status_display }}</td>
             </tr>
             {% endfor %}
             </tbody>

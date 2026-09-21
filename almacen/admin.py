@@ -46,7 +46,7 @@ class ProductoResources(resources.ModelResource):
 
 class KardexProductoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [FilaKardexAdmin]
-    list_display = ('code', 'grupo_productos', 'description', 'is_service', 'unidad_medida')
+    list_display = ('code', 'product_group', 'description', 'is_service', 'unit_of_measure')
     resource_class = ProductoResources
 
 
@@ -57,7 +57,7 @@ class MovimientoResources(resources.ModelResource):
 
 class DetallesMovimientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [FilaDetalleMovimientoAdmin]
-    list_display = ('movement_id', 'tipo_movimiento', 'referencia', 'pedido', 'series', 'oficina')
+    list_display = ('movement_id', 'movement_type', 'reference', 'order', 'series', 'office')
     resource_class = MovimientoResources
 
 

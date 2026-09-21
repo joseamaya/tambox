@@ -32,14 +32,14 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'requerimientos:listado_cotizaciones_requerimiento' requerimiento.pk %}">
+                    <a href="{% url 'requerimientos:listado_cotizaciones_requerimiento' requirement.pk %}">
                         <span class="fa fa-book"></span>
                         Ver Cotiz.
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'requerimientos:requerimiento_pdf' requerimiento.pk %}">
+                    <a href="{% url 'requerimientos:requerimiento_pdf' requirement.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -50,11 +50,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url_anterior 'requerimientos:detalle_requerimiento' object request.user %}';">
+                    onclick="location.href='{% url_anterior 'requerimientos:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url_siguiente 'requerimientos:detalle_requerimiento' object request.user %}';">
+                    onclick="location.href='{% url_siguiente 'requerimientos:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -98,11 +98,11 @@
         <div class="row">
             <div class="col-md-5">
                 <label>Oficina:</label>
-                <p>{{ object.oficina }}</p>
+                <p>{{ object.office }}</p>
             </div>
             <div class="col-md-4">
                 <label>Solicitante:</label>
-                <p>{{ object.solicitante }}</p>
+                <p>{{ object.requester }}</p>
             </div>
             <div class="col-md-3">
                 <label>Nivel Aprob:</label>
@@ -163,10 +163,10 @@
                     <tbody>
                     {% for detalle in object.details.all %}
                     <tr>
-                        {% if detalle.producto %}
-                        <td>{{ detalle.producto.description }}</td>
+                        {% if detalle.product %}
+                        <td>{{ detalle.product.description }}</td>
                         <td>{{ detalle.use }}</td>
-                        <td>{{ detalle.producto.unidad_medida.description }}</td>
+                        <td>{{ detalle.product.unit_of_measure.description }}</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.quoted_quantity }}</td>
                         <td>{{ detalle.purchased_quantity }}</td>
@@ -221,7 +221,7 @@ $(document).ready(function()
 				if (data.cotizaciones == 'NO') 
 				{
 					alert("Requerimiento " + data.code + " eliminado");
-					$(location).attr('href', "{% url 'requerimientos:detalle_requerimiento' object.siguiente %}");
+					$(location).attr('href', "{% url 'requerimientos:requirement_detail' object.siguiente %}");
 				} 
 				else if (data.cotizaciones == 'SI') 
 				{

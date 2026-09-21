@@ -35,7 +35,7 @@ class Tablero(View):
         cant_trabajadores = Trabajador.objects.all().count()
         cant_puestos = Puesto.objects.all().count()
         cant_profesiones = Profesion.objects.all().count()
-        oficina, creada = Oficina.objects.get_or_create(code='GGEN',
+        office, creada = Oficina.objects.get_or_create(code='GGEN',
                                                        defaults={'name': 'GERENCIA GENERAL',
                                                                  'is_management': True})
         if creada:
@@ -57,12 +57,12 @@ class Tablero(View):
 
 class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('dni', 'tipo_movimiento')
+    parametros_requeridos = ('dni', 'movement_type')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
-            tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
-            if tipo_movimiento.is_sale:
+            movement_type = TipoMovimiento.objects.get(pk=request.GET['movement_type'])
+            if movement_type.is_sale:
                 receptor = Productor.objects.get(dni=dni)
             else:
                 receptor = Trabajador.objects.get(dni=dni)
@@ -75,12 +75,12 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
 
 class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('name', 'tipo_movimiento')
+    parametros_requeridos = ('name', 'movement_type')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             name = request.GET['name']
-            tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
-            if tipo_movimiento.is_sale:
+            movement_type = TipoMovimiento.objects.get(pk=request.GET['movement_type'])
+            if movement_type.is_sale:
                 receptores = Productor.objects.filter(last_name__icontains=name)[:20]
             else:
                 receptores = Trabajador.objects.filter(
@@ -105,7 +105,7 @@ class CargarOficinas(CargarCsvMixin, FormView):
         Oficina.objects.get_or_create(code=fila[0],
                                       defaults={
                                           'name': fila[1],
-                                          'dependencia': Oficina.objects.get(code=fila[2])},
+                                          'dependency': Oficina.objects.get(code=fila[2])},
                                       )
 
 
@@ -157,8 +157,8 @@ class CargarPuestos(CargarCsvMixin, FormView):
         date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
             Puesto.objects.get_or_create(name=fila[0],
-                                         defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
-                                                   'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
+                                         defaults={'office': Oficina.objects.get(code=fila[1].strip()),
+                                                   'worker': Trabajador.objects.get(dni=fila[2].strip()),
                                                    'start_date': date,
                                                    'is_leadership': fila[4] == 'SI'})
         except Exception:
@@ -405,15 +405,15 @@ class ReporteExcelOficinas(TemplateView):
         ws['D3'] = 'DEPENDENCIA'
         ws['E3'] = 'GERENCIA'
         cont = 4
-        for oficina in oficinas:
+        for office in oficinas:
             try:
-                ws.cell(row=cont, column=2).value = oficina.code
-                ws.cell(row=cont, column=3).value = oficina.name
-                ws.cell(row=cont, column=4).value = oficina.dependencia.name
-                ws.cell(row=cont, column=5).value = oficina.gerencia.name
+                ws.cell(row=cont, column=2).value = office.code
+                ws.cell(row=cont, column=3).value = office.name
+                ws.cell(row=cont, column=4).value = office.dependency.name
+                ws.cell(row=cont, column=5).value = office.gerencia.name
                 cont = cont + 1
             except Exception:
-                logger.warning("No se pudo exportar la oficina %s", oficina.pk, exc_info=True)
+                logger.warning("No se pudo exportar la oficina %s", office.pk, exc_info=True)
         nombre_archivo = "Oficinas.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
@@ -433,10 +433,10 @@ class ReporteExcelProfesiones(TemplateView):
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for profesion in profesiones:
-            ws.cell(row=cont, column=2).value = profesion.abbreviation
-            ws.cell(row=cont, column=3).value = profesion.description
-            ws.cell(row=cont, column=4).value = profesion.is_active
+        for profession in profesiones:
+            ws.cell(row=cont, column=2).value = profession.abbreviation
+            ws.cell(row=cont, column=3).value = profession.description
+            ws.cell(row=cont, column=4).value = profession.is_active
             cont = cont + 1
         nombre_archivo = "Profesiones.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -463,8 +463,8 @@ class ReporteExcelPuestos(TemplateView):
         cont = 4
         for puesto in puestos:
             ws.cell(row=cont, column=2).value = puesto.name
-            ws.cell(row=cont, column=3).value = puesto.oficina.name
-            ws.cell(row=cont, column=4).value = puesto.trabajador.nombre_completo()
+            ws.cell(row=cont, column=3).value = puesto.office.name
+            ws.cell(row=cont, column=4).value = puesto.worker.nombre_completo()
             ws.cell(row=cont, column=5).value = puesto.start_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=6).value = puesto.end_date
             if puesto.is_leadership:
@@ -495,13 +495,13 @@ class ReporteExcelTrabajadores(TemplateView):
         ws['F3'] = 'EMAIL'
         ws['G3'] = 'ESTADO'
         cont = 4
-        for trabajador in trabajadores:
-            ws.cell(row=cont, column=2).value = trabajador.user.username
-            ws.cell(row=cont, column=3).value = trabajador.dni
-            ws.cell(row=cont, column=4).value = trabajador.last_name
-            ws.cell(row=cont, column=5).value = trabajador.first_name
-            ws.cell(row=cont, column=6).value = trabajador.user.email
-            ws.cell(row=cont, column=7).value = trabajador.is_active
+        for worker in trabajadores:
+            ws.cell(row=cont, column=2).value = worker.user.username
+            ws.cell(row=cont, column=3).value = worker.dni
+            ws.cell(row=cont, column=4).value = worker.last_name
+            ws.cell(row=cont, column=5).value = worker.first_name
+            ws.cell(row=cont, column=6).value = worker.user.email
+            ws.cell(row=cont, column=7).value = worker.is_active
             cont = cont + 1
         nombre_archivo = "Trabajadores.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

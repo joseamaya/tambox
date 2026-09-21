@@ -77,9 +77,9 @@ class CotizacionForm(forms.ModelForm):
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    referencia = forms.CharField(max_length=100, widget=forms.TextInput(
+    reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    orden = forms.CharField(max_length=12, widget=forms.TextInput(
+    order = forms.CharField(max_length=12, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}), required=False)
 
     def __init__(self, *args, **kwargs):
@@ -92,29 +92,29 @@ class CotizacionForm(forms.ModelForm):
             })
 
     def clean_orden(self):
-        code_orden = self.cleaned_data.get('orden')
+        code_orden = self.cleaned_data.get('order')
         if len(code_orden) != 12 and len(code_orden) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
         elif len(code_orden) == 12:
             ordenes = OrdenServicios.objects.filter(code=code_orden)
             if len(ordenes) > 0:
                 raise ValidationError('La orden ya existe.')
-        return self.cleaned_data['orden']
+        return self.cleaned_data['order']
 
     def clean(self):
         cleaned_data = super(CotizacionForm, self).clean()
         tax_id = cleaned_data.get('tax_id')
-        referencia = cleaned_data.get('referencia')
-        cotizacion = Cotizacion.objects.filter(proveedor__tax_id=tax_id,
-                                               requerimiento=referencia)
-        if len(cotizacion) > 0:
+        reference = cleaned_data.get('reference')
+        quotation = Cotizacion.objects.filter(supplier__tax_id=tax_id,
+                                               requirement=reference)
+        if len(quotation) > 0:
             raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
         else:
             return cleaned_data
 
     def save(self, *args, **kwargs):
-        self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
-        self.instance.requerimiento = Requerimiento.objects.get(pk=self.cleaned_data['referencia'])
+        self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
+        self.instance.requirement = Requerimiento.objects.get(pk=self.cleaned_data['reference'])
         return super(CotizacionForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -127,7 +127,7 @@ class OrdenCompraForm(forms.ModelForm):
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    referencia = forms.CharField(max_length=100, widget=forms.TextInput(
+    reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     impuesto_actual = forms.CharField(widget=forms.HiddenInput())
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
@@ -141,7 +141,7 @@ class OrdenCompraForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        self.fields['referencia'].required = False
+        self.fields['reference'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
         for field in iter(self.fields):
@@ -162,15 +162,15 @@ class OrdenCompraForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         try:
-            self.instance.cotizacion = Cotizacion.objects.get(code=self.cleaned_data['referencia'])
+            self.instance.quotation = Cotizacion.objects.get(code=self.cleaned_data['reference'])
         except Cotizacion.DoesNotExist:
-            self.instance.cotizacion = None
-            self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
+            self.instance.quotation = None
+            self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenCompraForm, self).save(*args, **kwargs)
 
     class Meta:
         model = OrdenCompra
-        fields = ['code', 'forma_pago', 'date', 'notes', 'with_tax', 'in_dollars']
+        fields = ['code', 'payment_method', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
 class OrdenServiciosForm(forms.ModelForm):
@@ -178,7 +178,7 @@ class OrdenServiciosForm(forms.ModelForm):
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
-    referencia = forms.CharField(max_length=100, widget=forms.TextInput(
+    reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
@@ -196,7 +196,7 @@ class OrdenServiciosForm(forms.ModelForm):
         self.fields['notes'].required = False
         self.fields['report_name'].required = False
         self.fields['report'].required = False
-        self.fields['referencia'].required = False
+        self.fields['reference'].required = False
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -214,19 +214,19 @@ class OrdenServiciosForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         try:
-            self.instance.cotizacion = Cotizacion.objects.get(pk=self.cleaned_data['referencia'])
+            self.instance.quotation = Cotizacion.objects.get(pk=self.cleaned_data['reference'])
         except Cotizacion.DoesNotExist:
-            self.instance.cotizacion = None
-            self.instance.proveedor = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
+            self.instance.quotation = None
+            self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenServiciosForm, self).save(*args, **kwargs)
 
     class Meta:
         model = OrdenServicios
-        fields = ['code', 'forma_pago', 'process', 'notes', 'date', 'report_name', 'report']
+        fields = ['code', 'payment_method', 'process', 'notes', 'date', 'report_name', 'report']
 
 
 class ConformidadServicioForm(forms.ModelForm):
-    referencia = forms.CharField(max_length=100, widget=forms.TextInput(
+    reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     subtotal = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -245,7 +245,7 @@ class ConformidadServicioForm(forms.ModelForm):
             })
 
     def save(self, *args, **kwargs):
-        self.instance.orden_servicios = OrdenServicios.objects.get(pk=self.cleaned_data['referencia'])
+        self.instance.service_order = OrdenServicios.objects.get(pk=self.cleaned_data['reference'])
         return super(ConformidadServicioForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -254,7 +254,7 @@ class ConformidadServicioForm(forms.ModelForm):
 
 
 class FormularioDetalleCotizacion(forms.Form):
-    requerimiento = forms.CharField(widget=forms.HiddenInput())
+    requirement = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 14, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -266,7 +266,7 @@ class FormularioDetalleCotizacion(forms.Form):
 
 
 class FormularioDetalleOrdenCompra(forms.Form):
-    cotizacion = forms.CharField(widget=forms.HiddenInput())
+    quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
@@ -282,7 +282,7 @@ class FormularioDetalleOrdenCompra(forms.Form):
 
 
 class FormularioDetalleOrdenServicios(forms.Form):
-    cotizacion = forms.CharField(widget=forms.HiddenInput())
+    quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -295,7 +295,7 @@ class FormularioDetalleOrdenServicios(forms.Form):
 
 
 class FormularioDetalleConformidadServicio(forms.Form):
-    orden_servicios = forms.CharField(widget=forms.HiddenInput())
+    service_order = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
     servicio = forms.CharField(

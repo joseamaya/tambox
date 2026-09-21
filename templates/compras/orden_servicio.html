@@ -1,7 +1,7 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Órdenes de Servicios / {{ orden.pk }}</h3>
+<h3>Órdenes de Servicios / {{ order.pk }}</h3>
 {% else %}
 <h3>Órdenes de Servicios / Nuevo</h3>
 {% endif %}
@@ -11,7 +11,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_orden_servicios' orden.pk %}'">
+                    onclick="location.href='{% url 'compras:service_order_detail' order.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -25,11 +25,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.anterior %}';">
+                        onclick="location.href='{% url 'compras:modificar_orden_servicios' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_servicios' orden.siguiente %}';">
+                        onclick="location.href='{% url 'compras:modificar_orden_servicios' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -92,12 +92,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>FORMA DE PAGO:</label>
-                        {% if form.forma_pago.errors %}
-                        {% for error in form.forma_pago.errors %}
+                        {% if form.payment_method.errors %}
+                        {% for error in form.payment_method.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.forma_pago }}
+                        {{ form.payment_method }}
                     </div>
                     <div class="col-md-3">
                         <label>FECHA:</label>
@@ -110,12 +110,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Referencia:</label>
-                        {% if form.referencia.errors %}
-                        {% for error in form.referencia.errors %}
+                        {% if form.reference.errors %}
+                        {% for error in form.reference.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.referencia }}
+                        {{ form.reference }}
                     </div>
                     <div class="col-md-3">
                         <label>BUSQ. DE COTIZACIÓN:</label>
@@ -186,7 +186,7 @@
                         {% for detalle_orden_servicios_form in detalle_orden_servicios_formset %}
                         <tr class="detalle_orden_servicios_formset">
                             <td>
-                                {{ detalle_orden_servicios_form.cotizacion }}
+                                {{ detalle_orden_servicios_form.quotation }}
                                 {{ detalle_orden_servicios_form.code }}
                                 {% if detalle_orden_servicios_form.name.errors %}
                                 {% for error in detalle_orden_servicios_form.name.errors %}
@@ -452,7 +452,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 						"<tr class='detalle_orden_servicios_formset'>" +
-						"<td>" + item.cotizacion + item.code + item.name + "</td>" +
+						"<td>" + item.quotation + item.code + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
@@ -486,8 +486,8 @@ $(document).ready(function()
 		    minLength: 2,
 		    select: function( event, ui ) 
 		    {
-		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("name", "");
+		    	var id_product = $(this).prop('id');
+				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
@@ -521,7 +521,7 @@ $(document).ready(function()
 	
 	function transferirCotizacion()
 	{		
-		var cotizacion = $("#cotizacion").val();		
+		var quotation = $("#quotation").val();		
 		var cont = 0;
 		var impuesto = 0;
 		subtotal=0;
@@ -532,7 +532,7 @@ $(document).ready(function()
 		$('#id_crear_detalle').prop("disabled", true);
 		$.ajax({
 	      url: "{% url 'compras:busqueda_cotizacion' %}",
-	      data: {'code': cotizacion},
+	      data: {'code': quotation},
 	      success: function(data) 
 	      {
 	    	  $("#id_tax_id").val(data.tax_id);
@@ -543,7 +543,7 @@ $(document).ready(function()
 	    });
 		
 		$.ajax({
-			data : {'cotizacion': cotizacion, 'tipo_busqueda': 'SERVICIOS'},
+			data : {'quotation': quotation, 'tipo_busqueda': 'SERVICIOS'},
 			url : "{% url 'compras:obtener_detalle_cotizacion' %}",
 			type : 'get',
 			success : function(data)
@@ -551,7 +551,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_orden_servicios_formset'>" +						
-						"<td>" + item.cotizacion + item.code + item.name + "</td>" +
+						"<td>" + item.quotation + item.code + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.price + "</td>" +
@@ -566,7 +566,7 @@ $(document).ready(function()
 				ultimo_item = cont;
 				total = subtotal;
 				$("#id_form-TOTAL_FORMS").val(cont);
-				$("#id_referencia").val(cotizacion);				
+				$("#id_reference").val(quotation);				
 				$("#id_subtotal").val(subtotal.toFixed(5));
 				$("#id_igv").val(0);
 				$("#id_total").val(total.toFixed(5));
@@ -625,14 +625,14 @@ $(document).ready(function()
 	{
 		var cont=0;
 		$('#id_cdetalles').val(ultimo_item);
-		var forma_pago = $('#id_forma_pago').val();
+		var payment_method = $('#id_payment_method').val();
 		var tax_id = $('#id_tax_id').val();
 		var date = $('#id_date').val().trim();
 		if(tax_id != '')
 		{					
 			if(date != '')
 			{					
-				if(forma_pago)
+				if(payment_method)
 				{
 					if (contDetalles > 0)
 					{
@@ -662,7 +662,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha ingresado el tax_id del proveedor");
+			alert("No ha ingresado el RUC del proveedor");
 		}
 		event.preventDefault();
 	});

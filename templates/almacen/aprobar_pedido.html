@@ -1,23 +1,23 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Aprobar Pedido / {{ pedido.code }}</h3>
+<h3>Aprobar Pedido / {{ order.code }}</h3>
 <form role="form" method="post">
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}'">
+                    onclick="location.href='{% url 'almacen:order_detail' order.pk %}'">
                 Cancelar
             </button>
         </div>
         <div class="col-lg-2 text-right">
             <div class="btn-group">
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.anterior %}';">
+                        onclick="location.href='{% url 'almacen:modificar_pedido' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:modificar_pedido' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:pedidos' %}';">
@@ -91,7 +91,7 @@
                         {% for detalle_salida_form in detalle_salida_formset %}
                         <tr class="detalle_salida_formset">
                             <td>
-                                {{ detalle_salida_form.pedido }}
+                                {{ detalle_salida_form.order }}
                                 {% if detalle_salida_form.code.errors %}
                                 {% for error in detalle_salida_form.code.errors %}
                                 {% include "includes/error.html" %}
@@ -218,7 +218,7 @@ $(document).ready(function()
 	{	
 		var almacen = $('#id_almacen').val();
 		$.ajax({			
-			data : {'almacen': almacen, 'pedido': "{{ pedido.code }}" },
+			data : {'almacen': almacen, 'order': "{{ order.code }}" },
 			url : "{% url 'almacen:verificar_stock_para_pedido' %}",
 			type : 'get',
 			success : function(data)
@@ -233,7 +233,7 @@ $(document).ready(function()
 					cont = i+1;
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
-						"<td>" + item.pedido + item.code + "</td>" +
+						"<td>" + item.order + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.quantity + "</td>" +

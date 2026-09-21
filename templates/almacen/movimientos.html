@@ -30,17 +30,17 @@
             </tr>
             </thead>
             <tbody>
-            {% for movimiento in movimientos %}
+            {% for movement in movimientos %}
             {% if perms.almacen.ver_detalle_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.pk %}';">
+            <tr onclick="location.href='{% url 'almacen:detalle_movimiento' movement.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ movimiento.movement_id }}</td>
-                <td>{{ movimiento.tipo_movimiento }}</td>
-                <td>{{ movimiento.almacen }}</td>
-                <td>{{ movimiento.operation_date|date:"d/m/y H:i:s" }}</td>
-                <td>{{ movimiento.created|date:"d/m/y H:i:s" }}</td>
+                <td>{{ movement.movement_id }}</td>
+                <td>{{ movement.movement_type }}</td>
+                <td>{{ movement.almacen }}</td>
+                <td>{{ movement.operation_date|date:"d/m/y H:i:s" }}</td>
+                <td>{{ movement.created|date:"d/m/y H:i:s" }}</td>
             </tr>
             {% endfor %}
             </tbody>

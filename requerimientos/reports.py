@@ -17,8 +17,8 @@ from tambox.configuracion import empresa, logistica
 
 class ReporteRequerimiento():
 
-    def __init__(self, pagesize, requerimiento):
-        self.requerimiento = requerimiento
+    def __init__(self, pagesize, requirement):
+        self.requirement = requirement
         self.buffer = BytesIO()
         if pagesize == 'A4':
             self.pagesize = A4
@@ -31,13 +31,13 @@ class ReporteRequerimiento():
                             alignment=TA_CENTER,
                             fontSize=14,
                             fontName="Times-Roman")
-        requerimiento = self.requerimiento
+        requirement = self.requirement
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
             image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.code, sp)
+        nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
         encabezado = [[image, nro, '']]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
         tabla_encabezado.setStyle(TableStyle(
@@ -49,22 +49,22 @@ class ReporteRequerimiento():
         return tabla_encabezado
 
     def tabla_datos(self, styles):
-        requerimiento = self.requerimiento
+        requirement = self.requirement
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
-        solicitado = Paragraph(u"SOLICITADO POR: " + requerimiento.solicitante.nombre_completo(), izquierda)
-        oficina = Paragraph(u"OFICINA: " + requerimiento.oficina.name, izquierda)
-        reason = Paragraph(u"MOTIVO: " + requerimiento.reason, izquierda)
-        date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.date.strftime('%d/%m/%Y'), izquierda)
-        month = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)
-        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requerimiento.year), izquierda)
-        if requerimiento.direct_delivery_to_requester:
+        solicitado = Paragraph(u"SOLICITADO POR: " + requirement.requester.nombre_completo(), izquierda)
+        office = Paragraph(u"OFICINA: " + requirement.office.name, izquierda)
+        reason = Paragraph(u"MOTIVO: " + requirement.reason, izquierda)
+        date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requirement.date.strftime('%d/%m/%Y'), izquierda)
+        month = Paragraph(u"MES EN QUE SE NECESITA: " + requirement.get_mes_display(), izquierda)
+        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requirement.year), izquierda)
+        if requirement.direct_delivery_to_requester:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
-        datos = [[solicitado, oficina], [reason], [date, month], [para_stock, entrega]]
+        datos = [[solicitado, office], [reason], [date, month], [para_stock, entrega]]
         tabla_datos = Table(datos, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(
             [
@@ -75,9 +75,9 @@ class ReporteRequerimiento():
         return tabla_datos
 
     def tabla_detalle(self):
-        requerimiento = self.requerimiento
+        requirement = self.requirement
         encabezados = ['Nro', 'Cantidad', 'Unidad', u'Descripción', 'Uso']
-        detalles = DetalleRequerimiento.objects.filter(requerimiento=requerimiento)
+        detalles = DetalleRequerimiento.objects.filter(requirement=requirement)
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -86,8 +86,8 @@ class ReporteRequerimiento():
         for detalle in detalles:
             tupla_producto = [Paragraph(str(detalle.line_number), sp),
                               Paragraph(str(detalle.quantity), sp),
-                              Paragraph(detalle.producto.unidad_medida.description, sp),
-                              Paragraph(detalle.producto.description, sp),
+                              Paragraph(detalle.product.unit_of_measure.description, sp),
+                              Paragraph(detalle.product.description, sp),
                               Paragraph(detalle.use, sp)]
             lista_detalles.append(tupla_producto)
         tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
@@ -104,12 +104,12 @@ class ReporteRequerimiento():
         return tabla_detalle
 
     def tabla_observaciones(self):
-        requerimiento = self.requerimiento
+        requirement = self.requirement
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        obs = Paragraph("OBSERVACIONES: " + requerimiento.notes, p)
+        obs = Paragraph("OBSERVACIONES: " + requirement.notes, p)
         notes = [[obs]]
         tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
@@ -134,44 +134,44 @@ class ReporteRequerimiento():
             signature = Paragraph(u"Firma No Encontrada", p)
         return signature
 
-    def obtener_puesto(self, oficina, requerimiento):
+    def obtener_puesto(self, office, requirement):
         try:
-            jefatura = Puesto.objects.get(oficina=oficina,
+            jefatura = Puesto.objects.get(office=office,
                                           is_leadership=True,
-                                          start_date__lte=requerimiento.date,
+                                          start_date__lte=requirement.date,
                                           end_date=None)
         except Puesto.DoesNotExist:
-            jefatura = Puesto.objects.get(oficina=oficina,
+            jefatura = Puesto.objects.get(office=office,
                                           is_leadership=True,
-                                          start_date__lte=requerimiento.date,
-                                          end_date__gte=requerimiento.date)
+                                          start_date__lte=requirement.date,
+                                          end_date__gte=requirement.date)
         return jefatura
 
     def tabla_firmas(self):
-        requerimiento = self.requerimiento
-        solicitante = requerimiento.solicitante
+        requirement = self.requirement
+        requester = requirement.requester
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
-        jefatura_logistica = self.obtener_puesto(logistica(), requerimiento)
-        jefe_logistica = jefatura_logistica.trabajador
-        firma_solicitante = self.obtener_firma(solicitante.signature)
+        jefatura_logistica = self.obtener_puesto(logistica(), requirement)
+        jefe_logistica = jefatura_logistica.worker
+        firma_solicitante = self.obtener_firma(requester.signature)
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.signature)
-        solicitante = requerimiento.solicitante.nombre_completo()
+        requester = requirement.requester.nombre_completo()
         cuerpo = [('', '', '', '', '', '')]
-        if requerimiento.approval.level.description == "USUARIO" and requerimiento.approval.is_active:
+        if requirement.approval.level.description == "USUARIO" and requirement.approval.is_active:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
-        elif requerimiento.approval.level.description == "LOGISTICA" and requerimiento.approval.is_active:
+        elif requirement.approval.level.description == "LOGISTICA" and requirement.approval.is_active:
             cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:
-            received_date = requerimiento.received_date.strftime('%d/%m/%Y')
+            received_date = requirement.received_date.strftime('%d/%m/%Y')
         except AttributeError:
             received_date = ''
         pie = [(Paragraph('Fecha: ' + received_date + "<br/>" + jefe_logistica.nombre_completo(), p),
-                Paragraph("Solicitado por: <br/>" + solicitante, p),
+                Paragraph("Solicitado por: <br/>" + requester, p),
                 '',
                 '',
                 '',

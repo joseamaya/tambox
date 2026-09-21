@@ -24,15 +24,15 @@
                             </tr>
                             </tfoot>
                             <tbody>
-                            {% for orden in ordenes %}
+                            {% for order in ordenes %}
                             <tr>
-                                <td>{{ orden.code }}</td>
-                                {% if orden.cotizacion %}
-                                <td>{{ orden.cotizacion.proveedor }}</td>
+                                <td>{{ order.code }}</td>
+                                {% if order.quotation %}
+                                <td>{{ order.quotation.supplier }}</td>
                                 {% else %}
-                                <td>{{ orden.proveedor }}</td>
+                                <td>{{ order.supplier }}</td>
                                 {% endif %}
-                                <td>{{ orden.date }}</td>
+                                <td>{{ order.date }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
@@ -40,7 +40,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <input type="hidden" name="orden_servicios" id="id_orden_servicios">
+                    <input type="hidden" name="service_order" id="id_service_order">
                 </div>
             </div>
         </div>
@@ -68,8 +68,8 @@ $(document).ready(function()
         {
 	        table.$('tr.selected').removeClass('selected');
 	        $(this).addClass('selected');
-	        var orden_servicios = $(this).find('td.sorting_1').text();
-	        $('#id_orden_servicios').val(orden_servicios);           
+	        var service_order = $(this).find('td.sorting_1').text();
+	        $('#id_service_order').val(service_order);           
         }
     }); 
     

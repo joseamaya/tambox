@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Pedidos / {{ pedido.code }}</h3>
+<h3>Pedidos / {{ order.code }}</h3>
 {% else %}
 <h3>Pedidos / Nuevo</h3>
 {% endif %}
@@ -11,7 +11,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}'">
+                    onclick="location.href='{% url 'almacen:order_detail' order.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -24,11 +24,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.anterior %}';">
+                        onclick="location.href='{% url 'almacen:modificar_pedido' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_pedido' pedido.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:modificar_pedido' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -209,8 +209,8 @@ $(document).ready(function()
 		    minLength: 2,
 		    select: function( event, ui ) 
 		    {
-		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("name", "");
+		    	var id_product = $(this).prop('id');
+				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);				
@@ -222,8 +222,8 @@ $(document).ready(function()
 	$(document).on("keyup",".quantity",function()
 	{
 		var quantity = 0;
-		var id_producto = $(this).prop('id');
-		var id = id_producto.replace("quantity", "");
+		var id_product = $(this).prop('id');
+		var id = id_product.replace("quantity", "");
 		$.ajax({
 	      url: "{% url 'productos:consulta_stock_producto' %}",
 	      data: {

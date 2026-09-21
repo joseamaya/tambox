@@ -72,15 +72,15 @@ class CotizacionTest(TestCase):
         """Una cotizacion refleja cuanto de lo cotizado se compro. Antes este
         test clasificaba por el estado de los detalles con `establecer_estado`,
         que un refactor posterior reemplazo por `establecer_estado_comprado`."""
-        baker.make(DetalleCotizacion, cotizacion=self.c1, detalle_requerimiento=None,
+        baker.make(DetalleCotizacion, quotation=self.c1, requirement_detail=None,
                    quantity=10, purchased_quantity=4)
         self.assertEqual(self.c1.establecer_estado_comprado(), Cotizacion.STATUS.ELEG_PARC)
 
-        baker.make(DetalleCotizacion, cotizacion=self.c2, detalle_requerimiento=None,
+        baker.make(DetalleCotizacion, quotation=self.c2, requirement_detail=None,
                    quantity=10, purchased_quantity=10)
         self.assertEqual(self.c2.establecer_estado_comprado(), Cotizacion.STATUS.ELEG)
 
-        baker.make(DetalleCotizacion, cotizacion=self.c3, detalle_requerimiento=None,
+        baker.make(DetalleCotizacion, quotation=self.c3, requirement_detail=None,
                    quantity=10, purchased_quantity=0)
         self.assertEqual(self.c3.establecer_estado_comprado(), Cotizacion.STATUS.DESC)
 
@@ -97,10 +97,10 @@ class ReporteXLSOrdenCompraTest(TestCase):
         from compras.models import OrdenCompra
         from compras.reports import reporte_xls_orden_compra
 
-        proveedor = baker.make(Proveedor)
-        orden = baker.make(OrdenCompra, proveedor=proveedor)
+        supplier = baker.make(Proveedor)
+        order = baker.make(OrdenCompra, supplier=supplier)
 
-        libro = reporte_xls_orden_compra(orden)
+        libro = reporte_xls_orden_compra(order)
 
         self.assertIsNotNone(libro.active)
 
@@ -114,9 +114,9 @@ class ReportesPDFTest(TestCase):
         from compras.models import OrdenCompra
         from compras.reports import PDFOrdenCompra
 
-        orden = baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+        order = baker.make(OrdenCompra, supplier=baker.make(Proveedor))
 
-        contenido = PDFOrdenCompra().imprimir(orden)
+        contenido = PDFOrdenCompra().imprimir(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
@@ -124,18 +124,18 @@ class ReportesPDFTest(TestCase):
         from compras.models import OrdenServicios
         from compras.reports import PDFOrdenServicios
 
-        orden = baker.make(OrdenServicios, proveedor=baker.make(Proveedor))
+        order = baker.make(OrdenServicios, supplier=baker.make(Proveedor))
 
-        contenido = PDFOrdenServicios().imprimir(orden)
+        contenido = PDFOrdenServicios().imprimir(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
     def test_solicitud_cotizacion_sin_logo(self):
         from compras.reports import PDFSolicitudCotizacion
 
-        cotizacion = baker.make(Cotizacion, proveedor=baker.make(Proveedor))
+        quotation = baker.make(Cotizacion, supplier=baker.make(Proveedor))
 
-        contenido = PDFSolicitudCotizacion().imprimir(cotizacion)
+        contenido = PDFSolicitudCotizacion().imprimir(quotation)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
@@ -177,27 +177,27 @@ class TotalesDeOrdenCompraTest(TestCase):
     consultas. No se convierten en agregados SQL porque redondean fila a fila."""
 
     def test_subtotal_e_impuesto_se_calculan_una_sola_vez(self):
-        orden = baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+        order = baker.make(OrdenCompra, supplier=baker.make(Proveedor))
 
         with self.assertNumQueries(1):
-            orden.subtotal
+            order.subtotal
 
         with self.assertNumQueries(1):
-            orden.impuesto
+            order.impuesto
 
         with self.assertNumQueries(0):
-            orden.subtotal
-            orden.impuesto
-            orden.total
+            order.subtotal
+            order.impuesto
+            order.total
 
     def test_los_detalles_usan_la_cache_del_prefetch(self):
         """`subtotal` recorre details y no un .filter(): solo asi
         prefetch_related evita una consulta por orden en los reportes."""
-        baker.make(OrdenCompra, proveedor=baker.make(Proveedor))
+        baker.make(OrdenCompra, supplier=baker.make(Proveedor))
 
         ordenes = list(OrdenCompra.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
-            for orden in ordenes:
-                orden.subtotal
-                orden.impuesto
+            for order in ordenes:
+                order.subtotal
+                order.impuesto

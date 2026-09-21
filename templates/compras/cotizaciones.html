@@ -33,17 +33,17 @@
             </tr>
             </thead>
             <tbody>
-            {% for cotizacion in cotizaciones %}
+            {% for quotation in cotizaciones %}
             {% if perms.compras.ver_detalle_cotizacion %}
-            <tr onclick="location.href='{% url 'compras:detalle_cotizacion' cotizacion.pk %}';">
+            <tr onclick="location.href='{% url 'compras:quotation_detail' quotation.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ cotizacion.code }}</td>
-                <td>{{ cotizacion.proveedor }}</td>
-                <td>{{ cotizacion.requerimiento }}</td>
-                <td>{{ cotizacion.date|date:"d/m/y" }}</td>
-                <td>{{ cotizacion.get_status_display }}</td>
+                <td>{{ quotation.code }}</td>
+                <td>{{ quotation.supplier }}</td>
+                <td>{{ quotation.requirement }}</td>
+                <td>{{ quotation.date|date:"d/m/y" }}</td>
+                <td>{{ quotation.get_status_display }}</td>
             </tr>
             {% endfor %}
             </tbody>

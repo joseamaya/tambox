@@ -16,11 +16,11 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for requerimiento in requerimientos %}
+                            {% for requirement in requerimientos %}
                             <tr>
-                                <td>{{ requerimiento.code }}</td>
-                                <td>{{ requerimiento.oficina.name }}</td>
-                                <td>{{ requerimiento.created|date:"d/m/y" }}</td>
+                                <td>{{ requirement.code }}</td>
+                                <td>{{ requirement.office.name }}</td>
+                                <td>{{ requirement.created|date:"d/m/y" }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <input type="hidden" name="requerimiento" id="requerimiento">
+                    <input type="hidden" name="requirement" id="requirement">
                 </div>
             </div>
         </div>
@@ -56,8 +56,8 @@ $(document).ready(function()
         {
 	        table.$('tr.selected').removeClass('selected');
 	        $(this).addClass('selected');
-	        var requerimiento = $(this).find('td.sorting_1').text();
-	        $('#requerimiento').val(requerimiento);	         
+	        var requirement = $(this).find('td.sorting_1').text();
+	        $('#requirement').val(requirement);	         
         }
     }); 
     

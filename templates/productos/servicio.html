@@ -80,19 +80,19 @@
                             {% endif %}
                             <p>{{ object.code }}</p>
                             <label>GRUPO SERVICIOS:</label>
-                            {% if form.grupo_productos.errors %}
-                            {% for error in form.grupo_productos.errors %}
+                            {% if form.product_group.errors %}
+                            {% for error in form.product_group.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.grupo_productos }}</p>
+                            <p>{{ form.product_group }}</p>
                             <label>UNIDAD DE MEDIDA:</label>
-                            {% if form.unidad_medida.errors %}
-                            {% for error in form.unidad_medida.errors %}
+                            {% if form.unit_of_measure.errors %}
+                            {% for error in form.unit_of_measure.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ object.unidad_medida }}</p>
+                            <p>{{ object.unit_of_measure }}</p>
                         </div>
                         <div class="col-lg-4">
                             <label>PRECIO:</label>

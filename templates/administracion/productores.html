@@ -36,15 +36,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for productor in productores %}
+            {% for producer in productores %}
             {% if perms.administracion.ver_detalle_productor %}
-            <tr onclick="return abrir_modal('{% url 'administracion:detalle_productor' productor.pk %}','Productor / {{ productor.first_name }} {{ productor.last_name }}')">
+            <tr onclick="return abrir_modal('{% url 'administracion:detalle_productor' producer.pk %}','Productor / {{ producer.first_name }} {{ producer.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}
-                <td>{{ productor.dni }}</td>
-                <td>{{ productor.last_name }}</td>
-                <td>{{ productor.first_name }}</td>
+                <td>{{ producer.dni }}</td>
+                <td>{{ producer.last_name }}</td>
+                <td>{{ producer.first_name }}</td>
             </tr>
             {% endfor %}
             </tbody>

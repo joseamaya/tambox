@@ -39,34 +39,34 @@
             </tr>
             </thead>
             <tbody>
-            {% for oficina in oficinas %}
+            {% for office in oficinas %}
             {% if perms.administracion.ver_detalle_oficina %}
             <tr>
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ oficina.code }}</td>
-                <td>{{ oficina.name }}</td>
-                {% if oficina.dependencia %}
-                <td>{{ oficina.dependencia }}</td>
+                <td>{{ office.code }}</td>
+                <td>{{ office.name }}</td>
+                {% if office.dependency %}
+                <td>{{ office.dependency }}</td>
                 {% else %}
                 <td>NINGUNA</td>
                 {% endif %}
                 <td class="text-center">
                     {% if perms.administracion.ver_detalle_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-eye-open"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.change_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.delete_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>

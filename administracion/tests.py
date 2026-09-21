@@ -82,9 +82,9 @@ class TrabajadorTest(TestCase):
         self.assertEqual(self.t3.nombre_completo(),
                          self.t3.first_name + ' ' + self.t3.last_name)
         p = baker.make(Profesion)
-        t = baker.make(Trabajador, profesion=p)
+        t = baker.make(Trabajador, profession=p)
         self.assertEqual(t.nombre_completo(),
-                         t.profesion.abbreviation + ' ' + t.first_name + ' ' + t.last_name)
+                         t.profession.abbreviation + ' ' + t.first_name + ' ' + t.last_name)
 
 
 class OficinaTest(TestCase):
@@ -145,18 +145,18 @@ class EstablecerNivelTest(TestCase):
     DoesNotExist sin contexto. Ahora dice cual falta."""
 
     def test_nivel_ausente_da_un_mensaje_claro(self):
-        oficina = baker.make(Oficina)
-        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), end_date=None)
+        office = baker.make(Oficina)
+        puesto = baker.make(Puesto, office=office, worker=baker.make(Trabajador), end_date=None)
 
         with self.assertRaisesMessage(ValidationError, 'Falta el nivel de aprobacion "USUARIO"'):
-            puesto.establecer_nivel(oficina)
+            puesto.establecer_nivel(office)
 
     def test_usa_el_nivel_existente(self):
         level = baker.make(NivelAprobacion, description='USUARIO')
-        oficina = baker.make(Oficina)
-        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), end_date=None)
+        office = baker.make(Oficina)
+        puesto = baker.make(Puesto, office=office, worker=baker.make(Trabajador), end_date=None)
 
-        self.assertEqual(puesto.establecer_nivel(oficina), level)
+        self.assertEqual(puesto.establecer_nivel(office), level)
 
 
 class TableroAdministracionTest(TestCase):

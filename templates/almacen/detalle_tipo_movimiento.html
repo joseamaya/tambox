@@ -2,10 +2,10 @@
 <h3>Tipos de Movimiento / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.tipo_movimiento.add_tipomovimiento %}
+        {% if perms.movement_type.add_tipomovimiento %}
         <a href="{% url 'almacen:crear_tipo_movimiento' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.tipo_movimiento.delete_tipo_movimiento %}
+        {% if perms.movement_type.delete_tipo_movimiento %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
     </div>

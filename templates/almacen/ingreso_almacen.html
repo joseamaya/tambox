@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Movimientos / {{ movimiento.pk }}</h3>
+<h3>Movimientos / {{ movement.pk }}</h3>
 {% else %}
 <h3>Movimientos / Nuevo Ingreso Almacen</h3>
 {% endif %}
@@ -17,7 +17,7 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:detalle_movimiento' movimiento.pk %}'">
+                    onclick="location.href='{% url 'almacen:detalle_movimiento' movement.pk %}'">
                 Cancelar
             </button>
             {% else %}
@@ -31,11 +31,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movimiento.anterior %}';">
+                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:modificar_movimiento' movimiento.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:modificar_movimiento' movement.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -63,12 +63,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Tipo de Ingreso:</label>
-                        {% if form.tipo_movimiento.errors %}
-                        {% for error in form.tipo_movimiento.errors %}
+                        {% if form.movement_type.errors %}
+                        {% for error in form.movement_type.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.tipo_movimiento }}
+                        {{ form.movement_type }}
                     </div>
                     <div class="col-md-3">
                         <label>Almacén:</label>
@@ -110,7 +110,7 @@
                     </div>
                     <div class="col-md-3">
                         <label>Busq. de Referencia:</label>
-                        {% if movimiento.referencia %}
+                        {% if movement.reference %}
                         <button id="id_transferencia_referencia" class="btn btn-info btn-block">
                             <span class="glyphicon glyphicon-search">BUSCAR</span>
                         </button>
@@ -295,12 +295,12 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	$("#id_date").datepicker();
 	{% if object %}
-		$('#id_hora').wickedpicker({now: "{{ movimiento.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
+		$('#id_hora').wickedpicker({now: "{{ movement.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
 	{% else %}
 		$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
 	{% endif %}
 	verificar_pide_referencia();
-	$("#id_tipo_movimiento").on('change',establecer_pide_referencia);
+	$("#id_movement_type").on('change',establecer_pide_referencia);
 	
 	$(document).on("click",".eliminar",function()
 	{
@@ -348,12 +348,12 @@ $(document).ready(function()
 		verificar_pide_referencia();
 		total=0;
 		$("#id_total").val(total);
-		$("#id_referencia").val("");
+		$("#id_reference").val("");
 	}
 	
 	function verificar_pide_referencia()
 	{
-		tipo_ingreso = $('#id_tipo_movimiento').val();
+		tipo_ingreso = $('#id_movement_type').val();
 		$.ajax({
 			data : {'tipo': tipo_ingreso},
 			url : "{% url 'almacen:verificar_pide_referencia' %}",
@@ -420,8 +420,8 @@ $(document).ready(function()
 		    minLength: 2,
 		    select: function( event, ui ) 
 		    {
-		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("name", "");
+		    	var id_product = $(this).prop('id');
+				var id = id_product.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
@@ -510,7 +510,7 @@ $(document).ready(function()
 	$("form").submit(function( event ) 
 	{
 		var cont=0;
-		tipo_ingreso = $('#id_tipo_movimiento').val();
+		tipo_ingreso = $('#id_movement_type').val();
 		$('#id_cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacen').val().trim();
 		var date = $('#id_date').val().trim();

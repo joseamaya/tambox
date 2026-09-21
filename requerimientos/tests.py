@@ -11,10 +11,10 @@ def crear_requerimiento(**kwargs):
     `save()` lanza ValidationError si no lo tiene, porque de ahi sale la oficina
     y la cadena de aprobaciones. Los tests viejos no armaban ese grafo."""
     NivelAprobacion.objects.get_or_create(description='USUARIO')
-    oficina = baker.make(Oficina)
-    trabajador = baker.make(Trabajador)
-    baker.make(Puesto, oficina=oficina, trabajador=trabajador, end_date=None)
-    return baker.make(Requerimiento, solicitante=trabajador, oficina=oficina, **kwargs)
+    office = baker.make(Oficina)
+    worker = baker.make(Trabajador)
+    baker.make(Puesto, office=office, worker=worker, end_date=None)
+    return baker.make(Requerimiento, requester=worker, office=office, **kwargs)
 
 
 # Create your tests here.
@@ -59,18 +59,18 @@ class DetalleRequerimientoTest(TestCase):
         self.r1 = crear_requerimiento(code='')
 
     def test_creacion_detalle_requerimiento(self):
-        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1)
+        dr1 = baker.make(DetalleRequerimiento, requirement=self.r1)
         self.assertTrue(isinstance(dr1, DetalleRequerimiento))
         self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.line_number))
 
     def test_estado_atendido(self):
-        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, served_quantity=5)
+        dr1 = baker.make(DetalleRequerimiento, requirement=self.r1, quantity=5, served_quantity=5)
         dr1.establecer_estado_atendido()
         self.assertEqual(dr1.status, DetalleRequerimiento.STATUS.ATEN)
-        dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=5)
+        dr2 = baker.make(DetalleRequerimiento, requirement=self.r1, quantity=8, served_quantity=5)
         dr2.establecer_estado_atendido()
         self.assertEqual(dr2.status, DetalleRequerimiento.STATUS.ATEN_PARC)
-        dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=10)
+        dr3 = baker.make(DetalleRequerimiento, requirement=self.r1, quantity=8, served_quantity=10)
         dr3.establecer_estado_atendido()
         self.assertEqual(dr3.status, DetalleRequerimiento.STATUS.ATEN)
 
@@ -78,11 +78,11 @@ class DetalleRequerimientoTest(TestCase):
 class AprobacionRequerimientoTest(TestCase):
     def setUp(self):
         self.r1 = crear_requerimiento(code='')
-        self.apr1 = baker.make(AprobacionRequerimiento, requerimiento=self.r1)
+        self.apr1 = baker.make(AprobacionRequerimiento, requirement=self.r1)
 
     def test_creacion_aprobacion_requerimiento(self):
         self.assertTrue(isinstance(self.apr1, AprobacionRequerimiento))
-        self.assertEqual(self.apr1.requerimiento, self.r1)
+        self.assertEqual(self.apr1.requirement, self.r1)
 
 
 class ClasificarTest(TestCase):
@@ -103,88 +103,88 @@ class ClasificarTest(TestCase):
 
 class EstadosDeRequerimientoTest(TestCase):
 
-    def _requerimiento(self, quantity, cotizada=0, comprada=0, atendida=0):
-        requerimiento = crear_requerimiento(code='')
-        baker.make(DetalleRequerimiento, requerimiento=requerimiento, line_number=1,
+    def _requirement(self, quantity, cotizada=0, comprada=0, atendida=0):
+        requirement = crear_requerimiento(code='')
+        baker.make(DetalleRequerimiento, requirement=requirement, line_number=1,
                    quantity=quantity, quoted_quantity=cotizada,
                    purchased_quantity=comprada, served_quantity=atendida)
-        return requerimiento
+        return requirement
 
     def test_comprado_parcial_no_marca_como_comprado(self):
-        requerimiento = self._requerimiento(quantity=10, comprada=4)
+        requirement = self._requirement(quantity=10, comprada=4)
 
-        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP_PARC)
+        self.assertEqual(requirement.establecer_estado_comprado(), Requerimiento.STATUS.COMP_PARC)
 
     def test_crear_requerimiento_crea_su_aprobacion_inicial(self):
         """Antes fallaba siempre: la aprobacion se creaba antes de que el
         requerimiento tuviera pk."""
-        requerimiento = self._requerimiento(quantity=10)
+        requirement = self._requirement(quantity=10)
 
-        self.assertTrue(AprobacionRequerimiento.objects.filter(requerimiento=requerimiento).exists())
+        self.assertTrue(AprobacionRequerimiento.objects.filter(requirement=requirement).exists())
 
     def test_comprado_completo(self):
-        requerimiento = self._requerimiento(quantity=10, comprada=10)
+        requirement = self._requirement(quantity=10, comprada=10)
 
-        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
+        self.assertEqual(requirement.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
 
     def test_comprado_por_encima_del_total(self):
-        requerimiento = self._requerimiento(quantity=10, comprada=12)
+        requirement = self._requirement(quantity=10, comprada=12)
 
-        self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
+        self.assertEqual(requirement.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
 
     def test_cotizado_parcial(self):
-        requerimiento = self._requerimiento(quantity=10, cotizada=4)
+        requirement = self._requirement(quantity=10, cotizada=4)
 
-        self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ_PARC)
+        self.assertEqual(requirement.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ_PARC)
 
     def test_cotizado_completo(self):
-        requerimiento = self._requerimiento(quantity=10, cotizada=10)
+        requirement = self._requirement(quantity=10, cotizada=10)
 
-        self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ)
+        self.assertEqual(requirement.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ)
 
     def test_atendido_parcial(self):
-        requerimiento = self._requerimiento(quantity=10, atendida=4)
+        requirement = self._requirement(quantity=10, atendida=4)
 
-        self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN_PARC)
+        self.assertEqual(requirement.establecer_estado_atendido(), Requerimiento.STATUS.ATEN_PARC)
 
     def test_atendido_completo(self):
-        requerimiento = self._requerimiento(quantity=10, atendida=10)
+        requirement = self._requirement(quantity=10, atendida=10)
 
-        self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN)
+        self.assertEqual(requirement.establecer_estado_atendido(), Requerimiento.STATUS.ATEN)
 
     def test_los_totales_se_calculan_una_sola_vez(self):
         """Suma columnas, asi que el agregado es exacto; la maquina de estados los
         invoca varias veces en la misma operacion."""
-        requerimiento = self._requerimiento(quantity=10)
+        requirement = self._requirement(quantity=10)
 
         with self.assertNumQueries(1):
-            self.assertEqual(requerimiento.total, 10)
+            self.assertEqual(requirement.total, 10)
 
         with self.assertNumQueries(1):
-            requerimiento.total_cotizado
+            requirement.total_cotizado
 
         with self.assertNumQueries(1):
-            requerimiento.total_comprado
+            requirement.total_comprado
 
         with self.assertNumQueries(0):
-            requerimiento.total
-            requerimiento.total_cotizado
-            requerimiento.total_comprado
+            requirement.total
+            requirement.total_cotizado
+            requirement.total_comprado
 
     def test_el_prefetch_evita_una_consulta_por_requerimiento(self):
         """Los totales recorren el manager inverso y no un .filter(), que siempre
         lanza su propia consulta. Eso es lo que hace que prefetch_related sirva
         en los bucles que cargan muchos requerimientos."""
         for quantity in (10, 20, 30):
-            self._requerimiento(quantity=quantity)
+            self._requirement(quantity=quantity)
 
         requerimientos = list(Requerimiento.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
-            for requerimiento in requerimientos:
-                requerimiento.total
-                requerimiento.total_cotizado
-                requerimiento.total_comprado
+            for requirement in requerimientos:
+                requirement.total
+                requirement.total_cotizado
+                requirement.total_comprado
 
 
 class EstadosDeDetalleRequerimientoTest(TestCase):

@@ -36,14 +36,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for proveedor in proveedores %}
+            {% for supplier in proveedores %}
             {% if perms.compras.ver_detalle_proveedor %}
-            <tr onclick="location.href='{% url 'compras:detalle_proveedor' proveedor.pk %}';">
+            <tr onclick="location.href='{% url 'compras:detalle_proveedor' supplier.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ proveedor.tax_id }}</td>
-                <td>{{ proveedor.business_name }}</td>
+                <td>{{ supplier.tax_id }}</td>
+                <td>{{ supplier.business_name }}</td>
             </tr>
             {% endfor %}
             </tbody>

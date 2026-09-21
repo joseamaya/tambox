@@ -32,16 +32,16 @@
             </tr>
             </thead>
             <tbody>
-            {% for conformidad in conformidades %}
+            {% for conformity in conformidades %}
             {% if perms.compras.ver_detalle_conformidad_servicio %}
-            <tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformidad.pk %}';">
+            <tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformity.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ conformidad.code }}</td>
-                <td>{{ conformidad.orden_servicios.cotizacion.proveedor }}</td>
-                <td>{{ conformidad.orden_servicios }}</td>
-                <td>{{ conformidad.date|date:"d/m/y" }}</td>
+                <td>{{ conformity.code }}</td>
+                <td>{{ conformity.service_order.quotation.supplier }}</td>
+                <td>{{ conformity.service_order }}</td>
+                <td>{{ conformity.date|date:"d/m/y" }}</td>
             </tr>
             {% endfor %}
             </tbody>
