@@ -407,7 +407,7 @@ class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
             try:
                 tipo_cambio = TipoCambio.objects.get(date=date)
             except TipoCambio.DoesNotExist:
-                tipo_cambio = {'date': fecha_get, 'monto': 0}
+                tipo_cambio = {'date': fecha_get, 'amount': 0}
             data = simplejson.dumps(tipo_cambio)
             return HttpResponse(data, 'application/json')
 

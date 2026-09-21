@@ -49,11 +49,11 @@ class FormularioDetalleMovimiento(forms.Form):
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+    quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
-    precio = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    price = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'form-control decimal'}))
-    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control decimal'}))
 
 
@@ -101,7 +101,7 @@ class MovimientoForm(forms.ModelForm):
         self.fields['tipo_documento'].required = False
         self.fields['serie'].required = False
         self.fields['numero'].required = False
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         self.fields['oficina'].required = False
         self.fields['dni_receptor'].required = False
         self.fields['receptor'].required = False
@@ -163,7 +163,7 @@ class MovimientoForm(forms.ModelForm):
     class Meta:
         model = Movimiento
         fields = ['id_movimiento', 'tipo_movimiento', 'tipo_documento', 'serie', 'numero', 'almacen', 'oficina',
-                  'observaciones']
+                  'notes']
 
 
 class FormularioKardexProducto(forms.Form):
@@ -223,7 +223,7 @@ class CargarInventarioInicialForm(forms.ModelForm):
 
     class Meta:
         model = Upload
-        fields = ['archivo']
+        fields = ['file']
 
     def __init__(self, *args, **kwargs):
         super(CargarInventarioInicialForm, self).__init__(*args, **kwargs)
@@ -239,7 +239,7 @@ class PedidoForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super(PedidoForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
@@ -258,7 +258,7 @@ class PedidoForm(forms.ModelForm):
 
     class Meta:
         model = Pedido
-        fields = ['code', 'date', 'observaciones']
+        fields = ['code', 'date', 'notes']
 
 
 class AprobacionPedidoForm(forms.ModelForm):
@@ -272,7 +272,7 @@ class AprobacionPedidoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(AprobacionPedidoForm, self).__init__(*args, **kwargs)
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
@@ -299,7 +299,7 @@ class AprobacionPedidoForm(forms.ModelForm):
 
     class Meta:
         model = Movimiento
-        fields = ['almacen', 'observaciones']
+        fields = ['almacen', 'notes']
 
 
 class FormularioPedido(forms.Form):
@@ -307,7 +307,7 @@ class FormularioPedido(forms.Form):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    observaciones = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
+    notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
     total = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
 
@@ -318,7 +318,7 @@ class FormularioDetallePedido(forms.Form):
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(max_length=20,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
 
 
@@ -328,11 +328,11 @@ class FormularioDetalleIngreso(forms.Form):
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+    quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
-    precio = forms.DecimalField(max_digits=25, decimal_places=8,
+    price = forms.DecimalField(max_digits=25, decimal_places=8,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
-    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
@@ -355,19 +355,19 @@ class FormularioDetalleSalida(forms.Form):
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+    quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
-    precio = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    price = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal form-control'}))
-    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
     def clean_cantidad(self):
-        if self.cleaned_data.get('cantidad') == 0:
+        if self.cleaned_data.get('quantity') == 0:
             raise ValidationError("La cantidad no puede ser 0")
-        elif self.cleaned_data.get('cantidad') < 0:
+        elif self.cleaned_data.get('quantity') < 0:
             raise ValidationError("La cantidad no puede ser negativa")
-        return self.cleaned_data['cantidad']
+        return self.cleaned_data['quantity']
 
 
 class BaseDetalleSalidaFormSet(formsets.BaseFormSet):

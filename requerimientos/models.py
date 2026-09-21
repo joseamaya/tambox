@@ -23,7 +23,7 @@ class Requerimiento(TimeStampedModel):
     received_date = models.DateField(null=True)
     mes = models.IntegerField(choices=CHOICES_MESES)
     annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
-    observaciones = models.TextField()
+    notes = models.TextField()
     informe = models.FileField(upload_to='informes', null=True)
     entrega_directa_solicitante = models.BooleanField(default=False)
     STATUS = CHOICES_ESTADO_REQ
@@ -57,7 +57,7 @@ class Requerimiento(TimeStampedModel):
         invocan varias veces.
         """
         if not hasattr(self, '_total_calculado'):
-            self._total_calculado = sum(detalle.cantidad
+            self._total_calculado = sum(detalle.quantity
                                         for detalle in self.detallerequerimiento_set.all())
         return self._total_calculado
 
@@ -105,7 +105,7 @@ class Requerimiento(TimeStampedModel):
         total_atendido = 0
         detalles = DetalleRequerimiento.objects.filter(requerimiento=self)
         for detalle in detalles:
-            total = total + detalle.cantidad
+            total = total + detalle.quantity
             total_atendido = total_atendido + detalle.cantidad_atendida
         caso = clasificar(total_atendido, total)
         if caso == VACIO:
@@ -215,7 +215,7 @@ class DetalleRequerimiento(TimeStampedModel):
     requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     uso = models.TextField(null=True)
-    cantidad = models.DecimalField(max_digits=15, decimal_places=5)
+    quantity = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_cotizada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     cantidad_comprada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -231,7 +231,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.requerimiento.code + ' ' + str(self.nro_detalle)
 
     def establecer_estado_cotizado(self):
-        caso = clasificar(self.cantidad_cotizada, self.cantidad)
+        caso = clasificar(self.cantidad_cotizada, self.quantity)
         if caso == VACIO:
             estado = DetalleRequerimiento.STATUS.PEND
         elif caso == PARCIAL:
@@ -242,7 +242,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.estado
 
     def establecer_estado_comprado(self):
-        caso = clasificar(self.cantidad_comprada, self.cantidad)
+        caso = clasificar(self.cantidad_comprada, self.quantity)
         if caso == VACIO:
             estado = self.establecer_estado_cotizado()
         elif caso == PARCIAL:
@@ -253,7 +253,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.estado
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.cantidad_atendida, self.cantidad)
+        caso = clasificar(self.cantidad_atendida, self.quantity)
         if caso == VACIO:
             estado = self.establecer_estado_comprado()
         elif caso == PARCIAL:

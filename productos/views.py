@@ -75,7 +75,7 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
                 producto_json['code'] = producto.code
                 producto_json['description'] = producto.description
                 producto_json['unidad'] = producto.unidad_medida.description
-                producto_json['precio'] = str(producto.precio)
+                producto_json['price'] = str(producto.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -96,7 +96,7 @@ class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
                 producto_json['code'] = producto.code
                 producto_json['description'] = producto.description
                 producto_json['unidad'] = producto.unidad_medida.description
-                producto_json['precio'] = str(producto.precio)
+                producto_json['price'] = str(producto.price)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -147,14 +147,14 @@ class CargarProductos(CargarCsvMixin, FormView):
                                                              defaults={'code': cod_und,
                                                                        'description': fila[2].strip()})
             if fila[3] != '':
-                precio = fila[3]
+                price = fila[3]
             else:
-                precio = 0
+                price = 0
             tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
             producto, creado = Producto.objects.get_or_create(description=fila[1].strip(),
                                                               defaults={'unidad_medida': und,
                                                                         'grupo_productos': grupo,
-                                                                        'precio': precio,
+                                                                        'price': price,
                                                                         'tipo_existencia': tipo_existencia})
         except Exception:
             logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
@@ -484,7 +484,7 @@ class ReporteExcelProductos(TemplateView):
             ws.cell(row=cont, column=6).value = producto.unidad_medida.description
             ws.cell(row=cont, column=7).value = producto.marca
             ws.cell(row=cont, column=8).value = producto.modelo
-            ws.cell(row=cont, column=9).value = producto.precio
+            ws.cell(row=cont, column=9).value = producto.price
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=10).value = producto.created
             ws.cell(row=cont, column=10).number_format = 'dd/mm/yyyy hh:mm:ss'

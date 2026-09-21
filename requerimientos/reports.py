@@ -85,7 +85,7 @@ class ReporteRequerimiento():
         lista_detalles = []
         for detalle in detalles:
             tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
-                              Paragraph(str(detalle.cantidad), sp),
+                              Paragraph(str(detalle.quantity), sp),
                               Paragraph(detalle.producto.unidad_medida.description, sp),
                               Paragraph(detalle.producto.description, sp),
                               Paragraph(detalle.uso, sp)]
@@ -109,9 +109,9 @@ class ReporteRequerimiento():
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        obs = Paragraph("OBSERVACIONES: " + requerimiento.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[20 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("OBSERVACIONES: " + requerimiento.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),

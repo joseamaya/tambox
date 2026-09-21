@@ -12,6 +12,6 @@ def leer_filas(docfile):
     en Linux y en Windows.
     """
     ruta = os.path.join(settings.MEDIA_ROOT, 'archivos', str(docfile))
-    with open(ruta, encoding='utf8') as archivo:
-        for fila in csv.reader(archivo, delimiter=',', quotechar='"'):
+    with open(ruta, encoding='utf8') as file:
+        for fila in csv.reader(file, delimiter=',', quotechar='"'):
             yield fila

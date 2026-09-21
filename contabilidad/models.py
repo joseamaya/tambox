@@ -12,7 +12,7 @@ from tambox.querysets import NavegableQuerySet
 
 
 class TipoCambio(TimeStampedModel):
-    monto = models.DecimalField(max_digits=15, decimal_places=5)
+    amount = models.DecimalField(max_digits=15, decimal_places=5)
     date = models.DateField(unique=True)
     objects = NavegableQuerySet.as_manager()
 
@@ -117,7 +117,7 @@ class Tipo(TimeStampedModel):
     descripcion_campo = models.CharField(max_length=25)
     code = models.CharField(max_length=10)
     descripcion_valor = models.CharField(max_length=100)
-    cantidad = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
+    quantity = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
 
     class Meta:
         permissions = (('ver_detalle_tipo', 'Puede ver detalle Tipo de Documento'),
@@ -132,7 +132,7 @@ class Tipo(TimeStampedModel):
 class Impuesto(TimeStampedModel):
     abreviatura = models.CharField(max_length=10)
     description = models.CharField(max_length=50)
-    monto = models.DecimalField(max_digits=14, decimal_places=2)
+    amount = models.DecimalField(max_digits=14, decimal_places=2)
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     estado = models.BooleanField(default=True)
@@ -161,7 +161,7 @@ class Impuesto(TimeStampedModel):
 
 
 class Upload(TimeStampedModel):
-    archivo = models.FileField(upload_to='archivos')
+    file = models.FileField(upload_to='archivos')
 
 
 class Empresa(SingletonModel):

@@ -36,7 +36,7 @@ class CargarCsvMixin(object):
 
     def form_valid(self, form):
         form.save()
-        for fila in leer_filas(form.cleaned_data['archivo']):
+        for fila in leer_filas(form.cleaned_data['file']):
             self.procesar_fila(fila)
         return super(CargarCsvMixin, self).form_valid(form)
 

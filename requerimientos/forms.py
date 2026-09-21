@@ -60,14 +60,14 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     uso = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
 class FormularioDetalleRequerimiento(forms.Form):
     code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
-    cantidad = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
+    quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(required=False,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -82,9 +82,9 @@ class FormularioDetalleRequerimiento(forms.Form):
             raise ValidationError("El código no es válido.")
 
     def clean_cantidad(self):
-        if not self.cleaned_data.get('cantidad'):
+        if not self.cleaned_data.get('quantity'):
             raise ValidationError("La cantidad no es válida.")
-        return self.cleaned_data['cantidad']
+        return self.cleaned_data['quantity']
 
 
 class RequerimientoForm(forms.ModelForm):
@@ -94,7 +94,7 @@ class RequerimientoForm(forms.ModelForm):
         self.fields['motivo'].required = False
         self.fields['informe'].required = False
         self.fields['code'].required = False
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             if field != 'entrega_directa_solicitante':
@@ -112,7 +112,7 @@ class RequerimientoForm(forms.ModelForm):
 
     class Meta:
         model = Requerimiento
-        fields = ['code', 'motivo', 'date', 'mes', 'annio', 'observaciones', 'informe',
+        fields = ['code', 'motivo', 'date', 'mes', 'annio', 'notes', 'informe',
                   'entrega_directa_solicitante']
 
 

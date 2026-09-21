@@ -177,12 +177,12 @@
                                 {{ form.unidad }}
                             </td>
                             <td>
-                                {% if form.cantidad.errors %}
-                                {% for error in form.cantidad.errors %}
+                                {% if form.quantity.errors %}
+                                {% for error in form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.cantidad }}
+                                {{ form.quantity }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -200,7 +200,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
         </div>
@@ -298,7 +298,7 @@ $(document).ready(function()
 	function transferirRequerimiento() 
 	{
 		var requerimiento = $("#requerimiento").val();
-		var observaciones = $("#" + requerimiento).val();
+		var notes = $("#" + requerimiento).val();
 		var cont = 0;
 		ventana_transferencia.dialog("close");
 		$('#detalles td').parent().remove();
@@ -318,7 +318,7 @@ $(document).ready(function()
 						"<td>" + item.requerimiento + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +	
+						"<td>" + item.quantity + "</td>" +	
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 				});
@@ -326,7 +326,7 @@ $(document).ready(function()
 				ultimo_item = cont;
 				$("#id_form-TOTAL_FORMS").val(cont);
 				$("#id_referencia").val(requerimiento);
-				$("#id_observaciones").val(observaciones);
+				$("#id_observaciones").val(notes);
 			}
 		});
 	}

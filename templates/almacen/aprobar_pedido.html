@@ -116,28 +116,28 @@
                                 {{ detalle_salida_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.cantidad.errors %}
-                                {% for error in detalle_salida_form.cantidad.errors %}
+                                {% if detalle_salida_form.quantity.errors %}
+                                {% for error in detalle_salida_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.cantidad }}
+                                {{ detalle_salida_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.precio.errors %}
-                                {% for error in detalle_salida_form.precio.errors %}
+                                {% if detalle_salida_form.price.errors %}
+                                {% for error in detalle_salida_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.precio }}
+                                {{ detalle_salida_form.price }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.valor.errors %}
-                                {% for error in detalle_salida_form.valor.errors %}
+                                {% if detalle_salida_form.amount.errors %}
+                                {% for error in detalle_salida_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.valor }}
+                                {{ detalle_salida_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -177,7 +177,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
             <div id="popup"></div>
@@ -236,12 +236,12 @@ $(document).ready(function()
 						"<td>" + item.pedido + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
-					var val_temp = $("#id_form-"+i+"-valor").val();
+					var val_temp = $("#id_form-"+i+"-amount").val();
 					contDetalles=i+1;
 					total = total + parseFloat(val_temp);
 				});
@@ -266,18 +266,18 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();	
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btnBorrar","");
-		var valor = $("#valor"+id).val();
+		var amount = $("#amount"+id).val();
 		$(parent).remove();
-		total=parseFloat(total-valor);
+		total=parseFloat(total-amount);
 		$("#id_total").val(total.toFixed(5));
 		contDetalles = contDetalles - 1;
 	});
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
 		var id_cantidad= $(this).prop('id');
-		var cantidad = $(this).val();
-		var id = id_cantidad.replace("cantidad","");
+		var quantity = $(this).val();
+		var id = id_cantidad.replace("quantity","");
 		var code = $("#code"+id).val();
 		var almacen = $('#id_almacenes').val();
 		$.ajax({
@@ -288,11 +288,11 @@ $(document).ready(function()
 	   	  },
 	      success: function(data) 
 	      {
-			  if(cantidad>data.stock)
+			  if(quantity>data.stock)
 	          {
 				  alert("La cantidad ingresada es mayor que el stock");
-				  $("#cantidad"+id).val(data.stock);
-				  $("#valor"+id).val($("#cantidad"+id).val()*$("#precio"+id).val());				  
+				  $("#quantity"+id).val(data.stock);
+				  $("#amount"+id).val($("#quantity"+id).val()*$("#price"+id).val());				  
 	          }
 	      }
 	    });

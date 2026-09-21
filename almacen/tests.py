@@ -86,12 +86,12 @@ class PedidoTest(TestCase):
         """`Pedido.save()` solo genera el code cuando esta vacio, asi que
         guardar un pedido existente no lo duplica ni le cambia el code."""
         code = self.pe1.code
-        cantidad = Pedido.objects.count()
+        quantity = Pedido.objects.count()
 
         self.pe1.save()
 
         self.assertEqual(code, Pedido.objects.get(pk=self.pe1.pk).code)
-        self.assertEqual(cantidad, Pedido.objects.count())
+        self.assertEqual(quantity, Pedido.objects.count())
 
     def test_siguiente_pedido(self):
         self.assertEqual(self.pe3.pk, self.pe2.siguiente())
@@ -118,7 +118,7 @@ class DetallePedidoTest(TestCase):
         self.assertEqual(self.dpe1.__str__(), self.dpe1.pedido.code + ' ' + str(self.dpe1.nro_detalle))
 
     def test_cantidad_por_atender(self):
-        resultado = self.dpe1.cantidad - self.dpe1.cantidad_atendida
+        resultado = self.dpe1.quantity - self.dpe1.cantidad_atendida
         self.assertEqual(resultado, self.dpe1.cantidad_por_atender())
 
 
@@ -248,13 +248,13 @@ class EstadoDeDetallePedidoTest(TestCase):
     """Solo lee campos de la instancia, y fija la regla compartida de clasificar()."""
 
     def test_atendido(self):
-        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=0).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=0).establecer_estado_atendido(),
                          DetallePedido.STATUS.PEND)
-        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=4).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=4).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN_PARC)
-        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=10).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=10).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN)
-        self.assertEqual(DetallePedido(cantidad=10, cantidad_atendida=12).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=12).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN)
 
 
@@ -268,9 +268,9 @@ class CargarCsvTest(TestCase):
 
     def test_cargar_almacenes(self):
         contenido = 'AL01,ALMACEN UNO\nAL02,ALMACEN DOS\n'
-        archivo = SimpleUploadedFile('almacenes.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('almacenes.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/cargar_almacenes/', {'archivo': archivo})
+        respuesta = self.client.post('/almacen/cargar_almacenes/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(Almacen.objects.filter(code__in=['AL01', 'AL02']).count(), 2)
@@ -283,10 +283,10 @@ class CargarCsvTest(TestCase):
         producto_uno = baker.make(Producto, description='PRODUCTO UNO')
         producto_dos = baker.make(Producto, description='PRODUCTO DOS')
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
-        archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
         respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
-                                     {'archivo': archivo,
+                                     {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
                                       'almacenes': almacen.pk})
@@ -297,9 +297,9 @@ class CargarCsvTest(TestCase):
         detalles = list(DetalleMovimiento.objects.order_by('nro_detalle'))
         self.assertEqual([detalle.nro_detalle for detalle in detalles], [1, 2])
         self.assertEqual([detalle.producto for detalle in detalles], [producto_uno, producto_dos])
-        self.assertEqual([detalle.cantidad for detalle in detalles], [Decimal('10'), Decimal('2')])
-        self.assertEqual(detalles[0].valor, Decimal('50'))
-        self.assertEqual(detalles[1].valor, Decimal('7'))
+        self.assertEqual([detalle.quantity for detalle in detalles], [Decimal('10'), Decimal('2')])
+        self.assertEqual(detalles[0].amount, Decimal('50'))
+        self.assertEqual(detalles[1].amount, Decimal('7'))
 
     def test_cargar_inventario_inicial_sin_datos_basicos_avisa(self):
         """`I00` y `PEC` los crean los tableros de Almacen y Contabilidad. Si el
@@ -307,10 +307,10 @@ class CargarCsvTest(TestCase):
         dice que falta y donde crearlo."""
         almacen = baker.make(Almacen)
         contenido = 'PRODUCTO UNO,10,5.0,50.0\n'
-        archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
         respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
-                                     {'archivo': archivo,
+                                     {'file': file,
                                       'date': '01/01/2024',
                                       'hora': '08:30',
                                       'almacenes': almacen.pk})
@@ -323,7 +323,7 @@ class CargarCsvTest(TestCase):
 
 
 class TotalDeMovimientoTest(TestCase):
-    """Suma la columna `valor`, asi que el agregado es exacto y ademas se memoriza."""
+    """Suma la columna `amount`, asi que el agregado es exacto y ademas se memoriza."""
 
     def test_se_calcula_una_sola_vez(self):
         movimiento = baker.make(Movimiento)
@@ -600,4 +600,4 @@ class StockAjaxTest(TestCase):
         self.assertEqual(len(datos), 1)
         self.assertEqual(datos[0]['code'], self.producto.code)
         self.assertEqual(datos[0]['unidad'], self.unidad.description)
-        self.assertEqual(Decimal(datos[0]['precio']), Decimal('3'))
+        self.assertEqual(Decimal(datos[0]['price']), Decimal('3'))

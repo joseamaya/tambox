@@ -62,12 +62,12 @@
             <div class="row">
                 <div class="col-lg-4">
                     <label>Monto:</label>
-                    {% if form.monto.errors %}
-                    {% for error in form.monto.errors %}
+                    {% if form.amount.errors %}
+                    {% for error in form.amount.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <p>{{ form.monto }}</p>
+                    <p>{{ form.amount }}</p>
                 </div>
                 <div class="col-lg-4"></div>
                 <div class="col-lg-4"></div>

@@ -156,11 +156,11 @@ class ReporteMovimiento():
         lista_detalles = []
         for detalle in detalles:
             tupla_producto = [str(detalle.nro_detalle),
-                              format(detalle.cantidad, '.5f'),
+                              format(detalle.quantity, '.5f'),
                               str(detalle.producto.unidad_medida.code),
                               detalle.producto.description,
-                              format(detalle.precio, '.5f'),
-                              format(detalle.valor, '.5f')]
+                              format(detalle.price, '.5f'),
+                              format(detalle.amount, '.5f')]
             lista_detalles.append(tupla_producto)
         tabla_detalle = Table([encabezados] + lista_detalles,
                               colWidths=[1.5 * cm, 2.5 * cm, 1.5 * cm, 10 * cm, 2 * cm, 2.5 * cm])
@@ -200,9 +200,9 @@ class ReporteMovimiento():
                            alignment=TA_JUSTIFY,
                            fontSize=8,
                            fontName="Times-Roman")
-        obs = Paragraph("OBSERVACIONES: " + movimiento.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[20 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("OBSERVACIONES: " + movimiento.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
@@ -2355,18 +2355,18 @@ def reporte_inventario(desde):
                     description = kardex.producto.description
                     unidad_medida = kardex.producto.unidad_medida.description
                     stock = kardex.cantidad_total
-                    precio = kardex.precio_total
-                    valor = kardex.valor_total
+                    price = kardex.precio_total
+                    amount = kardex.valor_total
                     detalle = kardex.nro_detalle_movimiento
-                    sum_valor += valor
+                    sum_valor += amount
 
                 except (Kardex.DoesNotExist, AttributeError):
                     code = producto.code
                     description = producto.description
                     unidad_medida = producto.unidad_medida.code
                     stock = 0
-                    precio = 0
-                    valor = 0
+                    price = 0
+                    amount = 0
                     detalle = ""
                 ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
                 ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"),
@@ -2416,31 +2416,31 @@ def reporte_inventario(desde):
                 ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=6).value = unidad_medida
 
-                temp_precio = format(precio, '.3f')
+                temp_precio = format(price, '.3f')
                 if temp_precio == '-0.000':
-                    precio = format(abs(precio), '.3f')
+                    price = format(abs(price), '.3f')
                 else:
-                    precio = format(precio, '.3f')
+                    price = format(price, '.3f')
                 ws.cell(row=cont, column=7).alignment = Alignment(horizontal="right")
                 ws.cell(row=cont, column=7).border = Border(left=Side(border_style="thin"),
                                                             right=Side(border_style="thin"),
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=7).value = precio
+                ws.cell(row=cont, column=7).value = price
                 ws.cell(row=cont, column=7).number_format = '#.000'
-                temp_valor = format(valor, '.3f')
+                temp_valor = format(amount, '.3f')
                 if temp_valor == '-0.000':
-                    valor = format(abs(valor), '.3f')
+                    amount = format(abs(amount), '.3f')
                 else:
-                    valor = format(valor, '.3f')
+                    amount = format(amount, '.3f')
                 ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
                 ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"),
                                                             right=Side(border_style="thin"),
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=8).value = valor
+                ws.cell(row=cont, column=8).value = amount
                 ws.cell(row=cont, column=8).number_format = '#.000'
 
                 cont = cont + 1
@@ -2448,9 +2448,9 @@ def reporte_inventario(desde):
             resumen_inventario.append(tempo_resumen)
             temp_sum_valor = format(sum_valor, '.3f')
             if temp_sum_valor == '-0.000':
-                valor = format(abs(sum_valor), '.3f')
+                amount = format(abs(sum_valor), '.3f')
             else:
-                valor = format(sum_valor, '.3f')
+                amount = format(sum_valor, '.3f')
             ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
             ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"),
                                                         right=Side(border_style="thin"),
@@ -2476,9 +2476,9 @@ def reporte_inventario(desde):
 
     temp_sum_valor = format(total_final, '.3f')
     if temp_sum_valor == '-0.000':
-        valor = format(abs(total_final), '.3f')
+        amount = format(abs(total_final), '.3f')
     else:
-        valor = format(total_final, '.3f')
+        amount = format(total_final, '.3f')
     ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
     ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                 top=Side(border_style="thin"), bottom=Side(border_style="thin"))

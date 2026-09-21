@@ -166,23 +166,23 @@
                     {% if object.cotizacion %}
                     {% for detalle in object.detalleordenservicios_set.all %}
                     <tr>
-                        <td>{{ detalle.cantidad }}</td>
+                        <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.cantidad_conforme }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
                         </td>
-                        <td>{{ detalle.precio }}</td>
-                        <td>{{ detalle.valor }}</td>
+                        <td>{{ detalle.price }}</td>
+                        <td>{{ detalle.amount }}</td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     {% for detalle in object.detalleordenservicios_set.all %}
                     <tr>
-                        <td>{{ detalle.cantidad }}</td>
+                        <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
-                        <td>{{ detalle.precio }}</td>
-                        <td>{{ detalle.valor }}</td>
+                        <td>{{ detalle.price }}</td>
+                        <td>{{ detalle.amount }}</td>
                     </tr>
                     {% endfor %}
                     {% endif %}
@@ -230,7 +230,7 @@
             <div class="col-lg-12">
                 <label>OBSERVACIONES:</label>
                 <p>
-                    {{ object.observaciones }}
+                    {{ object.notes }}
                 <p>
             </div>
         </div>

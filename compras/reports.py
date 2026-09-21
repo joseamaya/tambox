@@ -113,20 +113,20 @@ class ReporteOrdenCompra():
         for detalle in detalles:
             try:
                 tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
-                                  Paragraph(str(detalle.cantidad), sp),
+                                  Paragraph(str(detalle.quantity), sp),
                                   Paragraph(
                                       detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
                                       sp),
                                   Paragraph(detalle.detalle_cotizacion.detalle_requerimiento.producto.description, sp),
-                                  Paragraph(str(detalle.precio), sp),
-                                  Paragraph(str(detalle.valor), sp)]
+                                  Paragraph(str(detalle.price), sp),
+                                  Paragraph(str(detalle.amount), sp)]
             except (ObjectDoesNotExist, AttributeError):
                 tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
-                                  Paragraph(str(detalle.cantidad), sp),
+                                  Paragraph(str(detalle.quantity), sp),
                                   Paragraph(detalle.producto.unidad_medida.description, sp),
                                   Paragraph(detalle.producto.description, sp),
-                                  Paragraph(str(detalle.precio), sp),
-                                  Paragraph(str(detalle.valor), sp)]
+                                  Paragraph(str(detalle.price), sp),
+                                  Paragraph(str(detalle.amount), sp)]
             lista_detalles.append(tupla_producto)
         adicionales = [('', '', '', '', '')] * (15 - len(lista_detalles))
         tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
@@ -190,9 +190,9 @@ class ReporteOrdenCompra():
                            alignment=TA_JUSTIFY,
                            fontSize=8,
                            fontName="Times-Roman")
-        obs = Paragraph("OBSERVACIONES: " + orden.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[20 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("OBSERVACIONES: " + orden.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
@@ -520,13 +520,13 @@ def reporte_xls_orden_compra(orden):
         ws['C' + str(fila)] = item.producto.description
         ws['G' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['G' + str(fila)] = item.cantidad
+        ws['G' + str(fila)] = item.quantity
         ws['H' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['H' + str(fila)] = item.precio
+        ws['H' + str(fila)] = item.price
         ws['I' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['I' + str(fila)] = item.cantidad * item.precio
+        ws['I' + str(fila)] = item.quantity * item.price
         detalle_index += 1
 
     fila_total = 31 + detalle_index
@@ -658,7 +658,7 @@ class PDFSolicitudCotizacion(object):
         lista_detalles = []
         for detalle in detalles:
             tupla_producto = (detalle.nro_detalle, detalle.detalle_requerimiento.producto.description,
-                              detalle.detalle_requerimiento.producto.unidad_medida.description, detalle.cantidad)
+                              detalle.detalle_requerimiento.producto.unidad_medida.description, detalle.quantity)
             lista_detalles.append(tupla_producto)
         adicionales = [('', '', '', '')] * (15 - len(detalles))
         tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
@@ -679,9 +679,9 @@ class PDFSolicitudCotizacion(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        obs = Paragraph("OBSERVACIONES: " + cotizacion.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[18 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("OBSERVACIONES: " + cotizacion.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[18 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
@@ -912,15 +912,15 @@ class PDFOrdenServicios(object):
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
-                    (detalle.nro_detalle, detalle.cantidad, Paragraph(description, p), detalle.precio, detalle.valor))
+                    (detalle.nro_detalle, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
             except (ObjectDoesNotExist, AttributeError):
                 description = detalle.producto.description
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
-                    (detalle.nro_detalle, detalle.cantidad, Paragraph(description, p), detalle.precio, detalle.valor))
+                    (detalle.nro_detalle, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
 
-        # detalles = [(detalle.nro_detalle, detalle.cantidad, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.precio,detalle.valor) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
+        # detalles = [(detalle.nro_detalle, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
         adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
@@ -982,9 +982,9 @@ class PDFOrdenServicios(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 10
         p.fontName = "Times-Roman"
-        obs = Paragraph("Observaciones: " + orden.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("Observaciones: " + orden.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
@@ -1114,13 +1114,13 @@ class PDFOrdenCompra(object):
     def detalle(self, pdf, y, orden):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total')
         try:
-            detalles = [(detalle.nro_detalle, detalle.cantidad,
+            detalles = [(detalle.nro_detalle, detalle.quantity,
                          detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
-                         detalle.detalle_cotizacion.detalle_requerimiento.producto.description, detalle.precio,
-                         round(detalle.valor, 5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
+                         detalle.detalle_cotizacion.detalle_requerimiento.producto.description, detalle.price,
+                         round(detalle.amount, 5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         except (ObjectDoesNotExist, AttributeError):
-            detalles = [(detalle.nro_detalle, detalle.cantidad, detalle.producto.unidad_medida.description,
-                         detalle.producto.description, detalle.precio, round(detalle.precio, 5)) for detalle in
+            detalles = [(detalle.nro_detalle, detalle.quantity, detalle.producto.unidad_medida.description,
+                         detalle.producto.description, detalle.price, round(detalle.price, 5)) for detalle in
                         DetalleOrdenCompra.objects.filter(orden=orden)]
         adicionales = [('', '', '', '', '', '')] * (15 - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
@@ -1184,9 +1184,9 @@ class PDFOrdenCompra(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 10
         p.fontName = "Times-Roman"
-        obs = Paragraph("Observaciones: " + orden.observaciones, p)
-        observaciones = [[obs]]
-        tabla_observaciones = Table(observaciones, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
+        obs = Paragraph("Observaciones: " + orden.notes, p)
+        notes = [[obs]]
+        tabla_observaciones = Table(notes, colWidths=[18.50 * cm], rowHeights=1.8 * cm)
         tabla_observaciones.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),

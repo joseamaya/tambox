@@ -204,28 +204,28 @@
                                 {{ detalle_orden_servicios_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_orden_servicios_form.cantidad.errors %}
-                                {% for error in detalle_orden_servicios_form.cantidad.errors %}
+                                {% if detalle_orden_servicios_form.quantity.errors %}
+                                {% for error in detalle_orden_servicios_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_servicios_form.cantidad }}
+                                {{ detalle_orden_servicios_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_orden_servicios_form.precio.errors %}
-                                {% for error in detalle_orden_servicios_form.precio.errors %}
+                                {% if detalle_orden_servicios_form.price.errors %}
+                                {% for error in detalle_orden_servicios_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_servicios_form.precio }}
+                                {{ detalle_orden_servicios_form.price }}
                             </td>
                             <td>
-                                {% if detalle_orden_servicios_form.valor.errors %}
-                                {% for error in detalle_orden_servicios_form.valor.errors %}
+                                {% if detalle_orden_servicios_form.amount.errors %}
+                                {% for error in detalle_orden_servicios_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_servicios_form.valor }}
+                                {{ detalle_orden_servicios_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -317,12 +317,12 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {% if form.observaciones.errors %}
-                    {% for error in form.observaciones.errors %}
+                    {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
         </div>
@@ -389,9 +389,9 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
-		var valor = $("#"+id+"valor").val();
+		var amount = $("#"+id+"amount").val();
 		var imp = 0;
-		subtotal=subtotal-parseFloat(valor);
+		subtotal=subtotal-parseFloat(amount);
 		impuesto_total = 0
 		total = subtotal + impuesto_total;
 		$(parent).remove();
@@ -404,16 +404,16 @@ $(document).ready(function()
 		updateFormElementIndices('detalle_orden_servicios_formset');
 	});
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("cantidad","");
-		var cantidad = convertir_vacio_cero($("#"+id+"cantidad").val());
-		var precio = convertir_vacio_cero($("#"+id+"precio").val());		
-		var valorAnt = $("#"+id+"valor").val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#"+id+"valor").val(valor.toFixed(5));		
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valor);
+		var id = id_input.replace("quantity","");
+		var quantity = convertir_vacio_cero($("#"+id+"quantity").val());
+		var price = convertir_vacio_cero($("#"+id+"price").val());		
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));		
+		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(amount);
 		impuesto_total = 0;
 		total = subtotal + impuesto_total;
 		$("#id_subtotal").val(subtotal.toFixed(5));
@@ -422,16 +422,16 @@ $(document).ready(function()
 		$("#id_total_letras").val(NumeroALetras(total));
 	});
 	
-	$(document).on("keyup",".precio",function()
+	$(document).on("keyup",".price",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("precio","");
-		var cantidad = convertir_vacio_cero($("#"+id+"cantidad").val());
-		var precio = convertir_vacio_cero($("#"+id+"precio").val());
-		var valorAnt = $("#"+id+"valor").val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#"+id+"valor").val(valor.toFixed(5));		
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(valor);
+		var id = id_input.replace("price","");
+		var quantity = convertir_vacio_cero($("#"+id+"quantity").val());
+		var price = convertir_vacio_cero($("#"+id+"price").val());
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));		
+		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(amount);
 		impuesto_total = 0;
 		total = subtotal + impuesto_total;
 		$("#id_subtotal").val(subtotal.toFixed(5));
@@ -454,9 +454,9 @@ $(document).ready(function()
 						"<tr class='detalle_orden_servicios_formset'>" +
 						"<td>" + item.cotizacion + item.code + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = parseInt(contDetalles) + 1;											
@@ -491,7 +491,7 @@ $(document).ready(function()
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
-				$("#"+id+"precio").val(ui.item.precio);
+				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
 		});
@@ -553,13 +553,13 @@ $(document).ready(function()
 					"<tr class='detalle_orden_servicios_formset'>" +						
 						"<td>" + item.cotizacion + item.code + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					cont = cont + 1;
-					var val_temp = $("#id_form-"+i+"-valor").val()
+					var val_temp = $("#id_form-"+i+"-amount").val()
 					subtotal=subtotal+parseFloat(val_temp);								
 				});
 				contDetalles = cont;
@@ -572,7 +572,7 @@ $(document).ready(function()
 				$("#id_total").val(total.toFixed(5));
 				$("#id_total_letras").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(observaciones);
+				$("#id_observaciones").val(notes);
 			}
 		});
 	}
@@ -582,19 +582,19 @@ $(document).ready(function()
 		ventana_transferencia.dialog("close");
 	}
 	
-	$(document).on("focusout",".precio",function()
+	$(document).on("focusout",".price",function()
 	{
-		var precio= $(this).val();
-		if(precio==0)
+		var price= $(this).val();
+		if(price==0)
 		{
 			alert("El precio no puede ser cero");			
 		}		
 	});
 	
-	$(document).on("focusout",".cantidad",function()
+	$(document).on("focusout",".quantity",function()
 	{
-		var cantidad= $(this).val();
-		if(cantidad==0)
+		var quantity= $(this).val();
+		if(quantity==0)
 		{
 			alert("La cantidad no puede ser cero");			
 		}		
@@ -603,7 +603,7 @@ $(document).ready(function()
 	function validar_ceros()
 	{	
 		var control_ceros = false;
-		$(".cantidad").each(function()
+		$(".quantity").each(function()
 		{
 			if($(this).val()==0)
 			{
@@ -611,7 +611,7 @@ $(document).ready(function()
 			}
 		});
 		
-		$(".precio").each(function()
+		$(".price").each(function()
 		{
 			if($(this).val()==0)
 			{

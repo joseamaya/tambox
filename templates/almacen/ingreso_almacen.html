@@ -206,28 +206,28 @@
                                 {{ detalle_ingreso_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.cantidad.errors %}
-                                {% for error in detalle_ingreso_form.cantidad.errors %}
+                                {% if detalle_ingreso_form.quantity.errors %}
+                                {% for error in detalle_ingreso_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.cantidad }}
+                                {{ detalle_ingreso_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.precio.errors %}
-                                {% for error in detalle_ingreso_form.precio.errors %}
+                                {% if detalle_ingreso_form.price.errors %}
+                                {% for error in detalle_ingreso_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.precio }}
+                                {{ detalle_ingreso_form.price }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.valor.errors %}
-                                {% for error in detalle_ingreso_form.valor.errors %}
+                                {% if detalle_ingreso_form.amount.errors %}
+                                {% for error in detalle_ingreso_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.valor }}
+                                {{ detalle_ingreso_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -268,12 +268,12 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {% if form.observaciones.errors %}
-                    {% for error in form.observaciones.errors %}
+                    {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
             <div id="popup"></div>
@@ -307,8 +307,8 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
-		var valor = $("#"+id+"valor").val();
-		total = total-parseFloat(valor);
+		var amount = $("#"+id+"amount").val();
+		total = total-parseFloat(amount);
 		$(parent).remove();
 		$("#id_total").val(total.toFixed(5));
 		contDetalles = contDetalles - 1;
@@ -316,29 +316,29 @@ $(document).ready(function()
 		updateFormElementIndices('detalle_ingreso_formset');
 	});
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("cantidad","");
-		var cantidad = $("#"+id+"cantidad").val();
-		var precio = $("#"+id+"precio").val();
-		var valorAnt = $("#"+id+"valor").val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#"+id+"valor").val(valor.toFixed(5));
-		total = total - parseFloat(valorAnt)+parseFloat(valor);
+		var id = id_input.replace("quantity","");
+		var quantity = $("#"+id+"quantity").val();
+		var price = $("#"+id+"price").val();
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(amount);
 		$("#id_total").val(total.toFixed(5));		
 	});
 	
-	$(document).on("keyup",".precio",function()
+	$(document).on("keyup",".price",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("precio","");
-		var cantidad = $("#"+id+"cantidad").val();
-		var precio = $("#"+id+"precio").val();
-		var valorAnt = $("#"+id+"valor").val();
-		var valor=parseFloat(cantidad)*parseFloat(precio);
-		$("#"+id+"valor").val(valor.toFixed(5));
-		total = total - parseFloat(valorAnt)+parseFloat(valor);
+		var id = id_input.replace("price","");
+		var quantity = $("#"+id+"quantity").val();
+		var price = $("#"+id+"price").val();
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(amount);
 		$("#id_total").val(total.toFixed(5));	
 	});
 	
@@ -388,9 +388,9 @@ $(document).ready(function()
 						"<td>" + item.orden_compra + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = parseInt(contDetalles) + 1;											
@@ -425,7 +425,7 @@ $(document).ready(function()
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
-				$("#"+id+"precio").val(ui.item.precio);
+				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
 		});
@@ -475,12 +475,12 @@ $(document).ready(function()
 							"<td>" + item.orden_compra + item.code + "</td>" +
 							"<td>" + item.name + "</td>" +
 							"<td>" + item.unidad + "</td>" +
-							"<td>" + item.cantidad + "</td>" +
-							"<td>" + item.precio + "</td>" +
-							"<td>" + item.valor + "</td>" +
+							"<td>" + item.quantity + "</td>" +
+							"<td>" + item.price + "</td>" +
+							"<td>" + item.amount + "</td>" +
 							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 						"</tr>");
-						var val_temp = $("#id_form-"+i+"-valor").val()
+						var val_temp = $("#id_form-"+i+"-amount").val()
 						contDetalles=i+1;
 						total = total + parseFloat(val_temp);
 					});

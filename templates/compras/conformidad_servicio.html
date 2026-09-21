@@ -84,12 +84,12 @@
                     </div>
                     <div class="col-md-5">
                         <label>Archivo:</label>
-                        {% if form.archivo.errors %}
-                        {% for error in form.archivo.errors %}
+                        {% if form.file.errors %}
+                        {% for error in form.file.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.archivo }}
+                        {{ form.file }}
                     </div>
                 </div>
             </div>
@@ -113,12 +113,12 @@
                         <tr class="detalle_conformidad_servicio_formset">
                             {{ detalle_conformidad_servicio_form.cotizacion }}
                             <td>
-                                {% if detalle_conformidad_servicio_form.cantidad.errors %}
-                                {% for error in detalle_conformidad_servicio_form.cantidad.errors %}
+                                {% if detalle_conformidad_servicio_form.quantity.errors %}
+                                {% for error in detalle_conformidad_servicio_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_conformidad_servicio_form.cantidad }}
+                                {{ detalle_conformidad_servicio_form.quantity }}
                             </td>
                             <td>
                                 {% if detalle_conformidad_servicio_form.name.errors %}
@@ -138,20 +138,20 @@
                             </td>
 
                             <td>
-                                {% if detalle_conformidad_servicio_form.precio.errors %}
-                                {% for error in detalle_conformidad_servicio_form.precio.errors %}
+                                {% if detalle_conformidad_servicio_form.price.errors %}
+                                {% for error in detalle_conformidad_servicio_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_conformidad_servicio_form.precio }}
+                                {{ detalle_conformidad_servicio_form.price }}
                             </td>
                             <td>
-                                {% if detalle_conformidad_servicio_form.valor.errors %}
-                                {% for error in detalle_conformidad_servicio_form.valor.errors %}
+                                {% if detalle_conformidad_servicio_form.amount.errors %}
+                                {% for error in detalle_conformidad_servicio_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_conformidad_servicio_form.valor }}
+                                {{ detalle_conformidad_servicio_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -262,15 +262,15 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_conformidad_servicio_formset'>" +
 						item.orden_servicios +
-						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.quantity + "</td>" +
 						"<td>" + item.servicio + "</td>" +
 						"<td>" + item.uso + "</td>" +						
-						"<td>" + item.precio + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					cont = cont + 1;
-					var val_temp = $("#id_form-"+i+"-valor").val()
+					var val_temp = $("#id_form-"+i+"-amount").val()
 					subtotal=subtotal+parseFloat(val_temp);								
 				});
 				contDetalles = cont;
@@ -283,7 +283,7 @@ $(document).ready(function()
 				$("#id_total").val(total.toFixed(5));
 				$("#id_total_letras").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(observaciones);
+				$("#id_observaciones").val(notes);
 			}
 		});
 	}

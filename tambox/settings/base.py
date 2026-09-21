@@ -2,7 +2,7 @@
 Django settings for tambox project.
 
 Los valores sensibles y dependientes del entorno se leen de variables de entorno
-(cargadas desde un archivo .env en desarrollo). Ver .env.example.
+(cargadas desde un file .env en desarrollo). Ver .env.example.
 """
 
 import os

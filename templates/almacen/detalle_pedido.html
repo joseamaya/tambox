@@ -108,7 +108,7 @@
                         <td>{{ detalle.producto.code }}</td>
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
-                        <td>{{ detalle.cantidad }}</td>
+                        <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.cantidad_atendida }}</td>
                     </tr>
                     {% endfor %}
@@ -120,7 +120,7 @@
             <div class="col-lg-12">
                 <label>OBSERVACIONES:</label>
                 <p>
-                    {{ object.observaciones }}
+                    {{ object.notes }}
                 </p>
             </div>
         </div>

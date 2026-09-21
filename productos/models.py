@@ -117,7 +117,7 @@ class Producto(TimeStampedModel):
     unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE)
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
-    precio = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    price = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, null=True)
@@ -147,7 +147,7 @@ class Producto(TimeStampedModel):
             from compras.models import DetalleOrdenCompra
             self._previsto_calculado = DetalleOrdenCompra.objects.filter(
                 Q(producto=self) | Q(detalle_cotizacion__detalle_requerimiento__producto=self)
-            ).aggregate(total=Sum('cantidad'))['total'] or 0
+            ).aggregate(total=Sum('quantity'))['total'] or 0
         return self._previsto_calculado
 
     def obtener_kardex(self, almacen, desde, hasta):

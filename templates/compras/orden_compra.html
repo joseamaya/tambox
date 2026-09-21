@@ -210,20 +210,20 @@
                                 {{ detalle_orden_compra_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.cantidad.errors %}
-                                {% for error in detalle_orden_compra_form.cantidad.errors %}
+                                {% if detalle_orden_compra_form.quantity.errors %}
+                                {% for error in detalle_orden_compra_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.cantidad }}
+                                {{ detalle_orden_compra_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.precio.errors %}
-                                {% for error in detalle_orden_compra_form.precio.errors %}
+                                {% if detalle_orden_compra_form.price.errors %}
+                                {% for error in detalle_orden_compra_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.precio }}
+                                {{ detalle_orden_compra_form.price }}
                             </td>
                             <td>
                                 {% if detalle_orden_compra_form.impuesto.errors %}
@@ -234,12 +234,12 @@
                                 {{ detalle_orden_compra_form.impuesto }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.valor.errors %}
-                                {% for error in detalle_orden_compra_form.valor.errors %}
+                                {% if detalle_orden_compra_form.amount.errors %}
+                                {% for error in detalle_orden_compra_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.valor }}
+                                {{ detalle_orden_compra_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -331,12 +331,12 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {% if form.observaciones.errors %}
-                    {% for error in form.observaciones.errors %}
+                    {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
         </div>
@@ -368,9 +368,9 @@ $(document).ready(function()
 			  data: {'date': date},
 			  success: function(data)
 			  {
-			  	if (data.monto != 0)
+			  	if (data.amount != 0)
 			  	{
-					tipo_cambio = data.monto;
+					tipo_cambio = data.amount;
 				}
 				else
 				{
@@ -395,21 +395,21 @@ $(document).ready(function()
 		{
 			var id_input = $(this).prop('id');
 			var id = id_input.replace("impuesto","");
-			var precio = $("#"+id+"precio").val();
-			var cantidad = $("#"+id+"cantidad").val();
+			var price = $("#"+id+"price").val();
+			var quantity = $("#"+id+"quantity").val();
 			if (con_impuesto)
 			{
-				valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+				valorConIGV = parseFloat(quantity) * parseFloat(price);
 				valorSinIGV = valorConIGV / (porc_impuesto+1);
 				imp = parseFloat(valorConIGV - valorSinIGV)
 			}
 			else
 			{
-				valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
+				valorSinIGV = parseFloat(quantity) * parseFloat(price);
 				valorConIGV = valorSinIGV * (porc_impuesto+1);
 				imp = parseFloat(valorConIGV - valorSinIGV)
 			}
-			$("#"+id+"valor").val(valorSinIGV.toFixed(5));
+			$("#"+id+"amount").val(valorSinIGV.toFixed(5));
 			$("#"+id+"impuesto").val(imp.toFixed(5));
 			subtotal = subtotal + parseFloat(valorSinIGV);
 			impuesto_total = impuesto_total + parseFloat(imp);
@@ -468,9 +468,9 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
-		var valor = $("#"+id+"valor").val();
+		var amount = $("#"+id+"amount").val();
 		var imp = $("#"+id+"impuesto").val();
-		subtotal=subtotal-parseFloat(valor);
+		subtotal=subtotal-parseFloat(amount);
 		impuesto_total = impuesto_total - parseFloat(imp)
 		total = subtotal + impuesto_total;
 		$(parent).remove();
@@ -483,41 +483,41 @@ $(document).ready(function()
 		updateFormElementIndices('detalle_orden_compra_formset');
 	});
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("cantidad","");
+		var id = id_input.replace("quantity","");
 		actualizarValor(id);
 	});
 	
-	$(document).on("keyup",".precio",function()
+	$(document).on("keyup",".price",function()
 	{
 		var id_input= $(this).prop('id');
-		var id = id_input.replace("precio","");
+		var id = id_input.replace("price","");
 		actualizarValor(id);
 	});
 
 	function actualizarValor(id)
 	{
-		var precio = $("#"+id+"precio").val();
-		var cantidad = $("#"+id+"cantidad").val();
-		if (precio != "" && cantidad != "")
+		var price = $("#"+id+"price").val();
+		var quantity = $("#"+id+"quantity").val();
+		if (price != "" && quantity != "")
 		{
-			var valorAnt = $("#"+id+"valor").val();
+			var valorAnt = $("#"+id+"amount").val();
 			var impAnt = $("#"+id+"impuesto").val();
 			if (con_impuesto)
 			{
-				var valorConIGV = parseFloat(cantidad) * parseFloat(precio);
+				var valorConIGV = parseFloat(quantity) * parseFloat(price);
 				var valorSinIGV = valorConIGV / (porc_impuesto+1);
 				var imp = parseFloat(valorConIGV - valorSinIGV)
 			}
 			else
 			{
-				var valorSinIGV = parseFloat(cantidad) * parseFloat(precio);
+				var valorSinIGV = parseFloat(quantity) * parseFloat(price);
 				var valorConIGV = valorSinIGV * (porc_impuesto+1);
 				var imp = parseFloat(valorConIGV - valorSinIGV)
 			}
-			$("#"+id+"valor").val(valorSinIGV.toFixed(5));
+			$("#"+id+"amount").val(valorSinIGV.toFixed(5));
 			$("#"+id+"impuesto").val(imp.toFixed(5));
 			subtotal = subtotal - parseFloat(valorAnt) + parseFloat(valorSinIGV);
 			impuesto_total = impuesto_total - parseFloat(impAnt) + parseFloat(imp);
@@ -544,10 +544,10 @@ $(document).ready(function()
 						"<td>" + item.cotizacion + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
 						"<td>" + item.impuesto + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.amount + "</td>" +
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = parseInt(contDetalles) + 1;											
@@ -582,7 +582,7 @@ $(document).ready(function()
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
-				$("#"+id+"precio").val(ui.item.precio);
+				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
 		});
@@ -646,14 +646,14 @@ $(document).ready(function()
 						"<td>" + item.cotizacion + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
-						"<td>" + item.precio + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
 						"<td>" + item.impuesto + "</td>" +
-						"<td>" + item.valor + "</td>" +
+						"<td>" + item.amount + "</td>" +
 				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = contDetalles + 1;
-					var val_temp = $("#id_form-"+i+"-valor").val()
+					var val_temp = $("#id_form-"+i+"-amount").val()
 					var imp_temp = $("#id_form-"+i+"-impuesto").val()
 					total = total + parseFloat(val_temp);
 					impuesto_total = impuesto_total + parseFloat(imp_temp);					
@@ -666,7 +666,7 @@ $(document).ready(function()
 				$("#id_total").val(total.toFixed(2));
 				$("#id_total_letras").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(observaciones);
+				$("#id_observaciones").val(notes);
 				$(".decimal").keydown(validar_decimales);
 			}
 		});
@@ -677,19 +677,19 @@ $(document).ready(function()
 		ventana_transferencia.dialog("close");
 	}
 	
-	$(document).on("focusout",".precio",function()
+	$(document).on("focusout",".price",function()
 	{
-		var precio= $(this).val();
-		if(precio==0)
+		var price= $(this).val();
+		if(price==0)
 		{
 			alert("El precio no puede ser cero");			
 		}		
 	});
 	
-	$(document).on("focusout",".cantidad",function()
+	$(document).on("focusout",".quantity",function()
 	{
-		var cantidad= $(this).val();
-		if(cantidad==0)
+		var quantity= $(this).val();
+		if(quantity==0)
 		{
 			alert("La cantidad no puede ser cero");			
 		}		
@@ -698,7 +698,7 @@ $(document).ready(function()
 	function validar_ceros()
 	{	
 		var control_ceros = false;
-		$(".cantidad").each(function()
+		$(".quantity").each(function()
 		{
 			if($(this).val()==0)
 			{
@@ -706,7 +706,7 @@ $(document).ready(function()
 			}
 		});
 		
-		$(".precio").each(function()
+		$(".price").each(function()
 		{
 			if($(this).val()==0)
 			{

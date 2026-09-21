@@ -167,14 +167,14 @@
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.uso }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
-                        <td>{{ detalle.cantidad }}</td>
+                        <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.cantidad_cotizada }}</td>
                         <td>{{ detalle.cantidad_comprada }}</td>
                         {% else %}
                         <td>{{ detalle.otro }}</td>
                         <td>{{ detalle.uso }}</td>
                         <td>-</td>
-                        <td>{{ detalle.cantidad }}</td>
+                        <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.cantidad_cotizada }}</td>
                         <td>{{ detalle.cantidad_comprada }}</td>
                         {% endif %}
@@ -187,7 +187,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <label>OBSERVACIONES:</label>
-                <p>{{ object.observaciones }}</p>
+                <p>{{ object.notes }}</p>
             </div>
         </div>
     </div>

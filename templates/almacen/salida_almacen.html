@@ -205,28 +205,28 @@
                                 {{ detalle_salida_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.cantidad.errors %}
-                                {% for error in detalle_salida_form.cantidad.errors %}
+                                {% if detalle_salida_form.quantity.errors %}
+                                {% for error in detalle_salida_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.cantidad }}
+                                {{ detalle_salida_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.precio.errors %}
-                                {% for error in detalle_salida_form.precio.errors %}
+                                {% if detalle_salida_form.price.errors %}
+                                {% for error in detalle_salida_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.precio }}
+                                {{ detalle_salida_form.price }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.valor.errors %}
-                                {% for error in detalle_salida_form.valor.errors %}
+                                {% if detalle_salida_form.amount.errors %}
+                                {% for error in detalle_salida_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.valor }}
+                                {{ detalle_salida_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -266,7 +266,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
             <div id="popup"></div>
@@ -340,8 +340,8 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
-		var valor = $("#"+id+"valor").val();
-		total = total - parseFloat(valor);
+		var amount = $("#"+id+"amount").val();
+		total = total - parseFloat(amount);
 		$(parent).remove();
 		$("#id_total").val(total.toFixed(5));
 		contDetalles = contDetalles - 1;
@@ -366,9 +366,9 @@ $(document).ready(function()
 							"<td>" + item.code + "</td>" +
 							"<td>" + item.name + "</td>" +
 							"<td>" + item.unidad + "</td>" +
-							"<td>" + item.cantidad + "</td>" +
-							"<td>" + item.precio + "</td>" +
-							"<td>" + item.valor + "</td>" +
+							"<td>" + item.quantity + "</td>" +
+							"<td>" + item.price + "</td>" +
+							"<td>" + item.amount + "</td>" +
 					  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 						"</tr>");
 						contDetalles = parseInt(contDetalles) + 1;											
@@ -408,20 +408,20 @@ $(document).ready(function()
 				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
-				$("#"+id+"precio").val(ui.item.precio);
+				$("#"+id+"price").val(ui.item.price);
 				return false;
 		    },
 		});
 	}
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
-		var cantidad = 0;
-		var precio = 0;
-		var valor = 0;
+		var quantity = 0;
+		var price = 0;
+		var amount = 0;
 		var valorTemp = 0;
 		var id_producto = $(this).prop('id');
-		var id = id_producto.replace("cantidad", "");
+		var id = id_producto.replace("quantity", "");
 		$.ajax({
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
@@ -430,22 +430,22 @@ $(document).ready(function()
 	   	  },
 	      success: function(data) 
 	      {
-	    	  valorTemp = $("#"+id+"valor").val();
-			  cantidad = $("#"+id+"cantidad").val();
-			  if(cantidad=='')
+	    	  valorTemp = $("#"+id+"amount").val();
+			  quantity = $("#"+id+"quantity").val();
+			  if(quantity=='')
 			  {
-				  cantidad=0;
-				  $("#"+id+"cantidad").val(cantidad);
+				  quantity=0;
+				  $("#"+id+"quantity").val(quantity);
 			  }			
-			  if(cantidad > data.stock)
+			  if(quantity > data.stock)
 	          {
 	        	  alert("La cantidad ingresada es mayor que el stock");
-	        	  $("#"+id+"cantidad").val(data.stock);
+	        	  $("#"+id+"quantity").val(data.stock);
 	          }
-	    	  precio = $("#"+id+"precio").val();
-	    	  valor = parseFloat(precio) * parseFloat(cantidad);
-	    	  $("#"+id+"valor").val(valor.toFixed(5));
-	    	  total = total - valorTemp + valor;
+	    	  price = $("#"+id+"price").val();
+	    	  amount = parseFloat(price) * parseFloat(quantity);
+	    	  $("#"+id+"amount").val(amount.toFixed(5));
+	    	  total = total - valorTemp + amount;
 			  $("#id_total").val(total.toFixed(5));
 	      }
 	    });

@@ -15,8 +15,8 @@ class DetalleCotizacionManager(models.Manager):
         detalle_orden_servicios = DetalleOrdenServicios(orden=orden,
                                                         detalle_cotizacion=detalle,
                                                         nro_detalle=detalle.nro_detalle,
-                                                        cantidad=detalle.cantidad,
-                                                        precio=detalle.detalle_requerimiento.producto.precio)
+                                                        quantity=detalle.quantity,
+                                                        price=detalle.detalle_requerimiento.producto.price)
         return detalle_orden_servicios
 
     def guardar_detalles_con_referencia(self, objs, requerimiento, orden):
@@ -24,7 +24,7 @@ class DetalleCotizacionManager(models.Manager):
         detalles = []
         for detalle in objs:
             detalle_requerimiento = detalle.detalle_requerimiento
-            detalle_requerimiento.cantidad_cotizada = detalle_requerimiento.cantidad_cotizada + detalle.cantidad
+            detalle_requerimiento.cantidad_cotizada = detalle_requerimiento.cantidad_cotizada + detalle.quantity
             detalle_requerimiento.establecer_estado_cotizado()
             detalle_requerimiento.save()
             detalle.save()
@@ -58,7 +58,7 @@ class DetalleConformidadServicioManager(models.Manager):
             requerimiento = None
         for detalle in objs:
             detalle_orden = detalle.detalle_orden_servicios
-            detalle_orden.cantidad_conforme = detalle_orden.cantidad_conforme + detalle.cantidad
+            detalle_orden.cantidad_conforme = detalle_orden.cantidad_conforme + detalle.quantity
             detalle_orden.establecer_estado_atendido()
             detalle_orden.save()
             try:

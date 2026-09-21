@@ -186,9 +186,9 @@ class CargarServiciosTest(TestCase):
     def test_importa_todas_las_filas(self):
         baker.make(GrupoProductos, code='000001')
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
-        archivo = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_servicios/', {'archivo': archivo})
+        respuesta = self.client.post('/productos/cargar_servicios/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(sorted(Producto.objects.values_list('description', flat=True)),
@@ -196,9 +196,9 @@ class CargarServiciosTest(TestCase):
 
     def test_sin_grupo_manda_a_crearlos(self):
         contenido = 'G99,SERVICIO UNO\n'
-        archivo = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_servicios/', {'archivo': archivo})
+        respuesta = self.client.post('/productos/cargar_servicios/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(respuesta.url, reverse('productos:crear_grupo_productos'))
@@ -214,9 +214,9 @@ class CargarProductosTest(TestCase):
         baker.make(GrupoProductos, code='000001')
         baker.make(TipoExistencia, codigo_sunat='01')
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
-        archivo = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
+        file = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_productos/', {'archivo': archivo})
+        respuesta = self.client.post('/productos/cargar_productos/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(list(Producto.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])

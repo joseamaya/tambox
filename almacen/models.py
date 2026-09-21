@@ -46,7 +46,7 @@ class Almacen(TimeStampedModel):
         return self.description
 
 
-# Vislumbrar la posibilidad de agregar un campo que diga modifica precio
+# Vislumbrar la posibilidad de agregar un campo que diga modifica price
 class TipoMovimiento(TimeStampedModel):
     code = models.CharField(unique=True, max_length=10, verbose_name='Código')
     codigo_sunat = models.CharField(max_length=2)
@@ -100,7 +100,7 @@ class Pedido(TimeStampedModel):
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     date = models.DateField()
-    observaciones = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB', _('APROBADO')),
                      ('DESAP', _('DESAPROBADO')),
@@ -123,7 +123,7 @@ class Pedido(TimeStampedModel):
         total = 0
         total_atendida = 0
         for detalle in DetallePedido.objects.filter(pedido=self):
-            total = total + detalle.cantidad
+            total = total + detalle.quantity
             total_atendida = total_atendida + detalle.cantidad_atendida
         caso = clasificar(total_atendida, total)
         if caso == VACIO:
@@ -166,7 +166,7 @@ class DetallePedido(TimeStampedModel):
     nro_detalle = models.IntegerField()
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
-    cantidad = models.DecimalField(max_digits=15, decimal_places=5)
+    quantity = models.DecimalField(max_digits=15, decimal_places=5)
     cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB', _('APROBADO')),
@@ -179,11 +179,11 @@ class DetallePedido(TimeStampedModel):
     history = HistoricalRecords()
 
     def cantidad_por_atender(self):
-        resultado = self.cantidad - self.cantidad_atendida
+        resultado = self.quantity - self.cantidad_atendida
         return resultado
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.cantidad_atendida, self.cantidad)
+        caso = clasificar(self.cantidad_atendida, self.quantity)
         if caso == VACIO:
             estado = DetallePedido.STATUS.PEND
         elif caso == PARCIAL:
@@ -214,7 +214,7 @@ class Movimiento(TimeStampedModel):
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, null=True)
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, null=True)
     productor = models.ForeignKey(Productor, on_delete=models.CASCADE, null=True)
-    observaciones = models.TextField(default='')
+    notes = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
                      )
@@ -240,10 +240,10 @@ class Movimiento(TimeStampedModel):
             detalle_orden_compra = detalle.detalle_orden_compra
             if detalle_orden_compra.detalle_cotizacion is not None:
                 detalle_requerimiento = detalle_orden_compra.detalle_cotizacion.detalle_requerimiento
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.cantidad
+                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.quantity
                 detalle_requerimiento.establecer_estado_atendido()
                 detalle_requerimiento.save()
-            detalle_orden_compra.cantidad_ingresada = detalle_orden_compra.cantidad_ingresada - detalle.cantidad
+            detalle_orden_compra.cantidad_ingresada = detalle_orden_compra.cantidad_ingresada - detalle.quantity
             detalle_orden_compra.establecer_estado()
             detalle_orden_compra.save()
         orden.establecer_estado()
@@ -258,7 +258,7 @@ class Movimiento(TimeStampedModel):
         detalles = DetalleMovimiento.objects.filter(movimiento=self)
         for detalle in detalles:
             detalle_pedido = detalle.detalle_pedido
-            detalle_pedido.cantidad_atendida = detalle_pedido.cantidad_atendida - detalle.cantidad
+            detalle_pedido.cantidad_atendida = detalle_pedido.cantidad_atendida - detalle.quantity
             detalle_pedido.establecer_estado_atendido()
             detalle_pedido.save()
         pedido.establecer_estado_atendido()
@@ -281,10 +281,10 @@ class Movimiento(TimeStampedModel):
 
     @property
     def total(self):
-        """Suma la columna `valor`, asi que el agregado es exacto."""
+        """Suma la columna `amount`, asi que el agregado es exacto."""
         if not hasattr(self, '_total_calculado'):
             self._total_calculado = DetalleMovimiento.objects.filter(
-                movimiento=self).aggregate(total=Sum('valor'))['total'] or 0
+                movimiento=self).aggregate(total=Sum('amount'))['total'] or 0
         return self._total_calculado
 
     class Meta:
@@ -320,24 +320,24 @@ class DetalleMovimiento(TimeStampedModel):
     detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, null=True)
     detalle_pedido = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, null=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    cantidad = models.DecimalField(max_digits=25, decimal_places=8)
-    precio = models.DecimalField(max_digits=25, decimal_places=8)
-    valor = models.DecimalField(max_digits=25, decimal_places=8)
+    quantity = models.DecimalField(max_digits=25, decimal_places=8)
+    price = models.DecimalField(max_digits=25, decimal_places=8)
+    amount = models.DecimalField(max_digits=25, decimal_places=8)
     history = HistoricalRecords()
 
     @transaction.atomic
     def save(self, *args, **kwargs):
         movi = self.movimiento
         t_movimiento = movi.tipo_movimiento
-        val = self.valor
+        val = self.amount
         kardex = Kardex(producto=self.producto,
                         operation_date=movi.operation_date,
                         movimiento=movi,
                         nro_detalle_movimiento=self.nro_detalle,
                         almacen=movi.almacen)
         if t_movimiento.incrementa:
-            kardex.cantidad_ingreso = self.cantidad
-            kardex.precio_ingreso = self.precio
+            kardex.cantidad_ingreso = self.quantity
+            kardex.precio_ingreso = self.price
             kardex.valor_ingreso = val
             kardex.cantidad_salida = 0
             kardex.precio_salida = 0
@@ -346,30 +346,30 @@ class DetalleMovimiento(TimeStampedModel):
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.cantidad_total = self.cantidad + kardex_ant.cantidad_total
+                kardex.cantidad_total = self.quantity + kardex_ant.cantidad_total
                 kardex.valor_total = val + kardex_ant.valor_total
-                kardex.precio_total = self.precio
+                kardex.precio_total = self.price
             except Kardex.DoesNotExist:
-                kardex.cantidad_total = self.cantidad
-                kardex.precio_total = self.precio
+                kardex.cantidad_total = self.quantity
+                kardex.precio_total = self.price
                 kardex.valor_total = val
         else:
             kardex.cantidad_ingreso = 0
             kardex.precio_ingreso = 0
             kardex.valor_ingreso = 0
-            kardex.cantidad_salida = self.cantidad
-            kardex.precio_salida = self.precio
+            kardex.cantidad_salida = self.quantity
+            kardex.precio_salida = self.price
             kardex.valor_salida = val
             try:
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.cantidad_total = kardex_ant.cantidad_total - self.cantidad
+                kardex.cantidad_total = kardex_ant.cantidad_total - self.quantity
                 kardex.valor_total = kardex_ant.valor_total - val
-                kardex.precio_total = self.precio
+                kardex.precio_total = self.price
             except Kardex.DoesNotExist:
-                kardex.cantidad_total = 0 - self.cantidad
-                kardex.precio_total = 0 - self.precio
+                kardex.cantidad_total = 0 - self.quantity
+                kardex.precio_total = 0 - self.price
                 kardex.valor_total = 0 - val
         if kardex.cantidad_total == 0:
             precio_control = 0
@@ -380,7 +380,7 @@ class DetalleMovimiento(TimeStampedModel):
             almacen=self.movimiento.almacen,
             producto=self.producto,
             defaults={'stock': kardex.cantidad_total,
-                      'precio': precio_control}
+                      'price': precio_control}
         )
         super(DetalleMovimiento, self).save()
         kardex.save()
@@ -489,7 +489,7 @@ class ControlProductoAlmacen(TimeStampedModel):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
-    precio = models.DecimalField(max_digits=25, decimal_places=8, default=0)
+    price = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()
 
     class Meta:

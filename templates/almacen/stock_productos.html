@@ -76,7 +76,7 @@
             </div>
             <div class="row" id="paginacion" style="display:none">
                 <div class="col-md-4">
-                    <span id="cantidad"></span>
+                    <span id="quantity"></span>
                 </div>
                 <div class="col-md-4">
                     <a class="btn btn-info" onclick="mostrarPaginaAnterior()">Anterior</a>
@@ -188,7 +188,7 @@ $("#id_buscar").click(function()
 					total_paginas = total_paginas + 1;
 				}
 				mostrarPrimeraPagina();
-				$('#cantidad').text("Total: "+todos_productos.length+" productos");
+				$('#quantity').text("Total: "+todos_productos.length+" productos");
 				$('#paginacion').show();
 			}
 		});

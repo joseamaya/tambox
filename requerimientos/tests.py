@@ -46,12 +46,12 @@ class RequerimientoTest(TestCase):
         """`save()` solo genera el code cuando esta vacio, asi que guardar un
         requerimiento existente no lo duplica ni le cambia el code."""
         code = self.r1.code
-        cantidad = Requerimiento.objects.count()
+        quantity = Requerimiento.objects.count()
 
         self.r1.save()
 
         self.assertEqual(code, Requerimiento.objects.get(pk=self.r1.pk).code)
-        self.assertEqual(cantidad, Requerimiento.objects.count())
+        self.assertEqual(quantity, Requerimiento.objects.count())
 
 
 class DetalleRequerimientoTest(TestCase):
@@ -64,13 +64,13 @@ class DetalleRequerimientoTest(TestCase):
         self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.nro_detalle))
 
     def test_estado_atendido(self):
-        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, cantidad=5, cantidad_atendida=5)
+        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, cantidad_atendida=5)
         dr1.establecer_estado_atendido()
         self.assertEqual(dr1.estado, DetalleRequerimiento.STATUS.ATEN)
-        dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, cantidad=8, cantidad_atendida=5)
+        dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, cantidad_atendida=5)
         dr2.establecer_estado_atendido()
         self.assertEqual(dr2.estado, DetalleRequerimiento.STATUS.ATEN_PARC)
-        dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, cantidad=8, cantidad_atendida=10)
+        dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, cantidad_atendida=10)
         dr3.establecer_estado_atendido()
         self.assertEqual(dr3.estado, DetalleRequerimiento.STATUS.ATEN)
 
@@ -103,59 +103,59 @@ class ClasificarTest(TestCase):
 
 class EstadosDeRequerimientoTest(TestCase):
 
-    def _requerimiento(self, cantidad, cotizada=0, comprada=0, atendida=0):
+    def _requerimiento(self, quantity, cotizada=0, comprada=0, atendida=0):
         requerimiento = crear_requerimiento(code='')
         baker.make(DetalleRequerimiento, requerimiento=requerimiento, nro_detalle=1,
-                   cantidad=cantidad, cantidad_cotizada=cotizada,
+                   quantity=quantity, cantidad_cotizada=cotizada,
                    cantidad_comprada=comprada, cantidad_atendida=atendida)
         return requerimiento
 
     def test_comprado_parcial_no_marca_como_comprado(self):
-        requerimiento = self._requerimiento(cantidad=10, comprada=4)
+        requerimiento = self._requerimiento(quantity=10, comprada=4)
 
         self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP_PARC)
 
     def test_crear_requerimiento_crea_su_aprobacion_inicial(self):
         """Antes fallaba siempre: la aprobacion se creaba antes de que el
         requerimiento tuviera pk."""
-        requerimiento = self._requerimiento(cantidad=10)
+        requerimiento = self._requerimiento(quantity=10)
 
         self.assertTrue(AprobacionRequerimiento.objects.filter(requerimiento=requerimiento).exists())
 
     def test_comprado_completo(self):
-        requerimiento = self._requerimiento(cantidad=10, comprada=10)
+        requerimiento = self._requerimiento(quantity=10, comprada=10)
 
         self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
 
     def test_comprado_por_encima_del_total(self):
-        requerimiento = self._requerimiento(cantidad=10, comprada=12)
+        requerimiento = self._requerimiento(quantity=10, comprada=12)
 
         self.assertEqual(requerimiento.establecer_estado_comprado(), Requerimiento.STATUS.COMP)
 
     def test_cotizado_parcial(self):
-        requerimiento = self._requerimiento(cantidad=10, cotizada=4)
+        requerimiento = self._requerimiento(quantity=10, cotizada=4)
 
         self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ_PARC)
 
     def test_cotizado_completo(self):
-        requerimiento = self._requerimiento(cantidad=10, cotizada=10)
+        requerimiento = self._requerimiento(quantity=10, cotizada=10)
 
         self.assertEqual(requerimiento.establecer_estado_cotizado(), Requerimiento.STATUS.COTIZ)
 
     def test_atendido_parcial(self):
-        requerimiento = self._requerimiento(cantidad=10, atendida=4)
+        requerimiento = self._requerimiento(quantity=10, atendida=4)
 
         self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN_PARC)
 
     def test_atendido_completo(self):
-        requerimiento = self._requerimiento(cantidad=10, atendida=10)
+        requerimiento = self._requerimiento(quantity=10, atendida=10)
 
         self.assertEqual(requerimiento.establecer_estado_atendido(), Requerimiento.STATUS.ATEN)
 
     def test_los_totales_se_calculan_una_sola_vez(self):
         """Suma columnas, asi que el agregado es exacto; la maquina de estados los
         invoca varias veces en la misma operacion."""
-        requerimiento = self._requerimiento(cantidad=10)
+        requerimiento = self._requerimiento(quantity=10)
 
         with self.assertNumQueries(1):
             self.assertEqual(requerimiento.total, 10)
@@ -175,8 +175,8 @@ class EstadosDeRequerimientoTest(TestCase):
         """Los totales recorren el manager inverso y no un .filter(), que siempre
         lanza su propia consulta. Eso es lo que hace que prefetch_related sirva
         en los bucles que cargan muchos requerimientos."""
-        for cantidad in (10, 20, 30):
-            self._requerimiento(cantidad=cantidad)
+        for quantity in (10, 20, 30):
+            self._requerimiento(quantity=quantity)
 
         requerimientos = list(Requerimiento.objects.prefetch_related('detallerequerimiento_set'))
 
@@ -191,8 +191,8 @@ class EstadosDeDetalleRequerimientoTest(TestCase):
     """Estos metodos solo leen los campos de la instancia, asi que no hace falta
     tocar la base de datos."""
 
-    def _detalle(self, cantidad, cotizada=0, comprada=0, atendida=0):
-        return DetalleRequerimiento(cantidad=cantidad, cantidad_cotizada=cotizada,
+    def _detalle(self, quantity, cotizada=0, comprada=0, atendida=0):
+        return DetalleRequerimiento(quantity=quantity, cantidad_cotizada=cotizada,
                                     cantidad_comprada=comprada, cantidad_atendida=atendida)
 
     def test_cotizado(self):

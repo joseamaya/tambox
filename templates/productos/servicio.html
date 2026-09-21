@@ -96,12 +96,12 @@
                         </div>
                         <div class="col-lg-4">
                             <label>PRECIO:</label>
-                            {% if form.precio.errors %}
-                            {% for error in form.precio.errors %}
+                            {% if form.price.errors %}
+                            {% for error in form.price.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            {{ form.precio }}
+                            {{ form.price }}
                         </div>
                         <div class="col-lg-4"></div>
                     </div>

@@ -132,12 +132,12 @@
                             {% endif %}
                             <p>{{ form.modelo }}</p>
                             <label>PRECIO: </label>
-                            {% if form.precio.errors %}
-                            {% for error in form.precio.errors %}
+                            {% if form.price.errors %}
+                            {% for error in form.price.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.precio }}</p>
+                            <p>{{ form.price }}</p>
                         </div>
                         <div class="col-lg-4">
                             <label>TIPO EXISTENCIA: </label>

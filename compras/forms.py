@@ -25,7 +25,7 @@ class ProveedorForm(forms.ModelForm):
         for field in iter(self.fields):
             if field == 'ruc':
                 self.fields[field].widget.attrs.update({
-                    'class': 'form-control cantidad'
+                    'class': 'form-control quantity'
                 })
 
     def clean_ruc(self):
@@ -40,23 +40,23 @@ class DetalleOrdenCompraForm(forms.Form):
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+    quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    precio = forms.DecimalField(max_digits=25, decimal_places=8,
+    price = forms.DecimalField(max_digits=25, decimal_places=8,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
-    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
 class DetalleOrdenServicioForm(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     servicio = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
-    precio = forms.DecimalField(max_digits=15, decimal_places=5,
+    price = forms.DecimalField(max_digits=15, decimal_places=5,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
-    valor = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
@@ -119,7 +119,7 @@ class CotizacionForm(forms.ModelForm):
 
     class Meta:
         model = Cotizacion
-        fields = ['code', 'date', 'observaciones']
+        fields = ['code', 'date', 'notes']
 
 
 class OrdenCompraForm(forms.ModelForm):
@@ -143,7 +143,7 @@ class OrdenCompraForm(forms.ModelForm):
         self.fields['code'].required = False
         self.fields['referencia'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         for field in iter(self.fields):
             if field != 'con_impuesto' and field != 'dolares':
                 self.fields[field].widget.attrs.update({
@@ -170,7 +170,7 @@ class OrdenCompraForm(forms.ModelForm):
 
     class Meta:
         model = OrdenCompra
-        fields = ['code', 'forma_pago', 'date', 'observaciones', 'con_impuesto', 'dolares']
+        fields = ['code', 'forma_pago', 'date', 'notes', 'con_impuesto', 'dolares']
 
 
 class OrdenServiciosForm(forms.ModelForm):
@@ -193,7 +193,7 @@ class OrdenServiciosForm(forms.ModelForm):
         self.fields['code'].required = False
         self.fields['proceso'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
-        self.fields['observaciones'].required = False
+        self.fields['notes'].required = False
         self.fields['nombre_informe'].required = False
         self.fields['informe'].required = False
         self.fields['referencia'].required = False
@@ -222,7 +222,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     class Meta:
         model = OrdenServicios
-        fields = ['code', 'forma_pago', 'proceso', 'observaciones', 'date', 'nombre_informe', 'informe']
+        fields = ['code', 'forma_pago', 'proceso', 'notes', 'date', 'nombre_informe', 'informe']
 
 
 class ConformidadServicioForm(forms.ModelForm):
@@ -237,7 +237,7 @@ class ConformidadServicioForm(forms.ModelForm):
         self.fields['total_letras'].widget.attrs['readonly'] = True
         self.fields['code'].required = False
         self.fields['doc_sustento'].required = False
-        self.fields['archivo'].required = False
+        self.fields['file'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
@@ -250,7 +250,7 @@ class ConformidadServicioForm(forms.ModelForm):
 
     class Meta:
         model = ConformidadServicio
-        fields = ['code', 'doc_sustento', 'archivo', 'date', 'total', 'total_letras']
+        fields = ['code', 'doc_sustento', 'file', 'date', 'total', 'total_letras']
 
 
 class FormularioDetalleCotizacion(forms.Form):
@@ -261,7 +261,7 @@ class FormularioDetalleCotizacion(forms.Form):
         attrs={'size': 120, 'readonly': "readonly", 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
 
 
@@ -271,13 +271,13 @@ class FormularioDetalleOrdenCompra(forms.Form):
         widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+    quantity = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
-    precio = forms.DecimalField(max_digits=25, decimal_places=8,
+    price = forms.DecimalField(max_digits=25, decimal_places=8,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
     impuesto = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'impuesto decimal form-control'}))
-    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
@@ -286,25 +286,25 @@ class FormularioDetalleOrdenServicios(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
-    precio = forms.DecimalField(max_digits=15, decimal_places=5,
+    price = forms.DecimalField(max_digits=15, decimal_places=5,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
-    valor = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
 class FormularioDetalleConformidadServicio(forms.Form):
     orden_servicios = forms.CharField(widget=forms.HiddenInput())
-    cantidad = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
     servicio = forms.CharField(
         widget=forms.TextInput(attrs={'size': 35, 'readonly': "readonly", 'class': 'form-control'}))
     uso = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}),
                           required=False)
-    precio = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    price = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal form-control'}))
-    valor = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
+    amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 

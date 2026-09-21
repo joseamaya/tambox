@@ -35,7 +35,7 @@ class ProductoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field == 'stock_minimo' or field == 'precio':
+            if field == 'stock_minimo' or field == 'price':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control decimal',
                     'step': 'any',
@@ -48,7 +48,7 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['description', 'grupo_productos', 'unidad_medida', 'marca', 'modelo', 'precio', 'tipo_existencia']
+        fields = ['description', 'grupo_productos', 'unidad_medida', 'marca', 'modelo', 'price', 'tipo_existencia']
 
 
 class ServicioForm(forms.ModelForm):
@@ -66,4 +66,4 @@ class ServicioForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['description', 'grupo_productos', 'precio']
+        fields = ['description', 'grupo_productos', 'price']

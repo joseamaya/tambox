@@ -12,10 +12,10 @@ class DetalleMovimientoManager(models.Manager):
             detalle_orden = detalle.detalle_orden_compra
             if detalle_orden.detalle_cotizacion is not None:
                 detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle.cantidad
+                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle.quantity
                 detalle_requerimiento.establecer_estado_atendido()
                 detalle_requerimiento.save()
-            detalle_orden.cantidad_ingresada = detalle_orden.cantidad_ingresada + detalle.cantidad
+            detalle_orden.cantidad_ingresada = detalle_orden.cantidad_ingresada + detalle.quantity
             detalle_orden.establecer_estado()
             detalle_orden.save()
             detalle.save()
@@ -28,7 +28,7 @@ class DetalleMovimientoManager(models.Manager):
     def guardar_detalle_con_pedido(self, objs, pedido):
         for detalle in objs:
             detalle_pedido = detalle.detalle_pedido
-            detalle_pedido.cantidad_atendida = detalle_pedido.cantidad_atendida + detalle.cantidad
+            detalle_pedido.cantidad_atendida = detalle_pedido.cantidad_atendida + detalle.quantity
             detalle_pedido.establecer_estado_atendido()
             detalle_pedido.save()
             detalle.save()

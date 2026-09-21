@@ -25,13 +25,13 @@ class FormaPagoForm(forms.ModelForm):
 class UploadForm(forms.ModelForm):
     class Meta:
         model = Upload
-        fields = ['archivo']
+        fields = ['file']
 
 
 class TipoCambioForm(forms.ModelForm):
     class Meta:
         model = TipoCambio
-        fields = ['monto', 'date']
+        fields = ['amount', 'date']
 
     def __init__(self, *args, **kwargs):
         super(TipoCambioForm, self).__init__(*args, **kwargs)
@@ -58,7 +58,7 @@ class TipoDocumentoForm(forms.ModelForm):
 class ImpuestoForm(forms.ModelForm):
     class Meta:
         model = Impuesto
-        fields = ['abreviatura', 'description', 'monto', 'start_date', 'end_date']
+        fields = ['abreviatura', 'description', 'amount', 'start_date', 'end_date']
 
     def __init__(self, *args, **kwargs):
         super(ImpuestoForm, self).__init__(*args, **kwargs)

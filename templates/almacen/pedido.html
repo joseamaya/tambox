@@ -113,12 +113,12 @@
                                 {{ detalle_pedido_form.unidad }}
                             </td>
                             <td>
-                                {% if detalle_pedido_form.cantidad.errors %}
-                                {% for error in detalle_pedido_form.cantidad.errors %}
+                                {% if detalle_pedido_form.quantity.errors %}
+                                {% for error in detalle_pedido_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_pedido_form.cantidad }}
+                                {{ detalle_pedido_form.quantity }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -135,7 +135,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
-                    {{ form.observaciones }}
+                    {{ form.notes }}
                 </div>
             </div>
         </div>
@@ -159,7 +159,7 @@ $(document).ready(function()
 		var parent = $(this).parent().parent();	
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btnBorrar","");
-		var valor = $("#valor"+id).val();
+		var amount = $("#amount"+id).val();
 		$(parent).remove();		
 		contDetalles = parseInt(contDetalles) - 1;
 		$("#id_form-TOTAL_FORMS").val(contDetalles);
@@ -180,7 +180,7 @@ $(document).ready(function()
 						"<td>" + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
-						"<td>" + item.cantidad + "</td>" +
+						"<td>" + item.quantity + "</td>" +
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 					"</tr>");
 					contDetalles = parseInt(contDetalles) + 1;											
@@ -219,11 +219,11 @@ $(document).ready(function()
 		});
 	}
 	
-	$(document).on("keyup",".cantidad",function()
+	$(document).on("keyup",".quantity",function()
 	{
-		var cantidad = 0;
+		var quantity = 0;
 		var id_producto = $(this).prop('id');
-		var id = id_producto.replace("cantidad", "");
+		var id = id_producto.replace("quantity", "");
 		$.ajax({
 	      url: "{% url 'productos:consulta_stock_producto' %}",
 	      data: {
@@ -231,25 +231,25 @@ $(document).ready(function()
 	   	  },
 	      success: function(data) 
 	      {
-	    	  cantidad = $("#"+id+"cantidad").val();
-			  if(cantidad=='')
+	    	  quantity = $("#"+id+"quantity").val();
+			  if(quantity=='')
 			  {
-				  cantidad=0;
-				  $("#"+id+"cantidad").val(cantidad);
+				  quantity=0;
+				  $("#"+id+"quantity").val(quantity);
 			  }			
-			  if(cantidad > data.stock)
+			  if(quantity > data.stock)
 	          {
 	        	  alert("La cantidad ingresada es mayor que el stock");
-	        	  $("#"+id+"cantidad").val(data.stock);
+	        	  $("#"+id+"quantity").val(data.stock);
 	          }	    	  
 	      }
 	    });
 	});
 	
-	$(document).on("focusout",".cantidad",function()
+	$(document).on("focusout",".quantity",function()
 	{
-		var cantidad= $(this).val();
-		if(cantidad==0)
+		var quantity= $(this).val();
+		if(quantity==0)
 		{
 			alert("La cantidad no puede ser cero");			
 		}		
@@ -258,7 +258,7 @@ $(document).ready(function()
 	function validar_ceros()
 	{	
 		var control_ceros = false;
-		$(".cantidad").each(function()
+		$(".quantity").each(function()
 		{
 			if($(this).val()==0)
 			{
@@ -273,7 +273,7 @@ $(document).ready(function()
 	{
 		var cont=0;		
 		var date = $('#id_date').val().trim();		
-		var observaciones = $('#id_observaciones').val().trim();
+		var notes = $('#id_observaciones').val().trim();
 		$('#cdetalles').val(ultimo_item);
 		if(date != '')
 		{					
