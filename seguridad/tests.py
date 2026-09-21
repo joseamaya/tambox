@@ -71,7 +71,7 @@ class AuthorizationTestCase(TestCase):
         respuesta = self.client.get('/contabilidad/tax_list/')
 
         self.assertEqual(respuesta.status_code, 403)
-        self.assertTemplateUsed(respuesta, 'seguridad/permiso_denegado.html')
+        self.assertTemplateUsed(respuesta, 'seguridad/permission_denied.html')
 
 
 class RenderTestCase(TestCase):
