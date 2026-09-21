@@ -211,7 +211,7 @@ class Requerimiento(TimeStampedModel):
 
 
 class DetalleRequerimiento(TimeStampedModel):
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='details')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='requirement_details', null=True)
     uso = models.TextField(null=True)
@@ -225,10 +225,10 @@ class DetalleRequerimiento(TimeStampedModel):
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Requerimiento'),)
-        ordering = ['nro_detalle']
+        ordering = ['line_number']
 
     def __str__(self):
-        return self.requerimiento.code + ' ' + str(self.nro_detalle)
+        return self.requerimiento.code + ' ' + str(self.line_number)
 
     def establecer_estado_cotizado(self):
         caso = clasificar(self.quoted_quantity, self.quantity)

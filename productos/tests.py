@@ -145,8 +145,8 @@ class ObtenerKardexTest(TestCase):
         self.producto = baker.make(Producto)
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    operation_date=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
-                   cantidad_ingreso=Decimal('10'), valor_ingreso=Decimal('50'),
-                   cantidad_salida=Decimal('2'), valor_salida=Decimal('9'))
+                   in_quantity=Decimal('10'), in_amount=Decimal('50'),
+                   out_quantity=Decimal('2'), out_amount=Decimal('9'))
 
     def test_los_totales_salen_de_una_sola_consulta(self):
         with self.assertNumQueries(1):
@@ -212,7 +212,7 @@ class CargarProductosTest(TestCase):
 
     def test_salta_la_fila_sin_tipo_de_existencia(self):
         baker.make(GrupoProductos, code='000001')
-        baker.make(TipoExistencia, codigo_sunat='01')
+        baker.make(TipoExistencia, sunat_code='01')
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
         file = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
 

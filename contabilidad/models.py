@@ -87,7 +87,7 @@ class FormaPago(TimeStampedModel):
 
 
 class TipoDocumento(TimeStampedModel):
-    codigo_sunat = models.CharField(max_length=10)
+    sunat_code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
@@ -98,7 +98,7 @@ class TipoDocumento(TimeStampedModel):
                        ('ver_detalle_tipo_documento', 'Puede ver detalle Tipo de Documento'),
                        ('ver_tabla_tipos_documentos', 'Puede ver tabla de Tipos de Documentos'),
                        ('ver_reporte_tipos_documentos_excel', 'Puede ver Reporte de Tipos de Documentos en excel'),)
-        ordering = ['codigo_sunat']
+        ordering = ['sunat_code']
 
     def anterior(self):
         ant = TipoDocumento.objects.anterior(self)
@@ -199,7 +199,7 @@ class Configuracion(TimeStampedModel):
 
 
 class TipoExistencia(TimeStampedModel):
-    codigo_sunat = models.CharField(primary_key=True, max_length=2)
+    sunat_code = models.CharField(primary_key=True, max_length=2)
     description = models.CharField(max_length=50, verbose_name='Descripción')
 
     def __str__(self):

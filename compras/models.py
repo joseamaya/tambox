@@ -189,7 +189,7 @@ class Cotizacion(TimeStampedModel):
 
 class DetalleCotizacion(TimeStampedModel):
     objects = DetalleCotizacionManager()
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='details')
     detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, related_name='quotation_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
@@ -338,7 +338,7 @@ class OrdenCompra(TimeStampedModel):
 
 class DetalleOrdenCompra(TimeStampedModel):
     objects = DetalleOrdenManager()
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     orden = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='details')
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
@@ -523,7 +523,7 @@ class OrdenServicios(TimeStampedModel):
 
 class DetalleOrdenServicios(TimeStampedModel):
     objects = DetalleOrdenManager()
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     orden = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='details')
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='service_order_details', null=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='service_order_details', null=True)
@@ -548,7 +548,7 @@ class DetalleOrdenServicios(TimeStampedModel):
 
     class Meta:
         permissions = (('ver_detalle_orden_servicios', 'Puede ver Detalle Orden de Servicios'),)
-        ordering = ['nro_detalle']
+        ordering = ['line_number']
 
     def establecer_estado_atendido(self):
         caso = clasificar(self.conformed_quantity, self.quantity)
@@ -626,7 +626,7 @@ class ConformidadServicio(TimeStampedModel):
 
 class DetalleConformidadServicio(TimeStampedModel):
     objects = DetalleConformidadServicioManager()
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     conformidad = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE, related_name='details')
     detalle_orden_servicios = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, related_name='conformity_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)

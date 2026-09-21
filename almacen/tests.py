@@ -115,7 +115,7 @@ class DetallePedidoTest(TestCase):
 
     def test_creacion_detalle_pedido(self):
         self.assertTrue(isinstance(self.dpe1, DetallePedido))
-        self.assertEqual(self.dpe1.__str__(), self.dpe1.pedido.code + ' ' + str(self.dpe1.nro_detalle))
+        self.assertEqual(self.dpe1.__str__(), self.dpe1.pedido.code + ' ' + str(self.dpe1.line_number))
 
     def test_cantidad_por_atender(self):
         resultado = self.dpe1.quantity - self.dpe1.served_quantity
@@ -278,7 +278,7 @@ class CargarCsvTest(TestCase):
 
     def test_cargar_inventario_inicial(self):
         tipo_movimiento = baker.make(TipoMovimiento, code='I00', incrementa=True)
-        baker.make(TipoDocumento, codigo_sunat='PEC')
+        baker.make(TipoDocumento, sunat_code='PEC')
         almacen = baker.make(Almacen)
         producto_uno = baker.make(Producto, description='PRODUCTO UNO')
         producto_dos = baker.make(Producto, description='PRODUCTO DOS')
@@ -294,8 +294,8 @@ class CargarCsvTest(TestCase):
         self.assertEqual(respuesta.status_code, 302)
         movimiento = Movimiento.objects.get()
         self.assertEqual(movimiento.tipo_movimiento, tipo_movimiento)
-        detalles = list(DetalleMovimiento.objects.order_by('nro_detalle'))
-        self.assertEqual([detalle.nro_detalle for detalle in detalles], [1, 2])
+        detalles = list(DetalleMovimiento.objects.order_by('line_number'))
+        self.assertEqual([detalle.line_number for detalle in detalles], [1, 2])
         self.assertEqual([detalle.producto for detalle in detalles], [producto_uno, producto_dos])
         self.assertEqual([detalle.quantity for detalle in detalles], [Decimal('10'), Decimal('2')])
         self.assertEqual(detalles[0].amount, Decimal('50'))
@@ -427,8 +427,8 @@ class ReporteKardexExcelTest(TestCase):
                                 ctacontable=baker.make(CuentaContable))
         self.unidad = baker.make(UnidadMedida)
         self.tipo_existencia = baker.make(TipoExistencia)
-        self.tipo_documento = baker.make(TipoDocumento, codigo_sunat='PEC')
-        self.tipo_movimiento = baker.make(TipoMovimiento, code='I01', codigo_sunat='01')
+        self.tipo_documento = baker.make(TipoDocumento, sunat_code='PEC')
+        self.tipo_movimiento = baker.make(TipoMovimiento, code='I01', sunat_code='01')
         self.producto = baker.make(Producto, code='', grupo_productos=self.grupo,
                                    unidad_medida=self.unidad,
                                    tipo_existencia=self.tipo_existencia)
@@ -436,7 +436,7 @@ class ReporteKardexExcelTest(TestCase):
         self.hasta = date(2024, 1, 31)
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
-                   cantidad_total=Decimal('7'), valor_total=Decimal('21'))
+                   total_quantity=Decimal('7'), total_amount=Decimal('21'))
 
     def test_el_formato_sunat_no_crece_con_el_catalogo(self):
         """Era 4 consultas por producto: dos `select_related`, el saldo inicial y
@@ -458,7 +458,7 @@ class ReporteKardexExcelTest(TestCase):
                        movimiento=baker.make(Movimiento, tipo_documento=self.tipo_documento,
                                              tipo_movimiento=self.tipo_movimiento),
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
-                       cantidad_total=Decimal('5'), valor_total=Decimal('10'))
+                       total_quantity=Decimal('5'), total_amount=Decimal('10'))
 
         with CaptureQueriesContext(connection) as con_diez:
             libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
@@ -473,7 +473,7 @@ class ReporteKardexExcelTest(TestCase):
 
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    operation_date=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
-                   cantidad_total=Decimal('99'), valor_total=Decimal('99'))
+                   total_quantity=Decimal('99'), total_amount=Decimal('99'))
 
         libro = ReporteKardexExcel().obtener_consolidado_productos(
             self.desde, self.hasta, self.almacen)
@@ -512,8 +512,8 @@ class ReporteKardexPorProductoTest(TestCase):
         self.hasta = date(2024, 1, 31)
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    operation_date=timezone.make_aware(datetime(2023, 12, 31, 9, 0)),
-                   cantidad_total=Decimal('7'), valor_total=Decimal('21'),
-                   precio_total=Decimal('3'))
+                   total_quantity=Decimal('7'), total_amount=Decimal('21'),
+                   total_price=Decimal('3'))
 
     def test_las_tablas_del_pdf_usan_el_kardex_anterior(self):
         from almacen.reports import ReporteKardexPDF
@@ -575,7 +575,7 @@ class StockAjaxTest(TestCase):
         self.unidad = self.producto.unidad_medida
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
                    operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
-                   cantidad_total=Decimal('7'), valor_total=Decimal('21'), precio_total=Decimal('3'))
+                   total_quantity=Decimal('7'), total_amount=Decimal('21'), total_price=Decimal('3'))
 
     def obtener(self, url):
         return self.client.get(url, {'description': 'ACERO', 'almacen': self.almacen.pk},

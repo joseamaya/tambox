@@ -61,7 +61,7 @@ class DetalleRequerimientoTest(TestCase):
     def test_creacion_detalle_requerimiento(self):
         dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1)
         self.assertTrue(isinstance(dr1, DetalleRequerimiento))
-        self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.nro_detalle))
+        self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.line_number))
 
     def test_estado_atendido(self):
         dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, served_quantity=5)
@@ -105,7 +105,7 @@ class EstadosDeRequerimientoTest(TestCase):
 
     def _requerimiento(self, quantity, cotizada=0, comprada=0, atendida=0):
         requerimiento = crear_requerimiento(code='')
-        baker.make(DetalleRequerimiento, requerimiento=requerimiento, nro_detalle=1,
+        baker.make(DetalleRequerimiento, requerimiento=requerimiento, line_number=1,
                    quantity=quantity, quoted_quantity=cotizada,
                    purchased_quantity=comprada, served_quantity=atendida)
         return requerimiento

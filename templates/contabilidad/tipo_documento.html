@@ -68,12 +68,12 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <label>CÓDIGO SUNAT:</label>
-                            {% if form.codigo_sunat.errors %}
-                            {% for error in form.codigo_sunat.errors %}
+                            {% if form.sunat_code.errors %}
+                            {% for error in form.sunat_code.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.codigo_sunat }}</p>
+                            <p>{{ form.sunat_code }}</p>
                             <label>NOMBRE: </label>
                             {% if form.name.errors %}
                             {% for error in form.name.errors %}

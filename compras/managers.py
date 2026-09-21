@@ -14,7 +14,7 @@ class DetalleCotizacionManager(models.Manager):
         from compras.models import DetalleOrdenServicios
         detalle_orden_servicios = DetalleOrdenServicios(orden=orden,
                                                         detalle_cotizacion=detalle,
-                                                        nro_detalle=detalle.nro_detalle,
+                                                        line_number=detalle.line_number,
                                                         quantity=detalle.quantity,
                                                         price=detalle.detalle_requerimiento.producto.price)
         return detalle_orden_servicios

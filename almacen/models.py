@@ -49,7 +49,7 @@ class Almacen(TimeStampedModel):
 # Vislumbrar la posibilidad de agregar un campo que diga modifica price
 class TipoMovimiento(TimeStampedModel):
     code = models.CharField(unique=True, max_length=10, verbose_name='Código')
-    codigo_sunat = models.CharField(max_length=2)
+    sunat_code = models.CharField(max_length=2)
     description = models.CharField(max_length=25, verbose_name='Descripción')
     incrementa = models.BooleanField()
     pide_referencia = models.BooleanField(default=False)
@@ -163,7 +163,7 @@ class Pedido(TimeStampedModel):
 
 
 class DetallePedido(TimeStampedModel):
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='details')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
@@ -195,10 +195,10 @@ class DetallePedido(TimeStampedModel):
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Pedido'),)
-        ordering = ['nro_detalle']
+        ordering = ['line_number']
 
     def __str__(self):
-        return self.pedido.code + ' ' + str(self.nro_detalle)
+        return self.pedido.code + ' ' + str(self.line_number)
 
 
 class Movimiento(TimeStampedModel):
@@ -275,7 +275,7 @@ class Movimiento(TimeStampedModel):
                                                almacen=almacen)
         for kardex in detalle_kardex:
             control = ControlProductoAlmacen.objects.get(producto=kardex.producto, almacen=almacen)
-            control.stock = control.stock - kardex.cantidad_ingreso
+            control.stock = control.stock - kardex.in_quantity
             control.save()
             kardex.delete()
 
@@ -315,7 +315,7 @@ class Movimiento(TimeStampedModel):
 
 class DetalleMovimiento(TimeStampedModel):
     objects = DetalleMovimientoManager()
-    nro_detalle = models.IntegerField()
+    line_number = models.IntegerField()
     movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='details')
     detalle_orden_compra = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, related_name='movement_details', null=True)
     detalle_pedido = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, related_name='movement_details', null=True)
@@ -333,76 +333,76 @@ class DetalleMovimiento(TimeStampedModel):
         kardex = Kardex(producto=self.producto,
                         operation_date=movi.operation_date,
                         movimiento=movi,
-                        nro_detalle_movimiento=self.nro_detalle,
+                        movement_line_number=self.line_number,
                         almacen=movi.almacen)
         if t_movimiento.incrementa:
-            kardex.cantidad_ingreso = self.quantity
-            kardex.precio_ingreso = self.price
-            kardex.valor_ingreso = val
-            kardex.cantidad_salida = 0
-            kardex.precio_salida = 0
-            kardex.valor_salida = 0
+            kardex.in_quantity = self.quantity
+            kardex.in_price = self.price
+            kardex.in_amount = val
+            kardex.out_quantity = 0
+            kardex.out_price = 0
+            kardex.out_amount = 0
             try:
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.cantidad_total = self.quantity + kardex_ant.cantidad_total
-                kardex.valor_total = val + kardex_ant.valor_total
-                kardex.precio_total = self.price
+                kardex.total_quantity = self.quantity + kardex_ant.total_quantity
+                kardex.total_amount = val + kardex_ant.total_amount
+                kardex.total_price = self.price
             except Kardex.DoesNotExist:
-                kardex.cantidad_total = self.quantity
-                kardex.precio_total = self.price
-                kardex.valor_total = val
+                kardex.total_quantity = self.quantity
+                kardex.total_price = self.price
+                kardex.total_amount = val
         else:
-            kardex.cantidad_ingreso = 0
-            kardex.precio_ingreso = 0
-            kardex.valor_ingreso = 0
-            kardex.cantidad_salida = self.quantity
-            kardex.precio_salida = self.price
-            kardex.valor_salida = val
+            kardex.in_quantity = 0
+            kardex.in_price = 0
+            kardex.in_amount = 0
+            kardex.out_quantity = self.quantity
+            kardex.out_price = self.price
+            kardex.out_amount = val
             try:
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.cantidad_total = kardex_ant.cantidad_total - self.quantity
-                kardex.valor_total = kardex_ant.valor_total - val
-                kardex.precio_total = self.price
+                kardex.total_quantity = kardex_ant.total_quantity - self.quantity
+                kardex.total_amount = kardex_ant.total_amount - val
+                kardex.total_price = self.price
             except Kardex.DoesNotExist:
-                kardex.cantidad_total = 0 - self.quantity
-                kardex.precio_total = 0 - self.price
-                kardex.valor_total = 0 - val
-        if kardex.cantidad_total == 0:
+                kardex.total_quantity = 0 - self.quantity
+                kardex.total_price = 0 - self.price
+                kardex.total_amount = 0 - val
+        if kardex.total_quantity == 0:
             precio_control = 0
         else:
-            precio_control = kardex.valor_total / kardex.cantidad_total
+            precio_control = kardex.total_amount / kardex.total_quantity
 
         control_producto, creado = ControlProductoAlmacen.objects.update_or_create(
             almacen=self.movimiento.almacen,
             producto=self.producto,
-            defaults={'stock': kardex.cantidad_total,
+            defaults={'stock': kardex.total_quantity,
                       'price': precio_control}
         )
         super(DetalleMovimiento, self).save()
         kardex.save()
 
     class Meta:
-        unique_together = (('nro_detalle', 'movimiento'),)
+        unique_together = (('line_number', 'movimiento'),)
 
 
 class Kardex(TimeStampedModel):
     movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='kardex_entries')
-    nro_detalle_movimiento = models.IntegerField()
+    movement_line_number = models.IntegerField()
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='kardex_entries')
     operation_date = models.DateTimeField()
-    cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
-    precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
-    valor_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
-    cantidad_salida = models.DecimalField(max_digits=25, decimal_places=8)
-    precio_salida = models.DecimalField(max_digits=25, decimal_places=8)
-    valor_salida = models.DecimalField(max_digits=25, decimal_places=8)
-    cantidad_total = models.DecimalField(max_digits=25, decimal_places=8)
-    precio_total = models.DecimalField(max_digits=25, decimal_places=8)
-    valor_total = models.DecimalField(max_digits=25, decimal_places=8)
+    in_quantity = models.DecimalField(max_digits=25, decimal_places=8)
+    in_price = models.DecimalField(max_digits=25, decimal_places=8)
+    in_amount = models.DecimalField(max_digits=25, decimal_places=8)
+    out_quantity = models.DecimalField(max_digits=25, decimal_places=8)
+    out_price = models.DecimalField(max_digits=25, decimal_places=8)
+    out_amount = models.DecimalField(max_digits=25, decimal_places=8)
+    total_quantity = models.DecimalField(max_digits=25, decimal_places=8)
+    total_price = models.DecimalField(max_digits=25, decimal_places=8)
+    total_amount = models.DecimalField(max_digits=25, decimal_places=8)
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='kardex_entries')
     history = HistoricalRecords()
 
@@ -443,8 +443,8 @@ class Kardex(TimeStampedModel):
     def kardex_por_lote(cls, desde, hasta, por_grupo=False, **filtro):
         """Kardex del periodo de todo el lote, en dos consultas.
 
-        Devuelve {clave: (filas, cantidad_ingreso, valor_ingreso,
-        cantidad_salida, valor_salida)}, con la misma forma que
+        Devuelve {clave: (filas, in_quantity, in_amount,
+        out_quantity, out_amount)}, con la misma forma que
         `obtener_kardex()`, agrupado por producto o por grupo segun `por_grupo`.
 
         Los informes llamaban a `obtener_kardex()` dentro del bucle, o sea dos
@@ -460,21 +460,21 @@ class Kardex(TimeStampedModel):
                  .select_related('producto', 'movimiento__tipo_documento',
                                  'movimiento__tipo_movimiento')
                  .order_by('producto__description', 'operation_date',
-                           'cantidad_salida', 'created'))
+                           'out_quantity', 'created'))
         lote = {}
         for kardex in filas:
             clave = kardex.producto.grupo_productos_id if por_grupo else kardex.producto_id
             totales = lote.setdefault(clave, [[], Decimal(0), Decimal(0), Decimal(0), Decimal(0)])
             totales[0].append(kardex)
-            totales[1] = totales[1] + kardex.cantidad_ingreso
-            totales[2] = totales[2] + kardex.valor_ingreso
-            totales[3] = totales[3] + kardex.cantidad_salida
-            totales[4] = totales[4] + kardex.valor_salida
+            totales[1] = totales[1] + kardex.in_quantity
+            totales[2] = totales[2] + kardex.in_amount
+            totales[3] = totales[3] + kardex.out_quantity
+            totales[4] = totales[4] + kardex.out_amount
         return lote
 
     def __str__(self):
         return str(self.movimiento.id_movimiento) + '-' + str(
-            self.nro_detalle_movimiento) + '-' + self.producto.description
+            self.movement_line_number) + '-' + self.producto.description
 
     class Meta:
         verbose_name = 'Kardex'
@@ -482,7 +482,7 @@ class Kardex(TimeStampedModel):
         permissions = (('ver_detalle_kardex', 'Puede ver detalle de Kardex'),
                        ('ver_tabla_kardex', 'Puede ver tabla de Kardex'),
                        ('ver_reporte_kardex_excel', 'Puede ver Reporte de Kardex en excel'),)
-        ordering = ['movimiento', 'nro_detalle_movimiento']
+        ordering = ['movimiento', 'movement_line_number']
 
 
 class ControlProductoAlmacen(TimeStampedModel):

@@ -84,7 +84,7 @@ class ReporteRequerimiento():
         sp.fontName = "Times-Roman"
         lista_detalles = []
         for detalle in detalles:
-            tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
+            tupla_producto = [Paragraph(str(detalle.line_number), sp),
                               Paragraph(str(detalle.quantity), sp),
                               Paragraph(detalle.producto.unidad_medida.description, sp),
                               Paragraph(detalle.producto.description, sp),

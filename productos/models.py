@@ -14,7 +14,7 @@ from django.db.models import Sum
 
 class UnidadMedida(TimeStampedModel):
     code = models.CharField(max_length=5, unique=True)
-    codigo_sunat = models.CharField(max_length=2)
+    sunat_code = models.CharField(max_length=2)
     description = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -84,24 +84,24 @@ class GrupoProductos(TimeStampedModel):
                                                producto__grupo_productos=self).select_related(
             'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'operation_date',
-                                                                                  'cantidad_salida',
+                                                                                  'out_quantity',
                                                                                   'created')
-        totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
-                                           cantidad_salida=Sum('cantidad_salida'),
-                                           valor_ingreso=Sum('valor_ingreso'),
-                                           valor_salida=Sum('valor_salida'))
+        totales = listado_kardex.aggregate(in_quantity=Sum('in_quantity'),
+                                           out_quantity=Sum('out_quantity'),
+                                           in_amount=Sum('in_amount'),
+                                           out_amount=Sum('out_amount'))
         return (listado_kardex,
-                totales['cantidad_ingreso'] or 0,
-                totales['valor_ingreso'] or 0,
-                totales['cantidad_salida'] or 0,
-                totales['valor_salida'] or 0)
+                totales['in_quantity'] or 0,
+                totales['in_amount'] or 0,
+                totales['out_quantity'] or 0,
+                totales['out_amount'] or 0)
 
     @staticmethod
     def kardex_por_lote(grupos, almacen, desde, hasta):
         """Igual que `obtener_kardex()`, pero para todos los grupos de una vez.
 
-        Devuelve {grupo_id: (filas, cantidad_ingreso, valor_ingreso,
-        cantidad_salida, valor_salida)} con dos consultas en total.
+        Devuelve {grupo_id: (filas, in_quantity, in_amount,
+        out_quantity, out_amount)} con dos consultas en total.
         """
         from almacen.models import Kardex
         return Kardex.kardex_por_lote(desde, hasta, por_grupo=True,
@@ -138,7 +138,7 @@ class Producto(TimeStampedModel):
             ultimos = (Kardex.objects.filter(producto=self)
                        .order_by('almacen_id', '-operation_date', '-pk')
                        .distinct('almacen_id'))
-            self._stock_calculado = sum(kardex.cantidad_total for kardex in ultimos)
+            self._stock_calculado = sum(kardex.total_quantity for kardex in ultimos)
         return self._stock_calculado
 
     @property
@@ -160,24 +160,24 @@ class Producto(TimeStampedModel):
                                                producto=self).select_related(
             'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'operation_date',
-                                                                                  'cantidad_salida',
+                                                                                  'out_quantity',
                                                                                   'created')
-        totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
-                                           cantidad_salida=Sum('cantidad_salida'),
-                                           valor_ingreso=Sum('valor_ingreso'),
-                                           valor_salida=Sum('valor_salida'))
+        totales = listado_kardex.aggregate(in_quantity=Sum('in_quantity'),
+                                           out_quantity=Sum('out_quantity'),
+                                           in_amount=Sum('in_amount'),
+                                           out_amount=Sum('out_amount'))
         return (listado_kardex,
-                totales['cantidad_ingreso'] or 0,
-                totales['valor_ingreso'] or 0,
-                totales['cantidad_salida'] or 0,
-                totales['valor_salida'] or 0)
+                totales['in_quantity'] or 0,
+                totales['in_amount'] or 0,
+                totales['out_quantity'] or 0,
+                totales['out_amount'] or 0)
 
     @staticmethod
     def kardex_por_lote(productos, almacen, desde, hasta):
         """Igual que `obtener_kardex()`, pero para todo el lote de una vez.
 
-        Devuelve {producto_id: (filas, cantidad_ingreso, valor_ingreso,
-        cantidad_salida, valor_salida)} con dos consultas en total, en vez de
+        Devuelve {producto_id: (filas, in_quantity, in_amount,
+        out_quantity, out_amount)} con dos consultas en total, en vez de
         dos por producto.
         """
         from almacen.models import Kardex, Movimiento

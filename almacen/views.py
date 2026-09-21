@@ -60,14 +60,14 @@ class Tablero(View):
         cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_invent_ini,
                                                                        defaults={'description': 'INVENTARIO INICIAL',
-                                                                                 'codigo_sunat': '16',
+                                                                                 'sunat_code': '16',
                                                                                  'incrementa': True,
                                                                                  'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_ingreso_compra,
                                                                        defaults={'description': 'INGRESO POR COMPRA',
-                                                                                 'codigo_sunat': '02',
+                                                                                 'sunat_code': '02',
                                                                                  'incrementa': True,
                                                                                  'pide_referencia': True,
                                                                                  'is_active': True})
@@ -75,7 +75,7 @@ class Tablero(View):
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_salida_pedido,
                                                                        defaults={'description': 'SALIDA POR PEDIDO',
-                                                                                 'codigo_sunat': '10',
+                                                                                 'sunat_code': '10',
                                                                                  'incrementa': False,
                                                                                  'pide_referencia': True,
                                                                                  'is_active': True})
@@ -178,7 +178,7 @@ class AprobarPedido(CreateView):
                     price = detalle_salida_form.cleaned_data.get('price')
                     amount = detalle_salida_form.cleaned_data.get('amount')
                     if quantity and price and amount:
-                        detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                        detalle_movimiento = DetalleMovimiento(line_number=cont,
                                                                movimiento=self.object,
                                                                producto=Producto.objects.get(pk=code),
                                                                detalle_pedido=DetallePedido.objects.get(
@@ -219,7 +219,7 @@ class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
                 producto_json['description'] = control.producto.description
                 producto_json['unidad'] = control.producto.unidad_medida.description
                 try:
-                    price = round(control.valor_total / control.cantidad_total, 5)
+                    price = round(control.total_amount / control.total_quantity, 5)
                 except (TypeError, ZeroDivisionError):
                     price = 0
                 producto_json['price'] = str(price)
@@ -256,7 +256,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         tipo_movimiento = TipoMovimiento.objects.filter(code='I00').first()
-        tipo_documento = TipoDocumento.objects.filter(codigo_sunat='PEC').first()
+        tipo_documento = TipoDocumento.objects.filter(sunat_code='PEC').first()
         faltantes = []
         if tipo_movimiento is None:
             faltantes.append('Falta el tipo de movimiento "I00" (INVENTARIO INICIAL): '
@@ -302,7 +302,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
                     price = 0
             if amount == '':
                 amount = quantity * price
-            self.detalles.append(DetalleMovimiento(nro_detalle=self.cont_detalles,
+            self.detalles.append(DetalleMovimiento(line_number=self.cont_detalles,
                                                   movimiento=self.movimiento,
                                                   producto=producto,
                                                   quantity=quantity,
@@ -496,7 +496,7 @@ class CrearPedido(CreateView):
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(DetallePedido(pedido=self.object,
-                                                      nro_detalle=cont,
+                                                      line_number=cont,
                                                       producto=producto,
                                                       quantity=quantity))
                         cont = cont + 1
@@ -524,7 +524,7 @@ class ConsultaStock(SoloAjaxMixin, TemplateView):
             control_producto = Kardex.objects.filter(producto__code=code,
                                                      almacen__id=almacen).latest('operation_date')
             producto_json = {}
-            producto_json['stock'] = control_producto.cantidad_total
+            producto_json['stock'] = control_producto.total_quantity
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
@@ -592,10 +592,10 @@ class EliminarMovimiento(TemplateView):
             detalle_kardex = Kardex.objects.filter(movimiento=movimiento)
             for kardex in detalle_kardex:
                 control = ControlProductoAlmacen.objects.get(producto=kardex.producto, almacen=kardex.almacen)
-                if kardex.cantidad_ingreso > 0:
-                    control.stock = control.stock - kardex.cantidad_ingreso
-                elif kardex.cantidad_salida > 0:
-                    control.stock = control.stock + kardex.cantidad_salida
+                if kardex.in_quantity > 0:
+                    control.stock = control.stock - kardex.in_quantity
+                elif kardex.out_quantity > 0:
+                    control.stock = control.stock + kardex.out_quantity
                 control.save()
                 kardex.delete()
             Movimiento.objects.filter(pk=id_movimiento).update(status=Movimiento.STATUS.CANC, referencia=None)
@@ -750,7 +750,7 @@ class ModificarIngresoAlmacen(UpdateView):
         if self.object.status == Movimiento.STATUS.ACT:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetalleMovimiento.objects.filter(movimiento=self.object).order_by('nro_detalle')
+            detalles = DetalleMovimiento.objects.filter(movimiento=self.object).order_by('line_number')
             detalles_data = []
             for detalle in detalles:
                 if detalle.detalle_orden_compra is not None:
@@ -838,14 +838,14 @@ class ModificarIngresoAlmacen(UpdateView):
                         try:
                             detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
                             detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
-                                                                   nro_detalle=cont,
+                                                                   line_number=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         except ObjectDoesNotExist:
-                            detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                            detalle_movimiento = DetalleMovimiento(line_number=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=code),
                                                                    quantity=quantity,
@@ -959,7 +959,7 @@ class ModificarSalidaAlmacen(UpdateView):
                             det_ped = DetallePedido.objects.get(pk=detalle_pedido)
                         except ObjectDoesNotExist:
                             det_ped = None
-                        detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                        detalle_movimiento = DetalleMovimiento(line_number=cont,
                                                                movimiento=self.object,
                                                                detalle_pedido=det_ped,
                                                                producto=Producto.objects.get(pk=code),
@@ -1012,7 +1012,7 @@ class ModificarPedido(UpdateView):
 
     def get_context_data(self, **kwargs):
         pedido = self.object
-        detalles = DetallePedido.objects.filter(pedido=pedido).order_by('nro_detalle')
+        detalles = DetallePedido.objects.filter(pedido=pedido).order_by('line_number')
         cant_detalles = detalles.count()
         context = super(ModificarPedido, self).get_context_data(**kwargs)
         context['pedido'] = pedido
@@ -1025,7 +1025,7 @@ class ModificarPedido(UpdateView):
         if self.object.status == Pedido.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetallePedido.objects.filter(pedido=self.object).order_by('nro_detalle')
+            detalles = DetallePedido.objects.filter(pedido=self.object).order_by('line_number')
             detalles_data = []
             for detalle in detalles:
                 d = {'code': detalle.producto.code,
@@ -1060,7 +1060,7 @@ class ModificarPedido(UpdateView):
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(DetallePedido(pedido=self.object,
-                                                      nro_detalle=cont,
+                                                      line_number=cont,
                                                       producto=producto,
                                                       quantity=quantity))
                         cont = cont + 1
@@ -1193,14 +1193,14 @@ class RegistrarIngresoAlmacen(CreateView):
                         try:
                             detalle_orden_compra = DetalleOrdenCompra.objects.get(pk=orden_compra)
                             detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
-                                                                   nro_detalle=cont,
+                                                                   line_number=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         except ObjectDoesNotExist:
-                            detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                            detalle_movimiento = DetalleMovimiento(line_number=cont,
                                                                    movimiento=self.object,
                                                                    producto=Producto.objects.get(pk=code),
                                                                    quantity=quantity,
@@ -1272,7 +1272,7 @@ class RegistrarSalidaAlmacen(CreateView):
                     price = detalle_salida_form.cleaned_data.get('price')
                     amount = detalle_salida_form.cleaned_data.get('amount')
                     if quantity and price and amount:
-                        detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
+                        detalle_movimiento = DetalleMovimiento(line_number=cont,
                                                                movimiento=self.object,
                                                                producto=Producto.objects.get(pk=code),
                                                                quantity=quantity,
@@ -1461,8 +1461,8 @@ class ReprocesoPrecio(FormView):
         for detalle in detalles:
             try:
                 anterior = detalles[indice - 1]
-                cantidad_ant = anterior.cantidad_total
-                valor_ant = anterior.valor_total
+                cantidad_ant = anterior.total_quantity
+                valor_ant = anterior.total_amount
                 precio_ant = Decimal(round(valor_ant / cantidad_ant, 8))
             except (IndexError, ZeroDivisionError, TypeError):
                 cantidad_ant = 0
@@ -1470,18 +1470,18 @@ class ReprocesoPrecio(FormView):
                 valor_ant = 0
             tipo_mov = detalle.movimiento.tipo_movimiento
             if tipo_mov.incrementa:
-                detalle.cantidad_total = cantidad_ant + detalle.cantidad_ingreso
-                detalle.precio_total = detalle.precio_ingreso
-                detalle.valor_total = valor_ant + detalle.valor_ingreso
+                detalle.total_quantity = cantidad_ant + detalle.in_quantity
+                detalle.total_price = detalle.in_price
+                detalle.total_amount = valor_ant + detalle.in_amount
             else:
-                detalle.precio_salida = precio_ant
-                detalle.valor_salida = detalle.cantidad_salida * detalle.precio_salida
-                detalle.cantidad_total = cantidad_ant - detalle.cantidad_salida
-                detalle.valor_total = valor_ant - detalle.valor_salida
+                detalle.out_price = precio_ant
+                detalle.out_amount = detalle.out_quantity * detalle.out_price
+                detalle.total_quantity = cantidad_ant - detalle.out_quantity
+                detalle.total_amount = valor_ant - detalle.out_amount
                 try:
-                    detalle.precio_total = detalle.valor_total / detalle.cantidad_total
+                    detalle.total_price = detalle.total_amount / detalle.total_quantity
                 except ZeroDivisionError:
-                    detalle.precio_total = 0
+                    detalle.total_price = 0
             detalle.save()
             indice = indice + 1
 
@@ -1541,9 +1541,9 @@ class StockProductos(FormView):
                 amount = 0
             else:
                 unidad_medida = producto.unidad_medida.description
-                stock = kardex.cantidad_total
-                price = kardex.precio_total
-                amount = kardex.valor_total
+                stock = kardex.total_quantity
+                price = kardex.total_price
+                amount = kardex.total_amount
             ws.cell(row=cont, column=2).value = code
             ws.cell(row=cont, column=3).value = description
             ws.cell(row=cont, column=4).value = unidad_medida
@@ -1590,7 +1590,7 @@ class ListadoStockProducto(SoloAjaxMixin, TemplateView):
                 kardex_json['code'] = producto.code
                 kardex_json['label'] = producto.description
                 kardex_json['unidad'] = producto.unidad_medida.code
-                kardex_json['stock'] = kardex.cantidad_total if kardex else 0
+                kardex_json['stock'] = kardex.total_quantity if kardex else 0
                 lista_productos.append(kardex_json)
             data = simplejson.dumps(lista_productos)
             return HttpResponse(data, 'application/json')
@@ -1828,15 +1828,15 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
         pedido = request.GET['pedido']
         detalles = list(DetallePedido.objects.filter(pedido__code=pedido,
                                                      status=DetallePedido.STATUS.PEND)
-                        .select_related('producto__unidad_medida').order_by('nro_detalle'))
+                        .select_related('producto__unidad_medida').order_by('line_number'))
         ultimos = Kardex.ultimos_por_producto([detalle.producto for detalle in detalles],
                                               almacen__code=almacen)
         lista_detalles = []
         for detalle in detalles:
             control_producto = ultimos.get(detalle.producto_id)
             try:
-                stock = control_producto.cantidad_total
-                price = control_producto.valor_total / stock
+                stock = control_producto.total_quantity
+                price = control_producto.total_amount / stock
             except (AttributeError, ZeroDivisionError):
                 stock = 0
                 price = 0

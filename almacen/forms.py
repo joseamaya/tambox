@@ -17,13 +17,13 @@ from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
 class TipoMovimientoForm(forms.ModelForm):
     class Meta:
         model = TipoMovimiento
-        fields = ['description', 'codigo_sunat', 'incrementa', 'pide_referencia', 'es_compra', 'es_venta']
+        fields = ['description', 'sunat_code', 'incrementa', 'pide_referencia', 'es_compra', 'es_venta']
 
     def __init__(self, *args, **kwargs):
         self.aestado = True
         super(TipoMovimientoForm, self).__init__(*args, **kwargs)
         self.fields['description'].widget.attrs.update({'class': 'form-control'})
-        self.fields['codigo_sunat'].widget.attrs.update({'class': 'form-control'})
+        self.fields['sunat_code'].widget.attrs.update({'class': 'form-control'})
 
     def save(self, *args, **kwargs):
         self.instance.aestado = self.aestado

@@ -45,7 +45,7 @@ class TipoCambioForm(forms.ModelForm):
 class TipoDocumentoForm(forms.ModelForm):
     class Meta:
         model = TipoDocumento
-        fields = ['codigo_sunat', 'name', 'description']
+        fields = ['sunat_code', 'name', 'description']
 
     def __init__(self, *args, **kwargs):
         super(TipoDocumentoForm, self).__init__(*args, **kwargs)

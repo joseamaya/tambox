@@ -22,8 +22,8 @@ class TipoExistenciaResource(resources.ModelResource):
 
 
 class TipoExistenciaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    search_fields = ['codigo_sunat', 'description']
-    list_display = ('codigo_sunat', 'description')
+    search_fields = ['sunat_code', 'description']
+    list_display = ('sunat_code', 'description')
     resource_class = TipoExistenciaResource
 
 

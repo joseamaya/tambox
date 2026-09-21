@@ -6,7 +6,7 @@ from productos.models import UnidadMedida, GrupoProductos, Producto
 class UnidadMedidaForm(forms.ModelForm):
     class Meta:
         model = UnidadMedida
-        fields = ['code', 'codigo_sunat', 'description']
+        fields = ['code', 'sunat_code', 'description']
 
     def __init__(self, *args, **kwargs):
         super(UnidadMedidaForm, self).__init__(*args, **kwargs)

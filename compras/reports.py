@@ -112,7 +112,7 @@ class ReporteOrdenCompra():
         lista_detalles = []
         for detalle in detalles:
             try:
-                tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
+                tupla_producto = [Paragraph(str(detalle.line_number), sp),
                                   Paragraph(str(detalle.quantity), sp),
                                   Paragraph(
                                       detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
@@ -121,7 +121,7 @@ class ReporteOrdenCompra():
                                   Paragraph(str(detalle.price), sp),
                                   Paragraph(str(detalle.amount), sp)]
             except (ObjectDoesNotExist, AttributeError):
-                tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
+                tupla_producto = [Paragraph(str(detalle.line_number), sp),
                                   Paragraph(str(detalle.quantity), sp),
                                   Paragraph(detalle.producto.unidad_medida.description, sp),
                                   Paragraph(detalle.producto.description, sp),
@@ -657,7 +657,7 @@ class PDFSolicitudCotizacion(object):
         detalles = cotizacion.details.all()
         lista_detalles = []
         for detalle in detalles:
-            tupla_producto = (detalle.nro_detalle, detalle.detalle_requerimiento.producto.description,
+            tupla_producto = (detalle.line_number, detalle.detalle_requerimiento.producto.description,
                               detalle.detalle_requerimiento.producto.unidad_medida.description, detalle.quantity)
             lista_detalles.append(tupla_producto)
         adicionales = [('', '', '', '')] * (15 - len(detalles))
@@ -813,7 +813,7 @@ class PDFMemorandoConformidadServicio(object):
             description = detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description + '-' + detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.uso
             if len(description) > 58:
                 cont = cont + 1
-            detalles.append((detalle.nro_detalle, Paragraph(description, p)))
+            detalles.append((detalle.line_number, Paragraph(description, p)))
         adicionales = [('', '')] * (8 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales, colWidths=[0.8 * cm, 17 * cm])
         detalle_orden.setStyle(TableStyle(
@@ -912,15 +912,15 @@ class PDFOrdenServicios(object):
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
-                    (detalle.nro_detalle, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
+                    (detalle.line_number, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
             except (ObjectDoesNotExist, AttributeError):
                 description = detalle.producto.description
                 if len(description) > 58:
                     cont = cont + 1
                 detalles.append(
-                    (detalle.nro_detalle, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
+                    (detalle.line_number, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
 
-        # detalles = [(detalle.nro_detalle, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
+        # detalles = [(detalle.line_number, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(orden=orden)]
         adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
@@ -1114,12 +1114,12 @@ class PDFOrdenCompra(object):
     def detalle(self, pdf, y, orden):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total')
         try:
-            detalles = [(detalle.nro_detalle, detalle.quantity,
+            detalles = [(detalle.line_number, detalle.quantity,
                          detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description,
                          detalle.detalle_cotizacion.detalle_requerimiento.producto.description, detalle.price,
                          round(detalle.amount, 5)) for detalle in DetalleOrdenCompra.objects.filter(orden=orden)]
         except (ObjectDoesNotExist, AttributeError):
-            detalles = [(detalle.nro_detalle, detalle.quantity, detalle.producto.unidad_medida.description,
+            detalles = [(detalle.line_number, detalle.quantity, detalle.producto.unidad_medida.description,
                          detalle.producto.description, detalle.price, round(detalle.price, 5)) for detalle in
                         DetalleOrdenCompra.objects.filter(orden=orden)]
         adicionales = [('', '', '', '', '', '')] * (15 - len(detalles))

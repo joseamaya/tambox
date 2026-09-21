@@ -122,7 +122,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'GRUPO-XYZ')
 
     def test_la_lista_de_tipos_de_existencia_muestra_la_description(self):
-        baker.make('contabilidad.TipoExistencia', codigo_sunat='01', description='EXISTENCIA-XYZ')
+        baker.make('contabilidad.TipoExistencia', sunat_code='01', description='EXISTENCIA-XYZ')
 
         respuesta = self.client.get(reverse('contabilidad:tipos_existencias'))
 

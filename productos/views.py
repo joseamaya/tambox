@@ -150,7 +150,7 @@ class CargarProductos(CargarCsvMixin, FormView):
                 price = fila[3]
             else:
                 price = 0
-            tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
+            tipo_existencia = TipoExistencia.objects.get(sunat_code=fila[4].strip())
             producto, creado = Producto.objects.get_or_create(description=fila[1].strip(),
                                                               defaults={'unidad_medida': und,
                                                                         'grupo_productos': grupo,

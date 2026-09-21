@@ -266,7 +266,7 @@ class CrearCotizacion(CreateView):
                 detalle_requerimiento = DetalleRequerimiento.objects.get(pk=requerimiento)
                 if quantity:
                     detalle_cotizacion = DetalleCotizacion(detalle_requerimiento=detalle_requerimiento,
-                                                           nro_detalle=cont,
+                                                           line_number=cont,
                                                            cotizacion=self.object,
                                                            quantity=quantity)
                     detalles.append(detalle_cotizacion)
@@ -350,14 +350,14 @@ class CrearOrdenCompra(CreateView):
                         try:
                             detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                             detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion=detalle_cotizacion,
-                                                                      nro_detalle=cont,
+                                                                      line_number=cont,
                                                                       orden=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
                         except DetalleCotizacion.DoesNotExist:
                             producto = Producto.objects.get(pk=code)
                             detalle_orden_compra = DetalleOrdenCompra(producto=producto,
-                                                                      nro_detalle=cont,
+                                                                      line_number=cont,
                                                                       orden=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
@@ -431,7 +431,7 @@ class CrearOrdenServicios(CreateView):
                         try:
                             detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                             detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion=detalle_cotizacion,
-                                                                            nro_detalle=cont,
+                                                                            line_number=cont,
                                                                             orden=self.object,
                                                                             quantity=quantity,
                                                                             price=price,
@@ -439,7 +439,7 @@ class CrearOrdenServicios(CreateView):
                         except DetalleCotizacion.DoesNotExist:
                             producto = Producto.objects.get(pk=code)
                             detalle_orden_servicios = DetalleOrdenServicios(producto=producto,
-                                                                            nro_detalle=cont,
+                                                                            line_number=cont,
                                                                             orden=self.object,
                                                                             quantity=quantity,
                                                                             price=price,
@@ -511,7 +511,7 @@ class CrearConformidadServicio(CreateView):
                     if quantity and price and amount:
                         detalle_conformidad_servicio = DetalleConformidadServicio(
                             detalle_orden_servicios=detalle_orden_servicios,
-                            nro_detalle=cont,
+                            line_number=cont,
                             conformidad=self.object,
                             quantity=quantity)
                         detalles.append(detalle_conformidad_servicio)
@@ -839,7 +839,7 @@ class ModificarCotizacion(UpdateView):
 
     def get_context_data(self, **kwargs):
         cotizacion = self.object
-        detalles = DetalleCotizacion.objects.filter(cotizacion=cotizacion).order_by('nro_detalle')
+        detalles = DetalleCotizacion.objects.filter(cotizacion=cotizacion).order_by('line_number')
         cant_detalles = detalles.count()
         context = super(ModificarCotizacion, self).get_context_data(**kwargs)
         context['cotizacion'] = cotizacion
@@ -851,7 +851,7 @@ class ModificarCotizacion(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = DetalleCotizacion.objects.filter(cotizacion=self.object).order_by('nro_detalle')
+        detalles = DetalleCotizacion.objects.filter(cotizacion=self.object).order_by('line_number')
         detalles_data = []
         for detalle in detalles:
             d = {'requerimiento': detalle.detalle_requerimiento.pk,
@@ -887,7 +887,7 @@ class ModificarCotizacion(UpdateView):
                     detalle_requerimiento = DetalleRequerimiento.objects.get(pk=detalle_requerimiento)
                     if quantity:
                         detalle_cotizacion = DetalleCotizacion(detalle_requerimiento=detalle_requerimiento,
-                                                               nro_detalle=cont,
+                                                               line_number=cont,
                                                                cotizacion=self.object,
                                                                quantity=quantity)
                         detalles.append(detalle_cotizacion)
@@ -971,7 +971,7 @@ class ModificarOrdenCompra(UpdateView):
             detalles = (DetalleOrdenCompra.objects.filter(orden=self.object)
                         .select_related('orden', 'producto__unidad_medida',
                                         'detalle_cotizacion__detalle_requerimiento__producto__unidad_medida')
-                        .order_by('nro_detalle'))
+                        .order_by('line_number'))
             detalles_data = []
             for detalle in detalles:
                 try:
@@ -1063,14 +1063,14 @@ class ModificarOrdenCompra(UpdateView):
                         try:
                             detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                             detalle_orden_compra = DetalleOrdenCompra(detalle_cotizacion=detalle_cotizacion,
-                                                                      nro_detalle=cont,
+                                                                      line_number=cont,
                                                                       orden=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
                         except DetalleCotizacion.DoesNotExist:
                             producto = Producto.objects.get(pk=code)
                             detalle_orden_compra = DetalleOrdenCompra(producto=producto,
-                                                                      nro_detalle=cont,
+                                                                      line_number=cont,
                                                                       orden=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
@@ -1128,7 +1128,7 @@ class ModificarOrdenServicios(UpdateView):
         if self.object.status == OrdenCompra.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetalleOrdenServicios.objects.filter(orden=self.object).order_by('nro_detalle')
+            detalles = DetalleOrdenServicios.objects.filter(orden=self.object).order_by('line_number')
             detalles_data = []
             for detalle in detalles:
                 try:
@@ -1190,7 +1190,7 @@ class ModificarOrdenServicios(UpdateView):
                     try:
                         detalle_cotizacion = DetalleCotizacion.objects.get(pk=cotizacion)
                         detalle_orden_servicios = DetalleOrdenServicios(detalle_cotizacion=detalle_cotizacion,
-                                                                        nro_detalle=cont,
+                                                                        line_number=cont,
                                                                         orden=self.object,
                                                                         quantity=quantity,
                                                                         price=price,
@@ -1198,7 +1198,7 @@ class ModificarOrdenServicios(UpdateView):
                     except ObjectDoesNotExist:
                         producto = Producto.objects.get(pk=code)
                         detalle_orden_servicios = DetalleOrdenServicios(producto=producto,
-                                                                        nro_detalle=cont,
+                                                                        line_number=cont,
                                                                         orden=self.object,
                                                                         quantity=quantity,
                                                                         price=price,
@@ -1227,7 +1227,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                 detalles = DetalleCotizacion.objects.filter(
                     Q(status=DetalleCotizacion.STATUS.PEND) | Q(status=DetalleCotizacion.STATUS.ELEG_PARC),
                     cotizacion__code=cotizacion,
-                    detalle_requerimiento__producto__es_servicio=False).order_by('nro_detalle')
+                    detalle_requerimiento__producto__es_servicio=False).order_by('line_number')
                 try:
                     monto_impuesto = impuesto_compra().amount
                 except AttributeError:
@@ -1236,7 +1236,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                 monto_impuesto = 1
                 detalles = DetalleCotizacion.objects.filter(cotizacion__code=cotizacion,
                                                             detalle_requerimiento__producto__es_servicio=True).order_by(
-                    'nro_detalle')
+                    'line_number')
 
             lista_detalles = []
             for detalle in detalles:
@@ -1318,7 +1318,7 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             if tipo_cambio > 0:
                 detalles = DetalleOrdenCompra.objects.filter(orden=orden_compra,
                                                              status=DetalleOrdenCompra.STATUS.PEND).order_by(
-                    'nro_detalle')
+                    'line_number')
                 for detalle in detalles:
                     det = {}
                     det['orden_compra'] = detalle.id
@@ -1361,7 +1361,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
             orden_servicios = request.GET['orden_servicios']
             detalles = DetalleOrdenServicios.objects.filter(orden__code=orden_servicios,
                                                             status=DetalleOrdenServicios.STATUS.PEND).order_by(
-                'nro_detalle')
+                'line_number')
             lista_detalles = []
             for detalle in detalles:
                 try:

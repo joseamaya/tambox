@@ -163,7 +163,7 @@ class CrearRequerimiento(CreateView):
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(DetalleRequerimiento(requerimiento=self.object,
-                                                             nro_detalle=cont,
+                                                             line_number=cont,
                                                              producto=producto,
                                                              quantity=quantity,
                                                              uso=uso))
@@ -318,7 +318,7 @@ class ModificarRequerimiento(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = DetalleRequerimiento.objects.filter(requerimiento=self.object).order_by('nro_detalle')
+        detalles = DetalleRequerimiento.objects.filter(requerimiento=self.object).order_by('line_number')
         detalles_data = []
         for detalle in detalles:
             try:
@@ -362,12 +362,12 @@ class ModificarRequerimiento(UpdateView):
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(
-                            DetalleRequerimiento(requerimiento=self.object, nro_detalle=cont, producto=producto,
+                            DetalleRequerimiento(requerimiento=self.object, line_number=cont, producto=producto,
                                                  quantity=quantity, uso=uso))
                         cont = cont + 1
                     elif quantity:
                         producto = detalle_requerimiento_form.cleaned_data.get('producto')
-                        detalles.append(DetalleRequerimiento(requerimiento=self.object, nro_detalle=cont, otro=producto,
+                        detalles.append(DetalleRequerimiento(requerimiento=self.object, line_number=cont, otro=producto,
                                                              quantity=quantity, uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
@@ -390,12 +390,12 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
             if tipo_busqueda == 'TODOS':
                 detalles = DetalleRequerimiento.objects.filter(
                     Q(status=DetalleRequerimiento.STATUS.PEND) | Q(status=DetalleRequerimiento.STATUS.COTIZ),
-                    requerimiento__code=requerimiento).order_by('nro_detalle')
+                    requerimiento__code=requerimiento).order_by('line_number')
             elif tipo_busqueda == 'PRODUCTOS':
                 detalles = DetalleRequerimiento.objects.filter(Q(status=DetalleRequerimiento.STATUS.PEND) |
                                                                Q(status=DetalleRequerimiento.STATUS.COTIZ),
                                                                requerimiento__code=requerimiento,
-                                                               producto__isnull=False).order_by('nro_detalle')
+                                                               producto__isnull=False).order_by('line_number')
             lista_detalles = []
             for detalle in detalles:
                 det = {}

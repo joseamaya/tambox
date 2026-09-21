@@ -155,7 +155,7 @@ class ReporteMovimiento():
         sp.fontName = "Times-Roman"
         lista_detalles = []
         for detalle in detalles:
-            tupla_producto = [str(detalle.nro_detalle),
+            tupla_producto = [str(detalle.line_number),
                               format(detalle.quantity, '.5f'),
                               str(detalle.producto.unidad_medida.code),
                               detalle.producto.description,
@@ -355,38 +355,38 @@ class ReporteKardexPDF():
         tabla.append(encab_seg)
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
         saldo_inicial = [desde.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
                          format(cant_saldo_inicial, '.2f')]
-        cantidad_total = cant_saldo_inicial
+        total_quantity = cant_saldo_inicial
         tabla.append(saldo_inicial)
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
-                tipo_documento = kardex.movimiento.tipo_documento.codigo_sunat
+                tipo_documento = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 tipo_documento = '-'
             try:
-                tipo_movimiento = kardex.movimiento.tipo_movimiento.codigo_sunat
+                tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
             except ObjectDoesNotExist:
                 tipo_movimiento = "-"
 
-            cantidad_total = kardex.cantidad_total
+            total_quantity = kardex.total_quantity
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso, '.2f'),
-                          format(kardex.cantidad_salida, '.2f'),
-                          format(cantidad_total, '.2f')])
-        totales = ['', '', '', '', "TOTALES", format(cantidad_ingreso, '.2f'), format(cantidad_salida, '.2f'),
-                   format(cantidad_total, '.2f')]
+                          format(kardex.in_quantity, '.2f'),
+                          format(kardex.out_quantity, '.2f'),
+                          format(total_quantity, '.2f')])
+        totales = ['', '', '', '', "TOTALES", format(in_quantity, '.2f'), format(out_quantity, '.2f'),
+                   format(total_quantity, '.2f')]
         tabla.append(totales)
 
         self.total_paginas += 1;
@@ -440,25 +440,25 @@ class ReporteKardexPDF():
         for producto in productos:
             try:
                 kardex_inicial = iniciales.get(producto.pk)
-                cant_saldo_inicial = kardex_inicial.cantidad_total
-                valor_saldo_inicial = kardex_inicial.valor_total
+                cant_saldo_inicial = kardex_inicial.total_quantity
+                valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
 
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
                 self, producto, almacen, desde, hasta)
-            cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
-            valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
+            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
+            total_amount = valor_saldo_inicial + in_amount - out_amount
 
             total_cant_saldo_inicial += cant_saldo_inicial
             total_valor_saldo_inicial += valor_saldo_inicial
-            total_cantidad_ingreso += cantidad_ingreso
-            total_valor_ingreso += valor_ingreso
-            total_cantidad_salida += cantidad_salida
-            total_valor_salida += valor_salida
-            total_cantidad_total += cantidad_total
-            total_valor_total += valor_total
+            total_cantidad_ingreso += in_quantity
+            total_valor_ingreso += in_amount
+            total_cantidad_salida += out_quantity
+            total_valor_salida += out_amount
+            total_cantidad_total += total_quantity
+            total_valor_total += total_amount
 
             temp_valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
             if temp_valor_saldo_inicial == '-0.000':
@@ -466,11 +466,11 @@ class ReporteKardexPDF():
             else:
                 valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
 
-            temp_valor_total = format(valor_total, '.3f')
+            temp_valor_total = format(total_amount, '.3f')
             if temp_valor_total == '-0.000':
-                valor_total = format(abs(valor_total), '.3f')
+                total_amount = format(abs(total_amount), '.3f')
             else:
-                valor_total = format(valor_total, '.3f')
+                total_amount = format(total_amount, '.3f')
 
             registro = [producto.code,
                         producto.description,
@@ -478,12 +478,12 @@ class ReporteKardexPDF():
                         producto.grupo_productos.ctacontable,
                         format(cant_saldo_inicial, '.3f'),
                         valor_saldo_inicial,
-                        format(cantidad_ingreso, '.3f'),
-                        format(valor_ingreso, '.3f'),
-                        format(cantidad_salida, '.3f'),
-                        format(valor_salida, '.3f'),
-                        format(cantidad_total, '.3f'),
-                        valor_total]
+                        format(in_quantity, '.3f'),
+                        format(in_amount, '.3f'),
+                        format(out_quantity, '.3f'),
+                        format(out_amount, '.3f'),
+                        format(total_quantity, '.3f'),
+                        total_amount]
             tabla.append(registro)
 
         totales = ["", "", "", "TOTALES",
@@ -545,27 +545,27 @@ class ReporteKardexPDF():
             for producto in productos:
                 try:
                     kardex_inicial = iniciales.get(producto.pk)
-                    cant_saldo_inicial_producto = kardex_inicial.cantidad_total
-                    valor_saldo_inicial_producto = kardex_inicial.valor_total
+                    cant_saldo_inicial_producto = kardex_inicial.total_quantity
+                    valor_saldo_inicial_producto = kardex_inicial.total_amount
                 except AttributeError:
                     cant_saldo_inicial_producto = 0
                     valor_saldo_inicial_producto = 0
                 cant_saldo_inicial += cant_saldo_inicial_producto
                 valor_saldo_inicial += valor_saldo_inicial_producto
 
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
                 self, grupo, almacen, desde, hasta, por_grupo=True)
-            cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
-            valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
+            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
+            total_amount = valor_saldo_inicial + in_amount - out_amount
 
             total_cant_saldo_inicial += cant_saldo_inicial
             total_valor_saldo_inicial += valor_saldo_inicial
-            total_cantidad_ingreso += cantidad_ingreso
-            total_valor_ingreso += valor_ingreso
-            total_cantidad_salida += cantidad_salida
-            total_valor_salida += valor_salida
-            total_cantidad_total += cantidad_total
-            total_valor_total += valor_total
+            total_cantidad_ingreso += in_quantity
+            total_valor_ingreso += in_amount
+            total_cantidad_salida += out_quantity
+            total_valor_salida += out_amount
+            total_cantidad_total += total_quantity
+            total_valor_total += total_amount
 
             temp_valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
             if temp_valor_saldo_inicial == '-0.00000':
@@ -573,23 +573,23 @@ class ReporteKardexPDF():
             else:
                 valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
 
-            temp_valor_total = format(valor_total, '.5f')
+            temp_valor_total = format(total_amount, '.5f')
             if temp_valor_total == '-0.00000':
-                valor_total = format(abs(valor_total), '.5f')
+                total_amount = format(abs(total_amount), '.5f')
             else:
-                valor_total = format(valor_total, '.5f')
+                total_amount = format(total_amount, '.5f')
 
             registro = [grupo.code,
                         grupo.description,
                         grupo.ctacontable.cuenta,
                         format(cant_saldo_inicial, '.5f'),
                         valor_saldo_inicial,
-                        format(cantidad_ingreso, '.5f'),
-                        format(valor_ingreso, '.5f'),
-                        format(cantidad_salida, '.5f'),
-                        format(valor_salida, '.5f'),
-                        format(cantidad_total, '.5f'),
-                        valor_total]
+                        format(in_quantity, '.5f'),
+                        format(in_amount, '.5f'),
+                        format(out_quantity, '.5f'),
+                        format(out_amount, '.5f'),
+                        format(total_quantity, '.5f'),
+                        total_amount]
             tabla.append(registro)
 
         totales = ["", "", "TOTALES",
@@ -643,9 +643,9 @@ class ReporteKardexPDF():
 
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            precio_saldo_inicial = kardex_inicial.precio_total
-            valor_saldo_inicial = kardex_inicial.valor_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
+            precio_saldo_inicial = kardex_inicial.total_price
+            valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
             cant_saldo_inicial = 0
             precio_saldo_inicial = 0
@@ -665,48 +665,48 @@ class ReporteKardexPDF():
                          cant_saldo_inicial, precio_saldo_inicial, valor_saldo_inicial]
         tabla.append(saldo_inicial)
 
-        cantidad_total = cant_saldo_inicial
-        precio_total = precio_saldo_inicial
-        valor_total = valor_saldo_inicial
+        total_quantity = cant_saldo_inicial
+        total_price = precio_saldo_inicial
+        total_amount = valor_saldo_inicial
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
 
         for kardex in listado_kardex:
             try:
-                tipo_documento = kardex.movimiento.tipo_documento.codigo_sunat
+                tipo_documento = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 tipo_documento = '-'
             try:
-                tipo_movimiento = kardex.movimiento.tipo_movimiento.codigo_sunat
+                tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
             except ObjectDoesNotExist:
                 tipo_movimiento = "-"
 
-            cantidad_total = format(kardex.cantidad_total, '.2f')
-            precio_total = format(kardex.precio_total, '.2f')
-            valor_total = format(kardex.valor_total, '.2f')
-            if valor_total == '-0.00':
-                valor_total = format(abs(kardex.valor_total), '.2f')
+            total_quantity = format(kardex.total_quantity, '.2f')
+            total_price = format(kardex.total_price, '.2f')
+            total_amount = format(kardex.total_amount, '.2f')
+            if total_amount == '-0.00':
+                total_amount = format(abs(kardex.total_amount), '.2f')
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
                           tipo_movimiento,
-                          format(kardex.cantidad_ingreso, '.2f'),
-                          format(kardex.precio_ingreso, '.2f'),
-                          format(kardex.valor_ingreso, '.2f'),
-                          format(kardex.cantidad_salida, '.2f'),
-                          format(kardex.precio_salida, '.2f'),
-                          format(kardex.valor_salida, '.2f'),
-                          cantidad_total,
-                          precio_total,
-                          valor_total])
+                          format(kardex.in_quantity, '.2f'),
+                          format(kardex.in_price, '.2f'),
+                          format(kardex.in_amount, '.2f'),
+                          format(kardex.out_quantity, '.2f'),
+                          format(kardex.out_price, '.2f'),
+                          format(kardex.out_amount, '.2f'),
+                          total_quantity,
+                          total_price,
+                          total_amount])
 
         totales = ['', '', '', '', "TOTALES",
-                   format(cantidad_ingreso, '.2f'), "", format(valor_ingreso, '.2f'),
-                   format(cantidad_salida, '.2f'), "", format(valor_salida, '.2f'),
-                   cantidad_total, precio_total, valor_total]
+                   format(in_quantity, '.2f'), "", format(in_amount, '.2f'),
+                   format(out_quantity, '.2f'), "", format(out_amount, '.2f'),
+                   total_quantity, total_price, total_amount]
         tabla.append(totales)
 
         self.total_paginas += 1;
@@ -777,7 +777,7 @@ class ReporteKardexPDF():
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
@@ -785,7 +785,7 @@ class ReporteKardexPDF():
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -834,7 +834,7 @@ class ReporteKardexPDF():
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
@@ -842,7 +842,7 @@ class ReporteKardexPDF():
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -874,7 +874,7 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0, cantidad_salida=0).order_by().values(
+        productos_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
             'producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unidad_medida', 'tipo_existencia')
@@ -899,7 +899,7 @@ class ReporteKardexPDF():
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
@@ -907,7 +907,7 @@ class ReporteKardexPDF():
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1038,8 +1038,8 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,
-                                                  cantidad_salida=0).order_by().values('producto').distinct()
+        productos_kardex = Kardex.objects.exclude(in_quantity=0,
+                                                  out_quantity=0).order_by().values('producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
@@ -1063,7 +1063,7 @@ class ReporteKardexPDF():
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1071,7 +1071,7 @@ class ReporteKardexPDF():
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.sunat_code + " - " + producto.unidad_medida.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1121,7 +1121,7 @@ class ReporteKardexExcel():
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
         ws.merge_cells('B8:G8')
         ws['B9'] = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells('B9:E9')
@@ -1158,7 +1158,7 @@ class ReporteKardexExcel():
 
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
         cont = 16
@@ -1181,14 +1181,14 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
@@ -1196,24 +1196,24 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=4).border = thin_border
             ws.cell(row=cont, column=5).value = kardex.movimiento.numero
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
-            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=8).value = kardex.out_quantity
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = kardex.cantidad_total
+            ws.cell(row=cont, column=9).value = kardex.total_quantity
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
         cont = cont + 1
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
-        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).value = in_quantity
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
-        ws.cell(row=cont, column=8).value = cantidad_salida
+        ws.cell(row=cont, column=8).value = out_quantity
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
         ws.cell(row=cont, column=9).value = ""
@@ -1248,8 +1248,8 @@ class ReporteKardexExcel():
         cont = cont + 1
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            valor_saldo_inicial = kardex_inicial.valor_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
+            valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -1274,7 +1274,7 @@ class ReporteKardexExcel():
         ws['L5'] = 'PRE. TOT'
         ws['M5'] = 'VALOR. TOT'
         cont = cont + 2
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
@@ -1282,33 +1282,33 @@ class ReporteKardexExcel():
                 ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                 ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
                 ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
-                ws.cell(row=cont, column=5).value = kardex.cantidad_ingreso
+                ws.cell(row=cont, column=5).value = kardex.in_quantity
                 ws.cell(row=cont, column=5).number_format = '#.00000'
-                ws.cell(row=cont, column=6).value = kardex.precio_ingreso
+                ws.cell(row=cont, column=6).value = kardex.in_price
                 ws.cell(row=cont, column=6).number_format = '#.00000'
-                ws.cell(row=cont, column=7).value = kardex.valor_ingreso
+                ws.cell(row=cont, column=7).value = kardex.in_amount
                 ws.cell(row=cont, column=7).number_format = '#.00000'
-                ws.cell(row=cont, column=8).value = kardex.cantidad_salida
+                ws.cell(row=cont, column=8).value = kardex.out_quantity
                 ws.cell(row=cont, column=8).number_format = '#.00000'
-                ws.cell(row=cont, column=9).value = kardex.precio_salida
+                ws.cell(row=cont, column=9).value = kardex.out_price
                 ws.cell(row=cont, column=9).number_format = '#.00000'
-                ws.cell(row=cont, column=10).value = kardex.valor_salida
+                ws.cell(row=cont, column=10).value = kardex.out_amount
                 ws.cell(row=cont, column=10).number_format = '#.00000'
-                ws.cell(row=cont, column=11).value = kardex.cantidad_total
+                ws.cell(row=cont, column=11).value = kardex.total_quantity
                 ws.cell(row=cont, column=11).number_format = '#.00000'
-                ws.cell(row=cont, column=12).value = kardex.precio_total
+                ws.cell(row=cont, column=12).value = kardex.total_price
                 ws.cell(row=cont, column=12).number_format = '#.00000'
-                ws.cell(row=cont, column=13).value = kardex.valor_total
+                ws.cell(row=cont, column=13).value = kardex.total_amount
                 ws.cell(row=cont, column=13).number_format = '#.00000'
                 cont = cont + 1
-            ws.cell(row=cont, column=5).value = cantidad_ingreso
-            ws.cell(row=cont, column=7).value = valor_ingreso
+            ws.cell(row=cont, column=5).value = in_quantity
+            ws.cell(row=cont, column=7).value = in_amount
             ws.cell(row=cont, column=7).number_format = '#.00000'
-            ws.cell(row=cont, column=8).value = cantidad_salida
-            ws.cell(row=cont, column=10).value = valor_salida
+            ws.cell(row=cont, column=8).value = out_quantity
+            ws.cell(row=cont, column=10).value = out_amount
             ws.cell(row=cont, column=10).number_format = '#.00000'
-            ws.cell(row=cont, column=11).value = kardex.cantidad_total
-            ws.cell(row=cont, column=13).value = kardex.valor_total
+            ws.cell(row=cont, column=11).value = kardex.total_quantity
+            ws.cell(row=cont, column=13).value = kardex.total_amount
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont = cont + 2
         else:
@@ -1372,7 +1372,7 @@ class ReporteKardexExcel():
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.code
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
         ws.merge_cells('B8:G8')
         ws['B9'] = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells('B9:E9')
@@ -1441,8 +1441,8 @@ class ReporteKardexExcel():
 
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            valor_saldo_inicial = kardex_inicial.valor_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
+            valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -1486,14 +1486,14 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
@@ -1501,55 +1501,55 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=4).border = thin_border
             ws.cell(row=cont, column=5).value = kardex.movimiento.numero
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
-            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = kardex.precio_ingreso
+            ws.cell(row=cont, column=8).value = kardex.in_price
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = kardex.valor_ingreso
+            ws.cell(row=cont, column=9).value = kardex.in_amount
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
-            ws.cell(row=cont, column=10).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=10).value = kardex.out_quantity
             ws.cell(row=cont, column=10).number_format = '#.00000'
             ws.cell(row=cont, column=10).border = thin_border
-            ws.cell(row=cont, column=11).value = kardex.precio_salida
+            ws.cell(row=cont, column=11).value = kardex.out_price
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=11).border = thin_border
-            ws.cell(row=cont, column=12).value = kardex.valor_salida
+            ws.cell(row=cont, column=12).value = kardex.out_amount
             ws.cell(row=cont, column=12).number_format = '#.00000'
             ws.cell(row=cont, column=12).border = thin_border
-            ws.cell(row=cont, column=13).value = kardex.cantidad_total
+            ws.cell(row=cont, column=13).value = kardex.total_quantity
             ws.cell(row=cont, column=13).number_format = '#.00000'
             ws.cell(row=cont, column=13).border = thin_border
-            ws.cell(row=cont, column=14).value = kardex.precio_total
+            ws.cell(row=cont, column=14).value = kardex.total_price
             ws.cell(row=cont, column=14).number_format = '#.00000'
             ws.cell(row=cont, column=14).border = thin_border
-            ws.cell(row=cont, column=15).value = kardex.valor_total
+            ws.cell(row=cont, column=15).value = kardex.total_amount
             ws.cell(row=cont, column=15).number_format = '#.00000'
             ws.cell(row=cont, column=15).border = thin_border
         cont = cont + 1
 
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
-        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).value = in_quantity
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
         ws.cell(row=cont, column=8).value = ""
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = valor_ingreso
+        ws.cell(row=cont, column=9).value = in_amount
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
-        ws.cell(row=cont, column=10).value = cantidad_salida
+        ws.cell(row=cont, column=10).value = out_quantity
         ws.cell(row=cont, column=10).number_format = '#.00000'
         ws.cell(row=cont, column=10).border = thin_border
         ws.cell(row=cont, column=11).value = ""
         ws.cell(row=cont, column=11).number_format = '#.00000'
         ws.cell(row=cont, column=11).border = thin_border
-        ws.cell(row=cont, column=12).value = valor_salida
+        ws.cell(row=cont, column=12).value = out_amount
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
         ws.cell(row=cont, column=13).value = ""
@@ -1596,7 +1596,7 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
@@ -1636,7 +1636,7 @@ class ReporteKardexExcel():
 
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
         except AttributeError:
             cant_saldo_inicial = 0
         cont = cont + 1
@@ -1659,14 +1659,14 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
@@ -1674,24 +1674,24 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=4).border = thin_border
             ws.cell(row=cont, column=5).value = kardex.movimiento.numero
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
-            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=8).value = kardex.out_quantity
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = kardex.cantidad_total
+            ws.cell(row=cont, column=9).value = kardex.total_quantity
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
         cont = cont + 1
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
-        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).value = in_quantity
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
-        ws.cell(row=cont, column=8).value = cantidad_salida
+        ws.cell(row=cont, column=8).value = out_quantity
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
         ws.cell(row=cont, column=9).value = ""
@@ -1751,7 +1751,7 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.sunat_code + " - " + producto.tipo_existencia.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
@@ -1819,8 +1819,8 @@ class ReporteKardexExcel():
         ws.cell(row=cont - 1, column=15).border = thin_border
         try:
             kardex_inicial = kardex_inicial_de(self, producto, almacen, desde)
-            cant_saldo_inicial = kardex_inicial.cantidad_total
-            valor_saldo_inicial = kardex_inicial.valor_total
+            cant_saldo_inicial = kardex_inicial.total_quantity
+            valor_saldo_inicial = kardex_inicial.total_amount
         except AttributeError:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
@@ -1865,14 +1865,14 @@ class ReporteKardexExcel():
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
-        listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+        listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
+                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
@@ -1880,55 +1880,55 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=4).border = thin_border
             ws.cell(row=cont, column=5).value = kardex.movimiento.numero
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.codigo_sunat
+            ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
-            ws.cell(row=cont, column=7).value = kardex.cantidad_ingreso
+            ws.cell(row=cont, column=7).value = kardex.in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = kardex.precio_ingreso
+            ws.cell(row=cont, column=8).value = kardex.in_price
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = kardex.valor_ingreso
+            ws.cell(row=cont, column=9).value = kardex.in_amount
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
-            ws.cell(row=cont, column=10).value = kardex.cantidad_salida
+            ws.cell(row=cont, column=10).value = kardex.out_quantity
             ws.cell(row=cont, column=10).number_format = '#.00000'
             ws.cell(row=cont, column=10).border = thin_border
-            ws.cell(row=cont, column=11).value = kardex.precio_salida
+            ws.cell(row=cont, column=11).value = kardex.out_price
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=11).border = thin_border
-            ws.cell(row=cont, column=12).value = kardex.valor_salida
+            ws.cell(row=cont, column=12).value = kardex.out_amount
             ws.cell(row=cont, column=12).number_format = '#.00000'
             ws.cell(row=cont, column=12).border = thin_border
-            ws.cell(row=cont, column=13).value = kardex.cantidad_total
+            ws.cell(row=cont, column=13).value = kardex.total_quantity
             ws.cell(row=cont, column=13).number_format = '#.00000'
             ws.cell(row=cont, column=13).border = thin_border
-            ws.cell(row=cont, column=14).value = kardex.precio_total
+            ws.cell(row=cont, column=14).value = kardex.total_price
             ws.cell(row=cont, column=14).number_format = '#.00000'
             ws.cell(row=cont, column=14).border = thin_border
-            ws.cell(row=cont, column=15).value = kardex.valor_total
+            ws.cell(row=cont, column=15).value = kardex.total_amount
             ws.cell(row=cont, column=15).number_format = '#.00000'
             ws.cell(row=cont, column=15).border = thin_border
         cont = cont + 1
 
         ws.cell(row=cont, column=6).value = "TOTALES"
         ws.cell(row=cont, column=6).border = thin_border
-        ws.cell(row=cont, column=7).value = cantidad_ingreso
+        ws.cell(row=cont, column=7).value = in_quantity
         ws.cell(row=cont, column=7).number_format = '#.00000'
         ws.cell(row=cont, column=7).border = thin_border
         ws.cell(row=cont, column=8).value = ""
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = valor_ingreso
+        ws.cell(row=cont, column=9).value = in_amount
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
-        ws.cell(row=cont, column=10).value = cantidad_salida
+        ws.cell(row=cont, column=10).value = out_quantity
         ws.cell(row=cont, column=10).number_format = '#.00000'
         ws.cell(row=cont, column=10).border = thin_border
         ws.cell(row=cont, column=11).value = ""
         ws.cell(row=cont, column=11).number_format = '#.00000'
         ws.cell(row=cont, column=11).border = thin_border
-        ws.cell(row=cont, column=12).value = valor_salida
+        ws.cell(row=cont, column=12).value = out_amount
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
         ws.cell(row=cont, column=13).value = ""
@@ -2020,8 +2020,8 @@ class ReporteKardexExcel():
                 kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
                                                        almacen=almacen,
                                                        operation_date__lt=desde).latest('operation_date')
-                cant_saldo_inicial = kardex_inicial.cantidad_total
-                valor_saldo_inicial = kardex_inicial.valor_total
+                cant_saldo_inicial = kardex_inicial.total_quantity
+                valor_saldo_inicial = kardex_inicial.total_amount
             except Kardex.DoesNotExist:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
@@ -2031,26 +2031,26 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=6).value = valor_saldo_inicial
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
                 self, grupo, almacen, desde, hasta, por_grupo=True)
-            cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
-            valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
-            ws.cell(row=cont, column=7).value = cantidad_ingreso
+            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
+            total_amount = valor_saldo_inicial + in_amount - out_amount
+            ws.cell(row=cont, column=7).value = in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = valor_ingreso
+            ws.cell(row=cont, column=8).value = in_amount
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = cantidad_salida
+            ws.cell(row=cont, column=9).value = out_quantity
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
-            ws.cell(row=cont, column=10).value = valor_salida
+            ws.cell(row=cont, column=10).value = out_amount
             ws.cell(row=cont, column=10).number_format = '#.00000'
             ws.cell(row=cont, column=10).border = thin_border
-            ws.cell(row=cont, column=11).value = cantidad_total
+            ws.cell(row=cont, column=11).value = total_quantity
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=11).border = thin_border
-            ws.cell(row=cont, column=12).value = valor_total
+            ws.cell(row=cont, column=12).value = total_amount
             ws.cell(row=cont, column=12).number_format = '#.00000'
             ws.cell(row=cont, column=12).border = thin_border
             cont += 1
@@ -2108,8 +2108,8 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=3).border = thin_border
             try:
                 kardex_inicial = iniciales.get(producto.pk)
-                cant_saldo_inicial = kardex_inicial.cantidad_total
-                valor_saldo_inicial = kardex_inicial.valor_total
+                cant_saldo_inicial = kardex_inicial.total_quantity
+                valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
@@ -2119,26 +2119,26 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=5).value = valor_saldo_inicial
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
                 self, producto, almacen, desde, hasta)
-            cantidad_total = cant_saldo_inicial + cantidad_ingreso - cantidad_salida
-            valor_total = valor_saldo_inicial + valor_ingreso - valor_salida
-            ws.cell(row=cont, column=6).value = cantidad_ingreso
+            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
+            total_amount = valor_saldo_inicial + in_amount - out_amount
+            ws.cell(row=cont, column=6).value = in_quantity
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
-            ws.cell(row=cont, column=7).value = valor_ingreso
+            ws.cell(row=cont, column=7).value = in_amount
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
-            ws.cell(row=cont, column=8).value = cantidad_salida
+            ws.cell(row=cont, column=8).value = out_quantity
             ws.cell(row=cont, column=8).number_format = '#.00000'
             ws.cell(row=cont, column=8).border = thin_border
-            ws.cell(row=cont, column=9).value = valor_salida
+            ws.cell(row=cont, column=9).value = out_amount
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=9).border = thin_border
-            ws.cell(row=cont, column=10).value = cantidad_total
+            ws.cell(row=cont, column=10).value = total_quantity
             ws.cell(row=cont, column=10).number_format = '#.00000'
             ws.cell(row=cont, column=10).border = thin_border
-            ws.cell(row=cont, column=11).value = valor_total
+            ws.cell(row=cont, column=11).value = total_amount
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=11).border = thin_border
             cont += 1
@@ -2182,8 +2182,8 @@ class ReporteKardexExcel():
             cont += 1
             try:
                 kardex_inicial = ultimos.get(producto.pk)
-                cant_saldo_inicial = kardex_inicial.cantidad_total
-                valor_saldo_inicial = kardex_inicial.valor_total
+                cant_saldo_inicial = kardex_inicial.total_quantity
+                valor_saldo_inicial = kardex_inicial.total_amount
             except AttributeError:
                 cant_saldo_inicial = 0
                 valor_saldo_inicial = 0
@@ -2196,7 +2196,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=13).value = valor_saldo_inicial
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
-            listado_kardex, cantidad_ingreso, valor_ingreso, cantidad_salida, valor_salida = kardex_del_periodo(
+            listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_del_periodo(
                 self, producto, almacen, desde, hasta)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
@@ -2204,30 +2204,30 @@ class ReporteKardexExcel():
                     ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                     ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
                     ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
-                    ws.cell(row=cont, column=5).value = kardex.cantidad_ingreso
-                    ws.cell(row=cont, column=6).value = kardex.precio_ingreso
+                    ws.cell(row=cont, column=5).value = kardex.in_quantity
+                    ws.cell(row=cont, column=6).value = kardex.in_price
                     ws.cell(row=cont, column=6).number_format = '#.00000'
-                    ws.cell(row=cont, column=7).value = kardex.valor_ingreso
+                    ws.cell(row=cont, column=7).value = kardex.in_amount
                     ws.cell(row=cont, column=7).number_format = '#.00000'
-                    ws.cell(row=cont, column=8).value = kardex.cantidad_salida
-                    ws.cell(row=cont, column=9).value = kardex.precio_salida
+                    ws.cell(row=cont, column=8).value = kardex.out_quantity
+                    ws.cell(row=cont, column=9).value = kardex.out_price
                     ws.cell(row=cont, column=9).number_format = '#.00000'
-                    ws.cell(row=cont, column=10).value = kardex.valor_salida
+                    ws.cell(row=cont, column=10).value = kardex.out_amount
                     ws.cell(row=cont, column=10).number_format = '#.00000'
-                    ws.cell(row=cont, column=11).value = kardex.cantidad_total
-                    ws.cell(row=cont, column=12).value = kardex.precio_total
+                    ws.cell(row=cont, column=11).value = kardex.total_quantity
+                    ws.cell(row=cont, column=12).value = kardex.total_price
                     ws.cell(row=cont, column=12).number_format = '#.00000'
-                    ws.cell(row=cont, column=13).value = kardex.valor_total
+                    ws.cell(row=cont, column=13).value = kardex.total_amount
                     ws.cell(row=cont, column=13).number_format = '#.00000'
                     cont += 1
-                ws.cell(row=cont, column=5).value = cantidad_ingreso
-                ws.cell(row=cont, column=7).value = valor_ingreso
+                ws.cell(row=cont, column=5).value = in_quantity
+                ws.cell(row=cont, column=7).value = in_amount
                 ws.cell(row=cont, column=7).number_format = '#.00000'
-                ws.cell(row=cont, column=8).value = cantidad_salida
-                ws.cell(row=cont, column=10).value = valor_salida
+                ws.cell(row=cont, column=8).value = out_quantity
+                ws.cell(row=cont, column=10).value = out_amount
                 ws.cell(row=cont, column=10).number_format = '#.00000'
-                ws.cell(row=cont, column=11).value = kardex.cantidad_total
-                ws.cell(row=cont, column=13).value = kardex.valor_total
+                ws.cell(row=cont, column=11).value = kardex.total_quantity
+                ws.cell(row=cont, column=13).value = kardex.total_amount
                 ws.cell(row=cont, column=13).number_format = '#.00000'
                 cont += 2
             else:
@@ -2354,10 +2354,10 @@ def reporte_inventario(desde):
                     code = kardex.producto.code
                     description = kardex.producto.description
                     unidad_medida = kardex.producto.unidad_medida.description
-                    stock = kardex.cantidad_total
-                    price = kardex.precio_total
-                    amount = kardex.valor_total
-                    detalle = kardex.nro_detalle_movimiento
+                    stock = kardex.total_quantity
+                    price = kardex.total_price
+                    amount = kardex.total_amount
+                    detalle = kardex.movement_line_number
                     sum_valor += amount
 
                 except (Kardex.DoesNotExist, AttributeError):

@@ -26,7 +26,7 @@ class Tablero(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         cant_cuentas_contables = CuentaContable.objects.count()
-        tipo_documento, creado = TipoDocumento.objects.get_or_create(codigo_sunat='PEC',
+        tipo_documento, creado = TipoDocumento.objects.get_or_create(sunat_code='PEC',
                                                                      defaults={'description': 'PECOSA',
                                                                                'name': 'PECOSA'})
         if creado:
@@ -53,7 +53,7 @@ class CargarTiposExistencias(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:tipos_existencias')
 
     def procesar_fila(self, fila):
-        TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
+        TipoExistencia.objects.get_or_create(sunat_code=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
@@ -63,7 +63,7 @@ class CargarTiposDocumentos(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:tipos_documentos')
 
     def procesar_fila(self, fila):
-        TipoDocumento.objects.create(codigo_sunat=fila[0],
+        TipoDocumento.objects.create(sunat_code=fila[0],
                                      name=fila[1],
                                      description=fila[1])
 
@@ -224,7 +224,7 @@ class EliminarTipoDocumento(TemplateView):
             id = request.POST['id']
             tipo_documento = TipoDocumento.objects.get(pk=id)
             tipo_documento_json = {}
-            tipo_documento_json['codigo_sunat'] = tipo_documento.codigo_sunat
+            tipo_documento_json['sunat_code'] = tipo_documento.sunat_code
             tipo_documento_json['name'] = tipo_documento.name
             if len(tipo_documento.movements.all()) > 0:
                 tipo_documento_json['relaciones'] = 'SI'
@@ -274,7 +274,7 @@ class ListadoTiposExistencias(ListView):
     model = TipoExistencia
     template_name = 'contabilidad/tipos_existencias.html'
     context_object_name = 'tipos_existencias'
-    queryset = TipoExistencia.objects.all().order_by('codigo_sunat')
+    queryset = TipoExistencia.objects.all().order_by('sunat_code')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_tipos_existencias'))
@@ -465,7 +465,7 @@ class ReporteExcelFormasPago(TemplateView):
 class ReporteExcelTiposDocumentos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = TipoDocumento.objects.all().order_by('codigo_sunat')
+        tipos = TipoDocumento.objects.all().order_by('sunat_code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE DOCUMENTOS'
@@ -475,7 +475,7 @@ class ReporteExcelTiposDocumentos(TemplateView):
         ws['D3'] = 'DESCRIPCIÓN'
         cont = 4
         for tipo in tipos:
-            ws.cell(row=cont, column=2).value = tipo.codigo_sunat
+            ws.cell(row=cont, column=2).value = tipo.sunat_code
             ws.cell(row=cont, column=3).value = tipo.name
             ws.cell(row=cont, column=4).value = tipo.description
             cont = cont + 1
