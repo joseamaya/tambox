@@ -1,6 +1,6 @@
 from django import forms
-from contabilidad.models import TipoDocumento, CuentaContable, Upload, \
-    Impuesto, Configuracion, FormaPago, TipoCambio
+from contabilidad.models import DocumentType, Account, Upload, \
+    Tax, Configuration, PaymentMethod, ExchangeRate
 
 
 class FormaPagoForm(forms.ModelForm):
@@ -18,7 +18,7 @@ class FormaPagoForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({'class': 'form-control'})
 
     class Meta:
-        model = FormaPago
+        model = PaymentMethod
         fields = ['code', 'description', 'credit_days']
 
 
@@ -30,7 +30,7 @@ class UploadForm(forms.ModelForm):
 
 class TipoCambioForm(forms.ModelForm):
     class Meta:
-        model = TipoCambio
+        model = ExchangeRate
         fields = ['amount', 'date']
 
     def __init__(self, *args, **kwargs):
@@ -44,7 +44,7 @@ class TipoCambioForm(forms.ModelForm):
 
 class TipoDocumentoForm(forms.ModelForm):
     class Meta:
-        model = TipoDocumento
+        model = DocumentType
         fields = ['sunat_code', 'name', 'description']
 
     def __init__(self, *args, **kwargs):
@@ -57,7 +57,7 @@ class TipoDocumentoForm(forms.ModelForm):
 
 class ImpuestoForm(forms.ModelForm):
     class Meta:
-        model = Impuesto
+        model = Tax
         fields = ['abbreviation', 'description', 'amount', 'start_date', 'end_date']
 
     def __init__(self, *args, **kwargs):
@@ -71,7 +71,7 @@ class ImpuestoForm(forms.ModelForm):
 
 class ConfiguracionForm(forms.ModelForm):
     class Meta:
-        model = Configuracion
+        model = Configuration
         fields = ['purchase_tax', 'operaciones', 'administracion', 'presupuesto', 'logistica']
 
     def __init__(self, *args, **kwargs):
@@ -80,12 +80,12 @@ class ConfiguracionForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
-        self.fields['purchase_tax'].queryset = Impuesto.objects.exclude(end_date__isnull=False)
+        self.fields['purchase_tax'].queryset = Tax.objects.exclude(end_date__isnull=False)
 
 
 class CuentaContableForm(forms.ModelForm):
     class Meta:
-        model = CuentaContable
+        model = Account
         fields = ['account_number', 'description', 'is_divisional', 'depreciation']
 
     def __init__(self, *args, **kwargs):

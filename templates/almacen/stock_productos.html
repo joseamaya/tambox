@@ -37,7 +37,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label for="code">Codigo de Producto: </label>
+                        <label for="code">Codigo de Product: </label>
                         {% if form.product.errors %}
                         {% for error in form.product.errors %}
                         {% include "includes/error.html" %}
@@ -46,7 +46,7 @@
                         {{ form.product }}
                     </div>
                     <div class="col-md-9">
-                        <label for="description">Descripcion de Producto: </label>
+                        <label for="description">Descripcion de Product: </label>
                         {% if form.description.errors %}
                         {% for error in form.description.errors %}
                         {% include "includes/error.html" %}

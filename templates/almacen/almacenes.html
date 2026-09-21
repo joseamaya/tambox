@@ -3,7 +3,7 @@
 <h3>Almacenes</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_almacen %}
+        {% if perms.almacen.add_warehouse %}
         <a href="{% url 'almacen:crear_almacen' %}" class="btn btn-primary">
             Crear
         </a>
@@ -93,12 +93,12 @@ $(document).ready(function()
 	   		{
 	   			if(data.relaciones=='NO')
 	   			{
-	   				alert("Almacen "+data.description+ " eliminado");
+	   				alert("Warehouse "+data.description+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Almacen "+data.description+" no puede eliminarse");	
+	   				alert("Warehouse "+data.description+" no puede eliminarse");	
 	   			}    			
 	   		}
 	   	});

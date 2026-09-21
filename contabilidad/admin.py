@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*- 
 from django.contrib import admin
-from contabilidad.models import Empresa, TipoExistencia
+from contabilidad.models import Company, StockType
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 
 class EmpresaResource(resources.ModelResource):
     class Meta:
-        model = Empresa
+        model = Company
 
 
 class EmpresaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -18,7 +18,7 @@ class EmpresaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 class TipoExistenciaResource(resources.ModelResource):
     class Meta:
-        model = TipoExistencia
+        model = StockType
 
 
 class TipoExistenciaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -28,5 +28,5 @@ class TipoExistenciaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 
 # Register your models here.
-admin.site.register(Empresa, EmpresaAdmin)
-admin.site.register(TipoExistencia, TipoExistenciaAdmin)
+admin.site.register(Company, EmpresaAdmin)
+admin.site.register(StockType, TipoExistenciaAdmin)

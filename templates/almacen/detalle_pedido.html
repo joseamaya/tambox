@@ -12,7 +12,7 @@
         <a class="btn btn-primary" href="{% url 'almacen:modificar_pedido' object.pk %}">Editar</a>
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.almacen.delete_pedido %}
+        {% if perms.almacen.delete_order %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -54,7 +54,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Pedido"></div>
+<div id="dialog-confirm" title="Eliminar Order"></div>
 <div class="panel panel-primary">
     <div class="panel-body">
         {% csrf_token %}
@@ -68,7 +68,7 @@
                 <p>{{ object.requester }}</p>
             </div>
             <div class="col-md-6">
-                <label>Oficina:</label>
+                <label>Office:</label>
                 <p>{{ object.office }}</p>
             </div>
         </div>
@@ -157,7 +157,7 @@ $(document).ready(function()
 			success : function(data) 
 			{
 				removeLoading(mySpinner);
-				alert("Pedido " + data.code + " eliminado");	
+				alert("Order " + data.code + " eliminado");	
 				$(location).attr('href', "{% url 'almacen:pedidos' %}");
 			}
 		});

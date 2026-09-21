@@ -1,4 +1,4 @@
-<div id="dialog-confirm" title="Eliminar Oficina"></div>
+<div id="dialog-confirm" title="Eliminar Office"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
@@ -8,11 +8,11 @@
             <div class="col-lg-5 text-right">
                 <div class="btn-group">
                     <button class="btn btn-default" type="button"
-                            onclick="return abrir_modal('{% url 'administracion:detalle_oficina' object.anterior.pk %}','Oficina / {{ object.anterior.name }}');">
+                            onclick="return abrir_modal('{% url 'administracion:detalle_oficina' object.anterior.pk %}','Office / {{ object.anterior.name }}');">
                         <span class="glyphicon glyphicon-step-backward"></span>
                     </button>
                     <button class="btn btn-default" type="button"
-                            onclick="return abrir_modal('{% url 'administracion:detalle_oficina' object.siguiente.pk %}','Oficina / {{ object.siguiente.name }}');">
+                            onclick="return abrir_modal('{% url 'administracion:detalle_oficina' object.siguiente.pk %}','Office / {{ object.siguiente.name }}');">
                         <span class="glyphicon glyphicon-step-forward"></span>
                     </button>
                 </div>

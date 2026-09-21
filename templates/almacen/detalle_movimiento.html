@@ -3,7 +3,7 @@
 <h3>Movimientos / {{ object.movement_id }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.almacen.add_movimiento %}
+        {% if perms.almacen.add_movement %}
         {% if object.movement_type.increases %}
         <a href="{% url 'almacen:registrar_ingreso' %}" class="btn btn-primary">Crear</a>
         {% else %}
@@ -11,7 +11,7 @@
         {% endif %}
         {% endif %}
         <a class="btn btn-primary" href="{% url 'almacen:modificar_movimiento' object.pk %}">Editar</a>
-        {% if perms.almacen.delete_movimiento %}
+        {% if perms.almacen.delete_movement %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
     </div>
@@ -50,7 +50,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Producto"></div>
+<div id="dialog-confirm" title="Eliminar Product"></div>
 <div class="panel panel-primary">
     <div class="panel-body">
         <div class="row">
@@ -73,11 +73,11 @@
         </div>
         <div class="row">
             <div class="col-md-3">
-                <label>Tipo de Ingreso:</label>
+                <label>Type de Ingreso:</label>
                 <p>{{ object.movement_type }}</p>
             </div>
             <div class="col-md-3">
-                <label>Almacen:</label>
+                <label>Warehouse:</label>
                 <p>{{ object.warehouse }}</p>
             </div>
             <div class="col-md-3">
@@ -91,7 +91,7 @@
         </div>
         <div class="row">
             <div class="col-md-3">
-                <label>Oficina a atender:</label>
+                <label>Office a atender:</label>
                 {% if object.office %}
                 <p><a href="{% url 'administracion:detalle_oficina' object.office.pk %}">{{ object.office }}</a></p>
                 {% else %}
@@ -156,7 +156,7 @@
                 {% endif %}
             </div>
             <div class="col-md-3">
-                <label>Pedido:</label>
+                <label>Order:</label>
                 {% if object.order %}
                 <p><a href="{% url 'almacen:order_detail' object.order.pk %}">{{ object.order }}</a></p>
                 {% else %}
@@ -170,8 +170,8 @@
                 <table id="detalles" class="table table-striped table-bordered table-hover">
                     <thead>
                     <tr>
-                        <th>ID Producto</th>
-                        <th>Producto</th>
+                        <th>ID Product</th>
+                        <th>Product</th>
                         <th>Unidad</th>
                         <th>Cantidad</th>
                         <th>Precio</th>
@@ -246,7 +246,7 @@ $(document).ready(function()
 			success : function(data)
 			{
 				removeLoading(mySpinner);
-				alert("Movimiento " + data.movement_id + " eliminado");
+				alert("Movement " + data.movement_id + " eliminado");
 				$(location).attr('href', "{% url 'almacen:movimientos' %}");
 			},
 			error: function (request, status, error)

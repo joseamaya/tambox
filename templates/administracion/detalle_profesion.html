@@ -3,12 +3,12 @@
 <h3>Profesiones / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_profesion %}
+        {% if perms.administracion.change_profession %}
         <a class="btn btn-primary" href="{% url 'administracion:modificar_profesion' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.administracion.delete_profesion %}
+        {% if perms.administracion.delete_profession %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

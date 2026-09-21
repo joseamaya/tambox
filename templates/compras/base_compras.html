@@ -23,16 +23,16 @@
             <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.compras.add_cotizacion %}
+                    {% if perms.compras.add_quotation %}
                     <li><a href="{% url 'compras:crear_cotizacion' %}">Solicitud de Cotización</a></li>
                     {% endif %}
-                    {% if perms.compras.add_ordencompra %}
+                    {% if perms.compras.add_purchaseorder %}
                     <li><a href="{% url 'compras:crear_orden_compra' %}">Orden de Compra</a></li>
                     {% endif %}
-                    {% if perms.compras.add_ordenservicios %}
+                    {% if perms.compras.add_serviceorder %}
                     <li><a href="{% url 'compras:crear_orden_servicios' %}">Orden de Servicio</a></li>
                     {% endif %}
-                    {% if perms.compras.add_conformidadservicio %}
+                    {% if perms.compras.add_serviceconformity %}
                     <li><a href="{% url 'compras:crear_conformidad_servicio' %}">Conformidad Servicios</a></li>
                     {% endif %}
                 </ul>

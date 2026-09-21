@@ -11,8 +11,8 @@ class DetalleCotizacionManager(models.Manager):
             self.guardar_detalles_sin_referencia(objs, order)
 
     def guardar_detalle_orden_servicio(self, order, detalle):
-        from compras.models import DetalleOrdenServicios
-        service_order_detail = DetalleOrdenServicios(order=order,
+        from compras.models import ServiceOrderDetail
+        service_order_detail = ServiceOrderDetail(order=order,
                                                         quotation_detail=detalle,
                                                         line_number=detalle.line_number,
                                                         quantity=detalle.quantity,
@@ -20,7 +20,7 @@ class DetalleCotizacionManager(models.Manager):
         return service_order_detail
 
     def guardar_detalles_con_referencia(self, objs, requirement, order):
-        from compras.models import DetalleOrdenServicios
+        from compras.models import ServiceOrderDetail
         detalles = []
         for detalle in objs:
             requirement_detail = detalle.requirement_detail
@@ -34,7 +34,7 @@ class DetalleCotizacionManager(models.Manager):
         requirement.establecer_estado_cotizado()
         requirement.save()
         if order is not None:
-            DetalleOrdenServicios.objects.bulk_create(detalles, order.quotation)
+            ServiceOrderDetail.objects.bulk_create(detalles, order.quotation)
 
     def guardar_detalles_sin_referencia(self, objs, order):
         for detalle in objs:

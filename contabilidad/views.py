@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from contabilidad.models import CuentaContable, TipoDocumento, Impuesto, \
-    Configuracion, FormaPago, Empresa, TipoExistencia, TipoCambio
+from contabilidad.models import Account, DocumentType, Tax, \
+    Configuration, PaymentMethod, Company, StockType, ExchangeRate
 from django.views.generic.base import View, TemplateView
 from contabilidad.forms import TipoDocumentoForm, CuentaContableForm, \
     ImpuestoForm, ConfiguracionForm, FormaPagoForm, TipoCambioForm
@@ -25,8 +25,8 @@ class Tablero(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_cuentas_contables = CuentaContable.objects.count()
-        document_type, creado = TipoDocumento.objects.get_or_create(sunat_code='PEC',
+        cant_cuentas_contables = Account.objects.count()
+        document_type, creado = DocumentType.objects.get_or_create(sunat_code='PEC',
                                                                      defaults={'description': 'PECOSA',
                                                                                'name': 'PECOSA'})
         if creado:
@@ -43,7 +43,7 @@ class CargarCuentasContables(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:cuentas_contables')
 
     def procesar_fila(self, fila):
-        CuentaContable.objects.get_or_create(account_number=fila[0].strip(),
+        Account.objects.get_or_create(account_number=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
@@ -53,7 +53,7 @@ class CargarTiposExistencias(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:tipos_existencias')
 
     def procesar_fila(self, fila):
-        TipoExistencia.objects.get_or_create(sunat_code=fila[0].strip(),
+        StockType.objects.get_or_create(sunat_code=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
@@ -63,17 +63,17 @@ class CargarTiposDocumentos(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:tipos_documentos')
 
     def procesar_fila(self, fila):
-        TipoDocumento.objects.create(sunat_code=fila[0],
+        DocumentType.objects.create(sunat_code=fila[0],
                                      name=fila[1],
                                      description=fila[1])
 
 
 class CrearFormaPago(CreateView):
-    model = FormaPago
+    model = PaymentMethod
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(requiere('contabilidad.add_formapago'))
+    @method_decorator(requiere('contabilidad.add_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(CrearFormaPago, self).dispatch(*args, **kwargs)
 
@@ -82,11 +82,11 @@ class CrearFormaPago(CreateView):
 
 
 class CrearTipoDocumento(CreateView):
-    model = TipoDocumento
+    model = DocumentType
     template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm
 
-    @method_decorator(requiere('contabilidad.add_tipodocumento'))
+    @method_decorator(requiere('contabilidad.add_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoDocumento, self).dispatch(*args, **kwargs)
 
@@ -95,11 +95,11 @@ class CrearTipoDocumento(CreateView):
 
 
 class CrearTipoCambio(CreateView):
-    model = TipoCambio
+    model = ExchangeRate
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = TipoCambioForm
 
-    @method_decorator(requiere('contabilidad.add_tipocambio'))
+    @method_decorator(requiere('contabilidad.add_exchangerate'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoCambio, self).dispatch(*args, **kwargs)
 
@@ -108,12 +108,12 @@ class CrearTipoCambio(CreateView):
 
 
 class CrearCuentaContable(CreateView):
-    model = CuentaContable
+    model = Account
     template_name = 'contabilidad/cuenta_contable.html'
     form_class = CuentaContableForm
 
     @method_decorator(
-        requiere('contabilidad.add_cuentacontable'))
+        requiere('contabilidad.add_account'))
     def dispatch(self, *args, **kwargs):
         return super(CrearCuentaContable, self).dispatch(*args, **kwargs)
 
@@ -122,11 +122,11 @@ class CrearCuentaContable(CreateView):
 
 
 class CrearImpuesto(CreateView):
-    model = Impuesto
+    model = Tax
     template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
 
-    @method_decorator(requiere('contabilidad.add_impuesto'))
+    @method_decorator(requiere('contabilidad.add_tax'))
     def dispatch(self, *args, **kwargs):
         return super(CrearImpuesto, self).dispatch(*args, **kwargs)
 
@@ -135,17 +135,17 @@ class CrearImpuesto(CreateView):
 
 
 class CrearConfiguracion(CreateView):
-    model = Configuracion
+    model = Configuration
     template_name = 'contabilidad/configuracion.html'
     form_class = ConfiguracionForm
 
-    @method_decorator(requiere('contabilidad.add_configuracion'))
+    @method_decorator(requiere('contabilidad.add_configuration'))
     def dispatch(self, *args, **kwargs):
         return super(CrearConfiguracion, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        configuracion = Configuracion.objects.first()
+        configuracion = Configuration.objects.first()
         if configuracion is None:
             return super(BaseCreateView, self).get(request, *args, **kwargs)
         else:
@@ -156,46 +156,46 @@ class CrearConfiguracion(CreateView):
 
 
 class DetalleTipoCambio(DetailView):
-    model = TipoCambio
+    model = ExchangeRate
     template_name = 'contabilidad/detalle_tipo_cambio.html'
 
 
 class DetalleTipoDocumento(DetailView):
-    model = TipoDocumento
+    model = DocumentType
     template_name = 'contabilidad/detalle_tipo_documento.html'
 
 
 class DetalleCuentaContable(DetailView):
-    model = CuentaContable
+    model = Account
     template_name = 'contabilidad/detalle_cuenta_contable.html'
 
 
 class DetalleImpuesto(DetailView):
-    model = Impuesto
+    model = Tax
     template_name = 'contabilidad/detalle_impuesto.html'
 
 
 class DetalleEmpresa(DetailView):
-    model = Empresa
+    model = Company
     template_name = 'contabilidad/detalle_empresa.html'
 
 
 class DetalleFormaPago(DetailView):
-    model = FormaPago
+    model = PaymentMethod
     template_name = 'contabilidad/detalle_forma_pago.html'
 
 
 class EliminarFormaPago(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('contabilidad.delete_formapago'))
+    @method_decorator(requiere('contabilidad.delete_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarFormaPago, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            payment_method = FormaPago.objects.get(pk=code)
+            payment_method = PaymentMethod.objects.get(pk=code)
             forma_pago_json = {}
             forma_pago_json['code'] = payment_method.code
             forma_pago_json['description'] = payment_method.description
@@ -207,7 +207,7 @@ class EliminarFormaPago(TemplateView):
                 forma_pago_json['relaciones'] = 'SI'
             else:
                 forma_pago_json['relaciones'] = 'NO'
-                FormaPago.objects.filter(pk=code).update(is_active=False)
+                PaymentMethod.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(forma_pago_json)
             return HttpResponse(data, 'application/json')
 
@@ -215,14 +215,14 @@ class EliminarFormaPago(TemplateView):
 class EliminarTipoDocumento(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('contabilidad.delete_tipodocumento'))
+    @method_decorator(requiere('contabilidad.delete_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarTipoDocumento, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
-            document_type = TipoDocumento.objects.get(pk=id)
+            document_type = DocumentType.objects.get(pk=id)
             tipo_documento_json = {}
             tipo_documento_json['sunat_code'] = document_type.sunat_code
             tipo_documento_json['name'] = document_type.name
@@ -230,16 +230,16 @@ class EliminarTipoDocumento(TemplateView):
                 tipo_documento_json['relaciones'] = 'SI'
             else:
                 tipo_documento_json['relaciones'] = 'NO'
-                TipoDocumento.objects.filter(pk=id).update(is_active=False)
+                DocumentType.objects.filter(pk=id).update(is_active=False)
             data = simplejson.dumps(tipo_documento_json)
             return HttpResponse(data, 'application/json')
 
 
 class ListadoTiposDocumentos(ListView):
-    model = TipoDocumento
+    model = DocumentType
     template_name = 'contabilidad/tipos_documento.html'
     context_object_name = 'tipos'
-    queryset = TipoDocumento.objects.filter(is_active=True).order_by('name')
+    queryset = DocumentType.objects.filter(is_active=True).order_by('name')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_tipos_documentos'))
@@ -248,7 +248,7 @@ class ListadoTiposDocumentos(ListView):
 
 
 class ListadoTiposCambio(ListView):
-    model = TipoCambio
+    model = ExchangeRate
     template_name = 'contabilidad/tipos_cambio.html'
     context_object_name = 'tipos'
 
@@ -259,10 +259,10 @@ class ListadoTiposCambio(ListView):
 
 
 class ListadoCuentasContables(ListView):
-    model = CuentaContable
+    model = Account
     template_name = 'contabilidad/cuentas_contables.html'
     context_object_name = 'cuentas_contables'
-    queryset = CuentaContable.objects.all().order_by('account_number')
+    queryset = Account.objects.all().order_by('account_number')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_cuentas_contables'))
@@ -271,10 +271,10 @@ class ListadoCuentasContables(ListView):
 
 
 class ListadoTiposExistencias(ListView):
-    model = TipoExistencia
+    model = StockType
     template_name = 'contabilidad/tipos_existencias.html'
     context_object_name = 'tipos_existencias'
-    queryset = TipoExistencia.objects.all().order_by('sunat_code')
+    queryset = StockType.objects.all().order_by('sunat_code')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_tipos_existencias'))
@@ -283,11 +283,11 @@ class ListadoTiposExistencias(ListView):
 
 
 class ListadoFormasPago(ListView):
-    model = FormaPago
+    model = PaymentMethod
     template_name = 'contabilidad/formas_pago.html'
     context_object_name = 'formas_pago'
     paginate_by = 10
-    queryset = FormaPago.objects.order_by('code')
+    queryset = PaymentMethod.objects.order_by('code')
 
     @method_decorator(requiere('contabilidad.ver_tabla_formas_pago'))
     def dispatch(self, *args, **kwargs):
@@ -295,7 +295,7 @@ class ListadoFormasPago(ListView):
 
 
 class ListadoImpuestos(ListView):
-    model = Impuesto
+    model = Tax
     template_name = 'contabilidad/impuestos.html'
     context_object_name = 'impuestos'
 
@@ -306,11 +306,11 @@ class ListadoImpuestos(ListView):
 
 
 class ModificarFormaPago(UpdateView):
-    model = FormaPago
+    model = PaymentMethod
     template_name = 'contabilidad/forma_pago.html'
     form_class = FormaPagoForm
 
-    @method_decorator(requiere('contabilidad.change_formapago'))
+    @method_decorator(requiere('contabilidad.change_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarFormaPago, self).dispatch(*args, **kwargs)
 
@@ -319,11 +319,11 @@ class ModificarFormaPago(UpdateView):
 
 
 class ModificarTipoCambio(UpdateView):
-    model = TipoCambio
+    model = ExchangeRate
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = TipoCambioForm
 
-    @method_decorator(requiere('contabilidad.change_tipocambio'))
+    @method_decorator(requiere('contabilidad.change_exchangerate'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoCambio, self).dispatch(*args, **kwargs)
 
@@ -332,12 +332,12 @@ class ModificarTipoCambio(UpdateView):
 
 
 class ModificarTipoDocumento(UpdateView):
-    model = TipoDocumento
+    model = DocumentType
     template_name = 'contabilidad/tipo_documento.html'
     form_class = TipoDocumentoForm
 
     @method_decorator(
-        requiere('contabilidad.change_tipodocumento'))
+        requiere('contabilidad.change_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTipoDocumento, self).dispatch(*args, **kwargs)
 
@@ -346,12 +346,12 @@ class ModificarTipoDocumento(UpdateView):
 
 
 class ModificarCuentaContable(UpdateView):
-    model = CuentaContable
+    model = Account
     template_name = 'contabilidad/cuenta_contable.html'
     form_class = CuentaContableForm
 
     @method_decorator(
-        requiere('contabilidad.change_cuentacontable'))
+        requiere('contabilidad.change_account'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarCuentaContable, self).dispatch(*args, **kwargs)
 
@@ -360,12 +360,12 @@ class ModificarCuentaContable(UpdateView):
 
 
 class ModificarConfiguracion(UpdateView):
-    model = Configuracion
+    model = Configuration
     template_name = 'contabilidad/configuracion.html'
     form_class = ConfiguracionForm
 
     @method_decorator(
-        requiere('contabilidad.change_configuracion'))
+        requiere('contabilidad.change_configuration'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarConfiguracion, self).dispatch(*args, **kwargs)
 
@@ -374,11 +374,11 @@ class ModificarConfiguracion(UpdateView):
 
 
 class ModificarImpuesto(UpdateView):
-    model = Impuesto
+    model = Tax
     template_name = 'contabilidad/impuesto.html'
     form_class = ImpuestoForm
 
-    @method_decorator(requiere('contabilidad.change_impuesto'))
+    @method_decorator(requiere('contabilidad.change_tax'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarImpuesto, self).dispatch(*args, **kwargs)
 
@@ -405,8 +405,8 @@ class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
             dia = int(fecha_get[0:2])
             date = datetime.date(anio, month, dia)
             try:
-                tipo_cambio = TipoCambio.objects.get(date=date)
-            except TipoCambio.DoesNotExist:
+                tipo_cambio = ExchangeRate.objects.get(date=date)
+            except ExchangeRate.DoesNotExist:
                 tipo_cambio = {'date': fecha_get, 'amount': 0}
             data = simplejson.dumps(tipo_cambio)
             return HttpResponse(data, 'application/json')
@@ -415,7 +415,7 @@ class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
 class ReporteExcelCuentasContables(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        cuentas = CuentaContable.objects.all().order_by('account_number')
+        cuentas = Account.objects.all().order_by('account_number')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -440,7 +440,7 @@ class ReporteExcelCuentasContables(TemplateView):
 class ReporteExcelFormasPago(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        formas_pago = FormaPago.objects.all().order_by('code')
+        formas_pago = PaymentMethod.objects.all().order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE FORMAS DE PAGO'
@@ -465,7 +465,7 @@ class ReporteExcelFormasPago(TemplateView):
 class ReporteExcelTiposDocumentos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = TipoDocumento.objects.all().order_by('sunat_code')
+        tipos = DocumentType.objects.all().order_by('sunat_code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE DOCUMENTOS'

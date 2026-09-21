@@ -7,9 +7,9 @@ from reportlab.platypus import Table
 from reportlab.lib import colors
 from reportlab.lib.units import cm
 from reportlab.platypus.flowables import Spacer
-from requerimientos.models import DetalleRequerimiento
+from requerimientos.models import RequirementDetail
 from django.conf import settings
-from administracion.models import Puesto
+from administracion.models import Position
 import os
 from io import BytesIO
 from tambox.configuracion import empresa, logistica
@@ -77,7 +77,7 @@ class ReporteRequerimiento():
     def tabla_detalle(self):
         requirement = self.requirement
         encabezados = ['Nro', 'Cantidad', 'Unidad', u'Descripción', 'Uso']
-        detalles = DetalleRequerimiento.objects.filter(requirement=requirement)
+        detalles = RequirementDetail.objects.filter(requirement=requirement)
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -136,12 +136,12 @@ class ReporteRequerimiento():
 
     def obtener_puesto(self, office, requirement):
         try:
-            jefatura = Puesto.objects.get(office=office,
+            jefatura = Position.objects.get(office=office,
                                           is_leadership=True,
                                           start_date__lte=requirement.date,
                                           end_date=None)
-        except Puesto.DoesNotExist:
-            jefatura = Puesto.objects.get(office=office,
+        except Position.DoesNotExist:
+            jefatura = Position.objects.get(office=office,
                                           is_leadership=True,
                                           start_date__lte=requirement.date,
                                           end_date__gte=requirement.date)

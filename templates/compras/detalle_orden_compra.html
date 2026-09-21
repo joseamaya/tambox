@@ -3,16 +3,16 @@
 <h3>Órdenes de Compra / {{ object.code }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.compras.add_ordencompra %}
+        {% if perms.compras.add_purchaseorder %}
         <a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.change_ordencompra %}
+        {% if perms.compras.change_purchaseorder %}
         <a class="btn btn-primary" href="{% url 'compras:modificar_orden_compra' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.delete_ordencompra %}
+        {% if perms.compras.delete_purchaseorder %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -136,11 +136,11 @@
         </div>
         <div class="row">
             <div class="col-md-2">
-                <label>Impuesto:</label>
+                <label>Tax:</label>
                 {% if object.with_tax %}
-                <p>Impuesto Incluido</p>
+                <p>Tax Incluido</p>
                 {% else %}
-                <p>Sin Impuesto</p>
+                <p>Sin Tax</p>
                 {% endif %}
             </div>
             <div class="col-md-3">
@@ -158,12 +158,12 @@
                 <table id="detalles" class="table table-striped table-bordered table-hover">
                     <thead>
                     <tr>
-                        <th>ID Producto</th>
-                        <th>Producto</th>
+                        <th>ID Product</th>
+                        <th>Product</th>
                         <th>Unidad</th>
                         <th>Cantidad</th>
                         <th>Precio Unit.</th>
-                        <th>Impuesto</th>
+                        <th>Tax</th>
                         <th>Total</th>
                     </tr>
                     </thead>

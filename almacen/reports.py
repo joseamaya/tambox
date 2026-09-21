@@ -11,9 +11,9 @@ from reportlab.platypus.flowables import Spacer, PageBreak
 from django.conf import settings
 import os
 from io import BytesIO
-from almacen.models import DetalleMovimiento, Kardex
+from almacen.models import MovementDetail, Kardex
 from tambox.configuracion import empresa, oficina_administracion, logistica
-from productos.models import Producto, GrupoProductos
+from productos.models import Product, ProductGroup
 from openpyxl.styles import Alignment
 from openpyxl.styles import Border
 from openpyxl.styles import Font
@@ -148,7 +148,7 @@ class ReporteMovimiento():
     def tabla_detalle(self):
         movement = self.movement
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = DetalleMovimiento.objects.filter(movement=movement).order_by('pk')
+        detalles = MovementDetail.objects.filter(movement=movement).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -436,7 +436,7 @@ class ReporteKardexPDF():
         total_valor_total = 0
         self.total_paginas = int(math.ceil(productos.count() / 22.0))
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         for product in productos:
             try:
                 kardex_inicial = iniciales.get(product.pk)
@@ -536,11 +536,11 @@ class ReporteKardexPDF():
         total_cantidad_total = 0
         total_valor_total = 0
         self.total_paginas = int(math.ceil(grupos.count() / 22.0))
-        self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, warehouse, desde, hasta)
+        self.kardex_lote_grupos = ProductGroup.kardex_por_lote(grupos, warehouse, desde, hasta)
         for grupo in grupos:
             cant_saldo_inicial = 0
             valor_saldo_inicial = 0
-            productos = Producto.objects.filter(product_group=grupo)
+            productos = Product.objects.filter(product_group=grupo)
             iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
             for product in productos:
                 try:
@@ -876,10 +876,10 @@ class ReporteKardexPDF():
         elements = []
         productos_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
             'product').distinct()
-        productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
+        productos = Product.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         for product in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -932,7 +932,7 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos = Producto.objects.all().order_by('description')
+        productos = Product.objects.all().order_by('description')
         elements.append(self.tabla_detalle_consolidado_productos(productos))
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
@@ -1011,7 +1011,7 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        grupos = GrupoProductos.objects.filter(is_active=True,
+        grupos = ProductGroup.objects.filter(is_active=True,
                                                contains_products=True).order_by('description')
         elements.append(self.tabla_detalle_consolidado_grupo(grupos))
 
@@ -1040,10 +1040,10 @@ class ReporteKardexPDF():
         elements = []
         productos_kardex = Kardex.objects.exclude(in_quantity=0,
                                                   out_quantity=0).order_by().values('product').distinct()
-        productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
+        productos = Product.objects.filter(pk__in=productos_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         for product in productos:
             periodo = Paragraph("PERIODO: " + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1700,10 +1700,10 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_unidades_fisicas_todos(self, desde, hasta, warehouse):
-        productos = Producto.objects.all().order_by('description').select_related(
+        productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1943,10 +1943,10 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_valorizado_todos(self, desde, hasta, warehouse):
-        productos = Producto.objects.all().order_by('description').select_related(
+        productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1962,9 +1962,9 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_consolidado_grupos(self, desde, hasta, warehouse):
-        grupos = GrupoProductos.objects.filter(is_active=True,
+        grupos = ProductGroup.objects.filter(is_active=True,
                                                contains_products=True)
-        self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, warehouse, desde, hasta)
+        self.kardex_lote_grupos = ProductGroup.kardex_por_lote(grupos, warehouse, desde, hasta)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -2057,7 +2057,7 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_consolidado_productos(self, desde, hasta, warehouse):
-        productos = Producto.objects.all().order_by('description')
+        productos = Product.objects.all().order_by('description')
         wb = Workbook()
         thin_border = Border(left=Side(style='thin'),
                              right=Side(style='thin'),
@@ -2100,7 +2100,7 @@ class ReporteKardexExcel():
         ws['K3'].border = thin_border
         cont = 4
         iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote(productos, warehouse, desde, hasta)
+        self.kardex_lote = Product.kardex_por_lote(productos, warehouse, desde, hasta)
         for product in productos:
             ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=2).border = thin_border
@@ -2169,7 +2169,7 @@ class ReporteKardexExcel():
         cont = 4
         ultimos = Kardex.ultimos_por_producto([prod.product_id for prod in productos],
                                               antes_de=desde, warehouse=warehouse)
-        self.kardex_lote = Producto.kardex_por_lote([prod.product_id for prod in productos],
+        self.kardex_lote = Product.kardex_por_lote([prod.product_id for prod in productos],
                                                     warehouse, desde, hasta)
         for prod in productos:
             product = prod.product
@@ -2262,7 +2262,7 @@ class ReporteKardexExcel():
 
 def reporte_inventario(desde):
     """Construye el libro de Excel del reporte de inventario."""
-    product_group = GrupoProductos.objects.filter(is_active=True).select_related('account')
+    product_group = ProductGroup.objects.filter(is_active=True).select_related('account')
 
     wb = Workbook()
     ws = wb.active
@@ -2334,7 +2334,7 @@ def reporte_inventario(desde):
     resumen_inventario = []
     for grupo_producto in product_group:
 
-        productos = list(Producto.objects.filter(product_group=grupo_producto)
+        productos = list(Product.objects.filter(product_group=grupo_producto)
                          .select_related('unit_of_measure'))
         bandera = " "
         tempo_cuenta = ""

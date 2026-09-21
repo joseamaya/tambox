@@ -3,7 +3,7 @@
 <h3>Requerimientos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.requerimientos.add_requerimiento %}
+        {% if perms.requerimientos.add_requirement %}
         <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
         {% if perms.requerimientos.cargar_requerimientos %}

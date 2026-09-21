@@ -3,7 +3,7 @@
 <h3>Oficinas</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_oficina %}
+        {% if perms.administracion.add_office %}
         <a onclick="return abrir_modal('{% url 'administracion:crear_oficina' %}','Oficinas / Nuevo')"
            class="btn btn-primary">
             Crear
@@ -59,13 +59,13 @@
                         <span class="glyphicon glyphicon-eye-open"></span>
                     </a>
                     {% endif %}
-                    {% if perms.administracion.change_oficina %}
+                    {% if perms.administracion.change_office %}
                     <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
                     {% endif %}
-                    {% if perms.administracion.delete_oficina %}
+                    {% if perms.administracion.delete_office %}
                     <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-remove"></span>

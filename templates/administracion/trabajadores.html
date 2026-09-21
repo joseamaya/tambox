@@ -3,7 +3,7 @@
 <h3>Trabajadores</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_trabajador %}
+        {% if perms.administracion.add_worker %}
         <a href="{% url 'administracion:crear_trabajador' %}" class="btn btn-primary">
             Crear
         </a>
@@ -39,7 +39,7 @@
             <tbody>
             {% for worker in trabajadores %}
             {% if perms.administracion.ver_detalle_trabajador %}
-            <tr onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' worker.pk %}','Trabajador / {{ worker.first_name }} {{ worker.last_name }}')">
+            <tr onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' worker.pk %}','Worker / {{ worker.first_name }} {{ worker.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}

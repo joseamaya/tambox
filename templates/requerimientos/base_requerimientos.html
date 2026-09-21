@@ -3,8 +3,8 @@
             <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.requerimientos.add_requerimiento %}
-                    <li><a href="{% url 'requerimientos:crear_requerimiento' %}">Requerimiento</a></li>
+                    {% if perms.requerimientos.add_requirement %}
+                    <li><a href="{% url 'requerimientos:crear_requerimiento' %}">Requirement</a></li>
                     {% endif %}
                     {% if perms.requerimientos.ver_tabla_aprobacion_requerimientos %}
                     <li><a href="{% url 'requerimientos:listado_aprobacion_requerimientos' %}">Aprobación

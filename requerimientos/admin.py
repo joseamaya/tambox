@@ -1,17 +1,17 @@
 from django.contrib import admin
 
-from requerimientos.models import DetalleRequerimiento, Requerimiento, \
-    AprobacionRequerimiento
+from requerimientos.models import RequirementDetail, Requirement, \
+    RequirementApproval
 
 
 # Register your models here.
 class FilaDetalleRequerimientoAdmin(admin.TabularInline):
-    model = DetalleRequerimiento
+    model = RequirementDetail
 
 
 class DetallesRequerimientoAdmin(admin.ModelAdmin):
     inlines = [FilaDetalleRequerimientoAdmin]
 
 
-admin.site.register(Requerimiento, DetallesRequerimientoAdmin)
-admin.site.register(AprobacionRequerimiento)
+admin.site.register(Requirement, DetallesRequerimientoAdmin)
+admin.site.register(RequirementApproval)

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from productos.models import UnidadMedida, GrupoProductos, Producto
+from productos.models import UnitOfMeasure, ProductGroup, Product
 
 
 class UnidadMedidaForm(forms.ModelForm):
     class Meta:
-        model = UnidadMedida
+        model = UnitOfMeasure
         fields = ['code', 'sunat_code', 'description']
 
     def __init__(self, *args, **kwargs):
@@ -26,7 +26,7 @@ class GrupoProductosForm(forms.ModelForm):
             })
 
     class Meta:
-        model = GrupoProductos
+        model = ProductGroup
         fields = ['description', 'account', 'contains_products']
 
 
@@ -47,7 +47,7 @@ class ProductoForm(forms.ModelForm):
                 })
 
     class Meta:
-        model = Producto
+        model = Product
         fields = ['description', 'product_group', 'unit_of_measure', 'brand', 'model', 'price', 'stock_type']
 
 
@@ -65,5 +65,5 @@ class ServicioForm(forms.ModelForm):
         return super(ServicioForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Producto
+        model = Product
         fields = ['description', 'product_group', 'price']

@@ -14,8 +14,8 @@ from reportlab.pdfgen import canvas
 from django.conf import settings
 import os
 from io import BytesIO
-from administracion.models import Puesto
-from compras.models import DetalleOrdenCompra, DetalleOrdenServicios, DetalleConformidadServicio
+from administracion.models import Position
+from compras.models import PurchaseOrderDetail, ServiceOrderDetail, ServiceConformityDetail
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import force_str
 from tambox.configuracion import empresa, configuracion
@@ -104,7 +104,7 @@ class ReporteOrdenCompra():
     def tabla_detalle(self):
         order = self.orden_compra
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = DetalleOrdenCompra.objects.filter(order=order).order_by('pk')
+        detalles = PurchaseOrderDetail.objects.filter(order=order).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
@@ -507,7 +507,7 @@ def reporte_xls_orden_compra(order):
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['I30'] = 'TOTAL'
 
-    for item in DetalleOrdenCompra.objects.filter(order=order):
+    for item in PurchaseOrderDetail.objects.filter(order=order):
         fila = 31 + detalle_index
         ws['B' + str(fila)].alignment = Alignment(horizontal="center")
         ws['B' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -715,12 +715,12 @@ class PDFMemorandoConformidadServicio(object):
 
     def obtener_puesto(self, office, conformity):
         try:
-            puesto = Puesto.objects.get(office=office,
+            puesto = Position.objects.get(office=office,
                                         is_leadership=True,
                                         start_date__lte=conformity.date,
                                         end_date=None)
-        except Puesto.DoesNotExist:
-            puesto = Puesto.objects.get(office=office,
+        except Position.DoesNotExist:
+            puesto = Position.objects.get(office=office,
                                         is_leadership=True,
                                         start_date__lte=conformity.date,
                                         end_date__gte=conformity.date)
@@ -728,12 +728,12 @@ class PDFMemorandoConformidadServicio(object):
 
     def puesto_superior(self, office, conformity):
         try:
-            puesto_superior = Puesto.objects.get(office=office,
+            puesto_superior = Position.objects.get(office=office,
                                                  is_leadership=True,
                                                  start_date__lte=conformity.date,
                                                  end_date=None)
-        except Puesto.DoesNotExist:
-            puesto_superior = Puesto.objects.get(office=office,
+        except Position.DoesNotExist:
+            puesto_superior = Position.objects.get(office=office,
                                                  is_leadership=True,
                                                  start_date__lte=conformity.date,
                                                  end_date__gte=conformity.date)
@@ -809,7 +809,7 @@ class PDFMemorandoConformidadServicio(object):
         p.fontName = "Times-Roman"
         detalles = []
         cont = 0
-        for detalle in DetalleConformidadServicio.objects.filter(conformity=conformity):
+        for detalle in ServiceConformityDetail.objects.filter(conformity=conformity):
             description = detalle.service_order_detail.quotation_detail.requirement_detail.product.description + '-' + detalle.service_order_detail.quotation_detail.requirement_detail.use
             if len(description) > 58:
                 cont = cont + 1
@@ -906,7 +906,7 @@ class PDFOrdenServicios(object):
         detalles = []
         cont = 0
 
-        for detalle in DetalleOrdenServicios.objects.filter(order=order):
+        for detalle in ServiceOrderDetail.objects.filter(order=order):
             try:
                 description = detalle.quotation_detail.requirement_detail.product.description
                 if len(description) > 58:
@@ -920,7 +920,7 @@ class PDFOrdenServicios(object):
                 detalles.append(
                     (detalle.line_number, detalle.quantity, Paragraph(description, p), detalle.price, detalle.amount))
 
-        # detalles = [(detalle.line_number, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in DetalleOrdenServicios.objects.filter(order=order)]
+        # detalles = [(detalle.line_number, detalle.quantity, Paragraph(detalle.servicio.description+'-'+detalle.description,p), detalle.price,detalle.amount) for detalle in ServiceOrderDetail.objects.filter(order=order)]
         adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
@@ -1117,11 +1117,11 @@ class PDFOrdenCompra(object):
             detalles = [(detalle.line_number, detalle.quantity,
                          detalle.quotation_detail.requirement_detail.product.unit_of_measure.description,
                          detalle.quotation_detail.requirement_detail.product.description, detalle.price,
-                         round(detalle.amount, 5)) for detalle in DetalleOrdenCompra.objects.filter(order=order)]
+                         round(detalle.amount, 5)) for detalle in PurchaseOrderDetail.objects.filter(order=order)]
         except (ObjectDoesNotExist, AttributeError):
             detalles = [(detalle.line_number, detalle.quantity, detalle.product.unit_of_measure.description,
                          detalle.product.description, detalle.price, round(detalle.price, 5)) for detalle in
-                        DetalleOrdenCompra.objects.filter(order=order)]
+                        PurchaseOrderDetail.objects.filter(order=order)]
         adicionales = [('', '', '', '', '', '')] * (15 - len(detalles))
         detalle_orden = Table([encabezados] + detalles + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 2 * cm, 9.3 * cm, 2 * cm, 2.5 * cm])

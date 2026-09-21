@@ -3,10 +3,10 @@
 <h3>Productos / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.change_producto %}
+        {% if perms.productos.change_product %}
         <a class="btn btn-primary" href="{% url 'productos:modificar_producto' object.pk %}"> Editar </a>
         {% endif %}
-        {% if perms.productos.delete_producto %}
+        {% if perms.productos.delete_product %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -30,13 +30,13 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Producto"></div>
+<div id="dialog-confirm" title="Eliminar Product"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-2">
                 <a href="{{ object.image.url }}" class="thumbnail"> <img
-                        src="{{ object.image.url }}" alt="Imagen Producto"
+                        src="{{ object.image.url }}" alt="Imagen Product"
                         style="width: 120px; height: 90px">
                 </a>
             </div>
@@ -131,12 +131,12 @@ $(document).ready(function()
 			success : function(data) {
 				if (data.relaciones == 'NO') 
 				{
-					alert("Producto " + data.description + " eliminado");
+					alert("Product " + data.description + " eliminado");
 					$(location).attr('href', "{% url 'productos:detalle_producto' object.siguiente %}");
 				} 
 				else if (data.relaciones == 'SI') 
 				{
-					alert("Producto " + data.description + " no puede eliminarse");
+					alert("Product " + data.description + " no puede eliminarse");
 				}
 			}
 		});

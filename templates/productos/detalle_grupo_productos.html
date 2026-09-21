@@ -3,10 +3,10 @@
 <h3>Grupos de Productos / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.change_grupoproductos %} <a
+        {% if perms.productos.change_productgroup %} <a
             class="btn btn-primary"
             href="{% url 'productos:modificar_grupo_productos' object.pk %}">
-        Editar </a> {% endif %} {% if perms.productos.delete_grupoproductos %}
+        Editar </a> {% endif %} {% if perms.productos.delete_productgroup %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

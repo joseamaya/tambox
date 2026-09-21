@@ -14,19 +14,19 @@
             <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.almacen.add_movimiento %}
+                    {% if perms.almacen.add_movement %}
                     <li><a href="{% url 'almacen:cargar_inventario_inicial' %}">Cargar Inventario Inicial</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_pedido %}
-                    <li><a href="{% url 'almacen:crear_pedido' %}">Crear Pedido</a></li>
+                    {% if perms.almacen.add_order %}
+                    <li><a href="{% url 'almacen:crear_pedido' %}">Crear Order</a></li>
                     {% endif %}
                     {% if perms.almacen.ver_tabla_aprobacion_pedidos %}
                     <li><a href="{% url 'almacen:listado_aprobacion_pedidos' %}">Aprobación Pedidos</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_movimiento %}
+                    {% if perms.almacen.add_movement %}
                     <li><a href="{% url 'almacen:registrar_ingreso' %}">Registrar Ingreso</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_movimiento %}
+                    {% if perms.almacen.add_movement %}
                     <li><a href="{% url 'almacen:registrar_salida' %}">Registrar Salida</a></li>
                     {% endif %}
                     <li><a href="{% url 'almacen:reproceso_precio' %}">Reprocesar Precio</a></li>
@@ -39,7 +39,7 @@
                     <li><a href="{% url 'almacen:reporte_kardex' %}">Kardex</a></li>
                     {% endif %}
                     {% if perms.almacen.ver_reporte_kardex_excel %}
-                    <li><a href="{% url 'almacen:reporte_kardex_producto' %}">Kardex Producto</a></li>
+                    <li><a href="{% url 'almacen:reporte_kardex_producto' %}">Kardex Product</a></li>
                     {% endif %}
                     {% if perms.almacen.ver_tabla_movimientos %}
                     <li><a href="{% url 'almacen:movimientos' %}">Movimientos</a></li>
@@ -48,7 +48,7 @@
                     <li><a href="{% url 'almacen:reporte_movimientos' %}">Movimientos por Fecha</a></li>
                     {% endif %}
                     {% if perms.almacen.ver_reporte_movimientos_excel %}
-                    <li><a href="{% url 'almacen:movimientos_por_producto' %}">Movimientos por Producto</a></li>
+                    <li><a href="{% url 'almacen:movimientos_por_producto' %}">Movimientos por Product</a></li>
                     {% endif %}
                     {% if perms.almacen.ver_tabla_pedidos %}
                     <li><a href="{% url 'almacen:pedidos' %}">Pedidos</a></li>

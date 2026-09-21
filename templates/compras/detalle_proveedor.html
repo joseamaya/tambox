@@ -2,15 +2,15 @@
 <h3>Proveedores / {{ object.business_name }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_proveedor %} <a
+        {% if perms.compras.add_supplier %} <a
             href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.compras.change_proveedor %}
+        {% if perms.compras.change_supplier %}
         <a class="btn btn-primary"
            href="{% url 'compras:modificar_proveedor' object.pk %}"> Editar
         </a>
         {% endif %}
-        {% if perms.compras.delete_proveedor %}
+        {% if perms.compras.delete_supplier %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
     </div>
@@ -32,13 +32,13 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Proveedor"></div>
+<div id="dialog-confirm" title="Eliminar Supplier"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-2">
                 <a href="{{ object.image.url }}" class="thumbnail"> <img
-                        src="{{ object.image.url }}" alt="Imagen Proveedor" style="width: 120px; height: 90px">
+                        src="{{ object.image.url }}" alt="Imagen Supplier" style="width: 120px; height: 90px">
                 </a>
             </div>
             <div class="col-lg-7">
@@ -133,10 +133,10 @@
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
-								alert("Producto " + data.description
+								alert("Product " + data.description
 										+ " eliminado");
 							} else if (data.relaciones == 'SI') {
-								alert("Producto " + data.description
+								alert("Product " + data.description
 										+ " no puede eliminarse");
 							}
 						}

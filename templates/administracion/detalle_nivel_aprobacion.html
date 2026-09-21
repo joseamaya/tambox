@@ -3,10 +3,10 @@
 <h3>Nivel Aprobación / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_nivelaprobacion %}
+        {% if perms.administracion.change_approvallevel %}
         <a class="btn btn-primary" href="{% url 'administracion:modificar_nivel_aprobacion' object.pk %}">Editar </a>
         {% endif %}
-        {% if perms.administracion.delete_nivelaprobacion %}
+        {% if perms.administracion.delete_approvallevel %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

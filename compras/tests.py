@@ -1,7 +1,7 @@
 from django.test import TestCase
 from model_bakery import baker
-from compras.models import Proveedor, RepresentanteLegal, Cotizacion, \
-    DetalleCotizacion, DetalleOrdenCompra, DetalleOrdenServicios, OrdenCompra
+from compras.models import Supplier, LegalRepresentative, Quotation, \
+    QuotationDetail, PurchaseOrderDetail, ServiceOrderDetail, PurchaseOrder
 from datetime import date
 
 
@@ -9,12 +9,12 @@ from datetime import date
 class ProveedorTest(TestCase):
 
     def setUp(self):
-        self.p1 = baker.make(Proveedor)
-        self.p2 = baker.make(Proveedor)
-        self.p3 = baker.make(Proveedor)
+        self.p1 = baker.make(Supplier)
+        self.p2 = baker.make(Supplier)
+        self.p3 = baker.make(Supplier)
 
     def test_creacion_proveedor(self):
-        self.assertTrue(isinstance(self.p1, Proveedor))
+        self.assertTrue(isinstance(self.p1, Supplier))
         self.assertEqual(self.p1.__str__(), self.p1.business_name)
 
     def test_siguiente_proveedor(self):
@@ -35,10 +35,10 @@ class ProveedorTest(TestCase):
 class RepresentanteLegalTest(TestCase):
 
     def setUp(self):
-        self.rl1 = baker.make(RepresentanteLegal)
+        self.rl1 = baker.make(LegalRepresentative)
 
     def test_creacion_representante_legal(self):
-        self.assertTrue(isinstance(self.rl1, RepresentanteLegal))
+        self.assertTrue(isinstance(self.rl1, LegalRepresentative))
         self.assertEqual(self.rl1.__str__(), self.rl1.name)
 
 
@@ -46,12 +46,12 @@ class CotizacionTest(TestCase):
 
     def setUp(self):
         self.fecha_actual = date.today()
-        self.c1 = baker.make(Cotizacion, code='', date=self.fecha_actual)
-        self.c2 = baker.make(Cotizacion, code='', date=self.fecha_actual)
-        self.c3 = baker.make(Cotizacion, code='', date=self.fecha_actual)
+        self.c1 = baker.make(Quotation, code='', date=self.fecha_actual)
+        self.c2 = baker.make(Quotation, code='', date=self.fecha_actual)
+        self.c3 = baker.make(Quotation, code='', date=self.fecha_actual)
 
     def test_creacion_proveedor(self):
-        self.assertTrue(isinstance(self.c1, Cotizacion))
+        self.assertTrue(isinstance(self.c1, Quotation))
         self.assertEqual(self.c1.__str__(), self.c1.code)
 
     def test_siguiente_cotizacion(self):
@@ -72,17 +72,17 @@ class CotizacionTest(TestCase):
         """Una cotizacion refleja cuanto de lo cotizado se compro. Antes este
         test clasificaba por el estado de los detalles con `establecer_estado`,
         que un refactor posterior reemplazo por `establecer_estado_comprado`."""
-        baker.make(DetalleCotizacion, quotation=self.c1, requirement_detail=None,
+        baker.make(QuotationDetail, quotation=self.c1, requirement_detail=None,
                    quantity=10, purchased_quantity=4)
-        self.assertEqual(self.c1.establecer_estado_comprado(), Cotizacion.STATUS.ELEG_PARC)
+        self.assertEqual(self.c1.establecer_estado_comprado(), Quotation.STATUS.ELEG_PARC)
 
-        baker.make(DetalleCotizacion, quotation=self.c2, requirement_detail=None,
+        baker.make(QuotationDetail, quotation=self.c2, requirement_detail=None,
                    quantity=10, purchased_quantity=10)
-        self.assertEqual(self.c2.establecer_estado_comprado(), Cotizacion.STATUS.ELEG)
+        self.assertEqual(self.c2.establecer_estado_comprado(), Quotation.STATUS.ELEG)
 
-        baker.make(DetalleCotizacion, quotation=self.c3, requirement_detail=None,
+        baker.make(QuotationDetail, quotation=self.c3, requirement_detail=None,
                    quantity=10, purchased_quantity=0)
-        self.assertEqual(self.c3.establecer_estado_comprado(), Cotizacion.STATUS.DESC)
+        self.assertEqual(self.c3.establecer_estado_comprado(), Quotation.STATUS.DESC)
 
     def test_eliminar_referencia(self):
         pass
@@ -94,11 +94,11 @@ class ReporteXLSOrdenCompraTest(TestCase):
     solo se descubriria al descargar el reporte."""
 
     def test_genera_el_libro(self):
-        from compras.models import OrdenCompra
+        from compras.models import PurchaseOrder
         from compras.reports import reporte_xls_orden_compra
 
-        supplier = baker.make(Proveedor)
-        order = baker.make(OrdenCompra, supplier=supplier)
+        supplier = baker.make(Supplier)
+        order = baker.make(PurchaseOrder, supplier=supplier)
 
         libro = reporte_xls_orden_compra(order)
 
@@ -111,20 +111,20 @@ class ReportesPDFTest(TestCase):
     llamadas encadenadas sigan funcionando: hay que ejecutarlas."""
 
     def test_orden_compra(self):
-        from compras.models import OrdenCompra
+        from compras.models import PurchaseOrder
         from compras.reports import PDFOrdenCompra
 
-        order = baker.make(OrdenCompra, supplier=baker.make(Proveedor))
+        order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
         contenido = PDFOrdenCompra().imprimir(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
     def test_orden_servicios(self):
-        from compras.models import OrdenServicios
+        from compras.models import ServiceOrder
         from compras.reports import PDFOrdenServicios
 
-        order = baker.make(OrdenServicios, supplier=baker.make(Proveedor))
+        order = baker.make(ServiceOrder, supplier=baker.make(Supplier))
 
         contenido = PDFOrdenServicios().imprimir(order)
 
@@ -133,7 +133,7 @@ class ReportesPDFTest(TestCase):
     def test_solicitud_cotizacion_sin_logo(self):
         from compras.reports import PDFSolicitudCotizacion
 
-        quotation = baker.make(Cotizacion, supplier=baker.make(Proveedor))
+        quotation = baker.make(Quotation, supplier=baker.make(Supplier))
 
         contenido = PDFSolicitudCotizacion().imprimir(quotation)
 
@@ -145,30 +145,30 @@ class EstadosDeDetalleTest(TestCase):
     tocar la base de datos, y fijan la regla compartida de clasificar()."""
 
     def test_detalle_cotizacion(self):
-        self.assertEqual(DetalleCotizacion(quantity=10, purchased_quantity=0).establecer_estado_comprado(),
-                         DetalleCotizacion.STATUS.PEND)
-        self.assertEqual(DetalleCotizacion(quantity=10, purchased_quantity=4).establecer_estado_comprado(),
-                         DetalleCotizacion.STATUS.ELEG_PARC)
-        self.assertEqual(DetalleCotizacion(quantity=10, purchased_quantity=10).establecer_estado_comprado(),
-                         DetalleCotizacion.STATUS.ELEG)
-        self.assertEqual(DetalleCotizacion(quantity=10, purchased_quantity=12).establecer_estado_comprado(),
-                         DetalleCotizacion.STATUS.ELEG)
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=0).establecer_estado_comprado(),
+                         QuotationDetail.STATUS.PEND)
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=4).establecer_estado_comprado(),
+                         QuotationDetail.STATUS.ELEG_PARC)
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=10).establecer_estado_comprado(),
+                         QuotationDetail.STATUS.ELEG)
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=12).establecer_estado_comprado(),
+                         QuotationDetail.STATUS.ELEG)
 
     def test_detalle_orden_compra(self):
-        self.assertEqual(DetalleOrdenCompra(quantity=10, received_quantity=0).establecer_estado(),
-                         DetalleOrdenCompra.STATUS.PEND)
-        self.assertEqual(DetalleOrdenCompra(quantity=10, received_quantity=4).establecer_estado(),
-                         DetalleOrdenCompra.STATUS.ING_PARC)
-        self.assertEqual(DetalleOrdenCompra(quantity=10, received_quantity=10).establecer_estado(),
-                         DetalleOrdenCompra.STATUS.ING)
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=0).establecer_estado(),
+                         PurchaseOrderDetail.STATUS.PEND)
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=4).establecer_estado(),
+                         PurchaseOrderDetail.STATUS.ING_PARC)
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=10).establecer_estado(),
+                         PurchaseOrderDetail.STATUS.ING)
 
     def test_detalle_orden_servicios(self):
-        self.assertEqual(DetalleOrdenServicios(quantity=10, conformed_quantity=0).establecer_estado_atendido(),
-                         DetalleOrdenServicios.STATUS.PEND)
-        self.assertEqual(DetalleOrdenServicios(quantity=10, conformed_quantity=4).establecer_estado_atendido(),
-                         DetalleOrdenServicios.STATUS.CONF_PARC)
-        self.assertEqual(DetalleOrdenServicios(quantity=10, conformed_quantity=10).establecer_estado_atendido(),
-                         DetalleOrdenServicios.STATUS.CONF)
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=0).establecer_estado_atendido(),
+                         ServiceOrderDetail.STATUS.PEND)
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=4).establecer_estado_atendido(),
+                         ServiceOrderDetail.STATUS.CONF_PARC)
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=10).establecer_estado_atendido(),
+                         ServiceOrderDetail.STATUS.CONF)
 
 
 class TotalesDeOrdenCompraTest(TestCase):
@@ -177,7 +177,7 @@ class TotalesDeOrdenCompraTest(TestCase):
     consultas. No se convierten en agregados SQL porque redondean fila a fila."""
 
     def test_subtotal_e_impuesto_se_calculan_una_sola_vez(self):
-        order = baker.make(OrdenCompra, supplier=baker.make(Proveedor))
+        order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
         with self.assertNumQueries(1):
             order.subtotal
@@ -193,9 +193,9 @@ class TotalesDeOrdenCompraTest(TestCase):
     def test_los_detalles_usan_la_cache_del_prefetch(self):
         """`subtotal` recorre details y no un .filter(): solo asi
         prefetch_related evita una consulta por orden en los reportes."""
-        baker.make(OrdenCompra, supplier=baker.make(Proveedor))
+        baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
-        ordenes = list(OrdenCompra.objects.prefetch_related('details'))
+        ordenes = list(PurchaseOrder.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
             for order in ordenes:

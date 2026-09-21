@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
-    NivelAprobacion, Productor
+from administracion.models import Office, Worker, Position, Profession, \
+    ApprovalLevel, Producer
 
 
 class NivelAprobacionForm(forms.ModelForm):
     class Meta:
-        model = NivelAprobacion
+        model = ApprovalLevel
         fields = ['description', 'superior_level']
 
     def __init__(self, *args, **kwargs):
@@ -20,7 +20,7 @@ class NivelAprobacionForm(forms.ModelForm):
 
 class ProfesionForm(forms.ModelForm):
     class Meta:
-        model = Profesion
+        model = Profession
         fields = ['abbreviation', 'description']
 
     def __init__(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class ProfesionForm(forms.ModelForm):
 
 class OficinaForm(forms.ModelForm):
     class Meta:
-        model = Oficina
+        model = Office
         fields = ['code', 'name', 'dependency', 'is_management']
 
     def __init__(self, *args, **kwargs):
@@ -48,7 +48,7 @@ class OficinaForm(forms.ModelForm):
 
 class TrabajadorForm(forms.ModelForm):
     class Meta:
-        model = Trabajador
+        model = Worker
         fields = ['dni', 'last_name', 'first_name', 'profession', 'user', 'signature']
 
     def __init__(self, *args, **kwargs):
@@ -67,7 +67,7 @@ class TrabajadorForm(forms.ModelForm):
 
 class ProductorForm(forms.ModelForm):
     class Meta:
-        model = Productor
+        model = Producer
         fields = ['dni', 'last_name', 'first_name']
 
     def __init__(self, *args, **kwargs):
@@ -85,7 +85,7 @@ class ProductorForm(forms.ModelForm):
 
 class PuestoForm(forms.ModelForm):
     class Meta:
-        model = Puesto
+        model = Position
         fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):
@@ -100,13 +100,13 @@ class PuestoForm(forms.ModelForm):
         self.fields['end_date'].required = False
         self.fields['is_leadership'].required = False
         self.fields['is_assistant'].required = False
-        self.fields['worker'].queryset = Trabajador.objects.exclude(
-            pk__in=Puesto.objects.filter(end_date__isnull=True).values('worker'))
+        self.fields['worker'].queryset = Worker.objects.exclude(
+            pk__in=Position.objects.filter(end_date__isnull=True).values('worker'))
 
 
 class ModificacionPuestoForm(forms.ModelForm):
     class Meta:
-        model = Puesto
+        model = Position
         fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
 
     def __init__(self, *args, **kwargs):

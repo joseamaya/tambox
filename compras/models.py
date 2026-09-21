@@ -3,11 +3,11 @@ from django.db import models
 from django.utils.encoding import force_str
 from model_utils import Choices
 from django.utils.translation import gettext as _
-from requerimientos.models import Requerimiento, DetalleRequerimiento
+from requerimientos.models import Requirement, RequirementDetail
 from model_utils.models import TimeStampedModel
 from django.db.models import Max
-from contabilidad.models import FormaPago
-from productos.models import Producto
+from contabilidad.models import PaymentMethod
+from productos.models import Product
 from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
 from compras.settings import CHOICES_ESTADO_COTIZ
@@ -27,16 +27,16 @@ class DetalleOrdenManager(models.Manager):
             self.guardar_detalles_sin_referencia(objs)
 
     def actualizar_cotizaciones(self):
-        cotizaciones = Cotizacion.objects.filter(status=Cotizacion.STATUS.PEND)
+        cotizaciones = Quotation.objects.filter(status=Quotation.STATUS.PEND)
         for cot in cotizaciones:
             cot.establecer_estado_comprado()
             cot.save()
 
     def actualizar_detalle_cotizaciones(self, requirement_detail):
-        if requirement_detail.status == DetalleRequerimiento.STATUS.COMP:
-            DetalleCotizacion.objects.filter(requirement_detail=requirement_detail,
-                                             status=DetalleCotizacion.STATUS.PEND).update(
-                status=DetalleCotizacion.STATUS.DESC)
+        if requirement_detail.status == RequirementDetail.STATUS.COMP:
+            QuotationDetail.objects.filter(requirement_detail=requirement_detail,
+                                             status=QuotationDetail.STATUS.PEND).update(
+                status=QuotationDetail.STATUS.DESC)
 
     def guardar_detalles_con_referencia(self, objs, quotation):
         requirement = quotation.requirement
@@ -62,7 +62,7 @@ class DetalleOrdenManager(models.Manager):
             detalle.save()
 
 
-class RepresentanteLegal(TimeStampedModel):
+class LegalRepresentative(TimeStampedModel):
     document = models.CharField(primary_key=True, max_length=11)
     name = models.CharField(max_length=150)
     position = models.CharField(max_length=50)
@@ -77,7 +77,7 @@ class RepresentanteLegal(TimeStampedModel):
         return self.name
 
 
-class Proveedor(TimeStampedModel):
+class Supplier(TimeStampedModel):
     tax_id = models.CharField(unique=True, max_length=11)
     business_name = models.CharField(max_length=150)
     address = models.CharField(max_length=200)
@@ -85,7 +85,7 @@ class Proveedor(TimeStampedModel):
     email = models.EmailField(null=True)
     sunat_status = models.CharField(max_length=50)
     sunat_condition = models.CharField(max_length=50)
-    representantes = models.ManyToManyField(RepresentanteLegal, related_name='suppliers')
+    representantes = models.ManyToManyField(LegalRepresentative, related_name='suppliers')
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
     is_active = models.BooleanField(default=True)
@@ -99,21 +99,21 @@ class Proveedor(TimeStampedModel):
         ordering = ['tax_id']
 
     def anterior(self):
-        ant = Proveedor.objects.anterior(self)
+        ant = Supplier.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Proveedor.objects.siguiente(self)
+        sig = Supplier.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
         return force_str(self.business_name)
 
 
-class Cotizacion(TimeStampedModel):
+class Quotation(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='quotations')
-    requirement = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='quotations', null=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='quotations')
+    requirement = models.ForeignKey(Requirement, on_delete=models.CASCADE, related_name='quotations', null=True)
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
@@ -122,21 +122,21 @@ class Cotizacion(TimeStampedModel):
     history = HistoricalRecords()
 
     def anterior(self):
-        ant = Cotizacion.objects.anterior(self)
+        ant = Quotation.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Cotizacion.objects.siguiente(self)
+        sig = Quotation.objects.siguiente(self)
         return sig.pk
 
     def eliminar_cotizacion(self):
-        self.status = Cotizacion.STATUS.CANC
+        self.status = Quotation.STATUS.CANC
         self.save()
 
     def eliminar_referencia(self):
         quotation = self
         requirement = quotation.requirement
-        detalles = DetalleCotizacion.objects.filter(quotation=quotation)
+        detalles = QuotationDetail.objects.filter(quotation=quotation)
         for detalle in detalles:
             requirement_detail = detalle.requirement_detail
             if requirement_detail.quoted_quantity > 0:
@@ -145,21 +145,21 @@ class Cotizacion(TimeStampedModel):
             requirement_detail.save()
         requirement.establecer_estado_cotizado()
         requirement.save()
-        DetalleCotizacion.objects.filter(quotation=quotation).delete()
+        QuotationDetail.objects.filter(quotation=quotation).delete()
 
     def establecer_estado_comprado(self):
         total = 0
         total_comprado = 0
-        for detalle in DetalleCotizacion.objects.filter(quotation=self):
+        for detalle in QuotationDetail.objects.filter(quotation=self):
             total = total + detalle.quantity
             total_comprado = total_comprado + detalle.purchased_quantity
         caso = clasificar(total_comprado, total)
         if caso == VACIO:
-            estado = Cotizacion.STATUS.DESC
+            estado = Quotation.STATUS.DESC
         elif caso == PARCIAL:
-            estado = Cotizacion.STATUS.ELEG_PARC
+            estado = Quotation.STATUS.ELEG_PARC
         else:
-            estado = Cotizacion.STATUS.ELEG
+            estado = Quotation.STATUS.ELEG
         self.status = estado
         return self.status
 
@@ -173,7 +173,7 @@ class Cotizacion(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.code == '':
             anio = self.date.year
-            mov_ant = Cotizacion.objects.filter(date__year=anio).aggregate(Max('code'))
+            mov_ant = Quotation.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -181,17 +181,17 @@ class Cotizacion(TimeStampedModel):
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
             self.code = 'CO' + str(anio) + correlativo
-        super(Cotizacion, self).save()
+        super(Quotation, self).save()
 
     def __str__(self):
         return self.code
 
 
-class DetalleCotizacion(TimeStampedModel):
+class QuotationDetail(TimeStampedModel):
     objects = DetalleCotizacionManager()
     line_number = models.IntegerField()
-    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='details')
-    requirement_detail = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, related_name='quotation_details', null=True)
+    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, related_name='details')
+    requirement_detail = models.ForeignKey(RequirementDetail, on_delete=models.CASCADE, related_name='quotation_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -205,11 +205,11 @@ class DetalleCotizacion(TimeStampedModel):
     def establecer_estado_comprado(self):
         caso = clasificar(self.purchased_quantity, self.quantity)
         if caso == VACIO:
-            estado = DetalleCotizacion.STATUS.PEND
+            estado = QuotationDetail.STATUS.PEND
         elif caso == PARCIAL:
-            estado = DetalleCotizacion.STATUS.ELEG_PARC
+            estado = QuotationDetail.STATUS.ELEG_PARC
         else:
-            estado = DetalleCotizacion.STATUS.ELEG
+            estado = QuotationDetail.STATUS.ELEG
         self.status = estado
         return self.status
 
@@ -217,12 +217,12 @@ class DetalleCotizacion(TimeStampedModel):
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
 
 
-class OrdenCompra(TimeStampedModel):
+class PurchaseOrder(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
-    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
+    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='purchase_orders', null=True)
     date = models.DateField()
-    payment_method = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='purchase_orders')
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, related_name='purchase_orders')
     notes = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADA')),
@@ -236,17 +236,17 @@ class OrdenCompra(TimeStampedModel):
     history = HistoricalRecords()
 
     def anterior(self):
-        ant = OrdenCompra.objects.anterior(self)
+        ant = PurchaseOrder.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = OrdenCompra.objects.siguiente(self)
+        sig = PurchaseOrder.objects.siguiente(self)
         return sig.pk
 
     def eliminar_referencia(self):
         quotation = self.quotation
         requirement = quotation.requirement
-        detalles = DetalleOrdenCompra.objects.filter(order=self)
+        detalles = PurchaseOrderDetail.objects.filter(order=self)
         for detalle in detalles:
             quotation_detail = detalle.quotation_detail
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
@@ -263,16 +263,16 @@ class OrdenCompra(TimeStampedModel):
     def establecer_estado(self):
         total = 0
         total_ingresado = 0
-        for detalle in DetalleOrdenCompra.objects.filter(order=self):
+        for detalle in PurchaseOrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_ingresado = total_ingresado + detalle.received_quantity
         caso = clasificar(total_ingresado, total)
         if caso == VACIO:
-            estado = OrdenCompra.STATUS.PEND
+            estado = PurchaseOrder.STATUS.PEND
         elif caso == PARCIAL:
-            estado = OrdenCompra.STATUS.ING_PARC
+            estado = PurchaseOrder.STATUS.ING_PARC
         else:
-            estado = OrdenCompra.STATUS.ING
+            estado = PurchaseOrder.STATUS.ING
         self.status = estado
         return self.status
 
@@ -322,7 +322,7 @@ class OrdenCompra(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.code == '':
             anio = self.date.year
-            mov_ant = OrdenCompra.objects.filter(date__year=anio).aggregate(Max('code'))
+            mov_ant = PurchaseOrder.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -330,18 +330,18 @@ class OrdenCompra(TimeStampedModel):
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
             self.code = 'OC' + str(anio) + correlativo
-        super(OrdenCompra, self).save()
+        super(PurchaseOrder, self).save()
 
     def __str__(self):
         return self.code
 
 
-class DetalleOrdenCompra(TimeStampedModel):
+class PurchaseOrderDetail(TimeStampedModel):
     objects = DetalleOrdenManager()
     line_number = models.IntegerField()
-    order = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='details')
-    quotation_detail = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
+    order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='details')
+    quotation_detail = models.ForeignKey(QuotationDetail, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
     received_quantity = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8)
@@ -401,11 +401,11 @@ class DetalleOrdenCompra(TimeStampedModel):
     def establecer_estado(self):
         caso = clasificar(self.received_quantity, self.quantity)
         if caso == VACIO:
-            estado = DetalleOrdenCompra.STATUS.PEND
+            estado = PurchaseOrderDetail.STATUS.PEND
         elif caso == PARCIAL:
-            estado = DetalleOrdenCompra.STATUS.ING_PARC
+            estado = PurchaseOrderDetail.STATUS.ING_PARC
         else:
-            estado = DetalleOrdenCompra.STATUS.ING
+            estado = PurchaseOrderDetail.STATUS.ING
         self.status = estado
         return self.status
 
@@ -413,11 +413,11 @@ class DetalleOrdenCompra(TimeStampedModel):
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
 
 
-class OrdenServicios(TimeStampedModel):
+class ServiceOrder(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    quotation = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='service_orders', null=True)
-    supplier = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='service_orders', null=True)
-    payment_method = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='service_orders')
+    quotation = models.ForeignKey(Quotation, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    supplier = models.ForeignKey(Supplier, on_delete=models.CASCADE, related_name='service_orders', null=True)
+    payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE, related_name='service_orders')
     process = models.CharField(max_length=50, default='')
     report_name = models.CharField(max_length=150, default='')
     report = models.FileField(upload_to='informes', null=True)
@@ -454,17 +454,17 @@ class OrdenServicios(TimeStampedModel):
         return letras
 
     def anterior(self):
-        ant = OrdenServicios.objects.anterior(self)
+        ant = ServiceOrder.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = OrdenServicios.objects.siguiente(self)
+        sig = ServiceOrder.objects.siguiente(self)
         return sig.pk
 
     def eliminar_referencia(self):
         quotation = self.quotation
         requirement = self.quotation
-        detalles = DetalleOrdenServicios.objects.filter(order=self)
+        detalles = ServiceOrderDetail.objects.filter(order=self)
         for detalle in detalles:
             quotation_detail = detalle.quotation_detail
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
@@ -481,16 +481,16 @@ class OrdenServicios(TimeStampedModel):
     def establecer_estado(self):
         total = 0
         total_conforme = 0
-        for detalle in DetalleOrdenServicios.objects.filter(order=self):
+        for detalle in ServiceOrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_conforme = total_conforme + detalle.conformed_quantity
         caso = clasificar(total_conforme, total)
         if caso == VACIO:
-            estado = OrdenServicios.STATUS.PEND
+            estado = ServiceOrder.STATUS.PEND
         elif caso == PARCIAL:
-            estado = OrdenServicios.STATUS.CONF_PARC
+            estado = ServiceOrder.STATUS.CONF_PARC
         else:
-            estado = OrdenServicios.STATUS.CONF
+            estado = ServiceOrder.STATUS.CONF
         self.status = estado
         return self.status
 
@@ -502,7 +502,7 @@ class OrdenServicios(TimeStampedModel):
 
     def generar_code(self):
         anio = self.date.year
-        mov_ant = OrdenServicios.objects.filter(date__year=anio).aggregate(Max('code'))
+        mov_ant = ServiceOrder.objects.filter(date__year=anio).aggregate(Max('code'))
         id_ant = mov_ant['code__max']
         if id_ant is None:
             aux = 1
@@ -515,18 +515,18 @@ class OrdenServicios(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.code == '':
             self.code = self.generar_code()
-        super(OrdenServicios, self).save()
+        super(ServiceOrder, self).save()
 
     def __str__(self):
         return self.code
 
 
-class DetalleOrdenServicios(TimeStampedModel):
+class ServiceOrderDetail(TimeStampedModel):
     objects = DetalleOrdenManager()
     line_number = models.IntegerField()
-    order = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='details')
-    quotation_detail = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, related_name='service_order_details', null=True)
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='service_order_details', null=True)
+    order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name='details')
+    quotation_detail = models.ForeignKey(QuotationDetail, on_delete=models.CASCADE, related_name='service_order_details', null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='service_order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     conformed_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     price = models.DecimalField(max_digits=15, decimal_places=5)
@@ -553,18 +553,18 @@ class DetalleOrdenServicios(TimeStampedModel):
     def establecer_estado_atendido(self):
         caso = clasificar(self.conformed_quantity, self.quantity)
         if caso == VACIO:
-            estado = DetalleOrdenServicios.STATUS.PEND
+            estado = ServiceOrderDetail.STATUS.PEND
         elif caso == PARCIAL:
-            estado = DetalleOrdenServicios.STATUS.CONF_PARC
+            estado = ServiceOrderDetail.STATUS.CONF_PARC
         else:
-            estado = DetalleOrdenServicios.STATUS.CONF
+            estado = ServiceOrderDetail.STATUS.CONF
         self.status = estado
         return self.status
 
 
-class ConformidadServicio(TimeStampedModel):
+class ServiceConformity(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    service_order = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='conformities')
+    service_order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name='conformities')
     supporting_document = models.CharField(max_length=50)
     file = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
@@ -581,18 +581,18 @@ class ConformidadServicio(TimeStampedModel):
                         'Puede ver Reporte de Conformidades de Servicio en excel'),)
 
     def anterior(self):
-        ant = ConformidadServicio.objects.anterior(self)
+        ant = ServiceConformity.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = ConformidadServicio.objects.siguiente(self)
+        sig = ServiceConformity.objects.siguiente(self)
         return sig.pk
 
     def eliminar_referencia(self):
         order = self.service_order
         quotation = order.quotation
         requirement = quotation.requirement
-        detalles = DetalleConformidadServicio.objects.filter(conformity=self)
+        detalles = ServiceConformityDetail.objects.filter(conformity=self)
         for detalle in detalles:
             detalle_orden = detalle.service_order_detail
             detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detalle.quantity
@@ -610,7 +610,7 @@ class ConformidadServicio(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.code == '':
             anio = self.date.year
-            conf_ant = ConformidadServicio.objects.filter(date__year=anio).aggregate(Max('code'))
+            conf_ant = ServiceConformity.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = conf_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -618,16 +618,16 @@ class ConformidadServicio(TimeStampedModel):
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
             self.code = 'CS' + str(anio) + correlativo
-        super(ConformidadServicio, self).save()
+        super(ServiceConformity, self).save()
 
     def __str__(self):
         return self.code
 
 
-class DetalleConformidadServicio(TimeStampedModel):
+class ServiceConformityDetail(TimeStampedModel):
     objects = DetalleConformidadServicioManager()
     line_number = models.IntegerField()
-    conformity = models.ForeignKey(ConformidadServicio, on_delete=models.CASCADE, related_name='details')
-    service_order_detail = models.ForeignKey(DetalleOrdenServicios, on_delete=models.CASCADE, related_name='conformity_details', null=True)
+    conformity = models.ForeignKey(ServiceConformity, on_delete=models.CASCADE, related_name='details')
+    service_order_detail = models.ForeignKey(ServiceOrderDetail, on_delete=models.CASCADE, related_name='conformity_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     history = HistoricalRecords()

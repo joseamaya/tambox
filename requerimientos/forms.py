@@ -2,15 +2,15 @@
 from django import forms
 from django.forms import formsets
 from django.core.exceptions import ValidationError
-from requerimientos.models import AprobacionRequerimiento, Requerimiento
-from administracion.models import Puesto
+from requerimientos.models import RequirementApproval, Requirement
+from administracion.models import Position
 from requerimientos.mail import correo_creacion_requerimiento
-from productos.models import Producto
+from productos.models import Product
 
 
 class AprobacionRequerimientoForm(forms.ModelForm):
     class Meta:
-        model = AprobacionRequerimiento
+        model = RequirementApproval
         fields = ['is_active', 'rejection_reason']
 
     def __init__(self, *args, **kwargs):
@@ -23,11 +23,11 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         office = self.instance.obtener_oficina_aprobacion_superior()
         if office is not None:
             try:
-                puesto_jefe = Puesto.objects.get(office=office, is_leadership=True, is_active=True)
+                puesto_jefe = Position.objects.get(office=office, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.worker
                 destinatario = jefe.user.email
                 correo_creacion_requerimiento(destinatario, self.instance.requirement)
-            except Puesto.DoesNotExist:
+            except Position.DoesNotExist:
                 raise ValidationError("No existe el puesto superior, imposible continuar.")
 
     def save(self, *args, **kwargs):
@@ -76,9 +76,9 @@ class FormularioDetalleRequerimiento(forms.Form):
     def clean_code(self):
         code = self.cleaned_data.get('code')
         try:
-            Producto.objects.get(code=code)
+            Product.objects.get(code=code)
             return self.cleaned_data['code']
-        except Producto.DoesNotExist:
+        except Product.DoesNotExist:
             raise ValidationError("El código no es válido.")
 
     def clean_cantidad(self):
@@ -111,7 +111,7 @@ class RequerimientoForm(forms.ModelForm):
         return super(RequerimientoForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Requerimiento
+        model = Requirement
         fields = ['code', 'reason', 'date', 'month', 'year', 'notes', 'report',
                   'direct_delivery_to_requester']
 

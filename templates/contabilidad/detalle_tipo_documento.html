@@ -3,12 +3,12 @@
 <h3>Tipos de Documento / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_tipodocumento %}
+        {% if perms.contabilidad.change_documenttype %}
         <a class="btn btn-primary" href="{% url 'contabilidad:modificar_tipo_documento' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.contabilidad.delete_tipodocumento %}
+        {% if perms.contabilidad.delete_documenttype %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -32,7 +32,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Tipo de Documento"></div>
+<div id="dialog-confirm" title="Eliminar Type de Documento"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">

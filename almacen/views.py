@@ -2,8 +2,8 @@
 from django.utils import timezone
 from django.shortcuts import render
 
-from almacen.models import Almacen, Movimiento, Kardex, TipoMovimiento, DetalleMovimiento, ControlProductoAlmacen, \
-    Pedido, DetallePedido
+from almacen.models import Warehouse, Movement, Kardex, MovementType, MovementDetail, WarehouseProductControl, \
+    Order, OrderDetail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
@@ -21,15 +21,15 @@ from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import Table
 from django.http import JsonResponse
-from compras.models import DetalleOrdenCompra
+from compras.models import PurchaseOrderDetail
 from openpyxl import Workbook
 import simplejson
 import json
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
-from administracion.models import Puesto
+from administracion.models import Position
 import locale
-from contabilidad.models import TipoDocumento
+from contabilidad.models import DocumentType
 from contabilidad.forms import UploadForm
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
@@ -37,7 +37,7 @@ from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
-from productos.models import Producto
+from productos.models import Product
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
 from tambox.configuracion import logistica
@@ -54,18 +54,18 @@ class Tablero(View):
         cod_mov_ingreso_compra = 'I01'
         cod_mov_salida_pedido = 'S01'
         lista_notificaciones = []
-        cant_almacenes = Almacen.objects.count()
-        cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(increases=True).exclude(
+        cant_almacenes = Warehouse.objects.count()
+        cant_tipos_movimientos_ingreso = MovementType.objects.filter(increases=True).exclude(
             code=cod_mov_invent_ini).count()
-        cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(increases=False).count()
-        movement_type, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_invent_ini,
+        cant_tipos_movimientos_salida = MovementType.objects.filter(increases=False).count()
+        movement_type, creado = MovementType.objects.get_or_create(code=cod_mov_invent_ini,
                                                                        defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'sunat_code': '16',
                                                                                  'increases': True,
                                                                                  'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
-        movement_type, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_ingreso_compra,
+        movement_type, creado = MovementType.objects.get_or_create(code=cod_mov_ingreso_compra,
                                                                        defaults={'description': 'INGRESO POR COMPRA',
                                                                                  'sunat_code': '02',
                                                                                  'increases': True,
@@ -73,13 +73,13 @@ class Tablero(View):
                                                                                  'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
-        movement_type, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_salida_pedido,
+        movement_type, creado = MovementType.objects.get_or_create(code=cod_mov_salida_pedido,
                                                                        defaults={'description': 'SALIDA POR PEDIDO',
                                                                                  'sunat_code': '10',
                                                                                  'increases': False,
                                                                                  'requires_reference': True,
                                                                                  'is_active': True})
-        inventario_inicial = Movimiento.objects.filter(movement_type__code=cod_mov_invent_ini).count()
+        inventario_inicial = Movement.objects.filter(movement_type__code=cod_mov_invent_ini).count()
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
         if cant_almacenes == 0:
@@ -97,7 +97,7 @@ class Tablero(View):
 class AprobarPedido(CreateView):
     form_class = AprobacionPedidoForm
     template_name = 'almacen/aprobar_pedido.html'
-    model = Movimiento
+    model = Movement
 
     @method_decorator(requiere('almacen.aprobar_pedido'))
     def dispatch(self, *args, **kwargs):
@@ -115,7 +115,7 @@ class AprobarPedido(CreateView):
         return initial
 
     def get_context_data(self, **kwargs):
-        order = Pedido.objects.get(code=self.code)
+        order = Order.objects.get(code=self.code)
         context = super(AprobarPedido, self).get_context_data(**kwargs)
         context['order'] = order
         return context
@@ -124,7 +124,7 @@ class AprobarPedido(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        order = Pedido.objects.get(code=self.code)
+        order = Order.objects.get(code=self.code)
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
@@ -136,7 +136,7 @@ class AprobarPedido(CreateView):
             if puestos[0].is_leadership and puestos[0].office == logistica():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalles = DetallePedido.objects.filter(order=order, status=DetallePedido.STATUS.PEND)
+                detalles = OrderDetail.objects.filter(order=order, status=OrderDetail.STATUS.PEND)
                 detalles_data = []
                 for detalle in detalles:
                     d = {'order': detalle.id,
@@ -178,16 +178,16 @@ class AprobarPedido(CreateView):
                     price = detalle_salida_form.cleaned_data.get('price')
                     amount = detalle_salida_form.cleaned_data.get('amount')
                     if quantity and price and amount:
-                        detalle_movimiento = DetalleMovimiento(line_number=cont,
+                        detalle_movimiento = MovementDetail(line_number=cont,
                                                                movement=self.object,
-                                                               product=Producto.objects.get(pk=code),
-                                                               order_detail=DetallePedido.objects.get(
+                                                               product=Product.objects.get(pk=code),
+                                                               order_detail=OrderDetail.objects.get(
                                                                    pk=order_detail),
                                                                quantity=quantity,
                                                                price=price)
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, None, order)
+                MovementDetail.objects.bulk_create(detalles, None, order)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.movement_id]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -234,7 +234,7 @@ class CargarAlmacenes(CargarCsvMixin, FormView):
     success_url = reverse_lazy('almacen:almacenes')
 
     def procesar_fila(self, fila):
-        Almacen.objects.create(code=fila[0],
+        Warehouse.objects.create(code=fila[0],
                                description=fila[1])
 
 
@@ -255,12 +255,12 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        movement_type = TipoMovimiento.objects.filter(code='I00').first()
-        document_type = TipoDocumento.objects.filter(sunat_code='PEC').first()
+        movement_type = MovementType.objects.filter(code='I00').first()
+        document_type = DocumentType.objects.filter(sunat_code='PEC').first()
         faltantes = []
         if movement_type is None:
             faltantes.append('Falta el tipo de movimiento "I00" (INVENTARIO INICIAL): '
-                             'entra al tablero de Almacen para crearlo y vuelve a cargar el file.')
+                             'entra al tablero de Almacen para crearlo y vuelve a cargar el archivo.')
         if document_type is None:
             faltantes.append('Falta el tipo de documento "PEC" (PECOSA): '
                              'entra al tablero de Contabilidad para crearlo y vuelve a cargar el file.')
@@ -271,7 +271,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
         self.cont_detalles = 1
         self.detalles = []
         with transaction.atomic():
-            self.movement = Movimiento.objects.create(movement_type=movement_type,
+            self.movement = Movement.objects.create(movement_type=movement_type,
                                                         document_type=document_type,
                                                         warehouse=data['almacenes'],
                                                         operation_date=self.operation_date,
@@ -279,13 +279,13 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
                                                         series='SALDO',
                                                         number='INICIAL')
             respuesta = super(CargarInventarioInicial, self).form_valid(form)
-            DetalleMovimiento.objects.bulk_create(self.detalles, None, None)
+            MovementDetail.objects.bulk_create(self.detalles, None, None)
             self.movement.save()
         return respuesta
 
     def procesar_fila(self, fila):
         try:
-            product = Producto.objects.get(description=fila[0].strip())
+            product = Product.objects.get(description=fila[0].strip())
             quantity = Decimal(fila[1])
             try:
                 price = Decimal(fila[2])
@@ -302,14 +302,14 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
                     price = 0
             if amount == '':
                 amount = quantity * price
-            self.detalles.append(DetalleMovimiento(line_number=self.cont_detalles,
+            self.detalles.append(MovementDetail(line_number=self.cont_detalles,
                                                   movement=self.movement,
                                                   product=product,
                                                   quantity=quantity,
                                                   price=price,
                                                   amount=amount))
             self.cont_detalles = self.cont_detalles + 1
-        except Producto.DoesNotExist:
+        except Product.DoesNotExist:
             pass
 
     def get_success_url(self):
@@ -321,7 +321,7 @@ class CrearTipoMovimiento(CreateView):
     form_class = TipoMovimientoForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
-    @method_decorator(requiere('almacen.add_tipomovimiento'))
+    @method_decorator(requiere('almacen.add_movementtype'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTipoMovimiento, self).dispatch(*args, **kwargs)
 
@@ -443,10 +443,10 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
 class CrearPedido(CreateView):
     template_name = 'almacen/pedido.html'
     form_class = PedidoForm
-    model = Pedido
+    model = Order
     context_object_name = 'order'
 
-    @method_decorator(requiere('almacen.add_pedido'))
+    @method_decorator(requiere('almacen.add_order'))
     def dispatch(self, *args, **kwargs):
         try:
             worker = self.request.user.worker
@@ -495,14 +495,14 @@ class CrearPedido(CreateView):
                     code = detalle_pedido_form.cleaned_data.get('code')
                     quantity = detalle_pedido_form.cleaned_data.get('quantity')
                     if code and quantity:
-                        product = Producto.objects.get(code=code)
-                        detalles.append(DetallePedido(order=self.object,
+                        product = Product.objects.get(code=code)
+                        detalles.append(OrderDetail(order=self.object,
                                                       line_number=cont,
                                                       product=product,
                                                       quantity=quantity))
                         cont = cont + 1
-                DetallePedido.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Puesto.objects.get(office=logistica(), is_leadership=True, is_active=True)
+                OrderDetail.objects.bulk_create(detalles)
+                puesto_jefe_logistica = Position.objects.get(office=logistica(), is_leadership=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.worker
                 destinatario = jefe_logistica.user.email
                 correo_creacion_pedido(destinatario, self.object)
@@ -531,23 +531,23 @@ class ConsultaStock(SoloAjaxMixin, TemplateView):
 
 
 class DetalleAlmacen(DetailView):
-    model = Almacen
+    model = Warehouse
     template_name = 'almacen/detalle_almacen.html'
 
 
 class DetalleTipoMovimiento(DetailView):
-    model = TipoMovimiento
+    model = MovementType
     template_name = 'almacen/detalle_tipo_movimiento.html'
 
 
 class DetalleOperacionPedido(DetailView):
-    model = Pedido
+    model = Order
     context_object_name = 'order'
     template_name = 'almacen/detalle_pedido.html'
 
 
 class DetalleOperacionMovimiento(DetailView):
-    model = Movimiento
+    model = Movement
     context_object_name = 'movement'
     template_name = 'almacen/detalle_movimiento.html'
 
@@ -555,14 +555,14 @@ class DetalleOperacionMovimiento(DetailView):
 class EliminarAlmacen(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_almacen'))
+    @method_decorator(requiere('almacen.delete_warehouse'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarAlmacen, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            warehouse = Almacen.objects.get(pk=code)
+            warehouse = Warehouse.objects.get(pk=code)
             almacen_json = {}
             almacen_json['code'] = warehouse.code
             almacen_json['description'] = warehouse.description
@@ -570,7 +570,7 @@ class EliminarAlmacen(TemplateView):
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
-                Almacen.objects.filter(pk=code).update(is_active=False)
+                Warehouse.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
 
@@ -578,14 +578,14 @@ class EliminarAlmacen(TemplateView):
 class EliminarMovimiento(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_movimiento'))
+    @method_decorator(requiere('almacen.delete_movement'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarMovimiento, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             movement_id = request.POST['movement_id']
-            movement = Movimiento.objects.get(pk=movement_id)
+            movement = Movement.objects.get(pk=movement_id)
             order = movement.reference
             order = movement.order
             if order is not None:
@@ -594,15 +594,15 @@ class EliminarMovimiento(TemplateView):
                 movement.eliminar_pedido()
             detalle_kardex = Kardex.objects.filter(movement=movement)
             for kardex in detalle_kardex:
-                control = ControlProductoAlmacen.objects.get(product=kardex.product, warehouse=kardex.warehouse)
+                control = WarehouseProductControl.objects.get(product=kardex.product, warehouse=kardex.warehouse)
                 if kardex.in_quantity > 0:
                     control.stock = control.stock - kardex.in_quantity
                 elif kardex.out_quantity > 0:
                     control.stock = control.stock + kardex.out_quantity
                 control.save()
                 kardex.delete()
-            Movimiento.objects.filter(pk=movement_id).update(status=Movimiento.STATUS.CANC, reference=None)
-            DetalleMovimiento.objects.filter(movement=movement).delete()
+            Movement.objects.filter(pk=movement_id).update(status=Movement.STATUS.CANC, reference=None)
+            MovementDetail.objects.filter(movement=movement).delete()
             movimiento_json = {}
             movimiento_json['movement_id'] = movement_id
             data = simplejson.dumps(movimiento_json)
@@ -612,14 +612,14 @@ class EliminarMovimiento(TemplateView):
 class EliminarPedido(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_pedido'))
+    @method_decorator(requiere('almacen.delete_order'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarPedido, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            order = Pedido.objects.get(pk=code)
+            order = Order.objects.get(pk=code)
             movimientos = order.movements.all()
             almacen_json = {}
             almacen_json['code'] = order.code
@@ -628,14 +628,14 @@ class EliminarPedido(TemplateView):
             else:
                 almacen_json['movimientos'] = 'NO'
                 with transaction.atomic():
-                    Pedido.objects.filter(code=code).update(status=Pedido.STATUS.CANC)
-                    DetallePedido.objects.filter(order=order).delete()
+                    Order.objects.filter(code=code).update(status=Order.STATUS.CANC)
+                    OrderDetail.objects.filter(order=order).delete()
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
 
 
 class ListadoAprobacionPedidos(ListView):
-    model = Pedido
+    model = Order
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
 
@@ -658,55 +658,55 @@ class ListadoAprobacionPedidos(ListView):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_queryset(self):
-        queryset = Pedido.objects.filter(~Q(status=Pedido.STATUS.APROB))
+        queryset = Order.objects.filter(~Q(status=Order.STATUS.APROB))
         return queryset
 
 
 class ListadoAlmacenes(ListView):
-    model = Almacen
+    model = Warehouse
     template_name = 'almacen/almacenes.html'
     context_object_name = 'almacenes'
-    queryset = Almacen.objects.all().order_by('description')
+    queryset = Warehouse.objects.all().order_by('description')
 
 
 class ListadoPedidos(ListView):
-    model = Pedido
+    model = Order
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
-    queryset = Pedido.objects.exclude(status=Pedido.STATUS.CANC).order_by('code')
+    queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
 
 
 class ListadoTiposMovimiento(ListView):
-    model = TipoMovimiento
+    model = MovementType
     template_name = 'almacen/tipos_movimiento.html'
     context_object_name = 'tipos_movimiento'
     paginate_by = 10
-    queryset = TipoMovimiento.objects.all().order_by('code')
+    queryset = MovementType.objects.all().order_by('code')
 
 
 class ListadoMovimientos(ListView):
-    model = Movimiento
+    model = Movement
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT)
+    queryset = Movement.objects.filter(status=Movement.STATUS.ACT)
 
 
 class ListadoIngresos(ListView):
-    model = Movimiento
+    model = Movement
     template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, movement_type__increases=True)
+    queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=True)
 
 
 class ListadoSalidas(ListView):
-    model = Movimiento
+    model = Movement
     template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, movement_type__increases=False)
+    queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=False)
 
 
 class ListadoMovimientosPorPedido(ListView):
-    model = Movimiento
+    model = Movement
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
@@ -715,21 +715,21 @@ class ListadoMovimientosPorPedido(ListView):
         return super(ListadoMovimientosPorPedido, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        order = Pedido.objects.get(pk=self.kwargs['order'])
+        order = Order.objects.get(pk=self.kwargs['order'])
         queryset = order.movements.all()
         return queryset
 
 
 class ModificarMovimiento(TemplateView):
 
-    @method_decorator(requiere('almacen.change_movimiento'))
+    @method_decorator(requiere('almacen.change_movement'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarMovimiento, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
-        movement = Movimiento.objects.get(pk=pk)
-        if movement.status == Movimiento.STATUS.CANC:
+        movement = Movement.objects.get(pk=pk)
+        if movement.status == Movement.STATUS.CANC:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         movement_type = movement.movement_type
         if movement_type.increases:
@@ -741,7 +741,7 @@ class ModificarMovimiento(TemplateView):
 class ModificarIngresoAlmacen(UpdateView):
     template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
-    model = Movimiento
+    model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
@@ -751,10 +751,10 @@ class ModificarIngresoAlmacen(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.status == Movimiento.STATUS.ACT:
+        if self.object.status == Movement.STATUS.ACT:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetalleMovimiento.objects.filter(movement=self.object).order_by('line_number')
+            detalles = MovementDetail.objects.filter(movement=self.object).order_by('line_number')
             detalles_data = []
             for detalle in detalles:
                 if detalle.purchase_order_detail is not None:
@@ -840,24 +840,24 @@ class ModificarIngresoAlmacen(UpdateView):
                     amount = detalle_ingreso_form.cleaned_data.get('amount')
                     if quantity and price and amount:
                         try:
-                            purchase_order_detail = DetalleOrdenCompra.objects.get(pk=orden_compra)
-                            detalle_movimiento = DetalleMovimiento(purchase_order_detail=purchase_order_detail,
+                            purchase_order_detail = PurchaseOrderDetail.objects.get(pk=orden_compra)
+                            detalle_movimiento = MovementDetail(purchase_order_detail=purchase_order_detail,
                                                                    line_number=cont,
                                                                    movement=self.object,
-                                                                   product=Producto.objects.get(pk=code),
+                                                                   product=Product.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         except ObjectDoesNotExist:
-                            detalle_movimiento = DetalleMovimiento(line_number=cont,
+                            detalle_movimiento = MovementDetail(line_number=cont,
                                                                    movement=self.object,
-                                                                   product=Producto.objects.get(pk=code),
+                                                                   product=Product.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, reference, None)
+                MovementDetail.objects.bulk_create(detalles, reference, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -870,7 +870,7 @@ class ModificarIngresoAlmacen(UpdateView):
 class ModificarSalidaAlmacen(UpdateView):
     template_name = 'almacen/salida_almacen.html'
     form_class = MovimientoForm
-    model = Movimiento
+    model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
@@ -882,7 +882,7 @@ class ModificarSalidaAlmacen(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = DetalleMovimiento.objects.filter(movement=self.object)
+        detalles = MovementDetail.objects.filter(movement=self.object)
         detalles_data = []
         for detalle in detalles:
             try:
@@ -909,7 +909,7 @@ class ModificarSalidaAlmacen(UpdateView):
     def get_initial(self):
         initial = super(ModificarSalidaAlmacen, self).get_initial()
         movement = self.object
-        self.detalles = DetalleMovimiento.objects.filter(movement=movement)
+        self.detalles = MovementDetail.objects.filter(movement=movement)
         initial['movement_id'] = movement.movement_id
         initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
         initial['hora'] = movement.operation_date.strftime('%H : %M : %S')
@@ -961,19 +961,19 @@ class ModificarSalidaAlmacen(UpdateView):
                     amount = detalle_salida_form.cleaned_data.get('amount')
                     if quantity and price and amount:
                         try:
-                            det_ped = DetallePedido.objects.get(pk=order_detail)
+                            det_ped = OrderDetail.objects.get(pk=order_detail)
                         except ObjectDoesNotExist:
                             det_ped = None
-                        detalle_movimiento = DetalleMovimiento(line_number=cont,
+                        detalle_movimiento = MovementDetail(line_number=cont,
                                                                movement=self.object,
                                                                order_detail=det_ped,
-                                                               product=Producto.objects.get(pk=code),
+                                                               product=Product.objects.get(pk=code),
                                                                quantity=quantity,
                                                                price=price,
                                                                amount=amount)
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, reference, self.object.order)
+                MovementDetail.objects.bulk_create(detalles, reference, self.object.order)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -984,7 +984,7 @@ class ModificarSalidaAlmacen(UpdateView):
 
 
 class ModificarAlmacen(UpdateView):
-    model = Almacen
+    model = Warehouse
     template_name = 'almacen/almacen.html'
     form_class = AlmacenForm
     success_url = reverse_lazy('almacen:almacenes')
@@ -993,13 +993,13 @@ class ModificarAlmacen(UpdateView):
 class ModificarPedido(UpdateView):
     template_name = 'almacen/pedido.html'
     form_class = PedidoForm
-    model = Pedido
+    model = Order
     context_object_name = 'order'
 
-    @method_decorator(requiere('almacen.change_pedido'))
+    @method_decorator(requiere('almacen.change_order'))
     def dispatch(self, *args, **kwargs):
         order = self.get_object()
-        if order.status == Pedido.STATUS.PEND:
+        if order.status == Order.STATUS.PEND:
             return super(ModificarPedido, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -1018,7 +1018,7 @@ class ModificarPedido(UpdateView):
 
     def get_context_data(self, **kwargs):
         order = self.object
-        detalles = DetallePedido.objects.filter(order=order).order_by('line_number')
+        detalles = OrderDetail.objects.filter(order=order).order_by('line_number')
         cant_detalles = detalles.count()
         context = super(ModificarPedido, self).get_context_data(**kwargs)
         context['order'] = order
@@ -1028,10 +1028,10 @@ class ModificarPedido(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.status == Pedido.STATUS.PEND:
+        if self.object.status == Order.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = DetallePedido.objects.filter(order=self.object).order_by('line_number')
+            detalles = OrderDetail.objects.filter(order=self.object).order_by('line_number')
             detalles_data = []
             for detalle in detalles:
                 d = {'code': detalle.product.code,
@@ -1057,20 +1057,20 @@ class ModificarPedido(UpdateView):
         try:
             with transaction.atomic():
                 self.object = form.save()
-                DetallePedido.objects.filter(order=self.object).delete()
+                OrderDetail.objects.filter(order=self.object).delete()
                 detalles = []
                 cont = 1
                 for detalle_pedido_form in detalle_pedido_formset:
                     code = detalle_pedido_form.cleaned_data.get('code')
                     quantity = detalle_pedido_form.cleaned_data.get('quantity')
                     if code and quantity:
-                        product = Producto.objects.get(code=code)
-                        detalles.append(DetallePedido(order=self.object,
+                        product = Product.objects.get(code=code)
+                        detalles.append(OrderDetail(order=self.object,
                                                       line_number=cont,
                                                       product=product,
                                                       quantity=quantity))
                         cont = cont + 1
-                DetallePedido.objects.bulk_create(detalles)
+                OrderDetail.objects.bulk_create(detalles)
                 return HttpResponseRedirect(reverse('almacen:order_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -1089,18 +1089,18 @@ class MovimientosPorProducto(FormView):
         desde = data['desde']
         hasta = data['hasta']
         warehouse = data['warehouse']
-        product = Producto.objects.get(code=data['product'])
+        product = Product.objects.get(code=data['product'])
         return self.obtener_movimientos(desde, hasta, warehouse, product)
 
     def obtener_movimientos(self, desde, hasta, warehouse, product):
-        detalles = DetalleMovimiento.objects.filter(movement__warehouse=warehouse,
+        detalles = MovementDetail.objects.filter(movement__warehouse=warehouse,
                                                     product=product,
                                                     movement__operation_date__gte=desde,
                                                     movement__operation_date__lte=hasta).order_by(
             'movement__operation_date')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Producto: ' + product.description
+        ws['B1'] = u'Product: ' + product.description
         ws.merge_cells('B1:I1')
         ws['B2'] = u'Almacén: ' + warehouse.description
         ws.merge_cells('B2:D2')
@@ -1142,7 +1142,7 @@ class MovimientosPorProducto(FormView):
 class RegistrarIngresoAlmacen(CreateView):
     template_name = 'almacen/ingreso_almacen.html'
     form_class = MovimientoForm
-    model = Movimiento
+    model = Movement
     context_object_name = 'movement'
 
     def get_initial(self):
@@ -1159,11 +1159,11 @@ class RegistrarIngresoAlmacen(CreateView):
     def get(self, request, *args, **kwargs):
         self.object = None
         cod_tipo_mov = 'I00'
-        tipos_ingreso = TipoMovimiento.objects.filter(increases=True).exclude(code=cod_tipo_mov)
+        tipos_ingreso = MovementType.objects.filter(increases=True).exclude(code=cod_tipo_mov)
         if not tipos_ingreso:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
-        almacenes = Almacen.objects.all()
-        cant_suministros = Producto.objects.count()
+        almacenes = Warehouse.objects.all()
+        cant_suministros = Product.objects.count()
         if almacenes.count() > 0:
             if cant_suministros > 0:
                 form_class = self.get_form_class()
@@ -1198,24 +1198,24 @@ class RegistrarIngresoAlmacen(CreateView):
                     amount = detalle_ingreso_form.cleaned_data.get('amount')
                     if quantity and price and amount:
                         try:
-                            purchase_order_detail = DetalleOrdenCompra.objects.get(pk=orden_compra)
-                            detalle_movimiento = DetalleMovimiento(purchase_order_detail=purchase_order_detail,
+                            purchase_order_detail = PurchaseOrderDetail.objects.get(pk=orden_compra)
+                            detalle_movimiento = MovementDetail(purchase_order_detail=purchase_order_detail,
                                                                    line_number=cont,
                                                                    movement=self.object,
-                                                                   product=Producto.objects.get(pk=code),
+                                                                   product=Product.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         except ObjectDoesNotExist:
-                            detalle_movimiento = DetalleMovimiento(line_number=cont,
+                            detalle_movimiento = MovementDetail(line_number=cont,
                                                                    movement=self.object,
-                                                                   product=Producto.objects.get(pk=code),
+                                                                   product=Product.objects.get(pk=code),
                                                                    quantity=quantity,
                                                                    price=price,
                                                                    amount=amount)
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, reference, None)
+                MovementDetail.objects.bulk_create(detalles, reference, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -1228,7 +1228,7 @@ class RegistrarIngresoAlmacen(CreateView):
 class RegistrarSalidaAlmacen(CreateView):
     form_class = MovimientoForm
     template_name = "almacen/salida_almacen.html"
-    model = Movimiento
+    model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
@@ -1244,10 +1244,10 @@ class RegistrarSalidaAlmacen(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        tipos_salida = TipoMovimiento.objects.filter(increases=False)
+        tipos_salida = MovementType.objects.filter(increases=False)
         if not tipos_salida:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
-        almacenes = Almacen.objects.filter()
+        almacenes = Warehouse.objects.filter()
         if not almacenes:
             return HttpResponseRedirect(reverse('almacen:crear_almacen'))
         else:
@@ -1280,15 +1280,15 @@ class RegistrarSalidaAlmacen(CreateView):
                     price = detalle_salida_form.cleaned_data.get('price')
                     amount = detalle_salida_form.cleaned_data.get('amount')
                     if quantity and price and amount:
-                        detalle_movimiento = DetalleMovimiento(line_number=cont,
+                        detalle_movimiento = MovementDetail(line_number=cont,
                                                                movement=self.object,
-                                                               product=Producto.objects.get(pk=code),
+                                                               product=Product.objects.get(pk=code),
                                                                quantity=quantity,
                                                                price=price,
                                                                amount=amount)
                         detalles.append(detalle_movimiento)
                         cont = cont + 1
-                DetalleMovimiento.objects.bulk_create(detalles, reference, None)
+                MovementDetail.objects.bulk_create(detalles, reference, None)
                 return HttpResponseRedirect(reverse('almacen:detalle_movimiento', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
@@ -1301,7 +1301,7 @@ class RegistrarSalidaAlmacen(CreateView):
 class ReporteExcelAlmacenes(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        almacenes = Almacen.objects.filter(is_active=True).order_by('code')
+        almacenes = Warehouse.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE ALMACENES'
@@ -1324,7 +1324,7 @@ class ReporteExcelAlmacenes(TemplateView):
 class ReporteExcelTiposMovimientos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = TipoMovimiento.objects.filter(is_active=True).order_by('code')
+        tipos = MovementType.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE MOVIMIENTOS'
@@ -1381,7 +1381,7 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         cod_prod = data.get('cod_producto')
-        product = Producto.objects.get(code=cod_prod)
+        product = Product.objects.get(code=cod_prod)
         desde = data.get('desde')
         hasta = data.get('hasta')
         warehouse = data.get('almacenes')
@@ -1500,7 +1500,7 @@ class ReprocesoPrecio(FormView):
         seleccion = data['seleccion']
         if seleccion == 'P':
             cod_prod = data['product']
-            product = Producto.objects.get(code=cod_prod)
+            product = Product.objects.get(code=cod_prod)
             self.reprocesar_precio_producto(product, warehouse, desde)
         else:
             listado_kardex = Kardex.objects.filter(warehouse=warehouse).order_by('product').distinct('product__code')
@@ -1522,7 +1522,7 @@ class StockProductos(FormView):
         data = form.cleaned_data
         warehouse = data['warehouse']
         description = data['description']
-        productos = list(Producto.objects.filter(description__icontains=description)
+        productos = list(Product.objects.filter(description__icontains=description)
                          .select_related('unit_of_measure').order_by('description'))
         wb = Workbook()
         ws = wb.active
@@ -1589,7 +1589,7 @@ class ListadoStockProducto(SoloAjaxMixin, TemplateView):
             description = request.GET['description']
             warehouse = request.GET['warehouse']
             lista_productos = []
-            productos = list(Producto.objects.filter(description__icontains=description)
+            productos = list(Product.objects.filter(description__icontains=description)
                              .select_related('unit_of_measure').order_by('description'))
             ultimos = Kardex.ultimos_por_producto(productos, warehouse__pk=warehouse)
             for product in productos:
@@ -1613,8 +1613,8 @@ class ReporteExcelMovimientos(FormView):
         tipo_busqueda = data['tipo_busqueda']
         p_almacen = data['almacenes']
         p_tipo_movimiento = data['tipos_movimiento']
-        warehouse = Almacen.objects.get(code=p_almacen)
-        movement_type = TipoMovimiento.objects.get(code=p_tipo_movimiento)
+        warehouse = Warehouse.objects.get(code=p_almacen)
+        movement_type = MovementType.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         if tipo_busqueda == 'F':
@@ -1632,7 +1632,7 @@ class ReporteExcelMovimientos(FormView):
             ws['D3'] = 'HASTA'
             ws['E3'] = fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
-            movimientos = Movimiento.objects.filter(operation_date__range=[start_date, fecha_final],
+            movimientos = Movement.objects.filter(operation_date__range=[start_date, fecha_final],
                                                     movement_type=movement_type, warehouse=warehouse)
         elif tipo_busqueda == 'M':
             month = data['month'].strip()
@@ -1647,7 +1647,7 @@ class ReporteExcelMovimientos(FormView):
             ws['C3'] = month
             ws['D3'] = 'AÑO'
             ws['E3'] = year
-            movimientos = Movimiento.objects.filter(operation_date__month=month,
+            movimientos = Movement.objects.filter(operation_date__month=month,
                                                     operation_date__year=year,
                                                     movement_type=movement_type,
                                                     warehouse=warehouse)
@@ -1661,7 +1661,7 @@ class ReporteExcelMovimientos(FormView):
             ws.merge_cells('E2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = year
-            movimientos = Movimiento.objects.filter(operation_date__year=year,
+            movimientos = Movement.objects.filter(operation_date__year=year,
                                                     movement_type=movement_type,
                                                     warehouse=warehouse)
         ws['B5'] = 'ID_MOVIMIENTO'
@@ -1712,8 +1712,8 @@ class ReporteExcelMovimientosPorFecha(View):
         month = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
         fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
-        warehouse = Almacen.objects.get(code=p_almacen)
-        movement_type = TipoMovimiento.objects.get(code=p_tipo_movimiento)
+        warehouse = Warehouse.objects.get(code=p_almacen)
+        movement_type = MovementType.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
@@ -1728,7 +1728,7 @@ class ReporteExcelMovimientosPorFecha(View):
         ws['D3'] = 'HASTA'
         ws['E3'] = p_fecha_final
         ws['F3'].number_format = 'dd/mm/yyyy'
-        movimientos = Movimiento.objects.filter(operation_date__range=[start_date, fecha_final],
+        movimientos = Movement.objects.filter(operation_date__range=[start_date, fecha_final],
                                                 movement_type=movement_type, warehouse=warehouse)
         ws['B5'] = 'ID_MOVIMIENTO'
         ws['C5'] = 'TIPO_DOCUMENTO'
@@ -1761,7 +1761,7 @@ class ReportePDFMovimiento(View):
 
     def get(self, request, *args, **kwargs):
         movement_id = kwargs['movement_id']
-        movement = Movimiento.objects.get(pk=movement_id)
+        movement = Movement.objects.get(pk=movement_id)
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteMovimiento('A4', movement)
         pdf = reporte.imprimir()
@@ -1788,7 +1788,7 @@ class ReportePDFProductos(View):
         header = Paragraph("Listado de Clientes", styles['Heading1'])
         clientes.append(header)
         headings = ('Nombre', 'Email', 'Edad', 'Direccion')
-        allclientes = [(p.code, p.description, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
+        allclientes = [(p.code, p.description, p.precio_mercado, p.grupo_suministros) for p in Product.objects.all()]
 
         t = Table([headings] + allclientes)
         t.setStyle(TableStyle(
@@ -1811,7 +1811,7 @@ class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
-        movement_type = TipoMovimiento.objects.get(pk=tipo)
+        movement_type = MovementType.objects.get(pk=tipo)
         json_object = {'solicita_documento': movement_type.solicita_documento}
         return JsonResponse(json_object)
 
@@ -1822,7 +1822,7 @@ class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
-        movement_type = TipoMovimiento.objects.get(pk=tipo)
+        movement_type = MovementType.objects.get(pk=tipo)
         json_object = {'requires_reference': movement_type.requires_reference}
         return JsonResponse(json_object)
 
@@ -1834,8 +1834,8 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         warehouse = request.GET['warehouse']
         order = request.GET['order']
-        detalles = list(DetallePedido.objects.filter(order__code=order,
-                                                     status=DetallePedido.STATUS.PEND)
+        detalles = list(OrderDetail.objects.filter(order__code=order,
+                                                     status=OrderDetail.STATUS.PEND)
                         .select_related('product__unit_of_measure').order_by('line_number'))
         ultimos = Kardex.ultimos_por_producto([detalle.product for detalle in detalles],
                                               warehouse__code=warehouse)

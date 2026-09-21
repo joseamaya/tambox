@@ -107,21 +107,21 @@ class OpcionesDeFormularioTestCase(TestCase):
     nuevo no aparecia en el desplegable hasta reiniciar el process."""
 
     def test_las_opciones_se_leen_de_la_base_de_datos(self):
-        from almacen.models import Almacen
+        from almacen.models import Warehouse
 
-        Almacen.objects.create(code='AL01', description='ALMACEN UNO')
+        Warehouse.objects.create(code='AL01', description='ALMACEN UNO')
         formulario = FormularioReporteMovimientos()
         codes = [code for code, _ in formulario.fields['almacenes'].choices]
 
         self.assertIn('AL01', codes)
 
     def test_un_almacen_nuevo_aparece_sin_reiniciar(self):
-        from almacen.models import Almacen
+        from almacen.models import Warehouse
 
         formulario = FormularioReporteMovimientos()
         self.assertEqual([], list(formulario.fields['almacenes'].choices))
 
-        Almacen.objects.create(code='AL02', description='ALMACEN DOS')
+        Warehouse.objects.create(code='AL02', description='ALMACEN DOS')
         formulario = FormularioReporteMovimientos()
         codes = [code for code, _ in formulario.fields['almacenes'].choices]
 

@@ -3,12 +3,12 @@
 <h3>Tipos de Cambio / {{ object.date }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_tipocambio %}
+        {% if perms.contabilidad.change_exchangerate %}
         <a class="btn btn-primary" href="{% url 'contabilidad:modificar_tipo_cambio' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.contabilidad.delete_tipocambio %}
+        {% if perms.contabilidad.delete_exchangerate %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -32,7 +32,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Tipo de Cambio"></div>
+<div id="dialog-confirm" title="Eliminar Type de Cambio"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">

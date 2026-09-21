@@ -1,9 +1,9 @@
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_productor %} <a
+        {% if perms.administracion.change_producer %} <a
             class="btn btn-primary"
             href="{% url 'administracion:modificar_productor' object.pk %}">
-        Editar </a> {% endif %} {% if perms.administracion.delete_productor %}
+        Editar </a> {% endif %} {% if perms.administracion.delete_producer %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -12,11 +12,11 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:detalle_productor' object.anterior %}','Productor / {{ object.anterior_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:detalle_productor' object.anterior %}','Producer / {{ object.anterior_nombres_apellidos }}');">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:detalle_productor' object.siguiente %}','Productor / {{ object.siguiente_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:detalle_productor' object.siguiente %}','Producer / {{ object.siguiente_nombres_apellidos }}');">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -31,7 +31,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-2">
-                <a href="{{ object.photo.url }}" class="thumbnail"> <img src="{{ object.photo.url }}" alt="Foto Productor"
+                <a href="{{ object.photo.url }}" class="thumbnail"> <img src="{{ object.photo.url }}" alt="Foto Producer"
                                                                         style="width: 120px; height: 90px">
                 </a>
             </div>

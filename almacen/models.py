@@ -4,21 +4,21 @@ from decimal import Decimal
 
 from django.db import models, transaction
 from django.db.models import Max, Sum
-from compras.models import OrdenCompra, DetalleOrdenCompra
-from contabilidad.models import TipoDocumento
+from compras.models import PurchaseOrder, PurchaseOrderDetail
+from contabilidad.models import DocumentType
 from django.utils.encoding import force_str
-from administracion.models import Oficina, Trabajador, Productor
+from administracion.models import Office, Worker, Producer
 from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
-from productos.models import Producto
+from productos.models import Product
 from almacen.managers import DetalleMovimientoManager
 from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
 from simple_history.models import HistoricalRecords
 
 
-class Almacen(TimeStampedModel):
+class Warehouse(TimeStampedModel):
     code = models.CharField(unique=True, max_length=5, verbose_name='Código')
     description = models.CharField(max_length=30, verbose_name='Descripción')
     is_active = models.BooleanField(default=True, verbose_name='Estado')
@@ -37,17 +37,17 @@ class Almacen(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        return Almacen.objects.anterior(self).pk
+        return Warehouse.objects.anterior(self).pk
 
     def siguiente(self):
-        return Almacen.objects.siguiente(self).pk
+        return Warehouse.objects.siguiente(self).pk
 
     def __str__(self):
         return self.description
 
 
 # Vislumbrar la posibilidad de agregar un campo que diga modifica price
-class TipoMovimiento(TimeStampedModel):
+class MovementType(TimeStampedModel):
     code = models.CharField(unique=True, max_length=10, verbose_name='Código')
     sunat_code = models.CharField(max_length=2)
     description = models.CharField(max_length=25, verbose_name='Descripción')
@@ -61,10 +61,10 @@ class TipoMovimiento(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        return TipoMovimiento.objects.anterior(self).pk
+        return MovementType.objects.anterior(self).pk
 
     def siguiente(self):
-        return TipoMovimiento.objects.siguiente(self).pk
+        return MovementType.objects.siguiente(self).pk
 
     class Meta:
         permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
@@ -74,7 +74,7 @@ class TipoMovimiento(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            tipo_mov_ant = TipoMovimiento.objects.filter(increases=self.increases).aggregate(Max('code'))
+            tipo_mov_ant = MovementType.objects.filter(increases=self.increases).aggregate(Max('code'))
             cod_ant = tipo_mov_ant['code__max']
 
             if self.increases:
@@ -89,16 +89,16 @@ class TipoMovimiento(TimeStampedModel):
                 else:
                     aux = int(cod_ant[1:]) + 1
                     self.code = 'S' + str(aux).zfill(2)
-        super(TipoMovimiento, self).save()
+        super(MovementType, self).save()
 
     def __str__(self):
         return force_str(self.description)
 
 
-class Pedido(TimeStampedModel):
+class Order(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
-    requester = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='orders')
-    office = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='orders')
+    requester = models.ForeignKey(Worker, on_delete=models.CASCADE, related_name='orders')
+    office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='orders')
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -114,24 +114,24 @@ class Pedido(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        return Pedido.objects.anterior(self).pk
+        return Order.objects.anterior(self).pk
 
     def siguiente(self):
-        return Pedido.objects.siguiente(self).pk
+        return Order.objects.siguiente(self).pk
 
     def establecer_estado_atendido(self):
         total = 0
         total_atendida = 0
-        for detalle in DetallePedido.objects.filter(order=self):
+        for detalle in OrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_atendida = total_atendida + detalle.served_quantity
         caso = clasificar(total_atendida, total)
         if caso == VACIO:
-            estado = Pedido.STATUS.PEND
+            estado = Order.STATUS.PEND
         elif caso == PARCIAL:
-            estado = Pedido.STATUS.ATEN_PARC
+            estado = Order.STATUS.ATEN_PARC
         else:
-            estado = Pedido.STATUS.ATEN
+            estado = Order.STATUS.ATEN
         self.status = estado
         return self.status
 
@@ -148,7 +148,7 @@ class Pedido(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.code == '':
             anio = self.date.year
-            mov_ant = Pedido.objects.filter(date__year=anio).aggregate(Max('code'))
+            mov_ant = Order.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -157,15 +157,15 @@ class Pedido(TimeStampedModel):
             correlativo = str(aux).zfill(6)
             code = 'PE' + str(anio) + correlativo
             self.code = code
-            super(Pedido, self).save()
+            super(Order, self).save()
         else:
-            super(Pedido, self).save()
+            super(Order, self).save()
 
 
-class DetallePedido(TimeStampedModel):
+class OrderDetail(TimeStampedModel):
     line_number = models.IntegerField()
-    order = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='details')
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='order_details', null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='details')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='order_details', null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -185,11 +185,11 @@ class DetallePedido(TimeStampedModel):
     def establecer_estado_atendido(self):
         caso = clasificar(self.served_quantity, self.quantity)
         if caso == VACIO:
-            estado = DetallePedido.STATUS.PEND
+            estado = OrderDetail.STATUS.PEND
         elif caso == PARCIAL:
-            estado = DetallePedido.STATUS.ATEN_PARC
+            estado = OrderDetail.STATUS.ATEN_PARC
         else:
-            estado = DetallePedido.STATUS.ATEN
+            estado = OrderDetail.STATUS.ATEN
         self.status = estado
         return self.status
 
@@ -201,19 +201,19 @@ class DetallePedido(TimeStampedModel):
         return self.order.code + ' ' + str(self.line_number)
 
 
-class Movimiento(TimeStampedModel):
+class Movement(TimeStampedModel):
     movement_id = models.CharField(unique=True, max_length=16)
-    movement_type = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE, related_name='movements')
-    reference = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='movements', null=True)
-    order = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='movements', null=True)
-    document_type = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='movements', null=True)
+    movement_type = models.ForeignKey(MovementType, on_delete=models.CASCADE, related_name='movements')
+    reference = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='movements', null=True)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='movements', null=True)
+    document_type = models.ForeignKey(DocumentType, on_delete=models.CASCADE, related_name='movements', null=True)
     series = models.CharField(max_length=15, null=True)
     number = models.CharField(max_length=10, null=True)
     operation_date = models.DateTimeField()
-    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movements')
-    office = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='movements', null=True)
-    worker = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='movements', null=True)
-    producer = models.ForeignKey(Productor, on_delete=models.CASCADE, related_name='movements', null=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='movements')
+    office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='movements', null=True)
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE, related_name='movements', null=True)
+    producer = models.ForeignKey(Producer, on_delete=models.CASCADE, related_name='movements', null=True)
     notes = models.TextField(default='')
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
@@ -224,10 +224,10 @@ class Movimiento(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        return Movimiento.objects.anterior(self).pk
+        return Movement.objects.anterior(self).pk
 
     def siguiente(self):
-        return Movimiento.objects.siguiente(self).pk
+        return Movement.objects.siguiente(self).pk
 
     @transaction.atomic
     def eliminar_referencia(self):
@@ -235,7 +235,7 @@ class Movimiento(TimeStampedModel):
         requirement = None
         if order.quotation is not None:
             requirement = order.quotation.requirement
-        detalles = DetalleMovimiento.objects.filter(movement=self)
+        detalles = MovementDetail.objects.filter(movement=self)
         for detalle in detalles:
             purchase_order_detail = detalle.purchase_order_detail
             if purchase_order_detail.quotation_detail is not None:
@@ -255,7 +255,7 @@ class Movimiento(TimeStampedModel):
     @transaction.atomic
     def eliminar_pedido(self):
         order = self.order
-        detalles = DetalleMovimiento.objects.filter(movement=self)
+        detalles = MovementDetail.objects.filter(movement=self)
         for detalle in detalles:
             order_detail = detalle.order_detail
             order_detail.served_quantity = order_detail.served_quantity - detalle.quantity
@@ -265,7 +265,7 @@ class Movimiento(TimeStampedModel):
         order.save()
 
     def eliminar_detalles(self):
-        DetalleMovimiento.objects.filter(movement=self).delete()
+        MovementDetail.objects.filter(movement=self).delete()
 
     @transaction.atomic
     def eliminar_kardex(self):
@@ -274,7 +274,7 @@ class Movimiento(TimeStampedModel):
         detalle_kardex = Kardex.objects.filter(movement=movement,
                                                warehouse=warehouse)
         for kardex in detalle_kardex:
-            control = ControlProductoAlmacen.objects.get(product=kardex.product, warehouse=warehouse)
+            control = WarehouseProductControl.objects.get(product=kardex.product, warehouse=warehouse)
             control.stock = control.stock - kardex.in_quantity
             control.save()
             kardex.delete()
@@ -283,7 +283,7 @@ class Movimiento(TimeStampedModel):
     def total(self):
         """Suma la columna `amount`, asi que el agregado es exacto."""
         if not hasattr(self, '_total_calculado'):
-            self._total_calculado = DetalleMovimiento.objects.filter(
+            self._total_calculado = MovementDetail.objects.filter(
                 movement=self).aggregate(total=Sum('amount'))['total'] or 0
         return self._total_calculado
 
@@ -300,7 +300,7 @@ class Movimiento(TimeStampedModel):
         if self.movement_id == '':
             tipo = self.movement_type
             anio = self.operation_date.year
-            mov_ant = Movimiento.objects.filter(movement_type__increases=tipo.increases,
+            mov_ant = Movement.objects.filter(movement_type__increases=tipo.increases,
                                                 operation_date__year=anio).aggregate(Max('movement_id'))
             id_ant = mov_ant['movement_id__max']
             if id_ant is None:
@@ -310,16 +310,16 @@ class Movimiento(TimeStampedModel):
             correlativo = str(aux).zfill(7)
             code = str(tipo.code[0:1]) + str(anio) + correlativo
             self.movement_id = code
-        super(Movimiento, self).save()
+        super(Movement, self).save()
 
 
-class DetalleMovimiento(TimeStampedModel):
+class MovementDetail(TimeStampedModel):
     objects = DetalleMovimientoManager()
     line_number = models.IntegerField()
-    movement = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='details')
-    purchase_order_detail = models.ForeignKey(DetalleOrdenCompra, on_delete=models.CASCADE, related_name='movement_details', null=True)
-    order_detail = models.ForeignKey(DetallePedido, on_delete=models.CASCADE, related_name='movement_details', null=True)
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='movement_details')
+    movement = models.ForeignKey(Movement, on_delete=models.CASCADE, related_name='details')
+    purchase_order_detail = models.ForeignKey(PurchaseOrderDetail, on_delete=models.CASCADE, related_name='movement_details', null=True)
+    order_detail = models.ForeignKey(OrderDetail, on_delete=models.CASCADE, related_name='movement_details', null=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='movement_details')
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
     price = models.DecimalField(max_digits=25, decimal_places=8)
     amount = models.DecimalField(max_digits=25, decimal_places=8)
@@ -376,13 +376,13 @@ class DetalleMovimiento(TimeStampedModel):
         else:
             precio_control = kardex.total_amount / kardex.total_quantity
 
-        control_producto, creado = ControlProductoAlmacen.objects.update_or_create(
+        control_producto, creado = WarehouseProductControl.objects.update_or_create(
             warehouse=self.movement.warehouse,
             product=self.product,
             defaults={'stock': kardex.total_quantity,
                       'price': precio_control}
         )
-        super(DetalleMovimiento, self).save()
+        super(MovementDetail, self).save()
         kardex.save()
 
     class Meta:
@@ -390,9 +390,9 @@ class DetalleMovimiento(TimeStampedModel):
 
 
 class Kardex(TimeStampedModel):
-    movement = models.ForeignKey(Movimiento, on_delete=models.CASCADE, related_name='kardex_entries')
+    movement = models.ForeignKey(Movement, on_delete=models.CASCADE, related_name='kardex_entries')
     movement_line_number = models.IntegerField()
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='kardex_entries')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='kardex_entries')
     operation_date = models.DateTimeField()
     in_quantity = models.DecimalField(max_digits=25, decimal_places=8)
     in_price = models.DecimalField(max_digits=25, decimal_places=8)
@@ -403,7 +403,7 @@ class Kardex(TimeStampedModel):
     total_quantity = models.DecimalField(max_digits=25, decimal_places=8)
     total_price = models.DecimalField(max_digits=25, decimal_places=8)
     total_amount = models.DecimalField(max_digits=25, decimal_places=8)
-    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='kardex_entries')
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='kardex_entries')
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()
@@ -485,9 +485,9 @@ class Kardex(TimeStampedModel):
         ordering = ['movement', 'movement_line_number']
 
 
-class ControlProductoAlmacen(TimeStampedModel):
-    product = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='warehouse_controls')
-    warehouse = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='warehouse_controls')
+class WarehouseProductControl(TimeStampedModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='warehouse_controls')
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='warehouse_controls')
     stock = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     history = HistoricalRecords()

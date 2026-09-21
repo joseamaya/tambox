@@ -2,9 +2,9 @@
 <h3>Almacenes / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.change_almacen %} <a class="btn btn-primary"
+        {% if perms.almacen.change_warehouse %} <a class="btn btn-primary"
                                                  href="{% url 'almacen:modificar_almacen' object.pk %}"> Editar </a>
-        {% endif %} {% if perms.almacen.delete_almacen %}
+        {% endif %} {% if perms.almacen.delete_warehouse %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

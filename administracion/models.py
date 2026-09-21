@@ -9,7 +9,7 @@ from simple_history.models import HistoricalRecords
 
 
 # Create your models here.
-class Profesion(TimeStampedModel):
+class Profession(TimeStampedModel):
     abbreviation = models.CharField(max_length=7)
     description = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
@@ -17,11 +17,11 @@ class Profesion(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        ant = Profesion.objects.anterior(self)
+        ant = Profession.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Profesion.objects.siguiente(self)
+        sig = Profession.objects.siguiente(self)
         return sig.pk
 
     class Meta:
@@ -35,12 +35,12 @@ class Profesion(TimeStampedModel):
         return force_str(self.description)
 
 
-class Trabajador(TimeStampedModel):
+class Worker(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker', null=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
-    profession = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
+    profession = models.ForeignKey(Profession, on_delete=models.CASCADE, related_name='workers', null=True)
     signature = models.ImageField(upload_to='firmas')
     photo = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     is_active = models.BooleanField(default=True)
@@ -54,19 +54,19 @@ class Trabajador(TimeStampedModel):
             return self.first_name + ' ' + self.last_name
 
     def anterior(self):
-        ant = Trabajador.objects.anterior(self)
+        ant = Worker.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Trabajador.objects.siguiente(self)
+        sig = Worker.objects.siguiente(self)
         return sig.pk
 
     def anterior_nombres_apellidos(self):
-        ant = Trabajador.objects.anterior(self)
+        ant = Worker.objects.anterior(self)
         return ant.first_name + " " + ant.last_name
 
     def siguiente_nombres_apellidos(self):
-        sig = Trabajador.objects.siguiente(self)
+        sig = Worker.objects.siguiente(self)
         return sig.first_name + " " + sig.last_name
 
     @property
@@ -88,7 +88,7 @@ class Trabajador(TimeStampedModel):
         ordering = ['last_name']
 
 
-class Productor(TimeStampedModel):
+class Producer(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
@@ -97,19 +97,19 @@ class Productor(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        ant = Productor.objects.anterior(self)
+        ant = Producer.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Productor.objects.siguiente(self)
+        sig = Producer.objects.siguiente(self)
         return sig.pk
 
     def anterior_nombres_apellidos(self):
-        ant = Productor.objects.anterior(self)
+        ant = Producer.objects.anterior(self)
         return ant.first_name + " " + ant.last_name
 
     def siguiente_nombres_apellidos(self):
-        sig = Productor.objects.siguiente(self)
+        sig = Producer.objects.siguiente(self)
         return sig.first_name + " " + sig.last_name
 
     def nombre_completo(self):
@@ -126,7 +126,7 @@ class Productor(TimeStampedModel):
         ordering = ['last_name']
 
 
-class Oficina(TimeStampedModel):
+class Office(TimeStampedModel):
     code = models.CharField(max_length=4, unique=True)
     name = models.CharField(max_length=50)
     is_management = models.BooleanField(default=False)
@@ -152,21 +152,21 @@ class Oficina(TimeStampedModel):
             return oficina_superior.gerencia
 
     def anterior(self):
-        ant = Oficina.objects.anterior(self)
+        ant = Office.objects.anterior(self)
         return ant
 
     def siguiente(self):
-        sig = Oficina.objects.siguiente(self)
+        sig = Office.objects.siguiente(self)
         return sig
 
     def __str__(self):
         return force_str(self.name)
 
 
-class Puesto(TimeStampedModel):
+class Position(TimeStampedModel):
     name = models.CharField(max_length=100)
-    office = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='positions')
-    worker = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='positions')
+    office = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='positions')
+    worker = models.ForeignKey(Worker, on_delete=models.CASCADE, related_name='positions')
     start_date = models.DateField()
     end_date = models.DateField(null=True)
     is_leadership = models.BooleanField(default=False)
@@ -176,16 +176,16 @@ class Puesto(TimeStampedModel):
     objects = NavegableQuerySet.as_manager()
 
     def anterior(self):
-        ant = Puesto.objects.anterior(self)
+        ant = Position.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Puesto.objects.siguiente(self)
+        sig = Position.objects.siguiente(self)
         return sig.pk
 
     @property
     def puesto_superior(self):
-        puestos_superiores = Puesto.objects.filter(office=self.office,
+        puestos_superiores = Position.objects.filter(office=self.office,
                                                    is_leadership=True,
                                                    is_active=True)
         if puestos_superiores.count() > 0:
@@ -198,8 +198,8 @@ class Puesto(TimeStampedModel):
         from tambox.configuracion import logistica
         description = "LOGISTICA" if (self.office == logistica() and self.is_leadership) else "USUARIO"
         try:
-            return NivelAprobacion.objects.get(description=description)
-        except NivelAprobacion.DoesNotExist:
+            return ApprovalLevel.objects.get(description=description)
+        except ApprovalLevel.DoesNotExist:
             raise ValidationError(
                 'Falta el nivel de aprobacion "%s". Cargalo en Administracion antes de registrar requerimientos.'
                 % description)
@@ -214,10 +214,10 @@ class Puesto(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.end_date is not None:
             self.is_active = False
-        super(Puesto, self).save()
+        super(Position, self).save()
 
 
-class NivelAprobacion(TimeStampedModel):
+class ApprovalLevel(TimeStampedModel):
     description = models.CharField(max_length=100)
     superior_level = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     history = HistoricalRecords()
@@ -227,11 +227,11 @@ class NivelAprobacion(TimeStampedModel):
         return force_str(self.description)
 
     def anterior(self):
-        ant = NivelAprobacion.objects.anterior(self)
+        ant = ApprovalLevel.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = NivelAprobacion.objects.siguiente(self)
+        sig = ApprovalLevel.objects.siguiente(self)
         return sig.pk
 
     class Meta:

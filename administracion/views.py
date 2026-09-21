@@ -4,14 +4,14 @@ import logging
 from django.shortcuts import render
 from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm, \
     ProfesionForm, NivelAprobacionForm, ProductorForm
-from almacen.models import TipoMovimiento
+from almacen.models import MovementType
 from contabilidad.forms import UploadForm
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
-from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
-    NivelAprobacion, Productor
+from administracion.models import Office, Worker, Position, Profession, \
+    ApprovalLevel, Producer
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView
 from django.urls import reverse
@@ -32,10 +32,10 @@ class Tablero(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_trabajadores = Trabajador.objects.all().count()
-        cant_puestos = Puesto.objects.all().count()
-        cant_profesiones = Profesion.objects.all().count()
-        office, creada = Oficina.objects.get_or_create(code='GGEN',
+        cant_trabajadores = Worker.objects.all().count()
+        cant_puestos = Position.objects.all().count()
+        cant_profesiones = Profession.objects.all().count()
+        office, creada = Office.objects.get_or_create(code='GGEN',
                                                        defaults={'name': 'GERENCIA GENERAL',
                                                                  'is_management': True})
         if creada:
@@ -46,8 +46,8 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ningún puesto")
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")
-        nivel_logistica, creada = NivelAprobacion.objects.get_or_create(description="LOGISTICA")
-        _, creado = NivelAprobacion.objects.get_or_create(description="USUARIO",
+        nivel_logistica, creada = ApprovalLevel.objects.get_or_create(description="LOGISTICA")
+        _, creado = ApprovalLevel.objects.get_or_create(description="USUARIO",
                                                          defaults={'superior_level': nivel_logistica})
         if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
@@ -61,11 +61,11 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
-            movement_type = TipoMovimiento.objects.get(pk=request.GET['movement_type'])
+            movement_type = MovementType.objects.get(pk=request.GET['movement_type'])
             if movement_type.is_sale:
-                receptor = Productor.objects.get(dni=dni)
+                receptor = Producer.objects.get(dni=dni)
             else:
-                receptor = Trabajador.objects.get(dni=dni)
+                receptor = Worker.objects.get(dni=dni)
             receptor_json = {}
             receptor_json['dni'] = receptor.dni
             receptor_json['nombre_completo'] = str(receptor.nombre_completo())
@@ -79,11 +79,11 @@ class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             name = request.GET['name']
-            movement_type = TipoMovimiento.objects.get(pk=request.GET['movement_type'])
+            movement_type = MovementType.objects.get(pk=request.GET['movement_type'])
             if movement_type.is_sale:
-                receptores = Productor.objects.filter(last_name__icontains=name)[:20]
+                receptores = Producer.objects.filter(last_name__icontains=name)[:20]
             else:
-                receptores = Trabajador.objects.filter(
+                receptores = Worker.objects.filter(
                     Q(last_name__icontains=name) | Q(
                         first_name__icontains=name))[:20]
             lista_receptores = []
@@ -102,10 +102,10 @@ class CargarOficinas(CargarCsvMixin, FormView):
     success_url = reverse_lazy('administracion:maestro_oficinas')
 
     def procesar_fila(self, fila):
-        Oficina.objects.get_or_create(code=fila[0],
+        Office.objects.get_or_create(code=fila[0],
                                       defaults={
                                           'name': fila[1],
-                                          'dependency': Oficina.objects.get(code=fila[2])},
+                                          'dependency': Office.objects.get(code=fila[2])},
                                       )
 
 
@@ -118,7 +118,7 @@ class CargarProductores(CargarCsvMixin, FormView):
         dni = fila[0]
         if dni != "":
             try:
-                Productor.objects.get_or_create(dni=dni,
+                Producer.objects.get_or_create(dni=dni,
                                                 defaults={'last_name': (fila[1] + ' ' + fila[2]).upper(),
                                                           'first_name': fila[3].upper()})
             except Exception:
@@ -138,12 +138,12 @@ class CargarTrabajadores(CargarCsvMixin, FormView):
             if creado:
                 usuario.set_unusable_password()
                 usuario.save()
-                Trabajador.objects.get_or_create(user=usuario,
+                Worker.objects.get_or_create(user=usuario,
                                                  defaults={'dni': fila[1].strip(),
                                                            'last_name': (fila[2] + ' ' + fila[3]).strip(),
                                                            'first_name': fila[4]})
         else:
-            Trabajador.objects.get_or_create(dni=fila[1].strip(),
+            Worker.objects.get_or_create(dni=fila[1].strip(),
                                              defaults={'last_name': (fila[2] + ' ' + fila[3]).strip(),
                                                        'first_name': fila[4]})
 
@@ -156,9 +156,9 @@ class CargarPuestos(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
-            Puesto.objects.get_or_create(name=fila[0],
-                                         defaults={'office': Oficina.objects.get(code=fila[1].strip()),
-                                                   'worker': Trabajador.objects.get(dni=fila[2].strip()),
+            Position.objects.get_or_create(name=fila[0],
+                                         defaults={'office': Office.objects.get(code=fila[1].strip()),
+                                                   'worker': Worker.objects.get(dni=fila[2].strip()),
                                                    'start_date': date,
                                                    'is_leadership': fila[4] == 'SI'})
         except Exception:
@@ -170,7 +170,7 @@ class CrearNivelAprobacion(CreateView):
     form_class = NivelAprobacionForm
 
     @method_decorator(
-        requiere('administracion.add_nivelaprobacion'))
+        requiere('administracion.add_approvallevel'))
     def dispatch(self, *args, **kwargs):
         return super(CrearNivelAprobacion, self).dispatch(*args, **kwargs)
 
@@ -182,7 +182,7 @@ class CrearProfesion(CreateView):
     template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
 
-    @method_decorator(requiere('administracion.add_profesion'))
+    @method_decorator(requiere('administracion.add_profession'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProfesion, self).dispatch(*args, **kwargs)
 
@@ -194,7 +194,7 @@ class CrearOficina(CreateView):
     template_name = 'administracion/oficina.html'
     form_class = OficinaForm
 
-    @method_decorator(requiere('administracion.add_oficina'))
+    @method_decorator(requiere('administracion.add_office'))
     def dispatch(self, *args, **kwargs):
         return super(CrearOficina, self).dispatch(*args, **kwargs)
 
@@ -206,7 +206,7 @@ class CrearTrabajador(CreateView):
     template_name = 'administracion/trabajador.html'
     form_class = TrabajadorForm
 
-    @method_decorator(requiere('administracion.add_trabajador'))
+    @method_decorator(requiere('administracion.add_worker'))
     def dispatch(self, *args, **kwargs):
         return super(CrearTrabajador, self).dispatch(*args, **kwargs)
 
@@ -218,7 +218,7 @@ class CrearProductor(CreateView):
     template_name = 'administracion/productor.html'
     form_class = ProductorForm
 
-    @method_decorator(requiere('administracion.add_productor'))
+    @method_decorator(requiere('administracion.add_producer'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProductor, self).dispatch(*args, **kwargs)
 
@@ -230,7 +230,7 @@ class CrearPuesto(CreateView):
     template_name = 'administracion/puesto.html'
     form_class = PuestoForm
 
-    @method_decorator(requiere('administracion.add_puesto'))
+    @method_decorator(requiere('administracion.add_position'))
     def dispatch(self, *args, **kwargs):
         return super(CrearPuesto, self).dispatch(*args, **kwargs)
 
@@ -239,80 +239,80 @@ class CrearPuesto(CreateView):
 
 
 class DetalleOficina(DetailView):
-    model = Oficina
+    model = Office
     template_name = 'administracion/detalle_oficina.html'
 
 
 class DetalleTrabajador(DetailView):
-    model = Trabajador
+    model = Worker
     template_name = 'administracion/detalle_trabajador.html'
 
 
 class DetalleProductor(DetailView):
-    model = Productor
+    model = Producer
     template_name = 'administracion/detalle_productor.html'
 
 
 class DetallePuesto(DetailView):
-    model = Puesto
+    model = Position
     template_name = 'administracion/detalle_puesto.html'
 
 
 class DetalleProfesion(DetailView):
-    model = Profesion
+    model = Profession
     template_name = 'administracion/detalle_profesion.html'
 
 
 class DetalleNivelAprobacion(DetailView):
-    model = NivelAprobacion
+    model = ApprovalLevel
     template_name = 'administracion/detalle_nivel_aprobacion.html'
 
 
 class ListadoOficinas(ListView):
-    model = Oficina
+    model = Office
     template_name = 'administracion/oficinas.html'
     context_object_name = 'oficinas'
-    queryset = Oficina.objects.all().order_by('name')
+    queryset = Office.objects.all().order_by('name')
 
 
 class ListadoTrabajadores(ListView):
-    model = Trabajador
+    model = Worker
     template_name = 'administracion/trabajadores.html'
     context_object_name = 'trabajadores'
 
 
 class ListadoProductores(ListView):
-    model = Productor
+    model = Producer
     template_name = 'administracion/productores.html'
     context_object_name = 'productores'
 
 
 class ListadoPuestos(ListView):
-    model = Puesto
+    model = Position
     template_name = 'administracion/puestos.html'
     context_object_name = 'puestos'
-    queryset = Puesto.objects.filter(is_active=True)
+    queryset = Position.objects.filter(is_active=True)
 
 
 class ListadoProfesiones(ListView):
-    model = Profesion
+    model = Profession
     template_name = 'administracion/profesiones.html'
     context_object_name = 'profesiones'
 
 
 class ListadoNivelesAprobacion(ListView):
-    model = NivelAprobacion
+    model = ApprovalLevel
     template_name = 'administracion/niveles_aprobacion.html'
     context_object_name = 'niveles'
 
 
 class ModificarNivelAprobacion(UpdateView):
-    model = NivelAprobacion
+    model = ApprovalLevel
     template_name = 'administracion/nivel_aprobacion.html'
     form_class = NivelAprobacionForm
 
     @method_decorator(
-        requiere('administracion.change_nivelaprobacion'))
+        requiere('administracion.change_approvallevel'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarNivelAprobacion, self).dispatch(*args, **kwargs)
 
@@ -321,12 +321,12 @@ class ModificarNivelAprobacion(UpdateView):
 
 
 class ModificarProfesion(UpdateView):
-    model = Profesion
+    model = Profession
     template_name = 'administracion/profesion.html'
     form_class = ProfesionForm
 
     @method_decorator(
-        requiere('administracion.change_profesion'))
+        requiere('administracion.change_profession'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProfesion, self).dispatch(*args, **kwargs)
 
@@ -335,23 +335,23 @@ class ModificarProfesion(UpdateView):
 
 
 class ModificarOficina(UpdateView):
-    model = Oficina
+    model = Office
     template_name = 'administracion/oficina.html'
     form_class = OficinaForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
 
-    @method_decorator(requiere('administracion.change_oficina'))
+    @method_decorator(requiere('administracion.change_office'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarOficina, self).dispatch(*args, **kwargs)
 
 
 class ModificarTrabajador(UpdateView):
-    model = Trabajador
+    model = Worker
     template_name = 'administracion/trabajador.html'
     form_class = TrabajadorForm
 
     @method_decorator(
-        requiere('administracion.change_trabajador'))
+        requiere('administracion.change_worker'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarTrabajador, self).dispatch(*args, **kwargs)
 
@@ -360,12 +360,12 @@ class ModificarTrabajador(UpdateView):
 
 
 class ModificarProductor(UpdateView):
-    model = Productor
+    model = Producer
     template_name = 'administracion/productor.html'
     form_class = ProductorForm
 
     @method_decorator(
-        requiere('administracion.change_productor'))
+        requiere('administracion.change_producer'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProductor, self).dispatch(*args, **kwargs)
 
@@ -374,11 +374,11 @@ class ModificarProductor(UpdateView):
 
 
 class ModificarPuesto(UpdateView):
-    model = Puesto
+    model = Position
     template_name = 'administracion/puesto.html'
     form_class = ModificacionPuestoForm
 
-    @method_decorator(requiere('administracion.change_puesto'))
+    @method_decorator(requiere('administracion.change_position'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarPuesto, self).dispatch(*args, **kwargs)
 
@@ -395,7 +395,7 @@ class ModificarPuesto(UpdateView):
 
 class ReporteExcelOficinas(TemplateView):
     def get(self, request, *args, **kwargs):
-        oficinas = Oficina.objects.filter(is_active=True).order_by('code')
+        oficinas = Office.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE OFICINAS'
@@ -424,7 +424,7 @@ class ReporteExcelOficinas(TemplateView):
 
 class ReporteExcelProfesiones(TemplateView):
     def get(self, request, *args, **kwargs):
-        profesiones = Profesion.objects.filter(is_active=True)
+        profesiones = Profession.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PROFESIONES'
@@ -448,7 +448,7 @@ class ReporteExcelProfesiones(TemplateView):
 
 class ReporteExcelPuestos(TemplateView):
     def get(self, request, *args, **kwargs):
-        puestos = Puesto.objects.filter(is_active=True)
+        puestos = Position.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PUESTOS'
@@ -483,7 +483,7 @@ class ReporteExcelPuestos(TemplateView):
 
 class ReporteExcelTrabajadores(TemplateView):
     def get(self, request, *args, **kwargs):
-        trabajadores = Trabajador.objects.filter(is_active=True)
+        trabajadores = Worker.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TRABAJADORES'

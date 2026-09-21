@@ -15,10 +15,10 @@ from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 from contabilidad.forms import UploadForm
 from django.shortcuts import render
-from productos.models import Producto, UnidadMedida, GrupoProductos
+from productos.models import Product, UnitOfMeasure, ProductGroup
 from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
     UnidadMedidaForm
-from contabilidad.models import CuentaContable, TipoExistencia
+from contabilidad.models import Account, StockType
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 
 logger = logging.getLogger(__name__)
@@ -28,11 +28,11 @@ class Tablero(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_productos = Producto.objects.filter(is_service=False).count()
-        cant_tipos_unidad_medida = UnidadMedida.objects.count()
-        cant_grupos_suministros = GrupoProductos.objects.count()
-        cant_servicios = Producto.objects.filter(is_service=True).count()
-        unit_of_measure, creado = UnidadMedida.objects.get_or_create(code='SERV',
+        cant_productos = Product.objects.filter(is_service=False).count()
+        cant_tipos_unidad_medida = UnitOfMeasure.objects.count()
+        cant_grupos_suministros = ProductGroup.objects.count()
+        cant_servicios = Product.objects.filter(is_service=True).count()
+        unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
@@ -57,14 +57,14 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
             description = request.GET['description']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
-                productos = Producto.objects.filter(description__icontains=description).select_related(
+                productos = Product.objects.filter(description__icontains=description).select_related(
                     'unit_of_measure').order_by('description')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
-                productos = Producto.objects.filter(description__icontains=description,
+                productos = Product.objects.filter(description__icontains=description,
                                                     is_service=False).select_related(
                     'unit_of_measure').order_by('description')[:20]
             elif tipo_busqueda == 'SERVICIOS':
-                productos = Producto.objects.filter(description__icontains=description,
+                productos = Product.objects.filter(description__icontains=description,
                                                     is_service=True).select_related(
                     'unit_of_measure').order_by('description')[:20]
 
@@ -88,7 +88,7 @@ class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
-            productos = Producto.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
+            productos = Product.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
             lista_productos = []
             for product in productos:
                 producto_json = {}
@@ -109,10 +109,10 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         try:
-            account_number = CuentaContable.objects.get(account_number=fila[0])
-            GrupoProductos.objects.get_or_create(description=fila[1],
+            account_number = Account.objects.get(account_number=fila[0])
+            ProductGroup.objects.get_or_create(description=fila[1],
                                                  defaults={'account': account_number})
-        except CuentaContable.DoesNotExist:
+        except Account.DoesNotExist:
             pass
 
 
@@ -124,12 +124,12 @@ class CargarServicios(CargarCsvMixin, FormView):
     def form_valid(self, form):
         try:
             return super(CargarServicios, self).form_valid(form)
-        except GrupoProductos.DoesNotExist:
+        except ProductGroup.DoesNotExist:
             return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
 
     def procesar_fila(self, fila):
-        grupo = GrupoProductos.objects.get(code=fila[0].strip())
-        Producto.objects.get_or_create(description=fila[1],
+        grupo = ProductGroup.objects.get(code=fila[0].strip())
+        Product.objects.get_or_create(description=fila[1],
                                        defaults={'product_group': grupo,
                                                  'is_service': True})
 
@@ -141,17 +141,17 @@ class CargarProductos(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         try:
-            grupo = GrupoProductos.objects.get(code=fila[0].strip())
+            grupo = ProductGroup.objects.get(code=fila[0].strip())
             cod_und = fila[2][0:5]
-            und, creado = UnidadMedida.objects.get_or_create(code=cod_und.strip(),
+            und, creado = UnitOfMeasure.objects.get_or_create(code=cod_und.strip(),
                                                              defaults={'code': cod_und,
                                                                        'description': fila[2].strip()})
             if fila[3] != '':
                 price = fila[3]
             else:
                 price = 0
-            stock_type = TipoExistencia.objects.get(sunat_code=fila[4].strip())
-            product, creado = Producto.objects.get_or_create(description=fila[1].strip(),
+            stock_type = StockType.objects.get(sunat_code=fila[4].strip())
+            product, creado = Product.objects.get_or_create(description=fila[1].strip(),
                                                               defaults={'unit_of_measure': und,
                                                                         'product_group': grupo,
                                                                         'price': price,
@@ -167,7 +167,7 @@ class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
-            product = Producto.objects.get(code=code)
+            product = Product.objects.get(code=code)
             producto_json = {}
             producto_json['stock'] = product.stock
             data = simplejson.dumps(producto_json)
@@ -175,12 +175,12 @@ class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
 
 
 class CrearGrupoProductos(CreateView):
-    model = GrupoProductos
+    model = ProductGroup
     template_name = 'productos/grupo_productos.html'
     form_class = GrupoProductosForm
     success_url = reverse_lazy('productos:grupos_productos')
 
-    @method_decorator(requiere('productos.add_grupoproductos'))
+    @method_decorator(requiere('productos.add_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(CrearGrupoProductos, self).dispatch(*args, **kwargs)
 
@@ -189,12 +189,12 @@ class CrearGrupoProductos(CreateView):
 
 
 class CrearProducto(CreateView):
-    model = Producto
+    model = Product
     context_object_name = 'product'
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
-    @method_decorator(requiere('productos.add_producto'))
+    @method_decorator(requiere('productos.add_product'))
     def dispatch(self, *args, **kwargs):
         return super(CrearProducto, self).dispatch(*args, **kwargs)
 
@@ -206,7 +206,7 @@ class CrearUnidadMedida(CreateView):
     template_name = 'productos/unidad_medida.html'
     form_class = UnidadMedidaForm
 
-    @method_decorator(requiere('productos.add_unidadmedida'))
+    @method_decorator(requiere('productos.add_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(CrearUnidadMedida, self).dispatch(*args, **kwargs)
 
@@ -224,7 +224,7 @@ class CrearServicio(CreateView):
     template_name = 'productos/servicio.html'
     form_class = ServicioForm
 
-    @method_decorator(requiere('productos.add_producto'))
+    @method_decorator(requiere('productos.add_product'))
     def dispatch(self, *args, **kwargs):
         return super(CrearServicio, self).dispatch(*args, **kwargs)
 
@@ -233,43 +233,43 @@ class CrearServicio(CreateView):
 
 
 class DetalleProducto(DetailView):
-    model = Producto
+    model = Product
     template_name = 'productos/detalle_producto.html'
 
 
 class DetalleGrupoProductos(DetailView):
-    model = GrupoProductos
+    model = ProductGroup
     template_name = 'productos/detalle_grupo_productos.html'
 
 
 class DetalleUnidadMedida(DetailView):
-    model = UnidadMedida
+    model = UnitOfMeasure
     template_name = 'productos/detalle_unidad_medida.html'
 
 
 class DetalleServicio(DetailView):
-    model = Producto
+    model = Product
     template_name = 'productos/detalle_servicio.html'
 
 
 class EliminarUnidadMedida(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_unidadmedida'))
+    @method_decorator(requiere('productos.delete_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarUnidadMedida, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
-            unit_of_measure = UnidadMedida.objects.get(pk=id)
+            unit_of_measure = UnitOfMeasure.objects.get(pk=id)
             unidad_medida_json = {}
             unidad_medida_json['unidad'] = unit_of_measure.unidad
             if len(unit_of_measure.products.all()) > 0:
                 unidad_medida_json['productos'] = 'SI'
             else:
                 unidad_medida_json['productos'] = 'NO'
-                UnidadMedida.objects.filter(pk=id).update(is_active=False)
+                UnitOfMeasure.objects.filter(pk=id).update(is_active=False)
             data = simplejson.dumps(unidad_medida_json)
             return HttpResponse(data, 'application/json')
 
@@ -277,14 +277,14 @@ class EliminarUnidadMedida(TemplateView):
 class EliminarGrupoProductos(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_grupoproductos'))
+    @method_decorator(requiere('productos.delete_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarGrupoProductos, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            product_group = GrupoProductos.objects.get(pk=code)
+            product_group = ProductGroup.objects.get(pk=code)
             grupo_productos_json = {}
             grupo_productos_json['code'] = product_group.code
             grupo_productos_json['description'] = product_group.description
@@ -292,7 +292,7 @@ class EliminarGrupoProductos(TemplateView):
                 grupo_productos_json['productos'] = 'SI'
             else:
                 grupo_productos_json['productos'] = 'NO'
-                GrupoProductos.objects.filter(pk=code).update(is_active=False)
+                ProductGroup.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(grupo_productos_json)
             return HttpResponse(data, 'application/json')
 
@@ -300,14 +300,14 @@ class EliminarGrupoProductos(TemplateView):
 class EliminarProducto(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_producto'))
+    @method_decorator(requiere('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarProducto, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            product = Producto.objects.get(pk=code)
+            product = Product.objects.get(pk=code)
             producto_json = {}
             producto_json['code'] = product.code
             producto_json['description'] = product.description
@@ -317,7 +317,7 @@ class EliminarProducto(TemplateView):
                 producto_json['relaciones'] = 'SI'
             else:
                 producto_json['relaciones'] = 'NO'
-                Producto.objects.filter(pk=code).update(is_active=False)
+                Product.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
@@ -325,30 +325,30 @@ class EliminarProducto(TemplateView):
 class EliminarServicio(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_producto'))
+    @method_decorator(requiere('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
         return super(EliminarServicio, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
-            servicio = Producto.objects.get(code=code)
+            servicio = Product.objects.get(code=code)
             servicio_json = {}
             servicio_json['code'] = code
             if len(servicio.service_order_details.all()) > 0:
                 servicio_json['ordenes'] = 'SI'
             else:
                 servicio_json['ordenes'] = 'NO'
-                Producto.objects.filter(code=code).update(is_active=False)
+                Product.objects.filter(code=code).update(is_active=False)
             data = simplejson.dumps(servicio_json)
             return HttpResponse(data, 'application/json')
 
 
 class ListadoUnidadesMedida(ListView):
-    model = UnidadMedida
+    model = UnitOfMeasure
     template_name = 'productos/unidades_medida.html'
     context_object_name = 'unidades'
-    queryset = UnidadMedida.objects.filter(is_active=True).order_by('description')
+    queryset = UnitOfMeasure.objects.filter(is_active=True).order_by('description')
 
     @method_decorator(
         requiere('productos.ver_tabla_unidades_medida'))
@@ -357,10 +357,10 @@ class ListadoUnidadesMedida(ListView):
 
 
 class ListadoServicios(ListView):
-    model = Producto
+    model = Product
     template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
-    queryset = Producto.objects.filter(is_active=True, is_service=True).order_by('description')
+    queryset = Product.objects.filter(is_active=True, is_service=True).order_by('description')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -368,10 +368,10 @@ class ListadoServicios(ListView):
 
 
 class ListadoGruposProductos(ListView):
-    model = GrupoProductos
+    model = ProductGroup
     template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
-    queryset = GrupoProductos.objects.filter(is_active=True).order_by('code')
+    queryset = ProductGroup.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(
         requiere('productos.ver_tabla_grupos_productos'))
@@ -380,10 +380,10 @@ class ListadoGruposProductos(ListView):
 
 
 class ListadoProductos(ListView):
-    model = Producto
+    model = Product
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
-    queryset = Producto.objects.filter(is_service=False, is_active=True).order_by('code')
+    queryset = Product.objects.filter(is_service=False, is_active=True).order_by('code')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -391,7 +391,7 @@ class ListadoProductos(ListView):
 
 
 class ListadoProductosPorGrupo(ListView):
-    model = Producto
+    model = Product
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
 
@@ -400,18 +400,18 @@ class ListadoProductosPorGrupo(ListView):
         return super(ListadoProductosPorGrupo, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        grupo = GrupoProductos.objects.get(pk=self.kwargs['grupo'])
+        grupo = ProductGroup.objects.get(pk=self.kwargs['grupo'])
         queryset = grupo.products.all()
         return queryset
 
 
 class ModificarProducto(UpdateView):
-    model = Producto
+    model = Product
     context_object_name = 'product'
     template_name = 'productos/producto.html'
     form_class = ProductoForm
 
-    @method_decorator(requiere('productos.change_producto'))
+    @method_decorator(requiere('productos.change_product'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarProducto, self).dispatch(*args, **kwargs)
 
@@ -420,11 +420,11 @@ class ModificarProducto(UpdateView):
 
 
 class ModificarUnidadMedida(UpdateView):
-    model = UnidadMedida
+    model = UnitOfMeasure
     template_name = 'productos/unidad_medida.html'
     form_class = UnidadMedidaForm
 
-    @method_decorator(requiere('productos.change_unidadmedida'))
+    @method_decorator(requiere('productos.change_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarUnidadMedida, self).dispatch(*args, **kwargs)
 
@@ -433,13 +433,13 @@ class ModificarUnidadMedida(UpdateView):
 
 
 class ModificarGrupoProductos(UpdateView):
-    model = GrupoProductos
+    model = ProductGroup
     template_name = 'productos/grupo_productos.html'
     form_class = GrupoProductosForm
     success_url = reverse_lazy('productos:grupos_productos')
 
     @method_decorator(
-        requiere('productos.change_grupoproductos'))
+        requiere('productos.change_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarGrupoProductos, self).dispatch(*args, **kwargs)
 
@@ -448,11 +448,11 @@ class ModificarGrupoProductos(UpdateView):
 
 
 class ModificarServicio(UpdateView):
-    model = Producto
+    model = Product
     template_name = 'productos/servicio.html'
     form_class = ServicioForm
 
-    @method_decorator(requiere('productos.change_producto'))
+    @method_decorator(requiere('productos.change_product'))
     def dispatch(self, *args, **kwargs):
         return super(ModificarServicio, self).dispatch(*args, **kwargs)
 
@@ -463,7 +463,7 @@ class ModificarServicio(UpdateView):
 class ReporteExcelProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        productos = Producto.objects.filter(is_active=True).order_by('code')
+        productos = Product.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PRODUCTOS'
@@ -502,7 +502,7 @@ class ReporteExcelProductos(TemplateView):
 class ReporteExcelGruposProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        grupos_productos = GrupoProductos.objects.filter(is_active=True).order_by('code')
+        grupos_productos = ProductGroup.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE GRUPOS DE PRODUCTOS'
@@ -530,7 +530,7 @@ class ReporteExcelGruposProductos(TemplateView):
 class ReporteExcelUnidadesMedida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        unidades = UnidadMedida.objects.filter(is_active=True).order_by('code')
+        unidades = UnitOfMeasure.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -555,7 +555,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
 class ReporteExcelServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        servicios = Producto.objects.filter(is_service=True, is_active=True).order_by('code')
+        servicios = Product.objects.filter(is_service=True, is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE SERVICIOS'

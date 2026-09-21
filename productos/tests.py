@@ -1,12 +1,12 @@
 from django.test import TestCase, override_settings
 from model_bakery import baker
-from productos.models import UnidadMedida, GrupoProductos, Producto
+from productos.models import UnitOfMeasure, ProductGroup, Product
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
-from contabilidad.models import TipoExistencia
-from almacen.models import Almacen, Kardex
+from contabilidad.models import StockType
+from almacen.models import Warehouse, Kardex
 from datetime import date, datetime
 from decimal import Decimal
 import tempfile
@@ -28,12 +28,12 @@ import tempfile
 class UnidadMedidaTest(TestCase):
 
     def setUp(self):
-        self.um1 = baker.make(UnidadMedida)
-        self.um2 = baker.make(UnidadMedida)
-        self.um3 = baker.make(UnidadMedida)
+        self.um1 = baker.make(UnitOfMeasure)
+        self.um2 = baker.make(UnitOfMeasure)
+        self.um3 = baker.make(UnitOfMeasure)
 
     def test_creacion_unidad_medida(self):
-        self.assertTrue(isinstance(self.um1, UnidadMedida))
+        self.assertTrue(isinstance(self.um1, UnitOfMeasure))
         self.assertEqual(self.um1.__str__(), self.um1.description)
 
     def test_siguiente_unidad_medida(self):
@@ -52,12 +52,12 @@ class UnidadMedidaTest(TestCase):
 class GrupoProductosTest(TestCase):
 
     def setUp(self):
-        self.gp1 = baker.make(GrupoProductos, code='')
-        self.gp2 = baker.make(GrupoProductos, code='')
-        self.gp3 = baker.make(GrupoProductos, code='')
+        self.gp1 = baker.make(ProductGroup, code='')
+        self.gp2 = baker.make(ProductGroup, code='')
+        self.gp3 = baker.make(ProductGroup, code='')
 
     def test_creacion_grupo_productos(self):
-        self.assertTrue(isinstance(self.gp1, GrupoProductos))
+        self.assertTrue(isinstance(self.gp1, ProductGroup))
         self.assertEqual("1".zfill(6), self.gp1.code)
         self.assertEqual(self.gp1.__str__(), self.gp1.description)
 
@@ -79,14 +79,14 @@ class GrupoProductosTest(TestCase):
 class ProductoTest(TestCase):
 
     def setUp(self):
-        self.gp1 = baker.make(GrupoProductos, code='')
-        self.gp2 = baker.make(GrupoProductos, code='')
-        self.p1 = baker.make(Producto, code='', product_group=self.gp1)
-        self.p2 = baker.make(Producto, code='', product_group=self.gp1)
-        self.p3 = baker.make(Producto, code='', product_group=self.gp2, is_service=True)
+        self.gp1 = baker.make(ProductGroup, code='')
+        self.gp2 = baker.make(ProductGroup, code='')
+        self.p1 = baker.make(Product, code='', product_group=self.gp1)
+        self.p2 = baker.make(Product, code='', product_group=self.gp1)
+        self.p3 = baker.make(Product, code='', product_group=self.gp2, is_service=True)
 
     def test_creacion_producto(self):
-        self.assertTrue(isinstance(self.p1, Producto))
+        self.assertTrue(isinstance(self.p1, Product))
         self.assertEqual(self.gp1.code + "1".zfill(4), self.p1.code)
         self.assertEqual(self.gp1.code + "2".zfill(4), self.p2.code)
         self.assertEqual(self.p1.__str__(), self.p1.description)
@@ -110,14 +110,14 @@ class ProductoTest(TestCase):
 
 
 class ConsultaDeStockTest(TestCase):
-    """Producto.stock recorria todos los almacenes con un .latest() cada uno, y
+    """Product.stock recorria todos los almacenes con un .latest() cada uno, y
     las plantillas lo invocan varias veces en la misma pagina."""
 
     def test_una_sola_consulta_y_luego_cache(self):
-        from almacen.models import Almacen
-        baker.make(Almacen)
-        baker.make(Almacen)
-        product = baker.make(Producto)
+        from almacen.models import Warehouse
+        baker.make(Warehouse)
+        baker.make(Warehouse)
+        product = baker.make(Product)
 
         with self.assertNumQueries(1):
             product.stock
@@ -126,7 +126,7 @@ class ConsultaDeStockTest(TestCase):
             product.stock
 
     def test_previsto_es_una_sola_consulta(self):
-        product = baker.make(Producto)
+        product = baker.make(Product)
 
         with self.assertNumQueries(1):
             product.previsto
@@ -141,8 +141,8 @@ class ObtenerKardexTest(TestCase):
     que recorren el catalogo entero."""
 
     def setUp(self):
-        self.warehouse = baker.make(Almacen)
-        self.product = baker.make(Producto)
+        self.warehouse = baker.make(Warehouse)
+        self.product = baker.make(Product)
         baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
                    in_quantity=Decimal('10'), in_amount=Decimal('50'),
@@ -184,14 +184,14 @@ class CargarServiciosTest(TestCase):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
 
     def test_importa_todas_las_filas(self):
-        baker.make(GrupoProductos, code='000001')
+        baker.make(ProductGroup, code='000001')
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
         respuesta = self.client.post('/productos/cargar_servicios/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(sorted(Producto.objects.values_list('description', flat=True)),
+        self.assertEqual(sorted(Product.objects.values_list('description', flat=True)),
                          ['SERVICIO DOS', 'SERVICIO UNO'])
 
     def test_sin_grupo_manda_a_crearlos(self):
@@ -202,7 +202,7 @@ class CargarServiciosTest(TestCase):
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(respuesta.url, reverse('productos:crear_grupo_productos'))
-        self.assertEqual(Producto.objects.count(), 0)
+        self.assertEqual(Product.objects.count(), 0)
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
@@ -211,16 +211,16 @@ class CargarProductosTest(TestCase):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
 
     def test_salta_la_fila_sin_tipo_de_existencia(self):
-        baker.make(GrupoProductos, code='000001')
-        baker.make(TipoExistencia, sunat_code='01')
+        baker.make(ProductGroup, code='000001')
+        baker.make(StockType, sunat_code='01')
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
         file = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
 
         respuesta = self.client.post('/productos/cargar_productos/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(list(Producto.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
-        self.assertEqual(UnidadMedida.objects.get(code='UNIDA').description, 'UNIDAD X')
+        self.assertEqual(list(Product.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
+        self.assertEqual(UnitOfMeasure.objects.get(code='UNIDA').description, 'UNIDAD X')
 
 
 class BusquedaProductosTest(TestCase):
@@ -230,12 +230,12 @@ class BusquedaProductosTest(TestCase):
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
-        self.unidad = baker.make(UnidadMedida, code='UND01', description='UNIDAD')
-        baker.make(Producto, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unidad)
+        self.unidad = baker.make(UnitOfMeasure, code='UND01', description='UNIDAD')
+        baker.make(Product, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unidad)
 
     def ampliar(self, cuantos):
         for number in range(cuantos):
-            baker.make(Producto, description='PRODUCTO %s' % number, unit_of_measure=self.unidad)
+            baker.make(Product, description='PRODUCTO %s' % number, unit_of_measure=self.unidad)
 
     def buscar(self, url, parametros):
         return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

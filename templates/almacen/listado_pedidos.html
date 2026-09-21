@@ -3,7 +3,7 @@
 <h3>Pedidos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_pedido %}
+        {% if perms.almacen.add_order %}
         <a href="{% url 'almacen:crear_pedido' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.almacen.cargar_pedidos %}

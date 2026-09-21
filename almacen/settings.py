@@ -7,7 +7,7 @@ caso de las opciones de los formularios: se calculan al construir el formulario
 y no al importar el modulo.
 """
 
-from almacen.models import TipoMovimiento, Almacen
+from almacen.models import MovementType, Warehouse
 
 PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
@@ -33,8 +33,8 @@ CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
 
 
 def choices_tipos_movimiento():
-    return [(tm.code, tm.description) for tm in TipoMovimiento.objects.all()]
+    return [(tm.code, tm.description) for tm in MovementType.objects.all()]
 
 
 def choices_almacenes():
-    return [(alm.code, alm.description) for alm in Almacen.objects.all()]
+    return [(alm.code, alm.description) for alm in Warehouse.objects.all()]

@@ -3,16 +3,16 @@
 <h3>Solicitudes de Cotización / {{ object.pk }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.compras.add_cotizacion %} <a
+        {% if perms.compras.add_quotation %} <a
             href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if quotation.status == "PEND" %}
-        {% if perms.compras.change_cotizacion %}
+        {% if perms.compras.change_quotation %}
         <a class="btn btn-warning" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.delete_cotizacion %}
+        {% if perms.compras.delete_quotation %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}

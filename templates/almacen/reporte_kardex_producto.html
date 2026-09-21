@@ -1,6 +1,6 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Kardex / Producto</h3>
+<h3>Kardex / Product</h3>
 <form role="form" method="post">
     {% csrf_token %}
     <div class="row">
@@ -45,7 +45,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="code">Codigo de Producto: </label>
+                        <label for="code">Codigo de Product: </label>
                         {% if form.cod_producto.errors %}
                         {% for error in form.cod_producto.errors %}
                         {% include "includes/error.html" %}
@@ -54,7 +54,7 @@
                         {{ form.cod_producto }}
                     </div>
                     <div class="col-md-8">
-                        <label for="description">Descripcion de Producto: </label>
+                        <label for="description">Descripcion de Product: </label>
                         {% if form.desc_producto.errors %}
                         {% for error in form.desc_producto.errors %}
                         {% include "includes/error.html" %}

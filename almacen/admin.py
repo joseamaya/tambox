@@ -1,7 +1,7 @@
 from django.contrib import admin
-from almacen.models import Almacen, TipoMovimiento, ControlProductoAlmacen, \
-    Kardex, Movimiento, DetalleMovimiento
-from productos.models import Producto
+from almacen.models import Warehouse, MovementType, WarehouseProductControl, \
+    Kardex, Movement, MovementDetail
+from productos.models import Product
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -11,16 +11,16 @@ class FilaKardexAdmin(admin.TabularInline):
 
 
 class FilaProductoAdmin(admin.TabularInline):
-    model = ControlProductoAlmacen
+    model = WarehouseProductControl
 
 
 class FilaDetalleMovimientoAdmin(admin.TabularInline):
-    model = DetalleMovimiento
+    model = MovementDetail
 
 
 class AlmacenResources(resources.ModelResource):
     class Meta:
-        model = Almacen
+        model = Warehouse
 
 
 class ProductosAlmacenAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -41,7 +41,7 @@ class KardexAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 class ProductoResources(resources.ModelResource):
     class Meta:
-        model = Producto
+        model = Product
 
 
 class KardexProductoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -52,7 +52,7 @@ class KardexProductoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
 
 class MovimientoResources(resources.ModelResource):
     class Meta:
-        model = Movimiento
+        model = Movement
 
 
 class DetallesMovimientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
@@ -61,8 +61,8 @@ class DetallesMovimientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = MovimientoResources
 
 
-admin.site.register(Movimiento, DetallesMovimientoAdmin)
-admin.site.register(TipoMovimiento)
-admin.site.register(Almacen, ProductosAlmacenAdmin)
-admin.site.register(Producto, KardexProductoAdmin)
+admin.site.register(Movement, DetallesMovimientoAdmin)
+admin.site.register(MovementType)
+admin.site.register(Warehouse, ProductosAlmacenAdmin)
+admin.site.register(Product, KardexProductoAdmin)
 admin.site.register(Kardex, KardexAdmin)

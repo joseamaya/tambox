@@ -3,7 +3,7 @@
 <h3>Proveedores</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_proveedor %}
+        {% if perms.compras.add_supplier %}
         <a href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">
             Crear
         </a>
@@ -91,7 +91,7 @@ $(document).ready(function()
 	   		type : 'post',
 	   		success : function(data)
 	   		{
-	   			alert("Proveedor "+data.tax_id+ " eliminado");
+	   			alert("Supplier "+data.tax_id+ " eliminado");
 	   			table.row('.selected').remove().draw(false);	   			    			
 	   		}
 	   	});

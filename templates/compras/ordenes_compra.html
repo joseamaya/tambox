@@ -3,7 +3,7 @@
 <h3>Órdenes de Compra</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_ordencompra %}
+        {% if perms.compras.add_purchaseorder %}
         <a href="{% url 'compras:crear_orden_compra' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.compras.cargar_ordenes_compra %}

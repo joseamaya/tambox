@@ -3,7 +3,7 @@
 <h3>Tipos de Documentos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.add_tipodocumento %}
+        {% if perms.contabilidad.add_documenttype %}
         <a href="{% url 'contabilidad:crear_tipo_documento' %}" class="btn btn-primary">
             Crear
         </a>
@@ -94,12 +94,12 @@ $(document).ready(function()
     		{
     			if(data.relaciones=='NO')
 	   			{
-	   				alert("Tipo de Documento "+data.name+ " eliminado");
+	   				alert("Type de Documento "+data.name+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Producto "+data.name+" no puede eliminarse");	
+	   				alert("Product "+data.name+" no puede eliminarse");	
 	   			}
     		}
     	});

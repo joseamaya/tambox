@@ -3,7 +3,7 @@
             <li>
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.contabilidad.add_configuracion %}
+                    {% if perms.contabilidad.add_configuration %}
                     <li><a href="{% url 'contabilidad:configuracion' %}">Configuración</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_cuentas_contables %}

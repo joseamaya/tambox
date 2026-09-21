@@ -2,12 +2,12 @@ import logging
 
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
-from contabilidad.models import Empresa
+from contabilidad.models import Company
 
 logger = logging.getLogger(__name__)
 
 try:
-    empresa = Empresa.load()
+    empresa = Company.load()
     my_host = empresa.mail_host
     my_port = empresa.mail_port
     my_username = empresa.username

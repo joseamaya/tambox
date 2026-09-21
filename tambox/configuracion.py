@@ -3,14 +3,14 @@ from functools import lru_cache
 
 @lru_cache(maxsize=1)
 def configuracion():
-    from contabilidad.models import Configuracion
-    return Configuracion.objects.first()
+    from contabilidad.models import Configuration
+    return Configuration.objects.first()
 
 
 @lru_cache(maxsize=1)
 def empresa():
-    from contabilidad.models import Empresa
-    return Empresa.load()
+    from contabilidad.models import Company
+    return Company.load()
 
 
 def limpiar_cache():

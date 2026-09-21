@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
-from administracion.models import Productor, Trabajador
-from almacen.models import Almacen, TipoMovimiento, Movimiento, Pedido
+from administracion.models import Producer, Worker
+from almacen.models import Warehouse, MovementType, Movement, Order
 from contabilidad.models import Upload
 import datetime
-from compras.models import OrdenCompra
+from compras.models import PurchaseOrder
 from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
@@ -16,7 +16,7 @@ from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
 
 class TipoMovimientoForm(forms.ModelForm):
     class Meta:
-        model = TipoMovimiento
+        model = MovementType
         fields = ['description', 'sunat_code', 'increases', 'requires_reference', 'is_purchase', 'is_sale']
 
     def __init__(self, *args, **kwargs):
@@ -32,7 +32,7 @@ class TipoMovimientoForm(forms.ModelForm):
 
 class AlmacenForm(forms.ModelForm):
     class Meta:
-        model = Almacen
+        model = Warehouse
         fields = ['code', 'description']
 
     def __init__(self, *args, **kwargs):
@@ -107,9 +107,9 @@ class MovimientoForm(forms.ModelForm):
         self.fields['receptor'].required = False
         self.fields['doc_referencia'].required = False
         if self.movement_type == 'I':
-            self.fields['movement_type'].queryset = TipoMovimiento.objects.filter(increases=True)
+            self.fields['movement_type'].queryset = MovementType.objects.filter(increases=True)
         elif self.movement_type == 'S':
-            self.fields['movement_type'].queryset = TipoMovimiento.objects.filter(increases=False)
+            self.fields['movement_type'].queryset = MovementType.objects.filter(increases=False)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -120,13 +120,13 @@ class MovimientoForm(forms.ModelForm):
         if dni_receptor != "":
             if self.cleaned_data['movement_type'].is_sale:
                 try:
-                    Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
-                except Productor.DoesNotExist:
+                    Producer.objects.get(dni=self.cleaned_data['dni_receptor'])
+                except Producer.DoesNotExist:
                     raise ValidationError("El DNI no corresponde a ningun productor")
             else:
                 try:
-                    Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
-                except Trabajador.DoesNotExist:
+                    Worker.objects.get(dni=self.cleaned_data['dni_receptor'])
+                except Worker.DoesNotExist:
                     raise ValidationError("El DNI no correspone a ningun trabajador")
         return self.cleaned_data['dni_receptor']
 
@@ -144,30 +144,30 @@ class MovimientoForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         if self.movement_type == 'I':
             try:
-                self.instance.reference = OrdenCompra.objects.get(code=self.cleaned_data['doc_referencia'])
+                self.instance.reference = PurchaseOrder.objects.get(code=self.cleaned_data['doc_referencia'])
             except ObjectDoesNotExist:
                 self.instance.reference = None
         if self.cleaned_data['movement_type'].is_sale:
             try:
-                self.instance.producer = Productor.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.producer = Producer.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
                 self.instance.producer = None
         else:
             try:
-                self.instance.worker = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
+                self.instance.worker = Worker.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
                 self.instance.worker = None
         self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Movimiento
+        model = Movement
         fields = ['movement_id', 'movement_type', 'document_type', 'series', 'number', 'warehouse', 'office',
                   'notes']
 
 
 class FormularioKardexProducto(forms.Form):
-    almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     consolidado = forms.ChoiceField(choices=CHOICES_CONSOLIDADO, widget=forms.RadioSelect, required=False)
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
@@ -182,7 +182,7 @@ class FormularioKardexProducto(forms.Form):
 
 
 class FormularioMovimientosProducto(forms.Form):
-    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -197,7 +197,7 @@ class FormularioMovimientosProducto(forms.Form):
 
 
 class FormularioReprocesoPrecio(forms.Form):
-    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -207,7 +207,7 @@ class FormularioReprocesoPrecio(forms.Form):
 
 
 class FormularioConsultaStock(forms.Form):
-    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
@@ -216,7 +216,7 @@ class FormularioConsultaStock(forms.Form):
 
 
 class CargarInventarioInicialForm(forms.ModelForm):
-    almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
@@ -257,7 +257,7 @@ class PedidoForm(forms.ModelForm):
         return super(PedidoForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Pedido
+        model = Order
         fields = ['code', 'date', 'notes']
 
 
@@ -291,20 +291,20 @@ class AprobacionPedidoForm(forms.ModelForm):
         return date
 
     def save(self, *args, **kwargs):
-        self.instance.order = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
+        self.instance.order = Order.objects.get(code=self.cleaned_data['cod_pedido'])
         self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
-        self.instance.movement_type = TipoMovimiento.objects.get(code="S01")
+        self.instance.movement_type = MovementType.objects.get(code="S01")
         self.instance.office = self.instance.order.office
         return super(AprobacionPedidoForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Movimiento
+        model = Movement
         fields = ['warehouse', 'notes']
 
 
 class FormularioPedido(forms.Form):
     cod_pedido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    almacenes = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
@@ -402,7 +402,7 @@ class BaseDetallePedidoFormSet(formsets.BaseFormSet):
 
 
 class FormularioConsultaInventario(forms.Form):
-    warehouse = forms.ModelChoiceField(queryset=Almacen.objects.all(),
+    warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))

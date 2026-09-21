@@ -2,11 +2,11 @@
 <h3>Puestos / {{ object.name }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_puesto %}
+        {% if perms.administracion.change_position %}
         <a class="btn btn-primary" href="{% url 'administracion:modificar_puesto' object.pk %}">
             Editar </a>
         {% endif %}
-        {% if perms.administracion.delete_puesto %}
+        {% if perms.administracion.delete_position %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

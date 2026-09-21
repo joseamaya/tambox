@@ -1,19 +1,19 @@
 from model_bakery import baker
 from django.test import TestCase
-from contabilidad.models import CuentaContable, FormaPago, TipoDocumento, Tipo, \
-    Impuesto, Empresa, TipoExistencia
+from contabilidad.models import Account, PaymentMethod, DocumentType, Type, \
+    Tax, Company, StockType
 
 
 # Create your tests here.
 class TestCuentaContable(TestCase):
 
     def setUp(self):
-        self.c1 = baker.make(CuentaContable)
-        self.c2 = baker.make(CuentaContable)
-        self.c3 = baker.make(CuentaContable)
+        self.c1 = baker.make(Account)
+        self.c2 = baker.make(Account)
+        self.c3 = baker.make(Account)
 
     def test_creacion_cuenta_contable(self):
-        self.assertTrue(isinstance(self.c1, CuentaContable))
+        self.assertTrue(isinstance(self.c1, Account))
         self.assertEqual(self.c1.__str__(), self.c1.account_number)
 
     def test_siguiente_profesion(self):
@@ -34,12 +34,12 @@ class TestCuentaContable(TestCase):
 class TestFormaPago(TestCase):
 
     def setUp(self):
-        self.fp1 = baker.make(FormaPago)
-        self.fp2 = baker.make(FormaPago)
-        self.fp3 = baker.make(FormaPago)
+        self.fp1 = baker.make(PaymentMethod)
+        self.fp2 = baker.make(PaymentMethod)
+        self.fp3 = baker.make(PaymentMethod)
 
     def test_creacion_forma_pago(self):
-        self.assertTrue(isinstance(self.fp1, FormaPago))
+        self.assertTrue(isinstance(self.fp1, PaymentMethod))
         self.assertEqual(self.fp1.__str__(), self.fp1.description)
 
     def test_siguiente_forma_pago(self):
@@ -60,12 +60,12 @@ class TestFormaPago(TestCase):
 class TestTipoDocumento(TestCase):
 
     def setUp(self):
-        self.td1 = baker.make(TipoDocumento)
-        self.td2 = baker.make(TipoDocumento)
-        self.td3 = baker.make(TipoDocumento)
+        self.td1 = baker.make(DocumentType)
+        self.td2 = baker.make(DocumentType)
+        self.td3 = baker.make(DocumentType)
 
     def test_creacion_tipo_documento(self):
-        self.assertTrue(isinstance(self.td1, TipoDocumento))
+        self.assertTrue(isinstance(self.td1, DocumentType))
         self.assertEqual(self.td1.__str__(), self.td1.name)
 
     def test_siguiente_tipo_documento(self):
@@ -86,22 +86,22 @@ class TestTipoDocumento(TestCase):
 class TestTipo(TestCase):
 
     def setUp(self):
-        self.t1 = baker.make(Tipo)
+        self.t1 = baker.make(Type)
 
     def test_creacion_tipo_documento(self):
-        self.assertTrue(isinstance(self.t1, Tipo))
+        self.assertTrue(isinstance(self.t1, Type))
         self.assertEqual(self.t1.__str__(), self.t1.value_description)
 
 
 class TestImpuesto(TestCase):
 
     def setUp(self):
-        self.imp1 = baker.make(Impuesto)
-        self.imp2 = baker.make(Impuesto)
-        self.imp3 = baker.make(Impuesto)
+        self.imp1 = baker.make(Tax)
+        self.imp2 = baker.make(Tax)
+        self.imp3 = baker.make(Tax)
 
     def test_creacion_impuesto(self):
-        self.assertTrue(isinstance(self.imp1, Impuesto))
+        self.assertTrue(isinstance(self.imp1, Tax))
         self.assertEqual(self.imp1.__str__(), self.imp1.description)
 
     def test_siguiente_impuesto(self):
@@ -122,11 +122,11 @@ class TestImpuesto(TestCase):
 class TestEmpresa(TestCase):
 
     def setUp(self):
-        self.emp1 = baker.make(Empresa)
-        self.emp2 = baker.make(Empresa)
+        self.emp1 = baker.make(Company)
+        self.emp2 = baker.make(Company)
 
     def test_creacion_empresa(self):
-        self.assertTrue(isinstance(self.emp1, Empresa))
+        self.assertTrue(isinstance(self.emp1, Company))
         self.assertEqual(self.emp1.__str__(), self.emp1.business_name)
 
     def test_patron_singleton(self):
@@ -140,7 +140,7 @@ class TestEmpresa(TestCase):
 class TestTipoExistencia(TestCase):
 
     def setUp(self):
-        self.te1 = baker.make(TipoExistencia)
+        self.te1 = baker.make(StockType)
 
     def test_creacion_tipo_existencia(self):
         self.assertEqual(self.te1.__str__(), self.te1.description)

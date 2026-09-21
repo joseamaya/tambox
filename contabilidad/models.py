@@ -6,12 +6,12 @@ from django.utils.encoding import force_str
 from model_utils.models import TimeStampedModel
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
-from administracion.models import Oficina
+from administracion.models import Office
 from contabilidad.behaviors import SingletonModel
 from tambox.querysets import NavegableQuerySet
 
 
-class TipoCambio(TimeStampedModel):
+class ExchangeRate(TimeStampedModel):
     amount = models.DecimalField(max_digits=15, decimal_places=5)
     date = models.DateField(unique=True)
     objects = NavegableQuerySet.as_manager()
@@ -23,18 +23,18 @@ class TipoCambio(TimeStampedModel):
         ordering = ['date']
 
     def anterior(self):
-        ant = TipoCambio.objects.anterior(self)
+        ant = ExchangeRate.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = TipoCambio.objects.siguiente(self)
+        sig = ExchangeRate.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
         return str(self.date)
 
 
-class CuentaContable(TimeStampedModel):
+class Account(TimeStampedModel):
     account_number = models.CharField(unique=True, max_length=12)
     description = models.CharField(max_length=150)
     depreciation = models.DecimalField(max_digits=18, decimal_places=2, default=0)
@@ -50,18 +50,18 @@ class CuentaContable(TimeStampedModel):
         ordering = ['account_number']
 
     def anterior(self):
-        ant = CuentaContable.objects.anterior(self)
+        ant = Account.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = CuentaContable.objects.siguiente(self)
+        sig = Account.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
         return force_str(self.account_number)
 
 
-class FormaPago(TimeStampedModel):
+class PaymentMethod(TimeStampedModel):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=50)
     credit_days = models.IntegerField()
@@ -75,18 +75,18 @@ class FormaPago(TimeStampedModel):
                        ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel'),)
 
     def anterior(self):
-        ant = FormaPago.objects.anterior(self)
+        ant = PaymentMethod.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = FormaPago.objects.siguiente(self)
+        sig = PaymentMethod.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
         return force_str(self.description)
 
 
-class TipoDocumento(TimeStampedModel):
+class DocumentType(TimeStampedModel):
     sunat_code = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
@@ -101,18 +101,18 @@ class TipoDocumento(TimeStampedModel):
         ordering = ['sunat_code']
 
     def anterior(self):
-        ant = TipoDocumento.objects.anterior(self)
+        ant = DocumentType.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = TipoDocumento.objects.siguiente(self)
+        sig = DocumentType.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
         return self.name
 
 
-class Tipo(TimeStampedModel):
+class Type(TimeStampedModel):
     table = models.CharField(max_length=25)
     field_description = models.CharField(max_length=25)
     code = models.CharField(max_length=10)
@@ -129,7 +129,7 @@ class Tipo(TimeStampedModel):
         return self.value_description
 
 
-class Impuesto(TimeStampedModel):
+class Tax(TimeStampedModel):
     abbreviation = models.CharField(max_length=10)
     description = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
@@ -149,11 +149,11 @@ class Impuesto(TimeStampedModel):
         ordering = ['abbreviation']
 
     def anterior(self):
-        ant = Impuesto.objects.anterior(self)
+        ant = Tax.objects.anterior(self)
         return ant.pk
 
     def siguiente(self):
-        sig = Impuesto.objects.siguiente(self)
+        sig = Tax.objects.siguiente(self)
         return sig.pk
 
     def __str__(self):
@@ -164,7 +164,7 @@ class Upload(TimeStampedModel):
     file = models.FileField(upload_to='archivos')
 
 
-class Empresa(SingletonModel):
+class Company(SingletonModel):
     business_name = models.CharField(max_length=150)
     tax_id = models.CharField(max_length=11)
     logo = models.ImageField(upload_to='configuracion')
@@ -190,15 +190,15 @@ class Empresa(SingletonModel):
         verbose_name_plural = 'Empresas'
 
 
-class Configuracion(TimeStampedModel):
-    purchase_tax = models.ForeignKey(Impuesto, on_delete=models.CASCADE, related_name='configurations')
-    operaciones = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='operaciones', null=True)
-    administracion = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='administracion', null=True)
-    presupuesto = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='presupuesto', null=True)
-    logistica = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='logistica', null=True)
+class Configuration(TimeStampedModel):
+    purchase_tax = models.ForeignKey(Tax, on_delete=models.CASCADE, related_name='configurations')
+    operaciones = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='operaciones', null=True)
+    administracion = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='administracion', null=True)
+    presupuesto = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='presupuesto', null=True)
+    logistica = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='logistica', null=True)
 
 
-class TipoExistencia(TimeStampedModel):
+class StockType(TimeStampedModel):
     sunat_code = models.CharField(primary_key=True, max_length=2)
     description = models.CharField(max_length=50, verbose_name='Descripción')
 
@@ -211,8 +211,8 @@ class TipoExistencia(TimeStampedModel):
         verbose_name_plural = 'Tipos de Existencias'
 
 
-@receiver(post_save, sender=Configuracion)
-@receiver(post_save, sender=Empresa)
+@receiver(post_save, sender=Configuration)
+@receiver(post_save, sender=Company)
 def invalidar_cache_configuracion(sender, **kwargs):
     """La configuracion y la empresa se leen con cache; al guardarlas se invalida."""
     from tambox.configuracion import limpiar_cache

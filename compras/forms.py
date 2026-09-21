@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from compras.models import Proveedor, Cotizacion, OrdenCompra, OrdenServicios, ConformidadServicio
+from compras.models import Supplier, Quotation, PurchaseOrder, ServiceOrder, ServiceConformity
 from django.forms import formsets
-from requerimientos.models import Requerimiento
+from requerimientos.models import Requirement
 from almacen.settings import MESES
 from compras.settings import PARAMETROS_BUSQUEDA
 from django.core.exceptions import ValidationError
@@ -10,7 +10,7 @@ from django.core.exceptions import ValidationError
 
 class ProveedorForm(forms.ModelForm):
     class Meta:
-        model = Proveedor
+        model = Supplier
         fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
                   'registration_date']
 
@@ -96,7 +96,7 @@ class CotizacionForm(forms.ModelForm):
         if len(code_orden) != 12 and len(code_orden) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
         elif len(code_orden) == 12:
-            ordenes = OrdenServicios.objects.filter(code=code_orden)
+            ordenes = ServiceOrder.objects.filter(code=code_orden)
             if len(ordenes) > 0:
                 raise ValidationError('La orden ya existe.')
         return self.cleaned_data['order']
@@ -105,7 +105,7 @@ class CotizacionForm(forms.ModelForm):
         cleaned_data = super(CotizacionForm, self).clean()
         tax_id = cleaned_data.get('tax_id')
         reference = cleaned_data.get('reference')
-        quotation = Cotizacion.objects.filter(supplier__tax_id=tax_id,
+        quotation = Quotation.objects.filter(supplier__tax_id=tax_id,
                                                requirement=reference)
         if len(quotation) > 0:
             raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
@@ -113,12 +113,12 @@ class CotizacionForm(forms.ModelForm):
             return cleaned_data
 
     def save(self, *args, **kwargs):
-        self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
-        self.instance.requirement = Requerimiento.objects.get(pk=self.cleaned_data['reference'])
+        self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
+        self.instance.requirement = Requirement.objects.get(pk=self.cleaned_data['reference'])
         return super(CotizacionForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = Cotizacion
+        model = Quotation
         fields = ['code', 'date', 'notes']
 
 
@@ -162,14 +162,14 @@ class OrdenCompraForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         try:
-            self.instance.quotation = Cotizacion.objects.get(code=self.cleaned_data['reference'])
-        except Cotizacion.DoesNotExist:
+            self.instance.quotation = Quotation.objects.get(code=self.cleaned_data['reference'])
+        except Quotation.DoesNotExist:
             self.instance.quotation = None
-            self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
+            self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenCompraForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = OrdenCompra
+        model = PurchaseOrder
         fields = ['code', 'payment_method', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
@@ -214,14 +214,14 @@ class OrdenServiciosForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         try:
-            self.instance.quotation = Cotizacion.objects.get(pk=self.cleaned_data['reference'])
-        except Cotizacion.DoesNotExist:
+            self.instance.quotation = Quotation.objects.get(pk=self.cleaned_data['reference'])
+        except Quotation.DoesNotExist:
             self.instance.quotation = None
-            self.instance.supplier = Proveedor.objects.get(tax_id=self.cleaned_data['tax_id'])
+            self.instance.supplier = Supplier.objects.get(tax_id=self.cleaned_data['tax_id'])
         return super(OrdenServiciosForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = OrdenServicios
+        model = ServiceOrder
         fields = ['code', 'payment_method', 'process', 'notes', 'date', 'report_name', 'report']
 
 
@@ -245,11 +245,11 @@ class ConformidadServicioForm(forms.ModelForm):
             })
 
     def save(self, *args, **kwargs):
-        self.instance.service_order = OrdenServicios.objects.get(pk=self.cleaned_data['reference'])
+        self.instance.service_order = ServiceOrder.objects.get(pk=self.cleaned_data['reference'])
         return super(ConformidadServicioForm, self).save(*args, **kwargs)
 
     class Meta:
-        model = ConformidadServicio
+        model = ServiceConformity
         fields = ['code', 'supporting_document', 'file', 'date', 'total', 'total_in_words']
 
 
