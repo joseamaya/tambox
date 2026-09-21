@@ -3,23 +3,23 @@ from django import forms
 from productos.models import UnitOfMeasure, ProductGroup, Product
 
 
-class UnidadMedidaForm(forms.ModelForm):
+class UnitOfMeasureForm(forms.ModelForm):
     class Meta:
         model = UnitOfMeasure
         fields = ['code', 'sunat_code', 'description']
 
     def __init__(self, *args, **kwargs):
-        super(UnidadMedidaForm, self).__init__(*args, **kwargs)
+        super(UnitOfMeasureForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
 
 
-class GrupoProductosForm(forms.ModelForm):
+class ProductGroupForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super(GrupoProductosForm, self).__init__(*args, **kwargs)
+        super(ProductGroupForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -30,10 +30,10 @@ class GrupoProductosForm(forms.ModelForm):
         fields = ['description', 'account', 'contains_products']
 
 
-class ProductoForm(forms.ModelForm):
+class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super(ProductoForm, self).__init__(*args, **kwargs)
+        super(ProductForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             if field == 'minimum_stock' or field == 'price':
                 self.fields[field].widget.attrs.update({
@@ -51,10 +51,10 @@ class ProductoForm(forms.ModelForm):
         fields = ['description', 'product_group', 'unit_of_measure', 'brand', 'model', 'price', 'stock_type']
 
 
-class ServicioForm(forms.ModelForm):
+class ServiceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super(ServicioForm, self).__init__(*args, **kwargs)
+        super(ServiceForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -62,7 +62,7 @@ class ServicioForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.is_service = True
-        return super(ServicioForm, self).save(*args, **kwargs)
+        return super(ServiceForm, self).save(*args, **kwargs)
 
     class Meta:
         model = Product

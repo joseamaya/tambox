@@ -177,7 +177,7 @@ class ObtenerKardexTest(TestCase):
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CargarServiciosTest(TestCase):
-    """`CargarServicios` devolvia dentro del bucle, asi que importaba solo la
+    """`ServiceImport` devolvia dentro del bucle, asi que importaba solo la
     primera fila del CSV y el resto se perdia en silencio."""
 
     def setUp(self):

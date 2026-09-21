@@ -16,8 +16,8 @@ from django.utils.decorators import method_decorator
 from contabilidad.forms import UploadForm
 from django.shortcuts import render
 from productos.models import Product, UnitOfMeasure, ProductGroup
-from productos.forms import GrupoProductosForm, ProductoForm, ServicioForm, \
-    UnidadMedidaForm
+from productos.forms import ProductGroupForm, ProductForm, ServiceForm, \
+    UnitOfMeasureForm
 from contabilidad.models import Account, StockType
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 
@@ -48,7 +48,7 @@ class Dashboard(View):
         return render(request, 'productos/tablero_productos.html', context)
 
 
-class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
+class ProductDescriptionSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('description', 'tipo_busqueda')
 
@@ -81,7 +81,7 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
+class ProductCodeSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('code',)
 
@@ -102,7 +102,7 @@ class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarGrupoProductos(CargarCsvMixin, FormView):
+class ProductGroupImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_grupo_productos.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:grupos_productos')
@@ -116,14 +116,14 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
             pass
 
 
-class CargarServicios(CargarCsvMixin, FormView):
+class ServiceImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_servicios.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:servicios')
 
     def form_valid(self, form):
         try:
-            return super(CargarServicios, self).form_valid(form)
+            return super(ServiceImport, self).form_valid(form)
         except ProductGroup.DoesNotExist:
             return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
 
@@ -134,7 +134,7 @@ class CargarServicios(CargarCsvMixin, FormView):
                                                  'is_service': True})
 
 
-class CargarProductos(CargarCsvMixin, FormView):
+class ProductImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_productos.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:productos')
@@ -160,7 +160,7 @@ class CargarProductos(CargarCsvMixin, FormView):
             logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
 
 
-class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
+class ProductStockQuery(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('code',)
 
@@ -174,90 +174,90 @@ class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearGrupoProductos(CreateView):
+class ProductGroupCreate(CreateView):
     model = ProductGroup
     template_name = 'productos/grupo_productos.html'
-    form_class = GrupoProductosForm
+    form_class = ProductGroupForm
     success_url = reverse_lazy('productos:grupos_productos')
 
     @method_decorator(requiere('productos.add_productgroup'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearGrupoProductos, self).dispatch(*args, **kwargs)
+        return super(ProductGroupCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_grupo_productos', args=[self.object.pk])
 
 
-class CrearProducto(CreateView):
+class ProductCreate(CreateView):
     model = Product
     context_object_name = 'product'
     template_name = 'productos/producto.html'
-    form_class = ProductoForm
+    form_class = ProductForm
 
     @method_decorator(requiere('productos.add_product'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearProducto, self).dispatch(*args, **kwargs)
+        return super(ProductCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_producto', args=[self.object.pk])
 
 
-class CrearUnidadMedida(CreateView):
+class UnitOfMeasureCreate(CreateView):
     template_name = 'productos/unidad_medida.html'
-    form_class = UnidadMedidaForm
+    form_class = UnitOfMeasureForm
 
     @method_decorator(requiere('productos.add_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearUnidadMedida, self).dispatch(*args, **kwargs)
+        return super(UnitOfMeasureCreate, self).dispatch(*args, **kwargs)
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
         self.object.changed_by = self.request.user
         self.object.save()
-        return super(CrearUnidadMedida, self).form_valid(form)
+        return super(UnitOfMeasureCreate, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('productos:detalle_unidad_medida', args=[self.object.pk])
 
 
-class CrearServicio(CreateView):
+class ServiceCreate(CreateView):
     template_name = 'productos/servicio.html'
-    form_class = ServicioForm
+    form_class = ServiceForm
 
     @method_decorator(requiere('productos.add_product'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_servicio', args=[self.object.code])
 
 
-class DetalleProducto(DetailView):
+class ProductDetail(DetailView):
     model = Product
     template_name = 'productos/detalle_producto.html'
 
 
-class DetalleGrupoProductos(DetailView):
+class ProductGroupDetail(DetailView):
     model = ProductGroup
     template_name = 'productos/detalle_grupo_productos.html'
 
 
-class DetalleUnidadMedida(DetailView):
+class UnitOfMeasureDetail(DetailView):
     model = UnitOfMeasure
     template_name = 'productos/detalle_unidad_medida.html'
 
 
-class DetalleServicio(DetailView):
+class ServiceDetail(DetailView):
     model = Product
     template_name = 'productos/detalle_servicio.html'
 
 
-class EliminarUnidadMedida(TemplateView):
+class UnitOfMeasureDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('productos.delete_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarUnidadMedida, self).dispatch(*args, **kwargs)
+        return super(UnitOfMeasureDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -274,12 +274,12 @@ class EliminarUnidadMedida(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarGrupoProductos(TemplateView):
+class ProductGroupDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('productos.delete_productgroup'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarGrupoProductos, self).dispatch(*args, **kwargs)
+        return super(ProductGroupDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -297,12 +297,12 @@ class EliminarGrupoProductos(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarProducto(TemplateView):
+class ProductDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarProducto, self).dispatch(*args, **kwargs)
+        return super(ProductDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -322,12 +322,12 @@ class EliminarProducto(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarServicio(TemplateView):
+class ServiceDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -344,7 +344,7 @@ class EliminarServicio(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ListadoUnidadesMedida(ListView):
+class UnitOfMeasureList(ListView):
     model = UnitOfMeasure
     template_name = 'productos/unidades_medida.html'
     context_object_name = 'unidades'
@@ -353,10 +353,10 @@ class ListadoUnidadesMedida(ListView):
     @method_decorator(
         requiere('productos.ver_tabla_unidades_medida'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoUnidadesMedida, self).dispatch(*args, **kwargs)
+        return super(UnitOfMeasureList, self).dispatch(*args, **kwargs)
 
 
-class ListadoServicios(ListView):
+class ServiceList(ListView):
     model = Product
     template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
@@ -364,10 +364,10 @@ class ListadoServicios(ListView):
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoServicios, self).dispatch(*args, **kwargs)
+        return super(ServiceList, self).dispatch(*args, **kwargs)
 
 
-class ListadoGruposProductos(ListView):
+class ProductGroupList(ListView):
     model = ProductGroup
     template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
@@ -376,10 +376,10 @@ class ListadoGruposProductos(ListView):
     @method_decorator(
         requiere('productos.ver_tabla_grupos_productos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoGruposProductos, self).dispatch(*args, **kwargs)
+        return super(ProductGroupList, self).dispatch(*args, **kwargs)
 
 
-class ListadoProductos(ListView):
+class ProductList(ListView):
     model = Product
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
@@ -387,17 +387,17 @@ class ListadoProductos(ListView):
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoProductos, self).dispatch(*args, **kwargs)
+        return super(ProductList, self).dispatch(*args, **kwargs)
 
 
-class ListadoProductosPorGrupo(ListView):
+class ProductListByGroup(ListView):
     model = Product
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoProductosPorGrupo, self).dispatch(*args, **kwargs)
+        return super(ProductListByGroup, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         grupo = ProductGroup.objects.get(pk=self.kwargs['grupo'])
@@ -405,62 +405,62 @@ class ListadoProductosPorGrupo(ListView):
         return queryset
 
 
-class ModificarProducto(UpdateView):
+class ProductUpdate(UpdateView):
     model = Product
     context_object_name = 'product'
     template_name = 'productos/producto.html'
-    form_class = ProductoForm
+    form_class = ProductForm
 
     @method_decorator(requiere('productos.change_product'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarProducto, self).dispatch(*args, **kwargs)
+        return super(ProductUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_producto', args=[self.object.pk])
 
 
-class ModificarUnidadMedida(UpdateView):
+class UnitOfMeasureUpdate(UpdateView):
     model = UnitOfMeasure
     template_name = 'productos/unidad_medida.html'
-    form_class = UnidadMedidaForm
+    form_class = UnitOfMeasureForm
 
     @method_decorator(requiere('productos.change_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarUnidadMedida, self).dispatch(*args, **kwargs)
+        return super(UnitOfMeasureUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_unidad_medida', args=[self.object.pk])
 
 
-class ModificarGrupoProductos(UpdateView):
+class ProductGroupUpdate(UpdateView):
     model = ProductGroup
     template_name = 'productos/grupo_productos.html'
-    form_class = GrupoProductosForm
+    form_class = ProductGroupForm
     success_url = reverse_lazy('productos:grupos_productos')
 
     @method_decorator(
         requiere('productos.change_productgroup'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarGrupoProductos, self).dispatch(*args, **kwargs)
+        return super(ProductGroupUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_grupo_productos', args=[self.object.pk])
 
 
-class ModificarServicio(UpdateView):
+class ServiceUpdate(UpdateView):
     model = Product
     template_name = 'productos/servicio.html'
-    form_class = ServicioForm
+    form_class = ServiceForm
 
     @method_decorator(requiere('productos.change_product'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarServicio, self).dispatch(*args, **kwargs)
+        return super(ServiceUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('productos:detalle_servicio', args=[self.object.pk])
 
 
-class ReporteExcelProductos(TemplateView):
+class ProductExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         productos = Product.objects.filter(is_active=True).order_by('code')
@@ -491,7 +491,7 @@ class ReporteExcelProductos(TemplateView):
             ws.cell(row=cont, column=10).value = product.created
             ws.cell(row=cont, column=10).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "ListadoProductos.xlsx"
+        nombre_archivo = "ProductList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -499,7 +499,7 @@ class ReporteExcelProductos(TemplateView):
         return response
 
 
-class ReporteExcelGruposProductos(TemplateView):
+class ProductGroupExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         grupos_productos = ProductGroup.objects.filter(is_active=True).order_by('code')
@@ -519,7 +519,7 @@ class ReporteExcelGruposProductos(TemplateView):
             ws.cell(row=cont, column=5).value = product_group.created
             ws.cell(row=cont, column=5).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "ListadoGruposProductos.xlsx"
+        nombre_archivo = "ProductGroupList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -527,7 +527,7 @@ class ReporteExcelGruposProductos(TemplateView):
         return response
 
 
-class ReporteExcelUnidadesMedida(TemplateView):
+class UnitOfMeasureExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         unidades = UnitOfMeasure.objects.filter(is_active=True).order_by('code')
@@ -552,7 +552,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
         return response
 
 
-class ReporteExcelServicios(TemplateView):
+class ServiceExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         servicios = Product.objects.filter(is_service=True, is_active=True).order_by('code')
@@ -569,7 +569,7 @@ class ReporteExcelServicios(TemplateView):
             ws.cell(row=cont, column=3).value = servicio.description
             ws.cell(row=cont, column=4).value = servicio.is_active
             cont = cont + 1
-        nombre_archivo = "ListadoServicios.xlsx"
+        nombre_archivo = "ServiceList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido

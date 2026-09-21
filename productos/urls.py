@@ -1,58 +1,58 @@
 from django.urls import re_path
-from productos.views import Dashboard, ListadoUnidadesMedida, ListadoServicios, \
-    ListadoGruposProductos, ListadoProductos, CrearServicio, CrearUnidadMedida, \
-    CrearGrupoProductos, CrearProducto, CargarProductos, CargarServicios, \
-    ModificarProducto, ModificarGrupoProductos, ModificarUnidadMedida, \
-    ModificarServicio, BusquedaProductosDescripcion, BusquedaProductosCodigo, \
-    DetalleProducto, DetalleGrupoProductos, DetalleUnidadMedida, DetalleServicio, \
-    ReporteExcelProductos, ReporteExcelGruposProductos, \
-    ReporteExcelUnidadesMedida, ReporteExcelServicios, EliminarUnidadMedida, \
-    EliminarGrupoProductos, EliminarProducto, EliminarServicio, \
-    CargarGrupoProductos, ListadoProductosPorGrupo, ConsultaStockProducto
+from productos.views import Dashboard, UnitOfMeasureList, ServiceList, \
+    ProductGroupList, ProductList, ServiceCreate, UnitOfMeasureCreate, \
+    ProductGroupCreate, ProductCreate, ProductImport, ServiceImport, \
+    ProductUpdate, ProductGroupUpdate, UnitOfMeasureUpdate, \
+    ServiceUpdate, ProductDescriptionSearch, ProductCodeSearch, \
+    ProductDetail, ProductGroupDetail, UnitOfMeasureDetail, ServiceDetail, \
+    ProductExcelReport, ProductGroupExcelReport, \
+    UnitOfMeasureExcelReport, ServiceExcelReport, UnitOfMeasureDelete, \
+    ProductGroupDelete, ProductDelete, ServiceDelete, \
+    ProductGroupImport, ProductListByGroup, ProductStockQuery
 
 app_name = 'productos'
 
 urlpatterns = [
     re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
-    re_path(r'^unidades_medida/$', ListadoUnidadesMedida.as_view(), name="unidades_medida"),
-    re_path(r'^servicios/$', ListadoServicios.as_view(), name="servicios"),
-    re_path(r'^grupos_productos/$', ListadoGruposProductos.as_view(), name="grupos_productos"),
-    re_path(r'^productos/$', ListadoProductos.as_view(), name="productos"),
-    re_path(r'^crear_servicio/$', CrearServicio.as_view(), name="crear_servicio"),
-    re_path(r'^crear_unidad_medida/$', CrearUnidadMedida.as_view(), name="crear_unidad_medida"),
-    re_path(r'^crear_grupo_productos/$', CrearGrupoProductos.as_view(), name="crear_grupo_productos"),
-    re_path(r'^crear_producto/$', CrearProducto.as_view(), name="crear_producto"),
-    re_path(r'^cargar_grupo_productos/$', CargarGrupoProductos.as_view(), name="cargar_grupo_productos"),
-    re_path(r'^cargar_productos/$', CargarProductos.as_view(), name="cargar_productos"),
-    re_path(r'^cargar_servicios/$', CargarServicios.as_view(), name="cargar_servicios"),
-    re_path(r'^consulta_stock_producto/$', ConsultaStockProducto.as_view(), name="consulta_stock_producto"),
-    re_path(r'^modificar_producto/(?P<pk>.+)/$', ModificarProducto.as_view(), name="modificar_producto"),
-    re_path(r'^modificar_grupo_productos/(?P<pk>.+)/$', ModificarGrupoProductos.as_view(),
+    re_path(r'^unidades_medida/$', UnitOfMeasureList.as_view(), name="unidades_medida"),
+    re_path(r'^servicios/$', ServiceList.as_view(), name="servicios"),
+    re_path(r'^grupos_productos/$', ProductGroupList.as_view(), name="grupos_productos"),
+    re_path(r'^productos/$', ProductList.as_view(), name="productos"),
+    re_path(r'^crear_servicio/$', ServiceCreate.as_view(), name="crear_servicio"),
+    re_path(r'^crear_unidad_medida/$', UnitOfMeasureCreate.as_view(), name="crear_unidad_medida"),
+    re_path(r'^crear_grupo_productos/$', ProductGroupCreate.as_view(), name="crear_grupo_productos"),
+    re_path(r'^crear_producto/$', ProductCreate.as_view(), name="crear_producto"),
+    re_path(r'^cargar_grupo_productos/$', ProductGroupImport.as_view(), name="cargar_grupo_productos"),
+    re_path(r'^cargar_productos/$', ProductImport.as_view(), name="cargar_productos"),
+    re_path(r'^cargar_servicios/$', ServiceImport.as_view(), name="cargar_servicios"),
+    re_path(r'^consulta_stock_producto/$', ProductStockQuery.as_view(), name="consulta_stock_producto"),
+    re_path(r'^modificar_producto/(?P<pk>.+)/$', ProductUpdate.as_view(), name="modificar_producto"),
+    re_path(r'^modificar_grupo_productos/(?P<pk>.+)/$', ProductGroupUpdate.as_view(),
         name="modificar_grupo_productos"),
-    re_path(r'^modificar_unidad_medida/(?P<pk>\d+)/$', ModificarUnidadMedida.as_view(),
+    re_path(r'^modificar_unidad_medida/(?P<pk>\d+)/$', UnitOfMeasureUpdate.as_view(),
         name="modificar_unidad_medida"),
-    re_path(r'^modificar_servicio/(?P<pk>.+)/$', ModificarServicio.as_view(), name="modificar_servicio"),
-    re_path(r'^busqueda_productos_description/$', BusquedaProductosDescripcion.as_view(),
+    re_path(r'^modificar_servicio/(?P<pk>.+)/$', ServiceUpdate.as_view(), name="modificar_servicio"),
+    re_path(r'^busqueda_productos_description/$', ProductDescriptionSearch.as_view(),
         name="busqueda_productos_description"),
-    re_path(r'^busqueda_productos_code/$', BusquedaProductosCodigo.as_view(),
+    re_path(r'^busqueda_productos_code/$', ProductCodeSearch.as_view(),
         name="busqueda_productos_code"),
-    re_path(r'^detalle_producto/(?P<pk>.+)/$', DetalleProducto.as_view(), name="detalle_producto"),
-    re_path(r'^detalle_grupo_productos/(?P<pk>.+)/$', DetalleGrupoProductos.as_view(),
+    re_path(r'^detalle_producto/(?P<pk>.+)/$', ProductDetail.as_view(), name="detalle_producto"),
+    re_path(r'^detalle_grupo_productos/(?P<pk>.+)/$', ProductGroupDetail.as_view(),
         name="detalle_grupo_productos"),
-    re_path(r'^detalle_unidad_medida/(?P<pk>\d+)/$', DetalleUnidadMedida.as_view(),
+    re_path(r'^detalle_unidad_medida/(?P<pk>\d+)/$', UnitOfMeasureDetail.as_view(),
         name="detalle_unidad_medida"),
-    re_path(r'^detalle_servicio/(?P<pk>.+)/$', DetalleServicio.as_view(), name="detalle_servicio"),
-    re_path(r'^listado_productos_grupo/(?P<grupo>.+)/$', ListadoProductosPorGrupo.as_view(),
+    re_path(r'^detalle_servicio/(?P<pk>.+)/$', ServiceDetail.as_view(), name="detalle_servicio"),
+    re_path(r'^listado_productos_grupo/(?P<grupo>.+)/$', ProductListByGroup.as_view(),
         name="listado_productos_grupo"),
-    re_path(r'^maestro_productos_excel/$', ReporteExcelProductos.as_view(), name="maestro_productos_excel"),
-    re_path(r'^maestro_grupos_productos_excel/$', ReporteExcelGruposProductos.as_view(),
+    re_path(r'^maestro_productos_excel/$', ProductExcelReport.as_view(), name="maestro_productos_excel"),
+    re_path(r'^maestro_grupos_productos_excel/$', ProductGroupExcelReport.as_view(),
         name="maestro_grupos_productos_excel"),
-    re_path(r'^maestro_unidades_medida_excel/$', ReporteExcelUnidadesMedida.as_view(),
+    re_path(r'^maestro_unidades_medida_excel/$', UnitOfMeasureExcelReport.as_view(),
         name="maestro_unidades_medida_excel"),
-    re_path(r'^maestro_servicios_excel/$', ReporteExcelServicios.as_view(), name="maestro_servicios_excel"),
-    re_path(r'^eliminar_unidad_medida/$', EliminarUnidadMedida.as_view(), name="eliminar_unidad_medida"),
-    re_path(r'^eliminar_grupo_productos/$', EliminarGrupoProductos.as_view(),
+    re_path(r'^maestro_servicios_excel/$', ServiceExcelReport.as_view(), name="maestro_servicios_excel"),
+    re_path(r'^eliminar_unidad_medida/$', UnitOfMeasureDelete.as_view(), name="eliminar_unidad_medida"),
+    re_path(r'^eliminar_grupo_productos/$', ProductGroupDelete.as_view(),
         name="eliminar_grupo_productos"),
-    re_path(r'^eliminar_producto/$', EliminarProducto.as_view(), name="eliminar_producto"),
-    re_path(r'^eliminar_servicio/$', EliminarServicio.as_view(), name="eliminar_servicio"),
+    re_path(r'^eliminar_producto/$', ProductDelete.as_view(), name="eliminar_producto"),
+    re_path(r'^eliminar_servicio/$', ServiceDelete.as_view(), name="eliminar_servicio"),
 ]
