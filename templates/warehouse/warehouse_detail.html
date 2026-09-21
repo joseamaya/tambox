@@ -2,9 +2,9 @@
 <h3>Almacenes / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.change_warehouse %} <a class="btn btn-primary"
-                                                 href="{% url 'almacen:warehouse_update' object.pk %}"> Editar </a>
-        {% endif %} {% if perms.almacen.delete_warehouse %}
+        {% if perms.warehouse.change_warehouse %} <a class="btn btn-primary"
+                                                 href="{% url 'warehouse:warehouse_update' object.pk %}"> Editar </a>
+        {% endif %} {% if perms.warehouse.delete_warehouse %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -13,15 +13,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:warehouse_detail' object.previous %}';">
+                    onclick="location.href='{% url 'warehouse:warehouse_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:warehouse_detail' object.next %}';">
+                    onclick="location.href='{% url 'warehouse:warehouse_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:warehouse_list' %}';">
+                    onclick="location.href='{% url 'warehouse:warehouse_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -91,7 +91,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'almacen:warehouse_delete' %}",
+						url : "{% url 'warehouse:warehouse_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

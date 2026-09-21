@@ -3,12 +3,12 @@
 <h3>Profesiones / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_profession %}
-        <a class="btn btn-primary" href="{% url 'administracion:profession_update' object.pk %}">
+        {% if perms.administration.change_profession %}
+        <a class="btn btn-primary" href="{% url 'administration:profession_update' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.administracion.delete_profession %}
+        {% if perms.administration.delete_profession %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:profession_detail' object.previous %}';">
+                    onclick="location.href='{% url 'administration:profession_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:profession_detail' object.next %}';">
+                    onclick="location.href='{% url 'administration:profession_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:profession_list' %}';">
+                    onclick="location.href='{% url 'administration:profession_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

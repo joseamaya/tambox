@@ -11,12 +11,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'requerimientos:requirement_detail' requirement.pk %}'">
+                    onclick="location.href='{% url 'requirements:requirement_detail' requirement.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'requerimientos:requirement_list' %}'">
+                    onclick="location.href='{% url 'requirements:requirement_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +25,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:requirement_update' object.previous %}';">
+                        onclick="location.href='{% url 'requirements:requirement_update' object.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:requirement_update' object.next %}';">
+                        onclick="location.href='{% url 'requirements:requirement_update' object.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:requirement_list' %}';">
+                        onclick="location.href='{% url 'requirements:requirement_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -227,7 +227,7 @@ $(document).ready(function()
 		{
 			e.preventDefault();
 			$.ajax({
-				url : "{% url 'requerimientos:requirement_detail_create' %}",
+				url : "{% url 'requirements:requirement_detail_create' %}",
 				type : 'get',
 				success : function(data)
 				{
@@ -259,7 +259,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 			    $.ajax({
-			      url: "{% url 'productos:product_description_search' %}",
+			      url: "{% url 'products:product_description_search' %}",
 			      data: {'description': request.term,'search_type': 'TODOS'},
 			      success: function( data ) 
 			      {

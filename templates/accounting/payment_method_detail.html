@@ -2,10 +2,10 @@
 <h3>Formas de Pago / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_paymentmethod %} <a class="btn btn-primary"
-                                                         href="{% url 'contabilidad:payment_method_update' object.pk %}">
+        {% if perms.accounting.change_paymentmethod %} <a class="btn btn-primary"
+                                                         href="{% url 'accounting:payment_method_update' object.pk %}">
         Editar
-    </a> {% endif %} {% if perms.contabilidad.delete_paymentmethod %}
+    </a> {% endif %} {% if perms.accounting.delete_paymentmethod %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -14,15 +14,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:payment_method_detail' object.previous %}';">
+                    onclick="location.href='{% url 'accounting:payment_method_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:payment_method_detail' object.next %}';">
+                    onclick="location.href='{% url 'accounting:payment_method_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:payment_method_list' %}';">
+                    onclick="location.href='{% url 'accounting:payment_method_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -93,7 +93,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'productos:product_delete' %}",
+						url : "{% url 'products:product_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

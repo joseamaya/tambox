@@ -3,12 +3,12 @@
 <h3>Tipos de Movimientos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_movementtype %}
-        <a href="{% url 'almacen:movement_type_create' %}" class="btn btn-primary">
+        {% if perms.warehouse.add_movementtype %}
+        <a href="{% url 'warehouse:movement_type_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.almacen.cargar_tipos_movimientos %}
+        {% if perms.warehouse.cargar_tipos_movimientos %}
         <a href="#" class="btn btn-default">
             Importar
         </a>
@@ -16,9 +16,9 @@
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.almacen.ver_reporte_tipos_movimientos_excel %}
+            {% if perms.warehouse.ver_reporte_tipos_movimientos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_excel_report' %}';">
+                    onclick="location.href='{% url 'warehouse:movement_type_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -40,8 +40,8 @@
             </thead>
             <tbody>
             {% for type in movement_types %}
-            {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:movement_type_detail' type.pk %}';">
+            {% if perms.warehouse.ver_detalle_tipo_movimiento %}
+            <tr onclick="location.href='{% url 'warehouse:movement_type_detail' type.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

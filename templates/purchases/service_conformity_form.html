@@ -11,12 +11,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:service_conformity_detail_view' conformity.pk %}'">
+                    onclick="location.href='{% url 'purchases:service_conformity_detail_view' conformity.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:service_conformity_list' %}'">
+                    onclick="location.href='{% url 'purchases:service_conformity_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +25,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:service_conformity_update' conformity.previous %}';">
+                        onclick="location.href='{% url 'purchases:service_conformity_update' conformity.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:service_conformity_update' conformity.next %}';">
+                        onclick="location.href='{% url 'purchases:service_conformity_update' conformity.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:service_conformity_list' %}';">
+                        onclick="location.href='{% url 'purchases:service_conformity_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -233,7 +233,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:service_order_transfer' %}";
+				var url="{% url 'purchases:service_order_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -254,7 +254,7 @@ $(document).ready(function()
 		
 		$.ajax({
 			data : {'service_order': service_order},
-			url : "{% url 'compras:service_order_detail_fetch' %}",
+			url : "{% url 'purchases:service_order_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

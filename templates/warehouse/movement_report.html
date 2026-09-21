@@ -1,7 +1,7 @@
 {% extends "warehouse/base_warehouse.html" %}
 {% block cuerpo %}
 <h3>Movimientos / Reporte por Fechas</h3>
-<form action="{% url 'almacen:movement_report' %}" method="post" role="form">
+<form action="{% url 'warehouse:movement_report' %}" method="post" role="form">
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Generar">

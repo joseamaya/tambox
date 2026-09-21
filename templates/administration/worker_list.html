@@ -3,22 +3,22 @@
 <h3>Trabajadores</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_worker %}
-        <a href="{% url 'administracion:worker_create' %}" class="btn btn-primary">
+        {% if perms.administration.add_worker %}
+        <a href="{% url 'administration:worker_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.administracion.cargar_trabajadores %}
-        <a href="{% url 'administracion:worker_import' %}" class="btn btn-default">
+        {% if perms.administration.cargar_trabajadores %}
+        <a href="{% url 'administration:worker_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.administracion.ver_reporte_trabajadores_excel %}
+            {% if perms.administration.ver_reporte_trabajadores_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:worker_excel_report' %}';">
+                    onclick="location.href='{% url 'administration:worker_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,8 +38,8 @@
             </thead>
             <tbody>
             {% for worker in workers %}
-            {% if perms.administracion.ver_detalle_trabajador %}
-            <tr onclick="return abrir_modal('{% url 'administracion:worker_detail' worker.pk %}','Worker / {{ worker.first_name }} {{ worker.last_name }}')">
+            {% if perms.administration.ver_detalle_trabajador %}
+            <tr onclick="return abrir_modal('{% url 'administration:worker_detail' worker.pk %}','Worker / {{ worker.first_name }} {{ worker.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}

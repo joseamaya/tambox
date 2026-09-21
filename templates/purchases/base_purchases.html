@@ -3,60 +3,60 @@
             <li>
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.productos.ver_tabla_grupos_productos %}
-                    <li><a href="{% url 'productos:product_group_list' %}">Grupos de Productos</a></li>
+                    {% if perms.products.ver_tabla_grupos_productos %}
+                    <li><a href="{% url 'products:product_group_list' %}">Grupos de Productos</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_tabla_proveedores %}
-                    <li><a href="{% url 'compras:supplier_list' %}">Proveedores</a></li>
+                    {% if perms.purchases.ver_tabla_proveedores %}
+                    <li><a href="{% url 'purchases:supplier_list' %}">Proveedores</a></li>
                     {% endif %}
-                    {% if perms.productos.ver_tabla_productos %}
-                    <li><a href="{% url 'productos:product_list' %}">Productos</a></li>
+                    {% if perms.products.ver_tabla_productos %}
+                    <li><a href="{% url 'products:product_list' %}">Productos</a></li>
                     {% endif %}
-                    {% if perms.productos.ver_tabla_productos %}
-                    <li><a href="{% url 'productos:service_list' %}">Servicios</a></li>
+                    {% if perms.products.ver_tabla_productos %}
+                    <li><a href="{% url 'products:service_list' %}">Servicios</a></li>
                     {% endif %}
-                    {% if perms.productos.ver_tabla_unidades_medida %}
-                    <li><a href="{% url 'productos:unit_of_measure_list' %}">Unidades de Medida</a></li>
+                    {% if perms.products.ver_tabla_unidades_medida %}
+                    <li><a href="{% url 'products:unit_of_measure_list' %}">Unidades de Medida</a></li>
                     {% endif %}
                 </ul>
             </li>
             <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.compras.add_quotation %}
-                    <li><a href="{% url 'compras:quotation_create' %}">Solicitud de Cotización</a></li>
+                    {% if perms.purchases.add_quotation %}
+                    <li><a href="{% url 'purchases:quotation_create' %}">Solicitud de Cotización</a></li>
                     {% endif %}
-                    {% if perms.compras.add_purchaseorder %}
-                    <li><a href="{% url 'compras:purchase_order_create' %}">Orden de Compra</a></li>
+                    {% if perms.purchases.add_purchaseorder %}
+                    <li><a href="{% url 'purchases:purchase_order_create' %}">Orden de Compra</a></li>
                     {% endif %}
-                    {% if perms.compras.add_serviceorder %}
-                    <li><a href="{% url 'compras:service_order_create' %}">Orden de Servicio</a></li>
+                    {% if perms.purchases.add_serviceorder %}
+                    <li><a href="{% url 'purchases:service_order_create' %}">Orden de Servicio</a></li>
                     {% endif %}
-                    {% if perms.compras.add_serviceconformity %}
-                    <li><a href="{% url 'compras:service_conformity_create' %}">Conformidad Servicios</a></li>
+                    {% if perms.purchases.add_serviceconformity %}
+                    <li><a href="{% url 'purchases:service_conformity_create' %}">Conformidad Servicios</a></li>
                     {% endif %}
                 </ul>
             </li>
             <li>
                 <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.compras.ver_tabla_cotizaciones %}
-                    <li><a href="{% url 'compras:quotation_list' %}">Cotizaciones</a></li>
+                    {% if perms.purchases.ver_tabla_cotizaciones %}
+                    <li><a href="{% url 'purchases:quotation_list' %}">Cotizaciones</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_tabla_ordenes_compra %}
-                    <li><a href="{% url 'compras:purchase_order_list' %}">Ordenes de Compra</a></li>
+                    {% if perms.purchases.ver_tabla_ordenes_compra %}
+                    <li><a href="{% url 'purchases:purchase_order_list' %}">Ordenes de Compra</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_tabla_ordenes_compra %}
-                    <li><a href="{% url 'compras:service_order_list' %}">Ordenes de Servicios</a></li>
+                    {% if perms.purchases.ver_tabla_ordenes_compra %}
+                    <li><a href="{% url 'purchases:service_order_list' %}">Ordenes de Servicios</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_tabla_conformidades_servicio %}
-                    <li><a href="{% url 'compras:service_conformity_list' %}">Conformidades de Servicio</a></li>
+                    {% if perms.purchases.ver_tabla_conformidades_servicio %}
+                    <li><a href="{% url 'purchases:service_conformity_list' %}">Conformidades de Servicio</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_reporte_ordenes_compra_excel %}
-                    <li><a href="{% url 'compras:purchase_order_excel_report_by_date' %}">Ordenes de Compra por Fecha</a></li>
+                    {% if perms.purchases.ver_reporte_ordenes_compra_excel %}
+                    <li><a href="{% url 'purchases:purchase_order_excel_report_by_date' %}">Ordenes de Compra por Fecha</a></li>
                     {% endif %}
-                    {% if perms.compras.ver_reporte_ordenes_servicios_excel %}
-                    <li><a href="{% url 'compras:service_order_excel_report_by_date' %}">Ordenes de Servicios por Fecha</a>
+                    {% if perms.purchases.ver_reporte_ordenes_servicios_excel %}
+                    <li><a href="{% url 'purchases:service_order_excel_report_by_date' %}">Ordenes de Servicios por Fecha</a>
                     </li>
                     {% endif %}
                 </ul>

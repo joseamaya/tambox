@@ -8,7 +8,7 @@ como `mes`.
 
 Lo que no se revisa, a proposito:
 
-- los paquetes de app (`almacen`, `compras`, ...), que no se renombran;
+- los paquetes de app (`warehouse`, `purchases`, ...), que son palabras inglesas;
 - los codenames de permisos personalizados (`ver_tabla_*`, `cargar_*`), que son
   la voz del sistema y quedan en espanol;
 - los acronimos (`dni`, `ciiu`) y las palabras que son iguales en ingles y en
@@ -24,8 +24,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 
-PACKAGES = {'administracion', 'almacen', 'compras', 'contabilidad', 'productos',
-            'requerimientos', 'seguridad', 'tambox', 'scripts'}
+PACKAGES = {'administration', 'warehouse', 'purchases', 'accounting', 'products',
+            'requirements', 'security', 'tambox', 'scripts'}
 
 # Palabras que no se renombran: acronimos y vocablos comunes a los dos idiomas.
 ALLOWED_WORDS = {

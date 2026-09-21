@@ -3,10 +3,10 @@
 <h3>Nivel Aprobación / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.change_approvallevel %}
-        <a class="btn btn-primary" href="{% url 'administracion:approval_level_update' object.pk %}">Editar </a>
+        {% if perms.administration.change_approvallevel %}
+        <a class="btn btn-primary" href="{% url 'administration:approval_level_update' object.pk %}">Editar </a>
         {% endif %}
-        {% if perms.administracion.delete_approvallevel %}
+        {% if perms.administration.delete_approvallevel %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -15,15 +15,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:approval_level_detail' object.previous %}';">
+                    onclick="location.href='{% url 'administration:approval_level_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:approval_level_detail' object.next %}';">
+                    onclick="location.href='{% url 'administration:approval_level_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:approval_level_list' %}';">
+                    onclick="location.href='{% url 'administration:approval_level_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

@@ -3,16 +3,16 @@
 <h3>Pedidos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_order %}
-        <a href="{% url 'almacen:order_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.warehouse.add_order %}
+        <a href="{% url 'warehouse:order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.almacen.cargar_pedidos %}
+        {% if perms.warehouse.cargar_pedidos %}
         <a href="#" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.almacen.ver_reporte_pedidos_excel %}
+            {% if perms.warehouse.ver_reporte_pedidos_excel %}
             <button class="btn btn-default" type="button"
             ">
             <span class="glyphicon glyphicon-list-alt"></span>
@@ -35,7 +35,7 @@
             </thead>
             <tbody>
             {% for order in pedidos %}
-            <tr onclick="location.href='{% url 'almacen:order_detail' order.pk %}';">
+            <tr onclick="location.href='{% url 'warehouse:order_detail' order.pk %}';">
                 <td>{{ order.code }}</td>
                 <td>{{ order.office }}</td>
                 <td>{{ order.date|date:"d/m/y" }}</td>

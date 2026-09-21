@@ -3,18 +3,18 @@
 <h3>Cuentas Contables</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.add_account %}
-        <a href="{% url 'contabilidad:account_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.accounting.add_account %}
+        <a href="{% url 'accounting:account_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.contabilidad.cargar_cuentas_contables %}
-        <a href="{% url 'contabilidad:account_import' %}" class="btn btn-default">Importar</a>
+        {% if perms.accounting.cargar_cuentas_contables %}
+        <a href="{% url 'accounting:account_import' %}" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.contabilidad.ver_reporte_cuentas_contables_excel %}
+            {% if perms.accounting.ver_reporte_cuentas_contables_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:account_excel_report' %}';">
+                    onclick="location.href='{% url 'accounting:account_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -33,8 +33,8 @@
             </thead>
             <tbody>
             {% for account in chart_of_accounts %}
-            {% if perms.contabilidad.ver_detalle_cuenta_contable %}
-            <tr onclick="location.href='{% url 'contabilidad:account_detail' account.pk %}';">
+            {% if perms.accounting.ver_detalle_cuenta_contable %}
+            <tr onclick="location.href='{% url 'accounting:account_detail' account.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

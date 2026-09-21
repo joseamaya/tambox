@@ -3,15 +3,15 @@
 <h3>Movimientos / {{ object.movement_id }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.almacen.add_movement %}
+        {% if perms.warehouse.add_movement %}
         {% if object.movement_type.increases %}
-        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'warehouse:inbound_create' %}" class="btn btn-primary">Crear</a>
         {% else %}
-        <a href="{% url 'almacen:outbound_create' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'warehouse:outbound_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% endif %}
-        <a class="btn btn-primary" href="{% url 'almacen:movement_update' object.pk %}">Editar</a>
-        {% if perms.almacen.delete_movement %}
+        <a class="btn btn-primary" href="{% url 'warehouse:movement_update' object.pk %}">Editar</a>
+        {% if perms.warehouse.delete_movement %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
     </div>
@@ -24,7 +24,7 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'almacen:movement_pdf' object.pk %}">
+                    <a href="{% url 'warehouse:movement_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -35,15 +35,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.previous %}';">
+                    onclick="location.href='{% url 'warehouse:movement_detail_view' movement.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.next %}';">
+                    onclick="location.href='{% url 'warehouse:movement_detail_view' movement.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_list' %}';">
+                    onclick="location.href='{% url 'warehouse:movement_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -93,7 +93,7 @@
             <div class="col-md-3">
                 <label>Oficina a atender:</label>
                 {% if object.office %}
-                <p><a href="{% url 'administracion:office_detail' object.office.pk %}">{{ object.office }}</a></p>
+                <p><a href="{% url 'administration:office_detail' object.office.pk %}">{{ object.office }}</a></p>
                 {% else %}
                 <p>NINGUNA</p>
                 {% endif %}
@@ -149,7 +149,7 @@
             <div class="col-md-3">
                 <label>Referencia:</label>
                 {% if object.reference %}
-                <p><a href="{% url 'compras:purchase_order_detail' object.reference.pk %}">{{ object.reference }}</a>
+                <p><a href="{% url 'purchases:purchase_order_detail' object.reference.pk %}">{{ object.reference }}</a>
                 </p>
                 {% else %}
                 <p>NINGUNA</p>
@@ -158,7 +158,7 @@
             <div class="col-md-3">
                 <label>Pedido:</label>
                 {% if object.order %}
-                <p><a href="{% url 'almacen:order_detail' object.order.pk %}">{{ object.order }}</a></p>
+                <p><a href="{% url 'warehouse:order_detail' object.order.pk %}">{{ object.order }}</a></p>
                 {% else %}
                 <p>NINGUNO</p>
                 {% endif %}
@@ -241,13 +241,13 @@ $(document).ready(function()
 		var mySpinner = setupLoading();
 		$.ajax({
 			data : {'movement_id' : "{{ object.pk }}" },
-			url : "{% url 'almacen:movement_delete' %}",
+			url : "{% url 'warehouse:movement_delete' %}",
 			type : 'post',
 			success : function(data)
 			{
 				removeLoading(mySpinner);
 				alert("Movimiento " + data.movement_id + " eliminado");
-				$(location).attr('href', "{% url 'almacen:movement_list' %}");
+				$(location).attr('href', "{% url 'warehouse:movement_list' %}");
 			},
 			error: function (request, status, error)
 			{

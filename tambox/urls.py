@@ -6,14 +6,14 @@ from django.conf.urls.static import static
 
 urlpatterns = [
                   re_path(r'^admin/', admin.site.urls),
-                  re_path(r'^almacen/', include('almacen.urls', namespace='almacen')),
-                  re_path(r'^', include('seguridad.urls', namespace='seguridad')),
-                  re_path(r'^compras/', include('compras.urls', namespace='compras')),
-                  re_path(r'^contabilidad/', include('contabilidad.urls', namespace='contabilidad')),
-                  re_path(r'^administracion/', include('administracion.urls', namespace='administracion')),
-                  re_path(r'^requerimientos/', include('requerimientos.urls', namespace='requerimientos')),
-                  re_path(r'^productos/', include('productos.urls', namespace='productos'))
+                  re_path(r'^almacen/', include('warehouse.urls', namespace='warehouse')),
+                  re_path(r'^', include('security.urls', namespace='security')),
+                  re_path(r'^compras/', include('purchases.urls', namespace='purchases')),
+                  re_path(r'^contabilidad/', include('accounting.urls', namespace='accounting')),
+                  re_path(r'^administracion/', include('administration.urls', namespace='administration')),
+                  re_path(r'^requerimientos/', include('requirements.urls', namespace='requirements')),
+                  re_path(r'^productos/', include('products.urls', namespace='products'))
                   # url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT})
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
-handler403 = 'seguridad.views.permission_denied'
+handler403 = 'security.views.permission_denied'

@@ -91,32 +91,32 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'seguridad:home' %}">
+            <a class="navbar-brand" href="{% url 'security:home' %}">
                 <span class="fa fa-home fa-lg"></span>
             </a>
-            {% if perms.administracion.ver_bienvenida %}
+            {% if perms.administration.ver_bienvenida %}
 
-            <a class="navbar-brand" href="{% url 'administracion:dashboard' %}">
+            <a class="navbar-brand" href="{% url 'administration:dashboard' %}">
                 <span class="fa fa-area-chart fa-lg"></span> Administración
             </a>
             {% endif %}
-            {% if perms.almacen.ver_bienvenida %}
-            <a class="navbar-brand" href="{% url 'almacen:dashboard' %}">
+            {% if perms.warehouse.ver_bienvenida %}
+            <a class="navbar-brand" href="{% url 'warehouse:dashboard' %}">
                 <span class="fa fa-building fa-lg"></span> Almacén
             </a>
             {% endif %}
-            {% if perms.compras.ver_bienvenida %}
-            <a class="navbar-brand" href="{% url 'compras:dashboard' %}">
+            {% if perms.purchases.ver_bienvenida %}
+            <a class="navbar-brand" href="{% url 'purchases:dashboard' %}">
                 <span class="fa fa-shopping-cart fa-lg"></span> Compras
             </a>
             {% endif %}
-            {% if perms.contabilidad.ver_bienvenida %}
-            <a class="navbar-brand" href="{% url 'contabilidad:dashboard' %}">
+            {% if perms.accounting.ver_bienvenida %}
+            <a class="navbar-brand" href="{% url 'accounting:dashboard' %}">
                 <span class="fa fa-calculator fa-lg"></span> Contabilidad
             </a>
             {% endif %}
-            {% if perms.requerimientos.ver_bienvenida %}
-            <a class="navbar-brand" href="{% url 'requerimientos:dashboard' %}">
+            {% if perms.requirements.ver_bienvenida %}
+            <a class="navbar-brand" href="{% url 'requirements:dashboard' %}">
                 <span class="fa fa-newspaper-o fa-lg"></span> Requerimientos
             </a>
             {% endif %}
@@ -141,7 +141,7 @@
                     {% endif %}
                     <li class="divider"></li>
                     <li>
-                        <form action="{% url 'seguridad:logout' %}" method="post">
+                        <form action="{% url 'security:logout' %}" method="post">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-link btn-salir">
                                 <i class="fa fa-sign-out fa-fw"></i>Salir

@@ -26,13 +26,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'seguridad',
-    'requerimientos',
-    'compras',
-    'productos',
-    'contabilidad',
-    'almacen',
-    'administracion',
+    'security.apps.SecurityConfig',
+    'requirements.apps.RequirementsConfig',
+    'purchases.apps.PurchasesConfig',
+    'products.apps.ProductsConfig',
+    'accounting.apps.AccountingConfig',
+    'warehouse.apps.WarehouseConfig',
+    'administration.apps.AdministrationConfig',
     'import_export'
 )
 

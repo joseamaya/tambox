@@ -3,10 +3,10 @@
 <h3>Productos / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.change_product %}
-        <a class="btn btn-primary" href="{% url 'productos:product_update' object.pk %}"> Editar </a>
+        {% if perms.products.change_product %}
+        <a class="btn btn-primary" href="{% url 'products:product_update' object.pk %}"> Editar </a>
         {% endif %}
-        {% if perms.productos.delete_product %}
+        {% if perms.products.delete_product %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -15,15 +15,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_detail' object.previous %}';">
+                    onclick="location.href='{% url 'products:product_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_detail' object.next %}';">
+                    onclick="location.href='{% url 'products:product_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_list' %}';">
+                    onclick="location.href='{% url 'products:product_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -126,13 +126,13 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'productos:product_delete' %}",
+			url : "{% url 'products:product_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.relaciones == 'NO') 
 				{
 					alert("Producto " + data.description + " eliminado");
-					$(location).attr('href', "{% url 'productos:product_detail' object.next %}");
+					$(location).attr('href', "{% url 'products:product_detail' object.next %}");
 				} 
 				else if (data.relaciones == 'SI') 
 				{

@@ -3,26 +3,26 @@
             <li>
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.contabilidad.add_configuration %}
-                    <li><a href="{% url 'contabilidad:configuration' %}">Configuración</a></li>
+                    {% if perms.accounting.add_configuration %}
+                    <li><a href="{% url 'accounting:configuration' %}">Configuración</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_cuentas_contables %}
-                    <li><a href="{% url 'contabilidad:account_list' %}">Cuentas Contables</a></li>
+                    {% if perms.accounting.ver_tabla_cuentas_contables %}
+                    <li><a href="{% url 'accounting:account_list' %}">Cuentas Contables</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_formas_pago %}
-                    <li><a href="{% url 'contabilidad:payment_method_list' %}">Formas de Pago</a></li>
+                    {% if perms.accounting.ver_tabla_formas_pago %}
+                    <li><a href="{% url 'accounting:payment_method_list' %}">Formas de Pago</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_impuestos %}
-                    <li><a href="{% url 'contabilidad:tax_list' %}">Impuestos</a></li>
+                    {% if perms.accounting.ver_tabla_impuestos %}
+                    <li><a href="{% url 'accounting:tax_list' %}">Impuestos</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_tipos_cambio %}
-                    <li><a href="{% url 'contabilidad:exchange_rate_list' %}">Tipos de Cambio</a></li>
+                    {% if perms.accounting.ver_tabla_tipos_cambio %}
+                    <li><a href="{% url 'accounting:exchange_rate_list' %}">Tipos de Cambio</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_tipos_existencias %}
-                    <li><a href="{% url 'contabilidad:stock_type_list' %}">Tipos de Existencias</a></li>
+                    {% if perms.accounting.ver_tabla_tipos_existencias %}
+                    <li><a href="{% url 'accounting:stock_type_list' %}">Tipos de Existencias</a></li>
                     {% endif %}
-                    {% if perms.contabilidad.ver_tabla_tipos_documentos %}
-                    <li><a href="{% url 'contabilidad:document_type_list' %}">Tipos de Documentos</a></li>
+                    {% if perms.accounting.ver_tabla_tipos_documentos %}
+                    <li><a href="{% url 'accounting:document_type_list' %}">Tipos de Documentos</a></li>
                     {% endif %}
 
                 </ul>

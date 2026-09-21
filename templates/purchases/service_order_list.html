@@ -3,16 +3,16 @@
 <h3>Órdenes de Servicios</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_serviceorder %} <a
-            href="{% url 'compras:service_order_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_serviceorder %} <a
+            href="{% url 'purchases:service_order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.compras.cargar_ordenes_compra %}
+        {% if perms.purchases.cargar_ordenes_compra %}
         <a href="#" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.compras.ver_reporte_ordenes_servicios_excel %}
+            {% if perms.purchases.ver_reporte_ordenes_servicios_excel %}
             <button class="btn btn-default" type="button">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
@@ -35,8 +35,8 @@
             </thead>
             <tbody>
             {% for service_order in service_orders %}
-            {% if perms.compras.ver_detalle_orden_servicios %}
-            <tr onclick="location.href='{% url 'compras:service_order_detail' service_order.pk %}';">
+            {% if perms.purchases.ver_detalle_orden_servicios %}
+            <tr onclick="location.href='{% url 'purchases:service_order_detail' service_order.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -93,7 +93,7 @@ $(document).ready(function()
     	var code = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'code': code},
-    		url : "{% url 'compras:purchase_order_delete' %}",
+    		url : "{% url 'purchases:purchase_order_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

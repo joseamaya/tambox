@@ -3,22 +3,22 @@
 <h3>Productos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.add_product %}
-        <a href="{% url 'productos:product_create' %}" class="btn btn-primary">
+        {% if perms.products.add_product %}
+        <a href="{% url 'products:product_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.productos.cargar_productos %}
-        <a href="{% url 'productos:product_import' %}" class="btn btn-default">
+        {% if perms.products.cargar_productos %}
+        <a href="{% url 'products:product_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.productos.ver_reporte_productos_excel %}
+            {% if perms.products.ver_reporte_productos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_excel_report' %}';">
+                    onclick="location.href='{% url 'products:product_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,8 +38,8 @@
             </thead>
             <tbody>
             {% for product in productos %}
-            {% if perms.productos.ver_detalle_producto %}
-            <tr onclick="location.href='{% url 'productos:product_detail' product.pk %}';">
+            {% if perms.products.ver_detalle_producto %}
+            <tr onclick="location.href='{% url 'products:product_detail' product.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

@@ -4,19 +4,19 @@
 <h3>Requerimientos / {{ object.code }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.requerimientos.add_requirement %}
-        <a href="{% url 'requerimientos:requirement_create' %}" class="btn btn-primary"> Crear</a>
+        {% if perms.requirements.add_requirement %}
+        <a href="{% url 'requirements:requirement_create' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
         {% if object.approval.level == "USU" or object.approval.level == "JEF" %}
         {% if object.status %}
-        {% if perms.requerimientos.change_requirement %}
-        <a class="btn btn-warning" href="{% url 'requerimientos:requirement_update' object.pk %}">Editar </a>
+        {% if perms.requirements.change_requirement %}
+        <a class="btn btn-warning" href="{% url 'requirements:requirement_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% endif %}
         {% if object.approval.is_active == "PEND" or object.approval.is_active == "APROB_JEF" %}
         {% if object.status == "PEND" %}
-        {% if perms.requerimientos.delete_requirement %}
+        {% if perms.requirements.delete_requirement %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -32,14 +32,14 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'requerimientos:quotation_list_by_requirement' requirement.pk %}">
+                    <a href="{% url 'requirements:quotation_list_by_requirement' requirement.pk %}">
                         <span class="fa fa-book"></span>
                         Ver Cotiz.
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'requerimientos:requirement_pdf' requirement.pk %}">
+                    <a href="{% url 'requirements:requirement_pdf' requirement.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -50,15 +50,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% previous_url 'requerimientos:requirement_detail' object request.user %}';">
+                    onclick="location.href='{% previous_url 'requirements:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% next_url 'requerimientos:requirement_detail' object request.user %}';">
+                    onclick="location.href='{% next_url 'requirements:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'requerimientos:requirement_list' %}';">
+                    onclick="location.href='{% url 'requirements:requirement_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -215,13 +215,13 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'requerimientos:requirement_delete' %}",
+			url : "{% url 'requirements:requirement_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.quotations == 'NO') 
 				{
 					alert("Requerimiento " + data.code + " eliminado");
-					$(location).attr('href', "{% url 'requerimientos:requirement_detail' object.next %}");
+					$(location).attr('href', "{% url 'requirements:requirement_detail' object.next %}");
 				} 
 				else if (data.quotations == 'SI') 
 				{

@@ -77,7 +77,7 @@ $("#id_end_date").datepicker();
 $("#id_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'productos:product_description_search' %}",
+      url: "{% url 'products:product_description_search' %}",
       data: {'description': $("#id_description").val(), 'search_type': 'PRODUCTOS'},
       success: function( data ) 
       {

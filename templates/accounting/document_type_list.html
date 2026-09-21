@@ -3,22 +3,22 @@
 <h3>Tipos de Documentos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.add_documenttype %}
-        <a href="{% url 'contabilidad:document_type_create' %}" class="btn btn-primary">
+        {% if perms.accounting.add_documenttype %}
+        <a href="{% url 'accounting:document_type_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.contabilidad.cargar_tipos_documento %}
-        <a href="{% url 'contabilidad:document_type_import' %}" class="btn btn-default">
+        {% if perms.accounting.cargar_tipos_documento %}
+        <a href="{% url 'accounting:document_type_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}
+            {% if perms.accounting.ver_reporte_tipos_documentos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:document_type_excel_report' %}';">
+                    onclick="location.href='{% url 'accounting:document_type_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -37,8 +37,8 @@
             </thead>
             <tbody>
             {% for type in types %}
-            {% if perms.contabilidad.ver_detalle_tipo_documento %}
-            <tr onclick="location.href='{% url 'contabilidad:document_type_detail' type.pk %}';">
+            {% if perms.accounting.ver_detalle_tipo_documento %}
+            <tr onclick="location.href='{% url 'accounting:document_type_detail' type.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -88,7 +88,7 @@ $(document).ready(function()
     	var id = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'id': id},
-    		url : "{% url 'contabilidad:document_type_delete' %}",
+    		url : "{% url 'accounting:document_type_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

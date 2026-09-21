@@ -3,19 +3,19 @@
 <h3>Requerimientos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.requerimientos.add_requirement %}
-        <a href="{% url 'requerimientos:requirement_create' %}" class="btn btn-primary"> Crear</a>
+        {% if perms.requirements.add_requirement %}
+        <a href="{% url 'requirements:requirement_create' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
-        {% if perms.requerimientos.cargar_requerimientos %}
+        {% if perms.requirements.cargar_requerimientos %}
         <a href="#" class="btn btn-default">
             Importar </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.requerimientos.ver_reporte_requerimientos_excel %}
+            {% if perms.requirements.ver_reporte_requerimientos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'requerimientos:requirement_excel_report' %}';">
+                    onclick="location.href='{% url 'requirements:requirement_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,8 +38,8 @@
             </thead>
             <tbody>
             {% for requirement in requerimientos %}
-            {% if perms.requerimientos.ver_detalle_requerimiento %}
-            <tr onclick="location.href='{% url 'requerimientos:requirement_detail' requirement.code %}';">
+            {% if perms.requirements.ver_detalle_requerimiento %}
+            <tr onclick="location.href='{% url 'requirements:requirement_detail' requirement.code %}';">
                 {% else %}
             <tr>
                 {% endif %}

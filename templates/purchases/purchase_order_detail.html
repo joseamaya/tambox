@@ -3,16 +3,16 @@
 <h3>Órdenes de Compra / {{ object.code }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.compras.add_purchaseorder %}
-        <a href="{% url 'compras:purchase_order_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_purchaseorder %}
+        <a href="{% url 'purchases:purchase_order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.change_purchaseorder %}
-        <a class="btn btn-primary" href="{% url 'compras:purchase_order_update' object.pk %}">Editar </a>
+        {% if perms.purchases.change_purchaseorder %}
+        <a class="btn btn-primary" href="{% url 'purchases:purchase_order_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.delete_purchaseorder %}
+        {% if perms.purchases.delete_purchaseorder %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -26,19 +26,19 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'compras:movement_list_by_purchase_order' object.pk %}">
+                    <a href="{% url 'purchases:movement_list_by_purchase_order' object.pk %}">
                         <span class="fa fa-building"></span>
                         Movimientos
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:purchase_order_pdf' object.pk %}">
+                    <a href="{% url 'purchases:purchase_order_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:purchase_order_xls' object.pk %}">
+                    <a href="{% url 'purchases:purchase_order_xls' object.pk %}">
                         <span class="fa fa-file-excel-o"></span>
                         Excel
                     </a>
@@ -49,15 +49,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:purchase_order_detail' object.previous %}';">
+                    onclick="location.href='{% url 'purchases:purchase_order_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:purchase_order_detail' object.next %}';">
+                    onclick="location.href='{% url 'purchases:purchase_order_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:purchase_order_list' %}';">
+                    onclick="location.href='{% url 'purchases:purchase_order_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -128,7 +128,7 @@
             <div class="col-md-3">
                 <label>Referencia:</label>
                 {% if object.quotation %}
-                <p><a href="{% url 'compras:quotation_detail' object.quotation.pk %}">{{ object.quotation }}</a></p>
+                <p><a href="{% url 'purchases:quotation_detail' object.quotation.pk %}">{{ object.quotation }}</a></p>
                 {% else %}
                 <p>Ninguna</p>
                 {% endif %}
@@ -289,13 +289,13 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'compras:purchase_order_delete' %}",
+			url : "{% url 'purchases:purchase_order_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.movements == 'NO')
 				{
 					alert("Orden de Compra " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:purchase_order_detail' object.next %}");
+					$(location).attr('href', "{% url 'purchases:purchase_order_detail' object.next %}");
 				} 
 				else if (data.movements == 'SI') 
 				{

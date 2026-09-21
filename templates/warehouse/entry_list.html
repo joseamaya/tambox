@@ -3,16 +3,16 @@
 <h3>Ingresos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_movement %}
-        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.warehouse.add_movement %}
+        <a href="{% url 'warehouse:inbound_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.almacen.cargar_movimientos %}
+        {% if perms.warehouse.cargar_movimientos %}
         <a href="#" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.almacen.ver_reporte_movimientos_excel %}
+            {% if perms.warehouse.ver_reporte_movimientos_excel %}
             <button class="btn btn-default" type="button"
             ">
             <span class="glyphicon glyphicon-list-alt"></span>
@@ -35,8 +35,8 @@
             </thead>
             <tbody>
             {% for movement in movements %}
-            {% if perms.almacen.ver_detalle_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:movement_detail_view' movement.pk %}';">
+            {% if perms.warehouse.ver_detalle_movimiento %}
+            <tr onclick="location.href='{% url 'warehouse:movement_detail_view' movement.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -88,7 +88,7 @@ $(document).ready(function()
     	var movement_id = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'movement_id': movement_id},
-    		url : "{% url 'almacen:movement_delete' %}",
+    		url : "{% url 'warehouse:movement_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

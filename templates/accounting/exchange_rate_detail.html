@@ -3,12 +3,12 @@
 <h3>Tipos de Cambio / {{ object.date }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_exchangerate %}
-        <a class="btn btn-primary" href="{% url 'contabilidad:exchange_rate_update' object.pk %}">
+        {% if perms.accounting.change_exchangerate %}
+        <a class="btn btn-primary" href="{% url 'accounting:exchange_rate_update' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.contabilidad.delete_exchangerate %}
+        {% if perms.accounting.delete_exchangerate %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.previous %}';">
+                    onclick="location.href='{% url 'accounting:exchange_rate_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.next %}';">
+                    onclick="location.href='{% url 'accounting:exchange_rate_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:exchange_rate_list' %}';">
+                    onclick="location.href='{% url 'accounting:exchange_rate_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

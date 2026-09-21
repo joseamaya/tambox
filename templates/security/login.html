@@ -27,7 +27,7 @@
                     {% if form.non_field_errors %}
                     {% include "includes/general_errors.html" %}
                     {% endif %}
-                    <form role="form" method="post" id='form_login' action="{% url 'seguridad:login' %}">
+                    <form role="form" method="post" id='form_login' action="{% url 'security:login' %}">
                         {% csrf_token %}
                         <fieldset>
                             <div class="form-group">

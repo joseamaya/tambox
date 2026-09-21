@@ -2,7 +2,7 @@ import logging
 
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
-from contabilidad.models import Company
+from accounting.models import Company
 
 logger = logging.getLogger(__name__)
 

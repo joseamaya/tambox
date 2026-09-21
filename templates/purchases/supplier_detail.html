@@ -2,30 +2,30 @@
 <h3>Proveedores / {{ object.business_name }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_supplier %} <a
-            href="{% url 'compras:supplier_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_supplier %} <a
+            href="{% url 'purchases:supplier_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.compras.change_supplier %}
+        {% if perms.purchases.change_supplier %}
         <a class="btn btn-primary"
-           href="{% url 'compras:supplier_update' object.pk %}"> Editar
+           href="{% url 'purchases:supplier_update' object.pk %}"> Editar
         </a>
         {% endif %}
-        {% if perms.compras.delete_supplier %}
+        {% if perms.purchases.delete_supplier %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:supplier_detail' object.previous %}';">
+                    onclick="location.href='{% url 'purchases:supplier_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:supplier_detail' object.next %}';">
+                    onclick="location.href='{% url 'purchases:supplier_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:supplier_list' %}';">
+                    onclick="location.href='{% url 'purchases:supplier_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -129,7 +129,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'compras:supplier_delete' %}",
+						url : "{% url 'purchases:supplier_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

@@ -3,12 +3,12 @@
 <h3>Tipos de Documento / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_documenttype %}
-        <a class="btn btn-primary" href="{% url 'contabilidad:document_type_update' object.pk %}">
+        {% if perms.accounting.change_documenttype %}
+        <a class="btn btn-primary" href="{% url 'accounting:document_type_update' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.contabilidad.delete_documenttype %}
+        {% if perms.accounting.delete_documenttype %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:document_type_detail' object.previous %}';">
+                    onclick="location.href='{% url 'accounting:document_type_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:document_type_detail' object.next %}';">
+                    onclick="location.href='{% url 'accounting:document_type_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:document_type_list' %}';">
+                    onclick="location.href='{% url 'accounting:document_type_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

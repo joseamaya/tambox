@@ -12,11 +12,11 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:warehouse_detail' object.pk %}'">
+                    onclick="location.href='{% url 'warehouse:warehouse_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:warehouse_list' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'warehouse:warehouse_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,15 +25,15 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:warehouse_update' almacen.previous %}';">
+                        onclick="location.href='{% url 'warehouse:warehouse_update' almacen.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:warehouse_update' almacen.next %}';">
+                        onclick="location.href='{% url 'warehouse:warehouse_update' almacen.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button" onclick="location.href='{% url 'almacen:warehouse_list' %}';">
+                <button class="btn btn-default" type="button" onclick="location.href='{% url 'warehouse:warehouse_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>

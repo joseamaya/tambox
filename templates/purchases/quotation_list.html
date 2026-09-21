@@ -2,16 +2,16 @@
 <h3>Solicitudes de Cotización</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_quotation %} <a
-            href="{% url 'compras:quotation_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_quotation %} <a
+            href="{% url 'purchases:quotation_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if perms.compras.cargar_proveedores %}
+        {% if perms.purchases.cargar_proveedores %}
         <a href="#" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.compras.ver_reporte_cotizaciones_excel %}
+            {% if perms.purchases.ver_reporte_cotizaciones_excel %}
             <button class="btn btn-default" type="button">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
@@ -34,8 +34,8 @@
             </thead>
             <tbody>
             {% for quotation in quotations %}
-            {% if perms.compras.ver_detalle_cotizacion %}
-            <tr onclick="location.href='{% url 'compras:quotation_detail' quotation.pk %}';">
+            {% if perms.purchases.ver_detalle_cotizacion %}
+            <tr onclick="location.href='{% url 'purchases:quotation_detail' quotation.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -85,7 +85,7 @@ $(document).ready(function()
 			data : {
 				'code' : code
 			},
-			url : "{% url 'compras:purchase_order_delete' %}",
+			url : "{% url 'purchases:purchase_order_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.movements == 'NO') {

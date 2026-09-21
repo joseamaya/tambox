@@ -11,11 +11,11 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:purchase_order_detail' order.pk %}'">
+                    onclick="location.href='{% url 'purchases:purchase_order_detail' order.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:purchase_order_list' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'purchases:purchase_order_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -24,16 +24,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:purchase_order_update' order.previous %}';">
+                        onclick="location.href='{% url 'purchases:purchase_order_update' order.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:purchase_order_update' order.next %}';">
+                        onclick="location.href='{% url 'purchases:purchase_order_update' order.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:purchase_order_list' %}';">
+                        onclick="location.href='{% url 'purchases:purchase_order_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -364,7 +364,7 @@ $(document).ready(function()
 		if (date != "")
 		{
 			$.ajax({
-			  url: "{% url 'contabilidad:exchange_rate_fetch' %}",
+			  url: "{% url 'accounting:exchange_rate_fetch' %}",
 			  data: {'date': date},
 			  success: function(data)
 			  {
@@ -430,7 +430,7 @@ $(document).ready(function()
 		if(tax_id.length==11)
 		{	
 			$.ajax({
-		      url: "{% url 'compras:supplier_tax_id_search' %}",
+		      url: "{% url 'purchases:supplier_tax_id_search' %}",
 		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
@@ -446,7 +446,7 @@ $(document).ready(function()
 	$("#id_business_name").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'compras:supplier_name_search' %}",
+	      url: "{% url 'purchases:supplier_name_search' %}",
 	      data: {'business_name': $("#id_business_name").val()},
 	      success: function( data ) 
 	      {
@@ -534,7 +534,7 @@ $(document).ready(function()
 		$('#id_transferencia_cotizacion').prop("disabled", true);
 		e.preventDefault();
 		$.ajax({
-			url : "{% url 'compras:purchase_order_detail_create' %}",
+			url : "{% url 'purchases:purchase_order_detail_create' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -566,7 +566,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'productos:product_description_search' %}",
+				  url: "{% url 'products:product_description_search' %}",
 				  data: {'description': request.term,'search_type': 'PRODUCTOS' },
 			      success: function( data ) 
 			      {
@@ -599,7 +599,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:quotation_transfer' %}";
+				var url="{% url 'purchases:quotation_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -623,7 +623,7 @@ $(document).ready(function()
 		ventana_transferencia.dialog("close");
 		$('#detalles td').parent().remove();
 		$.ajax({
-	      url: "{% url 'compras:quotation_search' %}",
+	      url: "{% url 'purchases:quotation_search' %}",
 	      data: {'code': quotation},
 	      success: function(data) 
 	      {
@@ -636,7 +636,7 @@ $(document).ready(function()
 		
 		$.ajax({
 			data : {'quotation': quotation, 'search_type': 'PRODUCTOS'},
-			url : "{% url 'compras:quotation_detail_fetch' %}",
+			url : "{% url 'purchases:quotation_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

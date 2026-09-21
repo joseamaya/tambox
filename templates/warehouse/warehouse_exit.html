@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:outbound_list' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'warehouse:outbound_list' %}'">
                 Cancelar
             </button>
         </div>
@@ -17,16 +17,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movement_update' movement.previous %}';">
+                        onclick="location.href='{% url 'warehouse:movement_update' movement.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movement_update' movement.next %}';">
+                        onclick="location.href='{% url 'warehouse:movement_update' movement.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:outbound_list' %}';">
+                        onclick="location.href='{% url 'warehouse:outbound_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -305,7 +305,7 @@ $(document).ready(function()
 		if(dni.length==8)
 		{
 			$.ajax({
-		      url: "{% url 'administracion:receiver_dni_search' %}",
+		      url: "{% url 'administration:receiver_dni_search' %}",
 		      data: {'dni': dni, 'movement_type':movement_type},
 		      success: function(data)
 		      {
@@ -319,7 +319,7 @@ $(document).ready(function()
 	$("#id_receiver").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'administracion:receiver_name_search' %}",
+	      url: "{% url 'administration:receiver_name_search' %}",
 	      data: {'name': $("#id_receiver").val(), 'movement_type':$("#id_movement_type").val()},
 	      success: function( data )
 	      {
@@ -356,7 +356,7 @@ $(document).ready(function()
 		if(alm != '') 
 		{			
 			$.ajax({
-				url : "{% url 'almacen:outbound_detail_create' %}",
+				url : "{% url 'warehouse:outbound_detail_create' %}",
 				type : 'get',
 				success : function(data)
 				{
@@ -392,7 +392,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'almacen:product_warehouse_search' %}",
+				  url: "{% url 'warehouse:product_warehouse_search' %}",
 				  data: {'warehouse': $("#id_warehouse").val(),'description': request.term },
 			      success: function( data ) 
 			      {
@@ -423,7 +423,7 @@ $(document).ready(function()
 		var id_product = $(this).prop('id');
 		var id = id_product.replace("quantity", "");
 		$.ajax({
-	      url: "{% url 'almacen:stock_query' %}",
+	      url: "{% url 'warehouse:stock_query' %}",
 	      data: {
 	    	  'warehouse': $("#id_warehouse").val(),
 	    	  'code': $("#"+id+"code").val()

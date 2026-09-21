@@ -12,12 +12,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:quotation_detail' quotation.pk %}'">
+                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:quotation_list' %}'">
+                    onclick="location.href='{% url 'purchases:quotation_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -26,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:quotation_update' quotation.previous %}';">
+                        onclick="location.href='{% url 'purchases:quotation_update' quotation.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:quotation_update' quotation.next %}';">
+                        onclick="location.href='{% url 'purchases:quotation_update' quotation.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:quotation_list' %}';">
+                        onclick="location.href='{% url 'purchases:quotation_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -221,7 +221,7 @@ $(document).ready(function()
 	$("#id_business_name").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'compras:supplier_name_search' %}",
+	      url: "{% url 'purchases:supplier_name_search' %}",
 	      data: {'business_name': $("#id_business_name").val()},
 	      success: function( data ) 
 	      {
@@ -253,7 +253,7 @@ $(document).ready(function()
 		if(tax_id.length==11)
 		{
 			$.ajax({
-		      url: "{% url 'compras:supplier_tax_id_search' %}",
+		      url: "{% url 'purchases:supplier_tax_id_search' %}",
 		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
@@ -282,7 +282,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'requerimientos:requirement_transfer' %}";
+				var url="{% url 'requirements:requirement_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -305,7 +305,7 @@ $(document).ready(function()
 		$.ajax(
 		{
 			data : { 'requirement' : requirement,'search_type': 'PRODUCTOS' },
-			url : "{% url 'requerimientos:requirement_detail_fetch' %}",
+			url : "{% url 'requirements:requirement_detail_fetch' %}",
 			type : 'get',
 			success : function(data) 
 			{

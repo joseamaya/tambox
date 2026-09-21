@@ -3,16 +3,16 @@
 <h3>Órdenes de Servicios / {{ object.pk }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.compras.add_serviceorder %}
-        <a href="{% url 'compras:service_order_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_serviceorder %}
+        <a href="{% url 'purchases:service_order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.change_serviceorder %}
-        <a class="btn btn-primary" href="{% url 'compras:service_order_update' object.pk %}">Editar </a>
+        {% if perms.purchases.change_serviceorder %}
+        <a class="btn btn-primary" href="{% url 'purchases:service_order_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.delete_serviceorder %}
+        {% if perms.purchases.delete_serviceorder %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -26,13 +26,13 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'compras:service_conformity_list_by_service_order' object.pk %}">
+                    <a href="{% url 'purchases:service_conformity_list_by_service_order' object.pk %}">
                         <span class="fa fa-building"></span>
                         Conformidades
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:service_order_pdf' object.pk %}">
+                    <a href="{% url 'purchases:service_order_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -43,15 +43,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_order_detail' object.previous %}';">
+                    onclick="location.href='{% url 'purchases:service_order_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_order_detail' object.next %}';">
+                    onclick="location.href='{% url 'purchases:service_order_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_order_list' %}';">
+                    onclick="location.href='{% url 'purchases:service_order_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -126,7 +126,7 @@
                 <div class="col-md-3">
                     <label>Referencia:</label>
                     {% if object.quotation %}
-                    <p><a href="{% url 'compras:quotation_detail' object.quotation.pk %}">{{ object.quotation }}</a>
+                    <p><a href="{% url 'purchases:quotation_detail' object.quotation.pk %}">{{ object.quotation }}</a>
                     </p>
                     {% else %}
                     <p>Ninguna</p>
@@ -259,13 +259,13 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'compras:service_order_delete' %}",
+			url : "{% url 'purchases:service_order_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.conformidades == 'NO')
 				{
 					alert("Orden de Servicios " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:service_order_detail' object.next %}");
+					$(location).attr('href', "{% url 'purchases:service_order_detail' object.next %}");
 				} 
 				else if (data.conformidades == 'SI') 
 				{

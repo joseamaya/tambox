@@ -3,12 +3,12 @@
 <h3>Formas de Pago</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.add_paymentmethod %}
-        <a href="{% url 'contabilidad:payment_method_create' %}" class="btn btn-primary">
+        {% if perms.accounting.add_paymentmethod %}
+        <a href="{% url 'accounting:payment_method_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.contabilidad.cargar_formas_pago %}
+        {% if perms.accounting.cargar_formas_pago %}
         <a href="#" class="btn btn-default">
             Importar
         </a>
@@ -16,9 +16,9 @@
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.contabilidad.ver_reporte_formas_pago_excel %}
+            {% if perms.accounting.ver_reporte_formas_pago_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:payment_method_excel_report' %}';">
+                    onclick="location.href='{% url 'accounting:payment_method_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,8 +38,8 @@
             </thead>
             <tbody>
             {% for payment_method in payment_methods %}
-            {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'contabilidad:payment_method_detail' payment_method.pk %}';">
+            {% if perms.warehouse.ver_detalle_tipo_movimiento %}
+            <tr onclick="location.href='{% url 'accounting:payment_method_detail' payment_method.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -89,7 +89,7 @@ $(document).ready(function()
 	   	var code = id_boton.replace("elim_","");
 	   	$.ajax({
 	   		data : {'code': code},
-	   		url : "{% url 'contabilidad:payment_method_delete' %}",
+	   		url : "{% url 'accounting:payment_method_delete' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{

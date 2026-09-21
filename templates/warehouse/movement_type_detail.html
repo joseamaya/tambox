@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.movement_type.add_movementtype %}
-        <a href="{% url 'almacen:movement_type_create' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'warehouse:movement_type_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.movement_type.delete_tipo_movimiento %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
@@ -12,15 +12,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_detail' object.previous %}';">
+                    onclick="location.href='{% url 'warehouse:movement_type_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_detail' object.next %}';">
+                    onclick="location.href='{% url 'warehouse:movement_type_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_list' %}';">
+                    onclick="location.href='{% url 'warehouse:movement_type_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

@@ -3,16 +3,16 @@
 <h3>Solicitudes de Cotización / {{ object.pk }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if perms.compras.add_quotation %} <a
-            href="{% url 'compras:quotation_create' %}" class="btn btn-primary">Crear</a>
+        {% if perms.purchases.add_quotation %} <a
+            href="{% url 'purchases:quotation_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if quotation.status == "PEND" %}
-        {% if perms.compras.change_quotation %}
-        <a class="btn btn-warning" href="{% url 'compras:quotation_update' object.pk %}">Editar </a>
+        {% if perms.purchases.change_quotation %}
+        <a class="btn btn-warning" href="{% url 'purchases:quotation_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.compras.delete_quotation %}
+        {% if perms.purchases.delete_quotation %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -27,20 +27,20 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'compras:service_order_list_by_quotation' object.pk %}">
+                    <a href="{% url 'purchases:service_order_list_by_quotation' object.pk %}">
                         <span class="fa fa-exchange"></span>
                         Servicios
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'compras:purchase_order_list_by_quotation' object.pk %}">
+                    <a href="{% url 'purchases:purchase_order_list_by_quotation' object.pk %}">
                         <span class="fa fa-book"></span>
                         Compras
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:quotation_pdf' object.pk %}">
+                    <a href="{% url 'purchases:quotation_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -51,15 +51,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:quotation_detail' quotation.previous %}';">
+                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:quotation_detail' quotation.next %}';">
+                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:quotation_list' %}';">
+                    onclick="location.href='{% url 'purchases:quotation_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -108,7 +108,7 @@
             </div>
             <div class="col-md-3">
                 <label>Referencia:</label>
-                <p><a href="{% url 'requerimientos:requirement_detail' object.requirement.pk %}">{{
+                <p><a href="{% url 'requirements:requirement_detail' object.requirement.pk %}">{{
                     object.requirement }}</a></p>
             </div>
         </div>
@@ -173,13 +173,13 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'compras:quotation_delete' %}",
+			url : "{% url 'purchases:quotation_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.orders == 'NO') 
 				{
 					alert("Cotización " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:quotation_detail' quotation.next %}");
+					$(location).attr('href', "{% url 'purchases:quotation_detail' quotation.next %}");
 				} 
 				else if (data.orders == 'SI') 
 				{

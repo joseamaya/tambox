@@ -17,12 +17,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.pk %}'">
+                    onclick="location.href='{% url 'warehouse:movement_detail_view' movement.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'almacen:inbound_list' %}'">
+                    onclick="location.href='{% url 'warehouse:inbound_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -31,16 +31,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movement_update' movement.previous %}';">
+                        onclick="location.href='{% url 'warehouse:movement_update' movement.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movement_update' movement.next %}';">
+                        onclick="location.href='{% url 'warehouse:movement_update' movement.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:movement_list' %}';">
+                        onclick="location.href='{% url 'warehouse:movement_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -356,7 +356,7 @@ $(document).ready(function()
 		tipo_ingreso = $('#id_movement_type').val();
 		$.ajax({
 			data : {'type': tipo_ingreso},
-			url : "{% url 'almacen:verify_reference_required' %}",
+			url : "{% url 'warehouse:verify_reference_required' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -378,7 +378,7 @@ $(document).ready(function()
 	{
 		e.preventDefault();
 		$.ajax({
-			url : "{% url 'almacen:inbound_detail_create' %}",
+			url : "{% url 'warehouse:inbound_detail_create' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -409,7 +409,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'productos:product_description_search' %}",
+				  url: "{% url 'products:product_description_search' %}",
 				  data: {'description': request.term,'search_type': 'PRODUCTOS' },
 			      success: function( data ) 
 			      {
@@ -441,7 +441,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:purchase_order_transfer' %}";
+				var url="{% url 'purchases:purchase_order_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -462,7 +462,7 @@ $(document).ready(function()
 		ventana_transferencia.dialog( "close" );
 		$.ajax({
 			data : {'purchase_order': purchase_order, 'date':date},
-			url : "{% url 'compras:purchase_order_detail_fetch' %}",
+			url : "{% url 'purchases:purchase_order_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

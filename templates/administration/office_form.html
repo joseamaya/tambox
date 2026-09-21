@@ -1,7 +1,7 @@
 {% if object %}
-<form role="form" action="{% url 'administracion:office_update' object.pk %}" method="post">
+<form role="form" action="{% url 'administration:office_update' object.pk %}" method="post">
     {% else %}
-    <form role="form" action="{% url 'administracion:office_create' %}" method="post">
+    <form role="form" action="{% url 'administration:office_create' %}" method="post">
         {% endif %}
         {% csrf_token %}
         <div class="panel panel-default">
@@ -20,11 +20,11 @@
                         <div class="btn-group">
                             {% if object %}
                             <button class="btn btn-default" type="button"
-                                    onclick="return abrir_modal('{% url 'administracion:office_update' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
+                                    onclick="return abrir_modal('{% url 'administration:office_update' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
                                 <span class="glyphicon glyphicon-step-backward"></span>
                             </button>
                             <button class="btn btn-default" type="button"
-                                    onclick="return abrir_modal('{% url 'administracion:office_update' object.next.pk %}','Oficina / {{ object.next.name }}');">
+                                    onclick="return abrir_modal('{% url 'administration:office_update' object.next.pk %}','Oficina / {{ object.next.name }}');">
                                 <span class="glyphicon glyphicon-step-forward"></span>
                             </button>
                             {% endif %}

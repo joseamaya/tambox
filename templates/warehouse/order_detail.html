@@ -4,15 +4,15 @@
 <div class="row">
     <div class="col-lg-5">
         {% if object.status == "PEND" or object.status == "ATEN_PARC" %}
-        {% if perms.almacen.aprobar_pedido %}
-        <a class="btn btn-warning" href="{% url 'almacen:order_approve' object.pk %}">Aprobar</a>
+        {% if perms.warehouse.aprobar_pedido %}
+        <a class="btn btn-warning" href="{% url 'warehouse:order_approve' object.pk %}">Aprobar</a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
-        <a class="btn btn-primary" href="{% url 'almacen:order_update' object.pk %}">Editar</a>
+        <a class="btn btn-primary" href="{% url 'warehouse:order_update' object.pk %}">Editar</a>
         {% endif %}
         {% if object.status == "PEND" %}
-        {% if perms.almacen.delete_order %}
+        {% if perms.warehouse.delete_order %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
         {% endif %}
@@ -27,7 +27,7 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'almacen:movement_list_by_order' object.pk %}">
+                    <a href="{% url 'warehouse:movement_list_by_order' object.pk %}">
                         <span class="fa fa-building"></span>
                         Movimientos
                     </a>
@@ -39,15 +39,15 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:order_detail' order.previous %}';">
+                    onclick="location.href='{% url 'warehouse:order_detail' order.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:order_detail' order.next %}';">
+                    onclick="location.href='{% url 'warehouse:order_detail' order.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:order_list' %}';">
+                    onclick="location.href='{% url 'warehouse:order_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -152,13 +152,13 @@ $(document).ready(function()
 		var mySpinner = setupLoading();
 		$.ajax({
 			data : {'code' : "{{ object.pk }}" },
-			url : "{% url 'almacen:order_delete' %}",
+			url : "{% url 'warehouse:order_delete' %}",
 			type : 'post',
 			success : function(data) 
 			{
 				removeLoading(mySpinner);
 				alert("Pedido " + data.code + " eliminado");	
-				$(location).attr('href', "{% url 'almacen:order_list' %}");
+				$(location).attr('href', "{% url 'warehouse:order_list' %}");
 			}
 		});
 		ventana.dialog("close");

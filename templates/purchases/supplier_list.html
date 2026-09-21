@@ -3,22 +3,22 @@
 <h3>Proveedores</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.compras.add_supplier %}
-        <a href="{% url 'compras:supplier_create' %}" class="btn btn-primary">
+        {% if perms.purchases.add_supplier %}
+        <a href="{% url 'purchases:supplier_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.compras.cargar_proveedores %}
-        <a href="{% url 'compras:supplier_import' %}" class="btn btn-default">
+        {% if perms.purchases.cargar_proveedores %}
+        <a href="{% url 'purchases:supplier_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.compras.ver_reporte_proveedores_excel %}
+            {% if perms.purchases.ver_reporte_proveedores_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:supplier_excel_report' %}';">
+                    onclick="location.href='{% url 'purchases:supplier_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -37,8 +37,8 @@
             </thead>
             <tbody>
             {% for supplier in suppliers %}
-            {% if perms.compras.ver_detalle_proveedor %}
-            <tr onclick="location.href='{% url 'compras:supplier_detail' supplier.pk %}';">
+            {% if perms.purchases.ver_detalle_proveedor %}
+            <tr onclick="location.href='{% url 'purchases:supplier_detail' supplier.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -87,7 +87,7 @@ $(document).ready(function()
 	   	var tax_id = id_boton.replace("elim_","");
 	   	$.ajax({
 	   		data : {'tax_id': tax_id},
-	   		url : "{% url 'compras:supplier_delete' %}",
+	   		url : "{% url 'purchases:supplier_delete' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{

@@ -51,13 +51,13 @@
                                 <td>{{ approval.level }}</td>
                                 <td class="text-center">
                                     <a class="btn btn-small"
-                                       href="{% url 'requerimientos:requirement_approve' approval.pk %}">
+                                       href="{% url 'requirements:requirement_approve' approval.pk %}">
                                         <span class="glyphicon glyphicon-ok"></span>
                                     </a>
                                 </td>
                                 <td>
                                     <a class="btn btn-small"
-                                       href="{% url 'requerimientos:requirement_detail' approval.requirement.pk %}">
+                                       href="{% url 'requirements:requirement_detail' approval.requirement.pk %}">
                                         <span class="glyphicon glyphicon-folder-open"></span>
                                     </a>
                                 </td>

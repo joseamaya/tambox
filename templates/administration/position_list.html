@@ -3,22 +3,22 @@
 <h3>Puestos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.administracion.add_position %}
-        <a href="{% url 'administracion:position_create' %}" class="btn btn-primary">
+        {% if perms.administration.add_position %}
+        <a href="{% url 'administration:position_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
-        {% if perms.administracion.cargar_puestos %}
-        <a href="{% url 'administracion:position_import' %}" class="btn btn-default">
+        {% if perms.administration.cargar_puestos %}
+        <a href="{% url 'administration:position_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
-            {% if perms.administracion.ver_reporte_puestos_excel %}
+            {% if perms.administration.ver_reporte_puestos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:position_excel_report' %}';">
+                    onclick="location.href='{% url 'administration:position_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,8 +38,8 @@
             </thead>
             <tbody>
             {% for position in positions %}
-            {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:position_detail' position.pk %}';">
+            {% if perms.administration.ver_detalle_puesto %}
+            <tr onclick="location.href='{% url 'administration:position_detail' position.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

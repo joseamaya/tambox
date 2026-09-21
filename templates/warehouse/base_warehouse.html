@@ -3,61 +3,61 @@
             <li>
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.almacen.ver_tabla_almacenes %}
-                    <li><a href="{% url 'almacen:warehouse_list' %}">Almacenes</a></li>
+                    {% if perms.warehouse.ver_tabla_almacenes %}
+                    <li><a href="{% url 'warehouse:warehouse_list' %}">Almacenes</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_tabla_tipos_movimientos %}
-                    <li><a href="{% url 'almacen:movement_type_list' %}">Tipos de Movimientos</a></li>
+                    {% if perms.warehouse.ver_tabla_tipos_movimientos %}
+                    <li><a href="{% url 'warehouse:movement_type_list' %}">Tipos de Movimientos</a></li>
                     {% endif %}
                 </ul>
             </li>
             <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.almacen.add_movement %}
-                    <li><a href="{% url 'almacen:initial_inventory_import' %}">Cargar Inventario Inicial</a></li>
+                    {% if perms.warehouse.add_movement %}
+                    <li><a href="{% url 'warehouse:initial_inventory_import' %}">Cargar Inventario Inicial</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_order %}
-                    <li><a href="{% url 'almacen:order_create' %}">Crear Pedido</a></li>
+                    {% if perms.warehouse.add_order %}
+                    <li><a href="{% url 'warehouse:order_create' %}">Crear Pedido</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_tabla_aprobacion_pedidos %}
-                    <li><a href="{% url 'almacen:order_approval_list' %}">Aprobación Pedidos</a></li>
+                    {% if perms.warehouse.ver_tabla_aprobacion_pedidos %}
+                    <li><a href="{% url 'warehouse:order_approval_list' %}">Aprobación Pedidos</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_movement %}
-                    <li><a href="{% url 'almacen:inbound_create' %}">Registrar Ingreso</a></li>
+                    {% if perms.warehouse.add_movement %}
+                    <li><a href="{% url 'warehouse:inbound_create' %}">Registrar Ingreso</a></li>
                     {% endif %}
-                    {% if perms.almacen.add_movement %}
-                    <li><a href="{% url 'almacen:outbound_create' %}">Registrar Salida</a></li>
+                    {% if perms.warehouse.add_movement %}
+                    <li><a href="{% url 'warehouse:outbound_create' %}">Registrar Salida</a></li>
                     {% endif %}
-                    <li><a href="{% url 'almacen:price_reprocess' %}">Reprocesar Precio</a></li>
+                    <li><a href="{% url 'warehouse:price_reprocess' %}">Reprocesar Precio</a></li>
                 </ul>
             </li>
             <li>
                 <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
-                    {% if perms.almacen.ver_reporte_kardex_excel %}
-                    <li><a href="{% url 'almacen:kardex_report' %}">Kardex</a></li>
+                    {% if perms.warehouse.ver_reporte_kardex_excel %}
+                    <li><a href="{% url 'warehouse:kardex_report' %}">Kardex</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_reporte_kardex_excel %}
-                    <li><a href="{% url 'almacen:kardex_product_report' %}">Kardex Producto</a></li>
+                    {% if perms.warehouse.ver_reporte_kardex_excel %}
+                    <li><a href="{% url 'warehouse:kardex_product_report' %}">Kardex Producto</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_tabla_movimientos %}
-                    <li><a href="{% url 'almacen:movement_list' %}">Movimientos</a></li>
+                    {% if perms.warehouse.ver_tabla_movimientos %}
+                    <li><a href="{% url 'warehouse:movement_list' %}">Movimientos</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_reporte_movimientos_excel %}
-                    <li><a href="{% url 'almacen:movement_report' %}">Movimientos por Fecha</a></li>
+                    {% if perms.warehouse.ver_reporte_movimientos_excel %}
+                    <li><a href="{% url 'warehouse:movement_report' %}">Movimientos por Fecha</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_reporte_movimientos_excel %}
-                    <li><a href="{% url 'almacen:movement_list_by_product' %}">Movimientos por Producto</a></li>
+                    {% if perms.warehouse.ver_reporte_movimientos_excel %}
+                    <li><a href="{% url 'warehouse:movement_list_by_product' %}">Movimientos por Producto</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_tabla_pedidos %}
-                    <li><a href="{% url 'almacen:order_list' %}">Pedidos</a></li>
+                    {% if perms.warehouse.ver_tabla_pedidos %}
+                    <li><a href="{% url 'warehouse:order_list' %}">Pedidos</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_reporte_stock_excel %}
-                    <li><a href="{% url 'almacen:product_stock' %}">Stock de Productos</a></li>
+                    {% if perms.warehouse.ver_reporte_stock_excel %}
+                    <li><a href="{% url 'warehouse:product_stock' %}">Stock de Productos</a></li>
                     {% endif %}
-                    {% if perms.almacen.ver_reporte_inventario_excel %}
-                    <li><a href="{% url 'almacen:inventory' %}">Inventario</a></li>
+                    {% if perms.warehouse.ver_reporte_inventario_excel %}
+                    <li><a href="{% url 'warehouse:inventory' %}">Inventario</a></li>
                     {% endif %}
                 </ul>
             </li>
