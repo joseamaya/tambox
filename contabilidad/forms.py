@@ -3,10 +3,10 @@ from contabilidad.models import DocumentType, Account, Upload, \
     Tax, Configuration, PaymentMethod, ExchangeRate
 
 
-class FormaPagoForm(forms.ModelForm):
+class PaymentMethodForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super(FormaPagoForm, self).__init__(*args, **kwargs)
+        super(PaymentMethodForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             if field == 'credit_days':
                 self.fields[field].widget.attrs.update({
@@ -28,13 +28,13 @@ class UploadForm(forms.ModelForm):
         fields = ['file']
 
 
-class TipoCambioForm(forms.ModelForm):
+class ExchangeRateForm(forms.ModelForm):
     class Meta:
         model = ExchangeRate
         fields = ['amount', 'date']
 
     def __init__(self, *args, **kwargs):
-        super(TipoCambioForm, self).__init__(*args, **kwargs)
+        super(ExchangeRateForm, self).__init__(*args, **kwargs)
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
@@ -42,26 +42,26 @@ class TipoCambioForm(forms.ModelForm):
             })
 
 
-class TipoDocumentoForm(forms.ModelForm):
+class DocumentTypeForm(forms.ModelForm):
     class Meta:
         model = DocumentType
         fields = ['sunat_code', 'name', 'description']
 
     def __init__(self, *args, **kwargs):
-        super(TipoDocumentoForm, self).__init__(*args, **kwargs)
+        super(DocumentTypeForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
 
 
-class ImpuestoForm(forms.ModelForm):
+class TaxForm(forms.ModelForm):
     class Meta:
         model = Tax
         fields = ['abbreviation', 'description', 'amount', 'start_date', 'end_date']
 
     def __init__(self, *args, **kwargs):
-        super(ImpuestoForm, self).__init__(*args, **kwargs)
+        super(TaxForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -69,13 +69,13 @@ class ImpuestoForm(forms.ModelForm):
         self.fields['end_date'].required = False
 
 
-class ConfiguracionForm(forms.ModelForm):
+class ConfigurationForm(forms.ModelForm):
     class Meta:
         model = Configuration
         fields = ['purchase_tax', 'operaciones', 'administracion', 'presupuesto', 'logistica']
 
     def __init__(self, *args, **kwargs):
-        super(ConfiguracionForm, self).__init__(*args, **kwargs)
+        super(ConfigurationForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -83,13 +83,13 @@ class ConfiguracionForm(forms.ModelForm):
         self.fields['purchase_tax'].queryset = Tax.objects.exclude(end_date__isnull=False)
 
 
-class CuentaContableForm(forms.ModelForm):
+class AccountForm(forms.ModelForm):
     class Meta:
         model = Account
         fields = ['account_number', 'description', 'is_divisional', 'depreciation']
 
     def __init__(self, *args, **kwargs):
-        super(CuentaContableForm, self).__init__(*args, **kwargs)
+        super(AccountForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
             if field != 'is_divisional':
                 self.fields[field].widget.attrs.update({'class': 'form-control'})
