@@ -81,10 +81,10 @@ class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
             name = request.GET['name']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
             if tipo_movimiento.es_venta:
-                receptores = Productor.objects.filter(apellido_paterno__icontains=name)[:20]
+                receptores = Productor.objects.filter(last_name__icontains=name)[:20]
             else:
                 receptores = Trabajador.objects.filter(
-                    Q(apellido_paterno__icontains=name) | Q(apellido_materno__icontains=name) | Q(
+                    Q(last_name__icontains=name) | Q(
                         first_name__icontains=name))[:20]
             lista_receptores = []
             for receptor in receptores:
@@ -119,8 +119,7 @@ class CargarProductores(CargarCsvMixin, FormView):
         if dni != "":
             try:
                 Productor.objects.get_or_create(dni=dni,
-                                                defaults={'apellido_paterno': fila[1].upper(),
-                                                          'apellido_materno': fila[2].upper(),
+                                                defaults={'last_name': (fila[1] + ' ' + fila[2]).upper(),
                                                           'first_name': fila[3].upper()})
             except Exception:
                 logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
@@ -141,13 +140,11 @@ class CargarTrabajadores(CargarCsvMixin, FormView):
                 usuario.save()
                 Trabajador.objects.get_or_create(usuario=usuario,
                                                  defaults={'dni': fila[1].strip(),
-                                                           'apellido_paterno': fila[2],
-                                                           'apellido_materno': fila[3],
+                                                           'last_name': (fila[2] + ' ' + fila[3]).strip(),
                                                            'first_name': fila[4]})
         else:
             Trabajador.objects.get_or_create(dni=fila[1].strip(),
-                                             defaults={'apellido_paterno': fila[2],
-                                                       'apellido_materno': fila[3],
+                                             defaults={'last_name': (fila[2] + ' ' + fila[3]).strip(),
                                                        'first_name': fila[4]})
 
 
@@ -490,23 +487,21 @@ class ReporteExcelTrabajadores(TemplateView):
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TRABAJADORES'
-        ws.merge_cells('B1:J1')
+        ws.merge_cells('B1:I1')
         ws['B3'] = 'USUARIO'
         ws['C3'] = 'DNI'
-        ws['D3'] = 'APELLIDO_PATERNO'
-        ws['E3'] = 'APELLIDO_MATERNO'
-        ws['F3'] = 'NOMBRES'
-        ws['G3'] = 'EMAIL'
-        ws['H3'] = 'ESTADO'
+        ws['D3'] = 'APELLIDOS'
+        ws['E3'] = 'NOMBRES'
+        ws['F3'] = 'EMAIL'
+        ws['G3'] = 'ESTADO'
         cont = 4
         for trabajador in trabajadores:
             ws.cell(row=cont, column=2).value = trabajador.usuario.username
             ws.cell(row=cont, column=3).value = trabajador.dni
-            ws.cell(row=cont, column=4).value = trabajador.apellido_paterno
-            ws.cell(row=cont, column=5).value = trabajador.apellido_materno
-            ws.cell(row=cont, column=6).value = trabajador.first_name
-            ws.cell(row=cont, column=7).value = trabajador.usuario.email
-            ws.cell(row=cont, column=8).value = trabajador.estado
+            ws.cell(row=cont, column=4).value = trabajador.last_name
+            ws.cell(row=cont, column=5).value = trabajador.first_name
+            ws.cell(row=cont, column=6).value = trabajador.usuario.email
+            ws.cell(row=cont, column=7).value = trabajador.estado
             cont = cont + 1
         nombre_archivo = "Trabajadores.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

@@ -70,20 +70,13 @@
                             {% endfor %}
                             {% endif %}
                             <p>{{ form.dni }}</p>
-                            <label>APELLIDO PATERNO:</label>
-                            {% if form.apellido_paterno.errors %}
-                            {% for error in form.apellido_paterno.errors %}
+                            <label>APELLIDOS:</label>
+                            {% if form.last_name.errors %}
+                            {% for error in form.last_name.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.apellido_paterno }}</p>
-                            <label>APELLIDO MATERNO:</label>
-                            {% if form.apellido_materno.errors %}
-                            {% for error in form.apellido_materno.errors %}
-                            {% include "includes/error.html" %}
-                            {% endfor %}
-                            {% endif %}
-                            <p>{{ form.apellido_materno }}</p>
+                            <p>{{ form.last_name }}</p>
                         </div>
                         <div class="col-lg-4">
                             <label>NOMBRES:</label>

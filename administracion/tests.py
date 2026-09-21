@@ -64,7 +64,7 @@ class TrabajadorTest(TestCase):
     def test_creacion_trabajador_mommy(self):
         self.assertTrue(isinstance(self.t1, Trabajador))
         self.assertEqual(self.t3.__str__(),
-                         self.t3.apellido_paterno + ' ' + self.t3.apellido_materno + ' ' + self.t3.first_name)
+                         self.t3.last_name + ' ' + self.t3.first_name)
 
     def test_siguiente_trabajador(self):
         self.assertEqual(self.t3.pk, self.t2.siguiente())
@@ -80,11 +80,11 @@ class TrabajadorTest(TestCase):
 
     def test_nombre_completo(self):
         self.assertEqual(self.t3.nombre_completo(),
-                         self.t3.first_name + ' ' + self.t3.apellido_paterno + ' ' + self.t3.apellido_materno)
+                         self.t3.first_name + ' ' + self.t3.last_name)
         p = baker.make(Profesion)
         t = baker.make(Trabajador, profesion=p)
         self.assertEqual(t.nombre_completo(),
-                         t.profesion.abreviatura + ' ' + t.first_name + ' ' + t.apellido_paterno + ' ' + t.apellido_materno)
+                         t.profesion.abreviatura + ' ' + t.first_name + ' ' + t.last_name)
 
 
 class OficinaTest(TestCase):
