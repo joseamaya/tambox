@@ -8,10 +8,10 @@ from model_utils.models import TimeStampedModel
 from django.db.models import Max
 from contabilidad.models import PaymentMethod
 from productos.models import Product
-from tambox.querysets import NavegableQuerySet
-from tambox.estados import clasificar, PARCIAL, VACIO
+from tambox.querysets import NavigableQuerySet
+from tambox.statuses import classify, PARTIAL, EMPTY
 from compras.settings import CHOICES_ESTADO_COTIZ
-from tambox.configuracion import configuracion
+from tambox.config import configuration
 from compras.managers import QuotationDetailManager, \
     ServiceConformityDetailManager
 from tambox.util import to_word
@@ -89,7 +89,7 @@ class Supplier(TimeStampedModel):
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     class Meta:
@@ -118,7 +118,7 @@ class Quotation(TimeStampedModel):
     notes = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     def anterior(self):
@@ -153,10 +153,10 @@ class Quotation(TimeStampedModel):
         for detalle in QuotationDetail.objects.filter(quotation=self):
             total = total + detalle.quantity
             total_comprado = total_comprado + detalle.purchased_quantity
-        caso = clasificar(total_comprado, total)
-        if caso == VACIO:
+        caso = classify(total_comprado, total)
+        if caso == EMPTY:
             estado = Quotation.STATUS.DESC
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = Quotation.STATUS.ELEG_PARC
         else:
             estado = Quotation.STATUS.ELEG
@@ -203,10 +203,10 @@ class QuotationDetail(TimeStampedModel):
     history = HistoricalRecords()
 
     def establecer_estado_comprado(self):
-        caso = clasificar(self.purchased_quantity, self.quantity)
-        if caso == VACIO:
+        caso = classify(self.purchased_quantity, self.quantity)
+        if caso == EMPTY:
             estado = QuotationDetail.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = QuotationDetail.STATUS.ELEG_PARC
         else:
             estado = QuotationDetail.STATUS.ELEG
@@ -232,7 +232,7 @@ class PurchaseOrder(TimeStampedModel):
     with_tax = models.BooleanField(default=False)
     in_dollars = models.BooleanField(default=False)
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     def anterior(self):
@@ -266,10 +266,10 @@ class PurchaseOrder(TimeStampedModel):
         for detalle in PurchaseOrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_ingresado = total_ingresado + detalle.received_quantity
-        caso = clasificar(total_ingresado, total)
-        if caso == VACIO:
+        caso = classify(total_ingresado, total)
+        if caso == EMPTY:
             estado = PurchaseOrder.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = PurchaseOrder.STATUS.ING_PARC
         else:
             estado = PurchaseOrder.STATUS.ING
@@ -358,14 +358,14 @@ class PurchaseOrderDetail(TimeStampedModel):
         if self.order.with_tax:
             precio_con_igv = self.price
         else:
-            monto_impuesto = configuracion().purchase_tax.amount
+            monto_impuesto = configuration().purchase_tax.amount
             precio_con_igv = round(self.price * (monto_impuesto + 1), 5)
         return precio_con_igv
 
     @property
     def precio_sin_igv(self):
         if self.order.with_tax:
-            monto_impuesto = configuracion().purchase_tax.amount
+            monto_impuesto = configuration().purchase_tax.amount
             precio_sin_igv = round(self.price / (monto_impuesto + 1), 5)
         else:
             precio_sin_igv = self.price
@@ -374,7 +374,7 @@ class PurchaseOrderDetail(TimeStampedModel):
     @property
     def valor_sin_igv(self):
         if self.order.with_tax:
-            monto_impuesto = configuracion().purchase_tax.amount
+            monto_impuesto = configuration().purchase_tax.amount
             valor_sin_igv = (self.price * self.quantity) / (monto_impuesto + 1)
         else:
             valor_sin_igv = self.price * self.quantity
@@ -385,13 +385,13 @@ class PurchaseOrderDetail(TimeStampedModel):
         if self.order.with_tax:
             valor_con_igv = self.price * self.quantity
         else:
-            monto_impuesto = configuracion().purchase_tax.amount
+            monto_impuesto = configuration().purchase_tax.amount
             valor_con_igv = (self.price * self.quantity) * (monto_impuesto + 1)
         return round(valor_con_igv, 5)
 
     @property
     def impuesto(self):
-        monto_impuesto = configuracion().purchase_tax.amount
+        monto_impuesto = configuration().purchase_tax.amount
         if self.order.with_tax:
             imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
         else:
@@ -399,10 +399,10 @@ class PurchaseOrderDetail(TimeStampedModel):
         return round(imp, 5)
 
     def establecer_estado(self):
-        caso = clasificar(self.received_quantity, self.quantity)
-        if caso == VACIO:
+        caso = classify(self.received_quantity, self.quantity)
+        if caso == EMPTY:
             estado = PurchaseOrderDetail.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = PurchaseOrderDetail.STATUS.ING_PARC
         else:
             estado = PurchaseOrderDetail.STATUS.ING
@@ -429,7 +429,7 @@ class ServiceOrder(TimeStampedModel):
                      ('CANC', _('CANCELADA')),
                      )
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     @property
@@ -484,10 +484,10 @@ class ServiceOrder(TimeStampedModel):
         for detalle in ServiceOrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_conforme = total_conforme + detalle.conformed_quantity
-        caso = clasificar(total_conforme, total)
-        if caso == VACIO:
+        caso = classify(total_conforme, total)
+        if caso == EMPTY:
             estado = ServiceOrder.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = ServiceOrder.STATUS.CONF_PARC
         else:
             estado = ServiceOrder.STATUS.CONF
@@ -551,10 +551,10 @@ class ServiceOrderDetail(TimeStampedModel):
         ordering = ['line_number']
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.conformed_quantity, self.quantity)
-        if caso == VACIO:
+        caso = classify(self.conformed_quantity, self.quantity)
+        if caso == EMPTY:
             estado = ServiceOrderDetail.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = ServiceOrderDetail.STATUS.CONF_PARC
         else:
             estado = ServiceOrderDetail.STATUS.CONF
@@ -571,7 +571,7 @@ class ServiceConformity(TimeStampedModel):
     total = models.DecimalField(max_digits=15, decimal_places=5)
     total_in_words = models.CharField(max_length=150)
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     class Meta:

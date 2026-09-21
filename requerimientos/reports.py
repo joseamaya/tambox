@@ -12,7 +12,7 @@ from django.conf import settings
 from administracion.models import Position
 import os
 from io import BytesIO
-from tambox.configuracion import empresa, logistica
+from tambox.config import company, logistics
 
 
 class RequirementReport():
@@ -33,7 +33,7 @@ class RequirementReport():
                             fontName="Times-Roman")
         requirement = self.requirement
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
@@ -155,7 +155,7 @@ class RequirementReport():
                            fontSize=8,
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
-        jefatura_logistica = self.obtener_puesto(logistica(), requirement)
+        jefatura_logistica = self.obtener_puesto(logistics(), requirement)
         jefe_logistica = jefatura_logistica.worker
         firma_solicitante = self.obtener_firma(requester.signature)
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.signature)

@@ -142,7 +142,7 @@ class ReportesPDFTest(TestCase):
 
 class EstadosDeDetalleTest(TestCase):
     """Estos metodos solo leen campos de la instancia, asi que no hace falta
-    tocar la base de datos, y fijan la regla compartida de clasificar()."""
+    tocar la base de datos, y fijan la regla compartida de classify()."""
 
     def test_detalle_cotizacion(self):
         self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=0).establecer_estado_comprado(),

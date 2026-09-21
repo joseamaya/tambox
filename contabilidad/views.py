@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from contabilidad.forms import UploadForm
-from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from seguridad.permisos import requiere
 from django.utils.decorators import method_decorator
 import datetime
@@ -37,32 +37,32 @@ class Dashboard(View):
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
 
 
-class AccountImport(CargarCsvMixin, FormView):
+class AccountImport(CsvImportMixin, FormView):
     template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:account_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         Account.objects.get_or_create(account_number=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
-class StockTypeImport(CargarCsvMixin, FormView):
+class StockTypeImport(CsvImportMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_existencias.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:stock_type_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         StockType.objects.get_or_create(sunat_code=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
-class DocumentTypeImport(CargarCsvMixin, FormView):
+class DocumentTypeImport(CsvImportMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_documentos.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:document_type_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         DocumentType.objects.create(sunat_code=fila[0],
                                      name=fila[1],
                                      description=fila[1])
@@ -145,11 +145,11 @@ class ConfigurationCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        configuracion = Configuration.objects.first()
-        if configuracion is None:
+        configuration = Configuration.objects.first()
+        if configuration is None:
             return super(BaseCreateView, self).get(request, *args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('contabilidad:configuration_update', args=[configuracion.pk]))
+            return HttpResponseRedirect(reverse('contabilidad:configuration_update', args=[configuration.pk]))
 
     def get_success_url(self):
         return reverse('contabilidad:configuration_update', args=[self.object.pk])
@@ -393,9 +393,9 @@ class TaxUpdate(UpdateView):
         return reverse('contabilidad:tax_detail', args=[self.object.pk])
 
 
-class ExchangeRateFetch(SoloAjaxMixin, TemplateView):
+class ExchangeRateFetch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('date',)
+    required_params = ('date',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

@@ -4,7 +4,7 @@ from model_utils.models import TimeStampedModel
 from contabilidad.models import Account, StockType
 from django.db.models import Max
 from django.utils.encoding import force_str
-from tambox.querysets import NavegableQuerySet
+from tambox.querysets import NavigableQuerySet
 from tambox.dates import aware
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
@@ -17,7 +17,7 @@ class UnitOfMeasure(TimeStampedModel):
     sunat_code = models.CharField(max_length=2)
     description = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     class Meta:
@@ -44,7 +44,7 @@ class ProductGroup(TimeStampedModel):
     account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name='product_groups')
     contains_products = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     class Meta:
@@ -122,7 +122,7 @@ class Product(TimeStampedModel):
     image = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     stock_type = models.ForeignKey(StockType, on_delete=models.CASCADE, related_name='products', null=True)
     is_active = models.BooleanField(default=True, verbose_name='Estado')
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
     @property

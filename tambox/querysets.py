@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class NavegableQuerySet(models.query.QuerySet):
+class NavigableQuerySet(models.query.QuerySet):
     """Navegacion entre registros consecutivos por pk.
 
     `anterior()` y `siguiente()` devuelven el objeto (no la pk), porque hay

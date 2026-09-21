@@ -19,7 +19,7 @@ from productos.models import Product, UnitOfMeasure, ProductGroup
 from productos.forms import ProductGroupForm, ProductForm, ServiceForm, \
     UnitOfMeasureForm
 from contabilidad.models import Account, StockType
-from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +48,9 @@ class Dashboard(View):
         return render(request, 'productos/tablero_productos.html', context)
 
 
-class ProductDescriptionSearch(SoloAjaxMixin, TemplateView):
+class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('description', 'tipo_busqueda')
+    required_params = ('description', 'tipo_busqueda')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -81,9 +81,9 @@ class ProductDescriptionSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ProductCodeSearch(SoloAjaxMixin, TemplateView):
+class ProductCodeSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('code',)
+    required_params = ('code',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -102,12 +102,12 @@ class ProductCodeSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ProductGroupImport(CargarCsvMixin, FormView):
+class ProductGroupImport(CsvImportMixin, FormView):
     template_name = 'productos/cargar_grupo_productos.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_group_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         try:
             account_number = Account.objects.get(account_number=fila[0])
             ProductGroup.objects.get_or_create(description=fila[1],
@@ -116,7 +116,7 @@ class ProductGroupImport(CargarCsvMixin, FormView):
             pass
 
 
-class ServiceImport(CargarCsvMixin, FormView):
+class ServiceImport(CsvImportMixin, FormView):
     template_name = 'productos/cargar_servicios.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:service_list')
@@ -127,19 +127,19 @@ class ServiceImport(CargarCsvMixin, FormView):
         except ProductGroup.DoesNotExist:
             return HttpResponseRedirect(reverse('productos:product_group_create'))
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         grupo = ProductGroup.objects.get(code=fila[0].strip())
         Product.objects.get_or_create(description=fila[1],
                                        defaults={'product_group': grupo,
                                                  'is_service': True})
 
 
-class ProductImport(CargarCsvMixin, FormView):
+class ProductImport(CsvImportMixin, FormView):
     template_name = 'productos/cargar_productos.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         try:
             grupo = ProductGroup.objects.get(code=fila[0].strip())
             cod_und = fila[2][0:5]
@@ -160,9 +160,9 @@ class ProductImport(CargarCsvMixin, FormView):
             logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
 
 
-class ProductStockQuery(SoloAjaxMixin, TemplateView):
+class ProductStockQuery(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('code',)
+    required_params = ('code',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

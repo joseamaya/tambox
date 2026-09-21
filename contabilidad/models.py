@@ -8,13 +8,13 @@ from model_utils.choices import Choices
 from django.utils.translation import gettext as _
 from administracion.models import Office
 from contabilidad.behaviors import SingletonModel
-from tambox.querysets import NavegableQuerySet
+from tambox.querysets import NavigableQuerySet
 
 
 class ExchangeRate(TimeStampedModel):
     amount = models.DecimalField(max_digits=15, decimal_places=5)
     date = models.DateField(unique=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_detalle_tipo_cambio', 'Puede ver detalle de Tipo de Cambio'),
@@ -40,7 +40,7 @@ class Account(TimeStampedModel):
     depreciation = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     is_divisional = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('cargar_cuentas_contables', 'Puede cargar Cuentas Contables desde un archivo externo'),
@@ -66,7 +66,7 @@ class PaymentMethod(TimeStampedModel):
     description = models.CharField(max_length=50)
     credit_days = models.IntegerField()
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('cargar_formas_pago', 'Puede cargar Formas de Pago desde un archivo externo'),
@@ -91,7 +91,7 @@ class DocumentType(TimeStampedModel):
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     is_active = models.BooleanField(default=True)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('cargar_tipos_documento', 'Puede cargar Tipos de Documento desde un archivo externo'),
@@ -140,7 +140,7 @@ class Tax(TimeStampedModel):
                      ('VEN', _('VEN')),
                      )
     usage_type = models.CharField(choices=STATUS, default=STATUS.COM, max_length=20)
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_detalle_impuesto', 'Puede ver detalle Impuesto'),
@@ -167,7 +167,7 @@ class Upload(TimeStampedModel):
 class Company(SingletonModel):
     business_name = models.CharField(max_length=150)
     tax_id = models.CharField(max_length=11)
-    logo = models.ImageField(upload_to='configuracion')
+    logo = models.ImageField(upload_to='configuration')
     place = models.CharField(max_length=150, default='')
     street = models.CharField(max_length=150, default='')
     district = models.CharField(max_length=100)
@@ -192,10 +192,10 @@ class Company(SingletonModel):
 
 class Configuration(TimeStampedModel):
     purchase_tax = models.ForeignKey(Tax, on_delete=models.CASCADE, related_name='configurations')
-    operaciones = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='operaciones', null=True)
-    administracion = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='administracion', null=True)
-    presupuesto = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='presupuesto', null=True)
-    logistica = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='logistica', null=True)
+    operations = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='operations', null=True)
+    administration = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='administration', null=True)
+    budget = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='budget', null=True)
+    logistics = models.ForeignKey(Office, on_delete=models.CASCADE, related_name='logistics', null=True)
 
 
 class StockType(TimeStampedModel):
@@ -215,5 +215,5 @@ class StockType(TimeStampedModel):
 @receiver(post_save, sender=Company)
 def invalidar_cache_configuracion(sender, **kwargs):
     """La configuracion y la empresa se leen con cache; al guardarlas se invalida."""
-    from tambox.configuracion import limpiar_cache
-    limpiar_cache()
+    from tambox.config import clear_cache
+    clear_cache()

@@ -1,7 +1,7 @@
 from django.db import models
 from django.db.models import Max
 
-from tambox.querysets import NavegableQuerySet
+from tambox.querysets import NavigableQuerySet
 
 
 class PreviousQuerySet(models.query.QuerySet):
@@ -9,7 +9,7 @@ class PreviousQuerySet(models.query.QuerySet):
         return self.filter(created__year=anio).aggregate(Max('code'))
 
 
-class RequirementQuerySet(NavegableQuerySet, PreviousQuerySet):
+class RequirementQuerySet(NavigableQuerySet, PreviousQuerySet):
     def requerimientos_activos_por_usuario(self, usuario, estado):
         return self.filter(requester__user=usuario).exclude(status=estado).order_by('code')
 

@@ -27,13 +27,13 @@ from requerimientos.mail import correo_creacion_requerimiento
 from openpyxl import Workbook
 from requerimientos.reports import RequirementReport
 from datetime import date
-from tambox.configuracion import configuracion, oficina_administracion, \
-    logistica, presupuesto
+from tambox.config import configuration, administration_office, \
+    logistics, budget
 
 locale.setlocale(locale.LC_ALL, "")
 
 
-from tambox.vistas import SoloAjaxMixin
+from tambox.views import AjaxOnlyMixin
 class Dashboard(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
@@ -69,7 +69,7 @@ class RequirementApprove(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class RequirementDetailCreate(SoloAjaxMixin, FormView):
+class RequirementDetailCreate(AjaxOnlyMixin, FormView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
@@ -132,7 +132,7 @@ class RequirementCreate(CreateView):
         niveles_aprobacion = ApprovalLevel.objects.all()
         if not niveles_aprobacion:
             return HttpResponseRedirect(reverse('administracion:approval_level_create'))
-        if configuracion() is not None:
+        if configuration() is not None:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalle_requerimiento_formset = RequirementDetailFormSet()
@@ -195,7 +195,7 @@ class RequirementDetailView(DetailView):
         requiere('requerimientos.ver_detalle_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
-        if requirement.verificar_acceso(self.request.user, oficina_administracion(), logistica(), presupuesto()):
+        if requirement.verificar_acceso(self.request.user, administration_office(), logistics(), budget()):
             return super(RequirementDetailView, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(
@@ -383,9 +383,9 @@ class RequirementUpdate(UpdateView):
                                                              detalle_requerimiento_formset=detalle_requerimiento_formset))
 
 
-class RequirementDetailFetch(SoloAjaxMixin, TemplateView):
+class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('requirement', 'tipo_busqueda')
+    required_params = ('requirement', 'tipo_busqueda')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             requirement = request.GET['requirement']

@@ -7,12 +7,12 @@ from contabilidad.models import Company
 logger = logging.getLogger(__name__)
 
 try:
-    empresa = Company.load()
-    my_host = empresa.mail_host
-    my_port = empresa.mail_port
-    my_username = empresa.username
-    my_password = empresa.password
-    my_use_tls = empresa.uses_tls
+    company = Company.load()
+    my_host = company.mail_host
+    my_port = company.mail_port
+    my_username = company.username
+    my_password = company.password
+    my_use_tls = company.uses_tls
     connection = get_connection(host=my_host,
                                 port=my_port,
                                 username=my_username,
@@ -20,7 +20,7 @@ try:
                                 use_tls=my_use_tls)
 except Exception as exc:
     logger.warning("No se pudo configurar el servidor de correo: %s", exc)
-    empresa = None
+    company = None
     connection = None
 
 

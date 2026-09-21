@@ -1,6 +1,6 @@
 from django import template
 from django.urls import reverse
-from tambox.configuracion import oficina_administracion, logistica, presupuesto
+from tambox.config import administration_office, logistics, budget
 
 register = template.Library()
 
@@ -8,7 +8,7 @@ register = template.Library()
 @register.simple_tag
 def url_anterior(url, instancia, usuario):
     ant = instancia.anterior()
-    if ant.verificar_acceso(usuario, oficina_administracion(), logistica(), presupuesto()):
+    if ant.verificar_acceso(usuario, administration_office(), logistics(), budget()):
         url = reverse(url, args=[ant])
         return url
     else:
@@ -18,7 +18,7 @@ def url_anterior(url, instancia, usuario):
 @register.simple_tag
 def url_siguiente(url, instancia, usuario):
     sig = instancia.siguiente()
-    if sig.verificar_acceso(usuario, oficina_administracion(), logistica(), presupuesto()):
+    if sig.verificar_acceso(usuario, administration_office(), logistics(), budget()):
         url = reverse(url, args=[sig])
         return url
     else:

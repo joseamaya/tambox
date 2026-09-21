@@ -18,7 +18,7 @@ from administracion.models import Position
 from compras.models import PurchaseOrderDetail, ServiceOrderDetail, ServiceConformityDetail
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.encoding import force_str
-from tambox.configuracion import empresa, configuracion
+from tambox.config import company, configuration
 from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.styles import Border
@@ -44,15 +44,15 @@ class PurchaseOrderReport():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
-        tax_id = Paragraph("R.U.C." + empresa().tax_id, sp)
+        tax_id = Paragraph("R.U.C." + company().tax_id, sp)
         encabezado = [[image, nro, tax_id], ['', u"N°" + orden_compra.code,
-                                           empresa().district + " " + orden_compra.date.strftime('%d de %b de %Y')]]
+                                           company().district + " " + orden_compra.date.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
@@ -167,7 +167,7 @@ class PurchaseOrderReport():
         datos_otros = [
             [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
              sub_total, order.subtotal],
-            [Paragraph(empresa().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(order.payment_method.description, p),
+            [Paragraph(company().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(order.payment_method.description, p),
              igv, str(order.igv)],
             ['', '', '', total, str(order.total)],
             ]
@@ -216,8 +216,8 @@ class PurchaseOrderReport():
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().business_name), p),
-            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(company().business_name), p),
+            Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -396,14 +396,14 @@ def reporte_xls_orden_compra(order):
     ws['D20'].alignment = Alignment(horizontal="center")
     ws['D20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['D20'] = str(empresa().address())
+    ws['D20'] = str(company().address())
     ws.merge_cells('G20:H20')
     ws['G20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['G20'] = 'DEPARTAMENTO'
     ws['I20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I20'] = str(empresa().department)
+    ws['I20'] = str(company().department)
     ws.merge_cells('B21:C22')
     ws['B21'].alignment = Alignment(horizontal="center", vertical="center")
     ws['B21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -425,14 +425,14 @@ def reporte_xls_orden_compra(order):
     ws['G21'] = 'PROVINCIA'
     ws['I21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I21'] = str(empresa().province)
+    ws['I21'] = str(company().province)
     ws.merge_cells('G22:H22')
     ws['G22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['G22'] = 'DISTRITO'
     ws['I22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I22'] = str(empresa().district)
+    ws['I22'] = str(company().district)
     ws.merge_cells('B23:C24')
     ws['B23'].alignment = Alignment(horizontal="center", vertical="center")
     ws['B23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -620,7 +620,7 @@ class QuotationRequestPdf(object):
 
     def cabecera(self, pdf, quotation):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(20, 800, 'LOGO')
@@ -741,7 +741,7 @@ class ServiceConformityMemoPdf(object):
 
     def cabecera(self, pdf, conformity):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 750, 'LOGO')
@@ -750,7 +750,7 @@ class ServiceConformityMemoPdf(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 730, u"N°" + conformity.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + conformity.date.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, company().district + " " + conformity.date.strftime('%d de %b de %Y'))
         pdf.drawString(475, 710, conformity.service_order.code)
         requirement = conformity.service_order.quotation.requirement
         gerencia_inmediata = requirement.office.gerencia
@@ -762,7 +762,7 @@ class ServiceConformityMemoPdf(object):
         jefe_inmediato = puesto_jefe_inmediato.worker
         y = 690
         if puesto_solicitante.office.code == 'GGEN':
-            puesto_gerente = self.obtener_puesto(configuracion().administracion, conformity)
+            puesto_gerente = self.obtener_puesto(configuration().administration, conformity)
         elif puesto_solicitante.office.code == 'GOPE' and not puesto_solicitante.is_leadership:
             puesto_gerente = self.obtener_puesto(requirement.office, conformity)
         else:
@@ -844,7 +844,7 @@ class ServiceConformityMemoPdf(object):
         self.signature(pdf, 330, y - 50, "CONFORMIDAD DEL SOLICITANTE", 320, 470, y - 40)
         self.signature(pdf, 130, y - 150, "CONFORMIDAD JEFE INMEDIATO", 120, 265, y - 140)
         self.signature(pdf, 350, y - 150, "UNIDAD DE LOGÍSTICA", 320, 470, y - 140)
-        pdf.drawCentredString(300, y - 280, empresa().address())
+        pdf.drawCentredString(300, y - 280, company().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()
@@ -857,18 +857,18 @@ class ServiceOrderPdf(object):
 
     def cabecera(self, pdf, order):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE SERVICIOS")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
+        pdf.drawString(455, 800, u"R.U.C. " + company().tax_id)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°" + order.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + order.date.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, company().district + " " + order.date.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
         quotation = order.quotation
         if quotation is None:
@@ -1005,8 +1005,8 @@ class ServiceOrderPdf(object):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().business_name), p),
-            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(company().business_name), p),
+            Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1058,7 +1058,7 @@ class ServiceOrderPdf(object):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, empresa().address())
+        pdf.drawCentredString(300, y - 280, company().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()
@@ -1071,18 +1071,18 @@ class PurchaseOrderPdf(object):
 
     def cabecera(self, pdf, order):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
+            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
             pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(230, 800, u"ORDEN DE COMPRA")
         pdf.setFont("Times-Roman", 11)
-        pdf.drawString(455, 800, u"R.U.C. " + empresa().tax_id)
+        pdf.drawString(455, 800, u"R.U.C. " + company().tax_id)
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° " + order.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().district + " " + order.date.strftime(
+        pdf.drawString(430, 780, company().district + " " + order.date.strftime(
             '%d de %b de %Y'))  # order.date.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         quotation = order.quotation
@@ -1150,7 +1150,7 @@ class PurchaseOrderPdf(object):
 
     def otros(self, pdf, y, order):
         encabezados_otros = ('LUGAR DE ENTREGA', 'PLAZO DE ENTREGA', 'FORMA DE PAGO')
-        otros = [(empresa().address(), u"INMEDIATA", order.payment_method.description)]
+        otros = [(company().address(), u"INMEDIATA", order.payment_method.description)]
         tabla_otros = Table([encabezados_otros] + otros, colWidths=[6 * cm, 3.5 * cm, 4.5 * cm],
                             rowHeights=[0.6 * cm, 1 * cm])
         tabla_otros.setStyle(TableStyle(
@@ -1207,8 +1207,8 @@ class PurchaseOrderPdf(object):
         p.fontName = "Times-Roman"
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
-                          Facturar a nombre de """ + force_str(empresa().business_name), p),
-            Paragraph("El " + force_str(empresa().business_name) + """, se reserva el derecho de devolver 
+                          Facturar a nombre de """ + force_str(company().business_name), p),
+            Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
                           la mercaderia, sino se ajusta a las especificaciones requeridas, asimismo de anular la presente 
                           Orden de Compra.""", p),
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
@@ -1260,7 +1260,7 @@ class PurchaseOrderPdf(object):
         pdf.drawString(430, y - 250, "Autorizado por")
         pdf.line(70, y - 240, 200, y - 240)
         pdf.line(390, y - 240, 520, y - 240)
-        pdf.drawCentredString(300, y - 280, empresa().address())
+        pdf.drawCentredString(300, y - 280, company().address())
         pdf.showPage()
         pdf.save()
         contenido = buffer.getvalue()

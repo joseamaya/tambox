@@ -40,8 +40,8 @@ from django.contrib import messages
 from productos.models import Product
 from almacen.mail import correo_creacion_pedido
 from almacen.reports import MovementReport, KardexPdfReport, KardexExcelReport, reporte_inventario
-from tambox.configuracion import logistica
-from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
+from tambox.config import logistics
+from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from datetime import date
 
 locale.setlocale(locale.LC_ALL, "")
@@ -133,7 +133,7 @@ class OrderApprove(CreateView):
             puestos = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
                 return HttpResponseRedirect(reverse('administracion:worker_update'))
-            if puestos[0].is_leadership and puestos[0].office == logistica():
+            if puestos[0].is_leadership and puestos[0].office == logistics():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalles = OrderDetail.objects.filter(order=order, status=OrderDetail.STATUS.PEND)
@@ -197,9 +197,9 @@ class OrderApprove(CreateView):
                                                              detalle_salida_formset=detalle_salida_formset))
 
 
-class ProductWarehouseSearch(SoloAjaxMixin, TemplateView):
+class ProductWarehouseSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('description', 'warehouse')
+    required_params = ('description', 'warehouse')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -228,17 +228,17 @@ class ProductWarehouseSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class WarehouseImport(CargarCsvMixin, FormView):
+class WarehouseImport(CsvImportMixin, FormView):
     template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
     success_url = reverse_lazy('almacen:warehouse_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         Warehouse.objects.create(code=fila[0],
                                description=fila[1])
 
 
-class InitialInventoryImport(CargarCsvMixin, FormView):
+class InitialInventoryImport(CsvImportMixin, FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = InitialInventoryImportForm
 
@@ -283,7 +283,7 @@ class InitialInventoryImport(CargarCsvMixin, FormView):
             self.movement.save()
         return respuesta
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         try:
             product = Product.objects.get(description=fila[0].strip())
             quantity = Decimal(fila[1])
@@ -358,7 +358,7 @@ class WarehouseCreate(FormView):
         return super(OutboundDetailCreate, self).form_valid(form)'''
 
 
-class OutboundDetailCreate(SoloAjaxMixin, TemplateView):
+class OutboundDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -386,7 +386,7 @@ class OutboundDetailCreate(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class OrderDetailCreate(SoloAjaxMixin, TemplateView):
+class OrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -410,7 +410,7 @@ class OrderDetailCreate(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class InboundDetailCreate(SoloAjaxMixin, TemplateView):
+class InboundDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -502,7 +502,7 @@ class OrderCreate(CreateView):
                                                       quantity=quantity))
                         cont = cont + 1
                 OrderDetail.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Position.objects.get(office=logistica(), is_leadership=True, is_active=True)
+                puesto_jefe_logistica = Position.objects.get(office=logistics(), is_leadership=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.worker
                 destinatario = jefe_logistica.user.email
                 correo_creacion_pedido(destinatario, self.object)
@@ -515,9 +515,9 @@ class OrderCreate(CreateView):
                                                              detalle_pedido_formset=detalle_pedido_formset))
 
 
-class StockQuery(SoloAjaxMixin, TemplateView):
+class StockQuery(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('warehouse', 'code')
+    required_params = ('warehouse', 'code')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             warehouse = request.GET['warehouse']
@@ -650,7 +650,7 @@ class OrderApprovalList(ListView):
             puestos = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
                 return HttpResponseRedirect(reverse('administracion:worker_update'))
-            if puestos[0].is_leadership and puestos[0].office == logistica():
+            if puestos[0].is_leadership and puestos[0].office == logistics():
                 return super(OrderApprovalList, self).dispatch(*args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -1580,9 +1580,9 @@ class ProductStock(FormView):
         return response
 
 
-class ProductStockList(SoloAjaxMixin, TemplateView):
+class ProductStockList(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('description', 'warehouse')
+    required_params = ('description', 'warehouse')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1805,9 +1805,9 @@ class ProductPdfReport(View):
         return response
 
 
-class VerifyDocumentRequired(SoloAjaxMixin, TemplateView):
+class VerifyDocumentRequired(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('tipo',)
+    required_params = ('tipo',)
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
@@ -1816,9 +1816,9 @@ class VerifyDocumentRequired(SoloAjaxMixin, TemplateView):
         return JsonResponse(json_object)
 
 
-class VerifyReferenceRequired(SoloAjaxMixin, TemplateView):
+class VerifyReferenceRequired(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('tipo',)
+    required_params = ('tipo',)
 
     def get(self, request, *args, **kwargs):
         tipo = request.GET['tipo']
@@ -1827,9 +1827,9 @@ class VerifyReferenceRequired(SoloAjaxMixin, TemplateView):
         return JsonResponse(json_object)
 
 
-class VerifyStockForOrder(SoloAjaxMixin, TemplateView):
+class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('warehouse', 'order')
+    required_params = ('warehouse', 'order')
 
     def get(self, request, *args, **kwargs):
         warehouse = request.GET['warehouse']

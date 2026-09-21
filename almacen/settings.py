@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """Constantes de almacen que no dependen de la base de datos.
 
-Los valores que salen de la base de datos viven en tambox.configuracion (con
+Los valores que salen de la base de datos viven en tambox.config (con
 cache) o son funciones de este modulo cuando deben leerse frescos, que es el
 caso de las opciones de los formularios: se calculan al construir el formulario
 y no al importar el modulo.

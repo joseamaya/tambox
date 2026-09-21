@@ -6,7 +6,7 @@ from administracion.forms import OfficeForm, WorkerForm, PositionForm, PositionU
     ProfessionForm, ApprovalLevelForm, ProducerForm
 from almacen.models import MovementType
 from contabilidad.forms import UploadForm
-from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
@@ -55,9 +55,9 @@ class Dashboard(View):
         return render(request, 'administracion/tablero_administracion.html', context)
 
 
-class ReceiverDniSearch(SoloAjaxMixin, TemplateView):
+class ReceiverDniSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('dni', 'movement_type')
+    required_params = ('dni', 'movement_type')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
@@ -73,9 +73,9 @@ class ReceiverDniSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ReceiverNameSearch(SoloAjaxMixin, TemplateView):
+class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('name', 'movement_type')
+    required_params = ('name', 'movement_type')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             name = request.GET['name']
@@ -96,12 +96,12 @@ class ReceiverNameSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class OfficeImport(CargarCsvMixin, FormView):
+class OfficeImport(CsvImportMixin, FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:office_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         Office.objects.get_or_create(code=fila[0],
                                       defaults={
                                           'name': fila[1],
@@ -109,12 +109,12 @@ class OfficeImport(CargarCsvMixin, FormView):
                                       )
 
 
-class ProducerImport(CargarCsvMixin, FormView):
+class ProducerImport(CsvImportMixin, FormView):
     template_name = 'administracion/cargar_productores.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:producer_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         dni = fila[0]
         if dni != "":
             try:
@@ -125,12 +125,12 @@ class ProducerImport(CargarCsvMixin, FormView):
                 logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
 
 
-class WorkerImport(CargarCsvMixin, FormView):
+class WorkerImport(CsvImportMixin, FormView):
     template_name = 'administracion/cargar_trabajadores.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:worker_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         usuario_hoja = fila[0]
         if usuario_hoja != "":
             usuario, creado = User.objects.get_or_create(username=usuario_hoja,
@@ -148,12 +148,12 @@ class WorkerImport(CargarCsvMixin, FormView):
                                                        'first_name': fila[4]})
 
 
-class PositionImport(CargarCsvMixin, FormView):
+class PositionImport(CsvImportMixin, FormView):
     template_name = 'administracion/cargar_puestos.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:position_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
             Position.objects.get_or_create(name=fila[0],

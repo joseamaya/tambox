@@ -1,6 +1,6 @@
 """Constantes de requerimientos que no dependen de la base de datos.
 
-Los valores que salen de la base de datos viven en tambox.configuracion.
+Los valores que salen de la base de datos viven en tambox.config.
 """
 
 from model_utils.choices import Choices

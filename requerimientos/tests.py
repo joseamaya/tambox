@@ -3,7 +3,7 @@ from model_bakery import baker
 from administracion.models import ApprovalLevel, Office, Position, Worker
 from requerimientos.models import Requirement, RequirementDetail, \
     RequirementApproval
-from tambox.estados import clasificar, COMPLETO, PARCIAL, VACIO
+from tambox.statuses import classify, COMPLETE, PARTIAL, EMPTY
 
 
 def crear_requerimiento(**kwargs):
@@ -89,16 +89,16 @@ class ClasificarTest(TestCase):
     """La regla detras de la maquina de estados."""
 
     def test_sin_avance(self):
-        self.assertEqual(clasificar(0, 10), VACIO)
+        self.assertEqual(classify(0, 10), EMPTY)
 
     def test_avance_parcial(self):
-        self.assertEqual(clasificar(4, 10), PARCIAL)
+        self.assertEqual(classify(4, 10), PARTIAL)
 
     def test_avance_completo(self):
-        self.assertEqual(clasificar(10, 10), COMPLETO)
+        self.assertEqual(classify(10, 10), COMPLETE)
 
     def test_avance_por_encima_del_total(self):
-        self.assertEqual(clasificar(12, 10), COMPLETO)
+        self.assertEqual(classify(12, 10), COMPLETE)
 
 
 class EstadosDeRequerimientoTest(TestCase):

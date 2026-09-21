@@ -72,7 +72,7 @@ class TaxForm(forms.ModelForm):
 class ConfigurationForm(forms.ModelForm):
     class Meta:
         model = Configuration
-        fields = ['purchase_tax', 'operaciones', 'administracion', 'presupuesto', 'logistica']
+        fields = ['purchase_tax', 'operations', 'administration', 'budget', 'logistics']
 
     def __init__(self, *args, **kwargs):
         super(ConfigurationForm, self).__init__(*args, **kwargs)

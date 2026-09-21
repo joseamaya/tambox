@@ -36,8 +36,8 @@ from productos.models import Product, UnitOfMeasure, ProductGroup
 from datetime import date
 from compras.reports import reporte_xls_orden_compra, PurchaseOrderPdf, \
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
-from tambox.configuracion import configuracion, purchase_tax
-from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
+from tambox.config import configuration, purchase_tax
+from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
@@ -70,9 +70,9 @@ class Dashboard(View):
         return render(request, 'compras/tablero_compras.html', context)
 
 
-class QuotationSearch(SoloAjaxMixin, TemplateView):
+class QuotationSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('code',)
+    required_params = ('code',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -86,9 +86,9 @@ class QuotationSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class SupplierNameSearch(SoloAjaxMixin, TemplateView):
+class SupplierNameSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('business_name',)
+    required_params = ('business_name',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -106,9 +106,9 @@ class SupplierNameSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class SupplierTaxIdSearch(SoloAjaxMixin, TemplateView):
+class SupplierTaxIdSearch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('tax_id',)
+    required_params = ('tax_id',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -124,12 +124,12 @@ class SupplierTaxIdSearch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class SupplierImport(CargarCsvMixin, FormView):
+class SupplierImport(CsvImportMixin, FormView):
     template_name = 'compras/cargar_proveedores.html'
     form_class = UploadForm
     success_url = reverse_lazy('compras:supplier_list')
 
-    def procesar_fila(self, fila):
+    def process_row(self, fila):
         Supplier.objects.get_or_create(tax_id=fila[0],
                                         defaults={'business_name': fila[1],
                                                   'address': fila[2],
@@ -156,7 +156,7 @@ class SupplierCreate(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class PurchaseOrderDetailCreate(SoloAjaxMixin, TemplateView):
+class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -188,7 +188,7 @@ class PurchaseOrderDetailCreate(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ServiceOrderDetailCreate(SoloAjaxMixin, TemplateView):
+class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -315,7 +315,7 @@ class PurchaseOrderCreate(CreateView):
             return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             try:
-                configuracion()
+                configuration()
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
                 detalle_orden_compra_formset = PurchaseOrderDetailFormSet()
@@ -1220,9 +1220,9 @@ class ServiceOrderUpdate(UpdateView):
                                                              detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
 
-class QuotationDetailFetch(SoloAjaxMixin, TemplateView):
+class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('quotation', 'tipo_busqueda')
+    required_params = ('quotation', 'tipo_busqueda')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1297,9 +1297,9 @@ class QuotationDetailFetch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class PurchaseOrderDetailFetch(SoloAjaxMixin, TemplateView):
+class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('orden_compra', 'date')
+    required_params = ('orden_compra', 'date')
 
     def obtener_date(self, r_date):
         anio = int(r_date[6:])
@@ -1357,9 +1357,9 @@ class PurchaseOrderDetailFetch(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ServiceOrderDetailFetch(SoloAjaxMixin, TemplateView):
+class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
 
-    parametros_requeridos = ('service_order',)
+    required_params = ('service_order',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.encoding import force_str
 from django.contrib.auth.models import User
 from model_utils.models import TimeStampedModel
-from tambox.querysets import NavegableQuerySet
+from tambox.querysets import NavigableQuerySet
 from django.core.exceptions import ValidationError
 from simple_history.models import HistoricalRecords
 
@@ -14,7 +14,7 @@ class Profession(TimeStampedModel):
     description = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         ant = Profession.objects.anterior(self)
@@ -45,7 +45,7 @@ class Worker(TimeStampedModel):
     photo = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def nombre_completo(self):
         if self.profession is not None:
@@ -94,7 +94,7 @@ class Producer(TimeStampedModel):
     last_name = models.CharField(max_length=120)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         ant = Producer.objects.anterior(self)
@@ -133,7 +133,7 @@ class Office(TimeStampedModel):
     dependency = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
@@ -173,7 +173,7 @@ class Position(TimeStampedModel):
     is_assistant = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         ant = Position.objects.anterior(self)
@@ -195,8 +195,8 @@ class Position(TimeStampedModel):
         return puesto_superior
 
     def establecer_nivel(self, oficina_requerimiento):
-        from tambox.configuracion import logistica
-        description = "LOGISTICA" if (self.office == logistica() and self.is_leadership) else "USUARIO"
+        from tambox.config import logistics
+        description = "LOGISTICA" if (self.office == logistics() and self.is_leadership) else "USUARIO"
         try:
             return ApprovalLevel.objects.get(description=description)
         except ApprovalLevel.DoesNotExist:
@@ -221,7 +221,7 @@ class ApprovalLevel(TimeStampedModel):
     description = models.CharField(max_length=100)
     superior_level = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     history = HistoricalRecords()
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def __str__(self):
         return force_str(self.description)

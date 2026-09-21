@@ -245,7 +245,7 @@ class ReporteInventarioTest(TestCase):
 
 
 class EstadoDeDetallePedidoTest(TestCase):
-    """Solo lee campos de la instancia, y fija la regla compartida de clasificar()."""
+    """Solo lee campos de la instancia, y fija la regla compartida de classify()."""
 
     def test_atendido(self):
         self.assertEqual(OrderDetail(quantity=10, served_quantity=0).establecer_estado_atendido(),

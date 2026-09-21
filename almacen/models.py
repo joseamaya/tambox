@@ -13,8 +13,8 @@ from model_utils import Choices
 from django.utils.translation import gettext as _
 from productos.models import Product
 from almacen.managers import MovementDetailManager
-from tambox.querysets import NavegableQuerySet
-from tambox.estados import clasificar, PARCIAL, VACIO
+from tambox.querysets import NavigableQuerySet
+from tambox.statuses import classify, PARTIAL, EMPTY
 from simple_history.models import HistoricalRecords
 
 
@@ -34,7 +34,7 @@ class Warehouse(TimeStampedModel):
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)
         ordering = ['code']
 
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         return Warehouse.objects.anterior(self).pk
@@ -58,7 +58,7 @@ class MovementType(TimeStampedModel):
     is_active = models.BooleanField(default=True, verbose_name='Estado')
     history = HistoricalRecords()
 
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         return MovementType.objects.anterior(self).pk
@@ -111,7 +111,7 @@ class Order(TimeStampedModel):
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         return Order.objects.anterior(self).pk
@@ -125,10 +125,10 @@ class Order(TimeStampedModel):
         for detalle in OrderDetail.objects.filter(order=self):
             total = total + detalle.quantity
             total_atendida = total_atendida + detalle.served_quantity
-        caso = clasificar(total_atendida, total)
-        if caso == VACIO:
+        caso = classify(total_atendida, total)
+        if caso == EMPTY:
             estado = Order.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = Order.STATUS.ATEN_PARC
         else:
             estado = Order.STATUS.ATEN
@@ -183,10 +183,10 @@ class OrderDetail(TimeStampedModel):
         return resultado
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.served_quantity, self.quantity)
-        if caso == VACIO:
+        caso = classify(self.served_quantity, self.quantity)
+        if caso == EMPTY:
             estado = OrderDetail.STATUS.PEND
-        elif caso == PARCIAL:
+        elif caso == PARTIAL:
             estado = OrderDetail.STATUS.ATEN_PARC
         else:
             estado = OrderDetail.STATUS.ATEN
@@ -221,7 +221,7 @@ class Movement(TimeStampedModel):
     status = models.CharField(choices=STATUS, default=STATUS.ACT, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
 
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         return Movement.objects.anterior(self).pk
@@ -406,7 +406,7 @@ class Kardex(TimeStampedModel):
     warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE, related_name='kardex_entries')
     history = HistoricalRecords()
 
-    objects = NavegableQuerySet.as_manager()
+    objects = NavigableQuerySet.as_manager()
 
     def anterior(self):
         return Kardex.objects.anterior(self).pk
