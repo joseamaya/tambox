@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from almacen.models import Almacen, Movimiento, Kardex, TipoMovimiento, DetalleMovimiento, ControlProductoAlmacen, \
     Pedido, DetallePedido
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
@@ -1794,6 +1794,8 @@ class ReportePDFProductos(View):
 class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
+        if 'tipo' not in request.GET:
+            return HttpResponseBadRequest('Falta el parametro "tipo".')
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'solicita_documento': tipo_movimiento.solicita_documento}
@@ -1803,6 +1805,8 @@ class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
 class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
+        if 'tipo' not in request.GET:
+            return HttpResponseBadRequest('Falta el parametro "tipo".')
         tipo = request.GET['tipo']
         tipo_movimiento = TipoMovimiento.objects.get(pk=tipo)
         json_object = {'pide_referencia': tipo_movimiento.pide_referencia}
@@ -1812,6 +1816,8 @@ class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
 class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
+        if 'almacen' not in request.GET or 'pedido' not in request.GET:
+            return HttpResponseBadRequest('Faltan los parametros "almacen" y "pedido".')
         almacen = request.GET['almacen']
         pedido = request.GET['pedido']
         detalles = list(DetallePedido.objects.filter(pedido__codigo=pedido,

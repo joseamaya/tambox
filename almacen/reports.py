@@ -32,6 +32,9 @@ def kardex_inicial_de(reporte, producto, almacen, desde):
     lanzaba un `latest('fecha_operacion')`, que ademas revienta con
     MultipleObjectsReturned si dos movimientos comparten fecha.
     """
+    from tambox.fechas import aware
+
+    desde = aware(desde)
     iniciales = getattr(reporte, 'kardex_iniciales', None)
     if iniciales is None:
         return (Kardex.objects.filter(producto=producto, almacen=almacen,

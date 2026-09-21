@@ -429,9 +429,11 @@ class Kardex(TimeStampedModel):
         `filtro` es el que identifica el almacen (`almacen=`, `almacen__pk=`,
         `almacen__codigo=`), porque cada vista lo tiene de una forma distinta.
         """
+        from tambox.fechas import aware
+
         consulta = cls.objects.filter(producto__in=productos, **filtro)
         if antes_de is not None:
-            consulta = consulta.filter(fecha_operacion__lt=antes_de)
+            consulta = consulta.filter(fecha_operacion__lt=aware(antes_de))
         ultimos = (consulta.select_related('producto__unidad_medida')
                    .order_by('producto_id', '-fecha_operacion', '-pk')
                    .distinct('producto_id'))
@@ -449,7 +451,9 @@ class Kardex(TimeStampedModel):
         consultas por producto. Los totales se suman aqui en Python: con Decimal
         el resultado es el mismo que el del agregado de SQL.
         """
-        hasta = hasta + timedelta(days=1)
+        from tambox.fechas import aware
+
+        desde, hasta = aware(desde), aware(hasta) + timedelta(days=1)
         filas = (cls.objects.filter(fecha_operacion__gte=desde,
                                     fecha_operacion__lte=hasta,
                                     **filtro)

@@ -5,6 +5,7 @@ from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import force_str
 from tambox.querysets import NavegableQuerySet
+from tambox.fechas import aware
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
 import datetime
@@ -76,7 +77,7 @@ class GrupoProductos(TimeStampedModel):
 
     def obtener_kardex(self, almacen, desde, hasta):
         from almacen.models import Kardex
-        hasta = hasta + datetime.timedelta(days=1)
+        desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
@@ -151,7 +152,7 @@ class Producto(TimeStampedModel):
 
     def obtener_kardex(self, almacen, desde, hasta):
         from almacen.models import Movimiento, Kardex
-        hasta = hasta + datetime.timedelta(days=1)
+        desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                movimiento__estado=Movimiento.STATUS.ACT,
                                                fecha_operacion__gte=desde,
