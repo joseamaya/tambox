@@ -1,12 +1,6 @@
 {% extends "base.html" %}
 {% block menu_items %}
             <li>
-                <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
-
-                </ul>
-            </li>
-            <li>
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.requerimientos.add_requerimiento %}

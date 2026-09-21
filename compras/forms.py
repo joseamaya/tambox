@@ -40,19 +40,23 @@ class DetalleOrdenCompraForm(forms.Form):
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    precio = forms.IntegerField(widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
-    valor = forms.IntegerField(widget=forms.TextInput(
+    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
+    precio = forms.DecimalField(max_digits=25, decimal_places=8,
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
+    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 
 class DetalleOrdenServicioForm(forms.Form):
     codigo = forms.CharField(widget=forms.HiddenInput())
-    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'entero form-control'}))
+    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     servicio = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     descripcion = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
-    precio = forms.IntegerField(widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
-    valor = forms.IntegerField(widget=forms.TextInput(
+    precio = forms.DecimalField(max_digits=15, decimal_places=5,
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
+    valor = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
 

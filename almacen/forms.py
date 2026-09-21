@@ -49,10 +49,11 @@ class FormularioDetalleMovimiento(forms.Form):
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
-    precio = forms.IntegerField(widget=forms.TextInput(
+    cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
+    precio = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'form-control decimal'}))
-    valor = forms.IntegerField(widget=forms.TextInput(
+    valor = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control decimal'}))
 
 

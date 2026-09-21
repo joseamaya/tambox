@@ -60,7 +60,8 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    cantidad = forms.IntegerField(widget=forms.TextInput(attrs={'size': 6, 'class': 'entero form-control'}))
+    cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     uso = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
