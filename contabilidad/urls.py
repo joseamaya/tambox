@@ -1,5 +1,5 @@
 from django.urls import re_path
-from contabilidad.views import Tablero, ListadoCuentasContables, \
+from contabilidad.views import Dashboard, ListadoCuentasContables, \
     CargarCuentasContables, ListadoTiposDocumentos, CrearTipoDocumento, \
     EliminarTipoDocumento, DetalleTipoDocumento, ModificarTipoDocumento, \
     ReporteExcelCuentasContables, ModificarCuentaContable, CrearCuentaContable, \
@@ -13,7 +13,7 @@ from contabilidad.views import Tablero, ListadoCuentasContables, \
 app_name = 'contabilidad'
 
 urlpatterns = [
-    re_path(r'^tablero/$', Tablero.as_view(), name="tablero"),
+    re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
     re_path(r'^formas_pago/$', ListadoFormasPago.as_view(), name="formas_pago"),
     re_path(r'^crear_forma_pago/$', CrearFormaPago.as_view(), name="crear_forma_pago"),
     re_path(r'^crear_tipo_cambio/$', CrearTipoCambio.as_view(), name="crear_tipo_cambio"),

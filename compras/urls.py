@@ -1,5 +1,5 @@
 from django.urls import re_path
-from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrdenCompra, \
+from compras.views import Dashboard, ListadoProveedores, CrearProveedor, CrearOrdenCompra, \
     BusquedaProveedoresRazonSocial, CrearDetalleOrdenCompra, \
     TransferenciaOrdenCompra, ObtenerDetalleOrdenCompra, \
     ReporteExcelOrdenesCompraFecha, ListadoOrdenesCompra, DetalleProveedor, \
@@ -21,7 +21,7 @@ from compras.views import Tablero, ListadoProveedores, CrearProveedor, CrearOrde
 app_name = 'compras'
 
 urlpatterns = [
-    re_path(r'^tablero/$', Tablero.as_view(), name="tablero"),
+    re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
     re_path(r'^proveedores/$', ListadoProveedores.as_view(), name="proveedores"),
     re_path(r'^ordenes_compra/$', ListadoOrdenesCompra.as_view(), name="ordenes_compra"),
     re_path(r'^ordenes_servicios/$', ListadoOrdenesServicios.as_view(), name="ordenes_servicios"),

@@ -1,7 +1,7 @@
 from django.urls import re_path
 from requerimientos.views import AprobarRequerimiento, ListadoRequerimientos, \
     ListadoCotizacionesPorRequerimiento, ListadoAprobacionRequerimientos, \
-    Tablero, CrearRequerimiento, CrearDetalleRequerimiento, \
+    Dashboard, CrearRequerimiento, CrearDetalleRequerimiento, \
     ModificarRequerimiento, TransferenciaRequerimiento, \
     ObtenerDetalleRequerimiento, DetalleOperacionRequerimiento, \
     ReportePDFRequerimiento, EliminarRequerimiento, ReporteExcelRequerimientos
@@ -9,7 +9,7 @@ from requerimientos.views import AprobarRequerimiento, ListadoRequerimientos, \
 app_name = 'requerimientos'
 
 urlpatterns = [
-    re_path(r'^tablero/$', Tablero.as_view(), name="tablero"),
+    re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
     re_path(r'^aprobar_requerimiento/(?P<pk>.+)/$', AprobarRequerimiento.as_view(),
         name="aprobar_requerimiento"),
     re_path(r'^requerimientos/$', ListadoRequerimientos.as_view(), name="requerimientos"),

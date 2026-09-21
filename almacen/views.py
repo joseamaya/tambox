@@ -47,7 +47,7 @@ from datetime import date
 locale.setlocale(locale.LC_ALL, "")
 
 
-class Tablero(View):
+class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         cod_mov_invent_ini = 'I00'

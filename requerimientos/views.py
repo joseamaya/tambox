@@ -34,7 +34,7 @@ locale.setlocale(locale.LC_ALL, "")
 
 
 from tambox.vistas import SoloAjaxMixin
-class Tablero(View):
+class Dashboard(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         context = {'notificaciones': lista_notificaciones}

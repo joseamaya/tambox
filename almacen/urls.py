@@ -1,7 +1,7 @@
 from django.urls import re_path
 from almacen.views import CrearAlmacen, RegistrarIngresoAlmacen, RegistrarSalidaAlmacen, \
     CrearDetalleSalida, \
-    ReportePDFProductos, CrearTipoMovimiento, ListadoAlmacenes, Tablero, ListadoTiposMovimiento, VerificarSolicitaDocumento, \
+    ReportePDFProductos, CrearTipoMovimiento, ListadoAlmacenes, Dashboard, ListadoTiposMovimiento, VerificarSolicitaDocumento, \
     ReporteExcelMovimientos, ReporteExcelMovimientosPorFecha, ListadoMovimientos, CrearDetalleIngreso, \
     ConsultaStock, BusquedaProductosAlmacen, ReportePDFMovimiento, ReporteKardex, DetalleAlmacen, \
     EliminarMovimiento, ModificarAlmacen, EliminarAlmacen, DetalleTipoMovimiento, ModificarMovimiento, \
@@ -16,7 +16,7 @@ from almacen.views import CrearAlmacen, RegistrarIngresoAlmacen, RegistrarSalida
 app_name = 'almacen'
 
 urlpatterns = [
-    re_path(r'^tablero/$', Tablero.as_view(), name="tablero"),
+    re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
     re_path(r'^registrar_ingreso/$', RegistrarIngresoAlmacen.as_view(), name="registrar_ingreso"),
     re_path(r'^registrar_salida/$', RegistrarSalidaAlmacen.as_view(), name="registrar_salida"),
     re_path(r'^crear_pedido/$', CrearPedido.as_view(), name="crear_pedido"),

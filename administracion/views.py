@@ -2,8 +2,8 @@
 import logging
 
 from django.shortcuts import render
-from administracion.forms import OficinaForm, TrabajadorForm, PuestoForm, ModificacionPuestoForm, \
-    ProfesionForm, NivelAprobacionForm, ProductorForm
+from administracion.forms import OfficeForm, WorkerForm, PositionForm, PositionUpdateForm, \
+    ProfessionForm, ApprovalLevelForm, ProducerForm
 from almacen.models import MovementType
 from contabilidad.forms import UploadForm
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
@@ -28,7 +28,7 @@ from django.db.models import Q
 logger = logging.getLogger(__name__)
 
 
-class Tablero(View):
+class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
@@ -55,7 +55,7 @@ class Tablero(View):
         return render(request, 'administracion/tablero_administracion.html', context)
 
 
-class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
+class ReceiverDniSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('dni', 'movement_type')
     def get(self, request, *args, **kwargs):
@@ -73,7 +73,7 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
+class ReceiverNameSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('name', 'movement_type')
     def get(self, request, *args, **kwargs):
@@ -96,7 +96,7 @@ class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarOficinas(CargarCsvMixin, FormView):
+class OfficeImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
@@ -109,7 +109,7 @@ class CargarOficinas(CargarCsvMixin, FormView):
                                       )
 
 
-class CargarProductores(CargarCsvMixin, FormView):
+class ProducerImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_productores.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:maestro_productores')
@@ -125,7 +125,7 @@ class CargarProductores(CargarCsvMixin, FormView):
                 logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
 
 
-class CargarTrabajadores(CargarCsvMixin, FormView):
+class WorkerImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_trabajadores.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:maestro_trabajadores')
@@ -148,7 +148,7 @@ class CargarTrabajadores(CargarCsvMixin, FormView):
                                                        'first_name': fila[4]})
 
 
-class CargarPuestos(CargarCsvMixin, FormView):
+class PositionImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_puestos.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:maestro_puestos')
@@ -165,225 +165,225 @@ class CargarPuestos(CargarCsvMixin, FormView):
             logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
 
 
-class CrearNivelAprobacion(CreateView):
+class ApprovalLevelCreate(CreateView):
     template_name = 'administracion/nivel_aprobacion.html'
-    form_class = NivelAprobacionForm
+    form_class = ApprovalLevelForm
 
     @method_decorator(
         requiere('administracion.add_approvallevel'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearNivelAprobacion, self).dispatch(*args, **kwargs)
+        return super(ApprovalLevelCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
 
 
-class CrearProfesion(CreateView):
+class ProfessionCreate(CreateView):
     template_name = 'administracion/profesion.html'
-    form_class = ProfesionForm
+    form_class = ProfessionForm
 
     @method_decorator(requiere('administracion.add_profession'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearProfesion, self).dispatch(*args, **kwargs)
+        return super(ProfessionCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_profesion', args=[self.object.pk])
 
 
-class CrearOficina(CreateView):
+class OfficeCreate(CreateView):
     template_name = 'administracion/oficina.html'
-    form_class = OficinaForm
+    form_class = OfficeForm
 
     @method_decorator(requiere('administracion.add_office'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearOficina, self).dispatch(*args, **kwargs)
+        return super(OfficeCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:maestro_oficinas')
 
 
-class CrearTrabajador(CreateView):
+class WorkerCreate(CreateView):
     template_name = 'administracion/trabajador.html'
-    form_class = TrabajadorForm
+    form_class = WorkerForm
 
     @method_decorator(requiere('administracion.add_worker'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearTrabajador, self).dispatch(*args, **kwargs)
+        return super(WorkerCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
 
-class CrearProductor(CreateView):
+class ProducerCreate(CreateView):
     template_name = 'administracion/productor.html'
-    form_class = ProductorForm
+    form_class = ProducerForm
 
     @method_decorator(requiere('administracion.add_producer'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearProductor, self).dispatch(*args, **kwargs)
+        return super(ProducerCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_productor', args=[self.object.pk])
 
 
-class CrearPuesto(CreateView):
+class PositionCreate(CreateView):
     template_name = 'administracion/puesto.html'
-    form_class = PuestoForm
+    form_class = PositionForm
 
     @method_decorator(requiere('administracion.add_position'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearPuesto, self).dispatch(*args, **kwargs)
+        return super(PositionCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_puesto', args=[self.object.pk])
 
 
-class DetalleOficina(DetailView):
+class OfficeDetail(DetailView):
     model = Office
     template_name = 'administracion/detalle_oficina.html'
 
 
-class DetalleTrabajador(DetailView):
+class WorkerDetail(DetailView):
     model = Worker
     template_name = 'administracion/detalle_trabajador.html'
 
 
-class DetalleProductor(DetailView):
+class ProducerDetail(DetailView):
     model = Producer
     template_name = 'administracion/detalle_productor.html'
 
 
-class DetallePuesto(DetailView):
+class PositionDetail(DetailView):
     model = Position
     template_name = 'administracion/detalle_puesto.html'
 
 
-class DetalleProfesion(DetailView):
+class ProfessionDetail(DetailView):
     model = Profession
     template_name = 'administracion/detalle_profesion.html'
 
 
-class DetalleNivelAprobacion(DetailView):
+class ApprovalLevelDetail(DetailView):
     model = ApprovalLevel
     template_name = 'administracion/detalle_nivel_aprobacion.html'
 
 
-class ListadoOficinas(ListView):
+class OfficeList(ListView):
     model = Office
     template_name = 'administracion/oficinas.html'
     context_object_name = 'oficinas'
     queryset = Office.objects.all().order_by('name')
 
 
-class ListadoTrabajadores(ListView):
+class WorkerList(ListView):
     model = Worker
     template_name = 'administracion/trabajadores.html'
     context_object_name = 'trabajadores'
 
 
-class ListadoProductores(ListView):
+class ProducerList(ListView):
     model = Producer
     template_name = 'administracion/productores.html'
     context_object_name = 'productores'
 
 
-class ListadoPuestos(ListView):
+class PositionList(ListView):
     model = Position
     template_name = 'administracion/puestos.html'
     context_object_name = 'puestos'
     queryset = Position.objects.filter(is_active=True)
 
 
-class ListadoProfesiones(ListView):
+class ProfessionList(ListView):
     model = Profession
     template_name = 'administracion/profesiones.html'
     context_object_name = 'profesiones'
 
 
-class ListadoNivelesAprobacion(ListView):
+class ApprovalLevelList(ListView):
     model = ApprovalLevel
     template_name = 'administracion/niveles_aprobacion.html'
     context_object_name = 'niveles'
 
 
-class ModificarNivelAprobacion(UpdateView):
+class ApprovalLevelUpdate(UpdateView):
     model = ApprovalLevel
     template_name = 'administracion/nivel_aprobacion.html'
-    form_class = NivelAprobacionForm
+    form_class = ApprovalLevelForm
 
     @method_decorator(
         requiere('administracion.change_approvallevel'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarNivelAprobacion, self).dispatch(*args, **kwargs)
+        return super(ApprovalLevelUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
 
 
-class ModificarProfesion(UpdateView):
+class ProfessionUpdate(UpdateView):
     model = Profession
     template_name = 'administracion/profesion.html'
-    form_class = ProfesionForm
+    form_class = ProfessionForm
 
     @method_decorator(
         requiere('administracion.change_profession'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarProfesion, self).dispatch(*args, **kwargs)
+        return super(ProfessionUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_profesion', args=[self.object.pk])
 
 
-class ModificarOficina(UpdateView):
+class OfficeUpdate(UpdateView):
     model = Office
     template_name = 'administracion/oficina.html'
-    form_class = OficinaForm
+    form_class = OfficeForm
     success_url = reverse_lazy('administracion:maestro_oficinas')
 
     @method_decorator(requiere('administracion.change_office'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarOficina, self).dispatch(*args, **kwargs)
+        return super(OfficeUpdate, self).dispatch(*args, **kwargs)
 
 
-class ModificarTrabajador(UpdateView):
+class WorkerUpdate(UpdateView):
     model = Worker
     template_name = 'administracion/trabajador.html'
-    form_class = TrabajadorForm
+    form_class = WorkerForm
 
     @method_decorator(
         requiere('administracion.change_worker'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarTrabajador, self).dispatch(*args, **kwargs)
+        return super(WorkerUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_trabajador', args=[self.object.pk])
 
 
-class ModificarProductor(UpdateView):
+class ProducerUpdate(UpdateView):
     model = Producer
     template_name = 'administracion/productor.html'
-    form_class = ProductorForm
+    form_class = ProducerForm
 
     @method_decorator(
         requiere('administracion.change_producer'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarProductor, self).dispatch(*args, **kwargs)
+        return super(ProducerUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('administracion:detalle_productor', args=[self.object.pk])
 
 
-class ModificarPuesto(UpdateView):
+class PositionUpdate(UpdateView):
     model = Position
     template_name = 'administracion/puesto.html'
-    form_class = ModificacionPuestoForm
+    form_class = PositionUpdateForm
 
     @method_decorator(requiere('administracion.change_position'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarPuesto, self).dispatch(*args, **kwargs)
+        return super(PositionUpdate, self).dispatch(*args, **kwargs)
 
     def get_initial(self):
-        initial = super(ModificarPuesto, self).get_initial()
+        initial = super(PositionUpdate, self).get_initial()
         initial['start_date'] = self.object.start_date.strftime('%d/%m/%Y')
         if self.object.end_date is not None:
             initial['end_date'] = self.object.end_date.strftime('%d/%m/%Y')
@@ -393,7 +393,7 @@ class ModificarPuesto(UpdateView):
         return reverse('administracion:detalle_puesto', args=[self.object.pk])
 
 
-class ReporteExcelOficinas(TemplateView):
+class OfficeExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
         oficinas = Office.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
@@ -422,7 +422,7 @@ class ReporteExcelOficinas(TemplateView):
         return response
 
 
-class ReporteExcelProfesiones(TemplateView):
+class ProfessionExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
         profesiones = Profession.objects.filter(is_active=True)
         wb = Workbook()
@@ -446,7 +446,7 @@ class ReporteExcelProfesiones(TemplateView):
         return response
 
 
-class ReporteExcelPuestos(TemplateView):
+class PositionExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
         puestos = Position.objects.filter(is_active=True)
         wb = Workbook()
@@ -481,7 +481,7 @@ class ReporteExcelPuestos(TemplateView):
         return response
 
 
-class ReporteExcelTrabajadores(TemplateView):
+class WorkerExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
         trabajadores = Worker.objects.filter(is_active=True)
         wb = Workbook()

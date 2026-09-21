@@ -24,7 +24,7 @@ from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 logger = logging.getLogger(__name__)
 
 
-class Tablero(View):
+class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []

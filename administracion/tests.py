@@ -19,13 +19,13 @@ from datetime import date
     def test_valid_form(self):
         p = self.crear_profesion()
         data = {'abbreviation': p.abbreviation, 'description': p.description}
-        form = ProfesionForm(data = data)
+        form = ProfessionForm(data = data)
         self.assertTrue(form.is_valid())
         
     def test_invalid_form(self):
         p = self.crear_profesion('Dr.','')
         data = {'abbreviation': p.abbreviation, 'description': p.description}
-        form = ProfesionForm(data = data)
+        form = ProfessionForm(data = data)
         self.assertFalse(form.is_valid())"""
 
 

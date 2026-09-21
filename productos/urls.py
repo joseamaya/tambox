@@ -1,5 +1,5 @@
 from django.urls import re_path
-from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios, \
+from productos.views import Dashboard, ListadoUnidadesMedida, ListadoServicios, \
     ListadoGruposProductos, ListadoProductos, CrearServicio, CrearUnidadMedida, \
     CrearGrupoProductos, CrearProducto, CargarProductos, CargarServicios, \
     ModificarProducto, ModificarGrupoProductos, ModificarUnidadMedida, \
@@ -13,7 +13,7 @@ from productos.views import Tablero, ListadoUnidadesMedida, ListadoServicios, \
 app_name = 'productos'
 
 urlpatterns = [
-    re_path(r'^tablero/$', Tablero.as_view(), name="tablero"),
+    re_path(r'^tablero/$', Dashboard.as_view(), name="tablero"),
     re_path(r'^unidades_medida/$', ListadoUnidadesMedida.as_view(), name="unidades_medida"),
     re_path(r'^servicios/$', ListadoServicios.as_view(), name="servicios"),
     re_path(r'^grupos_productos/$', ListadoGruposProductos.as_view(), name="grupos_productos"),

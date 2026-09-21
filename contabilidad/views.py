@@ -21,7 +21,7 @@ from django.utils.decorators import method_decorator
 import datetime
 
 
-class Tablero(View):
+class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
