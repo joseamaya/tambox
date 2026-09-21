@@ -52,7 +52,7 @@ class Dashboard(View):
         if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'administracion/administration_dashboard.html', context)
+        return render(request, 'administration/administration_dashboard.html', context)
 
 
 class ReceiverDniSearch(AjaxOnlyMixin, TemplateView):
@@ -97,7 +97,7 @@ class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
 
 
 class OfficeImport(CsvImportMixin, FormView):
-    template_name = 'administracion/office_upload.html'
+    template_name = 'administration/office_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:office_list')
 
@@ -110,7 +110,7 @@ class OfficeImport(CsvImportMixin, FormView):
 
 
 class ProducerImport(CsvImportMixin, FormView):
-    template_name = 'administracion/producer_upload.html'
+    template_name = 'administration/producer_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:producer_list')
 
@@ -126,7 +126,7 @@ class ProducerImport(CsvImportMixin, FormView):
 
 
 class WorkerImport(CsvImportMixin, FormView):
-    template_name = 'administracion/worker_upload.html'
+    template_name = 'administration/worker_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:worker_list')
 
@@ -149,7 +149,7 @@ class WorkerImport(CsvImportMixin, FormView):
 
 
 class PositionImport(CsvImportMixin, FormView):
-    template_name = 'administracion/position_upload.html'
+    template_name = 'administration/position_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('administracion:position_list')
 
@@ -166,7 +166,7 @@ class PositionImport(CsvImportMixin, FormView):
 
 
 class ApprovalLevelCreate(CreateView):
-    template_name = 'administracion/approval_level_form.html'
+    template_name = 'administration/approval_level_form.html'
     form_class = ApprovalLevelForm
 
     @method_decorator(
@@ -179,7 +179,7 @@ class ApprovalLevelCreate(CreateView):
 
 
 class ProfessionCreate(CreateView):
-    template_name = 'administracion/profession_form.html'
+    template_name = 'administration/profession_form.html'
     form_class = ProfessionForm
 
     @method_decorator(requires('administracion.add_profession'))
@@ -191,7 +191,7 @@ class ProfessionCreate(CreateView):
 
 
 class OfficeCreate(CreateView):
-    template_name = 'administracion/office_form.html'
+    template_name = 'administration/office_form.html'
     form_class = OfficeForm
 
     @method_decorator(requires('administracion.add_office'))
@@ -203,7 +203,7 @@ class OfficeCreate(CreateView):
 
 
 class WorkerCreate(CreateView):
-    template_name = 'administracion/worker_form.html'
+    template_name = 'administration/worker_form.html'
     form_class = WorkerForm
 
     @method_decorator(requires('administracion.add_worker'))
@@ -215,7 +215,7 @@ class WorkerCreate(CreateView):
 
 
 class ProducerCreate(CreateView):
-    template_name = 'administracion/producer_form.html'
+    template_name = 'administration/producer_form.html'
     form_class = ProducerForm
 
     @method_decorator(requires('administracion.add_producer'))
@@ -227,7 +227,7 @@ class ProducerCreate(CreateView):
 
 
 class PositionCreate(CreateView):
-    template_name = 'administracion/position_form.html'
+    template_name = 'administration/position_form.html'
     form_class = PositionForm
 
     @method_decorator(requires('administracion.add_position'))
@@ -240,75 +240,75 @@ class PositionCreate(CreateView):
 
 class OfficeDetail(DetailView):
     model = Office
-    template_name = 'administracion/office_detail.html'
+    template_name = 'administration/office_detail.html'
 
 
 class WorkerDetail(DetailView):
     model = Worker
-    template_name = 'administracion/worker_detail.html'
+    template_name = 'administration/worker_detail.html'
 
 
 class ProducerDetail(DetailView):
     model = Producer
-    template_name = 'administracion/producer_detail.html'
+    template_name = 'administration/producer_detail.html'
 
 
 class PositionDetail(DetailView):
     model = Position
-    template_name = 'administracion/position_detail.html'
+    template_name = 'administration/position_detail.html'
 
 
 class ProfessionDetail(DetailView):
     model = Profession
-    template_name = 'administracion/profession_detail.html'
+    template_name = 'administration/profession_detail.html'
 
 
 class ApprovalLevelDetail(DetailView):
     model = ApprovalLevel
-    template_name = 'administracion/approval_level_detail.html'
+    template_name = 'administration/approval_level_detail.html'
 
 
 class OfficeList(ListView):
     model = Office
-    template_name = 'administracion/office_list.html'
+    template_name = 'administration/office_list.html'
     context_object_name = 'offices'
     queryset = Office.objects.all().order_by('name')
 
 
 class WorkerList(ListView):
     model = Worker
-    template_name = 'administracion/worker_list.html'
+    template_name = 'administration/worker_list.html'
     context_object_name = 'workers'
 
 
 class ProducerList(ListView):
     model = Producer
-    template_name = 'administracion/producer_list.html'
+    template_name = 'administration/producer_list.html'
     context_object_name = 'productores'
 
 
 class PositionList(ListView):
     model = Position
-    template_name = 'administracion/position_list.html'
+    template_name = 'administration/position_list.html'
     context_object_name = 'positions'
     queryset = Position.objects.filter(is_active=True)
 
 
 class ProfessionList(ListView):
     model = Profession
-    template_name = 'administracion/profession_list.html'
+    template_name = 'administration/profession_list.html'
     context_object_name = 'profesiones'
 
 
 class ApprovalLevelList(ListView):
     model = ApprovalLevel
-    template_name = 'administracion/approval_level_list.html'
+    template_name = 'administration/approval_level_list.html'
     context_object_name = 'niveles'
 
 
 class ApprovalLevelUpdate(UpdateView):
     model = ApprovalLevel
-    template_name = 'administracion/approval_level_form.html'
+    template_name = 'administration/approval_level_form.html'
     form_class = ApprovalLevelForm
 
     @method_decorator(
@@ -322,7 +322,7 @@ class ApprovalLevelUpdate(UpdateView):
 
 class ProfessionUpdate(UpdateView):
     model = Profession
-    template_name = 'administracion/profession_form.html'
+    template_name = 'administration/profession_form.html'
     form_class = ProfessionForm
 
     @method_decorator(
@@ -336,7 +336,7 @@ class ProfessionUpdate(UpdateView):
 
 class OfficeUpdate(UpdateView):
     model = Office
-    template_name = 'administracion/office_form.html'
+    template_name = 'administration/office_form.html'
     form_class = OfficeForm
     success_url = reverse_lazy('administracion:office_list')
 
@@ -347,7 +347,7 @@ class OfficeUpdate(UpdateView):
 
 class WorkerUpdate(UpdateView):
     model = Worker
-    template_name = 'administracion/worker_form.html'
+    template_name = 'administration/worker_form.html'
     form_class = WorkerForm
 
     @method_decorator(
@@ -361,7 +361,7 @@ class WorkerUpdate(UpdateView):
 
 class ProducerUpdate(UpdateView):
     model = Producer
-    template_name = 'administracion/producer_form.html'
+    template_name = 'administration/producer_form.html'
     form_class = ProducerForm
 
     @method_decorator(
@@ -375,7 +375,7 @@ class ProducerUpdate(UpdateView):
 
 class PositionUpdate(UpdateView):
     model = Position
-    template_name = 'administracion/position_form.html'
+    template_name = 'administration/position_form.html'
     form_class = PositionUpdateForm
 
     @method_decorator(requires('administracion.change_position'))

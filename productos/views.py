@@ -45,7 +45,7 @@ class Dashboard(View):
         if service_count == 0:
             lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'productos/products_dashboard.html', context)
+        return render(request, 'products/products_dashboard.html', context)
 
 
 class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
@@ -103,7 +103,7 @@ class ProductCodeSearch(AjaxOnlyMixin, TemplateView):
 
 
 class ProductGroupImport(CsvImportMixin, FormView):
-    template_name = 'productos/product_group_upload.html'
+    template_name = 'products/product_group_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_group_list')
 
@@ -117,7 +117,7 @@ class ProductGroupImport(CsvImportMixin, FormView):
 
 
 class ServiceImport(CsvImportMixin, FormView):
-    template_name = 'productos/service_upload.html'
+    template_name = 'products/service_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:service_list')
 
@@ -135,7 +135,7 @@ class ServiceImport(CsvImportMixin, FormView):
 
 
 class ProductImport(CsvImportMixin, FormView):
-    template_name = 'productos/product_upload.html'
+    template_name = 'products/product_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_list')
 
@@ -176,7 +176,7 @@ class ProductStockQuery(AjaxOnlyMixin, TemplateView):
 
 class ProductGroupCreate(CreateView):
     model = ProductGroup
-    template_name = 'productos/product_group_form.html'
+    template_name = 'products/product_group_form.html'
     form_class = ProductGroupForm
     success_url = reverse_lazy('productos:product_group_list')
 
@@ -191,7 +191,7 @@ class ProductGroupCreate(CreateView):
 class ProductCreate(CreateView):
     model = Product
     context_object_name = 'product'
-    template_name = 'productos/product_form.html'
+    template_name = 'products/product_form.html'
     form_class = ProductForm
 
     @method_decorator(requires('productos.add_product'))
@@ -203,7 +203,7 @@ class ProductCreate(CreateView):
 
 
 class UnitOfMeasureCreate(CreateView):
-    template_name = 'productos/unit_of_measure_form.html'
+    template_name = 'products/unit_of_measure_form.html'
     form_class = UnitOfMeasureForm
 
     @method_decorator(requires('productos.add_unitofmeasure'))
@@ -221,7 +221,7 @@ class UnitOfMeasureCreate(CreateView):
 
 
 class ServiceCreate(CreateView):
-    template_name = 'productos/service_form.html'
+    template_name = 'products/service_form.html'
     form_class = ServiceForm
 
     @method_decorator(requires('productos.add_product'))
@@ -234,22 +234,22 @@ class ServiceCreate(CreateView):
 
 class ProductDetail(DetailView):
     model = Product
-    template_name = 'productos/product_detail.html'
+    template_name = 'products/product_detail.html'
 
 
 class ProductGroupDetail(DetailView):
     model = ProductGroup
-    template_name = 'productos/product_group_detail.html'
+    template_name = 'products/product_group_detail.html'
 
 
 class UnitOfMeasureDetail(DetailView):
     model = UnitOfMeasure
-    template_name = 'productos/unit_of_measure_detail.html'
+    template_name = 'products/unit_of_measure_detail.html'
 
 
 class ServiceDetail(DetailView):
     model = Product
-    template_name = 'productos/service_detail.html'
+    template_name = 'products/service_detail.html'
 
 
 class UnitOfMeasureDelete(TemplateView):
@@ -346,7 +346,7 @@ class ServiceDelete(TemplateView):
 
 class UnitOfMeasureList(ListView):
     model = UnitOfMeasure
-    template_name = 'productos/unit_of_measure_list.html'
+    template_name = 'products/unit_of_measure_list.html'
     context_object_name = 'units'
     queryset = UnitOfMeasure.objects.filter(is_active=True).order_by('description')
 
@@ -358,7 +358,7 @@ class UnitOfMeasureList(ListView):
 
 class ServiceList(ListView):
     model = Product
-    template_name = 'productos/service_list.html'
+    template_name = 'products/service_list.html'
     context_object_name = 'servicios'
     queryset = Product.objects.filter(is_active=True, is_service=True).order_by('description')
 
@@ -369,7 +369,7 @@ class ServiceList(ListView):
 
 class ProductGroupList(ListView):
     model = ProductGroup
-    template_name = 'productos/product_group_list.html'
+    template_name = 'products/product_group_list.html'
     context_object_name = 'grupos_productos'
     queryset = ProductGroup.objects.filter(is_active=True).order_by('code')
 
@@ -381,7 +381,7 @@ class ProductGroupList(ListView):
 
 class ProductList(ListView):
     model = Product
-    template_name = 'productos/product_list.html'
+    template_name = 'products/product_list.html'
     context_object_name = 'productos'
     queryset = Product.objects.filter(is_service=False, is_active=True).order_by('code')
 
@@ -392,7 +392,7 @@ class ProductList(ListView):
 
 class ProductListByGroup(ListView):
     model = Product
-    template_name = 'productos/product_list.html'
+    template_name = 'products/product_list.html'
     context_object_name = 'productos'
 
     @method_decorator(requires('productos.ver_tabla_productos'))
@@ -408,7 +408,7 @@ class ProductListByGroup(ListView):
 class ProductUpdate(UpdateView):
     model = Product
     context_object_name = 'product'
-    template_name = 'productos/product_form.html'
+    template_name = 'products/product_form.html'
     form_class = ProductForm
 
     @method_decorator(requires('productos.change_product'))
@@ -421,7 +421,7 @@ class ProductUpdate(UpdateView):
 
 class UnitOfMeasureUpdate(UpdateView):
     model = UnitOfMeasure
-    template_name = 'productos/unit_of_measure_form.html'
+    template_name = 'products/unit_of_measure_form.html'
     form_class = UnitOfMeasureForm
 
     @method_decorator(requires('productos.change_unitofmeasure'))
@@ -434,7 +434,7 @@ class UnitOfMeasureUpdate(UpdateView):
 
 class ProductGroupUpdate(UpdateView):
     model = ProductGroup
-    template_name = 'productos/product_group_form.html'
+    template_name = 'products/product_group_form.html'
     form_class = ProductGroupForm
     success_url = reverse_lazy('productos:product_group_list')
 
@@ -449,7 +449,7 @@ class ProductGroupUpdate(UpdateView):
 
 class ServiceUpdate(UpdateView):
     model = Product
-    template_name = 'productos/service_form.html'
+    template_name = 'products/service_form.html'
     form_class = ServiceForm
 
     @method_decorator(requires('productos.change_product'))

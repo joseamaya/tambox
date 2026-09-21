@@ -67,7 +67,7 @@ class Dashboard(View):
         if service_count == 0:
             lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'compras/purchases_dashboard.html', context)
+        return render(request, 'purchases/purchases_dashboard.html', context)
 
 
 class QuotationSearch(AjaxOnlyMixin, TemplateView):
@@ -125,7 +125,7 @@ class SupplierTaxIdSearch(AjaxOnlyMixin, TemplateView):
 
 
 class SupplierImport(CsvImportMixin, FormView):
-    template_name = 'compras/supplier_upload.html'
+    template_name = 'purchases/supplier_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('compras:supplier_list')
 
@@ -142,7 +142,7 @@ class SupplierImport(CsvImportMixin, FormView):
 class SupplierCreate(CreateView):
     model = Supplier
     context_object_name = 'supplier'
-    template_name = 'compras/supplier_form.html'
+    template_name = 'purchases/supplier_form.html'
     form_class = SupplierForm
 
     @method_decorator(requires('compras.add_supplier'))
@@ -220,7 +220,7 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
 class QuotationCreate(CreateView):
     form_class = QuotationForm
-    template_name = "compras/quotation_form.html"
+    template_name = "purchases/quotation_form.html"
     model = Quotation
     context_object_name = 'quotation'
 
@@ -286,7 +286,7 @@ class QuotationCreate(CreateView):
 
 class PurchaseOrderCreate(CreateView):
     form_class = PurchaseOrderForm
-    template_name = "compras/purchase_order_form.html"
+    template_name = "purchases/purchase_order_form.html"
     model = PurchaseOrder
 
     @method_decorator(requires('compras.add_purchaseorder'))
@@ -378,7 +378,7 @@ class PurchaseOrderCreate(CreateView):
 
 class ServiceOrderCreate(CreateView):
     form_class = ServiceOrderForm
-    template_name = "compras/service_order_form.html"
+    template_name = "purchases/service_order_form.html"
     model = ServiceOrder
 
     @method_decorator(requires('compras.add_serviceorder'))
@@ -461,7 +461,7 @@ class ServiceOrderCreate(CreateView):
 
 class ServiceConformityCreate(CreateView):
     form_class = ServiceConformityForm
-    template_name = "compras/service_conformity_form.html"
+    template_name = "purchases/service_conformity_form.html"
     model = ServiceConformity
 
     @method_decorator(requires('compras.add_serviceconformity'))
@@ -530,28 +530,28 @@ class ServiceConformityCreate(CreateView):
 
 class SupplierDetail(DetailView):
     model = Supplier
-    template_name = 'compras/supplier_detail.html'
+    template_name = 'purchases/supplier_detail.html'
 
 
 class QuotationDetailView(DetailView):
     model = Quotation
     context_object_name = 'quotation'
-    template_name = 'compras/quotation_detail.html'
+    template_name = 'purchases/quotation_detail.html'
 
 
 class PurchaseOrderDetailView(DetailView):
     model = PurchaseOrder
-    template_name = 'compras/purchase_order_detail.html'
+    template_name = 'purchases/purchase_order_detail.html'
 
 
 class ServiceOrderDetailView(DetailView):
     model = ServiceOrder
-    template_name = 'compras/service_order_detail.html'
+    template_name = 'purchases/service_order_detail.html'
 
 
 class ServiceConformityDetailView(DetailView):
     model = ServiceConformity
-    template_name = 'compras/service_conformity_detail.html'
+    template_name = 'purchases/service_conformity_detail.html'
 
 
 class QuotationDelete(TemplateView):
@@ -680,7 +680,7 @@ class SupplierDelete(TemplateView):
 
 class SupplierList(ListView):
     model = Supplier
-    template_name = 'compras/supplier_list.html'
+    template_name = 'purchases/supplier_list.html'
     context_object_name = 'suppliers'
     queryset = Supplier.objects.filter(is_active=True).order_by('business_name')
 
@@ -691,7 +691,7 @@ class SupplierList(ListView):
 
 class QuotationList(ListView):
     model = Quotation
-    template_name = 'compras/quotation_list.html'
+    template_name = 'purchases/quotation_list.html'
     context_object_name = 'quotations'
     queryset = Quotation.objects.exclude(status=Quotation.STATUS.CANC).order_by('code')
 
@@ -702,7 +702,7 @@ class QuotationList(ListView):
 
 class PurchaseOrderList(ListView):
     model = PurchaseOrder
-    template_name = 'compras/purchase_order_list.html'
+    template_name = 'purchases/purchase_order_list.html'
     context_object_name = 'purchase_orders'
     queryset = PurchaseOrder.objects.exclude(status=PurchaseOrder.STATUS.CANC).order_by('code')
 
@@ -714,7 +714,7 @@ class PurchaseOrderList(ListView):
 
 class ServiceOrderList(ListView):
     model = ServiceOrder
-    template_name = 'compras/service_order_list.html'
+    template_name = 'purchases/service_order_list.html'
     context_object_name = 'service_orders'
     queryset = ServiceOrder.objects.filter().order_by('code')
 
@@ -726,7 +726,7 @@ class ServiceOrderList(ListView):
 
 class PurchaseOrderListByQuotation(ListView):
     model = PurchaseOrder
-    template_name = 'compras/purchase_order_list.html'
+    template_name = 'purchases/purchase_order_list.html'
     context_object_name = 'purchase_orders'
 
     @method_decorator(
@@ -742,7 +742,7 @@ class PurchaseOrderListByQuotation(ListView):
 
 class ServiceOrderListByQuotation(ListView):
     model = PurchaseOrder
-    template_name = 'compras/service_order_list.html'
+    template_name = 'purchases/service_order_list.html'
     context_object_name = 'service_orders'
 
     @method_decorator(
@@ -758,7 +758,7 @@ class ServiceOrderListByQuotation(ListView):
 
 class ServiceConformityList(ListView):
     model = ServiceConformity
-    template_name = 'compras/service_conformity_list.html'
+    template_name = 'purchases/service_conformity_list.html'
     context_object_name = 'conformidades'
     queryset = ServiceConformity.objects.filter(is_active=True).order_by('code')
 
@@ -769,7 +769,7 @@ class ServiceConformityList(ListView):
 
 
 class MovementListByPurchaseOrder(ListView):
-    template_name = 'almacen/movements.html'
+    template_name = 'warehouse/movements.html'
     context_object_name = 'movements'
 
     @method_decorator(requires('almacen.ver_tabla_movimientos'))
@@ -783,7 +783,7 @@ class MovementListByPurchaseOrder(ListView):
 
 
 class ServiceConformityListByServiceOrder(ListView):
-    template_name = 'compras/service_conformity_list.html'
+    template_name = 'purchases/service_conformity_list.html'
     context_object_name = 'conformidades'
 
     @method_decorator(
@@ -800,7 +800,7 @@ class ServiceConformityListByServiceOrder(ListView):
 class SupplierUpdate(UpdateView):
     model = Supplier
     context_object_name = 'supplier'
-    template_name = 'compras/supplier_form.html'
+    template_name = 'purchases/supplier_form.html'
     form_class = SupplierForm
 
     @method_decorator(requires('compras.change_supplier'))
@@ -818,7 +818,7 @@ class SupplierUpdate(UpdateView):
 
 class QuotationUpdate(UpdateView):
     form_class = QuotationForm
-    template_name = "compras/quotation_form.html"
+    template_name = "purchases/quotation_form.html"
     model = Quotation
     context_object_name = 'quotation'
 
@@ -907,7 +907,7 @@ class QuotationUpdate(UpdateView):
 
 
 class ServiceConformityUpdate(UpdateView):
-    template_name = 'compras/service_conformity_form.html'
+    template_name = 'purchases/service_conformity_form.html'
     form_class = ServiceConformityForm
     model = ServiceConformity
 
@@ -956,7 +956,7 @@ class ServiceConformityUpdate(UpdateView):
 
 
 class PurchaseOrderUpdate(UpdateView):
-    template_name = 'compras/purchase_order_form.html'
+    template_name = 'purchases/purchase_order_form.html'
     form_class = PurchaseOrderForm
     model = PurchaseOrder
 
@@ -1093,7 +1093,7 @@ class PurchaseOrderUpdate(UpdateView):
 
 
 class ServiceOrderUpdate(UpdateView):
-    template_name = 'compras/service_order_form.html'
+    template_name = 'purchases/service_order_form.html'
     form_class = ServiceOrderForm
     model = ServiceOrder
 
@@ -1508,7 +1508,7 @@ class SupplierExcelReport(TemplateView):
 
 class ServiceOrderExcelReportByDate(FormView):
     form_class = OrderDateReportForm
-    template_name = "compras/order_report.html"
+    template_name = "purchases/order_report.html"
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1588,7 +1588,7 @@ class ServiceOrderExcelReportByDate(FormView):
 
 class PurchaseOrderExcelReportByDate(FormView):
     form_class = OrderDateReportForm
-    template_name = "compras/order_report.html"
+    template_name = "purchases/order_report.html"
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1667,7 +1667,7 @@ class PurchaseOrderExcelReportByDate(FormView):
 
 
 class QuotationTransfer(TemplateView):
-    template_name = 'compras/quotation_transfer.html'
+    template_name = 'purchases/quotation_transfer.html'
 
     def get_context_data(self, **kwargs):
         context = super(QuotationTransfer, self).get_context_data(**kwargs)
@@ -1676,7 +1676,7 @@ class QuotationTransfer(TemplateView):
 
 
 class PurchaseOrderTransfer(TemplateView):
-    template_name = 'compras/purchase_order_transfer.html'
+    template_name = 'purchases/purchase_order_transfer.html'
 
     def get_context_data(self, **kwargs):
         context = super(PurchaseOrderTransfer, self).get_context_data(**kwargs)
@@ -1686,7 +1686,7 @@ class PurchaseOrderTransfer(TemplateView):
 
 
 class ServiceOrderTransfer(TemplateView):
-    template_name = 'compras/service_order_transfer.html'
+    template_name = 'purchases/service_order_transfer.html'
 
     def get_context_data(self, **kwargs):
         context = super(ServiceOrderTransfer, self).get_context_data(**kwargs)

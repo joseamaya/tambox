@@ -1,0 +1,100 @@
+{% extends "administration/base_administration.html" %} {% block cuerpo %}
+{% if object %}
+<h3>Profesiones / {{ object.description }}</h3>
+{% else %}
+<h3>Profesiones / Nuevo</h3>
+{% endif %}
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'administracion:profession_detail' object.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'administracion:profession_list' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'administracion:profession_update' object.previous %}';">
+                    <span class="glyphicon glyphicon-step-backward"></span>
+                </button>
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'administracion:profession_update' object.next %}';">
+                    <span class="glyphicon glyphicon-step-forward"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'administracion:profession_list' %}';">
+                    <span class="glyphicon glyphicon-th-list"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-lg-7">
+                    <label>Descripción:</label>
+                    {% if form.description.errors %}
+                    {% for error in form.description.errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
+                    <h3>{{ form.description }}</h3>
+                </div>
+                <div class="col-lg-5">
+                    <div class="btn-group"></div>
+                </div>
+            </div>
+            <br>
+            <ul class="nav nav-tabs">
+                <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+                <li><a data-toggle="tab" href="#seguridad">Seguridad</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="general" class="tab-pane fade in active">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>ABREVIATURA:</label>
+                            {% if form.abbreviation.errors %}
+                            {% for error in form.abbreviation.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.abbreviation }}</p>
+                        </div>
+                        <div class="col-lg-4"></div>
+                        <div class="col-lg-4"></div>
+                    </div>
+                </div>
+                <div id="seguridad" class="tab-pane fade">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>USUARIO:</label>
+                            {% if form.user.errors %}
+                            {% for error in form.user.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.user }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}

@@ -91,12 +91,12 @@ class Dashboard(View):
         if inventario_inicial == 0:
             lista_notificaciones.append("No se ha realizado el inventario inicial")
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'almacen/warehouse_dashboard.html', context)
+        return render(request, 'warehouse/warehouse_dashboard.html', context)
 
 
 class OrderApprove(CreateView):
     form_class = OrderApprovalForm
-    template_name = 'almacen/order_approve.html'
+    template_name = 'warehouse/order_approve.html'
     model = Movement
 
     @method_decorator(requires('almacen.aprobar_pedido'))
@@ -229,7 +229,7 @@ class ProductWarehouseSearch(AjaxOnlyMixin, TemplateView):
 
 
 class WarehouseImport(CsvImportMixin, FormView):
-    template_name = 'almacen/warehouse_upload.html'
+    template_name = 'warehouse/warehouse_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('almacen:warehouse_list')
 
@@ -239,7 +239,7 @@ class WarehouseImport(CsvImportMixin, FormView):
 
 
 class InitialInventoryImport(CsvImportMixin, FormView):
-    template_name = 'almacen/initial_stock_upload.html'
+    template_name = 'warehouse/initial_stock_upload.html'
     form_class = InitialInventoryImportForm
 
     def get_datetime(self, r_date, r_hora):
@@ -317,7 +317,7 @@ class InitialInventoryImport(CsvImportMixin, FormView):
 
 
 class MovementTypeCreate(CreateView):
-    template_name = 'almacen/movement_type_form.html'
+    template_name = 'warehouse/movement_type_form.html'
     form_class = MovementTypeForm
     success_url = reverse_lazy('almacen:movement_type_list')
 
@@ -330,7 +330,7 @@ class MovementTypeCreate(CreateView):
 
 
 class WarehouseCreate(FormView):
-    template_name = 'almacen/warehouse_form.html'
+    template_name = 'warehouse/warehouse_form.html'
     form_class = WarehouseForm
     success_url = reverse_lazy('almacen:warehouse_list')
 
@@ -340,7 +340,7 @@ class WarehouseCreate(FormView):
 
 
 '''class OutboundDetailCreate(FormView):
-    template_name = 'almacen/crear_detalle_salida.html'
+    template_name = 'warehouse/crear_detalle_salida.html'
     form_class = MovementDetailForm
     success_url = reverse_lazy('almacen:outbound_detail_create')
     
@@ -441,7 +441,7 @@ class InboundDetailCreate(AjaxOnlyMixin, TemplateView):
 
 
 class OrderCreate(CreateView):
-    template_name = 'almacen/order_form.html'
+    template_name = 'warehouse/order_form.html'
     form_class = OrderForm
     model = Order
     context_object_name = 'order'
@@ -532,24 +532,24 @@ class StockQuery(AjaxOnlyMixin, TemplateView):
 
 class WarehouseDetail(DetailView):
     model = Warehouse
-    template_name = 'almacen/warehouse_detail.html'
+    template_name = 'warehouse/warehouse_detail.html'
 
 
 class MovementTypeDetail(DetailView):
     model = MovementType
-    template_name = 'almacen/movement_type_detail.html'
+    template_name = 'warehouse/movement_type_detail.html'
 
 
 class OrderDetailView(DetailView):
     model = Order
     context_object_name = 'order'
-    template_name = 'almacen/order_detail.html'
+    template_name = 'warehouse/order_detail.html'
 
 
 class MovementDetailView(DetailView):
     model = Movement
     context_object_name = 'movement'
-    template_name = 'almacen/movement_detail.html'
+    template_name = 'warehouse/movement_detail.html'
 
 
 class WarehouseDelete(TemplateView):
@@ -636,7 +636,7 @@ class OrderDelete(TemplateView):
 
 class OrderApprovalList(ListView):
     model = Order
-    template_name = 'almacen/order_list.html'
+    template_name = 'warehouse/order_list.html'
     context_object_name = 'pedidos'
 
     @method_decorator(
@@ -664,21 +664,21 @@ class OrderApprovalList(ListView):
 
 class WarehouseList(ListView):
     model = Warehouse
-    template_name = 'almacen/warehouse_list.html'
+    template_name = 'warehouse/warehouse_list.html'
     context_object_name = 'warehouses'
     queryset = Warehouse.objects.all().order_by('description')
 
 
 class OrderList(ListView):
     model = Order
-    template_name = 'almacen/order_list.html'
+    template_name = 'warehouse/order_list.html'
     context_object_name = 'pedidos'
     queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
 
 
 class MovementTypeList(ListView):
     model = MovementType
-    template_name = 'almacen/movement_type_list.html'
+    template_name = 'warehouse/movement_type_list.html'
     context_object_name = 'movement_types'
     paginate_by = 10
     queryset = MovementType.objects.all().order_by('code')
@@ -686,28 +686,28 @@ class MovementTypeList(ListView):
 
 class MovementList(ListView):
     model = Movement
-    template_name = 'almacen/movements.html'
+    template_name = 'warehouse/movements.html'
     context_object_name = 'movements'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT)
 
 
 class InboundList(ListView):
     model = Movement
-    template_name = 'almacen/entry_list.html'
+    template_name = 'warehouse/entry_list.html'
     context_object_name = 'movements'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=True)
 
 
 class OutboundList(ListView):
     model = Movement
-    template_name = 'almacen/exit_list.html'
+    template_name = 'warehouse/exit_list.html'
     context_object_name = 'movements'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=False)
 
 
 class MovementListByOrder(ListView):
     model = Movement
-    template_name = 'almacen/movements.html'
+    template_name = 'warehouse/movements.html'
     context_object_name = 'movements'
 
     @method_decorator(requires('almacen.ver_tabla_movimientos'))
@@ -739,7 +739,7 @@ class MovementUpdate(TemplateView):
 
 
 class InboundUpdate(UpdateView):
-    template_name = 'almacen/warehouse_entry.html'
+    template_name = 'warehouse/warehouse_entry.html'
     form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
@@ -868,7 +868,7 @@ class InboundUpdate(UpdateView):
 
 
 class OutboundUpdate(UpdateView):
-    template_name = 'almacen/warehouse_exit.html'
+    template_name = 'warehouse/warehouse_exit.html'
     form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
@@ -985,13 +985,13 @@ class OutboundUpdate(UpdateView):
 
 class WarehouseUpdate(UpdateView):
     model = Warehouse
-    template_name = 'almacen/warehouse_form.html'
+    template_name = 'warehouse/warehouse_form.html'
     form_class = WarehouseForm
     success_url = reverse_lazy('almacen:warehouse_list')
 
 
 class OrderUpdate(UpdateView):
-    template_name = 'almacen/order_form.html'
+    template_name = 'warehouse/order_form.html'
     form_class = OrderForm
     model = Order
     context_object_name = 'order'
@@ -1081,7 +1081,7 @@ class OrderUpdate(UpdateView):
 
 
 class MovementListByProduct(FormView):
-    template_name = 'almacen/movements_by_product.html'
+    template_name = 'warehouse/movements_by_product.html'
     form_class = ProductMovementForm
 
     def form_valid(self, form):
@@ -1140,7 +1140,7 @@ class MovementListByProduct(FormView):
 
 
 class InboundCreate(CreateView):
-    template_name = 'almacen/warehouse_entry.html'
+    template_name = 'warehouse/warehouse_entry.html'
     form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
@@ -1227,7 +1227,7 @@ class InboundCreate(CreateView):
 
 class OutboundCreate(CreateView):
     form_class = MovementForm
-    template_name = "almacen/warehouse_exit.html"
+    template_name = "warehouse/warehouse_exit.html"
     model = Movement
     context_object_name = 'movement'
 
@@ -1361,7 +1361,7 @@ class ReportResponseMixin(object):
 
 
 class KardexProductReport(ReportResponseMixin, FormView):
-    template_name = 'almacen/product_kardex_report.html'
+    template_name = 'warehouse/product_kardex_report.html'
     form_class = KardexProductForm
 
     REPORTES_EXCEL = {
@@ -1404,7 +1404,7 @@ class KardexProductReport(ReportResponseMixin, FormView):
 
 
 class KardexReport(ReportResponseMixin, FormView):
-    template_name = 'almacen/kardex_report.html'
+    template_name = 'warehouse/kardex_report.html'
     form_class = KardexProductForm
 
     def form_valid(self, form):
@@ -1458,7 +1458,7 @@ class KardexReport(ReportResponseMixin, FormView):
 
 
 class PriceReprocess(FormView):
-    template_name = 'almacen/price_reprocess.html'
+    template_name = 'warehouse/price_reprocess.html'
     form_class = PriceReprocessForm
 
     def reprocess_product_price(self, product, warehouse, start_date):
@@ -1511,7 +1511,7 @@ class PriceReprocess(FormView):
 
 class ProductStock(FormView):
     form_class = StockQueryForm
-    template_name = 'almacen/product_stock.html'
+    template_name = 'warehouse/product_stock.html'
 
     def get_initial(self):
         initial = super(ProductStock, self).get_initial()
@@ -1606,7 +1606,7 @@ class ProductStockList(AjaxOnlyMixin, TemplateView):
 
 class MovementExcelReport(FormView):
     form_class = MovementReportForm
-    template_name = "almacen/movement_report.html"
+    template_name = "warehouse/movement_report.html"
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1880,7 +1880,7 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
 
 class Inventory(ReportResponseMixin, FormView):
     form_class = InventoryQueryForm
-    template_name = 'almacen/inventory.html'
+    template_name = 'warehouse/inventory.html'
 
     def get_initial(self):
         initial = super(Inventory, self).get_initial()

@@ -38,12 +38,12 @@ class Dashboard(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'requerimientos/requirements_dashboard.html', context)
+        return render(request, 'requirements/requirements_dashboard.html', context)
 
 
 class RequirementApprove(UpdateView):
     model = RequirementApproval
-    template_name = 'requerimientos/requirement_approve.html'
+    template_name = 'requirements/requirement_approve.html'
     form_class = RequirementApprovalForm
     success_url = reverse_lazy('requerimientos:requirement_approval_list')
 
@@ -95,7 +95,7 @@ class RequirementDetailCreate(AjaxOnlyMixin, FormView):
 
 
 class RequirementCreate(CreateView):
-    template_name = 'requerimientos/requirement_form.html'
+    template_name = 'requirements/requirement_form.html'
     form_class = RequirementForm
     model = Requirement
     context_object_name = 'requirement'
@@ -189,7 +189,7 @@ class RequirementDetailView(DetailView):
     context_object_name = 'requirement'
     slug_field = 'code'
     slug_url_kwarg = 'code'
-    template_name = 'requerimientos/requirement_detail.html'
+    template_name = 'requirements/requirement_detail.html'
 
     @method_decorator(
         requires('requerimientos.ver_detalle_requerimiento'))
@@ -229,7 +229,7 @@ class RequirementDelete(TemplateView):
 
 class RequirementApprovalList(ListView):
     model = RequirementApproval
-    template_name = 'requerimientos/requirement_approval_list.html'
+    template_name = 'requirements/requirement_approval_list.html'
     context_object_name = 'requirement_approvals'
 
     @method_decorator(
@@ -257,7 +257,7 @@ class RequirementApprovalList(ListView):
 
 class QuotationListByRequirement(ListView):
     model = Quotation
-    template_name = 'compras/quotation_list.html'
+    template_name = 'purchases/quotation_list.html'
     context_object_name = 'quotations'
 
     @method_decorator(requires('compras.ver_tabla_cotizaciones'))
@@ -272,7 +272,7 @@ class QuotationListByRequirement(ListView):
 
 class RequirementList(ListView):
     model = Requirement
-    template_name = 'requerimientos/requirement_list.html'
+    template_name = 'requirements/requirement_list.html'
     context_object_name = 'requerimientos'
 
     def get_queryset(self):
@@ -287,7 +287,7 @@ class RequirementList(ListView):
 
 
 class RequirementUpdate(UpdateView):
-    template_name = 'requerimientos/requirement_form.html'
+    template_name = 'requirements/requirement_form.html'
     model = Requirement
     context_object_name = 'requirement'
     form_class = RequirementForm
@@ -429,7 +429,7 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
 
 
 class RequirementTransfer(TemplateView):
-    template_name = 'requerimientos/requirement_transfer.html'
+    template_name = 'requirements/requirement_transfer.html'
 
     def get_context_data(self, **kwargs):
         context = super(RequirementTransfer, self).get_context_data(**kwargs)

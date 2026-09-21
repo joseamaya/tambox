@@ -1,0 +1,117 @@
+{% extends "accounting/base_accounting.html" %}
+{% block cuerpo %}
+<h3>Formas de Pago</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.contabilidad.add_paymentmethod %}
+        <a href="{% url 'contabilidad:payment_method_create' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.contabilidad.cargar_formas_pago %}
+        <a href="#" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.contabilidad.ver_reporte_formas_pago_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'contabilidad:payment_method_excel_report' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="table" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">DESCRIPCION</th>
+                <th class="text-center">DÍAS DE CRÉDITO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for payment_method in payment_methods %}
+            {% if perms.almacen.ver_detalle_tipo_movimiento %}
+            <tr onclick="location.href='{% url 'contabilidad:payment_method_detail' payment_method.pk %}';">
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ payment_method.code }}</td>
+                <td>{{ payment_method.description }}</td>
+                <td>{{ payment_method.credit_days }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#table').DataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	}); 
+    
+    $(document).on("click",".eliminar",function()
+	{
+		borrarSeleccionado = $(this);		
+		ventana = $( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons: 
+		  {
+			"Borrar": borrarFormaPago,
+		    "Cancelar": cerrarBorrarFormaPago
+		  }
+		});		
+	});
+	   
+	function borrarFormaPago()
+	{
+	   	var id_boton= $(borrarSeleccionado).prop('id');
+	   	var code = id_boton.replace("elim_","");
+	   	$.ajax({
+	   		data : {'code': code},
+	   		url : "{% url 'contabilidad:payment_method_delete' %}",
+	   		type : 'post',
+	   		success : function(data)
+	   		{
+	   			if(data.relaciones=='NO')
+	   			{
+	   				alert("Forma de Pago "+data.description+ " eliminado");
+	   				table.row('.selected').remove().draw(false);
+	   			}
+	   			else if(data.relaciones=='SI')
+	   			{
+	   				alert("Forma de Pago "+data.description+" no puede eliminarse");	
+	   			}    			
+	   		}
+	   	});
+		ventana.dialog("close");
+	}
+	   
+	function cerrarBorrarFormaPago()
+	{
+		ventana.dialog("close");
+	}
+});
+
+</script>
+{% endblock js %}

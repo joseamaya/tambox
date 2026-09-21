@@ -1,0 +1,115 @@
+{% extends "administration/base_administration.html" %}
+{% block cuerpo %}
+<h3>Oficinas</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.administracion.add_office %}
+        <a onclick="return abrir_modal('{% url 'administracion:office_create' %}','Oficinas / Nuevo')"
+           class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.administracion.cargar_oficinas %}
+        <a href="{% url 'administracion:office_import' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.administracion.ver_reporte_oficinas_excel %}
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'administracion:office_excel_report' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="table" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">CODIGO</th>
+                <th class="text-center">NOMBRE</th>
+                <th class="text-center">DEPENDENCIA</th>
+                <th class="text-center">ACCION</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for office in offices %}
+            {% if perms.administracion.ver_detalle_oficina %}
+            <tr>
+                {% else %}
+            <tr>
+                {% endif %}
+                <td>{{ office.code }}</td>
+                <td>{{ office.name }}</td>
+                {% if office.dependency %}
+                <td>{{ office.dependency }}</td>
+                {% else %}
+                <td>NINGUNA</td>
+                {% endif %}
+                <td class="text-center">
+                    {% if perms.administracion.ver_detalle_oficina %}
+                    <a onclick="return abrir_modal('{% url 'administracion:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
+                       class="btn">
+                        <span class="glyphicon glyphicon-eye-open"></span>
+                    </a>
+                    {% endif %}
+                    {% if perms.administracion.change_office %}
+                    <a onclick="return abrir_modal('{% url 'administracion:office_update' office.pk %}','Oficinas / {{ office.name }}')"
+                       class="btn">
+                        <span class="glyphicon glyphicon-edit"></span>
+                    </a>
+                    {% endif %}
+                    {% if perms.administracion.delete_office %}
+                    <a onclick="return abrir_modal('{% url 'administracion:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
+                       class="btn">
+                        <span class="glyphicon glyphicon-remove"></span>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="popup"></div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#table').dataTable( 
+    {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        },        
+    });
+
+});
+
+var modal;
+function abrir_modal(url, titulo)
+{
+	modal = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+}
+
+function cerrar_modal()
+{
+	modal.dialog("close");
+}
+
+</script>
+{% endblock js %}

@@ -1,0 +1,67 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Pedidos</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.almacen.add_order %}
+        <a href="{% url 'almacen:order_create' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.almacen.cargar_pedidos %}
+        <a href="#" class="btn btn-default">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.almacen.ver_reporte_pedidos_excel %}
+            <button class="btn btn-default" type="button"
+            ">
+            <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="table" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">PEDIDO</th>
+                <th class="text-center">OFICINA</th>
+                <th class="text-center">FEC OPERACION</th>
+                <th class="text-center">ESTADO</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in pedidos %}
+            <tr onclick="location.href='{% url 'almacen:order_detail' order.pk %}';">
+                <td>{{ order.code }}</td>
+                <td>{{ order.office }}</td>
+                <td>{{ order.date|date:"d/m/y" }}</td>
+                <td>{{ order.get_status_display }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#table').DataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	});
+});
+
+</script>
+{% endblock js %}

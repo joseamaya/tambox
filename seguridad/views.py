@@ -15,11 +15,11 @@ from django.utils.decorators import method_decorator
 class Home(View):
 
     def get(self, request, *args, **kwargs):
-        return render(request, 'seguridad/welcome.html')
+        return render(request, 'security/welcome.html')
 
 
 class Login(FormView):
-    template_name = 'seguridad/login.html'
+    template_name = 'security/login.html'
     form_class = LoginForm
     success_url = reverse_lazy("seguridad:home")
 
@@ -38,7 +38,7 @@ class Login(FormView):
 
 
 class PasswordUpdate(FormView):
-    template_name = 'seguridad/change_password.html'
+    template_name = 'security/change_password.html'
     form_class = PasswordChangeForm
     success_url = reverse_lazy("seguridad:login")
 
@@ -49,7 +49,7 @@ class PasswordUpdate(FormView):
 
 
 class PermissionDeniedView(TemplateView):
-    template_name = 'seguridad/permission_denied.html'
+    template_name = 'security/permission_denied.html'
 
 
 def permission_denied(request, exception=None):
@@ -59,4 +59,4 @@ def permission_denied(request, exception=None):
     HTTP correcto: cuando la denegacion era un redirect a esa vista, la respuesta
     final era un 200 y ni un monitor ni un test podian distinguirla de un exito.
     """
-    return render(request, 'seguridad/permission_denied.html', status=403)
+    return render(request, 'security/permission_denied.html', status=403)

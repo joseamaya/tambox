@@ -1,0 +1,86 @@
+{% extends "administration/base_administration.html" %}
+{% block cuerpo %}
+<h3>Productores</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.administracion.add_producer %}
+        <a href="{% url 'administracion:producer_create' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+        {% if perms.administracion.cargar_productores %}
+        <a href="{% url 'administracion:producer_import' %}" class="btn btn-default">
+            Importar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            {% if perms.administracion.ver_reporte_productores_excel %}
+            <button class="btn btn-default" type="button">
+                <span class="glyphicon glyphicon-list-alt"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-lg-12">
+        <table id="table" class="display" cellspacing="0" width="100%">
+            <thead>
+            <tr>
+                <th class="text-center">DNI</th>
+                <th class="text-center">APELLIDOS</th>
+                <th class="text-center">NOMBRE</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for producer in productores %}
+            {% if perms.administracion.ver_detalle_productor %}
+            <tr onclick="return abrir_modal('{% url 'administracion:producer_detail' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
+                {% else %}
+            <tr onclick=" return alert('wexd0');">
+                {% endif %}
+                <td>{{ producer.dni }}</td>
+                <td>{{ producer.last_name }}</td>
+                <td>{{ producer.first_name }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div id="popup"></div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$(document).ready(function() 
+{	
+    var table = $('#table').dataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	}); 
+    
+});
+function abrir_modal(url, titulo)
+{
+	ventana_transferencia = $('#popup').dialog(
+	{
+		title: titulo,
+		modal: true,
+		width: 1000,
+		resizable: false,
+		position: { my: "center", at: "center", of: "#page-wrapper"}
+	}).dialog('open').load(url)
+
+}
+
+</script>
+{% endblock js %}

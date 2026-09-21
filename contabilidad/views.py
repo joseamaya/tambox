@@ -34,11 +34,11 @@ class Dashboard(View):
         if account_count == 0:
             lista_notificaciones.append("No se ha creado ninguna cuenta contable")
         context = {'notificaciones': lista_notificaciones}
-        return render(request, 'contabilidad/accounting_dashboard.html', context)
+        return render(request, 'accounting/accounting_dashboard.html', context)
 
 
 class AccountImport(CsvImportMixin, FormView):
-    template_name = 'contabilidad/account_upload.html'
+    template_name = 'accounting/account_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:account_list')
 
@@ -48,7 +48,7 @@ class AccountImport(CsvImportMixin, FormView):
 
 
 class StockTypeImport(CsvImportMixin, FormView):
-    template_name = 'contabilidad/stock_type_upload.html'
+    template_name = 'accounting/stock_type_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:stock_type_list')
 
@@ -58,7 +58,7 @@ class StockTypeImport(CsvImportMixin, FormView):
 
 
 class DocumentTypeImport(CsvImportMixin, FormView):
-    template_name = 'contabilidad/document_type_upload.html'
+    template_name = 'accounting/document_type_upload.html'
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:document_type_list')
 
@@ -70,7 +70,7 @@ class DocumentTypeImport(CsvImportMixin, FormView):
 
 class PaymentMethodCreate(CreateView):
     model = PaymentMethod
-    template_name = 'contabilidad/payment_method_form.html'
+    template_name = 'accounting/payment_method_form.html'
     form_class = PaymentMethodForm
 
     @method_decorator(requires('contabilidad.add_paymentmethod'))
@@ -83,7 +83,7 @@ class PaymentMethodCreate(CreateView):
 
 class DocumentTypeCreate(CreateView):
     model = DocumentType
-    template_name = 'contabilidad/document_type_form.html'
+    template_name = 'accounting/document_type_form.html'
     form_class = DocumentTypeForm
 
     @method_decorator(requires('contabilidad.add_documenttype'))
@@ -96,7 +96,7 @@ class DocumentTypeCreate(CreateView):
 
 class ExchangeRateCreate(CreateView):
     model = ExchangeRate
-    template_name = 'contabilidad/exchange_rate_form.html'
+    template_name = 'accounting/exchange_rate_form.html'
     form_class = ExchangeRateForm
 
     @method_decorator(requires('contabilidad.add_exchangerate'))
@@ -109,7 +109,7 @@ class ExchangeRateCreate(CreateView):
 
 class AccountCreate(CreateView):
     model = Account
-    template_name = 'contabilidad/account_form.html'
+    template_name = 'accounting/account_form.html'
     form_class = AccountForm
 
     @method_decorator(
@@ -123,7 +123,7 @@ class AccountCreate(CreateView):
 
 class TaxCreate(CreateView):
     model = Tax
-    template_name = 'contabilidad/tax_form.html'
+    template_name = 'accounting/tax_form.html'
     form_class = TaxForm
 
     @method_decorator(requires('contabilidad.add_tax'))
@@ -136,7 +136,7 @@ class TaxCreate(CreateView):
 
 class ConfigurationCreate(CreateView):
     model = Configuration
-    template_name = 'contabilidad/configuration.html'
+    template_name = 'accounting/configuration.html'
     form_class = ConfigurationForm
 
     @method_decorator(requires('contabilidad.add_configuration'))
@@ -157,32 +157,32 @@ class ConfigurationCreate(CreateView):
 
 class ExchangeRateDetail(DetailView):
     model = ExchangeRate
-    template_name = 'contabilidad/exchange_rate_detail.html'
+    template_name = 'accounting/exchange_rate_detail.html'
 
 
 class DocumentTypeDetail(DetailView):
     model = DocumentType
-    template_name = 'contabilidad/document_type_detail.html'
+    template_name = 'accounting/document_type_detail.html'
 
 
 class AccountDetail(DetailView):
     model = Account
-    template_name = 'contabilidad/account_detail.html'
+    template_name = 'accounting/account_detail.html'
 
 
 class TaxDetail(DetailView):
     model = Tax
-    template_name = 'contabilidad/tax_detail.html'
+    template_name = 'accounting/tax_detail.html'
 
 
 class CompanyDetail(DetailView):
     model = Company
-    template_name = 'contabilidad/company_detail.html'
+    template_name = 'accounting/company_detail.html'
 
 
 class PaymentMethodDetail(DetailView):
     model = PaymentMethod
-    template_name = 'contabilidad/payment_method_detail.html'
+    template_name = 'accounting/payment_method_detail.html'
 
 
 class PaymentMethodDelete(TemplateView):
@@ -237,7 +237,7 @@ class DocumentTypeDelete(TemplateView):
 
 class DocumentTypeList(ListView):
     model = DocumentType
-    template_name = 'contabilidad/document_type_list.html'
+    template_name = 'accounting/document_type_list.html'
     context_object_name = 'types'
     queryset = DocumentType.objects.filter(is_active=True).order_by('name')
 
@@ -249,7 +249,7 @@ class DocumentTypeList(ListView):
 
 class ExchangeRateList(ListView):
     model = ExchangeRate
-    template_name = 'contabilidad/exchange_rate_list.html'
+    template_name = 'accounting/exchange_rate_list.html'
     context_object_name = 'types'
 
     @method_decorator(
@@ -260,7 +260,7 @@ class ExchangeRateList(ListView):
 
 class AccountList(ListView):
     model = Account
-    template_name = 'contabilidad/account_list.html'
+    template_name = 'accounting/account_list.html'
     context_object_name = 'chart_of_accounts'
     queryset = Account.objects.all().order_by('account_number')
 
@@ -272,7 +272,7 @@ class AccountList(ListView):
 
 class StockTypeList(ListView):
     model = StockType
-    template_name = 'contabilidad/stock_type_list.html'
+    template_name = 'accounting/stock_type_list.html'
     context_object_name = 'tipos_existencias'
     queryset = StockType.objects.all().order_by('sunat_code')
 
@@ -284,7 +284,7 @@ class StockTypeList(ListView):
 
 class PaymentMethodList(ListView):
     model = PaymentMethod
-    template_name = 'contabilidad/payment_method_list.html'
+    template_name = 'accounting/payment_method_list.html'
     context_object_name = 'payment_methods'
     paginate_by = 10
     queryset = PaymentMethod.objects.order_by('code')
@@ -296,7 +296,7 @@ class PaymentMethodList(ListView):
 
 class TaxList(ListView):
     model = Tax
-    template_name = 'contabilidad/tax_list.html'
+    template_name = 'accounting/tax_list.html'
     context_object_name = 'impuestos'
 
     @method_decorator(
@@ -307,7 +307,7 @@ class TaxList(ListView):
 
 class PaymentMethodUpdate(UpdateView):
     model = PaymentMethod
-    template_name = 'contabilidad/payment_method_form.html'
+    template_name = 'accounting/payment_method_form.html'
     form_class = PaymentMethodForm
 
     @method_decorator(requires('contabilidad.change_paymentmethod'))
@@ -320,7 +320,7 @@ class PaymentMethodUpdate(UpdateView):
 
 class ExchangeRateUpdate(UpdateView):
     model = ExchangeRate
-    template_name = 'contabilidad/exchange_rate_form.html'
+    template_name = 'accounting/exchange_rate_form.html'
     form_class = ExchangeRateForm
 
     @method_decorator(requires('contabilidad.change_exchangerate'))
@@ -333,7 +333,7 @@ class ExchangeRateUpdate(UpdateView):
 
 class DocumentTypeUpdate(UpdateView):
     model = DocumentType
-    template_name = 'contabilidad/document_type_form.html'
+    template_name = 'accounting/document_type_form.html'
     form_class = DocumentTypeForm
 
     @method_decorator(
@@ -347,7 +347,7 @@ class DocumentTypeUpdate(UpdateView):
 
 class AccountUpdate(UpdateView):
     model = Account
-    template_name = 'contabilidad/account_form.html'
+    template_name = 'accounting/account_form.html'
     form_class = AccountForm
 
     @method_decorator(
@@ -361,7 +361,7 @@ class AccountUpdate(UpdateView):
 
 class ConfigurationUpdate(UpdateView):
     model = Configuration
-    template_name = 'contabilidad/configuration.html'
+    template_name = 'accounting/configuration.html'
     form_class = ConfigurationForm
 
     @method_decorator(
@@ -375,7 +375,7 @@ class ConfigurationUpdate(UpdateView):
 
 class TaxUpdate(UpdateView):
     model = Tax
-    template_name = 'contabilidad/tax_form.html'
+    template_name = 'accounting/tax_form.html'
     form_class = TaxForm
 
     @method_decorator(requires('contabilidad.change_tax'))

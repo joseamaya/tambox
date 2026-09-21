@@ -1,0 +1,117 @@
+{% extends "purchases/base_purchases.html" %}
+{% block cuerpo %}
+<h3>Unidades de Medida</h1>
+    <div class="row">
+        <div class="col-lg-10">
+            {% if perms.productos.add_unitofmeasure %}
+            <a href="{% url 'productos:unit_of_measure_create' %}" class="btn btn-primary">
+                Crear
+            </a>
+            {% endif %}
+            {% if perms.productos.cargar_unidades_medida %}
+            <a href="#" class="btn btn-default">
+                Importar
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-right">
+            <div class="btn-group">
+                {% if perms.productos.ver_reporte_unidades_medida_excel %}
+                <button class="btn btn-default" type="button"
+                        onclick="location.href='{% url 'productos:unit_of_measure_excel_report' %}';">
+                    <span class="glyphicon glyphicon-list-alt"></span>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="row">
+        <div class="col-lg-12">
+            <table id="table" class="display" cellspacing="0" width="100%">
+                <thead>
+                <tr>
+                    <th class="text-center">UNIDAD</th>
+                    <th class="text-center">CODIGO SUNAT</th>
+                    <th class="text-center">DESCRIPCION</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for unit in units %}
+                {% if perms.productos.ver_detalle_unidad_medida %}
+                <tr onclick="location.href='{% url 'productos:unit_of_measure_detail' unit.pk %}';">
+                    {% else %}
+                <tr>
+                    {% endif %}
+                    <td>{{ unit.code }}</td>
+                    <td>{{ unit.sunat_code }}</td>
+                    <td>{{ unit.description }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock cuerpo %}
+    {% block js %}
+    <script>
+$(document).ready(function() 
+{	
+    var table = $('#table').dataTable( {
+        "language": {
+        	url: "/static/localizacion/es_ES.json"
+        }
+    } );
+ 
+    $('#tabla tr').hover(function() 
+	{
+		$(this).css("cursor","pointer");
+	});
+    
+    $(document).on("click",".eliminar",function()
+	{
+		borrarSeleccionado = $(this);		
+		ventana = $( "#dialog-confirm" ).dialog({
+		  resizable: false,
+		  height:140,
+		  modal: true,
+		  buttons: 
+		  {
+			"Borrar": borrarUnidad,
+		    "Cancelar": cerrarBorrarUnidad
+		  }
+		});		
+	});
+	   
+	function borrarUnidad()
+	{
+	   	var id_boton= $(borrarSeleccionado).prop('id');
+	   	var id = id_boton.replace("elim_","");
+	   	$.ajax({
+	   		data : {'id': id},
+	   		url : "{% url 'productos:unit_of_measure_delete' %}",
+	   		type : 'post',
+	   		success : function(data)
+	   		{
+	   			if(data.productos=='NO')
+	   			{
+	   				alert("Unidad de Medida "+data.unit+ " eliminada");
+	   				table.row('.selected').remove().draw(false);
+	   			}
+	   			else if(data.productos=='SI')
+	   			{
+	   				alert("La unit "+data.unit+" no puede eliminarse");	
+	   			}    			
+	   		}
+	   	});
+		ventana.dialog("close");
+	}
+	   
+	function cerrarBorrarUnidad()
+	{
+		ventana.dialog("close");
+	}
+});
+
+    </script>
+    {% endblock js %}

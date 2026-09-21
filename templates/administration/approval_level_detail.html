@@ -1,0 +1,82 @@
+{% extends "administration/base_administration.html" %}
+{% block cuerpo %}
+<h3>Nivel Aprobación / {{ object.description }}</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.administracion.change_approvallevel %}
+        <a class="btn btn-primary" href="{% url 'administracion:approval_level_update' object.pk %}">Editar </a>
+        {% endif %}
+        {% if perms.administracion.delete_approvallevel %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">
+            Eliminar
+        </button>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-right">
+        <div class="btn-group">
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'administracion:approval_level_detail' object.previous %}';">
+                <span class="glyphicon glyphicon-step-backward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'administracion:approval_level_detail' object.next %}';">
+                <span class="glyphicon glyphicon-step-forward"></span>
+            </button>
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'administracion:approval_level_list' %}';">
+                <span class="glyphicon glyphicon-th-list"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<hr/>
+<div id="dialog-confirm" title="Eliminar Nivel Aprobacion"></div>
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>{{ object.description }}</h3>
+            </div>
+            <div class="col-lg-5">
+                <div class="btn-group"></div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade in active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>OFICINA:</label>
+                        <p>{{ object.office }}</p>
+                        <label>LEVEL SUPERIOR:</label>
+                        <p>{{ object.superior_level }}</p>
+                        <label>APROBACION:</label>
+                        <p>{{ object.approvals }}</p>
+                    </div>
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label>
+                        {% if object.status %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock cuerpo %} {% block js %}
+<script>
+</script>
+{% endblock js %}

@@ -1,0 +1,53 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Movimientos / Reporte por Fechas</h3>
+<form action="{% url 'almacen:movement_report' %}" method="post" role="form">
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$("#id_start_date").datepicker();
+$("#id_end_date").datepicker();
+$("input[name=search_type]").change(function () 
+{	 
+	if($(this).val()=='F')
+	{
+		$("#id_start_date").attr("disabled",false);
+		$("#id_end_date").attr("disabled",false);
+		$("#id_month").attr("disabled",true);
+		$("#id_year").attr("disabled",true);
+	}
+	else if($(this).val()=='M')
+	{
+		$("#id_start_date").attr("disabled",true);
+		$("#id_end_date").attr("disabled",true);
+		$("#id_month").attr("disabled",false);
+		$("#id_year").attr("disabled",false);	
+	}
+	else if($(this).val()=='A')
+	{
+		$("#id_start_date").attr("disabled",true);
+		$("#id_end_date").attr("disabled",true);
+		$("#id_month").attr("disabled",true);
+		$("#id_year").attr("disabled",false);	
+	}
+});	 
+
+
+</script>
+{% endblock js %}

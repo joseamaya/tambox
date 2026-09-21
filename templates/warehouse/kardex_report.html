@@ -1,0 +1,107 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Kardex</h3>
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.warehouses.errors %}
+                        {% for error in form.warehouses.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.warehouses }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Desde:</label>
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.start_date }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Hasta:</label>
+                        {% if form.end_date.errors %}
+                        {% for error in form.start_date.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.end_date }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">CONSOLIDADO : </label>
+                        {% if form.consolidated.errors %}
+                        {% for error in form.consolidated.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.consolidated }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">FORMATO PARA SUNAT: </label>
+                        {% if form.sunat_format.errors %}
+                        {% for error in form.sunat_format.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.sunat_format }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">ESCOJA EL FORMATO: </label>
+                        {% if form.formats.errors %}
+                        {% for error in form.formats.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.formats }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+$("#id_start_date").datepicker();
+$("#id_end_date").datepicker();
+$("input[name='sunat_format']").change(function() {
+    if(this.checked)
+    {
+        $("input[name='consolidated']").attr("disabled", true);
+    }
+});
+$("input[name='consolidated']").change(function() {
+    if(this.checked)
+    {
+        $("input[name='sunat_format']").attr("disabled", true);
+    }
+});
+
+
+</script>
+{% endblock js %}
