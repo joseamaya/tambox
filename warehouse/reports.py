@@ -414,7 +414,7 @@ class KardexPdfReport():
         detail_table.setStyle(style)
         return detail_table
 
-    def consolidated_product_detail_table(self, productos):
+    def consolidated_product_detail_table(self, products):
         warehouse = self.warehouse
         start_date = self.start_date
         end_date = self.end_date
@@ -434,10 +434,10 @@ class KardexPdfReport():
         total_out_amount = 0
         total_total_quantity = 0
         total_total_amount = 0
-        self.total_pages = int(math.ceil(productos.count() / 22.0))
-        iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
-        for product in productos:
+        self.total_pages = int(math.ceil(products.count() / 22.0))
+        iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
+        for product in products:
             try:
                 kardex_inicial = iniciales.get(product.pk)
                 opening_quantity = kardex_inicial.total_quantity
@@ -540,9 +540,9 @@ class KardexPdfReport():
         for group in groups:
             opening_quantity = 0
             opening_amount = 0
-            productos = Product.objects.filter(product_group=group)
-            iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-            for product in productos:
+            products = Product.objects.filter(product_group=group)
+            iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+            for product in products:
                 try:
                     kardex_inicial = iniciales.get(product.pk)
                     opening_quantity_product = kardex_inicial.total_quantity
@@ -876,11 +876,11 @@ class KardexPdfReport():
         elements = []
         product_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
             'product').distinct()
-        productos = Product.objects.filter(pk__in=product_kardex).order_by(
+        products = Product.objects.filter(pk__in=product_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
-        for product in productos:
+        self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
+        for product in products:
             periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
@@ -932,8 +932,8 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos = Product.objects.all().order_by('description')
-        elements.append(self.consolidated_product_detail_table(productos))
+        products = Product.objects.all().order_by('description')
+        elements.append(self.consolidated_product_detail_table(products))
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
         buffer.close()
@@ -1040,11 +1040,11 @@ class KardexPdfReport():
         elements = []
         product_kardex = Kardex.objects.exclude(in_quantity=0,
                                                   out_quantity=0).order_by().values('product').distinct()
-        productos = Product.objects.filter(pk__in=product_kardex).order_by(
+        products = Product.objects.filter(pk__in=product_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
-        for product in productos:
+        self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
+        for product in products:
             periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
             elements.append(periodo)
@@ -1700,10 +1700,10 @@ class KardexExcelReport():
         return ws
 
     def get_sunat_physical_units_all(self, start_date, end_date, warehouse):
-        productos = Product.objects.all().order_by('description').select_related(
+        products = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1711,7 +1711,7 @@ class KardexExcelReport():
                              top=Side(style='thin'),
                              bottom=Side(style='thin'))
         cont = 1
-        for product in productos:
+        for product in products:
             ws.title = product.code
             self.get_sunat_physical_units_excel_by_product(ws, thin_border, cont, product, start_date,
                                                                            end_date, warehouse)
@@ -1943,10 +1943,10 @@ class KardexExcelReport():
         return ws
 
     def get_sunat_valued_all(self, start_date, end_date, warehouse):
-        productos = Product.objects.all().order_by('description').select_related(
+        products = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1954,7 +1954,7 @@ class KardexExcelReport():
                              top=Side(style='thin'),
                              bottom=Side(style='thin'))
         cont = 1
-        for product in productos:
+        for product in products:
             ws.title = product.code
             self.get_sunat_valued_excel_by_product(ws, thin_border, cont, product, start_date, end_date,
                                                                      warehouse)
@@ -2057,7 +2057,7 @@ class KardexExcelReport():
         return wb
 
     def get_consolidated_products(self, start_date, end_date, warehouse):
-        productos = Product.objects.all().order_by('description')
+        products = Product.objects.all().order_by('description')
         wb = Workbook()
         thin_border = Border(left=Side(style='thin'),
                              right=Side(style='thin'),
@@ -2099,9 +2099,9 @@ class KardexExcelReport():
         ws['J3'].border = thin_border
         ws['K3'].border = thin_border
         cont = 4
-        iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
-        for product in productos:
+        iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
+        for product in products:
             ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = product.description
@@ -2145,7 +2145,7 @@ class KardexExcelReport():
         return wb
 
     def get_normal_format_all(self, start_date, end_date, warehouse):
-        productos = (Kardex.objects.filter(warehouse=warehouse).order_by('product')
+        products = (Kardex.objects.filter(warehouse=warehouse).order_by('product')
                      .distinct('product__code')
                      .select_related('product__unit_of_measure'))
         wb = Workbook()
@@ -2167,11 +2167,11 @@ class KardexExcelReport():
         ws['L3'] = 'PRE. TOT'
         ws['M3'] = 'VALOR. TOT'
         cont = 4
-        last_records = Kardex.last_by_product([product.product_id for product in productos],
+        last_records = Kardex.last_by_product([product.product_id for product in products],
                                               before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch([product.product_id for product in productos],
+        self.kardex_batch = Product.kardex_by_batch([product.product_id for product in products],
                                                     warehouse, start_date, end_date)
-        for product in productos:
+        for product in products:
             product = product.product
             ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
             ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
@@ -2334,12 +2334,12 @@ def inventory_report(start_date):
     inventory_summary = []
     for product_group in product_group:
 
-        productos = list(Product.objects.filter(product_group=product_group)
+        products = list(Product.objects.filter(product_group=product_group)
                          .select_related('unit_of_measure'))
         bandera = " "
         temp_account = ""
 
-        if productos:
+        if products:
             amount_sum = 0
             ws['A' + str(cont)].alignment = Alignment(horizontal="center")
             ws.merge_cells('A' + str(cont) + ':H' + str(cont))
@@ -2347,8 +2347,8 @@ def inventory_report(start_date):
             ws.cell(row=cont, column=1).value = product_group.description
             bandera = product_group.description
             cont += 2
-            last_records = Kardex.last_by_product(productos)
-            for product in productos:
+            last_records = Kardex.last_by_product(products)
+            for product in products:
                 try:
                     kardex = last_records.get(product.pk)
                     code = kardex.product.code

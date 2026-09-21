@@ -1,5 +1,5 @@
 from django.contrib import admin
-from warehouse.models import Warehouse, MovementType, WarehouseProductControl, \
+from warehouse.models import Warehouse, MovementType, WarehouseProductControl,\
     Kardex, Movement, MovementDetail
 from products.models import Product
 from import_export import resources

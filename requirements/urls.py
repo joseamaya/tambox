@@ -1,9 +1,9 @@
 from django.urls import re_path
-from requirements.views import RequirementApprove, RequirementList, \
-    QuotationListByRequirement, RequirementApprovalList, \
-    Dashboard, RequirementCreate, RequirementDetailCreate, \
-    RequirementUpdate, RequirementTransfer, \
-    RequirementDetailFetch, RequirementDetailView, \
+from requirements.views import RequirementApprove, RequirementList,\
+    QuotationListByRequirement, RequirementApprovalList,\
+    Dashboard, RequirementCreate, RequirementDetailCreate,\
+    RequirementUpdate, RequirementTransfer,\
+    RequirementDetailFetch, RequirementDetailView,\
     RequirementPdfReport, RequirementDelete, RequirementExcelReport
 
 app_name = 'requirements'

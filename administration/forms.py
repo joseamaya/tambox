@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from administration.models import Office, Worker, Position, Profession, \
+from administration.models import Office, Worker, Position, Profession,\
     ApprovalLevel, Producer
 
 

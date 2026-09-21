@@ -25,8 +25,8 @@ class RequirementQuerySet(NavigableQuerySet, PreviousQuerySet):
 
 
 class RequirementApprovalQuerySet(models.query.QuerySet):
-    def pending_approvals_office_user(self, requerimientos, level):
-        return self.filter(requirement__in=requerimientos, level=level, is_active=True)
+    def pending_approvals_office_user(self, requirements, level):
+        return self.filter(requirement__in=requirements, level=level, is_active=True)
 
-    def pending_approvals_management_user(self, requerimientos, level):
-        return self.filter(requirement__in=requerimientos, level=level, is_active=True)
+    def pending_approvals_management_user(self, requirements, level):
+        return self.filter(requirement__in=requirements, level=level, is_active=True)

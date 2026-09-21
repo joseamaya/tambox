@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 from accounting.forms import UploadForm
 from django.shortcuts import render
 from products.models import Product, UnitOfMeasure, ProductGroup
-from products.forms import ProductGroupForm, ProductForm, ServiceForm, \
+from products.forms import ProductGroupForm, ProductForm, ServiceForm,\
     UnitOfMeasureForm
 from accounting.models import Account, StockType
 from tambox.views import CsvImportMixin, AjaxOnlyMixin
@@ -57,19 +57,19 @@ class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
             description = request.GET['description']
             search_type = request.GET['search_type']
             if search_type == 'TODOS':
-                productos = Product.objects.filter(description__icontains=description).select_related(
+                products = Product.objects.filter(description__icontains=description).select_related(
                     'unit_of_measure').order_by('description')[:20]
             elif search_type == 'PRODUCTOS':
-                productos = Product.objects.filter(description__icontains=description,
+                products = Product.objects.filter(description__icontains=description,
                                                     is_service=False).select_related(
                     'unit_of_measure').order_by('description')[:20]
             elif search_type == 'SERVICIOS':
-                productos = Product.objects.filter(description__icontains=description,
+                products = Product.objects.filter(description__icontains=description,
                                                     is_service=True).select_related(
                     'unit_of_measure').order_by('description')[:20]
 
             product_list = []
-            for product in productos:
+            for product in products:
                 product_json = {}
                 product_json['label'] = product.description
                 product_json['code'] = product.code
@@ -88,9 +88,9 @@ class ProductCodeSearch(AjaxOnlyMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
-            productos = Product.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
+            products = Product.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
             product_list = []
-            for product in productos:
+            for product in products:
                 product_json = {}
                 product_json['label'] = product.code
                 product_json['code'] = product.code
@@ -382,7 +382,7 @@ class ProductGroupList(ListView):
 class ProductList(ListView):
     model = Product
     template_name = 'products/product_list.html'
-    context_object_name = 'productos'
+    context_object_name = 'products'
     queryset = Product.objects.filter(is_service=False, is_active=True).order_by('code')
 
     @method_decorator(requires('products.ver_tabla_productos'))
@@ -393,7 +393,7 @@ class ProductList(ListView):
 class ProductListByGroup(ListView):
     model = Product
     template_name = 'products/product_list.html'
-    context_object_name = 'productos'
+    context_object_name = 'products'
 
     @method_decorator(requires('products.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -463,7 +463,7 @@ class ServiceUpdate(UpdateView):
 class ProductExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        productos = Product.objects.filter(is_active=True).order_by('code')
+        products = Product.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PRODUCTOS'
@@ -478,7 +478,7 @@ class ProductExcelReport(TemplateView):
         ws['I3'] = 'PRECIO'
         ws['J3'] = 'CREADO'
         cont = 4
-        for product in productos:
+        for product in products:
             ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=3).value = product.description
             ws.cell(row=cont, column=4).value = product.desc_abreviada

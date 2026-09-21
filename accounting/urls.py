@@ -1,13 +1,13 @@
 from django.urls import re_path
-from accounting.views import Dashboard, AccountList, \
-    AccountImport, DocumentTypeList, DocumentTypeCreate, \
-    DocumentTypeDelete, DocumentTypeDetail, DocumentTypeUpdate, \
-    AccountExcelReport, AccountUpdate, AccountCreate, \
-    AccountDetail, TaxCreate, TaxDetail, TaxList, \
-    TaxUpdate, ConfigurationCreate, ConfigurationUpdate, \
-    PaymentMethodList, PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodDetail, \
-    PaymentMethodExcelReport, PaymentMethodDelete, DocumentTypeExcelReport, \
-    DocumentTypeImport, ExchangeRateList, ExchangeRateCreate, ExchangeRateDetail, ExchangeRateUpdate, \
+from accounting.views import Dashboard, AccountList,\
+    AccountImport, DocumentTypeList, DocumentTypeCreate,\
+    DocumentTypeDelete, DocumentTypeDetail, DocumentTypeUpdate,\
+    AccountExcelReport, AccountUpdate, AccountCreate,\
+    AccountDetail, TaxCreate, TaxDetail, TaxList,\
+    TaxUpdate, ConfigurationCreate, ConfigurationUpdate,\
+    PaymentMethodList, PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodDetail,\
+    PaymentMethodExcelReport, PaymentMethodDelete, DocumentTypeExcelReport,\
+    DocumentTypeImport, ExchangeRateList, ExchangeRateCreate, ExchangeRateDetail, ExchangeRateUpdate,\
     ExchangeRateFetch, StockTypeList, StockTypeImport
 
 app_name = 'accounting'

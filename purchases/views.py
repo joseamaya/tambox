@@ -3,13 +3,13 @@ from django.utils import timezone
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
 
-from purchases.models import Supplier, PurchaseOrder, PaymentMethod, PurchaseOrderDetail, RequirementDetail, ServiceOrder, \
-    ServiceOrderDetail, ServiceConformity, \
+from purchases.models import Supplier, PurchaseOrder, PaymentMethod, PurchaseOrderDetail, RequirementDetail, ServiceOrder,\
+    ServiceOrderDetail, ServiceConformity,\
     ServiceConformityDetail, QuotationDetail, Quotation
 from django.views.generic.edit import FormView, UpdateView, CreateView
-from purchases.forms import SupplierForm, QuotationForm, PurchaseOrderForm, \
-    ServiceOrderForm, ServiceConformityForm, PurchaseOrderDetailFormSet, \
-    ServiceOrderDetailFormSet, ServiceConformityDetailFormSet, QuotationDetailFormSet, \
+from purchases.forms import SupplierForm, QuotationForm, PurchaseOrderForm,\
+    ServiceOrderForm, ServiceConformityForm, PurchaseOrderDetailFormSet,\
+    ServiceOrderDetailFormSet, ServiceConformityDetailFormSet, QuotationDetailFormSet,\
     OrderDateReportForm
 from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
@@ -34,7 +34,7 @@ from django.shortcuts import render, get_object_or_404
 from accounting.models import ExchangeRate
 from products.models import Product, UnitOfMeasure, ProductGroup
 from datetime import date
-from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf, \
+from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf,\
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.config import configuration, purchase_tax
 from tambox.views import CsvImportMixin, AjaxOnlyMixin

@@ -1,7 +1,7 @@
 from django.test import TestCase
 from model_bakery import baker
 from administration.models import ApprovalLevel, Office, Position, Worker
-from requirements.models import Requirement, RequirementDetail, \
+from requirements.models import Requirement, RequirementDetail,\
     RequirementApproval
 from tambox.statuses import classify, COMPLETE, PARTIAL, EMPTY
 
@@ -178,10 +178,10 @@ class RequirementStatusesTest(TestCase):
         for quantity in (10, 20, 30):
             self._requirement(quantity=quantity)
 
-        requerimientos = list(Requirement.objects.prefetch_related('details'))
+        requirements = list(Requirement.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
-            for requirement in requerimientos:
+            for requirement in requirements:
                 requirement.total
                 requirement.total_quoted
                 requirement.total_purchased

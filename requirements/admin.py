@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from requirements.models import RequirementDetail, Requirement, \
+from requirements.models import RequirementDetail, Requirement,\
     RequirementApproval
 
 

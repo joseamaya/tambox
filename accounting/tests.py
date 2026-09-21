@@ -1,6 +1,6 @@
 from model_bakery import baker
 from django.test import TestCase
-from accounting.models import Account, PaymentMethod, DocumentType, Type, \
+from accounting.models import Account, PaymentMethod, DocumentType, Type,\
     Tax, Company, StockType
 
 

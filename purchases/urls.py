@@ -1,21 +1,21 @@
 from django.urls import re_path
-from purchases.views import Dashboard, SupplierList, SupplierCreate, PurchaseOrderCreate, \
-    SupplierNameSearch, PurchaseOrderDetailCreate, \
-    PurchaseOrderTransfer, PurchaseOrderDetailFetch, \
-    PurchaseOrderExcelReportByDate, PurchaseOrderList, SupplierDetail, \
-    PurchaseOrderUpdate, PurchaseOrderPdfReport, PurchaseOrderXlsReport, PurchaseOrderDelete, SupplierUpdate, \
-    SupplierDelete, SupplierExcelReport, ServiceOrderCreate, ServiceOrderDetailCreate, \
-    ServiceOrderList, \
-    ServiceOrderUpdate, SupplierImport, \
-    ServiceConformityCreate, ServiceOrderTransfer, ServiceOrderDetailFetch, ServiceConformityList, \
-    ServiceOrderPdfReport, ServiceConformityMemoPdfReport, ServiceConformityUpdate, \
-    QuotationCreate, QuotationList, ServiceConformityDetailView, \
-    QuotationUpdate, QuotationTransfer, QuotationDetailFetch, \
-    QuotationSearch, QuotationDetailView, PurchaseOrderDetailView, ServiceOrderDetailView, \
-    QuotationRequestPdfReport, PurchaseOrderListByQuotation, \
-    SupplierTaxIdSearch, ServiceOrderListByQuotation, \
-    MovementListByPurchaseOrder, ServiceConformityListByServiceOrder, \
-    ServiceOrderExcelReportByDate, QuotationDelete, \
+from purchases.views import Dashboard, SupplierList, SupplierCreate, PurchaseOrderCreate,\
+    SupplierNameSearch, PurchaseOrderDetailCreate,\
+    PurchaseOrderTransfer, PurchaseOrderDetailFetch,\
+    PurchaseOrderExcelReportByDate, PurchaseOrderList, SupplierDetail,\
+    PurchaseOrderUpdate, PurchaseOrderPdfReport, PurchaseOrderXlsReport, PurchaseOrderDelete, SupplierUpdate,\
+    SupplierDelete, SupplierExcelReport, ServiceOrderCreate, ServiceOrderDetailCreate,\
+    ServiceOrderList,\
+    ServiceOrderUpdate, SupplierImport,\
+    ServiceConformityCreate, ServiceOrderTransfer, ServiceOrderDetailFetch, ServiceConformityList,\
+    ServiceOrderPdfReport, ServiceConformityMemoPdfReport, ServiceConformityUpdate,\
+    QuotationCreate, QuotationList, ServiceConformityDetailView,\
+    QuotationUpdate, QuotationTransfer, QuotationDetailFetch,\
+    QuotationSearch, QuotationDetailView, PurchaseOrderDetailView, ServiceOrderDetailView,\
+    QuotationRequestPdfReport, PurchaseOrderListByQuotation,\
+    SupplierTaxIdSearch, ServiceOrderListByQuotation,\
+    MovementListByPurchaseOrder, ServiceConformityListByServiceOrder,\
+    ServiceOrderExcelReportByDate, QuotationDelete,\
     ServiceOrderDelete, ServiceConformityDelete
 
 app_name = 'purchases'

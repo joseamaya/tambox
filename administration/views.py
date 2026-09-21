@@ -2,7 +2,7 @@
 import logging
 
 from django.shortcuts import render
-from administration.forms import OfficeForm, WorkerForm, PositionForm, PositionUpdateForm, \
+from administration.forms import OfficeForm, WorkerForm, PositionForm, PositionUpdateForm,\
     ProfessionForm, ApprovalLevelForm, ProducerForm
 from warehouse.models import MovementType
 from accounting.forms import UploadForm
@@ -10,7 +10,7 @@ from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
-from administration.models import Office, Worker, Position, Profession, \
+from administration.models import Office, Worker, Position, Profession,\
     ApprovalLevel, Producer
 from django.views.generic.base import View, TemplateView
 from django.views.generic.detail import DetailView

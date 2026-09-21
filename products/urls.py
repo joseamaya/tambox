@@ -1,13 +1,13 @@
 from django.urls import re_path
-from products.views import Dashboard, UnitOfMeasureList, ServiceList, \
-    ProductGroupList, ProductList, ServiceCreate, UnitOfMeasureCreate, \
-    ProductGroupCreate, ProductCreate, ProductImport, ServiceImport, \
-    ProductUpdate, ProductGroupUpdate, UnitOfMeasureUpdate, \
-    ServiceUpdate, ProductDescriptionSearch, ProductCodeSearch, \
-    ProductDetail, ProductGroupDetail, UnitOfMeasureDetail, ServiceDetail, \
-    ProductExcelReport, ProductGroupExcelReport, \
-    UnitOfMeasureExcelReport, ServiceExcelReport, UnitOfMeasureDelete, \
-    ProductGroupDelete, ProductDelete, ServiceDelete, \
+from products.views import Dashboard, UnitOfMeasureList, ServiceList,\
+    ProductGroupList, ProductList, ServiceCreate, UnitOfMeasureCreate,\
+    ProductGroupCreate, ProductCreate, ProductImport, ServiceImport,\
+    ProductUpdate, ProductGroupUpdate, UnitOfMeasureUpdate,\
+    ServiceUpdate, ProductDescriptionSearch, ProductCodeSearch,\
+    ProductDetail, ProductGroupDetail, UnitOfMeasureDetail, ServiceDetail,\
+    ProductExcelReport, ProductGroupExcelReport,\
+    UnitOfMeasureExcelReport, ServiceExcelReport, UnitOfMeasureDelete,\
+    ProductGroupDelete, ProductDelete, ServiceDelete,\
     ProductGroupImport, ProductListByGroup, ProductStockQuery
 
 app_name = 'products'

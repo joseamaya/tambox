@@ -37,7 +37,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for requirement in requerimientos %}
+            {% for requirement in requirements %}
             {% if perms.requirements.ver_detalle_requerimiento %}
             <tr onclick="location.href='{% url 'requirements:requirement_detail' requirement.code %}';">
                 {% else %}

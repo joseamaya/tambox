@@ -173,7 +173,7 @@ class Product(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_by_batch(productos, warehouse, start_date, end_date):
+    def kardex_by_batch(products, warehouse, start_date, end_date):
         """Igual que `get_kardex()`, pero para todo el lote de una vez.
 
         Devuelve {product_id: (rows, in_quantity, in_amount,
@@ -183,7 +183,7 @@ class Product(TimeStampedModel):
         from warehouse.models import Kardex, Movement
         return Kardex.kardex_by_batch(start_date, end_date,
                                       warehouse=warehouse,
-                                      product__in=productos,
+                                      product__in=products,
                                       movement__status=Movement.STATUS.ACT)
 
     class Meta:

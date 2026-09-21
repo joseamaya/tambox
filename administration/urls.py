@@ -1,12 +1,12 @@
 from django.urls import re_path
-from administration.views import OfficeCreate, OfficeList, Dashboard, \
-    OfficeDetail, OfficeUpdate, WorkerList, WorkerCreate, \
-    WorkerDetail, WorkerUpdate, PositionList, PositionCreate, \
-    PositionDetail, PositionUpdate, OfficeImport, WorkerImport, \
-    OfficeExcelReport, WorkerExcelReport, PositionImport, ApprovalLevelUpdate, \
-    ProfessionList, ProfessionCreate, ProfessionDetail, ProfessionUpdate, \
-    PositionExcelReport, ProfessionExcelReport, ApprovalLevelCreate, ApprovalLevelList, \
-    ApprovalLevelDetail, ReceiverDniSearch, \
+from administration.views import OfficeCreate, OfficeList, Dashboard,\
+    OfficeDetail, OfficeUpdate, WorkerList, WorkerCreate,\
+    WorkerDetail, WorkerUpdate, PositionList, PositionCreate,\
+    PositionDetail, PositionUpdate, OfficeImport, WorkerImport,\
+    OfficeExcelReport, WorkerExcelReport, PositionImport, ApprovalLevelUpdate,\
+    ProfessionList, ProfessionCreate, ProfessionDetail, ProfessionUpdate,\
+    PositionExcelReport, ProfessionExcelReport, ApprovalLevelCreate, ApprovalLevelList,\
+    ApprovalLevelDetail, ReceiverDniSearch,\
     ProducerUpdate, ProducerDetail, ProducerCreate, ProducerList, ReceiverNameSearch, ProducerImport
 
 app_name = 'administration'

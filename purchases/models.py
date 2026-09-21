@@ -12,7 +12,7 @@ from tambox.querysets import NavigableQuerySet
 from tambox.statuses import classify, PARTIAL, EMPTY
 from purchases.settings import QUOTATION_STATUS_CHOICES
 from tambox.config import configuration
-from purchases.managers import QuotationDetailManager, \
+from purchases.managers import QuotationDetailManager,\
     ServiceConformityDetailManager
 from tambox.util import to_word
 from simple_history.models import HistoricalRecords

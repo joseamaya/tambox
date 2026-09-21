@@ -1,4 +1,4 @@
-from warehouse.models import Warehouse, MovementType, Order, OrderDetail, \
+from warehouse.models import Warehouse, MovementType, Order, OrderDetail,\
     Movement, MovementDetail, Kardex
 from django.contrib.auth.models import User
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -342,21 +342,21 @@ class LastByProductTest(TestCase):
 
     def setUp(self):
         self.warehouse = baker.make(Warehouse)
-        self.productos = [baker.make(Product) for _ in range(3)]
-        for product in self.productos:
+        self.products = [baker.make(Product) for _ in range(3)]
+        for product in self.products:
             baker.make(Kardex, warehouse=self.warehouse, product=product,
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)))
 
     def test_query_for_todo_batch(self):
         with self.assertNumQueries(1):
-            last_records = Kardex.last_by_product(self.productos, warehouse=self.warehouse)
+            last_records = Kardex.last_by_product(self.products, warehouse=self.warehouse)
 
         self.assertEqual(len(last_records), 3)
 
     def test_product_viene_cargado(self):
         """El `select_related` es lo que evita una consulta por fila al leer
         `kardex.product.description` en los bucles."""
-        last_records = Kardex.last_by_product(self.productos, warehouse=self.warehouse)
+        last_records = Kardex.last_by_product(self.products, warehouse=self.warehouse)
 
         with self.assertNumQueries(0):
             for kardex in last_records.values():
@@ -364,7 +364,7 @@ class LastByProductTest(TestCase):
                 kardex.product.unit_of_measure
 
     def test_breaks_tie_by_pk(self):
-        product = self.productos[0]
+        product = self.products[0]
         primero = Kardex.objects.get(product=product)
         segundo = baker.make(Kardex, warehouse=self.warehouse, product=product,
                              operation_date=primero.operation_date)
@@ -387,7 +387,7 @@ class ConsolidatedKardexReportTest(TestCase):
         self.warehouse = baker.make(Warehouse)
         self.group = baker.make(ProductGroup, code='000001',
                                 account=baker.make(Account), contains_products=True)
-        self.productos = [baker.make(Product, code='', product_group=self.group)
+        self.products = [baker.make(Product, code='', product_group=self.group)
                           for number in range(3)]
 
     def report(self):
@@ -400,8 +400,8 @@ class ConsolidatedKardexReportTest(TestCase):
         table = self.report().consolidated_product_detail_table(Product.objects.all())
 
         rows = table._cellvalues
-        self.assertEqual(len(rows), 3 + len(self.productos))
-        self.assertIn(self.productos[0].code, rows[2])
+        self.assertEqual(len(rows), 3 + len(self.products))
+        self.assertIn(self.products[0].code, rows[2])
 
     def test_table_consolidated_groups(self):
         from products.models import ProductGroup

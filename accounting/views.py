@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*- 
 from django.shortcuts import render
 from django.views.generic.list import ListView
-from accounting.models import Account, DocumentType, Tax, \
+from accounting.models import Account, DocumentType, Tax,\
     Configuration, PaymentMethod, Company, StockType, ExchangeRate
 from django.views.generic.base import View, TemplateView
-from accounting.forms import DocumentTypeForm, AccountForm, \
+from accounting.forms import DocumentTypeForm, AccountForm,\
     TaxForm, ConfigurationForm, PaymentMethodForm, ExchangeRateForm
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import FormView, UpdateView, CreateView, \
+from django.views.generic.edit import FormView, UpdateView, CreateView,\
     BaseCreateView
 import simplejson
 from django.http import HttpResponse

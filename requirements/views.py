@@ -17,7 +17,7 @@ from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q
 from django.contrib import messages
-from requirements.models import RequirementApproval, Requirement, \
+from requirements.models import RequirementApproval, Requirement,\
     RequirementDetail
 from requirements.forms import RequirementApprovalForm, RequirementForm, RequirementDetailFormSet
 from purchases.forms import QuotationDetailFormSet
@@ -27,7 +27,7 @@ from requirements.mail import requirement_creation_mail
 from openpyxl import Workbook
 from requirements.reports import RequirementReport
 from datetime import date
-from tambox.config import configuration, administration_office, \
+from tambox.config import configuration, administration_office,\
     logistics, budget
 
 locale.setlocale(locale.LC_ALL, "")
@@ -273,7 +273,7 @@ class QuotationListByRequirement(ListView):
 class RequirementList(ListView):
     model = Requirement
     template_name = 'requirements/requirement_list.html'
-    context_object_name = 'requerimientos'
+    context_object_name = 'requirements'
 
     def get_queryset(self):
         user = self.request.user
@@ -434,14 +434,14 @@ class RequirementTransfer(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RequirementTransfer, self).get_context_data(**kwargs)
         # requerimientos = Requirement.objects.all()
-        requerimientos = Requirement.get_requirements_ready_for_transfer()
-        context['requerimientos'] = requerimientos
+        requirements = Requirement.get_requirements_ready_for_transfer()
+        context['requirements'] = requirements
         return context
 
 
 class RequirementExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        requerimientos = Requirement.objects.active_requirements_by_user(request.user,
+        requirements = Requirement.objects.active_requirements_by_user(request.user,
                                                                                   Requirement.STATUS.CANC)
         wb = Workbook()
         ws = wb.active
@@ -453,7 +453,7 @@ class RequirementExcelReport(TemplateView):
         ws['E3'] = 'ESTADO'
         ws['F3'] = 'FECHA'
         cont = 4
-        for requirement in requerimientos:
+        for requirement in requirements:
             ws.cell(row=cont, column=2).value = requirement.code
             ws.cell(row=cont, column=3).value = requirement.office.name
             ws.cell(row=cont, column=4).value = requirement.get_status_display()

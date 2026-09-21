@@ -415,7 +415,7 @@ class Kardex(TimeStampedModel):
         return Kardex.objects.next(self).pk
 
     @classmethod
-    def last_by_product(cls, productos, before=None, **filtro):
+    def last_by_product(cls, products, before=None, **filtro):
         """Ultimo Kardex de cada producto del lote, en una sola consulta.
 
         Con `before` devuelve el ultimo movimiento anterior a esa date, que
@@ -431,7 +431,7 @@ class Kardex(TimeStampedModel):
         """
         from tambox.dates import aware
 
-        consulta = cls.objects.filter(product__in=productos, **filtro)
+        consulta = cls.objects.filter(product__in=products, **filtro)
         if before is not None:
             consulta = consulta.filter(operation_date__lt=aware(before))
         last_records = (consulta.select_related('product__unit_of_measure')

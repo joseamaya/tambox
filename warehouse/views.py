@@ -2,16 +2,16 @@
 from django.utils import timezone
 from django.shortcuts import render
 
-from warehouse.models import Warehouse, Movement, Kardex, MovementType, MovementDetail, WarehouseProductControl, \
+from warehouse.models import Warehouse, Movement, Kardex, MovementType, MovementDetail, WarehouseProductControl,\
     Order, OrderDetail
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from warehouse.forms import WarehouseForm, MovementTypeForm, MovementReportForm, \
-    KardexProductForm, InitialInventoryImportForm, MovementForm, \
-    InboundDetailFormSet, OutboundDetailFormSet, OrderForm, OrderDetailFormSet, \
-    OrderApprovalForm, PriceReprocessForm, \
+from warehouse.forms import WarehouseForm, MovementTypeForm, MovementReportForm,\
+    KardexProductForm, InitialInventoryImportForm, MovementForm,\
+    InboundDetailFormSet, OutboundDetailFormSet, OrderForm, OrderDetailFormSet,\
+    OrderApprovalForm, PriceReprocessForm,\
     ProductMovementForm, StockQueryForm, InventoryQueryForm
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
@@ -1522,7 +1522,7 @@ class ProductStock(FormView):
         data = form.cleaned_data
         warehouse = data['warehouse']
         description = data['description']
-        productos = list(Product.objects.filter(description__icontains=description)
+        products = list(Product.objects.filter(description__icontains=description)
                          .select_related('unit_of_measure').order_by('description'))
         wb = Workbook()
         ws = wb.active
@@ -1537,8 +1537,8 @@ class ProductStock(FormView):
         ws.column_dimensions["B"].width = 12
         ws.column_dimensions["C"].width = 40
         cont = 4
-        last_records = Kardex.last_by_product(productos, warehouse=warehouse)
-        for product in productos:
+        last_records = Kardex.last_by_product(products, warehouse=warehouse)
+        for product in products:
             kardex = last_records.get(product.pk)
             code = product.code
             description = product.description
@@ -1589,10 +1589,10 @@ class ProductStockList(AjaxOnlyMixin, TemplateView):
             description = request.GET['description']
             warehouse = request.GET['warehouse']
             product_list = []
-            productos = list(Product.objects.filter(description__icontains=description)
+            products = list(Product.objects.filter(description__icontains=description)
                              .select_related('unit_of_measure').order_by('description'))
-            last_records = Kardex.last_by_product(productos, warehouse__pk=warehouse)
-            for product in productos:
+            last_records = Kardex.last_by_product(products, warehouse__pk=warehouse)
+            for product in products:
                 kardex = last_records.get(product.pk)
                 kardex_json = {}
                 kardex_json['code'] = product.code

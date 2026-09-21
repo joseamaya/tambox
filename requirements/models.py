@@ -167,10 +167,10 @@ class Requirement(TimeStampedModel):
     @staticmethod
     def get_requirements_ready_for_transfer():
         requirement_list = []
-        requerimientos = Requirement.objects.filter(
+        requirements = Requirement.objects.filter(
             approval__level__description="LOGISTICA",
             approval__is_active=True).prefetch_related('details')
-        for requirement in requerimientos:
+        for requirement in requirements:
             total = requirement.total
             total_purchased = requirement.total_purchased
             if total_purchased == 0 or total_purchased < total:

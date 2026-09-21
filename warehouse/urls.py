@@ -1,16 +1,16 @@
 from django.urls import re_path
-from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate, \
-    OutboundDetailCreate, \
-    ProductPdfReport, MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList, VerifyDocumentRequired, \
-    MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailCreate, \
-    StockQuery, ProductWarehouseSearch, MovementPdfReport, KardexReport, WarehouseDetail, \
-    MovementDelete, WarehouseUpdate, WarehouseDelete, MovementTypeDetail, MovementUpdate, \
-    WarehouseExcelReport, InboundUpdate, OutboundUpdate, VerifyReferenceRequired, \
-    MovementTypeExcelReport, OrderCreate, \
-    WarehouseImport, InitialInventoryImport, OrderDetailCreate, OrderUpdate, OrderList, OrderApprove, \
-    OrderApprovalList, VerifyStockForOrder, \
-    OrderDetailView, MovementDetailView, ProductStock, \
-    InboundList, OutboundList, KardexProductReport, MovementListByOrder, \
+from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
+    OutboundDetailCreate,\
+    ProductPdfReport, MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList, VerifyDocumentRequired,\
+    MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailCreate,\
+    StockQuery, ProductWarehouseSearch, MovementPdfReport, KardexReport, WarehouseDetail,\
+    MovementDelete, WarehouseUpdate, WarehouseDelete, MovementTypeDetail, MovementUpdate,\
+    WarehouseExcelReport, InboundUpdate, OutboundUpdate, VerifyReferenceRequired,\
+    MovementTypeExcelReport, OrderCreate,\
+    WarehouseImport, InitialInventoryImport, OrderDetailCreate, OrderUpdate, OrderList, OrderApprove,\
+    OrderApprovalList, VerifyStockForOrder,\
+    OrderDetailView, MovementDetailView, ProductStock,\
+    InboundList, OutboundList, KardexProductReport, MovementListByOrder,\
     PriceReprocess, OrderDelete, MovementListByProduct, ProductStockList, Inventory
 
 app_name = 'warehouse'

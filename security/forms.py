@@ -26,7 +26,7 @@ class PasswordChangeForm(forms.Form):
         return self.cleaned_data['new_password']
 
     def clean_password_verificacion(self):
-        if self.cleaned_data.get('new_password') and self.cleaned_data.get('password_confirmation') and \
+        if self.cleaned_data.get('new_password') and self.cleaned_data.get('password_confirmation') and\
                 self.cleaned_data['new_password'] != self.cleaned_data['password_confirmation']:
             raise ValidationError('Las contraseñas no coinciden')
         return self.cleaned_data['password_confirmation']

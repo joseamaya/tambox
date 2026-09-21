@@ -1,5 +1,5 @@
 from django import forms
-from accounting.models import DocumentType, Account, Upload, \
+from accounting.models import DocumentType, Account, Upload,\
     Tax, Configuration, PaymentMethod, ExchangeRate
 
 

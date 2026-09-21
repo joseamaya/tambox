@@ -1,6 +1,6 @@
 from django.test import TestCase
 from model_bakery import baker
-from purchases.models import Supplier, LegalRepresentative, Quotation, \
+from purchases.models import Supplier, LegalRepresentative, Quotation,\
     QuotationDetail, PurchaseOrderDetail, ServiceOrderDetail, PurchaseOrder
 from datetime import date
 

@@ -9,8 +9,8 @@ from purchases.models import PurchaseOrder
 from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from warehouse.settings import MONTHS, PARAMETROS, FORMATOS_SUNAT, \
-    movement_type_choices, warehouse_choices, \
+from warehouse.settings import MONTHS, PARAMETROS, FORMATOS_SUNAT,\
+    movement_type_choices, warehouse_choices,\
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
 
 
