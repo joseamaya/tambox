@@ -114,7 +114,7 @@ class Cotizacion(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, null=True)
-    fecha = models.DateField()
+    date = models.DateField()
     observaciones = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
@@ -172,8 +172,8 @@ class Cotizacion(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.fecha.year
-            mov_ant = Cotizacion.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            anio = self.date.year
+            mov_ant = Cotizacion.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -221,7 +221,7 @@ class OrdenCompra(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
-    fecha = models.DateField()
+    date = models.DateField()
     forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE)
     observaciones = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -321,8 +321,8 @@ class OrdenCompra(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.fecha.year
-            mov_ant = OrdenCompra.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            anio = self.date.year
+            mov_ant = OrdenCompra.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -421,7 +421,7 @@ class OrdenServicios(TimeStampedModel):
     proceso = models.CharField(max_length=50, default='')
     nombre_informe = models.CharField(max_length=150, default='')
     informe = models.FileField(upload_to='informes', null=True)
-    fecha = models.DateField()
+    date = models.DateField()
     observaciones = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('CONF', _('CONFORME')),
@@ -501,8 +501,8 @@ class OrdenServicios(TimeStampedModel):
         ordering = ('code',)
 
     def generar_code(self):
-        anio = self.fecha.year
-        mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('code'))
+        anio = self.date.year
+        mov_ant = OrdenServicios.objects.filter(date__year=anio).aggregate(Max('code'))
         id_ant = mov_ant['code__max']
         if id_ant is None:
             aux = 1
@@ -567,7 +567,7 @@ class ConformidadServicio(TimeStampedModel):
     orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE)
     doc_sustento = models.CharField(max_length=50)
     archivo = models.FileField(upload_to='informes', null=True)
-    fecha = models.DateField()
+    date = models.DateField()
     total = models.DecimalField(max_digits=15, decimal_places=5)
     total_letras = models.CharField(max_length=150)
     estado = models.BooleanField(default=True)
@@ -609,8 +609,8 @@ class ConformidadServicio(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.fecha.year
-            conf_ant = ConformidadServicio.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            anio = self.date.year
+            conf_ant = ConformidadServicio.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = conf_ant['code__max']
             if id_ant is None:
                 aux = 1

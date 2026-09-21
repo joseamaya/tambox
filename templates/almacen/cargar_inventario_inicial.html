@@ -39,7 +39,7 @@
                         </div>
                         <div class="col-md-4">
                             <label>Fecha:</label>
-                            {{ form.fecha }}
+                            {{ form.date }}
                         </div>
                         <div class="col-md-4">
                             <label>Hora:</label>
@@ -64,7 +64,7 @@
 $(document).ready(function() 
 {
 	var mySpinner = null;
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	$('#id_hora').wickedpicker({title:'Hora de Salida'});
 	$('#id_hora').val(mostrarhora());
 	

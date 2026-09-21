@@ -85,7 +85,7 @@ class CotizacionForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CotizacionForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -119,7 +119,7 @@ class CotizacionForm(forms.ModelForm):
 
     class Meta:
         model = Cotizacion
-        fields = ['code', 'fecha', 'observaciones']
+        fields = ['code', 'date', 'observaciones']
 
 
 class OrdenCompraForm(forms.ModelForm):
@@ -142,7 +142,7 @@ class OrdenCompraForm(forms.ModelForm):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['referencia'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
         for field in iter(self.fields):
             if field != 'con_impuesto' and field != 'dolares':
@@ -170,7 +170,7 @@ class OrdenCompraForm(forms.ModelForm):
 
     class Meta:
         model = OrdenCompra
-        fields = ['code', 'forma_pago', 'fecha', 'observaciones', 'con_impuesto', 'dolares']
+        fields = ['code', 'forma_pago', 'date', 'observaciones', 'con_impuesto', 'dolares']
 
 
 class OrdenServiciosForm(forms.ModelForm):
@@ -192,7 +192,7 @@ class OrdenServiciosForm(forms.ModelForm):
         super(OrdenServiciosForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['proceso'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
         self.fields['nombre_informe'].required = False
         self.fields['informe'].required = False
@@ -222,7 +222,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     class Meta:
         model = OrdenServicios
-        fields = ['code', 'forma_pago', 'proceso', 'observaciones', 'fecha', 'nombre_informe', 'informe']
+        fields = ['code', 'forma_pago', 'proceso', 'observaciones', 'date', 'nombre_informe', 'informe']
 
 
 class ConformidadServicioForm(forms.ModelForm):
@@ -238,7 +238,7 @@ class ConformidadServicioForm(forms.ModelForm):
         self.fields['code'].required = False
         self.fields['doc_sustento'].required = False
         self.fields['archivo'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -250,7 +250,7 @@ class ConformidadServicioForm(forms.ModelForm):
 
     class Meta:
         model = ConformidadServicio
-        fields = ['code', 'doc_sustento', 'archivo', 'fecha', 'total', 'total_letras']
+        fields = ['code', 'doc_sustento', 'archivo', 'date', 'total', 'total_letras']
 
 
 class FormularioDetalleCotizacion(forms.Form):

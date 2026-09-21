@@ -48,12 +48,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>FECHA:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Orden de Servicios:</label>
@@ -220,7 +220,7 @@ $(document).ready(function()
 	var total=parseFloat($('#id_total').val());
 	var subtotal=parseFloat($('#id_subtotal').val());
 	var ultimo_item = contDetalles;
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	$(".entero").keydown(validar_numeros);
 	
 	$('#transferencia_orden_servicios').click(function(e)
@@ -297,10 +297,10 @@ $(document).ready(function()
 	{
 		var cont=0;
 		$('#id_cdetalles').val(ultimo_item);
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		var orden_servicios = $('#id_referencia').val().trim();
 		var doc_sustento = $('#id_doc_sustento').val().trim();
-		if(fecha != '')
+		if(date != '')
 		{					
 			if(orden_servicios != '')
 			{
@@ -327,7 +327,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha seleccionado fecha");
+			alert("No ha seleccionado date");
 		}
 		event.preventDefault();
 	});

@@ -59,7 +59,7 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
@@ -199,7 +199,7 @@ $(document).ready(function()
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
 	$("#id_almacen").on('change',verificar_stock_para_pedido);
 	
@@ -304,10 +304,10 @@ $(document).ready(function()
 		var cont=0;
 		$('#cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacenes').val().trim();
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		if(almacen != '') 
 		{			
-			if(fecha != '')
+			if(date != '')
 			{					
 				if (contDetalles > 0)
 				{
@@ -320,7 +320,7 @@ $(document).ready(function()
 			}
 			else
 			{
-				alert("No ha seleccionado fecha");
+				alert("No ha seleccionado date");
 			}
 		}
 		else

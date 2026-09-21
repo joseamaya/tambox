@@ -52,7 +52,7 @@ class ReporteOrdenCompra():
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
         ruc = Paragraph("R.U.C." + empresa().ruc, sp)
         encabezado = [[imagen, nro, ruc], ['', u"N°" + orden_compra.code,
-                                           empresa().distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
+                                           empresa().distrito + " " + orden_compra.date.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
@@ -339,7 +339,7 @@ def reporte_xls_orden_compra(orden):
     ws['H14'] = 'FECHA'
     ws['I14'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I14'] = orden.fecha
+    ws['I14'] = orden.date
     ws['B15'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['B15'] = 'CONTACTO'
@@ -650,7 +650,7 @@ class PDFSolicitudCotizacion(object):
             pdf.drawString(440, 730, u"TELÉFONO: " + cotizacion.proveedor.telefono)
         except TypeError:
             pdf.drawString(440, 730, u"TELÉFONO: -")
-        pdf.drawString(40, 710, u"FECHA: " + cotizacion.fecha.strftime('%d/%m/%Y'))
+        pdf.drawString(40, 710, u"FECHA: " + cotizacion.date.strftime('%d/%m/%Y'))
 
     def detalle(self, pdf, y, cotizacion):
         encabezados = ('Nro', 'Descripción', 'Unidad', 'Cantidad')
@@ -717,26 +717,26 @@ class PDFMemorandoConformidadServicio(object):
         try:
             puesto = Puesto.objects.get(oficina=oficina,
                                         es_jefatura=True,
-                                        fecha_inicio__lte=conformidad.fecha,
+                                        fecha_inicio__lte=conformidad.date,
                                         fecha_fin=None)
         except Puesto.DoesNotExist:
             puesto = Puesto.objects.get(oficina=oficina,
                                         es_jefatura=True,
-                                        fecha_inicio__lte=conformidad.fecha,
-                                        fecha_fin__gte=conformidad.fecha)
+                                        fecha_inicio__lte=conformidad.date,
+                                        fecha_fin__gte=conformidad.date)
         return puesto
 
     def puesto_superior(self, oficina, conformidad):
         try:
             puesto_superior = Puesto.objects.get(oficina=oficina,
                                                  es_jefatura=True,
-                                                 fecha_inicio__lte=conformidad.fecha,
+                                                 fecha_inicio__lte=conformidad.date,
                                                  fecha_fin=None)
         except Puesto.DoesNotExist:
             puesto_superior = Puesto.objects.get(oficina=oficina,
                                                  es_jefatura=True,
-                                                 fecha_inicio__lte=conformidad.fecha,
-                                                 fecha_fin__gte=conformidad.fecha)
+                                                 fecha_inicio__lte=conformidad.date,
+                                                 fecha_fin__gte=conformidad.date)
         return puesto_superior
 
     def cabecera(self, pdf, conformidad):
@@ -750,7 +750,7 @@ class PDFMemorandoConformidadServicio(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 730, u"N°" + conformidad.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + conformidad.fecha.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().distrito + " " + conformidad.date.strftime('%d de %b de %Y'))
         pdf.drawString(475, 710, conformidad.orden_servicios.code)
         requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
         gerencia_inmediata = requerimiento.oficina.gerencia
@@ -868,7 +868,7 @@ class PDFOrdenServicios(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°" + orden.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().distrito + " " + orden.date.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -1031,16 +1031,16 @@ class PDFOrdenServicios(object):
         ))
         tabla_afectacion.wrapOn(pdf, 800, 600)
         tabla_afectacion.drawOn(pdf, 40, y - 200)
-        fecha = [[' ', ' ', ' ']]
-        tabla_fecha = Table(fecha, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
-        tabla_fecha.setStyle(TableStyle(
+        date = [[' ', ' ', ' ']]
+        tabla_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
+        tabla_date.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 5),
             ]
         ))
-        tabla_fecha.wrapOn(pdf, 800, 600)
-        tabla_fecha.drawOn(pdf, 510, y - 120)
+        tabla_date.wrapOn(pdf, 800, 600)
+        tabla_date.drawOn(pdf, 510, y - 120)
 
     def imprimir(self, orden):
         """Devuelve el PDF ya generado."""
@@ -1082,8 +1082,8 @@ class PDFOrdenCompra(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° " + orden.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime(
-            '%d de %b de %Y'))  # orden.fecha.strftime('%d de %B de %Y')
+        pdf.drawString(430, 780, empresa().distrito + " " + orden.date.strftime(
+            '%d de %b de %Y'))  # orden.date.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -1233,16 +1233,16 @@ class PDFOrdenCompra(object):
         ))
         tabla_afectacion.wrapOn(pdf, 800, 600)
         tabla_afectacion.drawOn(pdf, 40, y - 200)
-        fecha = [[' ', ' ', ' ']]
-        tabla_fecha = Table(fecha, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
-        tabla_fecha.setStyle(TableStyle(
+        date = [[' ', ' ', ' ']]
+        tabla_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
+        tabla_date.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 5),
             ]
         ))
-        tabla_fecha.wrapOn(pdf, 800, 600)
-        tabla_fecha.drawOn(pdf, 510, y - 120)
+        tabla_date.wrapOn(pdf, 800, 600)
+        tabla_date.drawOn(pdf, 510, y - 120)
 
     def imprimir(self, orden):
         """Devuelve el PDF ya generado."""

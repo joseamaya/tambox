@@ -111,9 +111,9 @@ class OpcionesDeFormularioTestCase(TestCase):
 
         Almacen.objects.create(code='AL01', description='ALMACEN UNO')
         formulario = FormularioReporteMovimientos()
-        codigos = [code for code, _ in formulario.fields['almacenes'].choices]
+        codes = [code for code, _ in formulario.fields['almacenes'].choices]
 
-        self.assertIn('AL01', codigos)
+        self.assertIn('AL01', codes)
 
     def test_un_almacen_nuevo_aparece_sin_reiniciar(self):
         from almacen.models import Almacen
@@ -123,9 +123,9 @@ class OpcionesDeFormularioTestCase(TestCase):
 
         Almacen.objects.create(code='AL02', description='ALMACEN DOS')
         formulario = FormularioReporteMovimientos()
-        codigos = [code for code, _ in formulario.fields['almacenes'].choices]
+        codes = [code for code, _ in formulario.fields['almacenes'].choices]
 
-        self.assertIn('AL02', codigos)
+        self.assertIn('AL02', codes)
 
 
 def recorrer_urls(patrones=None, prefijo='', espacio=''):

@@ -1,7 +1,7 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Tipos de Cambio / {{ object.fecha }}</h3>
+<h3>Tipos de Cambio / {{ object.date }}</h3>
 {% else %}
 <h3>Tipos de Cambio / Nuevo</h3>
 {% endif %}
@@ -47,12 +47,12 @@
             <div class="row">
                 <div class="col-lg-2">
                     <label>Fecha:</label>
-                    {% if form.fecha.errors %}
-                    {% for error in form.fecha.errors %}
+                    {% if form.date.errors %}
+                    {% for error in form.date.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <h3>{{ form.fecha }}</h3>
+                    <h3>{{ form.date }}</h3>
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group"></div>
@@ -79,8 +79,8 @@
 {% block js %}
 <script>
 	$(document).ready(function() {
-		$("#id_fecha").datepicker();
-		$("#id_fecha").datepicker();
+		$("#id_date").datepicker();
+		$("#id_date").datepicker();
 	});
 
 </script>

@@ -101,12 +101,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>FECHA:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Referencia:</label>
@@ -341,7 +341,7 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	var subtotal=parseFloat($('#id_subtotal').val());
 	var total=subtotal;
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	$(".decimal").keydown(validar_decimales);
 	
 	$("#id_ruc").keyup(function() 
@@ -627,10 +627,10 @@ $(document).ready(function()
 		$('#id_cdetalles').val(ultimo_item);
 		var forma_pago = $('#id_forma_pago').val();
 		var ruc = $('#id_ruc').val();
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		if(ruc != '')
 		{					
-			if(fecha != '')
+			if(date != '')
 			{					
 				if(forma_pago)
 				{
@@ -657,7 +657,7 @@ $(document).ready(function()
 			}
 			else
 			{
-				alert("No ha seleccionado fecha");
+				alert("No ha seleccionado date");
 			}
 		}
 		else

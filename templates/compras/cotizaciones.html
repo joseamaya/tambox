@@ -42,7 +42,7 @@
                 <td>{{ cotizacion.code }}</td>
                 <td>{{ cotizacion.proveedor }}</td>
                 <td>{{ cotizacion.requerimiento }}</td>
-                <td>{{ cotizacion.fecha|date:"d/m/y" }}</td>
+                <td>{{ cotizacion.date|date:"d/m/y" }}</td>
                 <td>{{ cotizacion.get_estado_display }}</td>
             </tr>
             {% endfor %}

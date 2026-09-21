@@ -57,14 +57,14 @@ class ReporteRequerimiento():
         solicitado = Paragraph(u"SOLICITADO POR: " + requerimiento.solicitante.nombre_completo(), izquierda)
         oficina = Paragraph(u"OFICINA: " + requerimiento.oficina.nombre, izquierda)
         motivo = Paragraph(u"MOTIVO: " + requerimiento.motivo, izquierda)
-        fecha = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.fecha.strftime('%d/%m/%Y'), izquierda)
+        date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.date.strftime('%d/%m/%Y'), izquierda)
         mes = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)
         para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requerimiento.annio), izquierda)
         if requerimiento.entrega_directa_solicitante:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
-        datos = [[solicitado, oficina], [motivo], [fecha, mes], [para_stock, entrega]]
+        datos = [[solicitado, oficina], [motivo], [date, mes], [para_stock, entrega]]
         tabla_datos = Table(datos, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(
             [
@@ -138,13 +138,13 @@ class ReporteRequerimiento():
         try:
             jefatura = Puesto.objects.get(oficina=oficina,
                                           es_jefatura=True,
-                                          fecha_inicio__lte=requerimiento.fecha,
+                                          fecha_inicio__lte=requerimiento.date,
                                           fecha_fin=None)
         except Puesto.DoesNotExist:
             jefatura = Puesto.objects.get(oficina=oficina,
                                           es_jefatura=True,
-                                          fecha_inicio__lte=requerimiento.fecha,
-                                          fecha_fin__gte=requerimiento.fecha)
+                                          fecha_inicio__lte=requerimiento.date,
+                                          fecha_fin__gte=requerimiento.date)
         return jefatura
 
     def tabla_firmas(self):

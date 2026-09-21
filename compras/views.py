@@ -228,7 +228,7 @@ class CrearCotizacion(CreateView):
 
     def get_initial(self):
         initial = super(CrearCotizacion, self).get_initial()
-        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%d/%m/%Y')
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -297,7 +297,7 @@ class CrearOrdenCompra(CreateView):
             monto_impuesto = impuesto_compra().monto
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
-        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['code'] = OrdenCompra.objects.ultimo()
         initial['impuesto_actual'] = monto_impuesto
         initial['total'] = 0
@@ -832,7 +832,7 @@ class ModificarCotizacion(UpdateView):
         initial['ruc'] = cotizacion.proveedor.ruc
         initial['razon_social'] = cotizacion.proveedor.razon_social
         initial['direccion'] = cotizacion.proveedor.direccion
-        initial['fecha'] = cotizacion.fecha.strftime('%d/%m/%Y')
+        initial['date'] = cotizacion.date.strftime('%d/%m/%Y')
         initial['referencia'] = cotizacion.requerimiento
         initial['observaciones'] = cotizacion.observaciones
         return initial
@@ -918,7 +918,7 @@ class ModificarConformidadServicio(UpdateView):
         initial['cod_conformidad_servicio'] = conformidad.code
         initial['orden_servicios'] = conformidad.orden_servicios
         initial['doc_sustento'] = conformidad.doc_sustento
-        initial['fecha'] = conformidad.fecha.strftime('%d/%m/%Y')
+        initial['date'] = conformidad.date.strftime('%d/%m/%Y')
         return initial
 
     def get_context_data(self, **kwargs):
@@ -1011,7 +1011,7 @@ class ModificarOrdenCompra(UpdateView):
         initial['ruc'] = proveedor.ruc
         initial['razon_social'] = proveedor.razon_social
         initial['direccion'] = proveedor.direccion
-        initial['fecha'] = orden.fecha.strftime('%d/%m/%Y')
+        initial['date'] = orden.date.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
         try:
@@ -1112,7 +1112,7 @@ class ModificarOrdenServicios(UpdateView):
         initial['ruc'] = proveedor.ruc
         initial['razon_social'] = proveedor.razon_social
         initial['direccion'] = proveedor.direccion
-        initial['fecha'] = orden.fecha.strftime('%d/%m/%Y')
+        initial['date'] = orden.date.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
         initial['proceso'] = orden.proceso
@@ -1294,23 +1294,23 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
 
 class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('orden_compra', 'fecha')
+    parametros_requeridos = ('orden_compra', 'date')
 
-    def obtener_fecha(self, r_fecha):
-        anio = int(r_fecha[6:])
-        mes = int(r_fecha[3:5])
-        dia = int(r_fecha[0:2])
-        fecha = datetime.date(anio, mes, dia)
-        return fecha
+    def obtener_date(self, r_date):
+        anio = int(r_date[6:])
+        mes = int(r_date[3:5])
+        dia = int(r_date[0:2])
+        date = datetime.date(anio, mes, dia)
+        return date
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             orden_compra = OrdenCompra.objects.get(code=request.GET['orden_compra'])
-            fecha = self.obtener_fecha(request.GET['fecha'])
+            date = self.obtener_date(request.GET['date'])
             tipo_cambio = 1
             if orden_compra.dolares:
                 try:
-                    tipo_cambio = TipoCambio.objects.get(fecha=fecha).monto
+                    tipo_cambio = TipoCambio.objects.get(date=date).monto
                 except TipoCambio.DoesNotExist:
                     tipo_cambio = 0
             lista_detalles = []
@@ -1529,7 +1529,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws['D3'] = 'HASTA'
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_servicios = OrdenServicios.objects.filter(fecha__range=[fecha_inicio, fecha_final])
+            ordenes_servicios = OrdenServicios.objects.filter(date__range=[fecha_inicio, fecha_final])
         elif tipo_busqueda == 'M':
             mes = data['mes'].strip()
             annio = data['annio'].strip()
@@ -1539,14 +1539,14 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws['C3'] = mes
             ws['D3'] = 'AÑO'
             ws['E3'] = annio
-            ordenes_servicios = OrdenServicios.objects.filter(fecha__month=mes, fecha__year=annio)
+            ordenes_servicios = OrdenServicios.objects.filter(date__month=mes, date__year=annio)
         elif tipo_busqueda == 'A':
             annio = data['annio'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = annio
-            ordenes_servicios = OrdenServicios.objects.filter(fecha__year=annio)
+            ordenes_servicios = OrdenServicios.objects.filter(date__year=annio)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'
@@ -1560,7 +1560,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
         cont = 6
         for orden in ordenes_servicios:
             ws.cell(row=cont, column=2).value = orden.code
-            ws.cell(row=cont, column=3).value = orden.fecha
+            ws.cell(row=cont, column=3).value = orden.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = orden.cotizacion.proveedor.razon_social
@@ -1609,7 +1609,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws['D3'] = 'HASTA'
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_compra = OrdenCompra.objects.filter(fecha__range=[fecha_inicio, fecha_final])
+            ordenes_compra = OrdenCompra.objects.filter(date__range=[fecha_inicio, fecha_final])
         elif tipo_busqueda == 'M':
             mes = data['mes'].strip()
             annio = data['annio'].strip()
@@ -1619,14 +1619,14 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws['C3'] = mes
             ws['D3'] = 'AÑO'
             ws['E3'] = annio
-            ordenes_compra = OrdenCompra.objects.filter(fecha__month=mes, fecha__year=annio)
+            ordenes_compra = OrdenCompra.objects.filter(date__month=mes, date__year=annio)
         elif tipo_busqueda == 'A':
             annio = data['annio'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = annio
-            ordenes_compra = OrdenCompra.objects.filter(fecha__year=annio)
+            ordenes_compra = OrdenCompra.objects.filter(date__year=annio)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'
@@ -1640,7 +1640,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         cont = 6
         for orden_compra in ordenes_compra:
             ws.cell(row=cont, column=2).value = orden_compra.code
-            ws.cell(row=cont, column=3).value = orden_compra.fecha
+            ws.cell(row=cont, column=3).value = orden_compra.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = orden_compra.cotizacion.proveedor.razon_social

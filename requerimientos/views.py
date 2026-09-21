@@ -107,7 +107,7 @@ class CrearRequerimiento(CreateView):
     def get_initial(self):
         initial = super(CrearRequerimiento, self).get_initial()
         initial['annio'] = date.today().year
-        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['mes'] = date.today().month
         return initial
 
@@ -307,7 +307,7 @@ class ModificarRequerimiento(UpdateView):
 
     def get_initial(self):
         initial = super(ModificarRequerimiento, self).get_initial()
-        initial['fecha'] = self.object.fecha.strftime('%d/%m/%Y')
+        initial['date'] = self.object.date.strftime('%d/%m/%Y')
         return initial
 
     def get_context_data(self, **kwargs):

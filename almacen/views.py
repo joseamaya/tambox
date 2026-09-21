@@ -242,16 +242,16 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = CargarInventarioInicialForm
 
-    def obtener_fecha_hora(self, r_fecha, r_hora):
+    def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
-        anio = int(r_fecha[6:])
-        mes = int(r_fecha[3:5])
-        dia = int(r_fecha[0:2])
+        anio = int(r_date[6:])
+        mes = int(r_date[3:5])
+        dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         # segundos = int(r_hora[6:8])
-        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos))
-        return fecha
+        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos))
+        return date
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -267,7 +267,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
         if faltantes:
             return self.render_to_response(self.get_context_data(form=form,
                                                                  notificaciones=faltantes))
-        self.fecha_operacion = self.obtener_fecha_hora(data['fecha'], data['hora'])
+        self.fecha_operacion = self.obtener_fecha_hora(data['date'], data['hora'])
         self.cont_detalles = 1
         self.detalles = []
         with transaction.atomic():
@@ -789,7 +789,7 @@ class ModificarIngresoAlmacen(UpdateView):
         initial = super(ModificarIngresoAlmacen, self).get_initial()
         movimiento = self.object
         initial['id_movimiento'] = movimiento.id_movimiento
-        initial['fecha'] = movimiento.fecha_operacion.strftime('%d/%m/%Y')
+        initial['date'] = movimiento.fecha_operacion.strftime('%d/%m/%Y')
         initial['hora'] = movimiento.fecha_operacion.strftime('%H : %M : %S')
         initial['almacen'] = movimiento.almacen
         initial['tipo_movimiento'] = movimiento.tipo_movimiento
@@ -906,7 +906,7 @@ class ModificarSalidaAlmacen(UpdateView):
         movimiento = self.object
         self.detalles = DetalleMovimiento.objects.filter(movimiento=movimiento)
         initial['id_movimiento'] = movimiento.id_movimiento
-        initial['fecha'] = movimiento.fecha_operacion.strftime('%d/%m/%Y')
+        initial['date'] = movimiento.fecha_operacion.strftime('%d/%m/%Y')
         initial['hora'] = movimiento.fecha_operacion.strftime('%H : %M : %S')
         initial['almacenes'] = movimiento.almacen
         initial['tipos_salida'] = movimiento.tipo_movimiento
@@ -1006,7 +1006,7 @@ class ModificarPedido(UpdateView):
     def get_initial(self):
         initial = super(ModificarPedido, self).get_initial()
         pedido = self.object
-        initial['fecha'] = pedido.fecha.strftime('%d/%m/%Y')
+        initial['date'] = pedido.date.strftime('%d/%m/%Y')
         initial['observaciones'] = pedido.observaciones
         return initial
 
@@ -1140,7 +1140,7 @@ class RegistrarIngresoAlmacen(CreateView):
 
     def get_initial(self):
         initial = super(RegistrarIngresoAlmacen, self).get_initial()
-        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['total'] = 0
         return initial
 
@@ -1231,7 +1231,7 @@ class RegistrarSalidaAlmacen(CreateView):
     def get_initial(self):
         initial = super(RegistrarSalidaAlmacen, self).get_initial()
         initial['total'] = 0
-        initial['fecha'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%d/%m/%Y')
         return initial
 
     def get(self, request, *args, **kwargs):

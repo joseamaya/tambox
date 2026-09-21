@@ -48,7 +48,7 @@
                 <td>{{ orden_servicios.proveedor }}</td>
                 <td>Ninguna</td>
                 {% endif %}
-                <td>{{ orden_servicios.fecha|date:"d/m/y" }}</td>
+                <td>{{ orden_servicios.date|date:"d/m/y" }}</td>
                 <td>{{ orden_servicios.get_estado_display }}</td>
             </tr>
             {% endfor %}

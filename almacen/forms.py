@@ -82,7 +82,7 @@ class FormularioReporteMovimientos(forms.Form):
 
 
 class MovimientoForm(forms.ModelForm):
-    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     doc_referencia = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -130,16 +130,16 @@ class MovimientoForm(forms.ModelForm):
                     raise ValidationError("El DNI no correspone a ningun trabajador")
         return self.cleaned_data['dni_receptor']
 
-    def obtener_fecha_hora(self, r_fecha, r_hora):
+    def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
-        anio = int(r_fecha[6:])
-        mes = int(r_fecha[3:5])
-        dia = int(r_fecha[0:2])
+        anio = int(r_date[6:])
+        mes = int(r_date[3:5])
+        dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
-        return fecha
+        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
+        return date
 
     def save(self, *args, **kwargs):
         if self.tipo_movimiento == 'I':
@@ -157,7 +157,7 @@ class MovimientoForm(forms.ModelForm):
                 self.instance.trabajador = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
                 self.instance.trabajador = None
-        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'], self.cleaned_data['hora'])
+        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -218,7 +218,7 @@ class FormularioConsultaStock(forms.Form):
 class CargarInventarioInicialForm(forms.ModelForm):
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
 
     class Meta:
@@ -240,7 +240,7 @@ class PedidoForm(forms.ModelForm):
         super(PedidoForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['observaciones'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -258,12 +258,12 @@ class PedidoForm(forms.ModelForm):
 
     class Meta:
         model = Pedido
-        fields = ['code', 'fecha', 'observaciones']
+        fields = ['code', 'date', 'observaciones']
 
 
 class AprobacionPedidoForm(forms.ModelForm):
     cod_pedido = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hora = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(attrs={'size': 10,
                                                                                               'readonly': "readonly",
@@ -273,26 +273,26 @@ class AprobacionPedidoForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super(AprobacionPedidoForm, self).__init__(*args, **kwargs)
         self.fields['observaciones'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
 
-    def obtener_fecha_hora(self, r_fecha, r_hora):
+    def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
-        anio = int(r_fecha[6:])
-        mes = int(r_fecha[3:5])
-        dia = int(r_fecha[0:2])
+        anio = int(r_date[6:])
+        mes = int(r_date[3:5])
+        dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        fecha = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
-        return fecha
+        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
+        return date
 
     def save(self, *args, **kwargs):
         self.instance.pedido = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
-        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'], self.cleaned_data['hora'])
+        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         self.instance.tipo_movimiento = TipoMovimiento.objects.get(code="S01")
         self.instance.oficina = self.instance.pedido.oficina
         return super(AprobacionPedidoForm, self).save(*args, **kwargs)
@@ -306,7 +306,7 @@ class FormularioPedido(forms.Form):
     cod_pedido = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     almacenes = forms.ModelChoiceField(queryset=Almacen.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    fecha = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     observaciones = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
     total = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))

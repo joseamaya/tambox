@@ -395,19 +395,19 @@ class ModificarImpuesto(UpdateView):
 
 class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('fecha',)
+    parametros_requeridos = ('date',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            fecha_get = request.GET['fecha']
+            fecha_get = request.GET['date']
             anio = int(fecha_get[6:])
             mes = int(fecha_get[3:5])
             dia = int(fecha_get[0:2])
-            fecha = datetime.date(anio, mes, dia)
+            date = datetime.date(anio, mes, dia)
             try:
-                tipo_cambio = TipoCambio.objects.get(fecha=fecha)
+                tipo_cambio = TipoCambio.objects.get(date=date)
             except TipoCambio.DoesNotExist:
-                tipo_cambio = {'fecha': fecha_get, 'monto': 0}
+                tipo_cambio = {'date': fecha_get, 'monto': 0}
             data = simplejson.dumps(tipo_cambio)
             return HttpResponse(data, 'application/json')
 

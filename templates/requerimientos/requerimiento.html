@@ -71,12 +71,12 @@
                 <div class="row">
                     <div class="col-md-2">
                         <label>Fecha:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Mes en que se necesita:</label>
@@ -221,7 +221,7 @@
 $(document).ready(function() 
 {
 	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	
 	$('#id_crear_detalle').click(function(e)
 		{

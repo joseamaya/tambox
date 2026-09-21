@@ -32,7 +32,7 @@
                                 {% else %}
                                 <td>{{ orden.proveedor }}</td>
                                 {% endif %}
-                                <td>{{ orden.fecha|date:"d/m/Y" }}</td>
+                                <td>{{ orden.date|date:"d/m/Y" }}</td>
                             </tr>
                             {% endfor %}
                             </tbody>

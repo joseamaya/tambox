@@ -13,14 +13,14 @@ from tambox.querysets import NavegableQuerySet
 
 class TipoCambio(TimeStampedModel):
     monto = models.DecimalField(max_digits=15, decimal_places=5)
-    fecha = models.DateField(unique=True)
+    date = models.DateField(unique=True)
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_detalle_tipo_cambio', 'Puede ver detalle de Tipo de Cambio'),
                        ('ver_tabla_tipos_cambio', 'Puede ver tabla de Tipos de Cambio'),
                        ('ver_reporte_tipos_cambio_excel', 'Puede ver Reporte Tipos de Cambio en excel'),)
-        ordering = ['fecha']
+        ordering = ['date']
 
     def anterior(self):
         ant = TipoCambio.objects.anterior(self)
@@ -31,7 +31,7 @@ class TipoCambio(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return str(self.fecha)
+        return str(self.date)
 
 
 class CuentaContable(TimeStampedModel):

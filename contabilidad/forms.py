@@ -31,11 +31,11 @@ class UploadForm(forms.ModelForm):
 class TipoCambioForm(forms.ModelForm):
     class Meta:
         model = TipoCambio
-        fields = ['monto', 'fecha']
+        fields = ['monto', 'date']
 
     def __init__(self, *args, **kwargs):
         super(TipoCambioForm, self).__init__(*args, **kwargs)
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'

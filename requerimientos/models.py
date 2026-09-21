@@ -19,7 +19,7 @@ class Requerimiento(TimeStampedModel):
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     motivo = models.CharField(max_length=100, blank=True)
-    fecha = models.DateField()
+    date = models.DateField()
     fecha_recepcion = models.DateField(null=True)
     mes = models.IntegerField(choices=CHOICES_MESES)
     annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])

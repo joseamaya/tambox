@@ -30,7 +30,7 @@ def kardex_inicial_de(reporte, producto, almacen, desde):
     `reporte.kardex_iniciales` (una sola consulta); los que exportan un solo
     producto no lo hacen y aqui se consulta ese producto. Antes cada fila
     lanzaba un `latest('fecha_operacion')`, que ademas revienta con
-    MultipleObjectsReturned si dos movimientos comparten fecha.
+    MultipleObjectsReturned si dos movimientos comparten date.
     """
     from tambox.fechas import aware
 
@@ -87,8 +87,8 @@ class ReporteMovimiento():
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
-        fecha = Paragraph("FECHA: " + movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)
-        encabezado = [[imagen, nota, fecha],
+        date = Paragraph("FECHA: " + movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)
+        encabezado = [[imagen, nota, date],
                       ['', id_movimiento, '']
                       ]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])

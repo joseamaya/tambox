@@ -97,12 +97,12 @@
                 <div class="row">
                     <div class="col-md-2">
                         <label>FECHA:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-2">
                         <label>Referencia:</label>
@@ -216,7 +216,7 @@ $(document).ready(function()
 {
 	var mySpinner = null;
 	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 		
 	$("#id_razon_social").autocomplete({
 	  	source: function(request, response){
@@ -350,10 +350,10 @@ $(document).ready(function()
 	$("form").submit(function(event) 
 	{
 		var ruc = $('#id_ruc').val();
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		if(ruc != '')
 		{					
-			if(fecha != '')
+			if(date != '')
 			{					
 				if (contDetalles > 0)
 				{
@@ -366,7 +366,7 @@ $(document).ready(function()
 			}
 			else
 			{
-				alert("No ha seleccionado fecha");
+				alert("No ha seleccionado date");
 			}
 		}
 		else

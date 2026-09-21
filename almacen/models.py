@@ -19,7 +19,7 @@ from simple_history.models import HistoricalRecords
 
 
 class Almacen(TimeStampedModel):
-    code = models.CharField(unique=True, max_length=5)
+    code = models.CharField(unique=True, max_length=5, verbose_name='Código')
     description = models.CharField(max_length=30, verbose_name='Descripción')
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
@@ -48,7 +48,7 @@ class Almacen(TimeStampedModel):
 
 # Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
-    code = models.CharField(unique=True, max_length=10)
+    code = models.CharField(unique=True, max_length=10, verbose_name='Código')
     codigo_sunat = models.CharField(max_length=2)
     description = models.CharField(max_length=25, verbose_name='Descripción')
     incrementa = models.BooleanField()
@@ -99,7 +99,7 @@ class Pedido(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
-    fecha = models.DateField()
+    date = models.DateField()
     observaciones = models.TextField(blank=True)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB', _('APROBADO')),
@@ -147,8 +147,8 @@ class Pedido(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.fecha.year
-            mov_ant = Pedido.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            anio = self.date.year
+            mov_ant = Pedido.objects.filter(date__year=anio).aggregate(Max('code'))
             id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
@@ -418,11 +418,11 @@ class Kardex(TimeStampedModel):
     def ultimos_por_producto(cls, productos, antes_de=None, **filtro):
         """Ultimo Kardex de cada producto del lote, en una sola consulta.
 
-        Con `antes_de` devuelve el ultimo movimiento anterior a esa fecha, que
+        Con `antes_de` devuelve el ultimo movimiento anterior a esa date, que
         es el saldo inicial de los informes de kardex.
 
         Las vistas pedian un `latest('fecha_operacion')` por producto: una
-        consulta por fila y, si dos movimientos compartian fecha,
+        consulta por fila y, si dos movimientos compartian date,
         MultipleObjectsReturned. Aqui el desempate es por `pk`, asi que el
         resultado es el mismo pero determinista.
 

@@ -51,8 +51,8 @@ urlpatterns = [
     re_path(r'^busqueda_productos_almacen/$', BusquedaProductosAlmacen.as_view(),
         name="busqueda_productos_almacen"),
     re_path(
-        r'^movimientos_fecha/(?P<fecha_inicio>\d{2}/\d{2}/\d{4})/(?P<fecha_fin>\d{2}/\d{2}/\d{4})/(?P<almacen>.+)/(?P<tipo_movimiento>.+)/$',
-        ReporteExcelMovimientosPorFecha.as_view(), name="movimientos_fecha"),
+        r'^movimientos_date/(?P<fecha_inicio>\d{2}/\d{2}/\d{4})/(?P<fecha_fin>\d{2}/\d{2}/\d{4})/(?P<almacen>.+)/(?P<tipo_movimiento>.+)/$',
+        ReporteExcelMovimientosPorFecha.as_view(), name="movimientos_date"),
     re_path(r'^movimiento_pdf/(?P<id_movimiento>.+)/$', ReportePDFMovimiento.as_view(),
         name="movimiento_pdf"),
     re_path(r'^reporte_kardex/$', ReporteKardex.as_view(), name="reporte_kardex"),

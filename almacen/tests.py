@@ -70,17 +70,17 @@ class PedidoTest(TestCase):
     def setUp(self):
         self.fecha_actual = date.today()
         self.fecha_proxima = date(2017, 1, 1)
-        self.pe1 = baker.make(Pedido, code='', fecha=self.fecha_actual)
-        self.pe2 = baker.make(Pedido, code='', fecha=self.fecha_actual)
-        self.pe3 = baker.make(Pedido, code='', fecha=self.fecha_actual)
-        self.pe4 = baker.make(Pedido, code='', fecha=self.fecha_proxima)
+        self.pe1 = baker.make(Pedido, code='', date=self.fecha_actual)
+        self.pe2 = baker.make(Pedido, code='', date=self.fecha_actual)
+        self.pe3 = baker.make(Pedido, code='', date=self.fecha_actual)
+        self.pe4 = baker.make(Pedido, code='', date=self.fecha_proxima)
 
     def test_creacion_pedido_mommy(self):
         self.assertTrue(isinstance(self.pe1, Pedido))
         self.assertEqual(self.pe1.__str__(), self.pe1.code)
-        self.assertEqual("PE" + str(self.pe1.fecha.year) + "000001", self.pe1.code)
-        self.assertEqual("PE" + str(self.pe2.fecha.year) + "000002", self.pe2.code)
-        self.assertEqual("PE" + str(self.pe4.fecha.year) + "000001", self.pe4.code)
+        self.assertEqual("PE" + str(self.pe1.date.year) + "000001", self.pe1.code)
+        self.assertEqual("PE" + str(self.pe2.date.year) + "000002", self.pe2.code)
+        self.assertEqual("PE" + str(self.pe4.date.year) + "000001", self.pe4.code)
 
     def test_actualizacion_pedido(self):
         """`Pedido.save()` solo genera el code cuando esta vacio, asi que
@@ -110,7 +110,7 @@ class DetallePedidoTest(TestCase):
 
     def setUp(self):
         self.fecha_actual = date.today()
-        self.pe1 = baker.make(Pedido, code='', fecha=self.fecha_actual)
+        self.pe1 = baker.make(Pedido, code='', date=self.fecha_actual)
         self.dpe1 = baker.make(DetallePedido, pedido=self.pe1)
 
     def test_creacion_detalle_pedido(self):
@@ -287,7 +287,7 @@ class CargarCsvTest(TestCase):
 
         respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
                                      {'archivo': archivo,
-                                      'fecha': '01/01/2024',
+                                      'date': '01/01/2024',
                                       'hora': '08:30',
                                       'almacenes': almacen.pk})
 
@@ -311,7 +311,7 @@ class CargarCsvTest(TestCase):
 
         respuesta = self.client.post('/almacen/cargar_inventario_inicial/',
                                      {'archivo': archivo,
-                                      'fecha': '01/01/2024',
+                                      'date': '01/01/2024',
                                       'hora': '08:30',
                                       'almacenes': almacen.pk})
 
@@ -338,7 +338,7 @@ class TotalDeMovimientoTest(TestCase):
 class UltimosPorProductoTest(TestCase):
     """Las vistas de stock resolvian el ultimo Kardex con un `latest()` por
     producto: una consulta por fila y MultipleObjectsReturned si dos movimientos
-    compartian fecha."""
+    compartian date."""
 
     def setUp(self):
         self.almacen = baker.make(Almacen)

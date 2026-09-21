@@ -68,12 +68,12 @@
                     </div>
                     <div class="col-md-3">
                         <label>Fecha:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
@@ -288,7 +288,7 @@ $(document).ready(function()
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
 	$("#id_tipo_movimiento").on('change',verificar_tipo_salida);
 
@@ -457,7 +457,7 @@ $(document).ready(function()
 		tipo_salida = $('#id_tipo_movimiento').val();
 		$('#id_cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacen').val().trim();
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		var tipo_documento;
 		var serie;
 		var numero;
@@ -465,7 +465,7 @@ $(document).ready(function()
 		{			
 			if(almacen != '') 
 			{			
-				if(fecha != '')
+				if(date != '')
 				{					
 					if (contDetalles > 0)
 					{
@@ -478,7 +478,7 @@ $(document).ready(function()
 				}
 				else
 				{
-					alert("No ha seleccionado fecha");
+					alert("No ha seleccionado date");
 				}
 			}
 			else

@@ -36,7 +36,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ tipo.fecha|date:"d/m/y" }}</td>
+                <td>{{ tipo.date|date:"d/m/y" }}</td>
                 <td>{{ tipo.monto }}</td>
             </tr>
             {% endfor %}

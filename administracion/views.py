@@ -157,12 +157,12 @@ class CargarPuestos(CargarCsvMixin, FormView):
     success_url = reverse_lazy('administracion:maestro_puestos')
 
     def procesar_fila(self, fila):
-        fecha = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
+        date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
             Puesto.objects.get_or_create(nombre=fila[0],
                                          defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
                                                    'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
-                                                   'fecha_inicio': fecha,
+                                                   'fecha_inicio': date,
                                                    'es_jefatura': fila[4] == 'SI'})
         except Exception:
             logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)

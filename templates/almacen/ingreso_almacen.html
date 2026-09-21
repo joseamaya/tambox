@@ -83,12 +83,12 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Fecha:</label>
-                        {% if form.fecha.errors %}
-                        {% for error in form.fecha.errors %}
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.fecha }}
+                        {{ form.date }}
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
@@ -293,7 +293,7 @@ $(document).ready(function()
 	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
-	$("#id_fecha").datepicker();
+	$("#id_date").datepicker();
 	{% if object %}
 		$('#id_hora').wickedpicker({now: "{{ movimiento.fecha_operacion|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
 	{% else %}
@@ -457,11 +457,11 @@ $(document).ready(function()
 	function transferirOrden()
 	{		
 		var orden_compra = $("#orden_compra").val();
-		var fecha = $("#id_fecha").val();
+		var date = $("#id_date").val();
 		var cont = 0;
 		ventana_transferencia.dialog( "close" );
 		$.ajax({
-			data : {'orden_compra': orden_compra, 'fecha':fecha},
+			data : {'orden_compra': orden_compra, 'date':date},
 			url : "{% url 'compras:obtener_detalle_orden_compra' %}",
 			type : 'get',
 			success : function(data)
@@ -513,7 +513,7 @@ $(document).ready(function()
 		tipo_ingreso = $('#id_tipo_movimiento').val();
 		$('#id_cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacen').val().trim();
-		var fecha = $('#id_fecha').val().trim();
+		var date = $('#id_date').val().trim();
 		var solicita_documento = $('#id_tipo_documento').is(':enabled');
 		var tipo_documento;
 		var serie;
@@ -522,7 +522,7 @@ $(document).ready(function()
 		{			
 			if(almacen != '') 
 			{			
-				if(fecha != '')
+				if(date != '')
 				{					
 					if (contDetalles > 0)
 					{
@@ -535,7 +535,7 @@ $(document).ready(function()
 				}
 				else
 				{
-					alert("No ha seleccionado fecha")
+					alert("No ha seleccionado date")
 				}
 			}
 			else

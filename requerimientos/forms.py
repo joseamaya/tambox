@@ -95,7 +95,7 @@ class RequerimientoForm(forms.ModelForm):
         self.fields['informe'].required = False
         self.fields['code'].required = False
         self.fields['observaciones'].required = False
-        self.fields['fecha'].input_formats = ['%d/%m/%Y']
+        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             if field != 'entrega_directa_solicitante':
                 self.fields[field].widget.attrs.update({
@@ -112,7 +112,7 @@ class RequerimientoForm(forms.ModelForm):
 
     class Meta:
         model = Requerimiento
-        fields = ['code', 'motivo', 'fecha', 'mes', 'annio', 'observaciones', 'informe',
+        fields = ['code', 'motivo', 'date', 'mes', 'annio', 'observaciones', 'informe',
                   'entrega_directa_solicitante']
 
 

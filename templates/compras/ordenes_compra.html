@@ -46,7 +46,7 @@
                 {% else %}
                 <td>Ninguna</td>
                 {% endif %}
-                <td>{{ orden_compra.fecha|date:"d/m/y" }}</td>
+                <td>{{ orden_compra.date|date:"d/m/y" }}</td>
                 <td>{{ orden_compra.created|date:"d/m/y" }}</td>
                 <td>{{ orden_compra.get_estado_display }}</td>
             </tr>
