@@ -381,6 +381,8 @@ class ModificarRequerimiento(UpdateView):
 
 
 class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('requerimiento', 'tipo_busqueda')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             requerimiento = request.GET['requerimiento']

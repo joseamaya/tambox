@@ -395,6 +395,8 @@ class ModificarImpuesto(UpdateView):
 
 class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
 
+    parametros_requeridos = ('fecha',)
+
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             fecha_get = request.GET['fecha']

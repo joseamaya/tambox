@@ -56,6 +56,8 @@ class Tablero(View):
 
 
 class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('dni', 'tipo_movimiento')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             dni = request.GET['dni']
@@ -72,6 +74,8 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
 
 
 class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('nombre', 'tipo_movimiento')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             nombre = request.GET['nombre']

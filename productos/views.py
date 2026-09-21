@@ -50,6 +50,8 @@ class Tablero(View):
 
 class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
 
+    parametros_requeridos = ('descripcion', 'tipo_busqueda')
+
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             descripcion = request.GET['descripcion']
@@ -80,6 +82,8 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
 
 
 class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('codigo',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -157,6 +161,8 @@ class CargarProductos(CargarCsvMixin, FormView):
 
 
 class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('codigo',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':

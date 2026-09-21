@@ -72,6 +72,8 @@ class Tablero(View):
 
 class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
 
+    parametros_requeridos = ('codigo',)
+
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             codigo = request.GET['codigo']
@@ -85,6 +87,8 @@ class BusquedaCotizacion(SoloAjaxMixin, TemplateView):
 
 
 class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('razon_social',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -103,6 +107,8 @@ class BusquedaProveedoresRazonSocial(SoloAjaxMixin, TemplateView):
 
 
 class BusquedaProveedoresRUC(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('ruc',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -1211,6 +1217,8 @@ class ModificarOrdenServicios(UpdateView):
 
 class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
 
+    parametros_requeridos = ('cotizacion', 'tipo_busqueda')
+
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             cotizacion = request.GET['cotizacion']
@@ -1286,6 +1294,8 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
 
 class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
+    parametros_requeridos = ('orden_compra', 'fecha')
+
     def obtener_fecha(self, r_fecha):
         anio = int(r_fecha[6:])
         mes = int(r_fecha[3:5])
@@ -1343,6 +1353,8 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
 
 class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
+
+    parametros_requeridos = ('orden_servicios',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
