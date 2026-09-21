@@ -13,7 +13,7 @@ def crear_requerimiento(**kwargs):
     NivelAprobacion.objects.get_or_create(description='USUARIO')
     oficina = baker.make(Oficina)
     trabajador = baker.make(Trabajador)
-    baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)
+    baker.make(Puesto, oficina=oficina, trabajador=trabajador, end_date=None)
     return baker.make(Requerimiento, solicitante=trabajador, oficina=oficina, **kwargs)
 
 

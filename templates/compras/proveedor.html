@@ -120,12 +120,12 @@
                             {% endif %}
                             <p>{{ form.ciiu }}</p>
                             <label>FECHA ALTA: </label>
-                            {% if form.fecha_alta.errors %}
-                            {% for error in form.fecha_alta.errors %}
+                            {% if form.registration_date.errors %}
+                            {% for error in form.registration_date.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.fecha_alta }}</p>
+                            <p>{{ form.registration_date }}</p>
                             <label>TELÉFONO: </label>
                             {% if form.telefono.errors %}
                             {% for error in form.telefono.errors %}
@@ -157,7 +157,7 @@
 $(document).ready(function() 
 {
 	var mySpinner = null;	
-	$("#id_fecha_alta").datepicker();
+	$("#id_registration_date").datepicker();
 	$(".cantidad").keydown(validar_numeros);
 	
 	function setupLoading() 

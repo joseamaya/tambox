@@ -20,7 +20,7 @@ class Requerimiento(TimeStampedModel):
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     motivo = models.CharField(max_length=100, blank=True)
     date = models.DateField()
-    fecha_recepcion = models.DateField(null=True)
+    received_date = models.DateField(null=True)
     mes = models.IntegerField(choices=CHOICES_MESES)
     annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     observaciones = models.TextField()
@@ -269,7 +269,7 @@ class AprobacionRequerimiento(TimeStampedModel):
     nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE)
     estado = models.BooleanField(default=True)
     motivo_desaprobacion = models.TextField(default='')
-    fecha_recepcion = models.DateField(null=True)
+    received_date = models.DateField(null=True)
     history = HistoricalRecords()
     objects = AprobacionRequerimientoQuerySet.as_manager()
 
@@ -323,5 +323,5 @@ class AprobacionRequerimiento(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.nivel.description == "LOGISTICA" and self.estado == True:
-            self.requerimiento.fecha_recepcion = date.today()
+            self.requerimiento.received_date = date.today()
         super(AprobacionRequerimiento, self).save()

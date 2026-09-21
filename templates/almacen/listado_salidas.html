@@ -42,7 +42,7 @@
                 {% endif %}
                 <td>{{ movimiento.id_movimiento }}</td>
                 <td>{{ movimiento.tipo_movimiento }}</td>
-                <td>{{ movimiento.fecha_operacion|date:"d/m/y" }}</td>
+                <td>{{ movimiento.operation_date|date:"d/m/y" }}</td>
                 <td>{{ movimiento.almacen }}</td>
             </tr>
             {% endfor %}

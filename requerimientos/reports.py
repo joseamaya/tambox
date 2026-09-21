@@ -138,13 +138,13 @@ class ReporteRequerimiento():
         try:
             jefatura = Puesto.objects.get(oficina=oficina,
                                           es_jefatura=True,
-                                          fecha_inicio__lte=requerimiento.date,
-                                          fecha_fin=None)
+                                          start_date__lte=requerimiento.date,
+                                          end_date=None)
         except Puesto.DoesNotExist:
             jefatura = Puesto.objects.get(oficina=oficina,
                                           es_jefatura=True,
-                                          fecha_inicio__lte=requerimiento.date,
-                                          fecha_fin__gte=requerimiento.date)
+                                          start_date__lte=requerimiento.date,
+                                          end_date__gte=requerimiento.date)
         return jefatura
 
     def tabla_firmas(self):
@@ -167,10 +167,10 @@ class ReporteRequerimiento():
             cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:
-            fecha_recepcion = requerimiento.fecha_recepcion.strftime('%d/%m/%Y')
+            received_date = requerimiento.received_date.strftime('%d/%m/%Y')
         except AttributeError:
-            fecha_recepcion = ''
-        pie = [(Paragraph('Fecha: ' + fecha_recepcion + "<br/>" + jefe_logistica.nombre_completo(), p),
+            received_date = ''
+        pie = [(Paragraph('Fecha: ' + received_date + "<br/>" + jefe_logistica.nombre_completo(), p),
                 Paragraph("Solicitado por: <br/>" + solicitante, p),
                 '',
                 '',

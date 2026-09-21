@@ -135,7 +135,7 @@ class PuestoTest(TestCase):
         self.assertEqual(self.p3.pk, self.p1.anterior())
 
     def test_estado_puesto(self):
-        p = baker.make(Puesto, fecha_fin=date.today())
+        p = baker.make(Puesto, end_date=date.today())
         self.assertTrue(self.p1.estado)
         self.assertFalse(p.estado)
 
@@ -146,7 +146,7 @@ class EstablecerNivelTest(TestCase):
 
     def test_nivel_ausente_da_un_mensaje_claro(self):
         oficina = baker.make(Oficina)
-        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), fecha_fin=None)
+        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), end_date=None)
 
         with self.assertRaisesMessage(ValidationError, 'Falta el nivel de aprobacion "USUARIO"'):
             puesto.establecer_nivel(oficina)
@@ -154,7 +154,7 @@ class EstablecerNivelTest(TestCase):
     def test_usa_el_nivel_existente(self):
         nivel = baker.make(NivelAprobacion, description='USUARIO')
         oficina = baker.make(Oficina)
-        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), fecha_fin=None)
+        puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), end_date=None)
 
         self.assertEqual(puesto.establecer_nivel(oficina), nivel)
 

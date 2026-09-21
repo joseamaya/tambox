@@ -89,21 +89,21 @@
                             {% endif %}
                             {{ form.oficina }}
                             <label>FECHA INICIO:</label>
-                            {% if form.fecha_inicio.errors %}
-                            {% for error in form.fecha_inicio.errors %}
+                            {% if form.start_date.errors %}
+                            {% for error in form.start_date.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            {{ form.fecha_inicio }}
+                            {{ form.start_date }}
                         </div>
                         <div class="col-lg-4">
                             <label>FECHA FIN:</label>
-                            {% if form.fecha_fin.errors %}
-                            {% for error in form.fecha_fin.errors %}
+                            {% if form.end_date.errors %}
+                            {% for error in form.end_date.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            {{ form.fecha_fin }}
+                            {{ form.end_date }}
                         </div>
                         <div class="col-lg-4"></div>
                     </div>
@@ -115,8 +115,8 @@
 {% endblock cuerpo %} {% block js %}
 <script>
 	$(document).ready(function() {
-		$("#id_fecha_inicio").datepicker();
-		$("#id_fecha_fin").datepicker();
+		$("#id_start_date").datepicker();
+		$("#id_end_date").datepicker();
 	});
 
 </script>

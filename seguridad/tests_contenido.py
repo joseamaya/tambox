@@ -69,7 +69,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         NivelAprobacion.objects.get_or_create(description='USUARIO')
         oficina = baker.make(Oficina)
         trabajador = baker.make(Trabajador, usuario=self.usuario)
-        baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)
+        baker.make(Puesto, oficina=oficina, trabajador=trabajador, end_date=None)
         requerimiento = baker.make(Requerimiento, solicitante=trabajador, oficina=oficina)
         producto = baker.make(Producto, description='PRODUCTO-XYZ')
         baker.make('requerimientos.DetalleRequerimiento',

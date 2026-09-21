@@ -144,7 +144,7 @@ class ObtenerKardexTest(TestCase):
         self.almacen = baker.make(Almacen)
         self.producto = baker.make(Producto)
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
-                   fecha_operacion=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
+                   operation_date=timezone.make_aware(datetime(2024, 1, 15, 12, 0)),
                    cantidad_ingreso=Decimal('10'), valor_ingreso=Decimal('50'),
                    cantidad_salida=Decimal('2'), valor_salida=Decimal('9'))
 

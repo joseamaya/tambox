@@ -717,26 +717,26 @@ class PDFMemorandoConformidadServicio(object):
         try:
             puesto = Puesto.objects.get(oficina=oficina,
                                         es_jefatura=True,
-                                        fecha_inicio__lte=conformidad.date,
-                                        fecha_fin=None)
+                                        start_date__lte=conformidad.date,
+                                        end_date=None)
         except Puesto.DoesNotExist:
             puesto = Puesto.objects.get(oficina=oficina,
                                         es_jefatura=True,
-                                        fecha_inicio__lte=conformidad.date,
-                                        fecha_fin__gte=conformidad.date)
+                                        start_date__lte=conformidad.date,
+                                        end_date__gte=conformidad.date)
         return puesto
 
     def puesto_superior(self, oficina, conformidad):
         try:
             puesto_superior = Puesto.objects.get(oficina=oficina,
                                                  es_jefatura=True,
-                                                 fecha_inicio__lte=conformidad.date,
-                                                 fecha_fin=None)
+                                                 start_date__lte=conformidad.date,
+                                                 end_date=None)
         except Puesto.DoesNotExist:
             puesto_superior = Puesto.objects.get(oficina=oficina,
                                                  es_jefatura=True,
-                                                 fecha_inicio__lte=conformidad.date,
-                                                 fecha_fin__gte=conformidad.date)
+                                                 start_date__lte=conformidad.date,
+                                                 end_date__gte=conformidad.date)
         return puesto_superior
 
     def cabecera(self, pdf, conformidad):

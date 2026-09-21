@@ -29,17 +29,17 @@ def kardex_inicial_de(reporte, producto, almacen, desde):
     Los informes que recorren el catalogo precargan el lote entero en
     `reporte.kardex_iniciales` (una sola consulta); los que exportan un solo
     producto no lo hacen y aqui se consulta ese producto. Antes cada fila
-    lanzaba un `latest('fecha_operacion')`, que ademas revienta con
+    lanzaba un `latest('operation_date')`, que ademas revienta con
     MultipleObjectsReturned si dos movimientos comparten date.
     """
-    from tambox.fechas import aware
+    from tambox.dates import aware
 
     desde = aware(desde)
     iniciales = getattr(reporte, 'kardex_iniciales', None)
     if iniciales is None:
         return (Kardex.objects.filter(producto=producto, almacen=almacen,
-                                      fecha_operacion__lt=desde)
-                .order_by('-fecha_operacion', '-pk')
+                                      operation_date__lt=desde)
+                .order_by('-operation_date', '-pk')
                 .first())
     return iniciales.get(producto.pk)
 
@@ -87,7 +87,7 @@ class ReporteMovimiento():
         else:
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
-        date = Paragraph("FECHA: " + movimiento.fecha_operacion.strftime('%d/%m/%y'), sp)
+        date = Paragraph("FECHA: " + movimiento.operation_date.strftime('%d/%m/%y'), sp)
         encabezado = [[imagen, nota, date],
                       ['', id_movimiento, '']
                       ]
@@ -377,7 +377,7 @@ class ReporteKardexPDF():
 
             cantidad_total = kardex.cantidad_total
 
-            tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
+            tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
@@ -688,7 +688,7 @@ class ReporteKardexPDF():
             if valor_total == '-0.00':
                 valor_total = format(abs(kardex.valor_total), '.2f')
 
-            tabla.append([kardex.fecha_operacion.strftime('%d/%m/%Y'),
+            tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           tipo_documento,
                           kardex.movimiento.serie,
                           kardex.movimiento.numero,
@@ -1185,7 +1185,7 @@ class ReporteKardexExcel():
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
-            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
@@ -1278,7 +1278,7 @@ class ReporteKardexExcel():
             self, producto, almacen, desde, hasta)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
-                ws.cell(row=cont, column=2).value = kardex.fecha_operacion
+                ws.cell(row=cont, column=2).value = kardex.operation_date
                 ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                 ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
                 ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code
@@ -1490,7 +1490,7 @@ class ReporteKardexExcel():
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
-            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
@@ -1663,7 +1663,7 @@ class ReporteKardexExcel():
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
-            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
@@ -1869,7 +1869,7 @@ class ReporteKardexExcel():
             self, producto, almacen, desde, hasta)
         for kardex in listado_kardex:
             cont = cont + 1
-            ws.cell(row=cont, column=2).value = kardex.fecha_operacion.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
                 ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.codigo_sunat
@@ -2019,7 +2019,7 @@ class ReporteKardexExcel():
             try:
                 kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
                                                        almacen=almacen,
-                                                       fecha_operacion__lt=desde).latest('fecha_operacion')
+                                                       operation_date__lt=desde).latest('operation_date')
                 cant_saldo_inicial = kardex_inicial.cantidad_total
                 valor_saldo_inicial = kardex_inicial.valor_total
             except Kardex.DoesNotExist:
@@ -2200,7 +2200,7 @@ class ReporteKardexExcel():
                 self, producto, almacen, desde, hasta)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
-                    ws.cell(row=cont, column=2).value = kardex.fecha_operacion
+                    ws.cell(row=cont, column=2).value = kardex.operation_date
                     ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                     ws.cell(row=cont, column=3).value = kardex.movimiento.id_movimiento
                     ws.cell(row=cont, column=4).value = kardex.movimiento.tipo_movimiento.code

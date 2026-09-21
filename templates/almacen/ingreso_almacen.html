@@ -295,7 +295,7 @@ $(document).ready(function()
 	var ultimo_item = contDetalles;
 	$("#id_date").datepicker();
 	{% if object %}
-		$('#id_hora').wickedpicker({now: "{{ movimiento.fecha_operacion|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
+		$('#id_hora').wickedpicker({now: "{{ movimiento.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
 	{% else %}
 		$('#id_hora').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
 	{% endif %}

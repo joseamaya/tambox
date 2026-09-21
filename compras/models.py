@@ -87,7 +87,7 @@ class Proveedor(TimeStampedModel):
     condicion = models.CharField(max_length=50)
     representantes = models.ManyToManyField(RepresentanteLegal)
     ciiu = models.CharField(max_length=250)
-    fecha_alta = models.DateField()
+    registration_date = models.DateField()
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()

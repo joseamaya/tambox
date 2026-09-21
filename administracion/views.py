@@ -162,7 +162,7 @@ class CargarPuestos(CargarCsvMixin, FormView):
             Puesto.objects.get_or_create(nombre=fila[0],
                                          defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
                                                    'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
-                                                   'fecha_inicio': date,
+                                                   'start_date': date,
                                                    'es_jefatura': fila[4] == 'SI'})
         except Exception:
             logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
@@ -387,9 +387,9 @@ class ModificarPuesto(UpdateView):
 
     def get_initial(self):
         initial = super(ModificarPuesto, self).get_initial()
-        initial['fecha_inicio'] = self.object.fecha_inicio.strftime('%d/%m/%Y')
-        if self.object.fecha_fin is not None:
-            initial['fecha_fin'] = self.object.fecha_fin.strftime('%d/%m/%Y')
+        initial['start_date'] = self.object.start_date.strftime('%d/%m/%Y')
+        if self.object.end_date is not None:
+            initial['end_date'] = self.object.end_date.strftime('%d/%m/%Y')
         return initial
 
     def get_success_url(self):
@@ -468,8 +468,8 @@ class ReporteExcelPuestos(TemplateView):
             ws.cell(row=cont, column=2).value = puesto.nombre
             ws.cell(row=cont, column=3).value = puesto.oficina.nombre
             ws.cell(row=cont, column=4).value = puesto.trabajador.nombre_completo()
-            ws.cell(row=cont, column=5).value = puesto.fecha_inicio.strftime('%d/%m/%Y')
-            ws.cell(row=cont, column=6).value = puesto.fecha_fin
+            ws.cell(row=cont, column=5).value = puesto.start_date.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=6).value = puesto.end_date
             if puesto.es_jefatura:
                 ws.cell(row=cont, column=7).value = "SI"
             else:

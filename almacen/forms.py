@@ -157,7 +157,7 @@ class MovimientoForm(forms.ModelForm):
                 self.instance.trabajador = Trabajador.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
                 self.instance.trabajador = None
-        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         return super(MovimientoForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -292,7 +292,7 @@ class AprobacionPedidoForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.pedido = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
-        self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
         self.instance.tipo_movimiento = TipoMovimiento.objects.get(code="S01")
         self.instance.oficina = self.instance.pedido.oficina
         return super(AprobacionPedidoForm, self).save(*args, **kwargs)

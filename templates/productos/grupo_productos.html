@@ -47,8 +47,8 @@
             <div class="row">
                 <div class="col-lg-7">
                     <label>Descripción:</label>
-                    {% if form.fecha_fin.errors %}
-                    {% for error in form.fecha_fin.errors %}
+                    {% if form.end_date.errors %}
+                    {% for error in form.end_date.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}

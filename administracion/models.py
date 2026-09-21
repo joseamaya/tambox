@@ -169,8 +169,8 @@ class Puesto(TimeStampedModel):
     nombre = models.CharField(max_length=100)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField(null=True)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)
     es_asistente = models.BooleanField(default=False)
     estado = models.BooleanField(default=True)
@@ -214,7 +214,7 @@ class Puesto(TimeStampedModel):
         ordering = ['nombre']
 
     def save(self, *args, **kwargs):
-        if self.fecha_fin is not None:
+        if self.end_date is not None:
             self.estado = False
         super(Puesto, self).save()
 

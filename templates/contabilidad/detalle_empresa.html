@@ -37,12 +37,12 @@
                         <label>MONTO: </label>
                         <p>{{ object.monto }}</p>
                         <label>FECHA INICIO: </label>
-                        <p>{{ object.fecha_inicio|date:"d/m/y" }}</p>
+                        <p>{{ object.start_date|date:"d/m/y" }}</p>
                     </div>
                     <div class="col-lg-4">
                         <label>FECHA FIN:</label>
-                        {% if object.fecha_fin %}
-                        <p>{{ object.fecha_fin|date:"d/m/y" }}</p>
+                        {% if object.end_date %}
+                        <p>{{ object.end_date|date:"d/m/y" }}</p>
                         {% else %}
                         <p>--</p>
                         {% endif %}

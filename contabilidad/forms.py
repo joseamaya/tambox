@@ -58,7 +58,7 @@ class TipoDocumentoForm(forms.ModelForm):
 class ImpuestoForm(forms.ModelForm):
     class Meta:
         model = Impuesto
-        fields = ['abreviatura', 'description', 'monto', 'fecha_inicio', 'fecha_fin']
+        fields = ['abreviatura', 'description', 'monto', 'start_date', 'end_date']
 
     def __init__(self, *args, **kwargs):
         super(ImpuestoForm, self).__init__(*args, **kwargs)
@@ -66,7 +66,7 @@ class ImpuestoForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
-        self.fields['fecha_fin'].required = False
+        self.fields['end_date'].required = False
 
 
 class ConfiguracionForm(forms.ModelForm):
@@ -80,7 +80,7 @@ class ConfiguracionForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
-        self.fields['impuesto_compra'].queryset = Impuesto.objects.exclude(fecha_fin__isnull=False)
+        self.fields['impuesto_compra'].queryset = Impuesto.objects.exclude(end_date__isnull=False)
 
 
 class CuentaContableForm(forms.ModelForm):

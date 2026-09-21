@@ -24,28 +24,28 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$("#id_fecha_inicio").datepicker();   
-$("#id_fecha_fin").datepicker();        
+$("#id_start_date").datepicker();   
+$("#id_end_date").datepicker();        
 $("input[name=tipo_busqueda]").change(function () 
 {	 
 	if($(this).val()=='F')
 	{
-		$("#id_fecha_inicio").attr("disabled",false);
-		$("#id_fecha_fin").attr("disabled",false);
+		$("#id_start_date").attr("disabled",false);
+		$("#id_end_date").attr("disabled",false);
 		$("#id_mes").attr("disabled",true);
 		$("#id_annio").attr("disabled",true);
 	}
 	else if($(this).val()=='M')
 	{
-		$("#id_fecha_inicio").attr("disabled",true);
-		$("#id_fecha_fin").attr("disabled",true);
+		$("#id_start_date").attr("disabled",true);
+		$("#id_end_date").attr("disabled",true);
 		$("#id_mes").attr("disabled",false);
 		$("#id_annio").attr("disabled",false);	
 	}
 	else if($(this).val()=='A')
 	{
-		$("#id_fecha_inicio").attr("disabled",true);
-		$("#id_fecha_fin").attr("disabled",true);
+		$("#id_start_date").attr("disabled",true);
+		$("#id_end_date").attr("disabled",true);
 		$("#id_mes").attr("disabled",true);
 		$("#id_annio").attr("disabled",false);	
 	}

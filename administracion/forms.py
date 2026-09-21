@@ -86,7 +86,7 @@ class ProductorForm(forms.ModelForm):
 class PuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['nombre', 'oficina', 'trabajador', 'fecha_inicio', 'fecha_fin', 'es_jefatura', 'es_asistente']
+        fields = ['nombre', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
 
     def __init__(self, *args, **kwargs):
         super(PuestoForm, self).__init__(*args, **kwargs)
@@ -95,19 +95,19 @@ class PuestoForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['fecha_inicio'].input_formats = ['%d/%m/%Y']
-        self.fields['fecha_fin'].input_formats = ['%d/%m/%Y']
-        self.fields['fecha_fin'].required = False
+        self.fields['start_date'].input_formats = ['%d/%m/%Y']
+        self.fields['end_date'].input_formats = ['%d/%m/%Y']
+        self.fields['end_date'].required = False
         self.fields['es_jefatura'].required = False
         self.fields['es_asistente'].required = False
         self.fields['trabajador'].queryset = Trabajador.objects.exclude(
-            pk__in=Puesto.objects.filter(fecha_fin__isnull=True).values('trabajador'))
+            pk__in=Puesto.objects.filter(end_date__isnull=True).values('trabajador'))
 
 
 class ModificacionPuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['nombre', 'oficina', 'trabajador', 'fecha_inicio', 'fecha_fin', 'es_jefatura', 'es_asistente']
+        fields = ['nombre', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
 
     def __init__(self, *args, **kwargs):
         super(ModificacionPuestoForm, self).__init__(*args, **kwargs)
@@ -116,8 +116,8 @@ class ModificacionPuestoForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['fecha_inicio'].input_formats = ['%d/%m/%Y']
-        self.fields['fecha_fin'].input_formats = ['%d/%m/%Y']
-        self.fields['fecha_fin'].required = False
+        self.fields['start_date'].input_formats = ['%d/%m/%Y']
+        self.fields['end_date'].input_formats = ['%d/%m/%Y']
+        self.fields['end_date'].required = False
         self.fields['es_jefatura'].required = False
         self.fields['es_asistente'].required = False

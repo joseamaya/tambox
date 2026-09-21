@@ -133,8 +133,8 @@ class Impuesto(TimeStampedModel):
     abreviatura = models.CharField(max_length=10)
     description = models.CharField(max_length=50)
     monto = models.DecimalField(max_digits=14, decimal_places=2)
-    fecha_inicio = models.DateField()
-    fecha_fin = models.DateField(null=True)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True)
     estado = models.BooleanField(default=True)
     STATUS = Choices(('COM', _('COMPRA')),
                      ('VEN', _('VEN')),

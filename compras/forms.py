@@ -12,7 +12,7 @@ class ProveedorForm(forms.ModelForm):
     class Meta:
         model = Proveedor
         fields = ['ruc', 'razon_social', 'direccion', 'telefono', 'correo', 'estado_sunat', 'condicion', 'ciiu',
-                  'fecha_alta']
+                  'registration_date']
 
     def __init__(self, *args, **kwargs):
         super(ProveedorForm, self).__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class ProveedorForm(forms.ModelForm):
         self.fields['correo'].required = False
         self.fields['estado_sunat'].required = False
         self.fields['condicion'].required = False
-        self.fields['fecha_alta'].input_formats = ['%d/%m/%Y']
+        self.fields['registration_date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             if field == 'ruc':
                 self.fields[field].widget.attrs.update({
@@ -63,9 +63,9 @@ class DetalleOrdenServicioForm(forms.Form):
 class FormularioReporteOrdenesFecha(forms.Form):
     tipo_busqueda = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=PARAMETROS_BUSQUEDA)
-    fecha_inicio = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
+    start_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                    label='Fecha de Inicio:', required=False)
-    fecha_fin = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
+    end_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                 label='Fecha de Fin:', required=False)
     mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     annio = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',

@@ -133,7 +133,7 @@ class CargarProveedores(CargarCsvMixin, FormView):
         Proveedor.objects.get_or_create(ruc=fila[0],
                                         defaults={'razon_social': fila[1],
                                                   'direccion': fila[2],
-                                                  'fecha_alta': datetime.datetime.now(),
+                                                  'registration_date': datetime.datetime.now(),
                                                   'estado_sunat': 'ACTIVO',
                                                   'condicion': 'HABIDO',
                                                   'ciiu': 'CUALQUIERA'})
@@ -808,7 +808,7 @@ class ModificarProveedor(UpdateView):
 
     def get_initial(self):
         initial = super(ModificarProveedor, self).get_initial()
-        initial['fecha_alta'] = self.object.fecha_alta.strftime('%d/%m/%Y')
+        initial['registration_date'] = self.object.registration_date.strftime('%d/%m/%Y')
         return initial
 
 
@@ -1490,7 +1490,7 @@ class ReporteExcelProveedores(TemplateView):
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=9).value = '-'
             ws.cell(row=cont, column=10).value = proveedor.ciiu
-            ws.cell(row=cont, column=11).value = proveedor.fecha_alta
+            ws.cell(row=cont, column=11).value = proveedor.registration_date
             ws.cell(row=cont, column=11).number_format = 'dd/mm/yyyy'
             cont = cont + 1
         nombre_archivo = "ListadoProveedores.xlsx"
@@ -1511,12 +1511,12 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
         wb = Workbook()
         ws = wb.active
         if tipo_busqueda == 'F':
-            p_fecha_inicio = data['fecha_inicio']
-            p_fecha_final = data['fecha_fin']
-            anio = int(p_fecha_inicio[6:])
-            mes = int(p_fecha_inicio[3:5])
-            dia = int(p_fecha_inicio[0:2])
-            fecha_inicio = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            p_start_date = data['start_date']
+            p_fecha_final = data['end_date']
+            anio = int(p_start_date[6:])
+            mes = int(p_start_date[3:5])
+            dia = int(p_start_date[0:2])
+            start_date = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
             mes = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
@@ -1524,12 +1524,12 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = p_fecha_inicio
+            ws['C3'] = p_start_date
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_servicios = OrdenServicios.objects.filter(date__range=[fecha_inicio, fecha_final])
+            ordenes_servicios = OrdenServicios.objects.filter(date__range=[start_date, fecha_final])
         elif tipo_busqueda == 'M':
             mes = data['mes'].strip()
             annio = data['annio'].strip()
@@ -1591,12 +1591,12 @@ class ReporteExcelOrdenesCompraFecha(FormView):
         wb = Workbook()
         ws = wb.active
         if tipo_busqueda == 'F':
-            p_fecha_inicio = data['fecha_inicio']
-            p_fecha_final = data['fecha_fin']
-            anio = int(p_fecha_inicio[6:])
-            mes = int(p_fecha_inicio[3:5])
-            dia = int(p_fecha_inicio[0:2])
-            fecha_inicio = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            p_start_date = data['start_date']
+            p_fecha_final = data['end_date']
+            anio = int(p_start_date[6:])
+            mes = int(p_start_date[3:5])
+            dia = int(p_start_date[0:2])
+            start_date = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
             mes = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
@@ -1604,12 +1604,12 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = p_fecha_inicio
+            ws['C3'] = p_start_date
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
             ws['E3'] = p_fecha_final
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_compra = OrdenCompra.objects.filter(date__range=[fecha_inicio, fecha_final])
+            ordenes_compra = OrdenCompra.objects.filter(date__range=[start_date, fecha_final])
         elif tipo_busqueda == 'M':
             mes = data['mes'].strip()
             annio = data['annio'].strip()

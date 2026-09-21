@@ -209,7 +209,7 @@ class Movimiento(TimeStampedModel):
     tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, null=True)
     serie = models.CharField(max_length=15, null=True)
     numero = models.CharField(max_length=10, null=True)
-    fecha_operacion = models.DateTimeField()
+    operation_date = models.DateTimeField()
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, null=True)
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE, null=True)
@@ -299,9 +299,9 @@ class Movimiento(TimeStampedModel):
     def save(self, *args, **kwargs):
         if self.id_movimiento == '':
             tipo = self.tipo_movimiento
-            anio = self.fecha_operacion.year
+            anio = self.operation_date.year
             mov_ant = Movimiento.objects.filter(tipo_movimiento__incrementa=tipo.incrementa,
-                                                fecha_operacion__year=anio).aggregate(Max('id_movimiento'))
+                                                operation_date__year=anio).aggregate(Max('id_movimiento'))
             id_ant = mov_ant['id_movimiento__max']
             if id_ant is None:
                 aux = 1
@@ -331,7 +331,7 @@ class DetalleMovimiento(TimeStampedModel):
         t_movimiento = movi.tipo_movimiento
         val = self.valor
         kardex = Kardex(producto=self.producto,
-                        fecha_operacion=movi.fecha_operacion,
+                        operation_date=movi.operation_date,
                         movimiento=movi,
                         nro_detalle_movimiento=self.nro_detalle,
                         almacen=movi.almacen)
@@ -345,7 +345,7 @@ class DetalleMovimiento(TimeStampedModel):
             try:
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
-                                                   fecha_operacion__lt=kardex.fecha_operacion).latest('fecha_operacion')
+                                                   operation_date__lt=kardex.operation_date).latest('operation_date')
                 kardex.cantidad_total = self.cantidad + kardex_ant.cantidad_total
                 kardex.valor_total = val + kardex_ant.valor_total
                 kardex.precio_total = self.precio
@@ -363,7 +363,7 @@ class DetalleMovimiento(TimeStampedModel):
             try:
                 kardex_ant = Kardex.objects.filter(producto=self.producto,
                                                    almacen=self.movimiento.almacen,
-                                                   fecha_operacion__lt=kardex.fecha_operacion).latest('fecha_operacion')
+                                                   operation_date__lt=kardex.operation_date).latest('operation_date')
                 kardex.cantidad_total = kardex_ant.cantidad_total - self.cantidad
                 kardex.valor_total = kardex_ant.valor_total - val
                 kardex.precio_total = self.precio
@@ -393,7 +393,7 @@ class Kardex(TimeStampedModel):
     movimiento = models.ForeignKey(Movimiento, on_delete=models.CASCADE)
     nro_detalle_movimiento = models.IntegerField()
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
-    fecha_operacion = models.DateTimeField()
+    operation_date = models.DateTimeField()
     cantidad_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
     precio_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
     valor_ingreso = models.DecimalField(max_digits=25, decimal_places=8)
@@ -421,7 +421,7 @@ class Kardex(TimeStampedModel):
         Con `antes_de` devuelve el ultimo movimiento anterior a esa date, que
         es el saldo inicial de los informes de kardex.
 
-        Las vistas pedian un `latest('fecha_operacion')` por producto: una
+        Las vistas pedian un `latest('operation_date')` por producto: una
         consulta por fila y, si dos movimientos compartian date,
         MultipleObjectsReturned. Aqui el desempate es por `pk`, asi que el
         resultado es el mismo pero determinista.
@@ -429,13 +429,13 @@ class Kardex(TimeStampedModel):
         `filtro` es el que identifica el almacen (`almacen=`, `almacen__pk=`,
         `almacen__code=`), porque cada vista lo tiene de una forma distinta.
         """
-        from tambox.fechas import aware
+        from tambox.dates import aware
 
         consulta = cls.objects.filter(producto__in=productos, **filtro)
         if antes_de is not None:
-            consulta = consulta.filter(fecha_operacion__lt=aware(antes_de))
+            consulta = consulta.filter(operation_date__lt=aware(antes_de))
         ultimos = (consulta.select_related('producto__unidad_medida')
-                   .order_by('producto_id', '-fecha_operacion', '-pk')
+                   .order_by('producto_id', '-operation_date', '-pk')
                    .distinct('producto_id'))
         return {kardex.producto_id: kardex for kardex in ultimos}
 
@@ -451,15 +451,15 @@ class Kardex(TimeStampedModel):
         consultas por producto. Los totales se suman aqui en Python: con Decimal
         el resultado es el mismo que el del agregado de SQL.
         """
-        from tambox.fechas import aware
+        from tambox.dates import aware
 
         desde, hasta = aware(desde), aware(hasta) + timedelta(days=1)
-        filas = (cls.objects.filter(fecha_operacion__gte=desde,
-                                    fecha_operacion__lte=hasta,
+        filas = (cls.objects.filter(operation_date__gte=desde,
+                                    operation_date__lte=hasta,
                                     **filtro)
                  .select_related('producto', 'movimiento__tipo_documento',
                                  'movimiento__tipo_movimiento')
-                 .order_by('producto__description', 'fecha_operacion',
+                 .order_by('producto__description', 'operation_date',
                            'cantidad_salida', 'created'))
         lote = {}
         for kardex in filas:

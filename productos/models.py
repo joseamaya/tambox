@@ -5,7 +5,7 @@ from contabilidad.models import CuentaContable, TipoExistencia
 from django.db.models import Max
 from django.utils.encoding import force_str
 from tambox.querysets import NavegableQuerySet
-from tambox.fechas import aware
+from tambox.dates import aware
 from simple_history.models import HistoricalRecords
 from django.db.models import Q
 import datetime
@@ -79,11 +79,11 @@ class GrupoProductos(TimeStampedModel):
         from almacen.models import Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
-                                               fecha_operacion__gte=desde,
-                                               fecha_operacion__lte=hasta,
+                                               operation_date__gte=desde,
+                                               operation_date__lte=hasta,
                                                producto__grupo_productos=self).select_related(
             'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
-                                                                                  'fecha_operacion',
+                                                                                  'operation_date',
                                                                                   'cantidad_salida',
                                                                                   'created')
         totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
@@ -136,7 +136,7 @@ class Producto(TimeStampedModel):
         if not hasattr(self, '_stock_calculado'):
             from almacen.models import Kardex
             ultimos = (Kardex.objects.filter(producto=self)
-                       .order_by('almacen_id', '-fecha_operacion', '-pk')
+                       .order_by('almacen_id', '-operation_date', '-pk')
                        .distinct('almacen_id'))
             self._stock_calculado = sum(kardex.cantidad_total for kardex in ultimos)
         return self._stock_calculado
@@ -155,11 +155,11 @@ class Producto(TimeStampedModel):
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
                                                movimiento__estado=Movimiento.STATUS.ACT,
-                                               fecha_operacion__gte=desde,
-                                               fecha_operacion__lte=hasta,
+                                               operation_date__gte=desde,
+                                               operation_date__lte=hasta,
                                                producto=self).select_related(
             'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
-                                                                                  'fecha_operacion',
+                                                                                  'operation_date',
                                                                                   'cantidad_salida',
                                                                                   'created')
         totales = listado_kardex.aggregate(cantidad_ingreso=Sum('cantidad_ingreso'),
