@@ -2,7 +2,7 @@
     <div class="col-lg-10">
         {% if perms.administracion.change_worker %} <a
             class="btn btn-primary"
-            href="{% url 'administracion:modificar_trabajador' object.pk %}">
+            href="{% url 'administracion:worker_update' object.pk %}">
         Editar </a> {% endif %} {% if perms.administracion.delete_worker %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
@@ -12,15 +12,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.anterior %}','Worker / {{ object.anterior_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:worker_detail' object.anterior %}','Worker / {{ object.anterior_nombres_apellidos }}');">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:detalle_trabajador' object.siguiente %}','Worker / {{ object.siguiente_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:worker_detail' object.siguiente %}','Worker / {{ object.siguiente_nombres_apellidos }}');">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:maestro_trabajadores' %}';">
+                    onclick="location.href='{% url 'administracion:worker_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

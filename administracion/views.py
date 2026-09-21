@@ -99,7 +99,7 @@ class ReceiverNameSearch(SoloAjaxMixin, TemplateView):
 class OfficeImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_oficinas.html'
     form_class = UploadForm
-    success_url = reverse_lazy('administracion:maestro_oficinas')
+    success_url = reverse_lazy('administracion:office_list')
 
     def procesar_fila(self, fila):
         Office.objects.get_or_create(code=fila[0],
@@ -112,7 +112,7 @@ class OfficeImport(CargarCsvMixin, FormView):
 class ProducerImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_productores.html'
     form_class = UploadForm
-    success_url = reverse_lazy('administracion:maestro_productores')
+    success_url = reverse_lazy('administracion:producer_list')
 
     def procesar_fila(self, fila):
         dni = fila[0]
@@ -128,7 +128,7 @@ class ProducerImport(CargarCsvMixin, FormView):
 class WorkerImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_trabajadores.html'
     form_class = UploadForm
-    success_url = reverse_lazy('administracion:maestro_trabajadores')
+    success_url = reverse_lazy('administracion:worker_list')
 
     def procesar_fila(self, fila):
         usuario_hoja = fila[0]
@@ -151,7 +151,7 @@ class WorkerImport(CargarCsvMixin, FormView):
 class PositionImport(CargarCsvMixin, FormView):
     template_name = 'administracion/cargar_puestos.html'
     form_class = UploadForm
-    success_url = reverse_lazy('administracion:maestro_puestos')
+    success_url = reverse_lazy('administracion:position_list')
 
     def procesar_fila(self, fila):
         date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
@@ -175,7 +175,7 @@ class ApprovalLevelCreate(CreateView):
         return super(ApprovalLevelCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
+        return reverse('administracion:approval_level_detail', args=[self.object.pk])
 
 
 class ProfessionCreate(CreateView):
@@ -187,7 +187,7 @@ class ProfessionCreate(CreateView):
         return super(ProfessionCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_profesion', args=[self.object.pk])
+        return reverse('administracion:profession_detail', args=[self.object.pk])
 
 
 class OfficeCreate(CreateView):
@@ -199,7 +199,7 @@ class OfficeCreate(CreateView):
         return super(OfficeCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:maestro_oficinas')
+        return reverse('administracion:office_list')
 
 
 class WorkerCreate(CreateView):
@@ -211,7 +211,7 @@ class WorkerCreate(CreateView):
         return super(WorkerCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_trabajador', args=[self.object.pk])
+        return reverse('administracion:worker_detail', args=[self.object.pk])
 
 
 class ProducerCreate(CreateView):
@@ -223,7 +223,7 @@ class ProducerCreate(CreateView):
         return super(ProducerCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_productor', args=[self.object.pk])
+        return reverse('administracion:producer_detail', args=[self.object.pk])
 
 
 class PositionCreate(CreateView):
@@ -235,7 +235,7 @@ class PositionCreate(CreateView):
         return super(PositionCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_puesto', args=[self.object.pk])
+        return reverse('administracion:position_detail', args=[self.object.pk])
 
 
 class OfficeDetail(DetailView):
@@ -317,7 +317,7 @@ class ApprovalLevelUpdate(UpdateView):
         return super(ApprovalLevelUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_nivel_aprobacion', args=[self.object.pk])
+        return reverse('administracion:approval_level_detail', args=[self.object.pk])
 
 
 class ProfessionUpdate(UpdateView):
@@ -331,14 +331,14 @@ class ProfessionUpdate(UpdateView):
         return super(ProfessionUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_profesion', args=[self.object.pk])
+        return reverse('administracion:profession_detail', args=[self.object.pk])
 
 
 class OfficeUpdate(UpdateView):
     model = Office
     template_name = 'administracion/oficina.html'
     form_class = OfficeForm
-    success_url = reverse_lazy('administracion:maestro_oficinas')
+    success_url = reverse_lazy('administracion:office_list')
 
     @method_decorator(requiere('administracion.change_office'))
     def dispatch(self, *args, **kwargs):
@@ -356,7 +356,7 @@ class WorkerUpdate(UpdateView):
         return super(WorkerUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_trabajador', args=[self.object.pk])
+        return reverse('administracion:worker_detail', args=[self.object.pk])
 
 
 class ProducerUpdate(UpdateView):
@@ -370,7 +370,7 @@ class ProducerUpdate(UpdateView):
         return super(ProducerUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('administracion:detalle_productor', args=[self.object.pk])
+        return reverse('administracion:producer_detail', args=[self.object.pk])
 
 
 class PositionUpdate(UpdateView):
@@ -390,7 +390,7 @@ class PositionUpdate(UpdateView):
         return initial
 
     def get_success_url(self):
-        return reverse('administracion:detalle_puesto', args=[self.object.pk])
+        return reverse('administracion:position_detail', args=[self.object.pk])
 
 
 class OfficeExcelReport(TemplateView):

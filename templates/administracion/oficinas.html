@@ -4,13 +4,13 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.add_office %}
-        <a onclick="return abrir_modal('{% url 'administracion:crear_oficina' %}','Oficinas / Nuevo')"
+        <a onclick="return abrir_modal('{% url 'administracion:office_create' %}','Oficinas / Nuevo')"
            class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.administracion.cargar_oficinas %}
-        <a href="{% url 'administracion:cargar_oficinas' %}" class="btn btn-default">
+        <a href="{% url 'administracion:office_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -19,7 +19,7 @@
         <div class="btn-group">
             {% if perms.administracion.ver_reporte_oficinas_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:maestro_oficinas_excel' %}';">
+                    onclick="location.href='{% url 'administracion:office_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -54,19 +54,19 @@
                 {% endif %}
                 <td class="text-center">
                     {% if perms.administracion.ver_detalle_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' office.pk %}','Oficinas / {{ office.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-eye-open"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.change_office %}
-                    <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' office.pk %}','Oficinas / {{ office.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:office_update' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.delete_office %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' office.pk %}','Oficinas / {{ office.name }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>

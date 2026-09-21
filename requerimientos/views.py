@@ -116,22 +116,22 @@ class RequirementCreate(CreateView):
         self.object = None
         oficinas = Office.objects.all()
         if not oficinas:
-            return HttpResponseRedirect(reverse('administracion:crear_oficina'))
+            return HttpResponseRedirect(reverse('administracion:office_create'))
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+            return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
-            return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[worker.pk]))
+            return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
         puesto = worker.puesto
         if puesto is None:
-            return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            return HttpResponseRedirect(reverse('administracion:position_create'))
         puesto_jefe = puesto.puesto_superior
         if puesto_jefe is None:
-            return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            return HttpResponseRedirect(reverse('administracion:position_create'))
         niveles_aprobacion = ApprovalLevel.objects.all()
         if not niveles_aprobacion:
-            return HttpResponseRedirect(reverse('administracion:crear_nivel_aprobacion'))
+            return HttpResponseRedirect(reverse('administracion:approval_level_create'))
         if configuracion() is not None:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
@@ -241,12 +241,12 @@ class RequirementApprovalList(ListView):
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+            return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
-            return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[worker.pk]))
+            return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
         puesto = worker.puesto
         if puesto is None:
-            return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            return HttpResponseRedirect(reverse('administracion:position_create'))
         if not puesto.is_leadership:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         return super(RequirementApprovalList, self).get(request, *args, **kwargs)

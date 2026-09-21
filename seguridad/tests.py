@@ -93,7 +93,7 @@ class RenderTestCase(TestCase):
         self.client.force_login(self.usuario)
         for url in ['/contabilidad/impuestos/',
                     '/contabilidad/formas_pago/',
-                    '/administracion/tablero/',
+                    '/administracion/dashboard/',
                     '/almacen/tablero/']:
             respuesta = self.client.get(url)
             self.assertIn(respuesta.status_code, (200, 302), url)

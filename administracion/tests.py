@@ -12,7 +12,7 @@ from datetime import date
     def test_listado_profesiones_view(self):
         self.client.login(username='test',password='test')
         p = self.crear_profesion()
-        url = reverse("administracion:maestro_profesiones")
+        url = reverse("administracion:profession_list")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         
@@ -170,14 +170,14 @@ class TableroAdministracionTest(TestCase):
     def test_completa_los_niveles_que_faltan(self):
         ApprovalLevel.objects.create(description='LOGISTICA')
 
-        respuesta = self.client.get('/administracion/tablero/')
+        respuesta = self.client.get('/administracion/dashboard/')
 
         self.assertEqual(respuesta.status_code, 200)
         usuario = ApprovalLevel.objects.get(description='USUARIO')
         self.assertEqual(usuario.superior_level.description, 'LOGISTICA')
 
     def test_crea_la_oficina_de_gerencia(self):
-        respuesta = self.client.get('/administracion/tablero/')
+        respuesta = self.client.get('/administracion/dashboard/')
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertTrue(Office.objects.filter(code='GGEN', is_management=True).exists())
@@ -186,8 +186,8 @@ class TableroAdministracionTest(TestCase):
         Office.objects.create(code='GGEN', name='GERENCIA GENERAL', is_management=True)
         ApprovalLevel.objects.create(description='LOGISTICA')
 
-        self.client.get('/administracion/tablero/')
-        self.client.get('/administracion/tablero/')
+        self.client.get('/administracion/dashboard/')
+        self.client.get('/administracion/dashboard/')
 
         self.assertEqual(Office.objects.filter(code='GGEN').count(), 1)
         self.assertEqual(ApprovalLevel.objects.filter(description='LOGISTICA').count(), 1)

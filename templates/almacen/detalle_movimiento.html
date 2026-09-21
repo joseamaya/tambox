@@ -93,7 +93,7 @@
             <div class="col-md-3">
                 <label>Oficina a atender:</label>
                 {% if object.office %}
-                <p><a href="{% url 'administracion:detalle_oficina' object.office.pk %}">{{ object.office }}</a></p>
+                <p><a href="{% url 'administracion:office_detail' object.office.pk %}">{{ object.office }}</a></p>
                 {% else %}
                 <p>NINGUNA</p>
                 {% endif %}

@@ -305,7 +305,7 @@ $(document).ready(function()
 		if(dni.length==8)
 		{
 			$.ajax({
-		      url: "{% url 'administracion:busqueda_receptor_dni' %}",
+		      url: "{% url 'administracion:receiver_dni_search' %}",
 		      data: {'dni': dni, 'movement_type':movement_type},
 		      success: function(data)
 		      {
@@ -319,7 +319,7 @@ $(document).ready(function()
 	$("#id_receptor").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'administracion:busqueda_receptor_name' %}",
+	      url: "{% url 'administracion:receiver_name_search' %}",
 	      data: {'name': $("#id_receptor").val(), 'movement_type':$("#id_movement_type").val()},
 	      success: function( data )
 	      {

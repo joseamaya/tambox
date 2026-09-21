@@ -92,7 +92,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_oficinas_muestra_el_name(self):
         baker.make(Office, name='OFICINA-XYZ')
 
-        respuesta = self.client.get(reverse('administracion:maestro_oficinas'))
+        respuesta = self.client.get(reverse('administracion:office_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'OFICINA-XYZ')

@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.add_approvallevel %}
-        <a href="{% url 'administracion:crear_nivel_aprobacion' %}" class="btn btn-primary">
+        <a href="{% url 'administracion:approval_level_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
@@ -28,7 +28,7 @@
             <tbody>
             {% for level in niveles %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:detalle_nivel_aprobacion' level.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:approval_level_detail' level.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

@@ -128,11 +128,11 @@ class OrderApprove(CreateView):
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+            return HttpResponseRedirect(reverse('administracion:worker_create'))
         try:
             puestos = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
-                return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
+                return HttpResponseRedirect(reverse('administracion:worker_update'))
             if puestos[0].is_leadership and puestos[0].office == logistica():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
@@ -451,12 +451,12 @@ class OrderCreate(CreateView):
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+            return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
-            return HttpResponseRedirect(reverse('administracion:modificar_trabajador', args=[worker.pk]))
+            return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
         puesto = worker.puesto
         if puesto is None:
-            return HttpResponseRedirect(reverse('administracion:crear_puesto'))
+            return HttpResponseRedirect(reverse('administracion:position_create'))
         if puesto.is_leadership or puesto.is_assistant:
             return super(OrderCreate, self).dispatch(*args, **kwargs)
         else:
@@ -645,11 +645,11 @@ class OrderApprovalList(ListView):
         try:
             worker = self.request.user.worker
         except ObjectDoesNotExist:
-            return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
+            return HttpResponseRedirect(reverse('administracion:worker_create'))
         try:
             puestos = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
-                return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
+                return HttpResponseRedirect(reverse('administracion:worker_update'))
             if puestos[0].is_leadership and puestos[0].office == logistica():
                 return super(OrderApprovalList, self).dispatch(*args, **kwargs)
             else:

@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.change_profession %}
-        <a class="btn btn-primary" href="{% url 'administracion:modificar_profesion' object.pk %}">
+        <a class="btn btn-primary" href="{% url 'administracion:profession_update' object.pk %}">
             Editar
         </a>
         {% endif %}
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:detalle_profesion' object.anterior %}';">
+                    onclick="location.href='{% url 'administracion:profession_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:detalle_profesion' object.siguiente %}';">
+                    onclick="location.href='{% url 'administracion:profession_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:maestro_profesiones' %}';">
+                    onclick="location.href='{% url 'administracion:profession_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

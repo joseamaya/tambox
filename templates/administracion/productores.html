@@ -4,12 +4,12 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.add_producer %}
-        <a href="{% url 'administracion:crear_productor' %}" class="btn btn-primary">
+        <a href="{% url 'administracion:producer_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.administracion.cargar_productores %}
-        <a href="{% url 'administracion:cargar_productores' %}" class="btn btn-default">
+        <a href="{% url 'administracion:producer_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -38,7 +38,7 @@
             <tbody>
             {% for producer in productores %}
             {% if perms.administracion.ver_detalle_productor %}
-            <tr onclick="return abrir_modal('{% url 'administracion:detalle_productor' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
+            <tr onclick="return abrir_modal('{% url 'administracion:producer_detail' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
                 {% else %}
             <tr onclick=" return alert('wexd0');">
                 {% endif %}

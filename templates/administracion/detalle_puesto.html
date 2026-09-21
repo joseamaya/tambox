@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.change_position %}
-        <a class="btn btn-primary" href="{% url 'administracion:modificar_puesto' object.pk %}">
+        <a class="btn btn-primary" href="{% url 'administracion:position_update' object.pk %}">
             Editar </a>
         {% endif %}
         {% if perms.administracion.delete_position %}
@@ -15,15 +15,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:detalle_puesto' object.anterior %}';">
+                    onclick="location.href='{% url 'administracion:position_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:detalle_puesto' object.siguiente %}';">
+                    onclick="location.href='{% url 'administracion:position_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:maestro_puestos' %}';">
+                    onclick="location.href='{% url 'administracion:position_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -67,14 +67,14 @@
                     <div class="col-lg-4">
                         <label>TRABAJADOR:</label>
                         {% if object.worker %}
-                        <p><a href="{% url 'administracion:detalle_trabajador' object.worker.pk %}">{{
+                        <p><a href="{% url 'administracion:worker_detail' object.worker.pk %}">{{
                             object.worker }}</a></p>
                         {% else %}
                         <p>NINGUNA</p>
                         {% endif %}
                         <label>OFICINA:</label>
                         {% if object.office %}
-                        <p><a href="{% url 'administracion:detalle_oficina' object.office.pk %}">{{ object.office
+                        <p><a href="{% url 'administracion:office_detail' object.office.pk %}">{{ object.office
                             }}</a></p>
                         {% else %}
                         <p>NINGUNA</p>

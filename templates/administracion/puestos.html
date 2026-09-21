@@ -4,12 +4,12 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.add_position %}
-        <a href="{% url 'administracion:crear_puesto' %}" class="btn btn-primary">
+        <a href="{% url 'administracion:position_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.administracion.cargar_puestos %}
-        <a href="{% url 'administracion:cargar_puestos' %}" class="btn btn-default">
+        <a href="{% url 'administracion:position_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.administracion.ver_reporte_puestos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:reporte_excel_puestos' %}';">
+                    onclick="location.href='{% url 'administracion:position_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -39,7 +39,7 @@
             <tbody>
             {% for puesto in puestos %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:detalle_puesto' puesto.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:position_detail' puesto.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

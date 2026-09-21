@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.add_profession %}
-        <a href="{% url 'administracion:crear_profesion' %}" class="btn btn-primary">
+        <a href="{% url 'administracion:profession_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.administracion.ver_reporte_profesiones_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'administracion:reporte_excel_profesiones' %}';">
+                    onclick="location.href='{% url 'administracion:profession_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,7 +38,7 @@
             <tbody>
             {% for profession in profesiones %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:detalle_profesion' profession.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:profession_detail' profession.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

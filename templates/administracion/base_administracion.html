@@ -4,22 +4,22 @@
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.administracion.ver_tabla_niveles_aprobacion %}
-                    <li><a href="{% url 'administracion:maestro_niveles_aprobacion' %}">Niveles de Aprobacion</a></li>
+                    <li><a href="{% url 'administracion:approval_level_list' %}">Niveles de Aprobacion</a></li>
                     {% endif %}
                     {% if perms.administracion.ver_tabla_oficinas %}
-                    <li><a href="{% url 'administracion:maestro_oficinas' %}">Oficinas</a></li>
+                    <li><a href="{% url 'administracion:office_list' %}">Oficinas</a></li>
                     {% endif %}
                     {% if perms.administracion.ver_tabla_profesiones %}
-                    <li><a href="{% url 'administracion:maestro_profesiones' %}">Profesiones</a></li>
+                    <li><a href="{% url 'administracion:profession_list' %}">Profesiones</a></li>
                     {% endif %}
                     {% if perms.administracion.ver_tabla_productores %}
-                    <li><a href="{% url 'administracion:maestro_productores' %}">Productores</a></li>
+                    <li><a href="{% url 'administracion:producer_list' %}">Productores</a></li>
                     {% endif %}
                     {% if perms.administracion.ver_tabla_puestos %}
-                    <li><a href="{% url 'administracion:maestro_puestos' %}">Puestos</a></li>
+                    <li><a href="{% url 'administracion:position_list' %}">Puestos</a></li>
                     {% endif %}
                     {% if perms.administracion.ver_tabla_trabajadores %}
-                    <li><a href="{% url 'administracion:maestro_trabajadores' %}">Trabajadores</a></li>
+                    <li><a href="{% url 'administracion:worker_list' %}">Trabajadores</a></li>
                     {% endif %}
 
                 </ul>

@@ -12,12 +12,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'administracion:detalle_trabajador' object.pk %}'">
+                    onclick="location.href='{% url 'administracion:worker_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'administracion:maestro_trabajadores' %}'">
+                    onclick="location.href='{% url 'administracion:worker_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -26,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:modificar_trabajador' object.anterior %}';">
+                        onclick="location.href='{% url 'administracion:worker_update' object.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:modificar_trabajador' object.siguiente %}';">
+                        onclick="location.href='{% url 'administracion:worker_update' object.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'administracion:maestro_trabajadores' %}';">
+                        onclick="location.href='{% url 'administracion:worker_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
