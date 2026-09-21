@@ -168,15 +168,15 @@
                         <td>{{ detalle.uso }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.cantidad_cotizada }}</td>
-                        <td>{{ detalle.cantidad_comprada }}</td>
+                        <td>{{ detalle.quoted_quantity }}</td>
+                        <td>{{ detalle.purchased_quantity }}</td>
                         {% else %}
                         <td>{{ detalle.otro }}</td>
                         <td>{{ detalle.uso }}</td>
                         <td>-</td>
                         <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.cantidad_cotizada }}</td>
-                        <td>{{ detalle.cantidad_comprada }}</td>
+                        <td>{{ detalle.quoted_quantity }}</td>
+                        <td>{{ detalle.purchased_quantity }}</td>
                         {% endif %}
                     </tr>
                     {% endfor %}

@@ -167,7 +167,7 @@
                     {% for detalle in object.detalleordenservicios_set.all %}
                     <tr>
                         <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.cantidad_conforme }}</td>
+                        <td>{{ detalle.conformed_quantity }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
                         </td>

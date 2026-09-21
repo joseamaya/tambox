@@ -1846,7 +1846,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
                 det['code'] = detalle.producto.code
                 det['name'] = detalle.producto.description
                 det['unidad'] = detalle.producto.unidad_medida.description
-                quantity = detalle.quantity - detalle.cantidad_atendida
+                quantity = detalle.quantity - detalle.served_quantity
                 if quantity > stock:
                     quantity = stock
                 amount = round(quantity * price, 5)

@@ -118,7 +118,7 @@ class DetallePedidoTest(TestCase):
         self.assertEqual(self.dpe1.__str__(), self.dpe1.pedido.code + ' ' + str(self.dpe1.nro_detalle))
 
     def test_cantidad_por_atender(self):
-        resultado = self.dpe1.quantity - self.dpe1.cantidad_atendida
+        resultado = self.dpe1.quantity - self.dpe1.served_quantity
         self.assertEqual(resultado, self.dpe1.cantidad_por_atender())
 
 
@@ -248,13 +248,13 @@ class EstadoDeDetallePedidoTest(TestCase):
     """Solo lee campos de la instancia, y fija la regla compartida de clasificar()."""
 
     def test_atendido(self):
-        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=0).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, served_quantity=0).establecer_estado_atendido(),
                          DetallePedido.STATUS.PEND)
-        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=4).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, served_quantity=4).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN_PARC)
-        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=10).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, served_quantity=10).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN)
-        self.assertEqual(DetallePedido(quantity=10, cantidad_atendida=12).establecer_estado_atendido(),
+        self.assertEqual(DetallePedido(quantity=10, served_quantity=12).establecer_estado_atendido(),
                          DetallePedido.STATUS.ATEN)
 
 

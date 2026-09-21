@@ -64,13 +64,13 @@ class DetalleRequerimientoTest(TestCase):
         self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.nro_detalle))
 
     def test_estado_atendido(self):
-        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, cantidad_atendida=5)
+        dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, served_quantity=5)
         dr1.establecer_estado_atendido()
         self.assertEqual(dr1.estado, DetalleRequerimiento.STATUS.ATEN)
-        dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, cantidad_atendida=5)
+        dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=5)
         dr2.establecer_estado_atendido()
         self.assertEqual(dr2.estado, DetalleRequerimiento.STATUS.ATEN_PARC)
-        dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, cantidad_atendida=10)
+        dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=10)
         dr3.establecer_estado_atendido()
         self.assertEqual(dr3.estado, DetalleRequerimiento.STATUS.ATEN)
 
@@ -106,8 +106,8 @@ class EstadosDeRequerimientoTest(TestCase):
     def _requerimiento(self, quantity, cotizada=0, comprada=0, atendida=0):
         requerimiento = crear_requerimiento(code='')
         baker.make(DetalleRequerimiento, requerimiento=requerimiento, nro_detalle=1,
-                   quantity=quantity, cantidad_cotizada=cotizada,
-                   cantidad_comprada=comprada, cantidad_atendida=atendida)
+                   quantity=quantity, quoted_quantity=cotizada,
+                   purchased_quantity=comprada, served_quantity=atendida)
         return requerimiento
 
     def test_comprado_parcial_no_marca_como_comprado(self):
@@ -192,8 +192,8 @@ class EstadosDeDetalleRequerimientoTest(TestCase):
     tocar la base de datos."""
 
     def _detalle(self, quantity, cotizada=0, comprada=0, atendida=0):
-        return DetalleRequerimiento(quantity=quantity, cantidad_cotizada=cotizada,
-                                    cantidad_comprada=comprada, cantidad_atendida=atendida)
+        return DetalleRequerimiento(quantity=quantity, quoted_quantity=cotizada,
+                                    purchased_quantity=comprada, served_quantity=atendida)
 
     def test_cotizado(self):
         self.assertEqual(self._detalle(10).establecer_estado_cotizado(), DetalleRequerimiento.STATUS.PEND)

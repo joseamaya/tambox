@@ -64,14 +64,14 @@ class Requerimiento(TimeStampedModel):
     @property
     def total_cotizado(self):
         if not hasattr(self, '_total_cotizado_calculado'):
-            self._total_cotizado_calculado = sum(detalle.cantidad_cotizada
+            self._total_cotizado_calculado = sum(detalle.quoted_quantity
                                                  for detalle in self.detallerequerimiento_set.all())
         return self._total_cotizado_calculado
 
     @property
     def total_comprado(self):
         if not hasattr(self, '_total_comprado_calculado'):
-            self._total_comprado_calculado = sum(detalle.cantidad_comprada
+            self._total_comprado_calculado = sum(detalle.purchased_quantity
                                                  for detalle in self.detallerequerimiento_set.all())
         return self._total_comprado_calculado
 
@@ -106,7 +106,7 @@ class Requerimiento(TimeStampedModel):
         detalles = DetalleRequerimiento.objects.filter(requerimiento=self)
         for detalle in detalles:
             total = total + detalle.quantity
-            total_atendido = total_atendido + detalle.cantidad_atendida
+            total_atendido = total_atendido + detalle.served_quantity
         caso = clasificar(total_atendido, total)
         if caso == VACIO:
             estado = self.establecer_estado_comprado()
@@ -216,9 +216,9 @@ class DetalleRequerimiento(TimeStampedModel):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     uso = models.TextField(null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_cotizada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    cantidad_comprada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    quoted_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = CHOICES_ESTADO_REQ
     estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
@@ -231,7 +231,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.requerimiento.code + ' ' + str(self.nro_detalle)
 
     def establecer_estado_cotizado(self):
-        caso = clasificar(self.cantidad_cotizada, self.quantity)
+        caso = clasificar(self.quoted_quantity, self.quantity)
         if caso == VACIO:
             estado = DetalleRequerimiento.STATUS.PEND
         elif caso == PARCIAL:
@@ -242,7 +242,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.estado
 
     def establecer_estado_comprado(self):
-        caso = clasificar(self.cantidad_comprada, self.quantity)
+        caso = clasificar(self.purchased_quantity, self.quantity)
         if caso == VACIO:
             estado = self.establecer_estado_cotizado()
         elif caso == PARCIAL:
@@ -253,7 +253,7 @@ class DetalleRequerimiento(TimeStampedModel):
         return self.estado
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.cantidad_atendida, self.quantity)
+        caso = clasificar(self.served_quantity, self.quantity)
         if caso == VACIO:
             estado = self.establecer_estado_comprado()
         elif caso == PARCIAL:

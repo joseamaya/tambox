@@ -42,11 +42,11 @@ class DetalleOrdenManager(models.Manager):
         requerimiento = cotizacion.requerimiento
         for detalle in objs:
             detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada + detalle.quantity
+            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity + detalle.quantity
             detalle_cotizacion.establecer_estado_comprado()
             detalle_cotizacion.save()
             detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada + detalle_cotizacion.cantidad_comprada
+            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity + detalle_cotizacion.purchased_quantity
             detalle_requerimiento.establecer_estado_comprado()
             detalle_requerimiento.save()
             self.actualizar_detalle_cotizaciones(detalle_requerimiento)
@@ -139,8 +139,8 @@ class Cotizacion(TimeStampedModel):
         detalles = DetalleCotizacion.objects.filter(cotizacion=cotizacion)
         for detalle in detalles:
             detalle_requerimiento = detalle.detalle_requerimiento
-            if detalle_requerimiento.cantidad_cotizada > 0:
-                detalle_requerimiento.cantidad_cotizada = detalle_requerimiento.cantidad_cotizada - detalle.quantity
+            if detalle_requerimiento.quoted_quantity > 0:
+                detalle_requerimiento.quoted_quantity = detalle_requerimiento.quoted_quantity - detalle.quantity
             detalle_requerimiento.establecer_estado_cotizado()
             detalle_requerimiento.save()
         requerimiento.establecer_estado_cotizado()
@@ -152,7 +152,7 @@ class Cotizacion(TimeStampedModel):
         total_comprado = 0
         for detalle in DetalleCotizacion.objects.filter(cotizacion=self):
             total = total + detalle.quantity
-            total_comprado = total_comprado + detalle.cantidad_comprada
+            total_comprado = total_comprado + detalle.purchased_quantity
         caso = clasificar(total_comprado, total)
         if caso == VACIO:
             estado = Cotizacion.STATUS.DESC
@@ -193,7 +193,7 @@ class DetalleCotizacion(TimeStampedModel):
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE)
     detalle_requerimiento = models.ForeignKey(DetalleRequerimiento, on_delete=models.CASCADE, null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_comprada = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ELEG', _('ELEGIDA')),
                      ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
@@ -203,7 +203,7 @@ class DetalleCotizacion(TimeStampedModel):
     history = HistoricalRecords()
 
     def establecer_estado_comprado(self):
-        caso = clasificar(self.cantidad_comprada, self.quantity)
+        caso = clasificar(self.purchased_quantity, self.quantity)
         if caso == VACIO:
             estado = DetalleCotizacion.STATUS.PEND
         elif caso == PARCIAL:
@@ -249,11 +249,11 @@ class OrdenCompra(TimeStampedModel):
         detalles = DetalleOrdenCompra.objects.filter(orden=self)
         for detalle in detalles:
             detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada - detalle.quantity
+            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity - detalle.quantity
             detalle_cotizacion.establecer_estado_comprado()
             detalle_cotizacion.save()
             detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada - detalle.quantity
+            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity - detalle.quantity
             detalle_requerimiento.establecer_estado_comprado()
             detalle_requerimiento.save()
         cotizacion.establecer_estado_comprado()
@@ -265,7 +265,7 @@ class OrdenCompra(TimeStampedModel):
         total_ingresado = 0
         for detalle in DetalleOrdenCompra.objects.filter(orden=self):
             total = total + detalle.quantity
-            total_ingresado = total_ingresado + detalle.cantidad_ingresada
+            total_ingresado = total_ingresado + detalle.received_quantity
         caso = clasificar(total_ingresado, total)
         if caso == VACIO:
             estado = OrdenCompra.STATUS.PEND
@@ -343,7 +343,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, null=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     quantity = models.DecimalField(max_digits=25, decimal_places=8)
-    cantidad_ingresada = models.DecimalField(max_digits=25, decimal_places=8, default=0)
+    received_quantity = models.DecimalField(max_digits=25, decimal_places=8, default=0)
     price = models.DecimalField(max_digits=25, decimal_places=8)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('ING', _('INGRESADO')),
@@ -399,7 +399,7 @@ class DetalleOrdenCompra(TimeStampedModel):
         return round(imp, 5)
 
     def establecer_estado(self):
-        caso = clasificar(self.cantidad_ingresada, self.quantity)
+        caso = clasificar(self.received_quantity, self.quantity)
         if caso == VACIO:
             estado = DetalleOrdenCompra.STATUS.PEND
         elif caso == PARCIAL:
@@ -419,7 +419,7 @@ class OrdenServicios(TimeStampedModel):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
     forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE)
     proceso = models.CharField(max_length=50, default='')
-    nombre_informe = models.CharField(max_length=150, default='')
+    report_name = models.CharField(max_length=150, default='')
     informe = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
     notes = models.TextField(default='')
@@ -467,11 +467,11 @@ class OrdenServicios(TimeStampedModel):
         detalles = DetalleOrdenServicios.objects.filter(orden=self)
         for detalle in detalles:
             detalle_cotizacion = detalle.detalle_cotizacion
-            detalle_cotizacion.cantidad_comprada = detalle_cotizacion.cantidad_comprada - detalle.quantity
+            detalle_cotizacion.purchased_quantity = detalle_cotizacion.purchased_quantity - detalle.quantity
             detalle_cotizacion.establecer_estado_comprado()
             detalle_cotizacion.save()
             detalle_requerimiento = detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.cantidad_comprada = detalle_requerimiento.cantidad_comprada - detalle.quantity
+            detalle_requerimiento.purchased_quantity = detalle_requerimiento.purchased_quantity - detalle.quantity
             detalle_requerimiento.establecer_estado_comprado()
             detalle_requerimiento.save()
         cotizacion.establecer_estado_comprado()
@@ -483,7 +483,7 @@ class OrdenServicios(TimeStampedModel):
         total_conforme = 0
         for detalle in DetalleOrdenServicios.objects.filter(orden=self):
             total = total + detalle.quantity
-            total_conforme = total_conforme + detalle.cantidad_conforme
+            total_conforme = total_conforme + detalle.conformed_quantity
         caso = clasificar(total_conforme, total)
         if caso == VACIO:
             estado = OrdenServicios.STATUS.PEND
@@ -528,7 +528,7 @@ class DetalleOrdenServicios(TimeStampedModel):
     detalle_cotizacion = models.ForeignKey(DetalleCotizacion, on_delete=models.CASCADE, null=True)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_conforme = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    conformed_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     price = models.DecimalField(max_digits=15, decimal_places=5)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('CONF', _('CONFORME')),
@@ -551,7 +551,7 @@ class DetalleOrdenServicios(TimeStampedModel):
         ordering = ['nro_detalle']
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.cantidad_conforme, self.quantity)
+        caso = clasificar(self.conformed_quantity, self.quantity)
         if caso == VACIO:
             estado = DetalleOrdenServicios.STATUS.PEND
         elif caso == PARCIAL:
@@ -595,11 +595,11 @@ class ConformidadServicio(TimeStampedModel):
         detalles = DetalleConformidadServicio.objects.filter(conformidad=self)
         for detalle in detalles:
             detalle_orden = detalle.detalle_orden_servicios
-            detalle_orden.cantidad_conforme = detalle_orden.cantidad_conforme - detalle.quantity
+            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detalle.quantity
             detalle_orden.establecer_estado_atendido()
             detalle_orden.save()
             detalle_requerimiento = detalle_orden.detalle_cotizacion.detalle_requerimiento
-            detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.quantity
+            detalle_requerimiento.served_quantity = detalle_requerimiento.served_quantity - detalle.quantity
             detalle_requerimiento.establecer_estado_atendido()
             detalle_requerimiento.save()
         orden.establecer_estado()

@@ -124,7 +124,7 @@ class Pedido(TimeStampedModel):
         total_atendida = 0
         for detalle in DetallePedido.objects.filter(pedido=self):
             total = total + detalle.quantity
-            total_atendida = total_atendida + detalle.cantidad_atendida
+            total_atendida = total_atendida + detalle.served_quantity
         caso = clasificar(total_atendida, total)
         if caso == VACIO:
             estado = Pedido.STATUS.PEND
@@ -167,7 +167,7 @@ class DetallePedido(TimeStampedModel):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE)
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
-    cantidad_atendida = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = Choices(('PEND', _('PENDIENTE')),
                      ('APROB', _('APROBADO')),
                      ('DESAP', _('DESAPROBADO')),
@@ -179,11 +179,11 @@ class DetallePedido(TimeStampedModel):
     history = HistoricalRecords()
 
     def cantidad_por_atender(self):
-        resultado = self.quantity - self.cantidad_atendida
+        resultado = self.quantity - self.served_quantity
         return resultado
 
     def establecer_estado_atendido(self):
-        caso = clasificar(self.cantidad_atendida, self.quantity)
+        caso = clasificar(self.served_quantity, self.quantity)
         if caso == VACIO:
             estado = DetallePedido.STATUS.PEND
         elif caso == PARCIAL:
@@ -240,10 +240,10 @@ class Movimiento(TimeStampedModel):
             detalle_orden_compra = detalle.detalle_orden_compra
             if detalle_orden_compra.detalle_cotizacion is not None:
                 detalle_requerimiento = detalle_orden_compra.detalle_cotizacion.detalle_requerimiento
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida - detalle.quantity
+                detalle_requerimiento.served_quantity = detalle_requerimiento.served_quantity - detalle.quantity
                 detalle_requerimiento.establecer_estado_atendido()
                 detalle_requerimiento.save()
-            detalle_orden_compra.cantidad_ingresada = detalle_orden_compra.cantidad_ingresada - detalle.quantity
+            detalle_orden_compra.received_quantity = detalle_orden_compra.received_quantity - detalle.quantity
             detalle_orden_compra.establecer_estado()
             detalle_orden_compra.save()
         orden.establecer_estado()
@@ -258,7 +258,7 @@ class Movimiento(TimeStampedModel):
         detalles = DetalleMovimiento.objects.filter(movimiento=self)
         for detalle in detalles:
             detalle_pedido = detalle.detalle_pedido
-            detalle_pedido.cantidad_atendida = detalle_pedido.cantidad_atendida - detalle.quantity
+            detalle_pedido.served_quantity = detalle_pedido.served_quantity - detalle.quantity
             detalle_pedido.establecer_estado_atendido()
             detalle_pedido.save()
         pedido.establecer_estado_atendido()

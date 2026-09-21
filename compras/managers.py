@@ -24,7 +24,7 @@ class DetalleCotizacionManager(models.Manager):
         detalles = []
         for detalle in objs:
             detalle_requerimiento = detalle.detalle_requerimiento
-            detalle_requerimiento.cantidad_cotizada = detalle_requerimiento.cantidad_cotizada + detalle.quantity
+            detalle_requerimiento.quoted_quantity = detalle_requerimiento.quoted_quantity + detalle.quantity
             detalle_requerimiento.establecer_estado_cotizado()
             detalle_requerimiento.save()
             detalle.save()
@@ -58,7 +58,7 @@ class DetalleConformidadServicioManager(models.Manager):
             requerimiento = None
         for detalle in objs:
             detalle_orden = detalle.detalle_orden_servicios
-            detalle_orden.cantidad_conforme = detalle_orden.cantidad_conforme + detalle.quantity
+            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity + detalle.quantity
             detalle_orden.establecer_estado_atendido()
             detalle_orden.save()
             try:
@@ -66,7 +66,7 @@ class DetalleConformidadServicioManager(models.Manager):
             except ObjectDoesNotExist:
                 detalle_requerimiento = None
             if detalle_requerimiento is not None:
-                detalle_requerimiento.cantidad_atendida = detalle_requerimiento.cantidad_atendida + detalle_orden.cantidad_conforme
+                detalle_requerimiento.served_quantity = detalle_requerimiento.served_quantity + detalle_orden.conformed_quantity
                 detalle_requerimiento.establecer_estado_atendido()
                 detalle_requerimiento.save()
             detalle.save()

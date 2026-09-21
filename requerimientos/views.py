@@ -405,9 +405,9 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                     det['name'] = detalle.producto.description
                     det['unidad'] = detalle.producto.unidad_medida.code
                     # det['uso'] = detalle.uso
-                    det['quantity'] = str(detalle.quantity - detalle.cantidad_atendida)
+                    det['quantity'] = str(detalle.quantity - detalle.served_quantity)
                     # det['price'] = str(detalle.producto.price)
-                    # det['amount'] = str(detalle.producto.price*(detalle.quantity-detalle.cantidad_atendida))
+                    # det['amount'] = str(detalle.producto.price*(detalle.quantity-detalle.served_quantity))
                     lista_detalles.append(det)
                 except AttributeError:
                     pass

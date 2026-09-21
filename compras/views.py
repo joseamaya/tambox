@@ -1246,7 +1246,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                     det['code'] = detalle.detalle_requerimiento.producto.code
                     det['name'] = detalle.detalle_requerimiento.producto.description
                     det['price'] = str(detalle.detalle_requerimiento.producto.price)
-                    quantity = detalle.quantity - detalle.detalle_requerimiento.cantidad_comprada
+                    quantity = detalle.quantity - detalle.detalle_requerimiento.purchased_quantity
                     det['quantity'] = str(quantity)
                     amount = detalle.detalle_requerimiento.producto.price * quantity
                     if tipo_busqueda == 'PRODUCTOS':
@@ -1325,14 +1325,14 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
                     try:
                         det['code'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.code
                         det['name'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
-                        det['quantity'] = str(detalle.quantity - detalle.cantidad_ingresada)
+                        det['quantity'] = str(detalle.quantity - detalle.received_quantity)
                         det['price'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code
                         det['amount'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))
                     except (ObjectDoesNotExist, AttributeError):
                         det['code'] = detalle.producto.code
                         det['name'] = detalle.producto.description
-                        det['quantity'] = str(detalle.quantity - detalle.cantidad_ingresada)
+                        det['quantity'] = str(detalle.quantity - detalle.received_quantity)
                         det['price'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.producto.unidad_medida.code
                         det['amount'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))

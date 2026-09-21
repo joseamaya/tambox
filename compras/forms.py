@@ -194,7 +194,7 @@ class OrdenServiciosForm(forms.ModelForm):
         self.fields['proceso'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
-        self.fields['nombre_informe'].required = False
+        self.fields['report_name'].required = False
         self.fields['informe'].required = False
         self.fields['referencia'].required = False
         for field in iter(self.fields):
@@ -222,7 +222,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     class Meta:
         model = OrdenServicios
-        fields = ['code', 'forma_pago', 'proceso', 'notes', 'date', 'nombre_informe', 'informe']
+        fields = ['code', 'forma_pago', 'proceso', 'notes', 'date', 'report_name', 'informe']
 
 
 class ConformidadServicioForm(forms.ModelForm):

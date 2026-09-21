@@ -891,7 +891,7 @@ class PDFOrdenServicios(object):
             pdf.drawString(40, 710,
                            u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name)
         except (ObjectDoesNotExist, AttributeError):
-            pdf.drawString(40, 710, u"REFERENCIA: " + orden.nombre_informe)
+            pdf.drawString(40, 710, u"REFERENCIA: " + orden.report_name)
 
         pdf.drawString(40, 690, u"PROCESO: " + orden.proceso)
         pdf.setFont("Times-Roman", 8)
