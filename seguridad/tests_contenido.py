@@ -104,3 +104,43 @@ class ContenidoDeLasPaginasTest(TestCase):
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'name="incrementa"')
+
+    def test_la_lista_de_unidades_de_medida_muestra_la_descripcion(self):
+        baker.make('productos.UnidadMedida', codigo='UND01', descripcion='UNIDAD-XYZ')
+
+        respuesta = self.client.get(reverse('productos:unidades_medida'))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'UNIDAD-XYZ')
+
+    def test_la_lista_de_grupos_de_productos_muestra_la_descripcion(self):
+        baker.make('productos.GrupoProductos', codigo='000001', descripcion='GRUPO-XYZ')
+
+        respuesta = self.client.get(reverse('productos:grupos_productos'))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'GRUPO-XYZ')
+
+    def test_la_lista_de_tipos_de_existencia_muestra_la_descripcion(self):
+        baker.make('contabilidad.TipoExistencia', codigo_sunat='01', descripcion='EXISTENCIA-XYZ')
+
+        respuesta = self.client.get(reverse('contabilidad:tipos_existencias'))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'EXISTENCIA-XYZ')
+
+    def test_la_lista_de_almacenes_muestra_la_descripcion(self):
+        baker.make('almacen.Almacen', codigo='AL01', descripcion='ALMACEN-XYZ')
+
+        respuesta = self.client.get(reverse('almacen:almacenes'))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'ALMACEN-XYZ')
+
+    def test_la_lista_de_tipos_de_movimiento_muestra_la_descripcion(self):
+        baker.make('almacen.TipoMovimiento', codigo='T01', descripcion='MOVIMIENTO-XYZ')
+
+        respuesta = self.client.get(reverse('almacen:tipos_movimientos'))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'MOVIMIENTO-XYZ')
