@@ -36,11 +36,11 @@ class Warehouse(TimeStampedModel):
 
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        return Warehouse.objects.anterior(self).pk
+    def previous(self):
+        return Warehouse.objects.previous(self).pk
 
-    def siguiente(self):
-        return Warehouse.objects.siguiente(self).pk
+    def next(self):
+        return Warehouse.objects.next(self).pk
 
     def __str__(self):
         return self.description
@@ -60,11 +60,11 @@ class MovementType(TimeStampedModel):
 
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        return MovementType.objects.anterior(self).pk
+    def previous(self):
+        return MovementType.objects.previous(self).pk
 
-    def siguiente(self):
-        return MovementType.objects.siguiente(self).pk
+    def next(self):
+        return MovementType.objects.next(self).pk
 
     class Meta:
         permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
@@ -113,18 +113,18 @@ class Order(TimeStampedModel):
 
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        return Order.objects.anterior(self).pk
+    def previous(self):
+        return Order.objects.previous(self).pk
 
-    def siguiente(self):
-        return Order.objects.siguiente(self).pk
+    def next(self):
+        return Order.objects.next(self).pk
 
-    def establecer_estado_atendido(self):
+    def set_status_served(self):
         total = 0
         total_atendida = 0
-        for detalle in OrderDetail.objects.filter(order=self):
-            total = total + detalle.quantity
-            total_atendida = total_atendida + detalle.served_quantity
+        for detail in OrderDetail.objects.filter(order=self):
+            total = total + detail.quantity
+            total_atendida = total_atendida + detail.served_quantity
         caso = classify(total_atendida, total)
         if caso == EMPTY:
             estado = Order.STATUS.PEND
@@ -178,11 +178,11 @@ class OrderDetail(TimeStampedModel):
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
-    def cantidad_por_atender(self):
+    def quantity_to_serve(self):
         resultado = self.quantity - self.served_quantity
         return resultado
 
-    def establecer_estado_atendido(self):
+    def set_status_served(self):
         caso = classify(self.served_quantity, self.quantity)
         if caso == EMPTY:
             estado = OrderDetail.STATUS.PEND
@@ -223,52 +223,52 @@ class Movement(TimeStampedModel):
 
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        return Movement.objects.anterior(self).pk
+    def previous(self):
+        return Movement.objects.previous(self).pk
 
-    def siguiente(self):
-        return Movement.objects.siguiente(self).pk
+    def next(self):
+        return Movement.objects.next(self).pk
 
     @transaction.atomic
-    def eliminar_referencia(self):
+    def delete_reference(self):
         order = self.reference
         requirement = None
         if order.quotation is not None:
             requirement = order.quotation.requirement
         detalles = MovementDetail.objects.filter(movement=self)
-        for detalle in detalles:
-            purchase_order_detail = detalle.purchase_order_detail
+        for detail in detalles:
+            purchase_order_detail = detail.purchase_order_detail
             if purchase_order_detail.quotation_detail is not None:
                 requirement_detail = purchase_order_detail.quotation_detail.requirement_detail
-                requirement_detail.served_quantity = requirement_detail.served_quantity - detalle.quantity
-                requirement_detail.establecer_estado_atendido()
+                requirement_detail.served_quantity = requirement_detail.served_quantity - detail.quantity
+                requirement_detail.set_status_served()
                 requirement_detail.save()
-            purchase_order_detail.received_quantity = purchase_order_detail.received_quantity - detalle.quantity
-            purchase_order_detail.establecer_estado()
+            purchase_order_detail.received_quantity = purchase_order_detail.received_quantity - detail.quantity
+            purchase_order_detail.set_status()
             purchase_order_detail.save()
-        order.establecer_estado()
+        order.set_status()
         order.save()
         if requirement is not None:
-            requirement.establecer_estado_atendido()
+            requirement.set_status_served()
             requirement.save()
 
     @transaction.atomic
-    def eliminar_pedido(self):
+    def delete_order(self):
         order = self.order
         detalles = MovementDetail.objects.filter(movement=self)
-        for detalle in detalles:
-            order_detail = detalle.order_detail
-            order_detail.served_quantity = order_detail.served_quantity - detalle.quantity
-            order_detail.establecer_estado_atendido()
+        for detail in detalles:
+            order_detail = detail.order_detail
+            order_detail.served_quantity = order_detail.served_quantity - detail.quantity
+            order_detail.set_status_served()
             order_detail.save()
-        order.establecer_estado_atendido()
+        order.set_status_served()
         order.save()
 
-    def eliminar_detalles(self):
+    def delete_details(self):
         MovementDetail.objects.filter(movement=self).delete()
 
     @transaction.atomic
-    def eliminar_kardex(self):
+    def delete_kardex(self):
         movement = self
         warehouse = movement.warehouse
         detalle_kardex = Kardex.objects.filter(movement=movement,
@@ -408,14 +408,14 @@ class Kardex(TimeStampedModel):
 
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        return Kardex.objects.anterior(self).pk
+    def previous(self):
+        return Kardex.objects.previous(self).pk
 
-    def siguiente(self):
-        return Kardex.objects.siguiente(self).pk
+    def next(self):
+        return Kardex.objects.next(self).pk
 
     @classmethod
-    def ultimos_por_producto(cls, productos, antes_de=None, **filtro):
+    def last_by_product(cls, productos, antes_de=None, **filtro):
         """Ultimo Kardex de cada producto del lote, en una sola consulta.
 
         Con `antes_de` devuelve el ultimo movimiento anterior a esa date, que
@@ -434,20 +434,20 @@ class Kardex(TimeStampedModel):
         consulta = cls.objects.filter(product__in=productos, **filtro)
         if antes_de is not None:
             consulta = consulta.filter(operation_date__lt=aware(antes_de))
-        ultimos = (consulta.select_related('product__unit_of_measure')
+        last_records = (consulta.select_related('product__unit_of_measure')
                    .order_by('product_id', '-operation_date', '-pk')
                    .distinct('product_id'))
-        return {kardex.product_id: kardex for kardex in ultimos}
+        return {kardex.product_id: kardex for kardex in last_records}
 
     @classmethod
-    def kardex_por_lote(cls, desde, hasta, por_grupo=False, **filtro):
+    def kardex_by_batch(cls, desde, hasta, por_grupo=False, **filtro):
         """Kardex del periodo de todo el lote, en dos consultas.
 
         Devuelve {clave: (filas, in_quantity, in_amount,
         out_quantity, out_amount)}, con la misma forma que
-        `obtener_kardex()`, agrupado por producto o por grupo segun `por_grupo`.
+        `get_kardex()`, agrupado por producto o por grupo segun `por_grupo`.
 
-        Los informes llamaban a `obtener_kardex()` dentro del bucle, o sea dos
+        Los informes llamaban a `get_kardex()` dentro del bucle, o sea dos
         consultas por producto. Los totales se suman aqui en Python: con Decimal
         el resultado es el mismo que el del agregado de SQL.
         """

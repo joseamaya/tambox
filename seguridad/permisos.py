@@ -23,12 +23,12 @@ from django.contrib.auth.decorators import permission_required
 _registro = set()
 
 
-def requiere(permiso):
+def requires(permiso):
     """`permission_required` que responde 403 y anota el permiso para auditar."""
     _registro.add(permiso)
     return permission_required(permiso, raise_exception=True)
 
 
-def permisos_declarados():
+def declared_permissions():
     """Los permisos que piden las vistas, en orden. Se llena al importarlas."""
     return sorted(_registro)

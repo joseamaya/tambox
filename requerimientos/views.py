@@ -11,7 +11,7 @@ import simplejson
 from django.views.generic.detail import DetailView
 from administracion.models import Office, ApprovalLevel
 import locale
-from seguridad.permisos import requiere
+from seguridad.permisos import requires
 from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
@@ -23,7 +23,7 @@ from requerimientos.forms import RequirementApprovalForm, RequirementForm, Requi
 from compras.forms import QuotationDetailFormSet
 from compras.models import Quotation
 from productos.models import Product
-from requerimientos.mail import correo_creacion_requerimiento
+from requerimientos.mail import requirement_creation_mail
 from openpyxl import Workbook
 from requerimientos.reports import RequirementReport
 from datetime import date
@@ -47,11 +47,11 @@ class RequirementApprove(UpdateView):
     form_class = RequirementApprovalForm
     success_url = reverse_lazy('requerimientos:requirement_approval_list')
 
-    @method_decorator(requiere('requerimientos.change_requirementapproval'))
+    @method_decorator(requires('requerimientos.change_requirementapproval'))
     def dispatch(self, *args, **kwargs):
         aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
         usuario = self.request.user
-        if aprobacion_requerimiento.verificar_acceso_aprobacion(usuario):
+        if aprobacion_requerimiento.check_approval_access(usuario):
             return super(RequirementApprove, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -123,10 +123,10 @@ class RequirementCreate(CreateView):
             return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
             return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
-        puesto = worker.puesto
-        if puesto is None:
+        position = worker.position
+        if position is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
-        puesto_jefe = puesto.puesto_superior
+        puesto_jefe = position.superior_position
         if puesto_jefe is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
         niveles_aprobacion = ApprovalLevel.objects.all()
@@ -170,11 +170,11 @@ class RequirementCreate(CreateView):
                                                              use=use))
                         cont = cont + 1
                 RequirementDetail.objects.bulk_create(detalles)
-                puesto_jefe = self.object.requester.puesto.puesto_superior  # Position.objects.get(office=self.object.office, is_leadership=True, is_active=True)
+                puesto_jefe = self.object.requester.position.superior_position  # Position.objects.get(office=self.object.office, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.worker
                 destinatario = jefe.user.email
                 if jefe.pk != self.object.requester.pk:
-                    correo_creacion_requerimiento(destinatario, self.object)
+                    requirement_creation_mail(destinatario, self.object)
                 return HttpResponseRedirect(reverse('requerimientos:requirement_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
@@ -192,20 +192,20 @@ class RequirementDetailView(DetailView):
     template_name = 'requerimientos/detalle_requerimiento.html'
 
     @method_decorator(
-        requiere('requerimientos.ver_detalle_requerimiento'))
+        requires('requerimientos.ver_detalle_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
-        if requirement.verificar_acceso(self.request.user, administration_office(), logistics(), budget()):
+        if requirement.check_access(self.request.user, administration_office(), logistics(), budget()):
             return super(RequirementDetailView, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(
-                reverse('requerimientos:requirement_detail', args=[requirement.siguiente()]))
+                reverse('requerimientos:requirement_detail', args=[requirement.next()]))
 
 
 class RequirementDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('requerimientos.delete_requirement'))
+    @method_decorator(requires('requerimientos.delete_requirement'))
     def dispatch(self, *args, **kwargs):
         return super(RequirementDelete, self).dispatch(*args, **kwargs)
 
@@ -221,7 +221,7 @@ class RequirementDelete(TemplateView):
             else:
                 requerimiento_json['cotizaciones'] = 'NO'
                 with transaction.atomic():
-                    requirement.eliminar_requerimiento()
+                    requirement.delete_requirement()
                     RequirementDetail.objects.filter(requirement=requirement).delete()
             data = simplejson.dumps(requerimiento_json)
             return HttpResponse(data, 'application/json')
@@ -233,7 +233,7 @@ class RequirementApprovalList(ListView):
     context_object_name = 'aprobacion_requerimientos'
 
     @method_decorator(
-        requiere('requerimientos.ver_tabla_requerimientos'))
+        requires('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
         return super(RequirementApprovalList, self).dispatch(*args, **kwargs)
 
@@ -244,15 +244,15 @@ class RequirementApprovalList(ListView):
             return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
             return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
-        puesto = worker.puesto
-        if puesto is None:
+        position = worker.position
+        if position is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
-        if not puesto.is_leadership:
+        if not position.is_leadership:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
         return super(RequirementApprovalList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
-        return RequirementApproval.obtener_aprobaciones_pendientes(self.request.user)
+        return RequirementApproval.get_pending_approvals(self.request.user)
 
 
 class QuotationListByRequirement(ListView):
@@ -260,7 +260,7 @@ class QuotationListByRequirement(ListView):
     template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
 
-    @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
+    @method_decorator(requires('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
         return super(QuotationListByRequirement, self).dispatch(*args, **kwargs)
 
@@ -277,11 +277,11 @@ class RequirementList(ListView):
 
     def get_queryset(self):
         usuario = self.request.user
-        requerimientos_visibles = Requirement.obtener_requerimientos_visibles(usuario)
+        requerimientos_visibles = Requirement.get_visible_requirements(usuario)
         return requerimientos_visibles
 
     @method_decorator(
-        requiere('requerimientos.ver_tabla_requerimientos'))
+        requires('requerimientos.ver_tabla_requerimientos'))
     def dispatch(self, *args, **kwargs):
         return super(RequirementList, self).dispatch(*args, **kwargs)
 
@@ -293,7 +293,7 @@ class RequirementUpdate(UpdateView):
     form_class = RequirementForm
 
     @method_decorator(
-        requiere('requerimientos.change_requirement'))
+        requires('requerimientos.change_requirement'))
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
         if (requirement.approval.is_active == RequirementApproval.NIVEL.USU or
@@ -323,19 +323,19 @@ class RequirementUpdate(UpdateView):
         form = self.get_form(form_class)
         detalles = RequirementDetail.objects.filter(requirement=self.object).order_by('line_number')
         detalles_data = []
-        for detalle in detalles:
+        for detail in detalles:
             try:
-                d = {'code': detalle.product.code,
-                     'product': detalle.product.description,
-                     'quantity': detalle.quantity,
-                     'unidad': detalle.product.unit_of_measure.code,
-                     'use': detalle.use}
+                d = {'code': detail.product.code,
+                     'product': detail.product.description,
+                     'quantity': detail.quantity,
+                     'unidad': detail.product.unit_of_measure.code,
+                     'use': detail.use}
             except AttributeError:
                 d = {'code': '',
-                     'product': detalle.otro,
-                     'quantity': detalle.quantity,
+                     'product': detail.otro,
+                     'quantity': detail.quantity,
                      'unidad': '',
-                     'use': detalle.use}
+                     'use': detail.use}
             detalles_data.append(d)
         detalle_requerimiento_formset = RequirementDetailFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
@@ -400,17 +400,17 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                                                                requirement__code=requirement,
                                                                product__isnull=False).order_by('line_number')
             lista_detalles = []
-            for detalle in detalles:
+            for detail in detalles:
                 det = {}
-                det['requirement'] = detalle.id
+                det['requirement'] = detail.id
                 try:
-                    det['code'] = detalle.product.code
-                    det['name'] = detalle.product.description
-                    det['unidad'] = detalle.product.unit_of_measure.code
-                    # det['use'] = detalle.use
-                    det['quantity'] = str(detalle.quantity - detalle.served_quantity)
-                    # det['price'] = str(detalle.product.price)
-                    # det['amount'] = str(detalle.product.price*(detalle.quantity-detalle.served_quantity))
+                    det['code'] = detail.product.code
+                    det['name'] = detail.product.description
+                    det['unidad'] = detail.product.unit_of_measure.code
+                    # det['use'] = detail.use
+                    det['quantity'] = str(detail.quantity - detail.served_quantity)
+                    # det['price'] = str(detail.product.price)
+                    # det['amount'] = str(detail.product.price*(detail.quantity-detail.served_quantity))
                     lista_detalles.append(det)
                 except AttributeError:
                     pass
@@ -434,14 +434,14 @@ class RequirementTransfer(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(RequirementTransfer, self).get_context_data(**kwargs)
         # requerimientos = Requirement.objects.all()
-        requerimientos = Requirement.obtener_requerimientos_listos_transferencia()
+        requerimientos = Requirement.get_requirements_ready_for_transfer()
         context['requerimientos'] = requerimientos
         return context
 
 
 class RequirementExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        requerimientos = Requirement.objects.requerimientos_activos_por_usuario(request.user,
+        requerimientos = Requirement.objects.active_requirements_by_user(request.user,
                                                                                   Requirement.STATUS.CANC)
         wb = Workbook()
         ws = wb.active
@@ -474,7 +474,7 @@ class RequirementPdfReport(View):
         code = kwargs['code']
         requirement = Requirement.objects.get(code=code)
         response = HttpResponse(content_type='application/pdf')
-        reporte = RequirementReport('A4', requirement)
-        pdf = reporte.imprimir()
+        report = RequirementReport('A4', requirement)
+        pdf = report.render()
         response.write(pdf)
         return response

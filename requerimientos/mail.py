@@ -2,7 +2,7 @@
 from tambox.mail import enviar_correo
 
 
-def correo_creacion_requerimiento(destinatario, requirement):
+def requirement_creation_mail(destinatario, requirement):
     asunto = u'TAMBOX - Requerimiento Pendiente de Aprobar'
     cuerpo = u'''Tiene un requerimiento pendiente de aprobar:\n
     Nro: %s \n
@@ -12,5 +12,5 @@ def correo_creacion_requerimiento(destinatario, requirement):
     http://IP/tambox \n
     Saludos. 
     ''' % (
-    requirement.code, requirement.requester.nombre_completo(), requirement.created.strftime('%d/%m/%Y'))
+    requirement.code, requirement.requester.full_name(), requirement.created.strftime('%d/%m/%Y'))
     enviar_correo([destinatario], asunto, cuerpo)

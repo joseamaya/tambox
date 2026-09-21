@@ -26,12 +26,12 @@ class UnitOfMeasure(TimeStampedModel):
                        ('ver_reporte_unidades_medida_excel', 'Puede ver Reporte Unidades de Medida en excel'),)
         ordering = ['code']
 
-    def anterior(self):
-        ant = UnitOfMeasure.objects.anterior(self)
+    def previous(self):
+        ant = UnitOfMeasure.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = UnitOfMeasure.objects.siguiente(self)
+    def next(self):
+        sig = UnitOfMeasure.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -64,18 +64,18 @@ class ProductGroup(TimeStampedModel):
             self.code = str(aux).zfill(6)
         super(ProductGroup, self).save()
 
-    def anterior(self):
-        ant = ProductGroup.objects.anterior(self)
+    def previous(self):
+        ant = ProductGroup.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = ProductGroup.objects.siguiente(self)
+    def next(self):
+        sig = ProductGroup.objects.next(self)
         return sig.pk
 
     def __str__(self):
         return self.description
 
-    def obtener_kardex(self, warehouse, desde, hasta):
+    def get_kardex(self, warehouse, desde, hasta):
         from almacen.models import Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(warehouse=warehouse,
@@ -97,14 +97,14 @@ class ProductGroup(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_por_lote(grupos, warehouse, desde, hasta):
-        """Igual que `obtener_kardex()`, pero para todos los grupos de una vez.
+    def kardex_by_batch(grupos, warehouse, desde, hasta):
+        """Igual que `get_kardex()`, pero para todos los grupos de una vez.
 
         Devuelve {grupo_id: (filas, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total.
         """
         from almacen.models import Kardex
-        return Kardex.kardex_por_lote(desde, hasta, por_grupo=True,
+        return Kardex.kardex_by_batch(desde, hasta, por_grupo=True,
                                       warehouse=warehouse,
                                       product__product_group__in=grupos)
 
@@ -135,14 +135,14 @@ class Product(TimeStampedModel):
         """
         if not hasattr(self, '_stock_calculado'):
             from almacen.models import Kardex
-            ultimos = (Kardex.objects.filter(product=self)
+            last_records = (Kardex.objects.filter(product=self)
                        .order_by('warehouse_id', '-operation_date', '-pk')
                        .distinct('warehouse_id'))
-            self._stock_calculado = sum(kardex.total_quantity for kardex in ultimos)
+            self._stock_calculado = sum(kardex.total_quantity for kardex in last_records)
         return self._stock_calculado
 
     @property
-    def previsto(self):
+    def forecast(self):
         if not hasattr(self, '_previsto_calculado'):
             from compras.models import PurchaseOrderDetail
             self._previsto_calculado = PurchaseOrderDetail.objects.filter(
@@ -150,7 +150,7 @@ class Product(TimeStampedModel):
             ).aggregate(total=Sum('quantity'))['total'] or 0
         return self._previsto_calculado
 
-    def obtener_kardex(self, warehouse, desde, hasta):
+    def get_kardex(self, warehouse, desde, hasta):
         from almacen.models import Movement, Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(warehouse=warehouse,
@@ -173,15 +173,15 @@ class Product(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_por_lote(productos, warehouse, desde, hasta):
-        """Igual que `obtener_kardex()`, pero para todo el lote de una vez.
+    def kardex_by_batch(productos, warehouse, desde, hasta):
+        """Igual que `get_kardex()`, pero para todo el lote de una vez.
 
         Devuelve {product_id: (filas, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total, en vez de
         dos por producto.
         """
         from almacen.models import Kardex, Movement
-        return Kardex.kardex_por_lote(desde, hasta,
+        return Kardex.kardex_by_batch(desde, hasta,
                                       warehouse=warehouse,
                                       product__in=productos,
                                       movement__status=Movement.STATUS.ACT)
@@ -194,12 +194,12 @@ class Product(TimeStampedModel):
                        ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'),
                        ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto'),)
 
-    def anterior(self):
-        ant = Product.objects.anterior(self)
+    def previous(self):
+        ant = Product.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Product.objects.siguiente(self)
+    def next(self):
+        sig = Product.objects.next(self)
         return sig.pk
 
     def save(self, *args, **kwargs):

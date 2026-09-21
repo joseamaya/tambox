@@ -4,47 +4,47 @@ from django.db import models
 
 class MovementDetailManager(models.Manager):
 
-    def guardar_detalles_con_referencia(self, objs, order):
+    def save_details_with_reference(self, objs, order):
         requirement = None
         if order.quotation is not None:
             requirement = order.quotation.requirement
-        for detalle in objs:
-            detalle_orden = detalle.purchase_order_detail
+        for detail in objs:
+            detalle_orden = detail.purchase_order_detail
             if detalle_orden.quotation_detail is not None:
                 requirement_detail = detalle_orden.quotation_detail.requirement_detail
-                requirement_detail.served_quantity = requirement_detail.served_quantity + detalle.quantity
-                requirement_detail.establecer_estado_atendido()
+                requirement_detail.served_quantity = requirement_detail.served_quantity + detail.quantity
+                requirement_detail.set_status_served()
                 requirement_detail.save()
-            detalle_orden.received_quantity = detalle_orden.received_quantity + detalle.quantity
-            detalle_orden.establecer_estado()
+            detalle_orden.received_quantity = detalle_orden.received_quantity + detail.quantity
+            detalle_orden.set_status()
             detalle_orden.save()
-            detalle.save()
+            detail.save()
         if requirement is not None:
-            requirement.establecer_estado_atendido()
+            requirement.set_status_served()
             requirement.save()
-        order.establecer_estado()
+        order.set_status()
         order.save()
 
-    def guardar_detalle_con_pedido(self, objs, order):
-        for detalle in objs:
-            order_detail = detalle.order_detail
-            order_detail.served_quantity = order_detail.served_quantity + detalle.quantity
-            order_detail.establecer_estado_atendido()
+    def save_detail_with_order(self, objs, order):
+        for detail in objs:
+            order_detail = detail.order_detail
+            order_detail.served_quantity = order_detail.served_quantity + detail.quantity
+            order_detail.set_status_served()
             order_detail.save()
-            detalle.save()
-        order.establecer_estado_atendido()
+            detail.save()
+        order.set_status_served()
         order.save()
 
-    def guardar_detalles_sin_referencia(self, objs):
+    def save_details_without_reference(self, objs):
         cont = 1
-        for detalle in objs:
-            detalle.save()
+        for detail in objs:
+            detail.save()
             cont = cont + 1
 
     def bulk_create(self, objs, reference, order):
         if reference is not None:
-            self.guardar_detalles_con_referencia(objs, reference)
+            self.save_details_with_reference(objs, reference)
         elif order is not None:
-            self.guardar_detalle_con_pedido(objs, order)
+            self.save_detail_with_order(objs, order)
         else:
-            self.guardar_detalles_sin_referencia(objs)
+            self.save_details_without_reference(objs)

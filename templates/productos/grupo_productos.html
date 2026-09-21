@@ -26,11 +26,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'productos:product_group_update' object.anterior %}';">
+                        onclick="location.href='{% url 'productos:product_group_update' object.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'productos:product_group_update' object.siguiente %}';">
+                        onclick="location.href='{% url 'productos:product_group_update' object.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}

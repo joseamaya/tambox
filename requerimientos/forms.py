@@ -4,7 +4,7 @@ from django.forms import formsets
 from django.core.exceptions import ValidationError
 from requerimientos.models import RequirementApproval, Requirement
 from administracion.models import Position
-from requerimientos.mail import correo_creacion_requerimiento
+from requerimientos.mail import requirement_creation_mail
 from productos.models import Product
 
 
@@ -20,21 +20,21 @@ class RequirementApprovalForm(forms.ModelForm):
         self.fields['rejection_reason'].required = False
 
     def clean(self):
-        office = self.instance.obtener_oficina_aprobacion_superior()
+        office = self.instance.get_superior_approval_office()
         if office is not None:
             try:
                 puesto_jefe = Position.objects.get(office=office, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.worker
                 destinatario = jefe.user.email
-                correo_creacion_requerimiento(destinatario, self.instance.requirement)
+                requirement_creation_mail(destinatario, self.instance.requirement)
             except Position.DoesNotExist:
                 raise ValidationError("No existe el puesto superior, imposible continuar.")
 
     def save(self, *args, **kwargs):
         usuario = self.request.user
-        puesto_usuario = usuario.worker.puesto
+        puesto_usuario = usuario.worker.position
         oficina_requerimiento = self.instance.requirement.office
-        self.instance.level = puesto_usuario.establecer_nivel(oficina_requerimiento)
+        self.instance.level = puesto_usuario.set_level(oficina_requerimiento)
         return super(RequirementApprovalForm, self).save(*args, **kwargs)
 
 
@@ -81,7 +81,7 @@ class RequirementDetailForm(forms.Form):
         except Product.DoesNotExist:
             raise ValidationError("El código no es válido.")
 
-    def clean_cantidad(self):
+    def clean_quantity(self):
         if not self.cleaned_data.get('quantity'):
             raise ValidationError("La cantidad no es válida.")
         return self.cleaned_data['quantity']

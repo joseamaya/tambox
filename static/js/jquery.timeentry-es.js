@@ -4,6 +4,6 @@
 (function($) {
 	$.timeEntry.regionalOptions['es'] = {show24Hours: true, separator: ':',
 		ampmPrefix: '', ampmNames: ['AM', 'PM'],
-		spinnerTexts: ['Ahora', 'Campo anterior', 'Siguiente campo', 'Aumentar', 'Disminuir']};
+		spinnerTexts: ['Ahora', 'Campo previous', 'Siguiente campo', 'Aumentar', 'Disminuir']};
 	$.timeEntry.setDefaults($.timeEntry.regionalOptions['es']);
 })(jQuery);

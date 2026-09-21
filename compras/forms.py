@@ -28,7 +28,7 @@ class SupplierForm(forms.ModelForm):
                     'class': 'form-control quantity'
                 })
 
-    def clean_ruc(self):
+    def clean_tax_id(self):
         tax_id = self.cleaned_data.get('tax_id')
         if len(tax_id) != 11:
             raise ValidationError('El RUC debe tener 11 dígitos.')
@@ -91,7 +91,7 @@ class QuotationForm(forms.ModelForm):
                 'class': 'form-control'
             })
 
-    def clean_orden(self):
+    def clean_order(self):
         code_orden = self.cleaned_data.get('order')
         if len(code_orden) != 12 and len(code_orden) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')

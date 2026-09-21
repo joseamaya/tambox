@@ -31,15 +31,15 @@ from administracion.models import Position
 import locale
 from contabilidad.models import DocumentType
 from contabilidad.forms import UploadForm
-from seguridad.permisos import requiere
+from seguridad.permisos import requires
 from django.utils.decorators import method_decorator
 from django.db.models import Q
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from productos.models import Product
-from almacen.mail import correo_creacion_pedido
-from almacen.reports import MovementReport, KardexPdfReport, KardexExcelReport, reporte_inventario
+from almacen.mail import order_creation_mail
+from almacen.reports import MovementReport, KardexPdfReport, KardexExcelReport, inventory_report
 from tambox.config import logistics
 from tambox.views import CsvImportMixin, AjaxOnlyMixin
 from datetime import date
@@ -99,7 +99,7 @@ class OrderApprove(CreateView):
     template_name = 'almacen/aprobar_pedido.html'
     model = Movement
 
-    @method_decorator(requiere('almacen.aprobar_pedido'))
+    @method_decorator(requires('almacen.aprobar_pedido'))
     def dispatch(self, *args, **kwargs):
         self.code = kwargs['code']
         return super(OrderApprove, self).dispatch(*args, **kwargs)
@@ -138,12 +138,12 @@ class OrderApprove(CreateView):
                 form = self.get_form(form_class)
                 detalles = OrderDetail.objects.filter(order=order, status=OrderDetail.STATUS.PEND)
                 detalles_data = []
-                for detalle in detalles:
-                    d = {'order': detalle.id,
-                         'code': detalle.product.code,
-                         'name': detalle.product.description,
-                         'unidad': detalle.product.unit_of_measure.code,
-                         'quantity': detalle.quantity
+                for detail in detalles:
+                    d = {'order': detail.id,
+                         'code': detail.product.code,
+                         'name': detail.product.description,
+                         'unidad': detail.product.unit_of_measure.code,
+                         'quantity': detail.quantity
                          }
                     detalles_data.append(d)
                 detalle_salida_formset = OutboundDetailFormSet(initial=detalles_data)
@@ -210,9 +210,9 @@ class ProductWarehouseSearch(AjaxOnlyMixin, TemplateView):
                                              warehouse__id=warehouse)
                        .order_by('product_id').distinct('product_id')
                        .values_list('product_id', flat=True)[:20])
-            ultimos = Kardex.ultimos_por_producto(ids, warehouse__id=warehouse)
+            last_records = Kardex.last_by_product(ids, warehouse__id=warehouse)
             for product_id in ids:
-                control = ultimos[product_id]
+                control = last_records[product_id]
                 producto_json = {}
                 producto_json['label'] = control.product.description
                 producto_json['code'] = control.product.code
@@ -242,7 +242,7 @@ class InitialInventoryImport(CsvImportMixin, FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
     form_class = InitialInventoryImportForm
 
-    def obtener_fecha_hora(self, r_date, r_hora):
+    def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
         month = int(r_date[3:5])
@@ -267,7 +267,7 @@ class InitialInventoryImport(CsvImportMixin, FormView):
         if faltantes:
             return self.render_to_response(self.get_context_data(form=form,
                                                                  notificaciones=faltantes))
-        self.operation_date = self.obtener_fecha_hora(data['date'], data['hora'])
+        self.operation_date = self.get_datetime(data['date'], data['hora'])
         self.cont_detalles = 1
         self.detalles = []
         with transaction.atomic():
@@ -321,7 +321,7 @@ class MovementTypeCreate(CreateView):
     form_class = MovementTypeForm
     success_url = reverse_lazy('almacen:movement_type_list')
 
-    @method_decorator(requiere('almacen.add_movementtype'))
+    @method_decorator(requires('almacen.add_movementtype'))
     def dispatch(self, *args, **kwargs):
         return super(MovementTypeCreate, self).dispatch(*args, **kwargs)
 
@@ -446,7 +446,7 @@ class OrderCreate(CreateView):
     model = Order
     context_object_name = 'order'
 
-    @method_decorator(requiere('almacen.add_order'))
+    @method_decorator(requires('almacen.add_order'))
     def dispatch(self, *args, **kwargs):
         try:
             worker = self.request.user.worker
@@ -454,10 +454,10 @@ class OrderCreate(CreateView):
             return HttpResponseRedirect(reverse('administracion:worker_create'))
         if worker.signature == '':
             return HttpResponseRedirect(reverse('administracion:worker_update', args=[worker.pk]))
-        puesto = worker.puesto
-        if puesto is None:
+        position = worker.position
+        if position is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
-        if puesto.is_leadership or puesto.is_assistant:
+        if position.is_leadership or position.is_assistant:
             return super(OrderCreate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -505,7 +505,7 @@ class OrderCreate(CreateView):
                 puesto_jefe_logistica = Position.objects.get(office=logistics(), is_leadership=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.worker
                 destinatario = jefe_logistica.user.email
-                correo_creacion_pedido(destinatario, self.object)
+                order_creation_mail(destinatario, self.object)
                 return HttpResponseRedirect(reverse('almacen:order_detail', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el pedido.')
@@ -555,7 +555,7 @@ class MovementDetailView(DetailView):
 class WarehouseDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_warehouse'))
+    @method_decorator(requires('almacen.delete_warehouse'))
     def dispatch(self, *args, **kwargs):
         return super(WarehouseDelete, self).dispatch(*args, **kwargs)
 
@@ -578,7 +578,7 @@ class WarehouseDelete(TemplateView):
 class MovementDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_movement'))
+    @method_decorator(requires('almacen.delete_movement'))
     def dispatch(self, *args, **kwargs):
         return super(MovementDelete, self).dispatch(*args, **kwargs)
 
@@ -589,9 +589,9 @@ class MovementDelete(TemplateView):
             order = movement.reference
             order = movement.order
             if order is not None:
-                movement.eliminar_referencia()
+                movement.delete_reference()
             if order is not None:
-                movement.eliminar_pedido()
+                movement.delete_order()
             detalle_kardex = Kardex.objects.filter(movement=movement)
             for kardex in detalle_kardex:
                 control = WarehouseProductControl.objects.get(product=kardex.product, warehouse=kardex.warehouse)
@@ -612,7 +612,7 @@ class MovementDelete(TemplateView):
 class OrderDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('almacen.delete_order'))
+    @method_decorator(requires('almacen.delete_order'))
     def dispatch(self, *args, **kwargs):
         return super(OrderDelete, self).dispatch(*args, **kwargs)
 
@@ -640,7 +640,7 @@ class OrderApprovalList(ListView):
     context_object_name = 'pedidos'
 
     @method_decorator(
-        requiere('almacen.ver_tabla_aprobacion_pedidos'))
+        requires('almacen.ver_tabla_aprobacion_pedidos'))
     def dispatch(self, *args, **kwargs):
         try:
             worker = self.request.user.worker
@@ -710,7 +710,7 @@ class MovementListByOrder(ListView):
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
-    @method_decorator(requiere('almacen.ver_tabla_movimientos'))
+    @method_decorator(requires('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
         return super(MovementListByOrder, self).dispatch(*args, **kwargs)
 
@@ -722,7 +722,7 @@ class MovementListByOrder(ListView):
 
 class MovementUpdate(TemplateView):
 
-    @method_decorator(requiere('almacen.change_movement'))
+    @method_decorator(requires('almacen.change_movement'))
     def dispatch(self, *args, **kwargs):
         return super(MovementUpdate, self).dispatch(*args, **kwargs)
 
@@ -756,32 +756,32 @@ class InboundUpdate(UpdateView):
             form = self.get_form(form_class)
             detalles = MovementDetail.objects.filter(movement=self.object).order_by('line_number')
             detalles_data = []
-            for detalle in detalles:
-                if detalle.purchase_order_detail is not None:
-                    if detalle.purchase_order_detail.quotation_detail is not None:
-                        d = {'orden_compra': detalle.purchase_order_detail.pk,
-                             'code': detalle.purchase_order_detail.quotation_detail.requirement_detail.product.code,
-                             'name': detalle.purchase_order_detail.quotation_detail.requirement_detail.product.description,
-                             'unidad': detalle.purchase_order_detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
-                             'quantity': detalle.quantity,
-                             'price': detalle.price,
-                             'amount': detalle.amount}
+            for detail in detalles:
+                if detail.purchase_order_detail is not None:
+                    if detail.purchase_order_detail.quotation_detail is not None:
+                        d = {'orden_compra': detail.purchase_order_detail.pk,
+                             'code': detail.purchase_order_detail.quotation_detail.requirement_detail.product.code,
+                             'name': detail.purchase_order_detail.quotation_detail.requirement_detail.product.description,
+                             'unidad': detail.purchase_order_detail.quotation_detail.requirement_detail.product.unit_of_measure.code,
+                             'quantity': detail.quantity,
+                             'price': detail.price,
+                             'amount': detail.amount}
                     else:
-                        d = {'orden_compra': detalle.purchase_order_detail.pk,
-                             'code': detalle.purchase_order_detail.product.code,
-                             'name': detalle.purchase_order_detail.product.description,
-                             'unidad': detalle.purchase_order_detail.product.unit_of_measure.code,
-                             'quantity': detalle.quantity,
-                             'price': detalle.price,
-                             'amount': detalle.amount}
+                        d = {'orden_compra': detail.purchase_order_detail.pk,
+                             'code': detail.purchase_order_detail.product.code,
+                             'name': detail.purchase_order_detail.product.description,
+                             'unidad': detail.purchase_order_detail.product.unit_of_measure.code,
+                             'quantity': detail.quantity,
+                             'price': detail.price,
+                             'amount': detail.amount}
                 else:
                     d = {'orden_compra': '0',
-                         'code': detalle.product.code,
-                         'name': detalle.product.description,
-                         'unidad': detalle.product.unit_of_measure.code,
-                         'quantity': detalle.quantity,
-                         'price': detalle.price,
-                         'amount': detalle.amount}
+                         'code': detail.product.code,
+                         'name': detail.product.description,
+                         'unidad': detail.product.unit_of_measure.code,
+                         'quantity': detail.quantity,
+                         'price': detail.price,
+                         'amount': detail.amount}
                 detalles_data.append(d)
             detalle_ingreso_formset = InboundDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
@@ -825,9 +825,9 @@ class InboundUpdate(UpdateView):
         try:
             with transaction.atomic():
                 if self.object.reference:
-                    self.object.eliminar_referencia()
-                self.object.eliminar_kardex()
-                self.object.eliminar_detalles()
+                    self.object.delete_reference()
+                self.object.delete_kardex()
+                self.object.delete_details()
                 self.object = form.save()
                 reference = self.object.reference
                 detalles = []
@@ -884,23 +884,23 @@ class OutboundUpdate(UpdateView):
         form = self.get_form(form_class)
         detalles = MovementDetail.objects.filter(movement=self.object)
         detalles_data = []
-        for detalle in detalles:
+        for detail in detalles:
             try:
-                d = {'order': detalle.order_detail.pk,
-                     'code': detalle.product.pk,
-                     'name': detalle.product.description,
-                     'unidad': detalle.product.unit_of_measure,
-                     'quantity': detalle.quantity,
-                     'price': detalle.price,
-                     'amount': detalle.amount}
+                d = {'order': detail.order_detail.pk,
+                     'code': detail.product.pk,
+                     'name': detail.product.description,
+                     'unidad': detail.product.unit_of_measure,
+                     'quantity': detail.quantity,
+                     'price': detail.price,
+                     'amount': detail.amount}
             except (ObjectDoesNotExist, AttributeError):
                 d = {'order': 0,
-                     'code': detalle.product.pk,
-                     'name': detalle.product.description,
-                     'unidad': detalle.product.unit_of_measure,
-                     'quantity': detalle.quantity,
-                     'price': detalle.price,
-                     'amount': detalle.amount}
+                     'code': detail.product.pk,
+                     'name': detail.product.description,
+                     'unidad': detail.product.unit_of_measure,
+                     'quantity': detail.quantity,
+                     'price': detail.price,
+                     'amount': detail.amount}
             detalles_data.append(d)
         detalle_salida_formset = OutboundDetailFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
@@ -946,9 +946,9 @@ class OutboundUpdate(UpdateView):
         try:
             with transaction.atomic():
                 if self.object.reference:
-                    self.object.eliminar_referencia()
-                self.object.eliminar_detalles()
-                self.object.eliminar_kardex()
+                    self.object.delete_reference()
+                self.object.delete_details()
+                self.object.delete_kardex()
                 self.object = form.save()
                 reference = self.object.reference
                 detalles = []
@@ -996,7 +996,7 @@ class OrderUpdate(UpdateView):
     model = Order
     context_object_name = 'order'
 
-    @method_decorator(requiere('almacen.change_order'))
+    @method_decorator(requires('almacen.change_order'))
     def dispatch(self, *args, **kwargs):
         order = self.get_object()
         if order.status == Order.STATUS.PEND:
@@ -1033,11 +1033,11 @@ class OrderUpdate(UpdateView):
             form = self.get_form(form_class)
             detalles = OrderDetail.objects.filter(order=self.object).order_by('line_number')
             detalles_data = []
-            for detalle in detalles:
-                d = {'code': detalle.product.code,
-                     'name': detalle.product.description,
-                     'unidad': detalle.product.unit_of_measure.code,
-                     'quantity': detalle.quantity}
+            for detail in detalles:
+                d = {'code': detail.product.code,
+                     'name': detail.product.description,
+                     'unidad': detail.product.unit_of_measure.code,
+                     'quantity': detail.quantity}
                 detalles_data.append(d)
             detalle_pedido_formset = OrderDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
@@ -1090,9 +1090,9 @@ class MovementListByProduct(FormView):
         hasta = data['hasta']
         warehouse = data['warehouse']
         product = Product.objects.get(code=data['product'])
-        return self.obtener_movimientos(desde, hasta, warehouse, product)
+        return self.get_movements(desde, hasta, warehouse, product)
 
-    def obtener_movimientos(self, desde, hasta, warehouse, product):
+    def get_movements(self, desde, hasta, warehouse, product):
         detalles = MovementDetail.objects.filter(movement__warehouse=warehouse,
                                                     product=product,
                                                     movement__operation_date__gte=desde,
@@ -1115,21 +1115,21 @@ class MovementListByProduct(FormView):
         ws['H4'] = 'PRECIO'
         ws['I4'] = 'VALOR'
         cont = 5
-        for detalle in detalles:
-            ws.cell(row=cont, column=2).value = str(detalle.movement)
-            ws.cell(row=cont, column=3).value = str(detalle.movement.movement_type)
-            if detalle.movement.reference is not None:
-                ws.cell(row=cont, column=4).value = str(detalle.movement.reference)
+        for detail in detalles:
+            ws.cell(row=cont, column=2).value = str(detail.movement)
+            ws.cell(row=cont, column=3).value = str(detail.movement.movement_type)
+            if detail.movement.reference is not None:
+                ws.cell(row=cont, column=4).value = str(detail.movement.reference)
             else:
                 ws.cell(row=cont, column=4).value = ""
-            if detalle.movement.order is not None:
-                ws.cell(row=cont, column=5).value = str(detalle.movement.order)
+            if detail.movement.order is not None:
+                ws.cell(row=cont, column=5).value = str(detail.movement.order)
             else:
                 ws.cell(row=cont, column=5).value = ""
-            ws.cell(row=cont, column=6).value = detalle.movement.operation_date.strftime('%d/%m/%Y %H : %M : %S')
-            ws.cell(row=cont, column=7).value = detalle.quantity
-            ws.cell(row=cont, column=8).value = detalle.price
-            ws.cell(row=cont, column=9).value = detalle.amount
+            ws.cell(row=cont, column=6).value = detail.movement.operation_date.strftime('%d/%m/%Y %H : %M : %S')
+            ws.cell(row=cont, column=7).value = detail.quantity
+            ws.cell(row=cont, column=8).value = detail.price
+            ws.cell(row=cont, column=9).value = detail.amount
             cont = cont + 1
         nombre_archivo = "MovementListByProduct.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1347,13 +1347,13 @@ class MovementTypeExcelReport(TemplateView):
 class ReportResponseMixin(object):
     """Armado de la respuesta HTTP de los reportes que se descargan como file."""
 
-    def _respuesta_pdf(self, contenido, nombre_archivo):
+    def _pdf_response(self, contenido, nombre_archivo):
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = 'attachment; filename=' + nombre_archivo
         response.write(contenido)
         return response
 
-    def _respuesta_excel(self, excel, nombre_archivo):
+    def _excel_response(self, excel, nombre_archivo):
         response = HttpResponse(content_type="application/ms-excel")
         response["Content-Disposition"] = "attachment; filename={0}".format(nombre_archivo)
         excel.save(response)
@@ -1365,17 +1365,17 @@ class KardexProductReport(ReportResponseMixin, FormView):
     form_class = KardexProductForm
 
     REPORTES_EXCEL = {
-        'S': ('obtener_formato_sunat_unidades_fisicas_producto', 'InventarioPermanenteUnidadesFisicas.xlsx'),
-        'V': ('obtener_formato_sunat_valorizado_producto', 'InventarioPermanenteValorizado.xlsx'),
-        None: ('obtener_formato_normal_producto', 'ReporteExcelKardexProducto.xlsx'),
+        'S': ('get_sunat_physical_units_product', 'InventarioPermanenteUnidadesFisicas.xlsx'),
+        'V': ('get_sunat_valued_product', 'InventarioPermanenteValorizado.xlsx'),
+        None: ('get_normal_format_product', 'ReporteExcelKardexProducto.xlsx'),
     }
 
     REPORTES_PDF = {
-        'S': ('imprimir_formato_sunat_unidades_fisicas_producto', 'InventarioPermanenteUnidadesFisicas.pdf'),
-        'V': ('imprimir_formato_sunat_valorizado_producto', 'InventarioPermanenteValorizado.pdf'),
+        'S': ('render_sunat_physical_units_product_format', 'InventarioPermanenteUnidadesFisicas.pdf'),
+        'V': ('render_sunat_valued_product_format', 'InventarioPermanenteValorizado.pdf'),
     }
 
-    def _formato_sunat(self, formato_sunat):
+    def _sunat_format(self, formato_sunat):
         return formato_sunat if formato_sunat in ('S', 'V') else None
 
     def form_valid(self, form):
@@ -1389,17 +1389,17 @@ class KardexProductReport(ReportResponseMixin, FormView):
         formatos = data.get('formatos')
 
         if formatos == 'XLS':
-            metodo, nombre_archivo = self.REPORTES_EXCEL[self._formato_sunat(formato_sunat)]
+            metodo, nombre_archivo = self.REPORTES_EXCEL[self._sunat_format(formato_sunat)]
             excel = getattr(KardexExcelReport(), metodo)(product, desde, hasta, warehouse)
-            return self._respuesta_excel(excel, nombre_archivo)
+            return self._excel_response(excel, nombre_archivo)
         if formatos == 'PDF':
-            clave = self._formato_sunat(formato_sunat)
+            clave = self._sunat_format(formato_sunat)
             if clave not in self.REPORTES_PDF:
                 return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.',
                                     status=404)
             metodo, nombre_archivo = self.REPORTES_PDF[clave]
-            reporte = KardexPdfReport('A4', desde, hasta, warehouse, False)
-            return self._respuesta_pdf(getattr(reporte, metodo)(product), nombre_archivo)
+            report = KardexPdfReport('A4', desde, hasta, warehouse, False)
+            return self._pdf_response(getattr(report, metodo)(product), nombre_archivo)
         return HttpResponse('Formato no soportado.', status=400)
 
 
@@ -1416,81 +1416,81 @@ class KardexReport(ReportResponseMixin, FormView):
         formatos = data.get('formatos')
         consolidado = data['consolidado']
 
-        clave = self._clave_reporte(consolidado, formato_sunat)
+        clave = self._report_key(consolidado, formato_sunat)
         if formatos == 'XLS':
-            return self._reporte_excel(clave, desde, hasta, warehouse)
+            return self._excel_report(clave, desde, hasta, warehouse)
         if formatos == 'PDF':
-            return self._reporte_pdf(clave, desde, hasta, warehouse)
+            return self._pdf_report(clave, desde, hasta, warehouse)
         return HttpResponse('Formato no soportado.', status=400)
 
     REPORTES_PDF = {
-        ('P', None): ('imprimir_formato_consolidado_productos', False, 'ResumenMensualDeAlmacen.pdf'),
-        ('G', None): ('imprimir_formato_consolidado_grupos', True, 'ResumenMensualDeAlmacenPorGruposYCuentas.pdf'),
-        (None, 'S'): ('imprimir_formato_sunat_unidades_fisicas_todos', False,
+        ('P', None): ('render_consolidated_products_format', False, 'ResumenMensualDeAlmacen.pdf'),
+        ('G', None): ('render_consolidated_groups_format', True, 'ResumenMensualDeAlmacenPorGruposYCuentas.pdf'),
+        (None, 'S'): ('render_sunat_physical_units_all_format', False,
                       'InventarioPermanenteUnidadesFisicas.pdf'),
-        (None, 'V'): ('imprimir_formato_sunat_valorizado_todos', False, 'InventarioPermanenteValorizado.pdf'),
+        (None, 'V'): ('render_sunat_valued_all_format', False, 'InventarioPermanenteValorizado.pdf'),
     }
 
     REPORTES_EXCEL = {
-        ('P', None): ('obtener_consolidado_productos', 'ReporteConsolidadoKardexExcel.xlsx'),
-        ('G', None): ('obtener_consolidado_grupos', 'ReporteConsolidadoCuentasContablesAlmacen.xlsx'),
-        (None, 'S'): ('obtener_formato_sunat_unidades_fisicas_todos', 'InventarioPermanenteUnidadesFisicas.xlsx'),
-        (None, 'V'): ('obtener_formato_sunat_valorizado_todos', 'InventarioPermanenteValorizado.xlsx'),
-        (None, None): ('obtener_formato_normal_todos', 'ReporteFormatoNormalKardexTodosLosProductos.xlsx'),
+        ('P', None): ('get_consolidated_products', 'ReporteConsolidadoKardexExcel.xlsx'),
+        ('G', None): ('get_consolidated_groups', 'ReporteConsolidadoCuentasContablesAlmacen.xlsx'),
+        (None, 'S'): ('get_sunat_physical_units_all', 'InventarioPermanenteUnidadesFisicas.xlsx'),
+        (None, 'V'): ('get_sunat_valued_all', 'InventarioPermanenteValorizado.xlsx'),
+        (None, None): ('get_normal_format_all', 'ReporteFormatoNormalKardexTodosLosProductos.xlsx'),
     }
 
-    def _clave_reporte(self, consolidado, formato_sunat):
+    def _report_key(self, consolidado, formato_sunat):
         if consolidado in ('P', 'G'):
             return (consolidado, None)
         return (None, formato_sunat if formato_sunat in ('S', 'V') else None)
 
-    def _reporte_pdf(self, clave, desde, hasta, warehouse):
+    def _pdf_report(self, clave, desde, hasta, warehouse):
         if clave not in self.REPORTES_PDF:
             return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.', status=404)
         metodo, agrupado, nombre_archivo = self.REPORTES_PDF[clave]
-        reporte = KardexPdfReport('A4', desde, hasta, warehouse, agrupado)
-        return self._respuesta_pdf(getattr(reporte, metodo)(), nombre_archivo)
+        report = KardexPdfReport('A4', desde, hasta, warehouse, agrupado)
+        return self._pdf_response(getattr(report, metodo)(), nombre_archivo)
 
-    def _reporte_excel(self, clave, desde, hasta, warehouse):
+    def _excel_report(self, clave, desde, hasta, warehouse):
         metodo, nombre_archivo = self.REPORTES_EXCEL[clave]
-        reporte = KardexExcelReport()
-        return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, warehouse), nombre_archivo)
+        report = KardexExcelReport()
+        return self._excel_response(getattr(report, metodo)(desde, hasta, warehouse), nombre_archivo)
 
 
 class PriceReprocess(FormView):
     template_name = 'almacen/reproceso_precio.html'
     form_class = PriceReprocessForm
 
-    def reprocesar_precio_producto(self, product, warehouse, desde):
+    def reprocess_product_price(self, product, warehouse, desde):
         detalles = Kardex.objects.filter(product=product,
                                          warehouse=warehouse,
                                          operation_date__gte=desde).order_by('operation_date')
         indice = 0
-        for detalle in detalles:
+        for detail in detalles:
             try:
-                anterior = detalles[indice - 1]
-                cantidad_ant = anterior.total_quantity
-                valor_ant = anterior.total_amount
+                previous = detalles[indice - 1]
+                cantidad_ant = previous.total_quantity
+                valor_ant = previous.total_amount
                 precio_ant = Decimal(round(valor_ant / cantidad_ant, 8))
             except (IndexError, ZeroDivisionError, TypeError):
                 cantidad_ant = 0
                 precio_ant = 0
                 valor_ant = 0
-            tipo_mov = detalle.movement.movement_type
+            tipo_mov = detail.movement.movement_type
             if tipo_mov.increases:
-                detalle.total_quantity = cantidad_ant + detalle.in_quantity
-                detalle.total_price = detalle.in_price
-                detalle.total_amount = valor_ant + detalle.in_amount
+                detail.total_quantity = cantidad_ant + detail.in_quantity
+                detail.total_price = detail.in_price
+                detail.total_amount = valor_ant + detail.in_amount
             else:
-                detalle.out_price = precio_ant
-                detalle.out_amount = detalle.out_quantity * detalle.out_price
-                detalle.total_quantity = cantidad_ant - detalle.out_quantity
-                detalle.total_amount = valor_ant - detalle.out_amount
+                detail.out_price = precio_ant
+                detail.out_amount = detail.out_quantity * detail.out_price
+                detail.total_quantity = cantidad_ant - detail.out_quantity
+                detail.total_amount = valor_ant - detail.out_amount
                 try:
-                    detalle.total_price = detalle.total_amount / detalle.total_quantity
+                    detail.total_price = detail.total_amount / detail.total_quantity
                 except ZeroDivisionError:
-                    detalle.total_price = 0
-            detalle.save()
+                    detail.total_price = 0
+            detail.save()
             indice = indice + 1
 
     def form_valid(self, form):
@@ -1501,11 +1501,11 @@ class PriceReprocess(FormView):
         if seleccion == 'P':
             cod_prod = data['product']
             product = Product.objects.get(code=cod_prod)
-            self.reprocesar_precio_producto(product, warehouse, desde)
+            self.reprocess_product_price(product, warehouse, desde)
         else:
             listado_kardex = Kardex.objects.filter(warehouse=warehouse).order_by('product').distinct('product__code')
             for kardex in listado_kardex:
-                self.reprocesar_precio_producto(kardex.product, warehouse, desde)
+                self.reprocess_product_price(kardex.product, warehouse, desde)
         return HttpResponseRedirect(reverse('almacen:dashboard'))
 
 
@@ -1537,9 +1537,9 @@ class ProductStock(FormView):
         ws.column_dimensions["B"].width = 12
         ws.column_dimensions["C"].width = 40
         cont = 4
-        ultimos = Kardex.ultimos_por_producto(productos, warehouse=warehouse)
+        last_records = Kardex.last_by_product(productos, warehouse=warehouse)
         for product in productos:
-            kardex = ultimos.get(product.pk)
+            kardex = last_records.get(product.pk)
             code = product.code
             description = product.description
             if kardex is None:
@@ -1591,9 +1591,9 @@ class ProductStockList(AjaxOnlyMixin, TemplateView):
             lista_productos = []
             productos = list(Product.objects.filter(description__icontains=description)
                              .select_related('unit_of_measure').order_by('description'))
-            ultimos = Kardex.ultimos_por_producto(productos, warehouse__pk=warehouse)
+            last_records = Kardex.last_by_product(productos, warehouse__pk=warehouse)
             for product in productos:
-                kardex = ultimos.get(product.pk)
+                kardex = last_records.get(product.pk)
                 kardex_json = {}
                 kardex_json['code'] = product.code
                 kardex_json['label'] = product.description
@@ -1763,8 +1763,8 @@ class MovementPdfReport(View):
         movement_id = kwargs['movement_id']
         movement = Movement.objects.get(pk=movement_id)
         response = HttpResponse(content_type='application/pdf')
-        reporte = MovementReport('A4', movement)
-        pdf = reporte.imprimir()
+        report = MovementReport('A4', movement)
+        pdf = report.render()
         response.write(pdf)
         return response
 
@@ -1837,11 +1837,11 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
         detalles = list(OrderDetail.objects.filter(order__code=order,
                                                      status=OrderDetail.STATUS.PEND)
                         .select_related('product__unit_of_measure').order_by('line_number'))
-        ultimos = Kardex.ultimos_por_producto([detalle.product for detalle in detalles],
+        last_records = Kardex.last_by_product([detail.product for detail in detalles],
                                               warehouse__code=warehouse)
         lista_detalles = []
-        for detalle in detalles:
-            control_producto = ultimos.get(detalle.product_id)
+        for detail in detalles:
+            control_producto = last_records.get(detail.product_id)
             try:
                 stock = control_producto.total_quantity
                 price = control_producto.total_amount / stock
@@ -1850,11 +1850,11 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
                 price = 0
             if stock != 0:
                 det = {}
-                det['order'] = detalle.id
-                det['code'] = detalle.product.code
-                det['name'] = detalle.product.description
-                det['unidad'] = detalle.product.unit_of_measure.description
-                quantity = detalle.quantity - detalle.served_quantity
+                det['order'] = detail.id
+                det['code'] = detail.product.code
+                det['name'] = detail.product.description
+                det['unidad'] = detail.product.unit_of_measure.description
+                quantity = detail.quantity - detail.served_quantity
                 if quantity > stock:
                     quantity = stock
                 amount = round(quantity * price, 5)
@@ -1888,5 +1888,5 @@ class Inventory(ReportResponseMixin, FormView):
         return initial
 
     def form_valid(self, form):
-        return self._respuesta_excel(reporte_inventario(form.cleaned_data['desde']),
+        return self._excel_response(inventory_report(form.cleaned_data['desde']),
                                      'ReporteInventario.xlsx')

@@ -17,18 +17,18 @@ class TestCuentaContable(TestCase):
         self.assertEqual(self.c1.__str__(), self.c1.account_number)
 
     def test_siguiente_profesion(self):
-        self.assertEqual(self.c2.pk, self.c1.siguiente())
-        self.assertEqual(self.c3.pk, self.c2.siguiente())
+        self.assertEqual(self.c2.pk, self.c1.next())
+        self.assertEqual(self.c3.pk, self.c2.next())
 
     def test_anterior_profesion(self):
-        self.assertEqual(self.c1.pk, self.c2.anterior())
-        self.assertEqual(self.c2.pk, self.c3.anterior())
+        self.assertEqual(self.c1.pk, self.c2.previous())
+        self.assertEqual(self.c2.pk, self.c3.previous())
 
     def test_primera_profesion(self):
-        self.assertEqual(self.c1.pk, self.c3.siguiente())
+        self.assertEqual(self.c1.pk, self.c3.next())
 
     def test_ultima_profesion(self):
-        self.assertEqual(self.c3.pk, self.c1.anterior())
+        self.assertEqual(self.c3.pk, self.c1.previous())
 
 
 class TestFormaPago(TestCase):
@@ -43,18 +43,18 @@ class TestFormaPago(TestCase):
         self.assertEqual(self.fp1.__str__(), self.fp1.description)
 
     def test_siguiente_forma_pago(self):
-        self.assertEqual(self.fp2.pk, self.fp1.siguiente())
-        self.assertEqual(self.fp3.pk, self.fp2.siguiente())
+        self.assertEqual(self.fp2.pk, self.fp1.next())
+        self.assertEqual(self.fp3.pk, self.fp2.next())
 
     def test_anterior_forma_pago(self):
-        self.assertEqual(self.fp1.pk, self.fp2.anterior())
-        self.assertEqual(self.fp2.pk, self.fp3.anterior())
+        self.assertEqual(self.fp1.pk, self.fp2.previous())
+        self.assertEqual(self.fp2.pk, self.fp3.previous())
 
     def test_primera_forma_pago(self):
-        self.assertEqual(self.fp1.pk, self.fp3.siguiente())
+        self.assertEqual(self.fp1.pk, self.fp3.next())
 
     def test_ultima_forma_pago(self):
-        self.assertEqual(self.fp3.pk, self.fp1.anterior())
+        self.assertEqual(self.fp3.pk, self.fp1.previous())
 
 
 class TestTipoDocumento(TestCase):
@@ -69,18 +69,18 @@ class TestTipoDocumento(TestCase):
         self.assertEqual(self.td1.__str__(), self.td1.name)
 
     def test_siguiente_tipo_documento(self):
-        self.assertEqual(self.td2.pk, self.td1.siguiente())
-        self.assertEqual(self.td3.pk, self.td2.siguiente())
+        self.assertEqual(self.td2.pk, self.td1.next())
+        self.assertEqual(self.td3.pk, self.td2.next())
 
     def test_anterior_tipo_documento(self):
-        self.assertEqual(self.td1.pk, self.td2.anterior())
-        self.assertEqual(self.td2.pk, self.td3.anterior())
+        self.assertEqual(self.td1.pk, self.td2.previous())
+        self.assertEqual(self.td2.pk, self.td3.previous())
 
     def test_primera_tipo_documento(self):
-        self.assertEqual(self.td1.pk, self.td3.siguiente())
+        self.assertEqual(self.td1.pk, self.td3.next())
 
     def test_ultima_tipo_documento(self):
-        self.assertEqual(self.td3.pk, self.td1.anterior())
+        self.assertEqual(self.td3.pk, self.td1.previous())
 
 
 class TestTipo(TestCase):
@@ -105,18 +105,18 @@ class TestImpuesto(TestCase):
         self.assertEqual(self.imp1.__str__(), self.imp1.description)
 
     def test_siguiente_impuesto(self):
-        self.assertEqual(self.imp2.pk, self.imp1.siguiente())
-        self.assertEqual(self.imp3.pk, self.imp2.siguiente())
+        self.assertEqual(self.imp2.pk, self.imp1.next())
+        self.assertEqual(self.imp3.pk, self.imp2.next())
 
     def test_anterior_impuesto(self):
-        self.assertEqual(self.imp1.pk, self.imp2.anterior())
-        self.assertEqual(self.imp2.pk, self.imp3.anterior())
+        self.assertEqual(self.imp1.pk, self.imp2.previous())
+        self.assertEqual(self.imp2.pk, self.imp3.previous())
 
     def test_primer_impuesto(self):
-        self.assertEqual(self.imp1.pk, self.imp3.siguiente())
+        self.assertEqual(self.imp1.pk, self.imp3.next())
 
     def test_ultimo_impuesto(self):
-        self.assertEqual(self.imp3.pk, self.imp1.anterior())
+        self.assertEqual(self.imp3.pk, self.imp1.previous())
 
 
 class TestEmpresa(TestCase):

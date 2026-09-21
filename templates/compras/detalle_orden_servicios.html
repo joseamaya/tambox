@@ -43,11 +43,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_order_detail' object.anterior %}';">
+                    onclick="location.href='{% url 'compras:service_order_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_order_detail' object.siguiente %}';">
+                    onclick="location.href='{% url 'compras:service_order_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -164,25 +164,25 @@
                     </thead>
                     <tbody>
                     {% if object.quotation %}
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.conformed_quantity }}</td>
-                        <td>{{ detalle.quotation_detail.requirement_detail.product.description }}</td>
-                        <td>{{ detalle.quotation_detail.requirement_detail.product.unit_of_measure.description }}
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.conformed_quantity }}</td>
+                        <td>{{ detail.quotation_detail.requirement_detail.product.description }}</td>
+                        <td>{{ detail.quotation_detail.requirement_detail.product.unit_of_measure.description }}
                         </td>
-                        <td>{{ detalle.price }}</td>
-                        <td>{{ detalle.amount }}</td>
+                        <td>{{ detail.price }}</td>
+                        <td>{{ detail.amount }}</td>
                     </tr>
                     {% endfor %}
                     {% else %}
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.product.description }}</td>
-                        <td>{{ detalle.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.price }}</td>
-                        <td>{{ detalle.amount }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.product.description }}</td>
+                        <td>{{ detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.price }}</td>
+                        <td>{{ detail.amount }}</td>
                     </tr>
                     {% endfor %}
                     {% endif %}
@@ -265,7 +265,7 @@ $(document).ready(function()
 				if (data.conformidades == 'NO')
 				{
 					alert("Orden de Servicios " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:service_order_detail' object.siguiente %}");
+					$(location).attr('href', "{% url 'compras:service_order_detail' object.next %}");
 				} 
 				else if (data.conformidades == 'SI') 
 				{

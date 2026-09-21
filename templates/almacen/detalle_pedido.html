@@ -39,11 +39,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:order_detail' order.anterior %}';">
+                    onclick="location.href='{% url 'almacen:order_detail' order.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:order_detail' order.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:order_detail' order.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -103,13 +103,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.product.code }}</td>
-                        <td>{{ detalle.product.description }}</td>
-                        <td>{{ detalle.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.served_quantity }}</td>
+                        <td>{{ detail.product.code }}</td>
+                        <td>{{ detail.product.description }}</td>
+                        <td>{{ detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.served_quantity }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>

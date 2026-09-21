@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 from openpyxl import Workbook
 from django.http import HttpResponse
 import datetime
-from seguridad.permisos import requiere
+from seguridad.permisos import requires
 from django.utils.decorators import method_decorator
 import simplejson
 import json
@@ -68,7 +68,7 @@ class ReceiverDniSearch(AjaxOnlyMixin, TemplateView):
                 receptor = Worker.objects.get(dni=dni)
             receptor_json = {}
             receptor_json['dni'] = receptor.dni
-            receptor_json['nombre_completo'] = str(receptor.nombre_completo())
+            receptor_json['full_name'] = str(receptor.full_name())
             data = simplejson.dumps(receptor_json)
             return HttpResponse(data, 'application/json')
 
@@ -89,7 +89,7 @@ class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
             lista_receptores = []
             for receptor in receptores:
                 receptor_json = {}
-                receptor_json['label'] = str(receptor.nombre_completo())
+                receptor_json['label'] = str(receptor.full_name())
                 receptor_json['dni'] = receptor.dni
                 lista_receptores.append(receptor_json)
             data = json.dumps(lista_receptores)
@@ -170,7 +170,7 @@ class ApprovalLevelCreate(CreateView):
     form_class = ApprovalLevelForm
 
     @method_decorator(
-        requiere('administracion.add_approvallevel'))
+        requires('administracion.add_approvallevel'))
     def dispatch(self, *args, **kwargs):
         return super(ApprovalLevelCreate, self).dispatch(*args, **kwargs)
 
@@ -182,7 +182,7 @@ class ProfessionCreate(CreateView):
     template_name = 'administracion/profesion.html'
     form_class = ProfessionForm
 
-    @method_decorator(requiere('administracion.add_profession'))
+    @method_decorator(requires('administracion.add_profession'))
     def dispatch(self, *args, **kwargs):
         return super(ProfessionCreate, self).dispatch(*args, **kwargs)
 
@@ -194,7 +194,7 @@ class OfficeCreate(CreateView):
     template_name = 'administracion/oficina.html'
     form_class = OfficeForm
 
-    @method_decorator(requiere('administracion.add_office'))
+    @method_decorator(requires('administracion.add_office'))
     def dispatch(self, *args, **kwargs):
         return super(OfficeCreate, self).dispatch(*args, **kwargs)
 
@@ -206,7 +206,7 @@ class WorkerCreate(CreateView):
     template_name = 'administracion/trabajador.html'
     form_class = WorkerForm
 
-    @method_decorator(requiere('administracion.add_worker'))
+    @method_decorator(requires('administracion.add_worker'))
     def dispatch(self, *args, **kwargs):
         return super(WorkerCreate, self).dispatch(*args, **kwargs)
 
@@ -218,7 +218,7 @@ class ProducerCreate(CreateView):
     template_name = 'administracion/productor.html'
     form_class = ProducerForm
 
-    @method_decorator(requiere('administracion.add_producer'))
+    @method_decorator(requires('administracion.add_producer'))
     def dispatch(self, *args, **kwargs):
         return super(ProducerCreate, self).dispatch(*args, **kwargs)
 
@@ -230,7 +230,7 @@ class PositionCreate(CreateView):
     template_name = 'administracion/puesto.html'
     form_class = PositionForm
 
-    @method_decorator(requiere('administracion.add_position'))
+    @method_decorator(requires('administracion.add_position'))
     def dispatch(self, *args, **kwargs):
         return super(PositionCreate, self).dispatch(*args, **kwargs)
 
@@ -312,7 +312,7 @@ class ApprovalLevelUpdate(UpdateView):
     form_class = ApprovalLevelForm
 
     @method_decorator(
-        requiere('administracion.change_approvallevel'))
+        requires('administracion.change_approvallevel'))
     def dispatch(self, *args, **kwargs):
         return super(ApprovalLevelUpdate, self).dispatch(*args, **kwargs)
 
@@ -326,7 +326,7 @@ class ProfessionUpdate(UpdateView):
     form_class = ProfessionForm
 
     @method_decorator(
-        requiere('administracion.change_profession'))
+        requires('administracion.change_profession'))
     def dispatch(self, *args, **kwargs):
         return super(ProfessionUpdate, self).dispatch(*args, **kwargs)
 
@@ -340,7 +340,7 @@ class OfficeUpdate(UpdateView):
     form_class = OfficeForm
     success_url = reverse_lazy('administracion:office_list')
 
-    @method_decorator(requiere('administracion.change_office'))
+    @method_decorator(requires('administracion.change_office'))
     def dispatch(self, *args, **kwargs):
         return super(OfficeUpdate, self).dispatch(*args, **kwargs)
 
@@ -351,7 +351,7 @@ class WorkerUpdate(UpdateView):
     form_class = WorkerForm
 
     @method_decorator(
-        requiere('administracion.change_worker'))
+        requires('administracion.change_worker'))
     def dispatch(self, *args, **kwargs):
         return super(WorkerUpdate, self).dispatch(*args, **kwargs)
 
@@ -365,7 +365,7 @@ class ProducerUpdate(UpdateView):
     form_class = ProducerForm
 
     @method_decorator(
-        requiere('administracion.change_producer'))
+        requires('administracion.change_producer'))
     def dispatch(self, *args, **kwargs):
         return super(ProducerUpdate, self).dispatch(*args, **kwargs)
 
@@ -378,7 +378,7 @@ class PositionUpdate(UpdateView):
     template_name = 'administracion/puesto.html'
     form_class = PositionUpdateForm
 
-    @method_decorator(requiere('administracion.change_position'))
+    @method_decorator(requires('administracion.change_position'))
     def dispatch(self, *args, **kwargs):
         return super(PositionUpdate, self).dispatch(*args, **kwargs)
 
@@ -410,7 +410,7 @@ class OfficeExcelReport(TemplateView):
                 ws.cell(row=cont, column=2).value = office.code
                 ws.cell(row=cont, column=3).value = office.name
                 ws.cell(row=cont, column=4).value = office.dependency.name
-                ws.cell(row=cont, column=5).value = office.gerencia.name
+                ws.cell(row=cont, column=5).value = office.management.name
                 cont = cont + 1
             except Exception:
                 logger.warning("No se pudo exportar la oficina %s", office.pk, exc_info=True)
@@ -461,17 +461,17 @@ class PositionExcelReport(TemplateView):
         ws['G3'] = 'ES JEFATURA'
         ws['H3'] = 'ESTADO'
         cont = 4
-        for puesto in puestos:
-            ws.cell(row=cont, column=2).value = puesto.name
-            ws.cell(row=cont, column=3).value = puesto.office.name
-            ws.cell(row=cont, column=4).value = puesto.worker.nombre_completo()
-            ws.cell(row=cont, column=5).value = puesto.start_date.strftime('%d/%m/%Y')
-            ws.cell(row=cont, column=6).value = puesto.end_date
-            if puesto.is_leadership:
+        for position in puestos:
+            ws.cell(row=cont, column=2).value = position.name
+            ws.cell(row=cont, column=3).value = position.office.name
+            ws.cell(row=cont, column=4).value = position.worker.full_name()
+            ws.cell(row=cont, column=5).value = position.start_date.strftime('%d/%m/%Y')
+            ws.cell(row=cont, column=6).value = position.end_date
+            if position.is_leadership:
                 ws.cell(row=cont, column=7).value = "SI"
             else:
                 ws.cell(row=cont, column=7).value = "NO"
-            ws.cell(row=cont, column=8).value = puesto.is_active
+            ws.cell(row=cont, column=8).value = position.is_active
             cont = cont + 1
         nombre_archivo = "Puestos.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

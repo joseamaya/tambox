@@ -13,11 +13,11 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_conformity_detail_view' object.anterior %}';">
+                    onclick="location.href='{% url 'compras:service_conformity_detail_view' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:service_conformity_detail_view' object.siguiente %}';">
+                    onclick="location.href='{% url 'compras:service_conformity_detail_view' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -79,16 +79,16 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.service_order_detail.quantity }}</td>
+                        <td>{{ detail.service_order_detail.quantity }}</td>
                         <td>{{
-                            detalle.service_order_detail.quotation_detail.requirement_detail.product.description
+                            detail.service_order_detail.quotation_detail.requirement_detail.product.description
                             }}
                         </td>
-                        <td>{{ detalle.service_order_detail.quotation_detail.requirement_detail.use }}</td>
-                        <td>{{ detalle.service_order_detail.price }}</td>
-                        <td>{{ detalle.service_order_detail.amount }}</td>
+                        <td>{{ detail.service_order_detail.quotation_detail.requirement_detail.use }}</td>
+                        <td>{{ detail.service_order_detail.price }}</td>
+                        <td>{{ detail.service_order_detail.amount }}</td>
                     </tr>
                     {% endfor %}
                     <tr>
@@ -148,7 +148,7 @@ $(document).ready(function()
 			type : 'post',
 			success : function(data) {
 				alert("Conformidad " + data.code + " eliminada");
-				$(location).attr('href', "{% url 'compras:service_conformity_detail_view' object.siguiente %}");				
+				$(location).attr('href', "{% url 'compras:service_conformity_detail_view' object.next %}");				
 			}
 		});
 		ventana.dialog("close");

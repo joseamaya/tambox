@@ -6,7 +6,7 @@ from django.urls import NoReverseMatch, get_resolver, reverse
 from django.views.generic import TemplateView
 
 from almacen.forms import MovementReportForm
-from seguridad.permisos import permisos_declarados
+from seguridad.permisos import declared_permissions
 
 
 class AutorizacionTestCase(TestCase):
@@ -128,7 +128,7 @@ class OpcionesDeFormularioTestCase(TestCase):
         self.assertIn('AL02', codes)
 
 
-def recorrer_urls(patrones=None, prefijo='', espacio=''):
+def walk_urls(patrones=None, prefijo='', espacio=''):
     """Baja por el arbol de URLs y devuelve (name, callback) de cada vista.
 
     El nombre sale del namespace y el nombre del patron (`seguridad:login`), y si
@@ -138,7 +138,7 @@ def recorrer_urls(patrones=None, prefijo='', espacio=''):
         patrones = get_resolver().url_patterns
     for patron in patrones:
         if hasattr(patron, 'url_patterns'):
-            yield from recorrer_urls(patron.url_patterns,
+            yield from walk_urls(patron.url_patterns,
                                      prefijo + str(patron.pattern),
                                      patron.namespace or espacio)
         else:
@@ -164,7 +164,7 @@ class URLsProtegidasTest(TestCase):
     }
 
     def test_lo_publico_es_una_lista_cerrada(self):
-        vistas = list(recorrer_urls())
+        vistas = list(walk_urls())
         self.assertTrue(vistas, 'No se recorrio ninguna URL')
 
         publicas = {name for name, callback in vistas
@@ -182,7 +182,7 @@ class PermisosDeclaradosTest(TestCase):
     def test_los_permisos_declarados_existen(self):
         get_resolver().url_patterns  # importa las vistas y llena el registro
 
-        declarados = permisos_declarados()
+        declarados = declared_permissions()
         self.assertTrue(declarados, 'El registro esta vacio: no se importaron las vistas')
 
         existentes = {'%s.%s' % (app, codename)
@@ -219,7 +219,7 @@ class TodasLasPaginasTest(TestCase):
 
     def test_ninguna_pagina_responde_500(self):
         fallos = {}
-        for name, _ in recorrer_urls():
+        for name, _ in walk_urls():
             try:
                 url = reverse(name)
             except NoReverseMatch:

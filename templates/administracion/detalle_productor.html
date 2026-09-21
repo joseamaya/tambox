@@ -12,11 +12,11 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:producer_detail' object.anterior %}','Producer / {{ object.anterior_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:producer_detail' object.previous %}','Producer / {{ object.previous_full_name }}');">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="return abrir_modal('{% url 'administracion:producer_detail' object.siguiente %}','Producer / {{ object.siguiente_nombres_apellidos }}');">
+                    onclick="return abrir_modal('{% url 'administracion:producer_detail' object.next %}','Producer / {{ object.next_full_name }}');">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -36,7 +36,7 @@
                 </a>
             </div>
             <div class="col-lg-5">
-                <h3>{{ object.nombre_completo }}</h3>
+                <h3>{{ object.full_name }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group"></div>

@@ -50,11 +50,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url_anterior 'requerimientos:requirement_detail' object request.user %}';">
+                    onclick="location.href='{% previous_url 'requerimientos:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url_siguiente 'requerimientos:requirement_detail' object request.user %}';">
+                    onclick="location.href='{% next_url 'requerimientos:requirement_detail' object request.user %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -161,22 +161,22 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        {% if detalle.product %}
-                        <td>{{ detalle.product.description }}</td>
-                        <td>{{ detalle.use }}</td>
-                        <td>{{ detalle.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.quoted_quantity }}</td>
-                        <td>{{ detalle.purchased_quantity }}</td>
+                        {% if detail.product %}
+                        <td>{{ detail.product.description }}</td>
+                        <td>{{ detail.use }}</td>
+                        <td>{{ detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.quoted_quantity }}</td>
+                        <td>{{ detail.purchased_quantity }}</td>
                         {% else %}
-                        <td>{{ detalle.otro }}</td>
-                        <td>{{ detalle.use }}</td>
+                        <td>{{ detail.otro }}</td>
+                        <td>{{ detail.use }}</td>
                         <td>-</td>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.quoted_quantity }}</td>
-                        <td>{{ detalle.purchased_quantity }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.quoted_quantity }}</td>
+                        <td>{{ detail.purchased_quantity }}</td>
                         {% endif %}
                     </tr>
                     {% endfor %}
@@ -221,7 +221,7 @@ $(document).ready(function()
 				if (data.cotizaciones == 'NO') 
 				{
 					alert("Requerimiento " + data.code + " eliminado");
-					$(location).attr('href', "{% url 'requerimientos:requirement_detail' object.siguiente %}");
+					$(location).attr('href', "{% url 'requerimientos:requirement_detail' object.next %}");
 				} 
 				else if (data.cotizaciones == 'SI') 
 				{

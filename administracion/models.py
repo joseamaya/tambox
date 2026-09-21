@@ -16,12 +16,12 @@ class Profession(TimeStampedModel):
     history = HistoricalRecords()
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        ant = Profession.objects.anterior(self)
+    def previous(self):
+        ant = Profession.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Profession.objects.siguiente(self)
+    def next(self):
+        sig = Profession.objects.next(self)
         return sig.pk
 
     class Meta:
@@ -47,35 +47,35 @@ class Worker(TimeStampedModel):
     history = HistoricalRecords()
     objects = NavigableQuerySet.as_manager()
 
-    def nombre_completo(self):
+    def full_name(self):
         if self.profession is not None:
             return self.profession.abbreviation + ' ' + self.first_name + ' ' + self.last_name
         else:
             return self.first_name + ' ' + self.last_name
 
-    def anterior(self):
-        ant = Worker.objects.anterior(self)
+    def previous(self):
+        ant = Worker.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Worker.objects.siguiente(self)
+    def next(self):
+        sig = Worker.objects.next(self)
         return sig.pk
 
-    def anterior_nombres_apellidos(self):
-        ant = Worker.objects.anterior(self)
+    def previous_full_name(self):
+        ant = Worker.objects.previous(self)
         return ant.first_name + " " + ant.last_name
 
-    def siguiente_nombres_apellidos(self):
-        sig = Worker.objects.siguiente(self)
+    def next_full_name(self):
+        sig = Worker.objects.next(self)
         return sig.first_name + " " + sig.last_name
 
     @property
-    def puesto(self):
+    def position(self):
         try:
-            puesto = self.positions.all().filter(is_active=True)[0]
+            position = self.positions.all().filter(is_active=True)[0]
         except IndexError:
-            puesto = None
-        return puesto
+            position = None
+        return position
 
     def __str__(self):
         return force_str(self.last_name) + ' ' + force_str(self.first_name)
@@ -96,23 +96,23 @@ class Producer(TimeStampedModel):
     history = HistoricalRecords()
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        ant = Producer.objects.anterior(self)
+    def previous(self):
+        ant = Producer.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Producer.objects.siguiente(self)
+    def next(self):
+        sig = Producer.objects.next(self)
         return sig.pk
 
-    def anterior_nombres_apellidos(self):
-        ant = Producer.objects.anterior(self)
+    def previous_full_name(self):
+        ant = Producer.objects.previous(self)
         return ant.first_name + " " + ant.last_name
 
-    def siguiente_nombres_apellidos(self):
-        sig = Producer.objects.siguiente(self)
+    def next_full_name(self):
+        sig = Producer.objects.next(self)
         return sig.first_name + " " + sig.last_name
 
-    def nombre_completo(self):
+    def full_name(self):
         return self.first_name + ' ' + self.last_name
 
     def __str__(self):
@@ -144,19 +144,19 @@ class Office(TimeStampedModel):
         ordering = ['name']
 
     @property
-    def gerencia(self):
+    def management(self):
         oficina_superior = self.dependency
         if oficina_superior.is_management:
             return oficina_superior
         else:
-            return oficina_superior.gerencia
+            return oficina_superior.management
 
-    def anterior(self):
-        ant = Office.objects.anterior(self)
+    def previous(self):
+        ant = Office.objects.previous(self)
         return ant
 
-    def siguiente(self):
-        sig = Office.objects.siguiente(self)
+    def next(self):
+        sig = Office.objects.next(self)
         return sig
 
     def __str__(self):
@@ -175,26 +175,26 @@ class Position(TimeStampedModel):
     history = HistoricalRecords()
     objects = NavigableQuerySet.as_manager()
 
-    def anterior(self):
-        ant = Position.objects.anterior(self)
+    def previous(self):
+        ant = Position.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Position.objects.siguiente(self)
+    def next(self):
+        sig = Position.objects.next(self)
         return sig.pk
 
     @property
-    def puesto_superior(self):
+    def superior_position(self):
         puestos_superiores = Position.objects.filter(office=self.office,
                                                    is_leadership=True,
                                                    is_active=True)
         if puestos_superiores.count() > 0:
-            puesto_superior = puestos_superiores[0]
+            superior_position = puestos_superiores[0]
         else:
-            puesto_superior = None
-        return puesto_superior
+            superior_position = None
+        return superior_position
 
-    def establecer_nivel(self, oficina_requerimiento):
+    def set_level(self, oficina_requerimiento):
         from tambox.config import logistics
         description = "LOGISTICA" if (self.office == logistics() and self.is_leadership) else "USUARIO"
         try:
@@ -226,12 +226,12 @@ class ApprovalLevel(TimeStampedModel):
     def __str__(self):
         return force_str(self.description)
 
-    def anterior(self):
-        ant = ApprovalLevel.objects.anterior(self)
+    def previous(self):
+        ant = ApprovalLevel.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = ApprovalLevel.objects.siguiente(self)
+    def next(self):
+        sig = ApprovalLevel.objects.next(self)
         return sig.pk
 
     class Meta:

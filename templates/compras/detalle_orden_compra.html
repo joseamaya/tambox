@@ -49,11 +49,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:purchase_order_detail' object.anterior %}';">
+                    onclick="location.href='{% url 'compras:purchase_order_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:purchase_order_detail' object.siguiente %}';">
+                    onclick="location.href='{% url 'compras:purchase_order_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -169,28 +169,28 @@
                     </thead>
                     <tbody>
                     {% if object.quotation %}
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.quotation_detail.requirement_detail.product.code }}</td>
-                        <td>{{ detalle.quotation_detail.requirement_detail.product.description }}</td>
-                        <td>{{ detalle.quotation_detail.requirement_detail.product.unit_of_measure.description }}
+                        <td>{{ detail.quotation_detail.requirement_detail.product.code }}</td>
+                        <td>{{ detail.quotation_detail.requirement_detail.product.description }}</td>
+                        <td>{{ detail.quotation_detail.requirement_detail.product.unit_of_measure.description }}
                         </td>
-                        <td>{{ detalle.quantity|floatformat:5 }}</td>
-                        <td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
-                        <td>{{ detalle.impuesto|floatformat:5 }}</td>
-                        <td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
+                        <td>{{ detail.quantity|floatformat:5 }}</td>
+                        <td>{{ detail.price_without_tax|floatformat:5 }}</td>
+                        <td>{{ detail.impuesto|floatformat:5 }}</td>
+                        <td>{{ detail.amount_without_tax|floatformat:5 }}</td>
                     </tr>
                     {% endfor %}
                     {% else %}
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.product.code }}</td>
-                        <td>{{ detalle.product.description }}</td>
-                        <td>{{ detalle.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.quantity|floatformat:5 }}</td>
-                        <td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
-                        <td>{{ detalle.impuesto|floatformat:5 }}</td>
-                        <td>{{ detalle.valor_sin_igv|floatformat:5 }}</td>
+                        <td>{{ detail.product.code }}</td>
+                        <td>{{ detail.product.description }}</td>
+                        <td>{{ detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity|floatformat:5 }}</td>
+                        <td>{{ detail.price_without_tax|floatformat:5 }}</td>
+                        <td>{{ detail.impuesto|floatformat:5 }}</td>
+                        <td>{{ detail.amount_without_tax|floatformat:5 }}</td>
                     </tr>
                     {% endfor %}
                     {% endif %}
@@ -295,7 +295,7 @@ $(document).ready(function()
 				if (data.movimientos == 'NO')
 				{
 					alert("Orden de Compra " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:purchase_order_detail' object.siguiente %}");
+					$(location).attr('href', "{% url 'compras:purchase_order_detail' object.next %}");
 				} 
 				else if (data.movimientos == 'SI') 
 				{

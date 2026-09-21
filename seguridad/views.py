@@ -52,7 +52,7 @@ class PermissionDeniedView(TemplateView):
     template_name = 'seguridad/permiso_denegado.html'
 
 
-def permiso_denegado(request, exception=None):
+def permission_denied(request, exception=None):
     """Handler 403 del proyecto.
 
     Renderiza la misma pagina que la vista PermissionDeniedView, pero con el estado

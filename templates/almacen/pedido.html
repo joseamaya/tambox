@@ -24,11 +24,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:order_update' order.anterior %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:order_update' order.siguiente %}';">
+                        onclick="location.href='{% url 'almacen:order_update' order.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
@@ -290,7 +290,7 @@ $(document).ready(function()
 			}
 			else
 			{
-				alert("No ha ingresado ningÃºn detalle");
+				alert("No ha ingresado ningÃºn detail");
 			}
 		}
 		else

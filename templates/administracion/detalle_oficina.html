@@ -8,11 +8,11 @@
             <div class="col-lg-5 text-right">
                 <div class="btn-group">
                     <button class="btn btn-default" type="button"
-                            onclick="return abrir_modal('{% url 'administracion:office_detail' object.anterior.pk %}','Oficina / {{ object.anterior.name }}');">
+                            onclick="return abrir_modal('{% url 'administracion:office_detail' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
                         <span class="glyphicon glyphicon-step-backward"></span>
                     </button>
                     <button class="btn btn-default" type="button"
-                            onclick="return abrir_modal('{% url 'administracion:office_detail' object.siguiente.pk %}','Oficina / {{ object.siguiente.name }}');">
+                            onclick="return abrir_modal('{% url 'administracion:office_detail' object.next.pk %}','Oficina / {{ object.next.name }}');">
                         <span class="glyphicon glyphicon-step-forward"></span>
                     </button>
                 </div>

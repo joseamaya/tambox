@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from contabilidad.forms import UploadForm
 from tambox.views import CsvImportMixin, AjaxOnlyMixin
-from seguridad.permisos import requiere
+from seguridad.permisos import requires
 from django.utils.decorators import method_decorator
 import datetime
 
@@ -73,7 +73,7 @@ class PaymentMethodCreate(CreateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = PaymentMethodForm
 
-    @method_decorator(requiere('contabilidad.add_paymentmethod'))
+    @method_decorator(requires('contabilidad.add_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(PaymentMethodCreate, self).dispatch(*args, **kwargs)
 
@@ -86,7 +86,7 @@ class DocumentTypeCreate(CreateView):
     template_name = 'contabilidad/tipo_documento.html'
     form_class = DocumentTypeForm
 
-    @method_decorator(requiere('contabilidad.add_documenttype'))
+    @method_decorator(requires('contabilidad.add_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(DocumentTypeCreate, self).dispatch(*args, **kwargs)
 
@@ -99,7 +99,7 @@ class ExchangeRateCreate(CreateView):
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = ExchangeRateForm
 
-    @method_decorator(requiere('contabilidad.add_exchangerate'))
+    @method_decorator(requires('contabilidad.add_exchangerate'))
     def dispatch(self, *args, **kwargs):
         return super(ExchangeRateCreate, self).dispatch(*args, **kwargs)
 
@@ -113,7 +113,7 @@ class AccountCreate(CreateView):
     form_class = AccountForm
 
     @method_decorator(
-        requiere('contabilidad.add_account'))
+        requires('contabilidad.add_account'))
     def dispatch(self, *args, **kwargs):
         return super(AccountCreate, self).dispatch(*args, **kwargs)
 
@@ -126,7 +126,7 @@ class TaxCreate(CreateView):
     template_name = 'contabilidad/impuesto.html'
     form_class = TaxForm
 
-    @method_decorator(requiere('contabilidad.add_tax'))
+    @method_decorator(requires('contabilidad.add_tax'))
     def dispatch(self, *args, **kwargs):
         return super(TaxCreate, self).dispatch(*args, **kwargs)
 
@@ -139,7 +139,7 @@ class ConfigurationCreate(CreateView):
     template_name = 'contabilidad/configuracion.html'
     form_class = ConfigurationForm
 
-    @method_decorator(requiere('contabilidad.add_configuration'))
+    @method_decorator(requires('contabilidad.add_configuration'))
     def dispatch(self, *args, **kwargs):
         return super(ConfigurationCreate, self).dispatch(*args, **kwargs)
 
@@ -188,7 +188,7 @@ class PaymentMethodDetail(DetailView):
 class PaymentMethodDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('contabilidad.delete_paymentmethod'))
+    @method_decorator(requires('contabilidad.delete_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(PaymentMethodDelete, self).dispatch(*args, **kwargs)
 
@@ -215,7 +215,7 @@ class PaymentMethodDelete(TemplateView):
 class DocumentTypeDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('contabilidad.delete_documenttype'))
+    @method_decorator(requires('contabilidad.delete_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(DocumentTypeDelete, self).dispatch(*args, **kwargs)
 
@@ -242,7 +242,7 @@ class DocumentTypeList(ListView):
     queryset = DocumentType.objects.filter(is_active=True).order_by('name')
 
     @method_decorator(
-        requiere('contabilidad.ver_tabla_tipos_documentos'))
+        requires('contabilidad.ver_tabla_tipos_documentos'))
     def dispatch(self, *args, **kwargs):
         return super(DocumentTypeList, self).dispatch(*args, **kwargs)
 
@@ -253,7 +253,7 @@ class ExchangeRateList(ListView):
     context_object_name = 'tipos'
 
     @method_decorator(
-        requiere('contabilidad.ver_tabla_tipos_cambio'))
+        requires('contabilidad.ver_tabla_tipos_cambio'))
     def dispatch(self, *args, **kwargs):
         return super(ExchangeRateList, self).dispatch(*args, **kwargs)
 
@@ -265,7 +265,7 @@ class AccountList(ListView):
     queryset = Account.objects.all().order_by('account_number')
 
     @method_decorator(
-        requiere('contabilidad.ver_tabla_cuentas_contables'))
+        requires('contabilidad.ver_tabla_cuentas_contables'))
     def dispatch(self, *args, **kwargs):
         return super(AccountList, self).dispatch(*args, **kwargs)
 
@@ -277,7 +277,7 @@ class StockTypeList(ListView):
     queryset = StockType.objects.all().order_by('sunat_code')
 
     @method_decorator(
-        requiere('contabilidad.ver_tabla_tipos_existencias'))
+        requires('contabilidad.ver_tabla_tipos_existencias'))
     def dispatch(self, *args, **kwargs):
         return super(StockTypeList, self).dispatch(*args, **kwargs)
 
@@ -289,7 +289,7 @@ class PaymentMethodList(ListView):
     paginate_by = 10
     queryset = PaymentMethod.objects.order_by('code')
 
-    @method_decorator(requiere('contabilidad.ver_tabla_formas_pago'))
+    @method_decorator(requires('contabilidad.ver_tabla_formas_pago'))
     def dispatch(self, *args, **kwargs):
         return super(PaymentMethodList, self).dispatch(*args, **kwargs)
 
@@ -300,7 +300,7 @@ class TaxList(ListView):
     context_object_name = 'impuestos'
 
     @method_decorator(
-        requiere('contabilidad.ver_tabla_impuestos'))
+        requires('contabilidad.ver_tabla_impuestos'))
     def dispatch(self, *args, **kwargs):
         return super(TaxList, self).dispatch(*args, **kwargs)
 
@@ -310,7 +310,7 @@ class PaymentMethodUpdate(UpdateView):
     template_name = 'contabilidad/forma_pago.html'
     form_class = PaymentMethodForm
 
-    @method_decorator(requiere('contabilidad.change_paymentmethod'))
+    @method_decorator(requires('contabilidad.change_paymentmethod'))
     def dispatch(self, *args, **kwargs):
         return super(PaymentMethodUpdate, self).dispatch(*args, **kwargs)
 
@@ -323,7 +323,7 @@ class ExchangeRateUpdate(UpdateView):
     template_name = 'contabilidad/tipo_cambio.html'
     form_class = ExchangeRateForm
 
-    @method_decorator(requiere('contabilidad.change_exchangerate'))
+    @method_decorator(requires('contabilidad.change_exchangerate'))
     def dispatch(self, *args, **kwargs):
         return super(ExchangeRateUpdate, self).dispatch(*args, **kwargs)
 
@@ -337,7 +337,7 @@ class DocumentTypeUpdate(UpdateView):
     form_class = DocumentTypeForm
 
     @method_decorator(
-        requiere('contabilidad.change_documenttype'))
+        requires('contabilidad.change_documenttype'))
     def dispatch(self, *args, **kwargs):
         return super(DocumentTypeUpdate, self).dispatch(*args, **kwargs)
 
@@ -351,7 +351,7 @@ class AccountUpdate(UpdateView):
     form_class = AccountForm
 
     @method_decorator(
-        requiere('contabilidad.change_account'))
+        requires('contabilidad.change_account'))
     def dispatch(self, *args, **kwargs):
         return super(AccountUpdate, self).dispatch(*args, **kwargs)
 
@@ -365,7 +365,7 @@ class ConfigurationUpdate(UpdateView):
     form_class = ConfigurationForm
 
     @method_decorator(
-        requiere('contabilidad.change_configuration'))
+        requires('contabilidad.change_configuration'))
     def dispatch(self, *args, **kwargs):
         return super(ConfigurationUpdate, self).dispatch(*args, **kwargs)
 
@@ -378,7 +378,7 @@ class TaxUpdate(UpdateView):
     template_name = 'contabilidad/impuesto.html'
     form_class = TaxForm
 
-    @method_decorator(requiere('contabilidad.change_tax'))
+    @method_decorator(requires('contabilidad.change_tax'))
     def dispatch(self, *args, **kwargs):
         return super(TaxUpdate, self).dispatch(*args, **kwargs)
 

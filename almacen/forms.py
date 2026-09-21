@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
-    choices_tipos_movimiento, choices_almacenes, \
+    movement_type_choices, warehouse_choices, \
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
 
 
@@ -73,8 +73,8 @@ class MovementReportForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(MovementReportForm, self).__init__(*args, **kwargs)
-        self.fields['tipos_movimiento'].choices = choices_tipos_movimiento()
-        self.fields['almacenes'].choices = choices_almacenes()
+        self.fields['tipos_movimiento'].choices = movement_type_choices()
+        self.fields['almacenes'].choices = warehouse_choices()
 
     def clean_hasta(self):
         self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
@@ -130,7 +130,7 @@ class MovementForm(forms.ModelForm):
                     raise ValidationError("El DNI no correspone a ningun trabajador")
         return self.cleaned_data['dni_receptor']
 
-    def obtener_fecha_hora(self, r_date, r_hora):
+    def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
         month = int(r_date[3:5])
@@ -157,7 +157,7 @@ class MovementForm(forms.ModelForm):
                 self.instance.worker = Worker.objects.get(dni=self.cleaned_data['dni_receptor'])
             except ObjectDoesNotExist:
                 self.instance.worker = None
-        self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['hora'])
         return super(MovementForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -279,7 +279,7 @@ class OrderApprovalForm(forms.ModelForm):
                 'class': 'form-control'
             })
 
-    def obtener_fecha_hora(self, r_date, r_hora):
+    def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
         month = int(r_date[3:5])
@@ -292,7 +292,7 @@ class OrderApprovalForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.order = Order.objects.get(code=self.cleaned_data['cod_pedido'])
-        self.instance.operation_date = self.obtener_fecha_hora(self.cleaned_data['date'], self.cleaned_data['hora'])
+        self.instance.operation_date = self.get_datetime(self.cleaned_data['date'], self.cleaned_data['hora'])
         self.instance.movement_type = MovementType.objects.get(code="S01")
         self.instance.office = self.instance.order.office
         return super(OrderApprovalForm, self).save(*args, **kwargs)
@@ -362,7 +362,7 @@ class OutboundDetailForm(forms.Form):
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
 
-    def clean_cantidad(self):
+    def clean_quantity(self):
         if self.cleaned_data.get('quantity') == 0:
             raise ValidationError("La cantidad no puede ser 0")
         elif self.cleaned_data.get('quantity') < 0:

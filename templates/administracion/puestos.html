@@ -37,15 +37,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for puesto in puestos %}
+            {% for position in puestos %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:position_detail' puesto.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:position_detail' position.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ puesto.name }}</td>
-                <td>{{ puesto.worker }}</td>
-                <td>{{ puesto.office }}</td>
+                <td>{{ position.name }}</td>
+                <td>{{ position.worker }}</td>
+                <td>{{ position.office }}</td>
             </tr>
             {% endfor %}
             </tbody>

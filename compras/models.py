@@ -22,44 +22,44 @@ class DetalleOrdenManager(models.Manager):
 
     def bulk_create(self, objs, quotation):
         if quotation is not None:
-            self.guardar_detalles_con_referencia(objs, quotation)
+            self.save_details_with_reference(objs, quotation)
         else:
-            self.guardar_detalles_sin_referencia(objs)
+            self.save_details_without_reference(objs)
 
-    def actualizar_cotizaciones(self):
+    def update_quotations(self):
         cotizaciones = Quotation.objects.filter(status=Quotation.STATUS.PEND)
         for cot in cotizaciones:
-            cot.establecer_estado_comprado()
+            cot.set_status_purchased()
             cot.save()
 
-    def actualizar_detalle_cotizaciones(self, requirement_detail):
+    def update_quotation_details(self, requirement_detail):
         if requirement_detail.status == RequirementDetail.STATUS.COMP:
             QuotationDetail.objects.filter(requirement_detail=requirement_detail,
                                              status=QuotationDetail.STATUS.PEND).update(
                 status=QuotationDetail.STATUS.DESC)
 
-    def guardar_detalles_con_referencia(self, objs, quotation):
+    def save_details_with_reference(self, objs, quotation):
         requirement = quotation.requirement
-        for detalle in objs:
-            quotation_detail = detalle.quotation_detail
-            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity + detalle.quantity
-            quotation_detail.establecer_estado_comprado()
+        for detail in objs:
+            quotation_detail = detail.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity + detail.quantity
+            quotation_detail.set_status_purchased()
             quotation_detail.save()
             requirement_detail = quotation_detail.requirement_detail
             requirement_detail.purchased_quantity = requirement_detail.purchased_quantity + quotation_detail.purchased_quantity
-            requirement_detail.establecer_estado_comprado()
+            requirement_detail.set_status_purchased()
             requirement_detail.save()
-            self.actualizar_detalle_cotizaciones(requirement_detail)
-            detalle.save()
-        requirement.establecer_estado_comprado()
+            self.update_quotation_details(requirement_detail)
+            detail.save()
+        requirement.set_status_purchased()
         requirement.save()
-        quotation.establecer_estado_comprado()
+        quotation.set_status_purchased()
         quotation.save()
-        self.actualizar_cotizaciones()
+        self.update_quotations()
 
-    def guardar_detalles_sin_referencia(self, objs):
-        for detalle in objs:
-            detalle.save()
+    def save_details_without_reference(self, objs):
+        for detail in objs:
+            detail.save()
 
 
 class LegalRepresentative(TimeStampedModel):
@@ -98,12 +98,12 @@ class Supplier(TimeStampedModel):
                        ('ver_reporte_proveedores_excel', 'Puede ver Reporte Proveedores en excel'),)
         ordering = ['tax_id']
 
-    def anterior(self):
-        ant = Supplier.objects.anterior(self)
+    def previous(self):
+        ant = Supplier.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Supplier.objects.siguiente(self)
+    def next(self):
+        sig = Supplier.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -121,39 +121,39 @@ class Quotation(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
-    def anterior(self):
-        ant = Quotation.objects.anterior(self)
+    def previous(self):
+        ant = Quotation.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Quotation.objects.siguiente(self)
+    def next(self):
+        sig = Quotation.objects.next(self)
         return sig.pk
 
-    def eliminar_cotizacion(self):
+    def delete_quotation(self):
         self.status = Quotation.STATUS.CANC
         self.save()
 
-    def eliminar_referencia(self):
+    def delete_reference(self):
         quotation = self
         requirement = quotation.requirement
         detalles = QuotationDetail.objects.filter(quotation=quotation)
-        for detalle in detalles:
-            requirement_detail = detalle.requirement_detail
+        for detail in detalles:
+            requirement_detail = detail.requirement_detail
             if requirement_detail.quoted_quantity > 0:
-                requirement_detail.quoted_quantity = requirement_detail.quoted_quantity - detalle.quantity
-            requirement_detail.establecer_estado_cotizado()
+                requirement_detail.quoted_quantity = requirement_detail.quoted_quantity - detail.quantity
+            requirement_detail.set_status_quoted()
             requirement_detail.save()
-        requirement.establecer_estado_cotizado()
+        requirement.set_status_quoted()
         requirement.save()
         QuotationDetail.objects.filter(quotation=quotation).delete()
 
-    def establecer_estado_comprado(self):
+    def set_status_purchased(self):
         total = 0
-        total_comprado = 0
-        for detalle in QuotationDetail.objects.filter(quotation=self):
-            total = total + detalle.quantity
-            total_comprado = total_comprado + detalle.purchased_quantity
-        caso = classify(total_comprado, total)
+        total_purchased = 0
+        for detail in QuotationDetail.objects.filter(quotation=self):
+            total = total + detail.quantity
+            total_purchased = total_purchased + detail.purchased_quantity
+        caso = classify(total_purchased, total)
         if caso == EMPTY:
             estado = Quotation.STATUS.DESC
         elif caso == PARTIAL:
@@ -202,7 +202,7 @@ class QuotationDetail(TimeStampedModel):
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
-    def establecer_estado_comprado(self):
+    def set_status_purchased(self):
         caso = classify(self.purchased_quantity, self.quantity)
         if caso == EMPTY:
             estado = QuotationDetail.STATUS.PEND
@@ -235,37 +235,37 @@ class PurchaseOrder(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
-    def anterior(self):
-        ant = PurchaseOrder.objects.anterior(self)
+    def previous(self):
+        ant = PurchaseOrder.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = PurchaseOrder.objects.siguiente(self)
+    def next(self):
+        sig = PurchaseOrder.objects.next(self)
         return sig.pk
 
-    def eliminar_referencia(self):
+    def delete_reference(self):
         quotation = self.quotation
         requirement = quotation.requirement
         detalles = PurchaseOrderDetail.objects.filter(order=self)
-        for detalle in detalles:
-            quotation_detail = detalle.quotation_detail
-            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
-            quotation_detail.establecer_estado_comprado()
+        for detail in detalles:
+            quotation_detail = detail.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
+            quotation_detail.set_status_purchased()
             quotation_detail.save()
             requirement_detail = quotation_detail.requirement_detail
-            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detalle.quantity
-            requirement_detail.establecer_estado_comprado()
+            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
+            requirement_detail.set_status_purchased()
             requirement_detail.save()
-        quotation.establecer_estado_comprado()
-        requirement.establecer_estado_comprado()
+        quotation.set_status_purchased()
+        requirement.set_status_purchased()
         quotation.save()
 
-    def establecer_estado(self):
+    def set_status(self):
         total = 0
         total_ingresado = 0
-        for detalle in PurchaseOrderDetail.objects.filter(order=self):
-            total = total + detalle.quantity
-            total_ingresado = total_ingresado + detalle.received_quantity
+        for detail in PurchaseOrderDetail.objects.filter(order=self):
+            total = total + detail.quantity
+            total_ingresado = total_ingresado + detail.received_quantity
         caso = classify(total_ingresado, total)
         if caso == EMPTY:
             estado = PurchaseOrder.STATUS.PEND
@@ -288,12 +288,12 @@ class PurchaseOrder(TimeStampedModel):
 
         No se convierte en agregado SQL a proposito: suma una propiedad que
         redondea fila a fila, y SUM(...) redondearia una sola vez al final, lo
-        que cambia los ultimos decimales del importe.
+        que cambia los last_records decimales del importe.
         """
         if not hasattr(self, '_impuesto_calculado'):
             imp = 0
-            for detalle in self.details.all():
-                imp = imp + detalle.impuesto
+            for detail in self.details.all():
+                imp = imp + detail.impuesto
             self._impuesto_calculado = imp
         return self._impuesto_calculado
 
@@ -301,8 +301,8 @@ class PurchaseOrder(TimeStampedModel):
     def subtotal(self):
         if not hasattr(self, '_subtotal_calculado'):
             subtotal = 0
-            for detalle in self.details.all():
-                subtotal = subtotal + detalle.valor_sin_igv
+            for detail in self.details.all():
+                subtotal = subtotal + detail.amount_without_tax
             self._subtotal_calculado = subtotal
         return self._subtotal_calculado
 
@@ -354,40 +354,40 @@ class PurchaseOrderDetail(TimeStampedModel):
     history = HistoricalRecords()
 
     @property
-    def precio_con_igv(self):
+    def price_with_tax(self):
         if self.order.with_tax:
-            precio_con_igv = self.price
+            price_with_tax = self.price
         else:
             monto_impuesto = configuration().purchase_tax.amount
-            precio_con_igv = round(self.price * (monto_impuesto + 1), 5)
-        return precio_con_igv
+            price_with_tax = round(self.price * (monto_impuesto + 1), 5)
+        return price_with_tax
 
     @property
-    def precio_sin_igv(self):
+    def price_without_tax(self):
         if self.order.with_tax:
             monto_impuesto = configuration().purchase_tax.amount
-            precio_sin_igv = round(self.price / (monto_impuesto + 1), 5)
+            price_without_tax = round(self.price / (monto_impuesto + 1), 5)
         else:
-            precio_sin_igv = self.price
-        return precio_sin_igv
+            price_without_tax = self.price
+        return price_without_tax
 
     @property
-    def valor_sin_igv(self):
+    def amount_without_tax(self):
         if self.order.with_tax:
             monto_impuesto = configuration().purchase_tax.amount
-            valor_sin_igv = (self.price * self.quantity) / (monto_impuesto + 1)
+            amount_without_tax = (self.price * self.quantity) / (monto_impuesto + 1)
         else:
-            valor_sin_igv = self.price * self.quantity
-        return round(valor_sin_igv, 5)
+            amount_without_tax = self.price * self.quantity
+        return round(amount_without_tax, 5)
 
     @property
-    def valor_con_igv(self):
+    def amount_with_tax(self):
         if self.order.with_tax:
-            valor_con_igv = self.price * self.quantity
+            amount_with_tax = self.price * self.quantity
         else:
             monto_impuesto = configuration().purchase_tax.amount
-            valor_con_igv = (self.price * self.quantity) * (monto_impuesto + 1)
-        return round(valor_con_igv, 5)
+            amount_with_tax = (self.price * self.quantity) * (monto_impuesto + 1)
+        return round(amount_with_tax, 5)
 
     @property
     def impuesto(self):
@@ -398,7 +398,7 @@ class PurchaseOrderDetail(TimeStampedModel):
             imp = self.price * self.quantity * monto_impuesto
         return round(imp, 5)
 
-    def establecer_estado(self):
+    def set_status(self):
         caso = classify(self.received_quantity, self.quantity)
         if caso == EMPTY:
             estado = PurchaseOrderDetail.STATUS.PEND
@@ -435,8 +435,8 @@ class ServiceOrder(TimeStampedModel):
     @property
     def subtotal(self):
         if not hasattr(self, '_subtotal_calculado'):
-            self._subtotal_calculado = sum(detalle.amount
-                                           for detalle in self.details.all())
+            self._subtotal_calculado = sum(detail.amount
+                                           for detail in self.details.all())
         return self._subtotal_calculado
 
     @property
@@ -453,37 +453,37 @@ class ServiceOrder(TimeStampedModel):
         letras = to_word(self.total).upper()
         return letras
 
-    def anterior(self):
-        ant = ServiceOrder.objects.anterior(self)
+    def previous(self):
+        ant = ServiceOrder.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = ServiceOrder.objects.siguiente(self)
+    def next(self):
+        sig = ServiceOrder.objects.next(self)
         return sig.pk
 
-    def eliminar_referencia(self):
+    def delete_reference(self):
         quotation = self.quotation
         requirement = self.quotation
         detalles = ServiceOrderDetail.objects.filter(order=self)
-        for detalle in detalles:
-            quotation_detail = detalle.quotation_detail
-            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detalle.quantity
-            quotation_detail.establecer_estado_comprado()
+        for detail in detalles:
+            quotation_detail = detail.quotation_detail
+            quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
+            quotation_detail.set_status_purchased()
             quotation_detail.save()
             requirement_detail = quotation_detail.requirement_detail
-            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detalle.quantity
-            requirement_detail.establecer_estado_comprado()
+            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
+            requirement_detail.set_status_purchased()
             requirement_detail.save()
-        quotation.establecer_estado_comprado()
-        requirement.establecer_estado_comprado()
+        quotation.set_status_purchased()
+        requirement.set_status_purchased()
         quotation.save()
 
-    def establecer_estado(self):
+    def set_status(self):
         total = 0
         total_conforme = 0
-        for detalle in ServiceOrderDetail.objects.filter(order=self):
-            total = total + detalle.quantity
-            total_conforme = total_conforme + detalle.conformed_quantity
+        for detail in ServiceOrderDetail.objects.filter(order=self):
+            total = total + detail.quantity
+            total_conforme = total_conforme + detail.conformed_quantity
         caso = classify(total_conforme, total)
         if caso == EMPTY:
             estado = ServiceOrder.STATUS.PEND
@@ -500,7 +500,7 @@ class ServiceOrder(TimeStampedModel):
                        ('ver_reporte_ordenes_servicios_excel', 'Puede ver Reporte de Ordenes de Servicios en excel'),)
         ordering = ('code',)
 
-    def generar_code(self):
+    def generate_code(self):
         anio = self.date.year
         mov_ant = ServiceOrder.objects.filter(date__year=anio).aggregate(Max('code'))
         id_ant = mov_ant['code__max']
@@ -514,7 +514,7 @@ class ServiceOrder(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            self.code = self.generar_code()
+            self.code = self.generate_code()
         super(ServiceOrder, self).save()
 
     def __str__(self):
@@ -550,7 +550,7 @@ class ServiceOrderDetail(TimeStampedModel):
         permissions = (('ver_detalle_orden_servicios', 'Puede ver Detalle Orden de Servicios'),)
         ordering = ['line_number']
 
-    def establecer_estado_atendido(self):
+    def set_status_served(self):
         caso = classify(self.conformed_quantity, self.quantity)
         if caso == EMPTY:
             estado = ServiceOrderDetail.STATUS.PEND
@@ -580,31 +580,31 @@ class ServiceConformity(TimeStampedModel):
                        ('ver_reporte_conformidades_servicio_excel',
                         'Puede ver Reporte de Conformidades de Servicio en excel'),)
 
-    def anterior(self):
-        ant = ServiceConformity.objects.anterior(self)
+    def previous(self):
+        ant = ServiceConformity.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = ServiceConformity.objects.siguiente(self)
+    def next(self):
+        sig = ServiceConformity.objects.next(self)
         return sig.pk
 
-    def eliminar_referencia(self):
+    def delete_reference(self):
         order = self.service_order
         quotation = order.quotation
         requirement = quotation.requirement
         detalles = ServiceConformityDetail.objects.filter(conformity=self)
-        for detalle in detalles:
-            detalle_orden = detalle.service_order_detail
-            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detalle.quantity
-            detalle_orden.establecer_estado_atendido()
+        for detail in detalles:
+            detalle_orden = detail.service_order_detail
+            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detail.quantity
+            detalle_orden.set_status_served()
             detalle_orden.save()
             requirement_detail = detalle_orden.quotation_detail.requirement_detail
-            requirement_detail.served_quantity = requirement_detail.served_quantity - detalle.quantity
-            requirement_detail.establecer_estado_atendido()
+            requirement_detail.served_quantity = requirement_detail.served_quantity - detail.quantity
+            requirement_detail.set_status_served()
             requirement_detail.save()
-        order.establecer_estado()
+        order.set_status()
         order.save()
-        requirement.establecer_estado_atendido()
+        requirement.set_status_served()
         requirement.save()
 
     def save(self, *args, **kwargs):

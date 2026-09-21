@@ -22,12 +22,12 @@ class ExchangeRate(TimeStampedModel):
                        ('ver_reporte_tipos_cambio_excel', 'Puede ver Reporte Tipos de Cambio en excel'),)
         ordering = ['date']
 
-    def anterior(self):
-        ant = ExchangeRate.objects.anterior(self)
+    def previous(self):
+        ant = ExchangeRate.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = ExchangeRate.objects.siguiente(self)
+    def next(self):
+        sig = ExchangeRate.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -49,12 +49,12 @@ class Account(TimeStampedModel):
                        ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel'),)
         ordering = ['account_number']
 
-    def anterior(self):
-        ant = Account.objects.anterior(self)
+    def previous(self):
+        ant = Account.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Account.objects.siguiente(self)
+    def next(self):
+        sig = Account.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -74,12 +74,12 @@ class PaymentMethod(TimeStampedModel):
                        ('ver_tabla_formas_pago', 'Puede ver tabla Formas de Pago'),
                        ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel'),)
 
-    def anterior(self):
-        ant = PaymentMethod.objects.anterior(self)
+    def previous(self):
+        ant = PaymentMethod.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = PaymentMethod.objects.siguiente(self)
+    def next(self):
+        sig = PaymentMethod.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -100,12 +100,12 @@ class DocumentType(TimeStampedModel):
                        ('ver_reporte_tipos_documentos_excel', 'Puede ver Reporte de Tipos de Documentos en excel'),)
         ordering = ['sunat_code']
 
-    def anterior(self):
-        ant = DocumentType.objects.anterior(self)
+    def previous(self):
+        ant = DocumentType.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = DocumentType.objects.siguiente(self)
+    def next(self):
+        sig = DocumentType.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -148,12 +148,12 @@ class Tax(TimeStampedModel):
                        ('ver_reporte_impuestos_excel', 'Puede ver Reporte de Impuestos en excel'),)
         ordering = ['abbreviation']
 
-    def anterior(self):
-        ant = Tax.objects.anterior(self)
+    def previous(self):
+        ant = Tax.objects.previous(self)
         return ant.pk
 
-    def siguiente(self):
-        sig = Tax.objects.siguiente(self)
+    def next(self):
+        sig = Tax.objects.next(self)
         return sig.pk
 
     def __str__(self):
@@ -213,7 +213,7 @@ class StockType(TimeStampedModel):
 
 @receiver(post_save, sender=Configuration)
 @receiver(post_save, sender=Company)
-def invalidar_cache_configuracion(sender, **kwargs):
+def invalidate_configuration_cache(sender, **kwargs):
     """La configuracion y la empresa se leen con cache; al guardarlas se invalida."""
     from tambox.config import clear_cache
     clear_cache()

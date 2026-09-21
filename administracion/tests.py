@@ -42,16 +42,16 @@ class ProfesionTest(TestCase):
         self.assertEqual(self.p1.__str__(), self.p1.description)
 
     def test_siguiente_profesion(self):
-        self.assertEqual(self.p3.pk, self.p2.siguiente())
+        self.assertEqual(self.p3.pk, self.p2.next())
 
     def test_anterior_profesion(self):
-        self.assertEqual(self.p2.pk, self.p3.anterior())
+        self.assertEqual(self.p2.pk, self.p3.previous())
 
     def test_primera_profesion(self):
-        self.assertEqual(self.p1.pk, self.p3.siguiente())
+        self.assertEqual(self.p1.pk, self.p3.next())
 
     def test_ultima_profesion(self):
-        self.assertEqual(self.p3.pk, self.p1.anterior())
+        self.assertEqual(self.p3.pk, self.p1.previous())
 
 
 class TrabajadorTest(TestCase):
@@ -67,23 +67,23 @@ class TrabajadorTest(TestCase):
                          self.t3.last_name + ' ' + self.t3.first_name)
 
     def test_siguiente_trabajador(self):
-        self.assertEqual(self.t3.pk, self.t2.siguiente())
+        self.assertEqual(self.t3.pk, self.t2.next())
 
     def test_anterior_trabajador(self):
-        self.assertEqual(self.t2.pk, self.t3.anterior())
+        self.assertEqual(self.t2.pk, self.t3.previous())
 
     def test_primer_trabajador(self):
-        self.assertEqual(self.t1.pk, self.t3.siguiente())
+        self.assertEqual(self.t1.pk, self.t3.next())
 
     def test_ultimo_trabajador(self):
-        self.assertEqual(self.t3.pk, self.t1.anterior())
+        self.assertEqual(self.t3.pk, self.t1.previous())
 
     def test_nombre_completo(self):
-        self.assertEqual(self.t3.nombre_completo(),
+        self.assertEqual(self.t3.full_name(),
                          self.t3.first_name + ' ' + self.t3.last_name)
         p = baker.make(Profession)
         t = baker.make(Worker, profession=p)
-        self.assertEqual(t.nombre_completo(),
+        self.assertEqual(t.full_name(),
                          t.profession.abbreviation + ' ' + t.first_name + ' ' + t.last_name)
 
 
@@ -99,16 +99,16 @@ class OficinaTest(TestCase):
         self.assertEqual(self.o1.__str__(), self.o1.name)
 
     def test_siguiente_oficina(self):
-        self.assertEqual(self.o3, self.o2.siguiente())
+        self.assertEqual(self.o3, self.o2.next())
 
     def test_anterior_oficina(self):
-        self.assertEqual(self.o2, self.o3.anterior())
+        self.assertEqual(self.o2, self.o3.previous())
 
     def test_primera_oficina(self):
-        self.assertEqual(self.o1, self.o3.siguiente())
+        self.assertEqual(self.o1, self.o3.next())
 
     def test_ultima_oficina(self):
-        self.assertEqual(self.o3, self.o1.anterior())
+        self.assertEqual(self.o3, self.o1.previous())
 
 
 class PuestoTest(TestCase):
@@ -123,16 +123,16 @@ class PuestoTest(TestCase):
         # self.assertEqual(self.p1.__str__(), self.p1.description)
 
     def test_siguiente_puesto(self):
-        self.assertEqual(self.p3.pk, self.p2.siguiente())
+        self.assertEqual(self.p3.pk, self.p2.next())
 
     def test_anterior_puesto(self):
-        self.assertEqual(self.p2.pk, self.p3.anterior())
+        self.assertEqual(self.p2.pk, self.p3.previous())
 
     def test_primer_puesto(self):
-        self.assertEqual(self.p1.pk, self.p3.siguiente())
+        self.assertEqual(self.p1.pk, self.p3.next())
 
     def test_ultimo_puesto(self):
-        self.assertEqual(self.p3.pk, self.p1.anterior())
+        self.assertEqual(self.p3.pk, self.p1.previous())
 
     def test_estado_puesto(self):
         p = baker.make(Position, end_date=date.today())
@@ -146,23 +146,23 @@ class EstablecerNivelTest(TestCase):
 
     def test_nivel_ausente_da_un_mensaje_claro(self):
         office = baker.make(Office)
-        puesto = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
+        position = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
 
         with self.assertRaisesMessage(ValidationError, 'Falta el nivel de aprobacion "USUARIO"'):
-            puesto.establecer_nivel(office)
+            position.set_level(office)
 
     def test_usa_el_nivel_existente(self):
         level = baker.make(ApprovalLevel, description='USUARIO')
         office = baker.make(Office)
-        puesto = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
+        position = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
 
-        self.assertEqual(puesto.establecer_nivel(office), level)
+        self.assertEqual(position.set_level(office), level)
 
 
 class TableroAdministracionTest(TestCase):
     """Las semillas se creaban solo con la tabla vacia (`count() == 0`), asi que
     un estado a medias —LOGISTICA presente y USUARIO ausente— no se arreglaba
-    nunca y `establecer_nivel()` fallaba para todos los requerimientos."""
+    nunca y `set_level()` fallaba para todos los requerimientos."""
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('jefe', 'jefe@example.com', 'clave-segura'))

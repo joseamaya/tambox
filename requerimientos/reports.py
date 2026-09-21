@@ -26,7 +26,7 @@ class RequirementReport():
             self.pagesize = letter
         self.width, self.height = self.pagesize
 
-    def tabla_encabezado(self, styles):
+    def header_table(self, styles):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
@@ -39,22 +39,22 @@ class RequirementReport():
             image = Paragraph(u"LOGO", sp)
         nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
         encabezado = [[image, nro, '']]
-        tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
-        tabla_encabezado.setStyle(TableStyle(
+        header_table = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
+        header_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (1, 0), 'CENTER'),
                 ('VALIGN', (0, 0), (1, 0), 'CENTER'),
             ]
         ))
-        return tabla_encabezado
+        return header_table
 
-    def tabla_datos(self, styles):
+    def data_table(self, styles):
         requirement = self.requirement
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
-        solicitado = Paragraph(u"SOLICITADO POR: " + requirement.requester.nombre_completo(), izquierda)
+        solicitado = Paragraph(u"SOLICITADO POR: " + requirement.requester.full_name(), izquierda)
         office = Paragraph(u"OFICINA: " + requirement.office.name, izquierda)
         reason = Paragraph(u"MOTIVO: " + requirement.reason, izquierda)
         date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requirement.date.strftime('%d/%m/%Y'), izquierda)
@@ -65,14 +65,14 @@ class RequirementReport():
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
         datos = [[solicitado, office], [reason], [date, month], [para_stock, entrega]]
-        tabla_datos = Table(datos, colWidths=[11 * cm, 9 * cm])
+        data_table = Table(datos, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(
             [
                 ('SPAN', (0, 1), (1, 1)),
             ]
         )
-        tabla_datos.setStyle(style)
-        return tabla_datos
+        data_table.setStyle(style)
+        return data_table
 
     def tabla_detalle(self):
         requirement = self.requirement
@@ -83,12 +83,12 @@ class RequirementReport():
         sp.fontSize = 8
         sp.fontName = "Times-Roman"
         lista_detalles = []
-        for detalle in detalles:
-            tupla_producto = [Paragraph(str(detalle.line_number), sp),
-                              Paragraph(str(detalle.quantity), sp),
-                              Paragraph(detalle.product.unit_of_measure.description, sp),
-                              Paragraph(detalle.product.description, sp),
-                              Paragraph(detalle.use, sp)]
+        for detail in detalles:
+            tupla_producto = [Paragraph(str(detail.line_number), sp),
+                              Paragraph(str(detail.quantity), sp),
+                              Paragraph(detail.product.unit_of_measure.description, sp),
+                              Paragraph(detail.product.description, sp),
+                              Paragraph(detail.use, sp)]
             lista_detalles.append(tupla_producto)
         tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
         style = TableStyle(
@@ -103,7 +103,7 @@ class RequirementReport():
         tabla_detalle.setStyle(style)
         return tabla_detalle
 
-    def tabla_observaciones(self):
+    def notes_table(self):
         requirement = self.requirement
         p = ParagraphStyle('parrafos')
         p.alignment = TA_JUSTIFY
@@ -111,8 +111,8 @@ class RequirementReport():
         p.fontName = "Times-Roman"
         obs = Paragraph("OBSERVACIONES: " + requirement.notes, p)
         notes = [[obs]]
-        tabla_observaciones = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
-        tabla_observaciones.setStyle(TableStyle(
+        notes_table = Table(notes, colWidths=[20 * cm], rowHeights=1.8 * cm)
+        notes_table.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (0, 2), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -120,9 +120,9 @@ class RequirementReport():
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]
         ))
-        return tabla_observaciones
+        return notes_table
 
-    def obtener_firma(self, firma_trabajador):
+    def get_signature(self, firma_trabajador):
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
@@ -134,7 +134,7 @@ class RequirementReport():
             signature = Paragraph(u"Firma No Encontrada", p)
         return signature
 
-    def obtener_puesto(self, office, requirement):
+    def get_position(self, office, requirement):
         try:
             jefatura = Position.objects.get(office=office,
                                           is_leadership=True,
@@ -147,7 +147,7 @@ class RequirementReport():
                                           end_date__gte=requirement.date)
         return jefatura
 
-    def tabla_firmas(self):
+    def signatures_table(self):
         requirement = self.requirement
         requester = requirement.requester
         p = ParagraphStyle('parrafos',
@@ -155,11 +155,11 @@ class RequirementReport():
                            fontSize=8,
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
-        jefatura_logistica = self.obtener_puesto(logistics(), requirement)
+        jefatura_logistica = self.get_position(logistics(), requirement)
         jefe_logistica = jefatura_logistica.worker
-        firma_solicitante = self.obtener_firma(requester.signature)
-        firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.signature)
-        requester = requirement.requester.nombre_completo()
+        firma_solicitante = self.get_signature(requester.signature)
+        firma_jefe_oficina_logistica = self.get_signature(jefe_logistica.signature)
+        requester = requirement.requester.full_name()
         cuerpo = [('', '', '', '', '', '')]
         if requirement.approval.level.description == "USUARIO" and requirement.approval.is_active:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
@@ -170,16 +170,16 @@ class RequirementReport():
             received_date = requirement.received_date.strftime('%d/%m/%Y')
         except AttributeError:
             received_date = ''
-        pie = [(Paragraph('Fecha: ' + received_date + "<br/>" + jefe_logistica.nombre_completo(), p),
+        pie = [(Paragraph('Fecha: ' + received_date + "<br/>" + jefe_logistica.full_name(), p),
                 Paragraph("Solicitado por: <br/>" + requester, p),
                 '',
                 '',
                 '',
                 '')]
-        tabla_firmas = Table(encabezados + cuerpo + pie,
+        signatures_table = Table(encabezados + cuerpo + pie,
                              colWidths=[3.3 * cm, 3.3 * cm, 3.3 * cm, 3.3 * cm, 3.4 * cm, 3.4 * cm],
                              rowHeights=[0.5 * cm, 2 * cm, 1.8 * cm])
-        tabla_firmas.setStyle(TableStyle(
+        signatures_table.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (5, 2), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
@@ -189,9 +189,9 @@ class RequirementReport():
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]
         ))
-        return tabla_firmas
+        return signatures_table
 
-    def imprimir(self):
+    def render(self):
         buffer = self.buffer
         doc = SimpleDocTemplate(buffer,
                                 rightMargin=50,
@@ -202,15 +202,15 @@ class RequirementReport():
 
         elements = []
         styles = getSampleStyleSheet()
-        elements.append(self.tabla_encabezado(styles))
+        elements.append(self.header_table(styles))
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_datos(styles))
+        elements.append(self.data_table(styles))
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.tabla_detalle())
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_observaciones())
+        elements.append(self.notes_table())
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_firmas())
+        elements.append(self.signatures_table())
         doc.build(elements)
         pdf = buffer.getvalue()
         buffer.close()

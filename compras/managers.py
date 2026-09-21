@@ -6,60 +6,60 @@ class QuotationDetailManager(models.Manager):
 
     def bulk_create(self, objs, requirement, order):
         if requirement is not None:
-            self.guardar_detalles_con_referencia(objs, requirement, order)
+            self.save_details_with_reference(objs, requirement, order)
         else:
-            self.guardar_detalles_sin_referencia(objs, order)
+            self.save_details_without_reference(objs, order)
 
-    def guardar_detalle_orden_servicio(self, order, detalle):
+    def save_detail_service_order(self, order, detail):
         from compras.models import ServiceOrderDetail
         service_order_detail = ServiceOrderDetail(order=order,
-                                                        quotation_detail=detalle,
-                                                        line_number=detalle.line_number,
-                                                        quantity=detalle.quantity,
-                                                        price=detalle.requirement_detail.product.price)
+                                                        quotation_detail=detail,
+                                                        line_number=detail.line_number,
+                                                        quantity=detail.quantity,
+                                                        price=detail.requirement_detail.product.price)
         return service_order_detail
 
-    def guardar_detalles_con_referencia(self, objs, requirement, order):
+    def save_details_with_reference(self, objs, requirement, order):
         from compras.models import ServiceOrderDetail
         detalles = []
-        for detalle in objs:
-            requirement_detail = detalle.requirement_detail
-            requirement_detail.quoted_quantity = requirement_detail.quoted_quantity + detalle.quantity
-            requirement_detail.establecer_estado_cotizado()
+        for detail in objs:
+            requirement_detail = detail.requirement_detail
+            requirement_detail.quoted_quantity = requirement_detail.quoted_quantity + detail.quantity
+            requirement_detail.set_status_quoted()
             requirement_detail.save()
-            detalle.save()
+            detail.save()
             if order is not None:
-                service_order_detail = self.guardar_detalle_orden_servicio(order, detalle)
+                service_order_detail = self.save_detail_service_order(order, detail)
                 detalles.append(service_order_detail)
-        requirement.establecer_estado_cotizado()
+        requirement.set_status_quoted()
         requirement.save()
         if order is not None:
             ServiceOrderDetail.objects.bulk_create(detalles, order.quotation)
 
-    def guardar_detalles_sin_referencia(self, objs, order):
-        for detalle in objs:
-            detalle.save()
+    def save_details_without_reference(self, objs, order):
+        for detail in objs:
+            detail.save()
             if order is not None:
-                self.guardar_detalle_orden_servicio(order, detalle)
+                self.save_detail_service_order(order, detail)
 
 
 class ServiceConformityDetailManager(models.Manager):
 
     def bulk_create(self, objs, order):
         if order is not None:
-            self.guardar_detalles_con_referencia(objs, order)
+            self.save_details_with_reference(objs, order)
         else:
-            self.guardar_detalles_sin_referencia(objs)
+            self.save_details_without_reference(objs)
 
-    def guardar_detalles_con_referencia(self, objs, order):
+    def save_details_with_reference(self, objs, order):
         try:
             requirement = order.quotation.requirement
         except ObjectDoesNotExist:
             requirement = None
-        for detalle in objs:
-            detalle_orden = detalle.service_order_detail
-            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity + detalle.quantity
-            detalle_orden.establecer_estado_atendido()
+        for detail in objs:
+            detalle_orden = detail.service_order_detail
+            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity + detail.quantity
+            detalle_orden.set_status_served()
             detalle_orden.save()
             try:
                 requirement_detail = detalle_orden.quotation_detail.requirement_detail
@@ -67,15 +67,15 @@ class ServiceConformityDetailManager(models.Manager):
                 requirement_detail = None
             if requirement_detail is not None:
                 requirement_detail.served_quantity = requirement_detail.served_quantity + detalle_orden.conformed_quantity
-                requirement_detail.establecer_estado_atendido()
+                requirement_detail.set_status_served()
                 requirement_detail.save()
-            detalle.save()
+            detail.save()
         if requirement is not None:
-            requirement.establecer_estado_atendido()
+            requirement.set_status_served()
             requirement.save()
-        order.establecer_estado()
+        order.set_status()
         order.save()
 
-    def guardar_detalles_sin_referencia(self, objs):
-        for detalle in objs:
-            detalle.save()
+    def save_details_without_reference(self, objs):
+        for detail in objs:
+            detail.save()

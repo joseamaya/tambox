@@ -32,9 +32,9 @@ SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
 CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
 
 
-def choices_tipos_movimiento():
+def movement_type_choices():
     return [(tm.code, tm.description) for tm in MovementType.objects.all()]
 
 
-def choices_almacenes():
+def warehouse_choices():
     return [(alm.code, alm.description) for alm in Warehouse.objects.all()]

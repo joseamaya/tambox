@@ -37,16 +37,16 @@ class UnidadMedidaTest(TestCase):
         self.assertEqual(self.um1.__str__(), self.um1.description)
 
     def test_siguiente_unidad_medida(self):
-        self.assertEqual(self.um3.pk, self.um2.siguiente())
+        self.assertEqual(self.um3.pk, self.um2.next())
 
     def test_anterior_unidad_medida(self):
-        self.assertEqual(self.um2.pk, self.um3.anterior())
+        self.assertEqual(self.um2.pk, self.um3.previous())
 
     def test_primera_unidad_medida(self):
-        self.assertEqual(self.um1.pk, self.um3.siguiente())
+        self.assertEqual(self.um1.pk, self.um3.next())
 
     def test_ultima_unidad_medida(self):
-        self.assertEqual(self.um3.pk, self.um1.anterior())
+        self.assertEqual(self.um3.pk, self.um1.previous())
 
 
 class GrupoProductosTest(TestCase):
@@ -62,18 +62,18 @@ class GrupoProductosTest(TestCase):
         self.assertEqual(self.gp1.__str__(), self.gp1.description)
 
     def test_siguiente_grupo_productos(self):
-        self.assertEqual(self.gp2.pk, self.gp1.siguiente())
-        self.assertEqual(self.gp3.pk, self.gp2.siguiente())
+        self.assertEqual(self.gp2.pk, self.gp1.next())
+        self.assertEqual(self.gp3.pk, self.gp2.next())
 
     def test_anterior_grupo_productos(self):
-        self.assertEqual(self.gp1.pk, self.gp2.anterior())
-        self.assertEqual(self.gp2.pk, self.gp3.anterior())
+        self.assertEqual(self.gp1.pk, self.gp2.previous())
+        self.assertEqual(self.gp2.pk, self.gp3.previous())
 
     def test_primer_grupo_productos(self):
-        self.assertEqual(self.gp1.pk, self.gp3.siguiente())
+        self.assertEqual(self.gp1.pk, self.gp3.next())
 
     def test_ultimo_grupo_productos(self):
-        self.assertEqual(self.gp3.pk, self.gp1.anterior())
+        self.assertEqual(self.gp3.pk, self.gp1.previous())
 
 
 class ProductoTest(TestCase):
@@ -92,18 +92,18 @@ class ProductoTest(TestCase):
         self.assertEqual(self.p1.__str__(), self.p1.description)
 
     def test_siguiente_producto(self):
-        self.assertEqual(self.p2.pk, self.p1.siguiente())
-        self.assertEqual(self.p3.pk, self.p2.siguiente())
+        self.assertEqual(self.p2.pk, self.p1.next())
+        self.assertEqual(self.p3.pk, self.p2.next())
 
     def test_anterior_producto(self):
-        self.assertEqual(self.p1.pk, self.p2.anterior())
-        self.assertEqual(self.p2.pk, self.p3.anterior())
+        self.assertEqual(self.p1.pk, self.p2.previous())
+        self.assertEqual(self.p2.pk, self.p3.previous())
 
     def test_primer_producto(self):
-        self.assertEqual(self.p1.pk, self.p3.siguiente())
+        self.assertEqual(self.p1.pk, self.p3.next())
 
     def test_ultimo_producto(self):
-        self.assertEqual(self.p3.pk, self.p1.anterior())
+        self.assertEqual(self.p3.pk, self.p1.previous())
 
     def test_creacion_servicio(self):
         self.assertEqual(self.p3.unit_of_measure.code, 'SERV')
@@ -129,14 +129,14 @@ class ConsultaDeStockTest(TestCase):
         product = baker.make(Product)
 
         with self.assertNumQueries(1):
-            product.previsto
+            product.forecast
 
         with self.assertNumQueries(0):
-            product.previsto
+            product.forecast
 
 
 class ObtenerKardexTest(TestCase):
-    """`obtener_kardex` hacia un `len()` que cargaba todas las filas y despues
+    """`get_kardex` hacia un `len()` que cargaba todas las filas y despues
     cuatro `aggregate` por separado: cinco consultas por producto, en reportes
     que recorren el catalogo entero."""
 
@@ -150,7 +150,7 @@ class ObtenerKardexTest(TestCase):
 
     def test_los_totales_salen_de_una_sola_consulta(self):
         with self.assertNumQueries(1):
-            listado, cantidad_i, valor_i, cantidad_s, valor_s = self.product.obtener_kardex(
+            listado, cantidad_i, valor_i, cantidad_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
         self.assertEqual((cantidad_i, valor_i), (Decimal('10'), Decimal('50')))
@@ -159,7 +159,7 @@ class ObtenerKardexTest(TestCase):
 
     def test_sin_movimientos_los_totales_son_cero(self):
         with self.assertNumQueries(1):
-            _, cantidad_i, valor_i, cantidad_s, valor_s = self.product.obtener_kardex(
+            _, cantidad_i, valor_i, cantidad_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 3, 1), date(2024, 3, 31))
 
         self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s), (0, 0, 0, 0))
@@ -168,7 +168,7 @@ class ObtenerKardexTest(TestCase):
         grupo = self.product.product_group
 
         with self.assertNumQueries(1):
-            _, cantidad_i, valor_i, cantidad_s, valor_s = grupo.obtener_kardex(
+            _, cantidad_i, valor_i, cantidad_s, valor_s = grupo.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
         self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s),
@@ -233,11 +233,11 @@ class BusquedaProductosTest(TestCase):
         self.unidad = baker.make(UnitOfMeasure, code='UND01', description='UNIDAD')
         baker.make(Product, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unidad)
 
-    def ampliar(self, cuantos):
+    def extend(self, cuantos):
         for number in range(cuantos):
             baker.make(Product, description='PRODUCTO %s' % number, unit_of_measure=self.unidad)
 
-    def buscar(self, url, parametros):
+    def search(self, url, parametros):
         return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_las_consultas_no_crecen_con_los_resultados(self):
@@ -247,12 +247,12 @@ class BusquedaProductosTest(TestCase):
         url = '/productos/product_description_search/'
         parametros = {'description': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
         with CaptureQueriesContext(connection) as un_resultado:
-            self.buscar(url, parametros)
+            self.search(url, parametros)
 
-        self.ampliar(19)
+        self.extend(19)
 
         with CaptureQueriesContext(connection) as veinte_resultados:
-            respuesta = self.buscar(url, parametros)
+            respuesta = self.search(url, parametros)
 
         self.assertEqual(len(un_resultado), len(veinte_resultados))
         datos = respuesta.json()
@@ -260,7 +260,7 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(datos[0]['unidad'], 'UNIDAD')
 
     def test_busqueda_por_code(self):
-        respuesta = self.buscar('/productos/product_code_search/', {'code': 'COD0000001'})
+        respuesta = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
 
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()

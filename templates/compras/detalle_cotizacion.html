@@ -51,11 +51,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:quotation_detail' quotation.anterior %}';">
+                    onclick="location.href='{% url 'compras:quotation_detail' quotation.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:quotation_detail' quotation.siguiente %}';">
+                    onclick="location.href='{% url 'compras:quotation_detail' quotation.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -126,13 +126,13 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.requirement_detail.product.code }}</td>
-                        <td>{{ detalle.requirement_detail.product.description }}</td>
-                        <td>{{ detalle.requirement_detail.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.purchased_quantity }}</td>
+                        <td>{{ detail.requirement_detail.product.code }}</td>
+                        <td>{{ detail.requirement_detail.product.description }}</td>
+                        <td>{{ detail.requirement_detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.purchased_quantity }}</td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -179,7 +179,7 @@ $(document).ready(function()
 				if (data.ordenes == 'NO') 
 				{
 					alert("Cotización " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'compras:quotation_detail' quotation.siguiente %}");
+					$(location).attr('href', "{% url 'compras:quotation_detail' quotation.next %}");
 				} 
 				else if (data.ordenes == 'SI') 
 				{

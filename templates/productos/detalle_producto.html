@@ -15,11 +15,11 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_detail' object.anterior %}';">
+                    onclick="location.href='{% url 'productos:product_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:product_detail' object.siguiente %}';">
+                    onclick="location.href='{% url 'productos:product_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -50,7 +50,7 @@
                         Stock
                     </button>
                     <button class="btn btn-default" type="button">
-                        <span class="fa fa-truck fa-2x"></span> {{ object.previsto }} <br>
+                        <span class="fa fa-truck fa-2x"></span> {{ object.forecast }} <br>
                         Previsto
                     </button>
                 </div>
@@ -132,7 +132,7 @@ $(document).ready(function()
 				if (data.relaciones == 'NO') 
 				{
 					alert("Producto " + data.description + " eliminado");
-					$(location).attr('href', "{% url 'productos:product_detail' object.siguiente %}");
+					$(location).attr('href', "{% url 'productos:product_detail' object.next %}");
 				} 
 				else if (data.relaciones == 'SI') 
 				{

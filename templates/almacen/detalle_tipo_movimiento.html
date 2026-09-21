@@ -12,11 +12,11 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_detail' object.anterior %}';">
+                    onclick="location.href='{% url 'almacen:movement_type_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_type_detail' object.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:movement_type_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"

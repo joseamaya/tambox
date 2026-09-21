@@ -18,18 +18,18 @@ class ProveedorTest(TestCase):
         self.assertEqual(self.p1.__str__(), self.p1.business_name)
 
     def test_siguiente_proveedor(self):
-        self.assertEqual(self.p2.pk, self.p1.siguiente())
-        self.assertEqual(self.p3.pk, self.p2.siguiente())
+        self.assertEqual(self.p2.pk, self.p1.next())
+        self.assertEqual(self.p3.pk, self.p2.next())
 
     def test_anterior_proveedor(self):
-        self.assertEqual(self.p1.pk, self.p2.anterior())
-        self.assertEqual(self.p2.pk, self.p3.anterior())
+        self.assertEqual(self.p1.pk, self.p2.previous())
+        self.assertEqual(self.p2.pk, self.p3.previous())
 
     def test_primer_proveedor(self):
-        self.assertEqual(self.p1.pk, self.p3.siguiente())
+        self.assertEqual(self.p1.pk, self.p3.next())
 
     def test_ultimo_proveedor(self):
-        self.assertEqual(self.p3.pk, self.p1.anterior())
+        self.assertEqual(self.p3.pk, self.p1.previous())
 
 
 class RepresentanteLegalTest(TestCase):
@@ -55,34 +55,34 @@ class CotizacionTest(TestCase):
         self.assertEqual(self.c1.__str__(), self.c1.code)
 
     def test_siguiente_cotizacion(self):
-        self.assertEqual(self.c2.pk, self.c1.siguiente())
-        self.assertEqual(self.c3.pk, self.c2.siguiente())
+        self.assertEqual(self.c2.pk, self.c1.next())
+        self.assertEqual(self.c3.pk, self.c2.next())
 
     def test_anterior_cotizacion(self):
-        self.assertEqual(self.c1.pk, self.c2.anterior())
-        self.assertEqual(self.c2.pk, self.c3.anterior())
+        self.assertEqual(self.c1.pk, self.c2.previous())
+        self.assertEqual(self.c2.pk, self.c3.previous())
 
     def test_primera_cotizacion(self):
-        self.assertEqual(self.c1.pk, self.c3.siguiente())
+        self.assertEqual(self.c1.pk, self.c3.next())
 
     def test_ultima_cotizacion(self):
-        self.assertEqual(self.c3.pk, self.c1.anterior())
+        self.assertEqual(self.c3.pk, self.c1.previous())
 
     def test_estado(self):
         """Una cotizacion refleja cuanto de lo cotizado se compro. Antes este
-        test clasificaba por el estado de los detalles con `establecer_estado`,
-        que un refactor posterior reemplazo por `establecer_estado_comprado`."""
+        test clasificaba por el estado de los detalles con `set_status`,
+        que un refactor posterior reemplazo por `set_status_purchased`."""
         baker.make(QuotationDetail, quotation=self.c1, requirement_detail=None,
                    quantity=10, purchased_quantity=4)
-        self.assertEqual(self.c1.establecer_estado_comprado(), Quotation.STATUS.ELEG_PARC)
+        self.assertEqual(self.c1.set_status_purchased(), Quotation.STATUS.ELEG_PARC)
 
         baker.make(QuotationDetail, quotation=self.c2, requirement_detail=None,
                    quantity=10, purchased_quantity=10)
-        self.assertEqual(self.c2.establecer_estado_comprado(), Quotation.STATUS.ELEG)
+        self.assertEqual(self.c2.set_status_purchased(), Quotation.STATUS.ELEG)
 
         baker.make(QuotationDetail, quotation=self.c3, requirement_detail=None,
                    quantity=10, purchased_quantity=0)
-        self.assertEqual(self.c3.establecer_estado_comprado(), Quotation.STATUS.DESC)
+        self.assertEqual(self.c3.set_status_purchased(), Quotation.STATUS.DESC)
 
     def test_eliminar_referencia(self):
         pass
@@ -95,12 +95,12 @@ class ReporteXLSOrdenCompraTest(TestCase):
 
     def test_genera_el_libro(self):
         from compras.models import PurchaseOrder
-        from compras.reports import reporte_xls_orden_compra
+        from compras.reports import purchase_order_xls_report
 
         supplier = baker.make(Supplier)
         order = baker.make(PurchaseOrder, supplier=supplier)
 
-        libro = reporte_xls_orden_compra(order)
+        libro = purchase_order_xls_report(order)
 
         self.assertIsNotNone(libro.active)
 
@@ -116,7 +116,7 @@ class ReportesPDFTest(TestCase):
 
         order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
-        contenido = PurchaseOrderPdf().imprimir(order)
+        contenido = PurchaseOrderPdf().render(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
@@ -126,7 +126,7 @@ class ReportesPDFTest(TestCase):
 
         order = baker.make(ServiceOrder, supplier=baker.make(Supplier))
 
-        contenido = ServiceOrderPdf().imprimir(order)
+        contenido = ServiceOrderPdf().render(order)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
@@ -135,7 +135,7 @@ class ReportesPDFTest(TestCase):
 
         quotation = baker.make(Quotation, supplier=baker.make(Supplier))
 
-        contenido = QuotationRequestPdf().imprimir(quotation)
+        contenido = QuotationRequestPdf().render(quotation)
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
@@ -145,29 +145,29 @@ class EstadosDeDetalleTest(TestCase):
     tocar la base de datos, y fijan la regla compartida de classify()."""
 
     def test_detalle_cotizacion(self):
-        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=0).establecer_estado_comprado(),
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=0).set_status_purchased(),
                          QuotationDetail.STATUS.PEND)
-        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=4).establecer_estado_comprado(),
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=4).set_status_purchased(),
                          QuotationDetail.STATUS.ELEG_PARC)
-        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=10).establecer_estado_comprado(),
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=10).set_status_purchased(),
                          QuotationDetail.STATUS.ELEG)
-        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=12).establecer_estado_comprado(),
+        self.assertEqual(QuotationDetail(quantity=10, purchased_quantity=12).set_status_purchased(),
                          QuotationDetail.STATUS.ELEG)
 
     def test_detalle_orden_compra(self):
-        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=0).establecer_estado(),
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=0).set_status(),
                          PurchaseOrderDetail.STATUS.PEND)
-        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=4).establecer_estado(),
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=4).set_status(),
                          PurchaseOrderDetail.STATUS.ING_PARC)
-        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=10).establecer_estado(),
+        self.assertEqual(PurchaseOrderDetail(quantity=10, received_quantity=10).set_status(),
                          PurchaseOrderDetail.STATUS.ING)
 
     def test_detalle_orden_servicios(self):
-        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=0).establecer_estado_atendido(),
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=0).set_status_served(),
                          ServiceOrderDetail.STATUS.PEND)
-        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=4).establecer_estado_atendido(),
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=4).set_status_served(),
                          ServiceOrderDetail.STATUS.CONF_PARC)
-        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=10).establecer_estado_atendido(),
+        self.assertEqual(ServiceOrderDetail(quantity=10, conformed_quantity=10).set_status_served(),
                          ServiceOrderDetail.STATUS.CONF)
 
 

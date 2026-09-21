@@ -25,11 +25,11 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'productos:service_detail' object.anterior %}';">
+                        onclick="location.href='{% url 'productos:service_detail' object.previous %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'productos:service_detail' object.siguiente %}';">
+                        onclick="location.href='{% url 'productos:service_detail' object.next %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}

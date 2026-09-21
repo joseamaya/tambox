@@ -35,11 +35,11 @@
     <div class="col-lg-4 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.anterior %}';">
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.siguiente %}';">
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
@@ -111,9 +111,9 @@
             <div class="col-md-7">
                 <label>Receptor:</label>
                 {% if object.producer %}
-                <p>{{ object.producer.nombre_completo }}</p>
+                <p>{{ object.producer.full_name }}</p>
                 {% elif object.worker.dni %}
-                <p>{{ object.worker.nombre_completo }}</p>
+                <p>{{ object.worker.full_name }}</p>
                 {% else %}
                 <p>--</p>
                 {% endif %}
@@ -179,14 +179,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for detalle in object.details.all %}
+                    {% for detail in object.details.all %}
                     <tr>
-                        <td>{{ detalle.product.code }}</td>
-                        <td>{{ detalle.product.description }}</td>
-                        <td>{{ detalle.product.unit_of_measure.description }}</td>
-                        <td>{{ detalle.quantity }}</td>
-                        <td>{{ detalle.price }}</td>
-                        <td>{{ detalle.amount }}</td>
+                        <td>{{ detail.product.code }}</td>
+                        <td>{{ detail.product.description }}</td>
+                        <td>{{ detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.price }}</td>
+                        <td>{{ detail.amount }}</td>
                     </tr>
                     {% endfor %}
                     <tr>

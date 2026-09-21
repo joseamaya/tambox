@@ -38,12 +38,12 @@ class Requirement(TimeStampedModel):
                        ('ver_reporte_requerimientos_excel', 'Puede ver Reporte de Requerimientos en excel'),
                        ('puede_hacer_transferencia_requerimiento', 'Puede hacer transferencia de Requerimiento'),)
 
-    def anterior(self):
-        ant = Requirement.objects.anterior(self)
+    def previous(self):
+        ant = Requirement.objects.previous(self)
         return ant
 
-    def siguiente(self):
-        sig = Requirement.objects.siguiente(self)
+    def next(self):
+        sig = Requirement.objects.next(self)
         return sig
 
     @property
@@ -57,29 +57,29 @@ class Requirement(TimeStampedModel):
         invocan varias veces.
         """
         if not hasattr(self, '_total_calculado'):
-            self._total_calculado = sum(detalle.quantity
-                                        for detalle in self.details.all())
+            self._total_calculado = sum(detail.quantity
+                                        for detail in self.details.all())
         return self._total_calculado
 
     @property
-    def total_cotizado(self):
+    def total_quoted(self):
         if not hasattr(self, '_total_cotizado_calculado'):
-            self._total_cotizado_calculado = sum(detalle.quoted_quantity
-                                                 for detalle in self.details.all())
+            self._total_cotizado_calculado = sum(detail.quoted_quantity
+                                                 for detail in self.details.all())
         return self._total_cotizado_calculado
 
     @property
-    def total_comprado(self):
+    def total_purchased(self):
         if not hasattr(self, '_total_comprado_calculado'):
-            self._total_comprado_calculado = sum(detalle.purchased_quantity
-                                                 for detalle in self.details.all())
+            self._total_comprado_calculado = sum(detail.purchased_quantity
+                                                 for detail in self.details.all())
         return self._total_comprado_calculado
 
     def __str__(self):
         return self.code
 
-    def establecer_estado_cotizado(self):
-        caso = classify(self.total_cotizado, self.total)
+    def set_status_quoted(self):
+        caso = classify(self.total_quoted, self.total)
         if caso == EMPTY:
             estado = Requirement.STATUS.PEND
         elif caso == PARTIAL:
@@ -89,10 +89,10 @@ class Requirement(TimeStampedModel):
         self.status = estado
         return self.status
 
-    def establecer_estado_comprado(self):
-        caso = classify(self.total_comprado, self.total)
+    def set_status_purchased(self):
+        caso = classify(self.total_purchased, self.total)
         if caso == EMPTY:
-            estado = self.establecer_estado_cotizado()
+            estado = self.set_status_quoted()
         elif caso == PARTIAL:
             estado = Requirement.STATUS.COMP_PARC
         else:
@@ -100,16 +100,16 @@ class Requirement(TimeStampedModel):
         self.status = estado
         return self.status
 
-    def establecer_estado_atendido(self):
+    def set_status_served(self):
         total = 0
         total_atendido = 0
         detalles = RequirementDetail.objects.filter(requirement=self)
-        for detalle in detalles:
-            total = total + detalle.quantity
-            total_atendido = total_atendido + detalle.served_quantity
+        for detail in detalles:
+            total = total + detail.quantity
+            total_atendido = total_atendido + detail.served_quantity
         caso = classify(total_atendido, total)
         if caso == EMPTY:
-            estado = self.establecer_estado_comprado()
+            estado = self.set_status_purchased()
         elif caso == PARTIAL:
             estado = Requirement.STATUS.ATEN_PARC
         else:
@@ -117,9 +117,9 @@ class Requirement(TimeStampedModel):
         self.status = estado
         return self.status
 
-    def generar_code(self):
+    def generate_code(self):
         anio = self.created.year
-        req_ant = Requirement.objects.requerimiento_anterior(anio)
+        req_ant = Requirement.objects.previous_requirement(anio)
         id_ant = req_ant['code__max']
         if id_ant is None:
             aux = 1
@@ -129,15 +129,15 @@ class Requirement(TimeStampedModel):
         code = 'RQ' + str(anio) + correlativo
         return code
 
-    def verificar_acceso(self, usuario, administration_office, logistics, budget):
+    def check_access(self, usuario, administration_office, logistics, budget):
         requester = self.requester
         worker = usuario.worker
-        puesto_usuario = worker.puesto
+        puesto_usuario = worker.position
         oficina_usuario = puesto_usuario.office
         if (usuario.is_staff
                 or requester == worker
                 or (oficina_usuario == self.office and puesto_usuario.is_leadership)
-                or ((oficina_usuario == self.office.gerencia
+                or ((oficina_usuario == self.office.management
                      or oficina_usuario == administration_office
                      or oficina_usuario == logistics
                      or oficina_usuario == budget) and puesto_usuario.is_leadership)):
@@ -146,10 +146,10 @@ class Requirement(TimeStampedModel):
             return False
 
     @staticmethod
-    def obtener_requerimientos_visibles(usuario):
+    def get_visible_requirements(usuario):
         try:
             worker = usuario.worker
-            puesto_usuario = worker.puesto
+            puesto_usuario = worker.position
             oficina_usuario = puesto_usuario.office
             if (((
                          oficina_usuario == administration_office() or oficina_usuario == budget()) and puesto_usuario.is_leadership) or
@@ -157,57 +157,57 @@ class Requirement(TimeStampedModel):
                     usuario.is_staff):
                 queryset = Requirement.objects.all()
             elif puesto_usuario.is_leadership:
-                queryset = Requirement.objects.requerimientos_oficina_usuario(oficina_usuario)
+                queryset = Requirement.objects.office_user_requirements(oficina_usuario)
             else:
-                queryset = Requirement.objects.requerimientos_activos_por_usuario(usuario, Requirement.STATUS.CANC)
+                queryset = Requirement.objects.active_requirements_by_user(usuario, Requirement.STATUS.CANC)
         except (AttributeError, ObjectDoesNotExist):
             queryset = []
         return queryset
 
     @staticmethod
-    def obtener_requerimientos_listos_transferencia():
+    def get_requirements_ready_for_transfer():
         listado_requerimientos = []
         requerimientos = Requirement.objects.filter(
             approval__level__description="LOGISTICA",
             approval__is_active=True).prefetch_related('details')
         for requirement in requerimientos:
             total = requirement.total
-            total_comprado = requirement.total_comprado
-            if total_comprado == 0 or total_comprado < total:
+            total_purchased = requirement.total_purchased
+            if total_purchased == 0 or total_purchased < total:
                 listado_requerimientos.append(requirement)
         return listado_requerimientos
 
-    def eliminar_requerimiento(self):
+    def delete_requirement(self):
         self.status = Requirement.STATUS.CANC
         self.save()
 
     def save(self, *args, **kwargs):
         es_nuevo = self.code == ''
         if es_nuevo:
-            self.code = self.generar_code()
-            puesto = self.requester.puesto
-            if puesto is None:
+            self.code = self.generate_code()
+            position = self.requester.position
+            if position is None:
                 raise ValidationError(
                     'No se puede registrar el requerimiento: el solicitante %s no tiene un puesto asignado.'
                     % self.requester)
-            self.office = puesto.office
+            self.office = position.office
 
         super(Requirement, self).save()
 
         if es_nuevo:
-            self.crear_aprobacion_inicial(puesto)
+            self.create_initial_approval(position)
 
-    def crear_aprobacion_inicial(self, puesto):
+    def create_initial_approval(self, position):
         """Crea la aprobacion del primer level. Requiere que el requerimiento ya
         tenga pk, por eso se llama despues de guardar."""
-        if (self.office == administration_office() or self.office == operations()) and puesto.is_leadership:
+        if (self.office == administration_office() or self.office == operations()) and position.is_leadership:
             niveles_aprobacion = ApprovalLevel.objects.filter(description="JEFATURA")
             if niveles_aprobacion.count() > 0:
                 RequirementApproval.objects.create(requirement=self,
                                                         level=niveles_aprobacion[0])
             return
         RequirementApproval.objects.create(requirement=self,
-                                               level=puesto.establecer_nivel(self.office))
+                                               level=position.set_level(self.office))
 
 
 class RequirementDetail(TimeStampedModel):
@@ -230,7 +230,7 @@ class RequirementDetail(TimeStampedModel):
     def __str__(self):
         return self.requirement.code + ' ' + str(self.line_number)
 
-    def establecer_estado_cotizado(self):
+    def set_status_quoted(self):
         caso = classify(self.quoted_quantity, self.quantity)
         if caso == EMPTY:
             estado = RequirementDetail.STATUS.PEND
@@ -241,10 +241,10 @@ class RequirementDetail(TimeStampedModel):
         self.status = estado
         return self.status
 
-    def establecer_estado_comprado(self):
+    def set_status_purchased(self):
         caso = classify(self.purchased_quantity, self.quantity)
         if caso == EMPTY:
-            estado = self.establecer_estado_cotizado()
+            estado = self.set_status_quoted()
         elif caso == PARTIAL:
             estado = RequirementDetail.STATUS.COMP_PARC
         else:
@@ -252,10 +252,10 @@ class RequirementDetail(TimeStampedModel):
         self.status = estado
         return self.status
 
-    def establecer_estado_atendido(self):
+    def set_status_served(self):
         caso = classify(self.served_quantity, self.quantity)
         if caso == EMPTY:
-            estado = self.establecer_estado_comprado()
+            estado = self.set_status_purchased()
         elif caso == PARTIAL:
             estado = RequirementDetail.STATUS.ATEN_PARC
         else:
@@ -281,10 +281,10 @@ class RequirementApproval(TimeStampedModel):
     def __str__(self):
         return str(self.pk)
 
-    def verificar_acceso_aprobacion(self, usuario):
-        puesto_usuario = usuario.worker.puesto
+    def check_approval_access(self, usuario):
+        puesto_usuario = usuario.worker.position
         oficina_requerimiento = self.requirement.office
-        nivel_actual = puesto_usuario.establecer_nivel(oficina_requerimiento)
+        nivel_actual = puesto_usuario.set_level(oficina_requerimiento)
         nivel_anterior = nivel_actual.superior.all()[0]
         if ((self.level == nivel_actual or self.level == nivel_anterior) or
                 (self.level.description == "JEFATURA" and nivel_actual.description == "GERENCIA ADMINISTRACION") or
@@ -294,7 +294,7 @@ class RequirementApproval(TimeStampedModel):
         else:
             return False
 
-    def obtener_oficina_aprobacion_superior(self):
+    def get_superior_approval_office(self):
         level = self.level
         if level.description == "PRESUPUESTO":
             office = logistics()
@@ -303,7 +303,7 @@ class RequirementApproval(TimeStampedModel):
         elif level.description == "GERENCIA INMEDIATA":
             office = administration_office()
         elif level.description == "JEFATURA":
-            office = self.requirement.office.gerencia
+            office = self.requirement.office.management
         elif level.description == "USUARIO":
             office = self.requirement.office
         else:
@@ -311,8 +311,8 @@ class RequirementApproval(TimeStampedModel):
         return office
 
     @staticmethod
-    def obtener_aprobaciones_pendientes(usuario):
-        puesto_usuario = usuario.worker.puesto
+    def get_pending_approvals(usuario):
+        puesto_usuario = usuario.worker.position
         oficina_usuario = puesto_usuario.office
         queryset = []
         if oficina_usuario == logistics() and puesto_usuario.is_leadership:

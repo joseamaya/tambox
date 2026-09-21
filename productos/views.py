@@ -11,7 +11,7 @@ from django.http import HttpResponse
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from seguridad.permisos import requiere
+from seguridad.permisos import requires
 from django.utils.decorators import method_decorator
 from contabilidad.forms import UploadForm
 from django.shortcuts import render
@@ -180,7 +180,7 @@ class ProductGroupCreate(CreateView):
     form_class = ProductGroupForm
     success_url = reverse_lazy('productos:product_group_list')
 
-    @method_decorator(requiere('productos.add_productgroup'))
+    @method_decorator(requires('productos.add_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(ProductGroupCreate, self).dispatch(*args, **kwargs)
 
@@ -194,7 +194,7 @@ class ProductCreate(CreateView):
     template_name = 'productos/producto.html'
     form_class = ProductForm
 
-    @method_decorator(requiere('productos.add_product'))
+    @method_decorator(requires('productos.add_product'))
     def dispatch(self, *args, **kwargs):
         return super(ProductCreate, self).dispatch(*args, **kwargs)
 
@@ -206,7 +206,7 @@ class UnitOfMeasureCreate(CreateView):
     template_name = 'productos/unidad_medida.html'
     form_class = UnitOfMeasureForm
 
-    @method_decorator(requiere('productos.add_unitofmeasure'))
+    @method_decorator(requires('productos.add_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(UnitOfMeasureCreate, self).dispatch(*args, **kwargs)
 
@@ -224,7 +224,7 @@ class ServiceCreate(CreateView):
     template_name = 'productos/servicio.html'
     form_class = ServiceForm
 
-    @method_decorator(requiere('productos.add_product'))
+    @method_decorator(requires('productos.add_product'))
     def dispatch(self, *args, **kwargs):
         return super(ServiceCreate, self).dispatch(*args, **kwargs)
 
@@ -255,7 +255,7 @@ class ServiceDetail(DetailView):
 class UnitOfMeasureDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_unitofmeasure'))
+    @method_decorator(requires('productos.delete_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(UnitOfMeasureDelete, self).dispatch(*args, **kwargs)
 
@@ -277,7 +277,7 @@ class UnitOfMeasureDelete(TemplateView):
 class ProductGroupDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_productgroup'))
+    @method_decorator(requires('productos.delete_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(ProductGroupDelete, self).dispatch(*args, **kwargs)
 
@@ -300,7 +300,7 @@ class ProductGroupDelete(TemplateView):
 class ProductDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_product'))
+    @method_decorator(requires('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
         return super(ProductDelete, self).dispatch(*args, **kwargs)
 
@@ -325,7 +325,7 @@ class ProductDelete(TemplateView):
 class ServiceDelete(TemplateView):
     http_method_names = ['post']
 
-    @method_decorator(requiere('productos.delete_product'))
+    @method_decorator(requires('productos.delete_product'))
     def dispatch(self, *args, **kwargs):
         return super(ServiceDelete, self).dispatch(*args, **kwargs)
 
@@ -351,7 +351,7 @@ class UnitOfMeasureList(ListView):
     queryset = UnitOfMeasure.objects.filter(is_active=True).order_by('description')
 
     @method_decorator(
-        requiere('productos.ver_tabla_unidades_medida'))
+        requires('productos.ver_tabla_unidades_medida'))
     def dispatch(self, *args, **kwargs):
         return super(UnitOfMeasureList, self).dispatch(*args, **kwargs)
 
@@ -362,7 +362,7 @@ class ServiceList(ListView):
     context_object_name = 'servicios'
     queryset = Product.objects.filter(is_active=True, is_service=True).order_by('description')
 
-    @method_decorator(requiere('productos.ver_tabla_productos'))
+    @method_decorator(requires('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ServiceList, self).dispatch(*args, **kwargs)
 
@@ -374,7 +374,7 @@ class ProductGroupList(ListView):
     queryset = ProductGroup.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(
-        requiere('productos.ver_tabla_grupos_productos'))
+        requires('productos.ver_tabla_grupos_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ProductGroupList, self).dispatch(*args, **kwargs)
 
@@ -385,7 +385,7 @@ class ProductList(ListView):
     context_object_name = 'productos'
     queryset = Product.objects.filter(is_service=False, is_active=True).order_by('code')
 
-    @method_decorator(requiere('productos.ver_tabla_productos'))
+    @method_decorator(requires('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ProductList, self).dispatch(*args, **kwargs)
 
@@ -395,7 +395,7 @@ class ProductListByGroup(ListView):
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
 
-    @method_decorator(requiere('productos.ver_tabla_productos'))
+    @method_decorator(requires('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ProductListByGroup, self).dispatch(*args, **kwargs)
 
@@ -411,7 +411,7 @@ class ProductUpdate(UpdateView):
     template_name = 'productos/producto.html'
     form_class = ProductForm
 
-    @method_decorator(requiere('productos.change_product'))
+    @method_decorator(requires('productos.change_product'))
     def dispatch(self, *args, **kwargs):
         return super(ProductUpdate, self).dispatch(*args, **kwargs)
 
@@ -424,7 +424,7 @@ class UnitOfMeasureUpdate(UpdateView):
     template_name = 'productos/unidad_medida.html'
     form_class = UnitOfMeasureForm
 
-    @method_decorator(requiere('productos.change_unitofmeasure'))
+    @method_decorator(requires('productos.change_unitofmeasure'))
     def dispatch(self, *args, **kwargs):
         return super(UnitOfMeasureUpdate, self).dispatch(*args, **kwargs)
 
@@ -439,7 +439,7 @@ class ProductGroupUpdate(UpdateView):
     success_url = reverse_lazy('productos:product_group_list')
 
     @method_decorator(
-        requiere('productos.change_productgroup'))
+        requires('productos.change_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(ProductGroupUpdate, self).dispatch(*args, **kwargs)
 
@@ -452,7 +452,7 @@ class ServiceUpdate(UpdateView):
     template_name = 'productos/servicio.html'
     form_class = ServiceForm
 
-    @method_decorator(requiere('productos.change_product'))
+    @method_decorator(requires('productos.change_product'))
     def dispatch(self, *args, **kwargs):
         return super(ServiceUpdate, self).dispatch(*args, **kwargs)
 

@@ -5,28 +5,28 @@ from tambox.querysets import NavigableQuerySet
 
 
 class PreviousQuerySet(models.query.QuerySet):
-    def requerimiento_anterior(self, anio):
+    def previous_requirement(self, anio):
         return self.filter(created__year=anio).aggregate(Max('code'))
 
 
 class RequirementQuerySet(NavigableQuerySet, PreviousQuerySet):
-    def requerimientos_activos_por_usuario(self, usuario, estado):
+    def active_requirements_by_user(self, usuario, estado):
         return self.filter(requester__user=usuario).exclude(status=estado).order_by('code')
 
-    def actualizar_requerimiento(self, code):
+    def update_requirement(self, code):
         return self.filter(code=code).update(status=False)
 
-    def requerimientos_oficina_usuario(self, oficina_usuario):
+    def office_user_requirements(self, oficina_usuario):
         return self.filter(office=oficina_usuario)
 
-    def requerimientos_gerencia_usuario(self, oficina_usuario):
+    def management_user_requirements(self, oficina_usuario):
         oficinas = oficina_usuario.superior.all()
         return self.filter(office__in=oficinas)
 
 
 class RequirementApprovalQuerySet(models.query.QuerySet):
-    def aprobaciones_pendientes_oficina_usuario(self, requerimientos, level):
+    def pending_approvals_office_user(self, requerimientos, level):
         return self.filter(requirement__in=requerimientos, level=level, is_active=True)
 
-    def aprobaciones_pendientes_gerencia_usuario(self, requerimientos, level):
+    def pending_approvals_management_user(self, requerimientos, level):
         return self.filter(requirement__in=requerimientos, level=level, is_active=True)
