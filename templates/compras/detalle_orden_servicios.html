@@ -4,11 +4,11 @@
 <div class="row">
     <div class="col-lg-5">
         {% if perms.compras.add_ordenservicio %}
-        <a href="{% url 'compras:crear_orden_servicios' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'compras:service_order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if object.status == "PEND" %}
         {% if perms.compras.change_serviceorder %}
-        <a class="btn btn-primary" href="{% url 'compras:modificar_orden_servicios' object.pk %}">Editar </a>
+        <a class="btn btn-primary" href="{% url 'compras:service_order_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
@@ -26,13 +26,13 @@
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'compras:listado_conformidades_orden_servicios' object.pk %}">
+                    <a href="{% url 'compras:service_conformity_list_by_service_order' object.pk %}">
                         <span class="fa fa-building"></span>
                         Conformidades
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:orden_servicios_pdf' object.pk %}">
+                    <a href="{% url 'compras:service_order_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -51,7 +51,7 @@
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:ordenes_servicios' %}';">
+                    onclick="location.href='{% url 'compras:service_order_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -259,7 +259,7 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'compras:eliminar_orden_servicios' %}",
+			url : "{% url 'compras:service_order_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.conformidades == 'NO')

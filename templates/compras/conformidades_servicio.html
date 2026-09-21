@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_quotation %}
-        <a href="{% url 'compras:crear_conformidad_servicio' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'compras:service_conformity_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.compras.cargar_proveedores %}
         <a href="#" class="btn btn-default">Importar</a>
@@ -34,7 +34,7 @@
             <tbody>
             {% for conformity in conformidades %}
             {% if perms.compras.ver_detalle_conformidad_servicio %}
-            <tr onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformity.pk %}';">
+            <tr onclick="location.href='{% url 'compras:service_conformity_detail_view' conformity.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

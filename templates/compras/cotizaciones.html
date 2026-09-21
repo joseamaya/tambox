@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_quotation %} <a
-            href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
+            href="{% url 'compras:quotation_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.compras.cargar_proveedores %}
         <a href="#" class="btn btn-default">Importar</a>
@@ -85,7 +85,7 @@ $(document).ready(function()
 			data : {
 				'code' : code
 			},
-			url : "{% url 'compras:eliminar_orden_compra' %}",
+			url : "{% url 'compras:purchase_order_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.movimientos == 'NO') {

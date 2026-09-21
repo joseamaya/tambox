@@ -15,7 +15,7 @@
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:ordenes_compra' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:purchase_order_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -24,16 +24,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_compra' order.anterior %}';">
+                        onclick="location.href='{% url 'compras:purchase_order_update' order.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_orden_compra' order.siguiente %}';">
+                        onclick="location.href='{% url 'compras:purchase_order_update' order.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:ordenes_compra' %}';">
+                        onclick="location.href='{% url 'compras:purchase_order_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -430,7 +430,7 @@ $(document).ready(function()
 		if(tax_id.length==11)
 		{	
 			$.ajax({
-		      url: "{% url 'compras:busqueda_proveedores_ruc' %}",
+		      url: "{% url 'compras:supplier_tax_id_search' %}",
 		      data: {'tax_id': tax_id},
 		      success: function(data) 
 		      {
@@ -446,7 +446,7 @@ $(document).ready(function()
 	$("#id_business_name").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'compras:busqueda_proveedores_razon_social' %}",
+	      url: "{% url 'compras:supplier_name_search' %}",
 	      data: {'business_name': $("#id_business_name").val()},
 	      success: function( data ) 
 	      {
@@ -534,7 +534,7 @@ $(document).ready(function()
 		$('#id_transferencia_cotizacion').prop("disabled", true);
 		e.preventDefault();
 		$.ajax({
-			url : "{% url 'compras:crear_detalle_orden_compra' %}",
+			url : "{% url 'compras:purchase_order_detail_create' %}",
 			type : 'get',
 			success : function(data)
 			{
@@ -599,7 +599,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:transferencia_cotizacion' %}";
+				var url="{% url 'compras:quotation_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -623,7 +623,7 @@ $(document).ready(function()
 		ventana_transferencia.dialog("close");
 		$('#detalles td').parent().remove();
 		$.ajax({
-	      url: "{% url 'compras:busqueda_cotizacion' %}",
+	      url: "{% url 'compras:quotation_search' %}",
 	      data: {'code': quotation},
 	      success: function(data) 
 	      {
@@ -636,7 +636,7 @@ $(document).ready(function()
 		
 		$.ajax({
 			data : {'quotation': quotation, 'tipo_busqueda': 'PRODUCTOS'},
-			url : "{% url 'compras:obtener_detalle_cotizacion' %}",
+			url : "{% url 'compras:quotation_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

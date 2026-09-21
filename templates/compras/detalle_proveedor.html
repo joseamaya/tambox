@@ -3,11 +3,11 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_supplier %} <a
-            href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">Crear</a>
+            href="{% url 'compras:supplier_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.compras.change_supplier %}
         <a class="btn btn-primary"
-           href="{% url 'compras:modificar_proveedor' object.pk %}"> Editar
+           href="{% url 'compras:supplier_update' object.pk %}"> Editar
         </a>
         {% endif %}
         {% if perms.compras.delete_supplier %}
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_proveedor' object.anterior %}';">
+                    onclick="location.href='{% url 'compras:supplier_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:detalle_proveedor' object.siguiente %}';">
+                    onclick="location.href='{% url 'compras:supplier_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:proveedores' %}';">
+                    onclick="location.href='{% url 'compras:supplier_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -129,7 +129,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'compras:eliminar_proveedor' %}",
+						url : "{% url 'compras:supplier_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

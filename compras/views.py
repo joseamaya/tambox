@@ -127,7 +127,7 @@ class SupplierTaxIdSearch(SoloAjaxMixin, TemplateView):
 class SupplierImport(CargarCsvMixin, FormView):
     template_name = 'compras/cargar_proveedores.html'
     form_class = UploadForm
-    success_url = reverse_lazy('compras:proveedores')
+    success_url = reverse_lazy('compras:supplier_list')
 
     def procesar_fila(self, fila):
         Supplier.objects.get_or_create(tax_id=fila[0],
@@ -150,7 +150,7 @@ class SupplierCreate(CreateView):
         return super(SupplierCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('compras:detalle_proveedor', args=[self.object.pk])
+        return reverse('compras:supplier_detail', args=[self.object.pk])
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data(form=form))
@@ -237,7 +237,7 @@ class QuotationCreate(CreateView):
         self.object = None
         proveedores = Supplier.objects.all()
         if not proveedores:
-            return HttpResponseRedirect(reverse('compras:crear_proveedor'))
+            return HttpResponseRedirect(reverse('compras:supplier_create'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
@@ -519,7 +519,7 @@ class ServiceConformityCreate(CreateView):
                         detalles.append(detalle_conformidad_servicio)
                         cont = cont + 1
                 ServiceConformityDetail.objects.bulk_create(detalles, reference)
-                return HttpResponseRedirect(reverse('compras:detalle_conformidad_servicios', args=[self.object.code]))
+                return HttpResponseRedirect(reverse('compras:service_conformity_detail_view', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -808,7 +808,7 @@ class SupplierUpdate(UpdateView):
         return super(SupplierUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('compras:detalle_proveedor', args=[self.object.pk])
+        return reverse('compras:supplier_detail', args=[self.object.pk])
 
     def get_initial(self):
         initial = super(SupplierUpdate, self).get_initial()
@@ -1002,7 +1002,7 @@ class PurchaseOrderUpdate(UpdateView):
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_orden_compra_formset=detalle_orden_compra_formset))
         else:
-            return HttpResponseRedirect(reverse('compras:ordenes_compra'))
+            return HttpResponseRedirect(reverse('compras:purchase_order_list'))
 
     def get_initial(self):
         initial = super(PurchaseOrderUpdate, self).get_initial()
@@ -1157,7 +1157,7 @@ class ServiceOrderUpdate(UpdateView):
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_orden_servicios_formset=detalle_orden_servicios_formset))
         else:
-            return HttpResponseRedirect(reverse('compras:ordenes_compra'))
+            return HttpResponseRedirect(reverse('compras:purchase_order_list'))
 
     def get_context_data(self, **kwargs):
         order = self.object

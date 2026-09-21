@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_ordenservicio %} <a
-            href="{% url 'compras:crear_orden_servicios' %}" class="btn btn-primary">Crear</a>
+            href="{% url 'compras:service_order_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.compras.cargar_ordenes_compra %}
         <a href="#" class="btn btn-default">Importar</a>
@@ -93,7 +93,7 @@ $(document).ready(function()
     	var code = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'code': code},
-    		url : "{% url 'compras:eliminar_orden_compra' %}",
+    		url : "{% url 'compras:purchase_order_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

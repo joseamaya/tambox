@@ -11,12 +11,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_conformidad_servicios' conformity.pk %}'">
+                    onclick="location.href='{% url 'compras:service_conformity_detail_view' conformity.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:conformidades_servicio' %}'">
+                    onclick="location.href='{% url 'compras:service_conformity_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +25,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformity.anterior %}';">
+                        onclick="location.href='{% url 'compras:service_conformity_update' conformity.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_conformidad_servicios' conformity.siguiente %}';">
+                        onclick="location.href='{% url 'compras:service_conformity_update' conformity.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:conformidades_servicio' %}';">
+                        onclick="location.href='{% url 'compras:service_conformity_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -233,7 +233,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:transferencia_orden_servicios' %}";
+				var url="{% url 'compras:service_order_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -254,7 +254,7 @@ $(document).ready(function()
 		
 		$.ajax({
 			data : {'service_order': service_order},
-			url : "{% url 'compras:obtener_detalle_orden_servicios' %}",
+			url : "{% url 'compras:service_order_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

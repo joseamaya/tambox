@@ -13,11 +13,11 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'compras:detalle_proveedor' object.pk %}'">
+                    onclick="location.href='{% url 'compras:supplier_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:proveedores' %}'">
+            <button type="button" class="btn btn-default" onclick="location.href='{% url 'compras:supplier_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -26,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_proveedor' supplier.anterior %}';">
+                        onclick="location.href='{% url 'compras:supplier_update' supplier.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:modificar_proveedor' supplier.siguiente %}';">
+                        onclick="location.href='{% url 'compras:supplier_update' supplier.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'compras:proveedores' %}';">
+                        onclick="location.href='{% url 'compras:supplier_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>

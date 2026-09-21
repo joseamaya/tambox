@@ -58,7 +58,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_ordenes_de_compra_muestra_el_code(self):
         baker.make(PurchaseOrder, code='ORD-XYZ')
 
-        respuesta = self.client.get(reverse('compras:ordenes_compra'))
+        respuesta = self.client.get(reverse('compras:purchase_order_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'ORD-XYZ')

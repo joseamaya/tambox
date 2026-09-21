@@ -4,11 +4,11 @@
 <div class="row">
     <div class="col-lg-5">
         {% if perms.compras.add_quotation %} <a
-            href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
+            href="{% url 'compras:quotation_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if quotation.status == "PEND" %}
         {% if perms.compras.change_quotation %}
-        <a class="btn btn-warning" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a>
+        <a class="btn btn-warning" href="{% url 'compras:quotation_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% if object.status == "PEND" %}
@@ -27,20 +27,20 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'compras:listado_ordenes_servicios_cotizacion' object.pk %}">
+                    <a href="{% url 'compras:service_order_list_by_quotation' object.pk %}">
                         <span class="fa fa-exchange"></span>
                         Servicios
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'compras:listado_ordenes_compra_cotizacion' object.pk %}">
+                    <a href="{% url 'compras:purchase_order_list_by_quotation' object.pk %}">
                         <span class="fa fa-book"></span>
                         Compras
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'compras:cotizacion_pdf' object.pk %}">
+                    <a href="{% url 'compras:quotation_pdf' object.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -59,7 +59,7 @@
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:listado_cotizaciones' %}';">
+                    onclick="location.href='{% url 'compras:quotation_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -173,7 +173,7 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'compras:eliminar_cotizacion' %}",
+			url : "{% url 'compras:quotation_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.ordenes == 'NO') 

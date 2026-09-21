@@ -4,12 +4,12 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.compras.add_supplier %}
-        <a href="{% url 'compras:crear_proveedor' %}" class="btn btn-primary">
+        <a href="{% url 'compras:supplier_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.compras.cargar_proveedores %}
-        <a href="{% url 'compras:cargar_proveedores' %}" class="btn btn-default">
+        <a href="{% url 'compras:supplier_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.compras.ver_reporte_proveedores_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'compras:maestro_proveedores_excel' %}';">
+                    onclick="location.href='{% url 'compras:supplier_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,7 +38,7 @@
             <tbody>
             {% for supplier in proveedores %}
             {% if perms.compras.ver_detalle_proveedor %}
-            <tr onclick="location.href='{% url 'compras:detalle_proveedor' supplier.pk %}';">
+            <tr onclick="location.href='{% url 'compras:supplier_detail' supplier.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -87,7 +87,7 @@ $(document).ready(function()
 	   	var tax_id = id_boton.replace("elim_","");
 	   	$.ajax({
 	   		data : {'tax_id': tax_id},
-	   		url : "{% url 'compras:eliminar_proveedor' %}",
+	   		url : "{% url 'compras:supplier_delete' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{

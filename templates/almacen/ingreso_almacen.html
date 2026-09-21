@@ -441,7 +441,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'compras:transferencia_orden_compra' %}";
+				var url="{% url 'compras:purchase_order_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -462,7 +462,7 @@ $(document).ready(function()
 		ventana_transferencia.dialog( "close" );
 		$.ajax({
 			data : {'orden_compra': orden_compra, 'date':date},
-			url : "{% url 'compras:obtener_detalle_orden_compra' %}",
+			url : "{% url 'compras:purchase_order_detail_fetch' %}",
 			type : 'get',
 			success : function(data)
 			{

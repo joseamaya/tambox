@@ -7,7 +7,7 @@
                     <li><a href="{% url 'productos:product_group_list' %}">Grupos de Productos</a></li>
                     {% endif %}
                     {% if perms.compras.ver_tabla_proveedores %}
-                    <li><a href="{% url 'compras:proveedores' %}">Proveedores</a></li>
+                    <li><a href="{% url 'compras:supplier_list' %}">Proveedores</a></li>
                     {% endif %}
                     {% if perms.productos.ver_tabla_productos %}
                     <li><a href="{% url 'productos:product_list' %}">Productos</a></li>
@@ -24,16 +24,16 @@
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.compras.add_quotation %}
-                    <li><a href="{% url 'compras:crear_cotizacion' %}">Solicitud de Cotización</a></li>
+                    <li><a href="{% url 'compras:quotation_create' %}">Solicitud de Cotización</a></li>
                     {% endif %}
                     {% if perms.compras.add_purchaseorder %}
-                    <li><a href="{% url 'compras:crear_orden_compra' %}">Orden de Compra</a></li>
+                    <li><a href="{% url 'compras:purchase_order_create' %}">Orden de Compra</a></li>
                     {% endif %}
                     {% if perms.compras.add_serviceorder %}
-                    <li><a href="{% url 'compras:crear_orden_servicios' %}">Orden de Servicio</a></li>
+                    <li><a href="{% url 'compras:service_order_create' %}">Orden de Servicio</a></li>
                     {% endif %}
                     {% if perms.compras.add_serviceconformity %}
-                    <li><a href="{% url 'compras:crear_conformidad_servicio' %}">Conformidad Servicios</a></li>
+                    <li><a href="{% url 'compras:service_conformity_create' %}">Conformidad Servicios</a></li>
                     {% endif %}
                 </ul>
             </li>
@@ -41,22 +41,22 @@
                 <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.compras.ver_tabla_cotizaciones %}
-                    <li><a href="{% url 'compras:listado_cotizaciones' %}">Cotizaciones</a></li>
+                    <li><a href="{% url 'compras:quotation_list' %}">Cotizaciones</a></li>
                     {% endif %}
                     {% if perms.compras.ver_tabla_ordenes_compra %}
-                    <li><a href="{% url 'compras:ordenes_compra' %}">Ordenes de Compra</a></li>
+                    <li><a href="{% url 'compras:purchase_order_list' %}">Ordenes de Compra</a></li>
                     {% endif %}
                     {% if perms.compras.ver_tabla_ordenes_compra %}
-                    <li><a href="{% url 'compras:ordenes_servicios' %}">Ordenes de Servicios</a></li>
+                    <li><a href="{% url 'compras:service_order_list' %}">Ordenes de Servicios</a></li>
                     {% endif %}
                     {% if perms.compras.ver_tabla_conformidades_servicio %}
-                    <li><a href="{% url 'compras:conformidades_servicio' %}">Conformidades de Servicio</a></li>
+                    <li><a href="{% url 'compras:service_conformity_list' %}">Conformidades de Servicio</a></li>
                     {% endif %}
                     {% if perms.compras.ver_reporte_ordenes_compra_excel %}
-                    <li><a href="{% url 'compras:reporte_ordenes_compra_date' %}">Ordenes de Compra por Fecha</a></li>
+                    <li><a href="{% url 'compras:purchase_order_excel_report_by_date' %}">Ordenes de Compra por Fecha</a></li>
                     {% endif %}
                     {% if perms.compras.ver_reporte_ordenes_servicios_excel %}
-                    <li><a href="{% url 'compras:reporte_ordenes_servicios_date' %}">Ordenes de Servicios por Fecha</a>
+                    <li><a href="{% url 'compras:service_order_excel_report_by_date' %}">Ordenes de Servicios por Fecha</a>
                     </li>
                     {% endif %}
                 </ul>
