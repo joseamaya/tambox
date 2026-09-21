@@ -5,14 +5,14 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout
 
 
-class FormularioCambioPassword(forms.Form):
+class PasswordChangeForm(forms.Form):
     password_actual = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password_nueva = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password_verificacion = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
-        super(FormularioCambioPassword, self).__init__(*args, **kwargs)
+        super(PasswordChangeForm, self).__init__(*args, **kwargs)
 
     def clean_password_actual(self):
         if self.cleaned_data.get('password_actual') and not self.request.user.check_password(
@@ -43,9 +43,9 @@ class FormularioCambioPassword(forms.Form):
             logout(self.request)
 
 
-class FormularioLogin(AuthenticationForm):
+class LoginForm(AuthenticationForm):
     def __init__(self, *args, **kwargs):
-        super(FormularioLogin, self).__init__(*args, **kwargs)
+        super(LoginForm, self).__init__(*args, **kwargs)
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['username'].widget.attrs['placeholder'] = 'Usuario'
         self.fields['password'].widget.attrs['class'] = 'form-control'

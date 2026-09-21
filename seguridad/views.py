@@ -3,7 +3,7 @@ from django.urls import reverse_lazy
 from django.http.response import HttpResponseRedirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_not_required
-from seguridad.forms import FormularioCambioPassword, FormularioLogin
+from seguridad.forms import PasswordChangeForm, LoginForm
 from django.views.generic import View
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
@@ -12,7 +12,7 @@ from django.views.decorators.cache import never_cache
 from django.utils.decorators import method_decorator
 
 
-class Inicio(View):
+class Home(View):
 
     def get(self, request, *args, **kwargs):
         return render(request, 'seguridad/bienvenida.html')
@@ -20,7 +20,7 @@ class Inicio(View):
 
 class Login(FormView):
     template_name = 'seguridad/login.html'
-    form_class = FormularioLogin
+    form_class = LoginForm
     success_url = reverse_lazy("seguridad:inicio")
 
     @method_decorator(csrf_protect)
@@ -37,25 +37,25 @@ class Login(FormView):
         return super(Login, self).form_valid(form)
 
 
-class ModificarPassword(FormView):
+class PasswordUpdate(FormView):
     template_name = 'seguridad/cambiar_password.html'
-    form_class = FormularioCambioPassword
+    form_class = PasswordChangeForm
     success_url = reverse_lazy("seguridad:login")
 
     def get_form_kwargs(self):
-        kwargs = super(ModificarPassword, self).get_form_kwargs()
+        kwargs = super(PasswordUpdate, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
 
-class PermisoDenegado(TemplateView):
+class PermissionDeniedView(TemplateView):
     template_name = 'seguridad/permiso_denegado.html'
 
 
 def permiso_denegado(request, exception=None):
     """Handler 403 del proyecto.
 
-    Renderiza la misma pagina que la vista PermisoDenegado, pero con el estado
+    Renderiza la misma pagina que la vista PermissionDeniedView, pero con el estado
     HTTP correcto: cuando la denegacion era un redirect a esa vista, la respuesta
     final era un 200 y ni un monitor ni un test podian distinguirla de un exito.
     """
