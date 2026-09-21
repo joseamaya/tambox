@@ -9,14 +9,14 @@ from datetime import date
  class ProfesionTest(TestCase):
     fixtures = ['usuarios.json']
 
-    def test_listado_profesiones_view(self):
+    def test_list_professions_view(self):
         self.client.login(username='test',password='test')
         p = self.crear_profesion()
         url = reverse("administracion:profession_list")
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
         
-    def test_valid_form(self):
+    def test_form(self):
         p = self.crear_profesion()
         data = {'abbreviation': p.abbreviation, 'description': p.description}
         form = ProfessionForm(data = data)
@@ -37,20 +37,20 @@ class ProfesionTest(TestCase):
         self.p2 = baker.make(Profession)
         self.p3 = baker.make(Profession)
 
-    def test_creacion_profesion_mommy(self):
+    def test_creation_profession_baker(self):
         self.assertTrue(isinstance(self.p1, Profession))
         self.assertEqual(self.p1.__str__(), self.p1.description)
 
-    def test_siguiente_profesion(self):
+    def test_next_profession(self):
         self.assertEqual(self.p3.pk, self.p2.next())
 
-    def test_anterior_profesion(self):
+    def test_previous_profession(self):
         self.assertEqual(self.p2.pk, self.p3.previous())
 
-    def test_primera_profesion(self):
+    def test_first_profession(self):
         self.assertEqual(self.p1.pk, self.p3.next())
 
-    def test_ultima_profesion(self):
+    def test_last_profession(self):
         self.assertEqual(self.p3.pk, self.p1.previous())
 
 
@@ -61,24 +61,24 @@ class TrabajadorTest(TestCase):
         self.t2 = baker.make(Worker)
         self.t3 = baker.make(Worker)
 
-    def test_creacion_trabajador_mommy(self):
+    def test_creation_worker_baker(self):
         self.assertTrue(isinstance(self.t1, Worker))
         self.assertEqual(self.t3.__str__(),
                          self.t3.last_name + ' ' + self.t3.first_name)
 
-    def test_siguiente_trabajador(self):
+    def test_next_worker(self):
         self.assertEqual(self.t3.pk, self.t2.next())
 
-    def test_anterior_trabajador(self):
+    def test_previous_worker(self):
         self.assertEqual(self.t2.pk, self.t3.previous())
 
-    def test_primer_trabajador(self):
+    def test_first_worker(self):
         self.assertEqual(self.t1.pk, self.t3.next())
 
-    def test_ultimo_trabajador(self):
+    def test_last_worker(self):
         self.assertEqual(self.t3.pk, self.t1.previous())
 
-    def test_nombre_completo(self):
+    def test_name_complete(self):
         self.assertEqual(self.t3.full_name(),
                          self.t3.first_name + ' ' + self.t3.last_name)
         p = baker.make(Profession)
@@ -94,20 +94,20 @@ class OficinaTest(TestCase):
         self.o2 = baker.make(Office)
         self.o3 = baker.make(Office)
 
-    def test_creacion_oficina_mommy(self):
+    def test_creation_office_baker(self):
         self.assertTrue(isinstance(self.o1, Office))
         self.assertEqual(self.o1.__str__(), self.o1.name)
 
-    def test_siguiente_oficina(self):
+    def test_next_office(self):
         self.assertEqual(self.o3, self.o2.next())
 
-    def test_anterior_oficina(self):
+    def test_previous_office(self):
         self.assertEqual(self.o2, self.o3.previous())
 
-    def test_primera_oficina(self):
+    def test_first_office(self):
         self.assertEqual(self.o1, self.o3.next())
 
-    def test_ultima_oficina(self):
+    def test_last_office(self):
         self.assertEqual(self.o3, self.o1.previous())
 
 
@@ -118,23 +118,23 @@ class PuestoTest(TestCase):
         self.p2 = baker.make(Position)
         self.p3 = baker.make(Position)
 
-    def test_creacion_profesion_mommy(self):
+    def test_creation_profession_baker_1(self):
         self.assertTrue(isinstance(self.p1, Position))
         # self.assertEqual(self.p1.__str__(), self.p1.description)
 
-    def test_siguiente_puesto(self):
+    def test_next_position(self):
         self.assertEqual(self.p3.pk, self.p2.next())
 
-    def test_anterior_puesto(self):
+    def test_previous_position(self):
         self.assertEqual(self.p2.pk, self.p3.previous())
 
-    def test_primer_puesto(self):
+    def test_first_position(self):
         self.assertEqual(self.p1.pk, self.p3.next())
 
-    def test_ultimo_puesto(self):
+    def test_last_position(self):
         self.assertEqual(self.p3.pk, self.p1.previous())
 
-    def test_estado_puesto(self):
+    def test_status_position(self):
         p = baker.make(Position, end_date=date.today())
         self.assertTrue(self.p1.is_active)
         self.assertFalse(p.is_active)
@@ -144,14 +144,14 @@ class EstablecerNivelTest(TestCase):
     """Sin los niveles semilla, registrar un requerimiento fallaba con un
     DoesNotExist sin contexto. Ahora dice cual falta."""
 
-    def test_nivel_ausente_da_un_mensaje_claro(self):
+    def test_level_missing_gives_message_claro(self):
         office = baker.make(Office)
         position = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
 
         with self.assertRaisesMessage(ValidationError, 'Falta el nivel de aprobacion "USUARIO"'):
             position.set_level(office)
 
-    def test_usa_el_nivel_existente(self):
+    def test_uses_level_existing(self):
         level = baker.make(ApprovalLevel, description='USUARIO')
         office = baker.make(Office)
         position = baker.make(Position, office=office, worker=baker.make(Worker), end_date=None)
@@ -167,7 +167,7 @@ class TableroAdministracionTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('boss', 'boss@example.com', 'key-segura'))
 
-    def test_completa_los_niveles_que_faltan(self):
+    def test_complete_levels_that_missing(self):
         ApprovalLevel.objects.create(description='LOGISTICA')
 
         respuesta = self.client.get('/administracion/dashboard/')
@@ -176,13 +176,13 @@ class TableroAdministracionTest(TestCase):
         usuario = ApprovalLevel.objects.get(description='USUARIO')
         self.assertEqual(usuario.superior_level.description, 'LOGISTICA')
 
-    def test_crea_la_oficina_de_gerencia(self):
+    def test_creates_office_management(self):
         respuesta = self.client.get('/administracion/dashboard/')
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertTrue(Office.objects.filter(code='GGEN', is_management=True).exists())
 
-    def test_no_duplica_lo_que_ya_existe(self):
+    def test_not_duplicates_that_exists(self):
         Office.objects.create(code='GGEN', name='GERENCIA GENERAL', is_management=True)
         ApprovalLevel.objects.create(description='LOGISTICA')
 

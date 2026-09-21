@@ -14,7 +14,7 @@ class AutorizacionTestCase(TestCase):
     def setUp(self):
         self.usuario = User.objects.create_superuser('verificador', 'verificador@example.com', 'key-segura-123')
 
-    def test_contabilidad_exige_login(self):
+    def test_accounting_requires_login(self):
         self.client.logout()
         for url in ['/contabilidad/account_list/',
                     '/contabilidad/exchange_rate_list/',
@@ -28,7 +28,7 @@ class AutorizacionTestCase(TestCase):
             self.assertEqual(respuesta.status_code, 302, 'sin login no redirige: ' + url)
             self.assertIn('/?next=', respuesta['Location'], url)
 
-    def test_eliminar_por_get_no_permitido(self):
+    def test_delete_by_get_not_allowed(self):
         self.client.force_login(self.usuario)
         for url in ['/almacen/warehouse_delete/',
                     '/almacen/movement_delete/',
@@ -48,19 +48,19 @@ class AutorizacionTestCase(TestCase):
             respuesta = self.client.get(url)
             self.assertEqual(respuesta.status_code, 405, 'GET permitido en: ' + url)
 
-    def test_logout_exige_post(self):
+    def test_logout_requires_post(self):
         self.client.force_login(self.usuario)
         self.assertEqual(self.client.get('/logout').status_code, 405)
         self.assertEqual(self.client.post('/logout').status_code, 302)
 
-    def test_admin_login_sigue_publico(self):
+    def test_admin_login_follows_public(self):
         """Django exime AdminSite.login del middleware de login. Si esto falla,
         el admin queda inaccesible."""
         self.client.logout()
 
         self.assertEqual(self.client.get('/admin/login/').status_code, 200)
 
-    def test_sin_permiso_responde_403(self):
+    def test_without_permission_responds_403(self):
         """La denegacion es un 403 de verdad. Antes era un redirect a una vista
         que respondia 200, asi que ni un monitor ni un test podian distinguirla
         de un acceso correcto."""
@@ -79,17 +79,17 @@ class RenderTestCase(TestCase):
     def setUp(self):
         self.usuario = User.objects.create_superuser('humo', 'humo@example.com', 'key-segura-456')
 
-    def test_login_renderiza(self):
+    def test_login_renders(self):
         respuesta = self.client.get('/')
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'TAMBOX')
 
-    def test_pagina_autenticada_renderiza(self):
+    def test_page_authenticated_renders(self):
         self.client.force_login(self.usuario)
         respuesta = self.client.get('/home/')
         self.assertEqual(respuesta.status_code, 200)
 
-    def test_listados_renderizan(self):
+    def test_lists_render(self):
         self.client.force_login(self.usuario)
         for url in ['/contabilidad/tax_list/',
                     '/contabilidad/payment_method_list/',
@@ -106,7 +106,7 @@ class OpcionesDeFormularioTestCase(TestCase):
     formulario, no al importar el modulo: antes quedaban congeladas y un almacén
     nuevo no aparecia en el desplegable hasta reiniciar el process."""
 
-    def test_las_opciones_se_leen_de_la_base_de_datos(self):
+    def test_options_read_base_data(self):
         from almacen.models import Warehouse
 
         Warehouse.objects.create(code='AL01', description='ALMACEN UNO')
@@ -115,7 +115,7 @@ class OpcionesDeFormularioTestCase(TestCase):
 
         self.assertIn('AL01', codes)
 
-    def test_un_almacen_nuevo_aparece_sin_reiniciar(self):
+    def test_warehouse_new_appears_without_restart(self):
         from almacen.models import Warehouse
 
         formulario = MovementReportForm()
@@ -163,7 +163,7 @@ class URLsProtegidasTest(TestCase):
         'admin:login',       # Django lo exime en AdminSite.login
     }
 
-    def test_lo_publico_es_una_lista_cerrada(self):
+    def test_public_is_lists_cerrada(self):
         vistas = list(walk_urls())
         self.assertTrue(vistas, 'No se recorrio ninguna URL')
 
@@ -179,7 +179,7 @@ class PermisosDeclaradosTest(TestCase):
     deniega a todo el mundo en silencio. El registro de `seguridad.permisos`
     hace que se puedan comprobar."""
 
-    def test_los_permisos_declarados_existen(self):
+    def test_permissions_declared_exist(self):
         get_resolver().url_patterns  # importa las vistas y llena el registro
 
         declarados = declared_permissions()
@@ -217,7 +217,7 @@ class TodasLasPaginasTest(TestCase):
                                                      'key-segura-123')
         self.client.force_login(self.usuario)
 
-    def test_ninguna_pagina_responde_500(self):
+    def test_none_page_responds_500(self):
         fallos = {}
         for name, _ in walk_urls():
             try:
@@ -247,7 +247,7 @@ class ErroresDeFormularioTest(TestCase):
         self.client.force_login(User.objects.create_superuser('errores', 'errores@example.com',
                                                               'key-segura-123'))
 
-    def test_el_error_de_un_campo_se_ve(self):
+    def test_error_field_sees(self):
         respuesta = self.client.post(reverse('contabilidad:account_create'), {})
 
         self.assertEqual(respuesta.status_code, 200)
@@ -261,7 +261,7 @@ class MensajesEnPantallaTest(TestCase):
     pero los `messages.error` del proyecto se perdian y el usuario no se
     enteraba de que un guardado habia fallado."""
 
-    def test_el_error_se_ve_como_alerta_de_peligro(self):
+    def test_error_sees_as_alert_danger(self):
         peticion = RequestFactory().get('/')
         setattr(peticion, '_messages', CookieStorage(peticion))
         messages.error(peticion, 'Error guardando la cotizacion.')

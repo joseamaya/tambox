@@ -19,7 +19,7 @@ import tempfile
         resp = self.client.get("/")
         self.assertEqual(resp.status_code,200)
         
-    def test_new_unidad_medida_view(self):
+    def test_new_unit_measure_view(self):
         self.client.login(username='test',password='test')
         resp = self.client.get('/productos/unit_of_measure_create/')
         self.assertEqual(200,resp.status_code)"""
@@ -32,20 +32,20 @@ class UnidadMedidaTest(TestCase):
         self.um2 = baker.make(UnitOfMeasure)
         self.um3 = baker.make(UnitOfMeasure)
 
-    def test_creacion_unidad_medida(self):
+    def test_creation_unit_measure(self):
         self.assertTrue(isinstance(self.um1, UnitOfMeasure))
         self.assertEqual(self.um1.__str__(), self.um1.description)
 
-    def test_siguiente_unidad_medida(self):
+    def test_next_unit_measure(self):
         self.assertEqual(self.um3.pk, self.um2.next())
 
-    def test_anterior_unidad_medida(self):
+    def test_previous_unit_measure(self):
         self.assertEqual(self.um2.pk, self.um3.previous())
 
-    def test_primera_unidad_medida(self):
+    def test_first_unit_measure(self):
         self.assertEqual(self.um1.pk, self.um3.next())
 
-    def test_ultima_unidad_medida(self):
+    def test_last_unit_measure(self):
         self.assertEqual(self.um3.pk, self.um1.previous())
 
 
@@ -56,23 +56,23 @@ class GrupoProductosTest(TestCase):
         self.gp2 = baker.make(ProductGroup, code='')
         self.gp3 = baker.make(ProductGroup, code='')
 
-    def test_creacion_grupo_productos(self):
+    def test_creation_group_products(self):
         self.assertTrue(isinstance(self.gp1, ProductGroup))
         self.assertEqual("1".zfill(6), self.gp1.code)
         self.assertEqual(self.gp1.__str__(), self.gp1.description)
 
-    def test_siguiente_grupo_productos(self):
+    def test_next_group_products(self):
         self.assertEqual(self.gp2.pk, self.gp1.next())
         self.assertEqual(self.gp3.pk, self.gp2.next())
 
-    def test_anterior_grupo_productos(self):
+    def test_previous_group_products(self):
         self.assertEqual(self.gp1.pk, self.gp2.previous())
         self.assertEqual(self.gp2.pk, self.gp3.previous())
 
-    def test_primer_grupo_productos(self):
+    def test_first_group_products(self):
         self.assertEqual(self.gp1.pk, self.gp3.next())
 
-    def test_ultimo_grupo_productos(self):
+    def test_last_group_products(self):
         self.assertEqual(self.gp3.pk, self.gp1.previous())
 
 
@@ -85,27 +85,27 @@ class ProductoTest(TestCase):
         self.p2 = baker.make(Product, code='', product_group=self.gp1)
         self.p3 = baker.make(Product, code='', product_group=self.gp2, is_service=True)
 
-    def test_creacion_producto(self):
+    def test_creation_product(self):
         self.assertTrue(isinstance(self.p1, Product))
         self.assertEqual(self.gp1.code + "1".zfill(4), self.p1.code)
         self.assertEqual(self.gp1.code + "2".zfill(4), self.p2.code)
         self.assertEqual(self.p1.__str__(), self.p1.description)
 
-    def test_siguiente_producto(self):
+    def test_next_product(self):
         self.assertEqual(self.p2.pk, self.p1.next())
         self.assertEqual(self.p3.pk, self.p2.next())
 
-    def test_anterior_producto(self):
+    def test_previous_product(self):
         self.assertEqual(self.p1.pk, self.p2.previous())
         self.assertEqual(self.p2.pk, self.p3.previous())
 
-    def test_primer_producto(self):
+    def test_first_product(self):
         self.assertEqual(self.p1.pk, self.p3.next())
 
-    def test_ultimo_producto(self):
+    def test_last_product(self):
         self.assertEqual(self.p3.pk, self.p1.previous())
 
-    def test_creacion_servicio(self):
+    def test_creation_service(self):
         self.assertEqual(self.p3.unit_of_measure.code, 'SERV')
 
 
@@ -113,7 +113,7 @@ class ConsultaDeStockTest(TestCase):
     """Product.stock recorria todos los almacenes con un .latest() cada uno, y
     las plantillas lo invocan varias veces en la misma page."""
 
-    def test_una_sola_consulta_y_luego_cache(self):
+    def test_only_query_then_cache(self):
         from almacen.models import Warehouse
         baker.make(Warehouse)
         baker.make(Warehouse)
@@ -125,7 +125,7 @@ class ConsultaDeStockTest(TestCase):
         with self.assertNumQueries(0):
             product.stock
 
-    def test_previsto_es_una_sola_consulta(self):
+    def test_forecast_is_only_query(self):
         product = baker.make(Product)
 
         with self.assertNumQueries(1):
@@ -148,7 +148,7 @@ class ObtenerKardexTest(TestCase):
                    in_quantity=Decimal('10'), in_amount=Decimal('50'),
                    out_quantity=Decimal('2'), out_amount=Decimal('9'))
 
-    def test_los_totales_salen_de_una_sola_consulta(self):
+    def test_totals_come_out_only_query(self):
         with self.assertNumQueries(1):
             listado, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
@@ -157,14 +157,14 @@ class ObtenerKardexTest(TestCase):
         self.assertEqual((quantity_s, valor_s), (Decimal('2'), Decimal('9')))
         self.assertEqual(listado.count(), 1)
 
-    def test_sin_movimientos_los_totales_son_cero(self):
+    def test_without_movements_totals_are_cero(self):
         with self.assertNumQueries(1):
             _, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 3, 1), date(2024, 3, 31))
 
         self.assertEqual((quantity_i, valor_i, quantity_s, valor_s), (0, 0, 0, 0))
 
-    def test_el_grupo_usa_el_mismo_camino(self):
+    def test_group_uses_same_path(self):
         group = self.product.product_group
 
         with self.assertNumQueries(1):
@@ -183,7 +183,7 @@ class CargarServiciosTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'key-segura'))
 
-    def test_importa_todas_las_filas(self):
+    def test_imports_all_rows(self):
         baker.make(ProductGroup, code='000001')
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
@@ -194,7 +194,7 @@ class CargarServiciosTest(TestCase):
         self.assertEqual(sorted(Product.objects.values_list('description', flat=True)),
                          ['SERVICIO DOS', 'SERVICIO UNO'])
 
-    def test_sin_grupo_manda_a_crearlos(self):
+    def test_without_group_redirects_create_them(self):
         contenido = 'G99,SERVICIO UNO\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
@@ -210,7 +210,7 @@ class CargarProductosTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'key-segura'))
 
-    def test_salta_la_fila_sin_tipo_de_existencia(self):
+    def test_skips_row_without_type_stock_type(self):
         baker.make(ProductGroup, code='000001')
         baker.make(StockType, sunat_code='01')
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
@@ -240,7 +240,7 @@ class BusquedaProductosTest(TestCase):
     def search(self, url, params):
         return self.client.get(url, params, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def test_las_consultas_no_crecen_con_los_resultados(self):
+    def test_queries_not_grow_with_results(self):
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
 
@@ -259,7 +259,7 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(len(data), 20)
         self.assertEqual(data[0]['unit'], 'UNIDAD')
 
-    def test_busqueda_por_code(self):
+    def test_search_by_code(self):
         respuesta = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
 
         self.assertEqual(respuesta.status_code, 200)

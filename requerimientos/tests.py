@@ -24,25 +24,25 @@ class RequerimientoTest(TestCase):
         self.r2 = create_requirement(code='')
         self.r3 = create_requirement(code='')
 
-    def test_creacion_requerimiento(self):
+    def test_creation_requirement(self):
         self.assertTrue(isinstance(self.r1, Requirement))
         self.assertEqual(self.r1.__str__(), self.r1.code)
 
-    def test_siguiente_requerimiento(self):
+    def test_next_requirement(self):
         self.assertEqual(self.r2, self.r1.next())
         self.assertEqual(self.r3, self.r2.next())
 
-    def test_anterior_requerimiento(self):
+    def test_previous_requirement(self):
         self.assertEqual(self.r1, self.r2.previous())
         self.assertEqual(self.r2, self.r3.previous())
 
-    def test_primer_requerimiento(self):
+    def test_first_requirement(self):
         self.assertEqual(self.r1, self.r3.next())
 
-    def test_ultimo_requerimiento(self):
+    def test_last_requirement(self):
         self.assertEqual(self.r3, self.r1.previous())
 
-    def test_actualizacion_requerimiento(self):
+    def test_update_requirement(self):
         """`save()` solo genera el code cuando esta vacio, asi que guardar un
         requerimiento existente no lo duplica ni le cambia el code."""
         code = self.r1.code
@@ -58,12 +58,12 @@ class DetalleRequerimientoTest(TestCase):
     def setUp(self):
         self.r1 = create_requirement(code='')
 
-    def test_creacion_detalle_requerimiento(self):
+    def test_creation_detail_requirement(self):
         dr1 = baker.make(RequirementDetail, requirement=self.r1)
         self.assertTrue(isinstance(dr1, RequirementDetail))
         self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.line_number))
 
-    def test_estado_atendido(self):
+    def test_status_served(self):
         dr1 = baker.make(RequirementDetail, requirement=self.r1, quantity=5, served_quantity=5)
         dr1.set_status_served()
         self.assertEqual(dr1.status, RequirementDetail.STATUS.ATEN)
@@ -80,7 +80,7 @@ class AprobacionRequerimientoTest(TestCase):
         self.r1 = create_requirement(code='')
         self.apr1 = baker.make(RequirementApproval, requirement=self.r1)
 
-    def test_creacion_aprobacion_requerimiento(self):
+    def test_creation_approval_requirement(self):
         self.assertTrue(isinstance(self.apr1, RequirementApproval))
         self.assertEqual(self.apr1.requirement, self.r1)
 
@@ -88,16 +88,16 @@ class AprobacionRequerimientoTest(TestCase):
 class ClasificarTest(TestCase):
     """La regla detras de la maquina de estados."""
 
-    def test_sin_avance(self):
+    def test_without_progress(self):
         self.assertEqual(classify(0, 10), EMPTY)
 
-    def test_avance_parcial(self):
+    def test_progress_partial(self):
         self.assertEqual(classify(4, 10), PARTIAL)
 
-    def test_avance_completo(self):
+    def test_progress_complete(self):
         self.assertEqual(classify(10, 10), COMPLETE)
 
-    def test_avance_por_encima_del_total(self):
+    def test_progress_by_above_total(self):
         self.assertEqual(classify(12, 10), COMPLETE)
 
 
@@ -110,49 +110,49 @@ class EstadosDeRequerimientoTest(TestCase):
                    purchased_quantity=comprada, served_quantity=atendida)
         return requirement
 
-    def test_comprado_parcial_no_marca_como_comprado(self):
+    def test_purchased_partial_not_marks_as_purchased(self):
         requirement = self._requirement(quantity=10, comprada=4)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP_PARC)
 
-    def test_crear_requerimiento_crea_su_aprobacion_inicial(self):
+    def test_create_requirement_creates_approval_initial(self):
         """Antes fallaba siempre: la aprobacion se creaba antes de que el
         requerimiento tuviera pk."""
         requirement = self._requirement(quantity=10)
 
         self.assertTrue(RequirementApproval.objects.filter(requirement=requirement).exists())
 
-    def test_comprado_completo(self):
+    def test_purchased_complete(self):
         requirement = self._requirement(quantity=10, comprada=10)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP)
 
-    def test_comprado_por_encima_del_total(self):
+    def test_purchased_by_above_total(self):
         requirement = self._requirement(quantity=10, comprada=12)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP)
 
-    def test_cotizado_parcial(self):
+    def test_quoted_partial(self):
         requirement = self._requirement(quantity=10, cotizada=4)
 
         self.assertEqual(requirement.set_status_quoted(), Requirement.STATUS.COTIZ_PARC)
 
-    def test_cotizado_completo(self):
+    def test_quoted_complete(self):
         requirement = self._requirement(quantity=10, cotizada=10)
 
         self.assertEqual(requirement.set_status_quoted(), Requirement.STATUS.COTIZ)
 
-    def test_atendido_parcial(self):
+    def test_served_partial(self):
         requirement = self._requirement(quantity=10, atendida=4)
 
         self.assertEqual(requirement.set_status_served(), Requirement.STATUS.ATEN_PARC)
 
-    def test_atendido_completo(self):
+    def test_served_complete(self):
         requirement = self._requirement(quantity=10, atendida=10)
 
         self.assertEqual(requirement.set_status_served(), Requirement.STATUS.ATEN)
 
-    def test_los_totales_se_calculan_una_sola_vez(self):
+    def test_totals_calculate_only_time(self):
         """Suma columnas, asi que el agregado es exacto; la maquina de estados los
         invoca varias veces en la misma operacion."""
         requirement = self._requirement(quantity=10)
@@ -171,7 +171,7 @@ class EstadosDeRequerimientoTest(TestCase):
             requirement.total_quoted
             requirement.total_purchased
 
-    def test_el_prefetch_evita_una_consulta_por_requerimiento(self):
+    def test_prefetch_avoids_query_by_requirement(self):
         """Los totales recorren el manager inverso y no un .filter(), que siempre
         lanza su propia consulta. Eso es lo que hace que prefetch_related sirva
         en los bucles que cargan muchos requerimientos."""
@@ -195,20 +195,20 @@ class EstadosDeDetalleRequerimientoTest(TestCase):
         return RequirementDetail(quantity=quantity, quoted_quantity=cotizada,
                                     purchased_quantity=comprada, served_quantity=atendida)
 
-    def test_cotizado(self):
+    def test_quoted(self):
         self.assertEqual(self._detail(10).set_status_quoted(), RequirementDetail.STATUS.PEND)
         self.assertEqual(self._detail(10, cotizada=4).set_status_quoted(),
                          RequirementDetail.STATUS.COTIZ_PARC)
         self.assertEqual(self._detail(10, cotizada=10).set_status_quoted(),
                          RequirementDetail.STATUS.COTIZ)
 
-    def test_comprado(self):
+    def test_purchased(self):
         self.assertEqual(self._detail(10, comprada=4).set_status_purchased(),
                          RequirementDetail.STATUS.COMP_PARC)
         self.assertEqual(self._detail(10, comprada=10).set_status_purchased(),
                          RequirementDetail.STATUS.COMP)
 
-    def test_atendido(self):
+    def test_served(self):
         self.assertEqual(self._detail(10, atendida=4).set_status_served(),
                          RequirementDetail.STATUS.ATEN_PARC)
         self.assertEqual(self._detail(10, atendida=10).set_status_served(),

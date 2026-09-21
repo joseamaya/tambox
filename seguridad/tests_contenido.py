@@ -27,7 +27,7 @@ class ContenidoDeLasPaginasTest(TestCase):
             'contenido', 'contenido@example.com', 'key-segura-123')
         self.client.force_login(self.usuario)
 
-    def test_la_lista_de_productos_muestra_la_description(self):
+    def test_lists_products_shows_description(self):
         # El code tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
         baker.make(Product, code='0000000001', description='PRODUCTO-XYZ')
 
@@ -36,7 +36,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
-    def test_la_lista_de_movimientos_muestra_el_tipo(self):
+    def test_lists_movements_shows_type(self):
         type = baker.make(MovementType, description='TIPO-XYZ')
         baker.make(Movement, movement_type=type)
 
@@ -45,7 +45,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'TIPO-XYZ')
 
-    def test_el_detalle_de_movimiento_muestra_el_producto(self):
+    def test_detail_movement_shows_product(self):
         product = baker.make(Product, description='PRODUCTO-XYZ')
         movement = baker.make(Movement)
         baker.make('almacen.MovementDetail', movement=movement, product=product)
@@ -55,7 +55,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
-    def test_la_lista_de_ordenes_de_compra_muestra_el_code(self):
+    def test_lists_orders_purchase_shows_code(self):
         baker.make(PurchaseOrder, code='ORD-XYZ')
 
         respuesta = self.client.get(reverse('compras:purchase_order_list'))
@@ -63,7 +63,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'ORD-XYZ')
 
-    def test_el_detalle_de_requerimiento_muestra_el_producto(self):
+    def test_detail_requirement_shows_product(self):
         """La vista lee `request.user.worker`, asi que el grafo tiene que
         colgar del usuario que navega, no de uno cualquiera."""
         ApprovalLevel.objects.get_or_create(description='USUARIO')
@@ -81,7 +81,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
-    def test_la_lista_de_cuentas_contables_muestra_la_cuenta(self):
+    def test_lists_accounts_shows_account(self):
         baker.make(Account, account_number='CTA-XYZ')
 
         respuesta = self.client.get(reverse('contabilidad:account_list'))
@@ -89,7 +89,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'CTA-XYZ')
 
-    def test_la_lista_de_oficinas_muestra_el_name(self):
+    def test_lists_offices_shows_name(self):
         baker.make(Office, name='OFICINA-XYZ')
 
         respuesta = self.client.get(reverse('administracion:office_list'))
@@ -97,7 +97,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'OFICINA-XYZ')
 
-    def test_un_formulario_sigue_pintando_sus_campos(self):
+    def test_form_follows_rendering_fields(self):
         """El widget lleva el nombre del campo del formulario, asi que si el campo
         se renombra y la plantilla no lo sigue, el cuadro desaparece de la pagina."""
         respuesta = self.client.get(reverse('almacen:movement_type_create'))
@@ -105,7 +105,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'name="increases"')
 
-    def test_la_lista_de_unidades_de_medida_muestra_la_description(self):
+    def test_lists_units_measure_shows_description(self):
         baker.make('productos.UnitOfMeasure', code='UND01', description='UNIDAD-XYZ')
 
         respuesta = self.client.get(reverse('productos:unit_of_measure_list'))
@@ -113,7 +113,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'UNIDAD-XYZ')
 
-    def test_la_lista_de_grupos_de_productos_muestra_la_description(self):
+    def test_lists_groups_products_shows_description(self):
         baker.make('productos.ProductGroup', code='000001', description='GRUPO-XYZ')
 
         respuesta = self.client.get(reverse('productos:product_group_list'))
@@ -121,7 +121,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'GRUPO-XYZ')
 
-    def test_la_lista_de_tipos_de_existencia_muestra_la_description(self):
+    def test_lists_types_stock_type_shows_description(self):
         baker.make('contabilidad.StockType', sunat_code='01', description='EXISTENCIA-XYZ')
 
         respuesta = self.client.get(reverse('contabilidad:stock_type_list'))
@@ -129,7 +129,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'EXISTENCIA-XYZ')
 
-    def test_la_lista_de_almacenes_muestra_la_description(self):
+    def test_lists_warehouses_shows_description(self):
         baker.make('almacen.Warehouse', code='AL01', description='ALMACEN-XYZ')
 
         respuesta = self.client.get(reverse('almacen:warehouse_list'))
@@ -137,7 +137,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'ALMACEN-XYZ')
 
-    def test_la_lista_de_tipos_de_movimiento_muestra_la_description(self):
+    def test_lists_types_movement_shows_description(self):
         baker.make('almacen.MovementType', code='T01', description='MOVIMIENTO-XYZ')
 
         respuesta = self.client.get(reverse('almacen:movement_type_list'))
