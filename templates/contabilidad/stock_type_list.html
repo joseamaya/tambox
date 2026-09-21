@@ -1,28 +1,13 @@
-{% extends "contabilidad/base_contabilidad.html" %}
+{% extends "contabilidad/base_accounting.html" %}
 {% block cuerpo %}
-<h3>Tipos de Documentos</h3>
+<h3>Tipos de Existencias</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.add_documenttype %}
-        <a href="{% url 'contabilidad:document_type_create' %}" class="btn btn-primary">
-            Crear
-        </a>
-        {% endif %}
-        {% if perms.contabilidad.cargar_tipos_documento %}
-        <a href="{% url 'contabilidad:document_type_import' %}" class="btn btn-default">
+        {% if perms.contabilidad.cargar_tipos_existencias %}
+        <a href="{% url 'contabilidad:stock_type_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
-    </div>
-    <div class="col-lg-2 text-right">
-        <div class="btn-group">
-            {% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}
-            <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:document_type_excel_report' %}';">
-                <span class="glyphicon glyphicon-list-alt"></span>
-            </button>
-            {% endif %}
-        </div>
     </div>
 </div>
 <hr/>
@@ -36,14 +21,10 @@
             </tr>
             </thead>
             <tbody>
-            {% for type in types %}
-            {% if perms.contabilidad.ver_detalle_tipo_documento %}
-            <tr onclick="location.href='{% url 'contabilidad:document_type_detail' type.pk %}';">
-                {% else %}
+            {% for type in tipos_existencias %}
             <tr>
-                {% endif %}
                 <td>{{ type.sunat_code }}</td>
-                <td>{{ type.name }}</td>
+                <td>{{ type.description }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -53,35 +34,35 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{	
+$(document).ready(function()
+{
     var borrarSeleccionado;
     var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }
     } );
- 	
-    $('#tabla tr').hover(function() 
+
+    $('#tabla tr').hover(function()
 	{
 		$(this).css("cursor","pointer");
 	});
-    
+
     $(document).on("click",".eliminar",function()
 	{
-		borrarSeleccionado = $(this);		
+		borrarSeleccionado = $(this);
 		ventana = $( "#dialog-confirm" ).dialog({
 		  resizable: false,
 		  height:140,
 		  modal: true,
-		  buttons: 
+		  buttons:
 		  {
 			"Borrar": borrarTipoDocumento,
 		    "Cancelar": cerrarBorrarTipoDocumento
 		  }
-		});		
-	});	
-    
+		});
+	});
+
     function borrarTipoDocumento()
 	{
     	var id_boton= $(borrarSeleccionado).prop('id');
@@ -99,18 +80,18 @@ $(document).ready(function()
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Producto "+data.name+" no puede eliminarse");	
+	   				alert("Producto "+data.name+" no puede eliminarse");
 	   			}
     		}
     	});
 		ventana.dialog("close");
 	}
-    
+
     function cerrarBorrarTipoDocumento()
 	{
 		ventana.dialog("close");
 	}
-    
+
 });
 
 </script>

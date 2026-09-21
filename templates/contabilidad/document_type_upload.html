@@ -1,13 +1,13 @@
-{% extends "contabilidad/base_contabilidad.html" %}
+{% extends "contabilidad/base_accounting.html" %}
 {% block cuerpo %}
-<h3>Cuentas Contables / Importar un archivo</h3>
+<h3>Tipos Documentos / Importar un archivo</h3>
 <form role="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
         <div class="col-lg-12">
             <input type="submit" class="btn btn-primary" name="submit" value="Importar">
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'contabilidad:account_list' %}'">
+                    onclick="location.href='{% url 'contabilidad:document_type_list' %}'">
                 Cancelar
             </button>
         </div>

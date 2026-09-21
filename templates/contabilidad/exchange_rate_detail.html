@@ -1,14 +1,14 @@
-{% extends "contabilidad/base_contabilidad.html" %}
+{% extends "contabilidad/base_accounting.html" %}
 {% block cuerpo %}
-<h3>Impuesto / {{ object.description }}</h3>
+<h3>Tipos de Cambio / {{ object.date }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_tax %}
-        <a class="btn btn-primary" href="{% url 'contabilidad:tax_update' object.pk %}">
+        {% if perms.contabilidad.change_exchangerate %}
+        <a class="btn btn-primary" href="{% url 'contabilidad:exchange_rate_update' object.pk %}">
             Editar
         </a>
         {% endif %}
-        {% if perms.contabilidad.delete_tax %}
+        {% if perms.contabilidad.delete_exchangerate %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>
@@ -17,21 +17,22 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:tax_detail' object.previous %}';">
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.previous %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:tax_detail' object.next %}';">
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.next %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
-            <button class="btn btn-default" type="button" onclick="location.href='{% url 'contabilidad:tax_list' %}';">
+            <button class="btn btn-default" type="button"
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Impuesto"></div>
+<div id="dialog-confirm" title="Eliminar Tipo de Cambio"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
@@ -53,32 +54,19 @@
                 <br>
                 <div class="row">
                     <div class="col-lg-4">
-                        <label>ABREVIATURA:</label>
-                        <p>{{ object.abbreviation }}</p>
+                        <label>FECHA:</label>
+                        <p>{{ object.date|date:"d/m/Y" }}</p>
                         <label>MONTO: </label>
                         <p>{{ object.amount }}</p>
-                        <label>FECHA INICIO: </label>
-                        <p>{{ object.start_date|date:"d/m/y" }}</p>
                     </div>
                     <div class="col-lg-4">
-                        <label>FECHA FIN:</label>
-                        {% if object.end_date %}
-                        <p>{{ object.end_date|date:"d/m/y" }}</p>
-                        {% else %}
-                        <p>--</p>
-                        {% endif %}
+
                     </div>
                     <div class="col-lg-4">
                         <label>FECHA REGISTRO: </label>
                         <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
                         <label>FECHA MODIFICACIÓN: </label>
                         <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
-                        <label>ESTADO: </label>
-                        {% if object.is_active %}
-                        <p>ACTIVO</p>
-                        {% else %}
-                        <p>INACTIVO</p>
-                        {% endif %}
                     </div>
                 </div>
             </div>
