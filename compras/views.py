@@ -163,7 +163,7 @@ class CrearDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             det = {}
             det['cotizacion'] = '0'
             det['code'] = ''
-            det['nombre'] = ''
+            det['name'] = ''
             det['unidad'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
@@ -176,7 +176,7 @@ class CrearDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
                 detalle_json = {}
                 detalle_json['cotizacion'] = str(form['cotizacion'])
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
@@ -195,7 +195,7 @@ class CrearDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
             det = {}
             det['cotizacion'] = '0'
             det['code'] = ''
-            det['nombre'] = ''
+            det['name'] = ''
             det['unidad'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
@@ -207,7 +207,7 @@ class CrearDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                 detalle_json = {}
                 detalle_json['cotizacion'] = str(form['cotizacion'])
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
@@ -856,7 +856,7 @@ class ModificarCotizacion(UpdateView):
         for detalle in detalles:
             d = {'requerimiento': detalle.detalle_requerimiento.pk,
                  'code': detalle.detalle_requerimiento.producto.code,
-                 'nombre': detalle.detalle_requerimiento.producto.description,
+                 'name': detalle.detalle_requerimiento.producto.description,
                  'unidad': detalle.detalle_requerimiento.producto.unidad_medida.code,
                  'cantidad': detalle.cantidad}
             detalles_data.append(d)
@@ -977,7 +977,7 @@ class ModificarOrdenCompra(UpdateView):
                 try:
                     d = {'cotizacion': detalle.detalle_cotizacion.pk,
                          'code': detalle.detalle_cotizacion.detalle_requerimiento.producto.code,
-                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
+                         'name': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
                          'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -986,7 +986,7 @@ class ModificarOrdenCompra(UpdateView):
                 except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'code': detalle.producto.code,
-                         'nombre': detalle.producto.description,
+                         'name': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1134,7 +1134,7 @@ class ModificarOrdenServicios(UpdateView):
                 try:
                     d = {'cotizacion': detalle.detalle_cotizacion.pk,
                          'code': detalle.detalle_cotizacion.detalle_requerimiento.producto.code,
-                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
+                         'name': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
                          'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1142,7 +1142,7 @@ class ModificarOrdenServicios(UpdateView):
                 except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'code': detalle.producto.code,
-                         'nombre': detalle.producto.description,
+                         'name': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1244,7 +1244,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                 det['cotizacion'] = detalle.id
                 try:
                     det['code'] = detalle.detalle_requerimiento.producto.code
-                    det['nombre'] = detalle.detalle_requerimiento.producto.description
+                    det['name'] = detalle.detalle_requerimiento.producto.description
                     det['precio'] = str(detalle.detalle_requerimiento.producto.precio)
                     cantidad = detalle.cantidad - detalle.detalle_requerimiento.cantidad_comprada
                     det['cantidad'] = str(cantidad)
@@ -1270,7 +1270,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                     detalle_json = {}
                     detalle_json['cotizacion'] = str(form['cotizacion'])
                     detalle_json['code'] = str(form['code'])
-                    detalle_json['nombre'] = str(form['nombre'])
+                    detalle_json['name'] = str(form['name'])
                     detalle_json['precio'] = str(form['precio'])
                     detalle_json['unidad'] = str(form['unidad'])
                     detalle_json['cantidad'] = str(form['cantidad'])
@@ -1282,7 +1282,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                     detalle_json = {}
                     detalle_json['cotizacion'] = str(form['cotizacion'])
                     detalle_json['code'] = str(form['code'])
-                    detalle_json['nombre'] = str(form['nombre'])
+                    detalle_json['name'] = str(form['name'])
                     detalle_json['precio'] = str(form['precio'])
                     detalle_json['unidad'] = str(form['unidad'])
                     detalle_json['cantidad'] = str(form['cantidad'])
@@ -1324,14 +1324,14 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
                     det['orden_compra'] = detalle.id
                     try:
                         det['code'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.code
-                        det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
+                        det['name'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
                         det['cantidad'] = str(detalle.cantidad - detalle.cantidad_ingresada)
                         det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code
                         det['valor'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))
                     except (ObjectDoesNotExist, AttributeError):
                         det['code'] = detalle.producto.code
-                        det['nombre'] = detalle.producto.description
+                        det['name'] = detalle.producto.description
                         det['cantidad'] = str(detalle.cantidad - detalle.cantidad_ingresada)
                         det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.producto.unidad_medida.code
@@ -1342,7 +1342,7 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
                     detalle_json = {}
                     detalle_json['orden_compra'] = str(form['orden_compra'])
                     detalle_json['code'] = str(form['code'])
-                    detalle_json['nombre'] = str(form['nombre'])
+                    detalle_json['name'] = str(form['name'])
                     detalle_json['cantidad'] = str(form['cantidad'])
                     detalle_json['precio'] = str(form['precio'])
                     detalle_json['unidad'] = str(form['unidad'])
@@ -1486,7 +1486,7 @@ class ReporteExcelProveedores(TemplateView):
             ws.cell(row=cont, column=7).value = proveedor.estado_sunat
             ws.cell(row=cont, column=8).value = proveedor.condicion
             try:
-                ws.cell(row=cont, column=9).value = proveedor.representante.nombre
+                ws.cell(row=cont, column=9).value = proveedor.representante.name
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=9).value = '-'
             ws.cell(row=cont, column=10).value = proveedor.ciiu

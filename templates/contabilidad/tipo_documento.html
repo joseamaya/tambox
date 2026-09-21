@@ -75,12 +75,12 @@
                             {% endif %}
                             <p>{{ form.codigo_sunat }}</p>
                             <label>NOMBRE: </label>
-                            {% if form.nombre.errors %}
-                            {% for error in form.nombre.errors %}
+                            {% if form.name.errors %}
+                            {% for error in form.name.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.nombre }}</p>
+                            <p>{{ form.name }}</p>
                         </div>
                         <div class="col-lg-4"></div>
                         <div class="col-lg-4"></div>

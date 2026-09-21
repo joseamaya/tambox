@@ -55,7 +55,7 @@ class ReporteRequerimiento():
                                    fontSize=10,
                                    fontName="Times-Roman")
         solicitado = Paragraph(u"SOLICITADO POR: " + requerimiento.solicitante.nombre_completo(), izquierda)
-        oficina = Paragraph(u"OFICINA: " + requerimiento.oficina.nombre, izquierda)
+        oficina = Paragraph(u"OFICINA: " + requerimiento.oficina.name, izquierda)
         motivo = Paragraph(u"MOTIVO: " + requerimiento.motivo, izquierda)
         date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.date.strftime('%d/%m/%Y'), izquierda)
         mes = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)

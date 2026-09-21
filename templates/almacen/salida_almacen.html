@@ -189,12 +189,12 @@
                                 {{ detalle_salida_form.code }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.nombre.errors %}
-                                {% for error in detalle_salida_form.nombre.errors %}
+                                {% if detalle_salida_form.name.errors %}
+                                {% for error in detalle_salida_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.nombre }}
+                                {{ detalle_salida_form.name }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.unidad.errors %}
@@ -319,8 +319,8 @@ $(document).ready(function()
 	$("#id_receptor").autocomplete({
 	  	source: function(request, response){
 	    $.ajax({
-	      url: "{% url 'administracion:busqueda_receptor_nombre' %}",
-	      data: {'nombre': $("#id_receptor").val(), 'tipo_movimiento':$("#id_tipo_movimiento").val()},
+	      url: "{% url 'administracion:busqueda_receptor_name' %}",
+	      data: {'name': $("#id_receptor").val(), 'tipo_movimiento':$("#id_tipo_movimiento").val()},
 	      success: function( data )
 	      {
 	          response( data );
@@ -364,7 +364,7 @@ $(document).ready(function()
 						$("#detalles tbody").append( 
 						"<tr class='detalle_salida_formset'>" +
 							"<td>" + item.code + "</td>" +
-							"<td>" + item.nombre + "</td>" +
+							"<td>" + item.name + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.cantidad + "</td>" +
 							"<td>" + item.precio + "</td>" +
@@ -404,9 +404,9 @@ $(document).ready(function()
 		    select: function( event, ui ) 
 		    {
 		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("nombre", "");
+				var id = id_producto.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
-				$("#"+id+"nombre").val(ui.item.description);
+				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
 				$("#"+id+"precio").val(ui.item.precio);
 				return false;

@@ -141,7 +141,7 @@ class AprobarPedido(CreateView):
                 for detalle in detalles:
                     d = {'pedido': detalle.id,
                          'code': detalle.producto.code,
-                         'nombre': detalle.producto.description,
+                         'name': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad
                          }
@@ -365,7 +365,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
             lista_detalles = []
             det = {}
             det['code'] = ''
-            det['nombre'] = ''
+            det['name'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
             det['unidad'] = ''
@@ -376,7 +376,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
             for form in formset:
                 detalle_json = {}
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
                 detalle_json['unidad'] = str(form['unidad'])
@@ -393,7 +393,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
             lista_detalles = []
             det = {}
             det['code'] = ''
-            det['nombre'] = ''
+            det['name'] = ''
             det['cantidad'] = '0'
             det['unidad'] = ''
             lista_detalles.append(det)
@@ -402,7 +402,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
             for form in formset:
                 detalle_json = {}
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['unidad'] = str(form['unidad'])
                 lista_json.append(detalle_json)
@@ -418,7 +418,7 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
             det = {}
             det['orden_compra'] = '0'
             det['code'] = ''
-            det['nombre'] = ''
+            det['name'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
             det['unidad'] = ''
@@ -430,7 +430,7 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
                 detalle_json = {}
                 detalle_json['orden_compra'] = str(form['orden_compra'])
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
                 detalle_json['unidad'] = str(form['unidad'])
@@ -757,7 +757,7 @@ class ModificarIngresoAlmacen(UpdateView):
                     if detalle.detalle_orden_compra.detalle_cotizacion is not None:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
                              'code': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.code,
-                             'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.description,
+                             'name': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.description,
                              'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
@@ -765,7 +765,7 @@ class ModificarIngresoAlmacen(UpdateView):
                     else:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
                              'code': detalle.detalle_orden_compra.producto.code,
-                             'nombre': detalle.detalle_orden_compra.producto.description,
+                             'name': detalle.detalle_orden_compra.producto.description,
                              'unidad': detalle.detalle_orden_compra.producto.unidad_medida.code,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
@@ -773,7 +773,7 @@ class ModificarIngresoAlmacen(UpdateView):
                 else:
                     d = {'orden_compra': '0',
                          'code': detalle.producto.code,
-                         'nombre': detalle.producto.description,
+                         'name': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -883,7 +883,7 @@ class ModificarSalidaAlmacen(UpdateView):
             try:
                 d = {'pedido': detalle.detalle_pedido.pk,
                      'code': detalle.producto.pk,
-                     'nombre': detalle.producto.description,
+                     'name': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
@@ -891,7 +891,7 @@ class ModificarSalidaAlmacen(UpdateView):
             except (ObjectDoesNotExist, AttributeError):
                 d = {'pedido': 0,
                      'code': detalle.producto.pk,
-                     'nombre': detalle.producto.description,
+                     'name': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
@@ -1029,7 +1029,7 @@ class ModificarPedido(UpdateView):
             detalles_data = []
             for detalle in detalles:
                 d = {'code': detalle.producto.code,
-                     'nombre': detalle.producto.description,
+                     'name': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida.code,
                      'cantidad': detalle.cantidad}
                 detalles_data.append(d)
@@ -1844,7 +1844,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
                 det = {}
                 det['pedido'] = detalle.id
                 det['code'] = detalle.producto.code
-                det['nombre'] = detalle.producto.description
+                det['name'] = detalle.producto.description
                 det['unidad'] = detalle.producto.unidad_medida.description
                 cantidad = detalle.cantidad - detalle.cantidad_atendida
                 if cantidad > stock:
@@ -1860,7 +1860,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
             detalle_json = {}
             detalle_json['pedido'] = str(form['pedido'])
             detalle_json['code'] = str(form['code'])
-            detalle_json['nombre'] = str(form['nombre'])
+            detalle_json['name'] = str(form['name'])
             detalle_json['cantidad'] = str(form['cantidad'])
             detalle_json['precio'] = str(form['precio'])
             detalle_json['unidad'] = str(form['unidad'])

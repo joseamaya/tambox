@@ -46,7 +46,7 @@
             <tr>
                 {% endif %}
                 <td>{{ oficina.code }}</td>
-                <td>{{ oficina.nombre }}</td>
+                <td>{{ oficina.name }}</td>
                 {% if oficina.dependencia %}
                 <td>{{ oficina.dependencia }}</td>
                 {% else %}
@@ -54,19 +54,19 @@
                 {% endif %}
                 <td class="text-center">
                     {% if perms.administracion.ver_detalle_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-eye-open"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.change_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:modificar_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-edit"></span>
                     </a>
                     {% endif %}
                     {% if perms.administracion.delete_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.nombre }}')"
+                    <a onclick="return abrir_modal('{% url 'administracion:detalle_oficina' oficina.pk %}','Oficinas / {{ oficina.name }}')"
                        class="btn">
                         <span class="glyphicon glyphicon-remove"></span>
                     </a>

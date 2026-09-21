@@ -88,7 +88,7 @@ class FormaPago(TimeStampedModel):
 
 class TipoDocumento(TimeStampedModel):
     codigo_sunat = models.CharField(max_length=10)
-    nombre = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -109,7 +109,7 @@ class TipoDocumento(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return self.nombre
+        return self.name
 
 
 class Tipo(TimeStampedModel):

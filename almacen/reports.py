@@ -219,8 +219,8 @@ class ReporteMovimiento():
                                    alignment=TA_CENTER,
                                    fontSize=8,
                                    fontName="Times-Roman")
-        nombre_oficina_administracion = Paragraph(oficina_administracion().nombre, izquierda)
-        nombre_oficina_logistica = Paragraph(logistica().nombre, izquierda)
+        nombre_oficina_administracion = Paragraph(oficina_administracion().name, izquierda)
+        nombre_oficina_logistica = Paragraph(logistica().name, izquierda)
         if movimiento.tipo_movimiento.incrementa:
             total = [[nombre_oficina_administracion, '', nombre_oficina_logistica]]
             tabla_firmas = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])

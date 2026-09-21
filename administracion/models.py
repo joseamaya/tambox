@@ -130,7 +130,7 @@ class Productor(TimeStampedModel):
 
 class Oficina(TimeStampedModel):
     code = models.CharField(max_length=4, unique=True)
-    nombre = models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     es_gerencia = models.BooleanField(default=False)
     dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     estado = models.BooleanField(default=True)
@@ -143,7 +143,7 @@ class Oficina(TimeStampedModel):
                        ('ver_detalle_oficina', 'Puede ver detalle de Oficina'),
                        ('ver_tabla_oficinas', 'Puede ver tabla de Oficinas'),
                        ('ver_reporte_oficinas_excel', 'Puede ver Reporte de Oficinas en excel'),)
-        ordering = ['nombre']
+        ordering = ['name']
 
     @property
     def gerencia(self):
@@ -162,11 +162,11 @@ class Oficina(TimeStampedModel):
         return sig
 
     def __str__(self):
-        return force_str(self.nombre)
+        return force_str(self.name)
 
 
 class Puesto(TimeStampedModel):
-    nombre = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     trabajador = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     start_date = models.DateField()
@@ -211,7 +211,7 @@ class Puesto(TimeStampedModel):
                        ('cargar_puestos', 'Puede cargar puestos desde un archivo externo'),
                        ('ver_tabla_puestos', 'Puede ver tabla de Puestos'),
                        ('ver_reporte_puestos_excel', 'Puede ver Reporte de Puestos en excel'),)
-        ordering = ['nombre']
+        ordering = ['name']
 
     def save(self, *args, **kwargs):
         if self.end_date is not None:

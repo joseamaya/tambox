@@ -96,7 +96,7 @@ class OficinaTest(TestCase):
 
     def test_creacion_oficina_mommy(self):
         self.assertTrue(isinstance(self.o1, Oficina))
-        self.assertEqual(self.o1.__str__(), self.o1.nombre)
+        self.assertEqual(self.o1.__str__(), self.o1.name)
 
     def test_siguiente_oficina(self):
         self.assertEqual(self.o3, self.o2.siguiente())
@@ -183,7 +183,7 @@ class TableroAdministracionTest(TestCase):
         self.assertTrue(Oficina.objects.filter(code='GGEN', es_gerencia=True).exists())
 
     def test_no_duplica_lo_que_ya_existe(self):
-        Oficina.objects.create(code='GGEN', nombre='GERENCIA GENERAL', es_gerencia=True)
+        Oficina.objects.create(code='GGEN', name='GERENCIA GENERAL', es_gerencia=True)
         NivelAprobacion.objects.create(description='LOGISTICA')
 
         self.client.get('/administracion/tablero/')

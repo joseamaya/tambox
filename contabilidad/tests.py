@@ -66,7 +66,7 @@ class TestTipoDocumento(TestCase):
 
     def test_creacion_tipo_documento(self):
         self.assertTrue(isinstance(self.td1, TipoDocumento))
-        self.assertEqual(self.td1.__str__(), self.td1.nombre)
+        self.assertEqual(self.td1.__str__(), self.td1.name)
 
     def test_siguiente_tipo_documento(self):
         self.assertEqual(self.td2.pk, self.td1.siguiente())

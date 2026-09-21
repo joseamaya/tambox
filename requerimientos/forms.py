@@ -57,7 +57,7 @@ class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
 
 class FormularioDetalleRequerimientoProducto(forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
-    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,

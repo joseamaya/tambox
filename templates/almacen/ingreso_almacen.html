@@ -190,12 +190,12 @@
                                 {{ detalle_ingreso_form.code }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.nombre.errors %}
-                                {% for error in detalle_ingreso_form.nombre.errors %}
+                                {% if detalle_ingreso_form.name.errors %}
+                                {% for error in detalle_ingreso_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.nombre }}
+                                {{ detalle_ingreso_form.name }}
                             </td>
                             <td>
                                 {% if detalle_ingreso_form.unidad.errors %}
@@ -386,7 +386,7 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
 						"<td>" + item.orden_compra + item.code + "</td>" +
-						"<td>" + item.nombre + "</td>" +
+						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
 						"<td>" + item.precio + "</td>" +
@@ -421,9 +421,9 @@ $(document).ready(function()
 		    select: function( event, ui ) 
 		    {
 		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("nombre", "");
+				var id = id_producto.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
-				$("#"+id+"nombre").val(ui.item.description);
+				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
 				$("#"+id+"precio").val(ui.item.precio);
 				return false;
@@ -473,7 +473,7 @@ $(document).ready(function()
 						$("#detalles tbody").append(
 						"<tr class='detalle_ingreso_formset'>" +
 							"<td>" + item.orden_compra + item.code + "</td>" +
-							"<td>" + item.nombre + "</td>" +
+							"<td>" + item.name + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.cantidad + "</td>" +
 							"<td>" + item.precio + "</td>" +

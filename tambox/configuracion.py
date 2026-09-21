@@ -18,9 +18,9 @@ def limpiar_cache():
     empresa.cache_clear()
 
 
-def _campo_configuracion(nombre):
+def _campo_configuracion(name):
     config = configuracion()
-    return getattr(config, nombre) if config is not None else None
+    return getattr(config, name) if config is not None else None
 
 
 def oficina_administracion():

@@ -64,7 +64,7 @@ class DetalleOrdenManager(models.Manager):
 
 class RepresentanteLegal(TimeStampedModel):
     documento = models.CharField(primary_key=True, max_length=11)
-    nombre = models.CharField(max_length=150)
+    name = models.CharField(max_length=150)
     cargo = models.CharField(max_length=50)
     history = HistoricalRecords()
 
@@ -74,7 +74,7 @@ class RepresentanteLegal(TimeStampedModel):
                        ('can_view_excel', 'Can view Representante Legal excel'),)
 
     def __str__(self):
-        return self.nombre
+        return self.name
 
 
 class Proveedor(TimeStampedModel):

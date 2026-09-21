@@ -89,8 +89,8 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'CTA-XYZ')
 
-    def test_la_lista_de_oficinas_muestra_el_nombre(self):
-        baker.make(Oficina, nombre='OFICINA-XYZ')
+    def test_la_lista_de_oficinas_muestra_el_name(self):
+        baker.make(Oficina, name='OFICINA-XYZ')
 
         respuesta = self.client.get(reverse('administracion:maestro_oficinas'))
 

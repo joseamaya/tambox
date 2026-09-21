@@ -75,12 +75,12 @@ $(document).ready(function()
     		{
     			if(data.relaciones=='NO')
 	   			{
-	   				alert("Tipo de Documento "+data.nombre+ " eliminado");
+	   				alert("Tipo de Documento "+data.name+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Producto "+data.nombre+" no puede eliminarse");
+	   				alert("Producto "+data.name+" no puede eliminarse");
 	   			}
     		}
     	});

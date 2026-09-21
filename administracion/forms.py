@@ -34,7 +34,7 @@ class ProfesionForm(forms.ModelForm):
 class OficinaForm(forms.ModelForm):
     class Meta:
         model = Oficina
-        fields = ['code', 'nombre', 'dependencia', 'es_gerencia']
+        fields = ['code', 'name', 'dependencia', 'es_gerencia']
 
     def __init__(self, *args, **kwargs):
         super(OficinaForm, self).__init__(*args, **kwargs)
@@ -86,7 +86,7 @@ class ProductorForm(forms.ModelForm):
 class PuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['nombre', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
+        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
 
     def __init__(self, *args, **kwargs):
         super(PuestoForm, self).__init__(*args, **kwargs)
@@ -107,7 +107,7 @@ class PuestoForm(forms.ModelForm):
 class ModificacionPuestoForm(forms.ModelForm):
     class Meta:
         model = Puesto
-        fields = ['nombre', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
+        fields = ['name', 'oficina', 'trabajador', 'start_date', 'end_date', 'es_jefatura', 'es_asistente']
 
     def __init__(self, *args, **kwargs):
         super(ModificacionPuestoForm, self).__init__(*args, **kwargs)

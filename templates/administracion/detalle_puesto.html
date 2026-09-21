@@ -1,5 +1,5 @@
 {% extends "administracion/base_administracion.html" %} {% block cuerpo %}
-<h3>Puestos / {{ object.nombre }}</h3>
+<h3>Puestos / {{ object.name }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.change_puesto %}
@@ -34,7 +34,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.nombre }}</h3>
+                <h3>{{ object.name }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group"></div>

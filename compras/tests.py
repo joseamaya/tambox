@@ -39,7 +39,7 @@ class RepresentanteLegalTest(TestCase):
 
     def test_creacion_representante_legal(self):
         self.assertTrue(isinstance(self.rl1, RepresentanteLegal))
-        self.assertEqual(self.rl1.__str__(), self.rl1.nombre)
+        self.assertEqual(self.rl1.__str__(), self.rl1.name)
 
 
 class CotizacionTest(TestCase):

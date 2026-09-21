@@ -97,12 +97,12 @@
                                 {{ detalle_pedido_form.code }}
                             </td>
                             <td>
-                                {% if detalle_pedido_form.nombre.errors %}
-                                {% for error in detalle_pedido_form.nombre.errors %}
+                                {% if detalle_pedido_form.name.errors %}
+                                {% for error in detalle_pedido_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_pedido_form.nombre }}
+                                {{ detalle_pedido_form.name }}
                             </td>
                             <td>
                                 {% if detalle_pedido_form.unidad.errors %}
@@ -178,7 +178,7 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_pedido_formset'>" +
 						"<td>" + item.code + "</td>" +
-						"<td>" + item.nombre + "</td>" +
+						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
@@ -210,9 +210,9 @@ $(document).ready(function()
 		    select: function( event, ui ) 
 		    {
 		    	var id_producto = $(this).prop('id');
-				var id = id_producto.replace("nombre", "");
+				var id = id_producto.replace("name", "");
 				$("#"+id+"code").val(ui.item.code);
-				$("#"+id+"nombre").val(ui.item.description);
+				$("#"+id+"name").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);				
 				return false;
 		    },

@@ -129,7 +129,7 @@ class OpcionesDeFormularioTestCase(TestCase):
 
 
 def recorrer_urls(patrones=None, prefijo='', espacio=''):
-    """Baja por el arbol de URLs y devuelve (nombre, callback) de cada vista.
+    """Baja por el arbol de URLs y devuelve (name, callback) de cada vista.
 
     El nombre sale del namespace y el nombre del patron (`seguridad:login`), y si
     el patron no tiene nombre cae al texto del patron.
@@ -143,10 +143,10 @@ def recorrer_urls(patrones=None, prefijo='', espacio=''):
                                      patron.namespace or espacio)
         else:
             if espacio and patron.name:
-                nombre = '%s:%s' % (espacio, patron.name)
+                name = '%s:%s' % (espacio, patron.name)
             else:
-                nombre = prefijo + str(patron.pattern)
-            yield nombre, patron.callback
+                name = prefijo + str(patron.pattern)
+            yield name, patron.callback
 
 
 class URLsProtegidasTest(TestCase):
@@ -167,7 +167,7 @@ class URLsProtegidasTest(TestCase):
         vistas = list(recorrer_urls())
         self.assertTrue(vistas, 'No se recorrio ninguna URL')
 
-        publicas = {nombre for nombre, callback in vistas
+        publicas = {name for name, callback in vistas
                     if not getattr(callback, 'login_required', True)}
 
         self.assertEqual(self.PUBLICAS_ESPERADAS, publicas,
@@ -219,9 +219,9 @@ class TodasLasPaginasTest(TestCase):
 
     def test_ninguna_pagina_responde_500(self):
         fallos = {}
-        for nombre, _ in recorrer_urls():
+        for name, _ in recorrer_urls():
             try:
-                url = reverse(nombre)
+                url = reverse(name)
             except NoReverseMatch:
                 continue    # necesita argumentos: la cubren los tests de su vista
             try:
@@ -230,7 +230,7 @@ class TodasLasPaginasTest(TestCase):
             except Exception as error:
                 estado = '%s: %s' % (type(error).__name__, error)
             if not isinstance(estado, int) or estado >= 500:
-                fallos[nombre] = '%s (%s) -> %s' % (nombre, url, estado)
+                fallos[name] = '%s (%s) -> %s' % (name, url, estado)
 
         self.assertEqual(sorted(fallos), sorted(self.PENDIENTES))
 

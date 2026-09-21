@@ -100,12 +100,12 @@
                                 {{ detalle_salida_form.code }}
                             </td>
                             <td>
-                                {% if detalle_salida_form.nombre.errors %}
-                                {% for error in detalle_salida_form.nombre.errors %}
+                                {% if detalle_salida_form.name.errors %}
+                                {% for error in detalle_salida_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.nombre }}
+                                {{ detalle_salida_form.name }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.unidad.errors %}
@@ -234,7 +234,7 @@ $(document).ready(function()
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
 						"<td>" + item.pedido + item.code + "</td>" +
-						"<td>" + item.nombre + "</td>" +
+						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
 						"<td>" + item.precio + "</td>" +

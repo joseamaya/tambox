@@ -36,7 +36,7 @@ class Tablero(View):
         cant_puestos = Puesto.objects.all().count()
         cant_profesiones = Profesion.objects.all().count()
         oficina, creada = Oficina.objects.get_or_create(code='GGEN',
-                                                       defaults={'nombre': 'GERENCIA GENERAL',
+                                                       defaults={'name': 'GERENCIA GENERAL',
                                                                  'es_gerencia': True})
         if creada:
             lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
@@ -75,17 +75,17 @@ class BusquedaReceptorDni(SoloAjaxMixin, TemplateView):
 
 class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('nombre', 'tipo_movimiento')
+    parametros_requeridos = ('name', 'tipo_movimiento')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            nombre = request.GET['nombre']
+            name = request.GET['name']
             tipo_movimiento = TipoMovimiento.objects.get(pk=request.GET['tipo_movimiento'])
             if tipo_movimiento.es_venta:
-                receptores = Productor.objects.filter(apellido_paterno__icontains=nombre)[:20]
+                receptores = Productor.objects.filter(apellido_paterno__icontains=name)[:20]
             else:
                 receptores = Trabajador.objects.filter(
-                    Q(apellido_paterno__icontains=nombre) | Q(apellido_materno__icontains=nombre) | Q(
-                        nombres__icontains=nombre))[:20]
+                    Q(apellido_paterno__icontains=name) | Q(apellido_materno__icontains=name) | Q(
+                        nombres__icontains=name))[:20]
             lista_receptores = []
             for receptor in receptores:
                 receptor_json = {}
@@ -104,7 +104,7 @@ class CargarOficinas(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         Oficina.objects.get_or_create(code=fila[0],
                                       defaults={
-                                          'nombre': fila[1],
+                                          'name': fila[1],
                                           'dependencia': Oficina.objects.get(code=fila[2])},
                                       )
 
@@ -159,7 +159,7 @@ class CargarPuestos(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
-            Puesto.objects.get_or_create(nombre=fila[0],
+            Puesto.objects.get_or_create(name=fila[0],
                                          defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
                                                    'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
                                                    'start_date': date,
@@ -275,7 +275,7 @@ class ListadoOficinas(ListView):
     model = Oficina
     template_name = 'administracion/oficinas.html'
     context_object_name = 'oficinas'
-    queryset = Oficina.objects.all().order_by('nombre')
+    queryset = Oficina.objects.all().order_by('name')
 
 
 class ListadoTrabajadores(ListView):
@@ -411,9 +411,9 @@ class ReporteExcelOficinas(TemplateView):
         for oficina in oficinas:
             try:
                 ws.cell(row=cont, column=2).value = oficina.code
-                ws.cell(row=cont, column=3).value = oficina.nombre
-                ws.cell(row=cont, column=4).value = oficina.dependencia.nombre
-                ws.cell(row=cont, column=5).value = oficina.gerencia.nombre
+                ws.cell(row=cont, column=3).value = oficina.name
+                ws.cell(row=cont, column=4).value = oficina.dependencia.name
+                ws.cell(row=cont, column=5).value = oficina.gerencia.name
                 cont = cont + 1
             except Exception:
                 logger.warning("No se pudo exportar la oficina %s", oficina.pk, exc_info=True)
@@ -465,8 +465,8 @@ class ReporteExcelPuestos(TemplateView):
         ws['H3'] = 'ESTADO'
         cont = 4
         for puesto in puestos:
-            ws.cell(row=cont, column=2).value = puesto.nombre
-            ws.cell(row=cont, column=3).value = puesto.oficina.nombre
+            ws.cell(row=cont, column=2).value = puesto.name
+            ws.cell(row=cont, column=3).value = puesto.oficina.name
             ws.cell(row=cont, column=4).value = puesto.trabajador.nombre_completo()
             ws.cell(row=cont, column=5).value = puesto.start_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=6).value = puesto.end_date

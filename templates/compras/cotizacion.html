@@ -161,12 +161,12 @@
                                 {{ form.code }}
                             </td>
                             <td>
-                                {% if form.nombre.errors %}
-                                {% for error in form.nombre.errors %}
+                                {% if form.name.errors %}
+                                {% for error in form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.nombre }}
+                                {{ form.name }}
                             </td>
                             <td>
                                 {% if form.unidad.errors %}
@@ -316,7 +316,7 @@ $(document).ready(function()
 					"<tr class='detalle_cotizacion_formset'>" +				
 						"<td>" + cont + "</td>" +
 						"<td>" + item.requerimiento + item.code + "</td>" +
-						"<td>" + item.nombre + "</td>" +
+						"<td>" + item.name + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +	
 						"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +

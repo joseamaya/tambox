@@ -9,22 +9,22 @@
                 <div class="row">
                     <div class="col-lg-7">
                         <label>Descripción:</label>
-                        {% if form.nombre.errors %}
-                        {% for error in form.nombre.errors %}
+                        {% if form.name.errors %}
+                        {% for error in form.name.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        <h3>{{ form.nombre }}</h3>
+                        <h3>{{ form.name }}</h3>
                     </div>
                     <div class="col-lg-5 text-right">
                         <div class="btn-group">
                             {% if object %}
                             <button class="btn btn-default" type="button"
-                                    onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.anterior.pk %}','Oficina / {{ object.anterior.nombre }}');">
+                                    onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.anterior.pk %}','Oficina / {{ object.anterior.name }}');">
                                 <span class="glyphicon glyphicon-step-backward"></span>
                             </button>
                             <button class="btn btn-default" type="button"
-                                    onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.siguiente.pk %}','Oficina / {{ object.siguiente.nombre }}');">
+                                    onclick="return abrir_modal('{% url 'administracion:modificar_oficina' object.siguiente.pk %}','Oficina / {{ object.siguiente.name }}');">
                                 <span class="glyphicon glyphicon-step-forward"></span>
                             </button>
                             {% endif %}

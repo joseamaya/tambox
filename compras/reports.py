@@ -85,7 +85,7 @@ class ReporteOrdenCompra():
             telefono = Paragraph(u"TELÉFONO: -", izquierda)
         try:
             referencia = Paragraph(
-                u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre,
+                u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name,
                 izquierda)
         except (ObjectDoesNotExist, AttributeError):
             referencia = Paragraph(u"REFERENCIA: ", izquierda)
@@ -212,7 +212,7 @@ class ReporteOrdenCompra():
         importante = Paragraph(u"IMPORTANTE: ", p)
         recibido = Paragraph(u"RECIBIDO POR: ", p)
         firma = Paragraph(u"FIRMA: ", p)
-        nombre = Paragraph(u"NOMBRE: ", p)
+        name = Paragraph(u"NOMBRE: ", p)
         dni = Paragraph(u"DNI: ", p)
         lista = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
@@ -227,7 +227,7 @@ class ReporteOrdenCompra():
                        [importante, recibido],
                        [lista, ''],
                        ['', firma],
-                       ['', nombre],
+                       ['', name],
                        ['', dni],
                        ]
         tabla_afectacion_presupuestal = Table(datos_otros, colWidths=[10 * cm, 10 * cm])
@@ -771,24 +771,24 @@ class PDFMemorandoConformidadServicio(object):
         if puesto_gerente.pk == puesto_jefe_inmediato.pk or puesto_jefe_inmediato.pk == puesto_solicitante.pk:
             pdf.drawString(50, y, u"A           :    " + gerente.nombre_completo())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_gerente.nombre)
+            pdf.drawString(50, y, u"                   " + puesto_gerente.name)
             y = y - 20
             pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.trabajador.nombre_completo())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_solicitante.nombre)
+            pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
             y = y - 50
         else:
             pdf.drawString(50, y, u"A           :    " + gerente.nombre_completo())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_gerente.nombre)
+            pdf.drawString(50, y, u"                   " + puesto_gerente.name)
             y = y - 20
             pdf.drawString(50, y, u"                   " + jefe_inmediato.nombre_completo())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_jefe_inmediato.nombre)
+            pdf.drawString(50, y, u"                   " + puesto_jefe_inmediato.name)
             y = y - 20
             pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.trabajador.nombre_completo())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_solicitante.nombre)
+            pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
             y = y - 30
         estilo_parrafo = ParagraphStyle('parrafos')
         estilo_parrafo.alignment = TA_JUSTIFY
@@ -889,7 +889,7 @@ class PDFOrdenServicios(object):
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre)
+                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name)
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: " + orden.nombre_informe)
 
@@ -1104,7 +1104,7 @@ class PDFOrdenCompra(object):
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre)
+                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.name)
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: -")
         pdf.drawString(40, 690, u"PROCESO: -")

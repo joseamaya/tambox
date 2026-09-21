@@ -46,7 +46,7 @@ class AlmacenForm(forms.ModelForm):
 class FormularioDetalleMovimiento(forms.Form):
     almacen = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
-    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
@@ -315,7 +315,7 @@ class FormularioPedido(forms.Form):
 class FormularioDetallePedido(forms.Form):
     code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 17, 'readonly': "readonly", 'class': 'entero form-control'}))
-    nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(max_length=20,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
@@ -326,7 +326,7 @@ class FormularioDetalleIngreso(forms.Form):
     orden_compra = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
-    nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
@@ -353,7 +353,7 @@ class FormularioDetalleSalida(forms.Form):
     pedido = forms.CharField(widget=forms.HiddenInput(), required=False)
     code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
-    nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=25, decimal_places=8,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))

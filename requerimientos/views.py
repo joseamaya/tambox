@@ -402,7 +402,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                 det['requerimiento'] = detalle.id
                 try:
                     det['code'] = detalle.producto.code
-                    det['nombre'] = detalle.producto.description
+                    det['name'] = detalle.producto.description
                     det['unidad'] = detalle.producto.unidad_medida.code
                     # det['uso'] = detalle.uso
                     det['cantidad'] = str(detalle.cantidad - detalle.cantidad_atendida)
@@ -417,7 +417,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                 detalle_json = {}
                 detalle_json['requerimiento'] = str(form['requerimiento'])
                 detalle_json['code'] = str(form['code'])
-                detalle_json['nombre'] = str(form['nombre'])
+                detalle_json['name'] = str(form['name'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 lista_json.append(detalle_json)
@@ -452,7 +452,7 @@ class ReporteExcelRequerimientos(TemplateView):
         cont = 4
         for requerimiento in requerimientos:
             ws.cell(row=cont, column=2).value = requerimiento.code
-            ws.cell(row=cont, column=3).value = requerimiento.oficina.nombre
+            ws.cell(row=cont, column=3).value = requerimiento.oficina.name
             ws.cell(row=cont, column=4).value = requerimiento.get_estado_display()
             ws.cell(row=cont, column=5).value = requerimiento.aprobacionrequerimiento.get_estado_display()
             ws.cell(row=cont, column=6).value = requerimiento.created

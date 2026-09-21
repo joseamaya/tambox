@@ -28,7 +28,7 @@ class Tablero(View):
         cant_cuentas_contables = CuentaContable.objects.count()
         tipo_documento, creado = TipoDocumento.objects.get_or_create(codigo_sunat='PEC',
                                                                      defaults={'description': 'PECOSA',
-                                                                               'nombre': 'PECOSA'})
+                                                                               'name': 'PECOSA'})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de documento PECOSA")
         if cant_cuentas_contables == 0:
@@ -64,7 +64,7 @@ class CargarTiposDocumentos(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         TipoDocumento.objects.create(codigo_sunat=fila[0],
-                                     nombre=fila[1],
+                                     name=fila[1],
                                      description=fila[1])
 
 
@@ -225,7 +225,7 @@ class EliminarTipoDocumento(TemplateView):
             tipo_documento = TipoDocumento.objects.get(pk=id)
             tipo_documento_json = {}
             tipo_documento_json['codigo_sunat'] = tipo_documento.codigo_sunat
-            tipo_documento_json['nombre'] = tipo_documento.nombre
+            tipo_documento_json['name'] = tipo_documento.name
             if len(tipo_documento.movimiento_set.all()) > 0:
                 tipo_documento_json['relaciones'] = 'SI'
             else:
@@ -239,7 +239,7 @@ class ListadoTiposDocumentos(ListView):
     model = TipoDocumento
     template_name = 'contabilidad/tipos_documento.html'
     context_object_name = 'tipos'
-    queryset = TipoDocumento.objects.filter(estado=True).order_by('nombre')
+    queryset = TipoDocumento.objects.filter(estado=True).order_by('name')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_tipos_documentos'))
@@ -476,7 +476,7 @@ class ReporteExcelTiposDocumentos(TemplateView):
         cont = 4
         for tipo in tipos:
             ws.cell(row=cont, column=2).value = tipo.codigo_sunat
-            ws.cell(row=cont, column=3).value = tipo.nombre
+            ws.cell(row=cont, column=3).value = tipo.name
             ws.cell(row=cont, column=4).value = tipo.description
             cont = cont + 1
         nombre_archivo = "ListadoTiposDocumentos.xlsx"

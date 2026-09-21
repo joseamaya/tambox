@@ -121,12 +121,12 @@
                                 {{ detalle_conformidad_servicio_form.cantidad }}
                             </td>
                             <td>
-                                {% if detalle_conformidad_servicio_form.nombre.errors %}
-                                {% for error in detalle_conformidad_servicio_form.nombre.errors %}
+                                {% if detalle_conformidad_servicio_form.name.errors %}
+                                {% for error in detalle_conformidad_servicio_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_conformidad_servicio_form.nombre }}
+                                {{ detalle_conformidad_servicio_form.name }}
                             </td>
                             <td>
                                 {% if detalle_conformidad_servicio_form.unidad.errors %}
