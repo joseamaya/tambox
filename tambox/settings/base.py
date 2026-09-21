@@ -89,7 +89,7 @@ MEDIA_URL = '/media/'
 
 LOGIN_URL = '/'
 
-LOGIN_REDIRECT_URL = '/inicio/'
+LOGIN_REDIRECT_URL = '/home/'
 
 # Bootstrap 3 no tiene `alert-error`; los mensajes de error se pintan como
 # `alert-danger` en el bloque de `base.html`.

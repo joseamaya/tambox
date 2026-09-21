@@ -44,14 +44,14 @@ class AutorizacionTestCase(TestCase):
                     '/productos/product_group_delete/',
                     '/contabilidad/document_type_delete/',
                     '/contabilidad/payment_method_delete/',
-                    '/requerimientos/eliminar_requerimiento/']:
+                    '/requerimientos/requirement_delete/']:
             respuesta = self.client.get(url)
             self.assertEqual(respuesta.status_code, 405, 'GET permitido en: ' + url)
 
     def test_logout_exige_post(self):
         self.client.force_login(self.usuario)
-        self.assertEqual(self.client.get('/salir').status_code, 405)
-        self.assertEqual(self.client.post('/salir').status_code, 302)
+        self.assertEqual(self.client.get('/logout').status_code, 405)
+        self.assertEqual(self.client.post('/logout').status_code, 302)
 
     def test_admin_login_sigue_publico(self):
         """Django exime AdminSite.login del middleware de login. Si esto falla,
@@ -86,7 +86,7 @@ class RenderTestCase(TestCase):
 
     def test_pagina_autenticada_renderiza(self):
         self.client.force_login(self.usuario)
-        respuesta = self.client.get('/inicio/')
+        respuesta = self.client.get('/home/')
         self.assertEqual(respuesta.status_code, 200)
 
     def test_listados_renderizan(self):

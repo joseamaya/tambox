@@ -21,7 +21,7 @@ class Home(View):
 class Login(FormView):
     template_name = 'seguridad/login.html'
     form_class = LoginForm
-    success_url = reverse_lazy("seguridad:inicio")
+    success_url = reverse_lazy("seguridad:home")
 
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)

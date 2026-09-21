@@ -282,7 +282,7 @@ $(document).ready(function()
 			width: 950,
 			open: function ()
 	        {
-				var url="{% url 'requerimientos:transferencia_requerimiento' %}";
+				var url="{% url 'requerimientos:requirement_transfer' %}";
 	            $(this).load(url);
 	        },
 			modal: true,
@@ -305,7 +305,7 @@ $(document).ready(function()
 		$.ajax(
 		{
 			data : { 'requirement' : requirement,'tipo_busqueda': 'PRODUCTOS' },
-			url : "{% url 'requerimientos:obtener_detalle_requerimiento' %}",
+			url : "{% url 'requerimientos:requirement_detail_fetch' %}",
 			type : 'get',
 			success : function(data) 
 			{

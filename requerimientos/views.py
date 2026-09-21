@@ -45,7 +45,7 @@ class RequirementApprove(UpdateView):
     model = RequirementApproval
     template_name = 'requerimientos/aprobar_requerimiento.html'
     form_class = RequirementApprovalForm
-    success_url = reverse_lazy('requerimientos:listado_aprobacion_requerimientos')
+    success_url = reverse_lazy('requerimientos:requirement_approval_list')
 
     @method_decorator(requiere('requerimientos.change_requirementapproval'))
     def dispatch(self, *args, **kwargs):
@@ -54,7 +54,7 @@ class RequirementApprove(UpdateView):
         if aprobacion_requerimiento.verificar_acceso_aprobacion(usuario):
             return super(RequirementApprove, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_form_kwargs(self):
         kwargs = super(RequirementApprove, self).get_form_kwargs()
@@ -248,7 +248,7 @@ class RequirementApprovalList(ListView):
         if puesto is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
         if not puesto.is_leadership:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
         return super(RequirementApprovalList, self).get(request, *args, **kwargs)
 
     def get_queryset(self):
@@ -301,7 +301,7 @@ class RequirementUpdate(UpdateView):
                 self.request.user.is_superuser):
             return super(RequirementUpdate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_form_kwargs(self):
         kwargs = super(RequirementUpdate, self).get_form_kwargs()

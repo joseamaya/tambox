@@ -5,12 +5,12 @@
 <div class="row">
     <div class="col-lg-5">
         {% if perms.requerimientos.add_requirement %}
-        <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
+        <a href="{% url 'requerimientos:requirement_create' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
         {% if object.approval.level == "USU" or object.approval.level == "JEF" %}
         {% if object.status %}
         {% if perms.requerimientos.change_requirement %}
-        <a class="btn btn-warning" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a>
+        <a class="btn btn-warning" href="{% url 'requerimientos:requirement_update' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% endif %}
@@ -32,14 +32,14 @@
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'requerimientos:listado_cotizaciones_requerimiento' requirement.pk %}">
+                    <a href="{% url 'requerimientos:quotation_list_by_requirement' requirement.pk %}">
                         <span class="fa fa-book"></span>
                         Ver Cotiz.
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'requerimientos:requerimiento_pdf' requirement.pk %}">
+                    <a href="{% url 'requerimientos:requirement_pdf' requirement.pk %}">
                         <span class="fa fa-print"></span>
                         Imprimir
                     </a>
@@ -58,7 +58,7 @@
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'requerimientos:requerimientos' %}';">
+                    onclick="location.href='{% url 'requerimientos:requirement_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -215,7 +215,7 @@ $(document).ready(function()
 	{
 		$.ajax({
 			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'requerimientos:eliminar_requerimiento' %}",
+			url : "{% url 'requerimientos:requirement_delete' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.cotizaciones == 'NO') 

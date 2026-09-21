@@ -16,7 +16,7 @@
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'requerimientos:requerimientos' %}'">
+                    onclick="location.href='{% url 'requerimientos:requirement_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +25,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:modificar_requerimiento' object.anterior %}';">
+                        onclick="location.href='{% url 'requerimientos:requirement_update' object.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:modificar_requerimiento' object.siguiente %}';">
+                        onclick="location.href='{% url 'requerimientos:requirement_update' object.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'requerimientos:requerimientos' %}';">
+                        onclick="location.href='{% url 'requerimientos:requirement_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -227,7 +227,7 @@ $(document).ready(function()
 		{
 			e.preventDefault();
 			$.ajax({
-				url : "{% url 'requerimientos:crear_detalle_requerimiento' %}",
+				url : "{% url 'requerimientos:requirement_detail_create' %}",
 				type : 'get',
 				success : function(data)
 				{

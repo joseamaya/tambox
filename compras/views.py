@@ -828,7 +828,7 @@ class QuotationUpdate(UpdateView):
         if quotation.status == Quotation.STATUS.PEND:
             return super(QuotationUpdate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_initial(self):
         initial = super(QuotationUpdate, self).get_initial()
@@ -966,7 +966,7 @@ class PurchaseOrderUpdate(UpdateView):
         if orden_compra.status == PurchaseOrder.STATUS.PEND:
             return super(PurchaseOrderUpdate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
@@ -1103,7 +1103,7 @@ class ServiceOrderUpdate(UpdateView):
         if service_order.status == ServiceOrder.STATUS.PEND:
             return super(ServiceOrderUpdate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_initial(self):
         initial = super(ServiceOrderUpdate, self).get_initial()

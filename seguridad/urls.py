@@ -7,8 +7,8 @@ app_name = 'seguridad'
 
 urlpatterns = [
     re_path(r'^$', Login.as_view(), name="login"),
-    re_path(r'^inicio/$', Home.as_view(), name="inicio"),
-    re_path(r'^permiso_denegado/$', PermissionDeniedView.as_view(), name="permiso_denegado"),
-    re_path(r'^cambiar_password$', PasswordUpdate.as_view(), name="cambiar_password"),
-    re_path(r'^salir$', require_POST(LogoutView.as_view(next_page='seguridad:login')), name="salir"),
+    re_path(r'^home/$', Home.as_view(), name="home"),
+    re_path(r'^permission_denied/$', PermissionDeniedView.as_view(), name="permission_denied"),
+    re_path(r'^password_change$', PasswordUpdate.as_view(), name="password_change"),
+    re_path(r'^logout$', require_POST(LogoutView.as_view(next_page='seguridad:login')), name="logout"),
 ]

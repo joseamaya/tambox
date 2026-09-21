@@ -91,7 +91,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{% url 'seguridad:inicio' %}">
+            <a class="navbar-brand" href="{% url 'seguridad:home' %}">
                 <span class="fa fa-home fa-lg"></span>
             </a>
             {% if perms.administracion.ver_bienvenida %}
@@ -116,7 +116,7 @@
             </a>
             {% endif %}
             {% if perms.requerimientos.ver_bienvenida %}
-            <a class="navbar-brand" href="{% url 'requerimientos:tablero' %}">
+            <a class="navbar-brand" href="{% url 'requerimientos:dashboard' %}">
                 <span class="fa fa-newspaper-o fa-lg"></span> Requerimientos
             </a>
             {% endif %}
@@ -141,7 +141,7 @@
                     {% endif %}
                     <li class="divider"></li>
                     <li>
-                        <form action="{% url 'seguridad:salir' %}" method="post">
+                        <form action="{% url 'seguridad:logout' %}" method="post">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-link btn-salir">
                                 <i class="fa fa-sign-out fa-fw"></i>Salir

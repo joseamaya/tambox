@@ -4,10 +4,10 @@
                 <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.requerimientos.add_requirement %}
-                    <li><a href="{% url 'requerimientos:crear_requerimiento' %}">Requerimiento</a></li>
+                    <li><a href="{% url 'requerimientos:requirement_create' %}">Requerimiento</a></li>
                     {% endif %}
                     {% if perms.requerimientos.ver_tabla_aprobacion_requerimientos %}
-                    <li><a href="{% url 'requerimientos:listado_aprobacion_requerimientos' %}">Aprobación
+                    <li><a href="{% url 'requerimientos:requirement_approval_list' %}">Aprobación
                         Requerimientos</a></li>
                     {% endif %}
                 </ul>
@@ -16,7 +16,7 @@
                 <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.requerimientos.ver_tabla_requerimientos %}
-                    <li><a href="{% url 'requerimientos:requerimientos' %}">Requerimientos</a></li>
+                    <li><a href="{% url 'requerimientos:requirement_list' %}">Requerimientos</a></li>
                     {% endif %}
                 </ul>
             </li>

@@ -150,9 +150,9 @@ class OrderApprove(CreateView):
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_salida_formset=detalle_salida_formset))
             else:
-                return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+                return HttpResponseRedirect(reverse('seguridad:permission_denied'))
         except (IndexError, ObjectDoesNotExist):
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -460,7 +460,7 @@ class OrderCreate(CreateView):
         if puesto.is_leadership or puesto.is_assistant:
             return super(OrderCreate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get(self, request, *args, **kwargs):
         self.object = None
@@ -653,9 +653,9 @@ class OrderApprovalList(ListView):
             if puestos[0].is_leadership and puestos[0].office == logistica():
                 return super(OrderApprovalList, self).dispatch(*args, **kwargs)
             else:
-                return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+                return HttpResponseRedirect(reverse('seguridad:permission_denied'))
         except (IndexError, ObjectDoesNotExist):
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_queryset(self):
         queryset = Order.objects.filter(~Q(status=Order.STATUS.APROB))
@@ -730,7 +730,7 @@ class MovementUpdate(TemplateView):
         pk = kwargs['pk']
         movement = Movement.objects.get(pk=pk)
         if movement.status == Movement.STATUS.CANC:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
         movement_type = movement.movement_type
         if movement_type.increases:
             return HttpResponseRedirect(reverse('almacen:inbound_update', args=[movement.pk]))
@@ -1002,7 +1002,7 @@ class OrderUpdate(UpdateView):
         if order.status == Order.STATUS.PEND:
             return super(OrderUpdate, self).dispatch(*args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
+            return HttpResponseRedirect(reverse('seguridad:permission_denied'))
 
     def get_form_kwargs(self):
         kwargs = super(OrderUpdate, self).get_form_kwargs()
