@@ -4,17 +4,17 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.add_account %}
-        <a href="{% url 'contabilidad:crear_cuenta_contable' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'contabilidad:account_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.contabilidad.cargar_cuentas_contables %}
-        <a href="{% url 'contabilidad:cargar_cuentas_contables' %}" class="btn btn-default">Importar</a>
+        <a href="{% url 'contabilidad:account_import' %}" class="btn btn-default">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             {% if perms.contabilidad.ver_reporte_cuentas_contables_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:maestro_cuentas_contables_excel' %}';">
+                    onclick="location.href='{% url 'contabilidad:account_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -34,7 +34,7 @@
             <tbody>
             {% for cuenta_contable in cuentas_contables %}
             {% if perms.contabilidad.ver_detalle_cuenta_contable %}
-            <tr onclick="location.href='{% url 'contabilidad:detalle_cuenta_contable' cuenta_contable.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:account_detail' cuenta_contable.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.add_paymentmethod %}
-        <a href="{% url 'contabilidad:crear_forma_pago' %}" class="btn btn-primary">
+        <a href="{% url 'contabilidad:payment_method_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.contabilidad.ver_reporte_formas_pago_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:maestro_formas_pago_excel' %}';">
+                    onclick="location.href='{% url 'contabilidad:payment_method_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -39,7 +39,7 @@
             <tbody>
             {% for forma in formas_pago %}
             {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'contabilidad:detalle_forma_pago' forma.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:payment_method_detail' forma.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -89,7 +89,7 @@ $(document).ready(function()
 	   	var code = id_boton.replace("elim_","");
 	   	$.ajax({
 	   		data : {'code': code},
-	   		url : "{% url 'contabilidad:eliminar_forma_pago' %}",
+	   		url : "{% url 'contabilidad:payment_method_delete' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{

@@ -12,12 +12,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'contabilidad:detalle_forma_pago' object.pk %}'">
+                    onclick="location.href='{% url 'contabilidad:payment_method_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'contabilidad:formas_pago' %}'">
+                    onclick="location.href='{% url 'contabilidad:payment_method_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -26,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.anterior %}';">
+                        onclick="location.href='{% url 'contabilidad:payment_method_update' object.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:modificar_forma_pago' object.siguiente %}';">
+                        onclick="location.href='{% url 'contabilidad:payment_method_update' object.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:formas_pago' %}';">
+                        onclick="location.href='{% url 'contabilidad:payment_method_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>

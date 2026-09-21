@@ -364,7 +364,7 @@ $(document).ready(function()
 		if (date != "")
 		{
 			$.ajax({
-			  url: "{% url 'contabilidad:obtener_tipo_cambio' %}",
+			  url: "{% url 'contabilidad:exchange_rate_fetch' %}",
 			  data: {'date': date},
 			  success: function(data)
 			  {

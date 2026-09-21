@@ -40,7 +40,7 @@ class Dashboard(View):
 class AccountImport(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_cuentas_contables.html'
     form_class = UploadForm
-    success_url = reverse_lazy('contabilidad:cuentas_contables')
+    success_url = reverse_lazy('contabilidad:account_list')
 
     def procesar_fila(self, fila):
         Account.objects.get_or_create(account_number=fila[0].strip(),
@@ -50,7 +50,7 @@ class AccountImport(CargarCsvMixin, FormView):
 class StockTypeImport(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_existencias.html'
     form_class = UploadForm
-    success_url = reverse_lazy('contabilidad:tipos_existencias')
+    success_url = reverse_lazy('contabilidad:stock_type_list')
 
     def procesar_fila(self, fila):
         StockType.objects.get_or_create(sunat_code=fila[0].strip(),
@@ -60,7 +60,7 @@ class StockTypeImport(CargarCsvMixin, FormView):
 class DocumentTypeImport(CargarCsvMixin, FormView):
     template_name = 'contabilidad/cargar_tipos_documentos.html'
     form_class = UploadForm
-    success_url = reverse_lazy('contabilidad:tipos_documentos')
+    success_url = reverse_lazy('contabilidad:document_type_list')
 
     def procesar_fila(self, fila):
         DocumentType.objects.create(sunat_code=fila[0],
@@ -78,7 +78,7 @@ class PaymentMethodCreate(CreateView):
         return super(PaymentMethodCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_forma_pago', args=[self.object.pk])
+        return reverse('contabilidad:payment_method_detail', args=[self.object.pk])
 
 
 class DocumentTypeCreate(CreateView):
@@ -91,7 +91,7 @@ class DocumentTypeCreate(CreateView):
         return super(DocumentTypeCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_tipo_documento', args=[self.object.pk])
+        return reverse('contabilidad:document_type_detail', args=[self.object.pk])
 
 
 class ExchangeRateCreate(CreateView):
@@ -104,7 +104,7 @@ class ExchangeRateCreate(CreateView):
         return super(ExchangeRateCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+        return reverse('contabilidad:exchange_rate_detail', args=[self.object.pk])
 
 
 class AccountCreate(CreateView):
@@ -118,7 +118,7 @@ class AccountCreate(CreateView):
         return super(AccountCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_cuenta_contable', args=[self.object.pk])
+        return reverse('contabilidad:account_detail', args=[self.object.pk])
 
 
 class TaxCreate(CreateView):
@@ -131,7 +131,7 @@ class TaxCreate(CreateView):
         return super(TaxCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])
+        return reverse('contabilidad:tax_detail', args=[self.object.pk])
 
 
 class ConfigurationCreate(CreateView):
@@ -149,10 +149,10 @@ class ConfigurationCreate(CreateView):
         if configuracion is None:
             return super(BaseCreateView, self).get(request, *args, **kwargs)
         else:
-            return HttpResponseRedirect(reverse('contabilidad:modificar_configuracion', args=[configuracion.pk]))
+            return HttpResponseRedirect(reverse('contabilidad:configuration_update', args=[configuracion.pk]))
 
     def get_success_url(self):
-        return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
+        return reverse('contabilidad:configuration_update', args=[self.object.pk])
 
 
 class ExchangeRateDetail(DetailView):
@@ -315,7 +315,7 @@ class PaymentMethodUpdate(UpdateView):
         return super(PaymentMethodUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_forma_pago', args=[self.object.pk])
+        return reverse('contabilidad:payment_method_detail', args=[self.object.pk])
 
 
 class ExchangeRateUpdate(UpdateView):
@@ -328,7 +328,7 @@ class ExchangeRateUpdate(UpdateView):
         return super(ExchangeRateUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_tipo_cambio', args=[self.object.pk])
+        return reverse('contabilidad:exchange_rate_detail', args=[self.object.pk])
 
 
 class DocumentTypeUpdate(UpdateView):
@@ -342,7 +342,7 @@ class DocumentTypeUpdate(UpdateView):
         return super(DocumentTypeUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_tipo_documento', args=[self.object.pk])
+        return reverse('contabilidad:document_type_detail', args=[self.object.pk])
 
 
 class AccountUpdate(UpdateView):
@@ -356,7 +356,7 @@ class AccountUpdate(UpdateView):
         return super(AccountUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_cuenta_contable', args=[self.object.pk])
+        return reverse('contabilidad:account_detail', args=[self.object.pk])
 
 
 class ConfigurationUpdate(UpdateView):
@@ -370,7 +370,7 @@ class ConfigurationUpdate(UpdateView):
         return super(ConfigurationUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('contabilidad:modificar_configuracion', args=[self.object.pk])
+        return reverse('contabilidad:configuration_update', args=[self.object.pk])
 
 
 class TaxUpdate(UpdateView):
@@ -390,7 +390,7 @@ class TaxUpdate(UpdateView):
         return initial
 
     def get_success_url(self):
-        return reverse('contabilidad:detalle_impuesto', args=[self.object.pk])
+        return reverse('contabilidad:tax_detail', args=[self.object.pk])
 
 
 class ExchangeRateFetch(SoloAjaxMixin, TemplateView):

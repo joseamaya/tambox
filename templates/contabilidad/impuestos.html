@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.add_tax %}
-        <a href="{% url 'contabilidad:crear_impuesto' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'contabilidad:tax_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.contabilidad.cargar_impuestos %}
         <a href="#" class="btn btn-default">Importar</a>
@@ -34,7 +34,7 @@
             <tbody>
             {% for impuesto in impuestos %}
             {% if perms.contabilidad.ver_detalle_impuesto %}
-            <tr onclick="location.href='{% url 'contabilidad:detalle_impuesto' impuesto.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:tax_detail' impuesto.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

@@ -4,25 +4,25 @@
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.contabilidad.add_configuration %}
-                    <li><a href="{% url 'contabilidad:configuracion' %}">Configuración</a></li>
+                    <li><a href="{% url 'contabilidad:configuration' %}">Configuración</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_cuentas_contables %}
-                    <li><a href="{% url 'contabilidad:cuentas_contables' %}">Cuentas Contables</a></li>
+                    <li><a href="{% url 'contabilidad:account_list' %}">Cuentas Contables</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_formas_pago %}
-                    <li><a href="{% url 'contabilidad:formas_pago' %}">Formas de Pago</a></li>
+                    <li><a href="{% url 'contabilidad:payment_method_list' %}">Formas de Pago</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_impuestos %}
-                    <li><a href="{% url 'contabilidad:impuestos' %}">Impuestos</a></li>
+                    <li><a href="{% url 'contabilidad:tax_list' %}">Impuestos</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_tipos_cambio %}
-                    <li><a href="{% url 'contabilidad:tipos_cambio' %}">Tipos de Cambio</a></li>
+                    <li><a href="{% url 'contabilidad:exchange_rate_list' %}">Tipos de Cambio</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_tipos_existencias %}
-                    <li><a href="{% url 'contabilidad:tipos_existencias' %}">Tipos de Existencias</a></li>
+                    <li><a href="{% url 'contabilidad:stock_type_list' %}">Tipos de Existencias</a></li>
                     {% endif %}
                     {% if perms.contabilidad.ver_tabla_tipos_documentos %}
-                    <li><a href="{% url 'contabilidad:tipos_documentos' %}">Tipos de Documentos</a></li>
+                    <li><a href="{% url 'contabilidad:document_type_list' %}">Tipos de Documentos</a></li>
                     {% endif %}
 
                 </ul>

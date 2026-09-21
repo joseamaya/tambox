@@ -16,14 +16,14 @@ class AutorizacionTestCase(TestCase):
 
     def test_contabilidad_exige_login(self):
         self.client.logout()
-        for url in ['/contabilidad/cuentas_contables/',
-                    '/contabilidad/tipos_cambio/',
-                    '/contabilidad/impuestos/',
-                    '/contabilidad/tipos_existencias/',
-                    '/contabilidad/obtener_tipo_cambio/',
-                    '/contabilidad/formas_pago/',
-                    '/contabilidad/configuracion/',
-                    '/contabilidad/cargar_cuentas_contables/']:
+        for url in ['/contabilidad/account_list/',
+                    '/contabilidad/exchange_rate_list/',
+                    '/contabilidad/tax_list/',
+                    '/contabilidad/stock_type_list/',
+                    '/contabilidad/exchange_rate_fetch/',
+                    '/contabilidad/payment_method_list/',
+                    '/contabilidad/configuration/',
+                    '/contabilidad/account_import/']:
             respuesta = self.client.get(url)
             self.assertEqual(respuesta.status_code, 302, 'sin login no redirige: ' + url)
             self.assertIn('/?next=', respuesta['Location'], url)
@@ -42,8 +42,8 @@ class AutorizacionTestCase(TestCase):
                     '/productos/unit_of_measure_delete/',
                     '/productos/service_delete/',
                     '/productos/product_group_delete/',
-                    '/contabilidad/eliminar_tipo_documento/',
-                    '/contabilidad/eliminar_forma_pago/',
+                    '/contabilidad/document_type_delete/',
+                    '/contabilidad/payment_method_delete/',
                     '/requerimientos/eliminar_requerimiento/']:
             respuesta = self.client.get(url)
             self.assertEqual(respuesta.status_code, 405, 'GET permitido en: ' + url)
@@ -68,7 +68,7 @@ class AutorizacionTestCase(TestCase):
         self.client.force_login(
             User.objects.create_user('consulta', 'consulta@example.com', 'clave-consulta-123'))
 
-        respuesta = self.client.get('/contabilidad/impuestos/')
+        respuesta = self.client.get('/contabilidad/tax_list/')
 
         self.assertEqual(respuesta.status_code, 403)
         self.assertTemplateUsed(respuesta, 'seguridad/permiso_denegado.html')
@@ -91,8 +91,8 @@ class RenderTestCase(TestCase):
 
     def test_listados_renderizan(self):
         self.client.force_login(self.usuario)
-        for url in ['/contabilidad/impuestos/',
-                    '/contabilidad/formas_pago/',
+        for url in ['/contabilidad/tax_list/',
+                    '/contabilidad/payment_method_list/',
                     '/administracion/dashboard/',
                     '/almacen/tablero/']:
             respuesta = self.client.get(url)
@@ -248,7 +248,7 @@ class ErroresDeFormularioTest(TestCase):
                                                               'clave-segura-123'))
 
     def test_el_error_de_un_campo_se_ve(self):
-        respuesta = self.client.post(reverse('contabilidad:crear_cuenta_contable'), {})
+        respuesta = self.client.post(reverse('contabilidad:account_create'), {})
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertTrue(respuesta.context['form'].errors)

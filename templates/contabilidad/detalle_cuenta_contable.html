@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.change_account %}
-        <a class="btn btn-primary" href="{% url 'contabilidad:modificar_cuenta_contable' object.pk %}">
+        <a class="btn btn-primary" href="{% url 'contabilidad:account_update' object.pk %}">
             Editar
         </a>
         {% endif %}
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:detalle_cuenta_contable' object.anterior %}';">
+                    onclick="location.href='{% url 'contabilidad:account_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:detalle_cuenta_contable' object.siguiente %}';">
+                    onclick="location.href='{% url 'contabilidad:account_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:cuentas_contables' %}';">
+                    onclick="location.href='{% url 'contabilidad:account_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>

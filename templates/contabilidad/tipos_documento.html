@@ -4,12 +4,12 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.add_documenttype %}
-        <a href="{% url 'contabilidad:crear_tipo_documento' %}" class="btn btn-primary">
+        <a href="{% url 'contabilidad:document_type_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.contabilidad.cargar_tipos_documento %}
-        <a href="{% url 'contabilidad:cargar_tipos_documento' %}" class="btn btn-default">
+        <a href="{% url 'contabilidad:document_type_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.contabilidad.ver_reporte_tipos_documentos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:maestro_tipos_documentos_excel' %}';">
+                    onclick="location.href='{% url 'contabilidad:document_type_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -38,7 +38,7 @@
             <tbody>
             {% for tipo in tipos %}
             {% if perms.contabilidad.ver_detalle_tipo_documento %}
-            <tr onclick="location.href='{% url 'contabilidad:detalle_tipo_documento' tipo.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:document_type_detail' tipo.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
@@ -88,7 +88,7 @@ $(document).ready(function()
     	var id = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'id': id},
-    		url : "{% url 'contabilidad:eliminar_tipo_documento' %}",
+    		url : "{% url 'contabilidad:document_type_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

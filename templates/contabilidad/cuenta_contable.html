@@ -12,12 +12,12 @@
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'contabilidad:detalle_cuenta_contable' object.pk %}'">
+                    onclick="location.href='{% url 'contabilidad:account_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
             <button type="button" class="btn btn-default"
-                    onclick="location.href='{% url 'contabilidad:cuentas_contables' %}'">
+                    onclick="location.href='{% url 'contabilidad:account_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -26,16 +26,16 @@
             <div class="btn-group">
                 {% if object %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:modificar_cuenta_contable' object.anterior %}';">
+                        onclick="location.href='{% url 'contabilidad:account_update' object.anterior %}';">
                     <span class="glyphicon glyphicon-step-backward"></span>
                 </button>
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:modificar_cuenta_contable' object.siguiente %}';">
+                        onclick="location.href='{% url 'contabilidad:account_update' object.siguiente %}';">
                     <span class="glyphicon glyphicon-step-forward"></span>
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'contabilidad:cuentas_contables' %}';">
+                        onclick="location.href='{% url 'contabilidad:account_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>

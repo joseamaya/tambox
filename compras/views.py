@@ -298,7 +298,7 @@ class PurchaseOrderCreate(CreateView):
         try:
             monto_impuesto = purchase_tax().amount
         except AttributeError:
-            return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+            return HttpResponseRedirect(reverse('contabilidad:configuration'))
         initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['code'] = PurchaseOrder.objects.ultimo()
         initial['impuesto_actual'] = monto_impuesto
@@ -312,7 +312,7 @@ class PurchaseOrderCreate(CreateView):
         self.object = None
         formas_pago = PaymentMethod.objects.all().order_by('description')
         if not formas_pago:
-            return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
+            return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             try:
                 configuracion()
@@ -322,7 +322,7 @@ class PurchaseOrderCreate(CreateView):
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_orden_compra_formset=detalle_orden_compra_formset))
             except Exception:
-                return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+                return HttpResponseRedirect(reverse('contabilidad:configuration'))
 
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -398,7 +398,7 @@ class ServiceOrderCreate(CreateView):
         self.object = None
         formas_pago = PaymentMethod.objects.all().order_by('description')
         if not formas_pago:
-            return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
+            return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
@@ -479,7 +479,7 @@ class ServiceConformityCreate(CreateView):
         self.object = None
         formas_pago = PaymentMethod.objects.all().order_by('description')
         if not formas_pago:
-            return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
+            return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
@@ -1022,7 +1022,7 @@ class PurchaseOrderUpdate(UpdateView):
         try:
             monto_impuesto = purchase_tax().amount
         except AttributeError:
-            return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+            return HttpResponseRedirect(reverse('contabilidad:configuration'))
         initial['impuesto_actual'] = monto_impuesto
         initial['total'] = order.total
         initial['subtotal'] = order.subtotal

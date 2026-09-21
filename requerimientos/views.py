@@ -139,7 +139,7 @@ class RequirementCreate(CreateView):
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_requerimiento_formset=detalle_requerimiento_formset))
         else:
-            return HttpResponseRedirect(reverse('contabilidad:configuracion'))
+            return HttpResponseRedirect(reverse('contabilidad:configuration'))
 
     def post(self, request, *args, **kwargs):
         self.object = None

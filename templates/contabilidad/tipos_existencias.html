@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.cargar_tipos_existencias %}
-        <a href="{% url 'contabilidad:cargar_tipos_existencias' %}" class="btn btn-default">
+        <a href="{% url 'contabilidad:stock_type_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -69,7 +69,7 @@ $(document).ready(function()
     	var id = id_boton.replace("elim_","");
     	$.ajax({
     		data : {'id': id},
-    		url : "{% url 'contabilidad:eliminar_tipo_documento' %}",
+    		url : "{% url 'contabilidad:document_type_delete' %}",
     		type : 'post',
     		success : function(data)
     		{

@@ -84,7 +84,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_cuentas_contables_muestra_la_cuenta(self):
         baker.make(Account, account_number='CTA-XYZ')
 
-        respuesta = self.client.get(reverse('contabilidad:cuentas_contables'))
+        respuesta = self.client.get(reverse('contabilidad:account_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'CTA-XYZ')
@@ -124,7 +124,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_tipos_de_existencia_muestra_la_description(self):
         baker.make('contabilidad.StockType', sunat_code='01', description='EXISTENCIA-XYZ')
 
-        respuesta = self.client.get(reverse('contabilidad:tipos_existencias'))
+        respuesta = self.client.get(reverse('contabilidad:stock_type_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'EXISTENCIA-XYZ')

@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.change_exchangerate %}
-        <a class="btn btn-primary" href="{% url 'contabilidad:modificar_tipo_cambio' object.pk %}">
+        <a class="btn btn-primary" href="{% url 'contabilidad:exchange_rate_update' object.pk %}">
             Editar
         </a>
         {% endif %}
@@ -17,15 +17,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:detalle_tipo_cambio' object.anterior %}';">
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:detalle_tipo_cambio' object.siguiente %}';">
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'contabilidad:tipos_cambio' %}';">
+                    onclick="location.href='{% url 'contabilidad:exchange_rate_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
