@@ -8,8 +8,8 @@ from compras.models import Supplier, PurchaseOrder, PaymentMethod, PurchaseOrder
     ServiceConformityDetail, QuotationDetail, Quotation
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from compras.forms import SupplierForm, QuotationForm, PurchaseOrderForm, \
-    ServiceOrderForm, ServiceConformityForm, DetalleOrdenCompraFormSet, \
-    DetalleOrdenServiciosFormSet, DetalleConformidadServicioFormSet, DetalleCotizacionFormSet, \
+    ServiceOrderForm, ServiceConformityForm, PurchaseOrderDetailFormSet, \
+    ServiceOrderDetailFormSet, ServiceConformityDetailFormSet, QuotationDetailFormSet, \
     OrderDateReportForm
 from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
@@ -28,7 +28,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from contabilidad.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
-from almacen.forms import DetalleIngresoFormSet
+from almacen.forms import InboundDetailFormSet
 from django.shortcuts import render, get_object_or_404
 
 from contabilidad.models import ExchangeRate
@@ -171,7 +171,7 @@ class PurchaseOrderDetailCreate(SoloAjaxMixin, TemplateView):
             det['impuesto'] = '0'
             det['amount'] = '0'
             lista_detalles.append(det)
-            formset = DetalleOrdenCompraFormSet(initial=lista_detalles)
+            formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -202,7 +202,7 @@ class ServiceOrderDetailCreate(SoloAjaxMixin, TemplateView):
             det['price'] = '0'
             det['amount'] = '0'
             lista_detalles.append(det)
-            formset = DetalleOrdenServiciosFormSet(initial=lista_detalles)
+            formset = ServiceOrderDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -241,7 +241,7 @@ class QuotationCreate(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_cotizacion_formset = DetalleCotizacionFormSet()
+            detalle_cotizacion_formset = QuotationDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_cotizacion_formset=detalle_cotizacion_formset))
 
@@ -249,7 +249,7 @@ class QuotationCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_cotizacion_formset = DetalleCotizacionFormSet(request.POST)
+        detalle_cotizacion_formset = QuotationDetailFormSet(request.POST)
         if form.is_valid() and detalle_cotizacion_formset.is_valid():
             return self.form_valid(form, detalle_cotizacion_formset)
         else:
@@ -318,7 +318,7 @@ class PurchaseOrderCreate(CreateView):
                 configuracion()
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalle_orden_compra_formset = DetalleOrdenCompraFormSet()
+                detalle_orden_compra_formset = PurchaseOrderDetailFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_orden_compra_formset=detalle_orden_compra_formset))
             except Exception:
@@ -328,7 +328,7 @@ class PurchaseOrderCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_compra_formset = DetalleOrdenCompraFormSet(request.POST)
+        detalle_orden_compra_formset = PurchaseOrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_orden_compra_formset.is_valid():
             return self.form_valid(form, detalle_orden_compra_formset)
         else:
@@ -402,7 +402,7 @@ class ServiceOrderCreate(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet()
+            detalle_orden_servicios_formset = ServiceOrderDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_orden_servicios_formset=detalle_orden_servicios_formset))
 
@@ -410,7 +410,7 @@ class ServiceOrderCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(request.POST)
+        detalle_orden_servicios_formset = ServiceOrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_orden_servicios_formset.is_valid():
             return self.form_valid(form, detalle_orden_servicios_formset)
         else:
@@ -483,7 +483,7 @@ class ServiceConformityCreate(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_conformidad_servicio_formset = DetalleConformidadServicioFormSet()
+            detalle_conformidad_servicio_formset = ServiceConformityDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_conformidad_servicio_formset=detalle_conformidad_servicio_formset))
 
@@ -491,7 +491,7 @@ class ServiceConformityCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_conformidad_servicio_formset = DetalleConformidadServicioFormSet(request.POST)
+        detalle_conformidad_servicio_formset = ServiceConformityDetailFormSet(request.POST)
         if form.is_valid() and detalle_conformidad_servicio_formset.is_valid():
             return self.form_valid(form, detalle_conformidad_servicio_formset)
         else:
@@ -865,7 +865,7 @@ class QuotationUpdate(UpdateView):
                  'unidad': detalle.requirement_detail.product.unit_of_measure.code,
                  'quantity': detalle.quantity}
             detalles_data.append(d)
-        detalle_cotizacion_formset = DetalleCotizacionFormSet(initial=detalles_data)
+        detalle_cotizacion_formset = QuotationDetailFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_cotizacion_formset=detalle_cotizacion_formset))
 
@@ -873,7 +873,7 @@ class QuotationUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_cotizacion_formset = DetalleCotizacionFormSet(request.POST)
+        detalle_cotizacion_formset = QuotationDetailFormSet(request.POST)
         if form.is_valid() and detalle_cotizacion_formset.is_valid():
             return self.form_valid(form, detalle_cotizacion_formset)
         else:
@@ -998,7 +998,7 @@ class PurchaseOrderUpdate(UpdateView):
                          'impuesto': detalle.impuesto,
                          'amount': detalle.valor_sin_igv}
                 detalles_data.append(d)
-            detalle_orden_compra_formset = DetalleOrdenCompraFormSet(initial=detalles_data)
+            detalle_orden_compra_formset = PurchaseOrderDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_orden_compra_formset=detalle_orden_compra_formset))
         else:
@@ -1041,7 +1041,7 @@ class PurchaseOrderUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_compra_formset = DetalleOrdenCompraFormSet(request.POST)
+        detalle_orden_compra_formset = PurchaseOrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_orden_compra_formset.is_valid():
             return self.form_valid(form, detalle_orden_compra_formset)
         else:
@@ -1153,7 +1153,7 @@ class ServiceOrderUpdate(UpdateView):
                          'price': detalle.price,
                          'amount': detalle.amount}
                 detalles_data.append(d)
-            detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(initial=detalles_data)
+            detalle_orden_servicios_formset = ServiceOrderDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_orden_servicios_formset=detalle_orden_servicios_formset))
         else:
@@ -1169,7 +1169,7 @@ class ServiceOrderUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_servicios_formset = DetalleOrdenServiciosFormSet(request.POST)
+        detalle_orden_servicios_formset = ServiceOrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_orden_servicios_formset.is_valid():
             return self.form_valid(form, detalle_orden_servicios_formset)
         else:
@@ -1266,9 +1266,9 @@ class QuotationDetailFetch(SoloAjaxMixin, TemplateView):
                 except (ObjectDoesNotExist, AttributeError):
                     pass
             if tipo_busqueda == 'PRODUCTOS':
-                formset = DetalleOrdenCompraFormSet(initial=lista_detalles)
+                formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
             elif tipo_busqueda == 'SERVICIOS':
-                formset = DetalleOrdenServiciosFormSet(initial=lista_detalles)
+                formset = ServiceOrderDetailFormSet(initial=lista_detalles)
             lista_json = []
             if tipo_busqueda == 'PRODUCTOS':
                 for form in formset:
@@ -1342,7 +1342,7 @@ class PurchaseOrderDetailFetch(SoloAjaxMixin, TemplateView):
                         det['unidad'] = detalle.product.unit_of_measure.code
                         det['amount'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))
                     lista_detalles.append(det)
-                formset = DetalleIngresoFormSet(initial=lista_detalles)
+                formset = InboundDetailFormSet(initial=lista_detalles)
                 for form in formset:
                     detalle_json = {}
                     detalle_json['orden_compra'] = str(form['orden_compra'])
@@ -1388,7 +1388,7 @@ class ServiceOrderDetailFetch(SoloAjaxMixin, TemplateView):
                     det['quantity'] = str(detalle.quantity)
                     det['amount'] = str(detalle.amount)
                 lista_detalles.append(det)
-            formset = DetalleConformidadServicioFormSet(initial=lista_detalles)
+            formset = ServiceConformityDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}

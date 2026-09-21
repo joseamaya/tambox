@@ -12,7 +12,7 @@ from model_utils.models import TimeStampedModel
 from model_utils import Choices
 from django.utils.translation import gettext as _
 from productos.models import Product
-from almacen.managers import DetalleMovimientoManager
+from almacen.managers import MovementDetailManager
 from tambox.querysets import NavegableQuerySet
 from tambox.estados import clasificar, PARCIAL, VACIO
 from simple_history.models import HistoricalRecords
@@ -314,7 +314,7 @@ class Movement(TimeStampedModel):
 
 
 class MovementDetail(TimeStampedModel):
-    objects = DetalleMovimientoManager()
+    objects = MovementDetailManager()
     line_number = models.IntegerField()
     movement = models.ForeignKey(Movement, on_delete=models.CASCADE, related_name='details')
     purchase_order_detail = models.ForeignKey(PurchaseOrderDetail, on_delete=models.CASCADE, related_name='movement_details', null=True)

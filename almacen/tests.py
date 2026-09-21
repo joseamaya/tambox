@@ -391,9 +391,9 @@ class ReporteKardexConsolidadoTest(TestCase):
                           for number in range(3)]
 
     def reporte(self):
-        from almacen.reports import ReporteKardexPDF
+        from almacen.reports import KardexPdfReport
         from productos.models import ProductGroup
-        return ReporteKardexPDF('A4', date(2024, 1, 1), date(2024, 1, 31),
+        return KardexPdfReport('A4', date(2024, 1, 1), date(2024, 1, 31),
                                 self.warehouse, ProductGroup.objects.all())
 
     def test_tabla_consolidada_de_productos(self):
@@ -443,9 +443,9 @@ class ReporteKardexExcelTest(TestCase):
         el `obtener_kardex()` del periodo. Ahora el lote se resuelve de una vez."""
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
-        reporte = ReporteKardexExcel()
+        reporte = KardexExcelReport()
         reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.warehouse)
         with CaptureQueriesContext(connection) as con_uno:
             reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.warehouse)
@@ -469,13 +469,13 @@ class ReporteKardexExcelTest(TestCase):
         self.assertEqual(len(libro.sheetnames) - 1, 10)
 
     def test_el_consolidado_usa_el_kardex_anterior_al_periodo(self):
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
         baker.make(Kardex, warehouse=self.warehouse, product=self.product,
                    operation_date=timezone.make_aware(datetime(2024, 6, 30, 9, 0)),
                    total_quantity=Decimal('99'), total_amount=Decimal('99'))
 
-        libro = ReporteKardexExcel().obtener_consolidado_productos(
+        libro = KardexExcelReport().obtener_consolidado_productos(
             self.desde, self.hasta, self.warehouse)
 
         hoja = libro.active
@@ -483,9 +483,9 @@ class ReporteKardexExcelTest(TestCase):
         self.assertEqual(hoja.cell(row=4, column=5).value, Decimal('21'))
 
     def test_el_formato_normal_se_genera(self):
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
-        libro = ReporteKardexExcel().obtener_formato_normal_todos(
+        libro = KardexExcelReport().obtener_formato_normal_todos(
             self.desde, self.hasta, self.warehouse)
 
         hoja = libro.active
@@ -516,10 +516,10 @@ class ReporteKardexPorProductoTest(TestCase):
                    total_price=Decimal('3'))
 
     def test_las_tablas_del_pdf_usan_el_kardex_anterior(self):
-        from almacen.reports import ReporteKardexPDF
+        from almacen.reports import KardexPdfReport
         from productos.models import ProductGroup
 
-        reporte = ReporteKardexPDF('A4', self.desde, self.hasta, self.warehouse,
+        reporte = KardexPdfReport('A4', self.desde, self.hasta, self.warehouse,
                                    ProductGroup.objects.all())
 
         unidades = reporte.tabla_detalle_unidades_fisicas(
@@ -531,9 +531,9 @@ class ReporteKardexPorProductoTest(TestCase):
         self.assertTrue(valorizado._cellvalues)
 
     def test_los_todos_precargan_el_lote(self):
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
-        reporte = ReporteKardexExcel()
+        reporte = KardexExcelReport()
         libro = reporte.obtener_formato_sunat_unidades_fisicas_todos(
             self.desde, self.hasta, self.warehouse)
 
@@ -541,9 +541,9 @@ class ReporteKardexPorProductoTest(TestCase):
         self.assertIn(self.product.pk, reporte.kardex_iniciales)
 
     def test_los_todos_valorizados_precargan_el_lote(self):
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
-        reporte = ReporteKardexExcel()
+        reporte = KardexExcelReport()
         libro = reporte.obtener_formato_sunat_valorizado_todos(
             self.desde, self.hasta, self.warehouse)
 
@@ -551,9 +551,9 @@ class ReporteKardexPorProductoTest(TestCase):
         self.assertIn(self.product.pk, reporte.kardex_iniciales)
 
     def test_los_formatos_de_un_solo_producto(self):
-        from almacen.reports import ReporteKardexExcel
+        from almacen.reports import KardexExcelReport
 
-        reporte = ReporteKardexExcel()
+        reporte = KardexExcelReport()
         for metodo in ('obtener_formato_sunat_unidades_fisicas_producto',
                        'obtener_formato_sunat_valorizado_producto',
                        'obtener_formato_normal_producto'):

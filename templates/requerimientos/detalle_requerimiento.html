@@ -65,7 +65,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Requirement"></div>
+<div id="dialog-confirm" title="Eliminar Requerimiento"></div>
 <div class="panel panel-default">
     <div class="panel-body">
 
@@ -97,7 +97,7 @@
         </div>
         <div class="row">
             <div class="col-md-5">
-                <label>Office:</label>
+                <label>Oficina:</label>
                 <p>{{ object.office }}</p>
             </div>
             <div class="col-md-4">
@@ -220,12 +220,12 @@ $(document).ready(function()
 			success : function(data) {
 				if (data.cotizaciones == 'NO') 
 				{
-					alert("Requirement " + data.code + " eliminado");
+					alert("Requerimiento " + data.code + " eliminado");
 					$(location).attr('href', "{% url 'requerimientos:requirement_detail' object.siguiente %}");
 				} 
 				else if (data.cotizaciones == 'SI') 
 				{
-					alert("Requirement " + data.code + " no puede eliminarse");
+					alert("Requerimiento " + data.code + " no puede eliminarse");
 				}
 			}
 		});

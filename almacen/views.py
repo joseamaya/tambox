@@ -8,11 +8,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 import datetime
 from django.views.generic import TemplateView, FormView, View, ListView
-from almacen.forms import AlmacenForm, TipoMovimientoForm, FormularioReporteMovimientos, \
-    FormularioKardexProducto, CargarInventarioInicialForm, MovimientoForm, \
-    DetalleIngresoFormSet, DetalleSalidaFormSet, PedidoForm, DetallePedidoFormSet, \
-    AprobacionPedidoForm, FormularioReprocesoPrecio, \
-    FormularioMovimientosProducto, FormularioConsultaStock, FormularioConsultaInventario
+from almacen.forms import WarehouseForm, MovementTypeForm, MovementReportForm, \
+    KardexProductForm, InitialInventoryImportForm, MovementForm, \
+    InboundDetailFormSet, OutboundDetailFormSet, OrderForm, OrderDetailFormSet, \
+    OrderApprovalForm, PriceReprocessForm, \
+    ProductMovementForm, StockQueryForm, InventoryQueryForm
 from decimal import Decimal, InvalidOperation
 from io import BytesIO
 from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
@@ -39,7 +39,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib import messages
 from productos.models import Product
 from almacen.mail import correo_creacion_pedido
-from almacen.reports import ReporteMovimiento, ReporteKardexPDF, ReporteKardexExcel, reporte_inventario
+from almacen.reports import MovementReport, KardexPdfReport, KardexExcelReport, reporte_inventario
 from tambox.configuracion import logistica
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from datetime import date
@@ -94,29 +94,29 @@ class Dashboard(View):
         return render(request, 'almacen/tablero_almacen.html', context)
 
 
-class AprobarPedido(CreateView):
-    form_class = AprobacionPedidoForm
+class OrderApprove(CreateView):
+    form_class = OrderApprovalForm
     template_name = 'almacen/aprobar_pedido.html'
     model = Movement
 
     @method_decorator(requiere('almacen.aprobar_pedido'))
     def dispatch(self, *args, **kwargs):
         self.code = kwargs['code']
-        return super(AprobarPedido, self).dispatch(*args, **kwargs)
+        return super(OrderApprove, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
-        kwargs = super(AprobarPedido, self).get_form_kwargs()
+        kwargs = super(OrderApprove, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
-        initial = super(AprobarPedido, self).get_initial()
+        initial = super(OrderApprove, self).get_initial()
         initial['cod_pedido'] = self.code
         return initial
 
     def get_context_data(self, **kwargs):
         order = Order.objects.get(code=self.code)
-        context = super(AprobarPedido, self).get_context_data(**kwargs)
+        context = super(OrderApprove, self).get_context_data(**kwargs)
         context['order'] = order
         return context
 
@@ -146,7 +146,7 @@ class AprobarPedido(CreateView):
                          'quantity': detalle.quantity
                          }
                     detalles_data.append(d)
-                detalle_salida_formset = DetalleSalidaFormSet(initial=detalles_data)
+                detalle_salida_formset = OutboundDetailFormSet(initial=detalles_data)
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_salida_formset=detalle_salida_formset))
             else:
@@ -158,7 +158,7 @@ class AprobarPedido(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_salida_formset = DetalleSalidaFormSet(request.POST)
+        detalle_salida_formset = OutboundDetailFormSet(request.POST)
         if form.is_valid() and detalle_salida_formset.is_valid():
             return self.form_valid(form, detalle_salida_formset)
         else:
@@ -197,7 +197,7 @@ class AprobarPedido(CreateView):
                                                              detalle_salida_formset=detalle_salida_formset))
 
 
-class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
+class ProductWarehouseSearch(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('description', 'warehouse')
 
@@ -228,7 +228,7 @@ class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CargarAlmacenes(CargarCsvMixin, FormView):
+class WarehouseImport(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_almacenes.html'
     form_class = UploadForm
     success_url = reverse_lazy('almacen:almacenes')
@@ -238,9 +238,9 @@ class CargarAlmacenes(CargarCsvMixin, FormView):
                                description=fila[1])
 
 
-class CargarInventarioInicial(CargarCsvMixin, FormView):
+class InitialInventoryImport(CargarCsvMixin, FormView):
     template_name = 'almacen/cargar_inventario_inicial.html'
-    form_class = CargarInventarioInicialForm
+    form_class = InitialInventoryImportForm
 
     def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
@@ -278,7 +278,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
                                                         notes='INVENTARIO INICIAL',
                                                         series='SALDO',
                                                         number='INICIAL')
-            respuesta = super(CargarInventarioInicial, self).form_valid(form)
+            respuesta = super(InitialInventoryImport, self).form_valid(form)
             MovementDetail.objects.bulk_create(self.detalles, None, None)
             self.movement.save()
         return respuesta
@@ -316,49 +316,49 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
         return reverse('almacen:detalle_movimiento', args=[self.movement.movement_id])
 
 
-class CrearTipoMovimiento(CreateView):
+class MovementTypeCreate(CreateView):
     template_name = 'almacen/tipo_movimiento.html'
-    form_class = TipoMovimientoForm
+    form_class = MovementTypeForm
     success_url = reverse_lazy('almacen:tipos_movimientos')
 
     @method_decorator(requiere('almacen.add_movementtype'))
     def dispatch(self, *args, **kwargs):
-        return super(CrearTipoMovimiento, self).dispatch(*args, **kwargs)
+        return super(MovementTypeCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
         return reverse('almacen:detalle_tipo_movimiento', args=[self.object.pk])
 
 
-class CrearAlmacen(FormView):
+class WarehouseCreate(FormView):
     template_name = 'almacen/almacen.html'
-    form_class = AlmacenForm
+    form_class = WarehouseForm
     success_url = reverse_lazy('almacen:almacenes')
 
     def form_valid(self, form):
         form.save()
-        return super(CrearAlmacen, self).form_valid(form)
+        return super(WarehouseCreate, self).form_valid(form)
 
 
-'''class CrearDetalleSalida(FormView):
+'''class OutboundDetailCreate(FormView):
     template_name = 'almacen/crear_detalle_salida.html'
-    form_class = FormularioDetalleMovimiento
+    form_class = MovementDetailForm
     success_url = reverse_lazy('almacen:crear_detalle_salida')
     
     def get(self, request, *args, **kwargs):
         self.warehouse = kwargs['warehouse']
-        return super(CrearDetalleSalida, self).get(request, *args, **kwargs)
+        return super(OutboundDetailCreate, self).get(request, *args, **kwargs)
     
     def get_initial(self):
-        initial = super(CrearDetalleSalida, self).get_initial()        
+        initial = super(OutboundDetailCreate, self).get_initial()        
         initial['warehouse'] = self.warehouse       
         return initial
 
     def form_valid(self, form):
         form.save()
-        return super(CrearDetalleSalida, self).form_valid(form)'''
+        return super(OutboundDetailCreate, self).form_valid(form)'''
 
 
-class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
+class OutboundDetailCreate(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -371,7 +371,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
             det['unidad'] = ''
             det['amount'] = '0'
             lista_detalles.append(det)
-            formset = DetalleSalidaFormSet(initial=lista_detalles)
+            formset = OutboundDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -386,7 +386,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetallePedido(SoloAjaxMixin, TemplateView):
+class OrderDetailCreate(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -397,7 +397,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
             det['quantity'] = '0'
             det['unidad'] = ''
             lista_detalles.append(det)
-            formset = DetallePedidoFormSet(initial=lista_detalles)
+            formset = OrderDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -410,7 +410,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
+class InboundDetailCreate(SoloAjaxMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -424,7 +424,7 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
             det['unidad'] = ''
             det['amount'] = '0'
             lista_detalles.append(det)
-            formset = DetalleIngresoFormSet(initial=lista_detalles)
+            formset = InboundDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}
@@ -440,9 +440,9 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class CrearPedido(CreateView):
+class OrderCreate(CreateView):
     template_name = 'almacen/pedido.html'
-    form_class = PedidoForm
+    form_class = OrderForm
     model = Order
     context_object_name = 'order'
 
@@ -458,7 +458,7 @@ class CrearPedido(CreateView):
         if puesto is None:
             return HttpResponseRedirect(reverse('administracion:crear_puesto'))
         if puesto.is_leadership or puesto.is_assistant:
-            return super(CrearPedido, self).dispatch(*args, **kwargs)
+            return super(OrderCreate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
@@ -466,12 +466,12 @@ class CrearPedido(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_pedido_formset = DetallePedidoFormSet()
+        detalle_pedido_formset = OrderDetailFormSet()
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_pedido_formset=detalle_pedido_formset))
 
     def get_form_kwargs(self):
-        kwargs = super(CrearPedido, self).get_form_kwargs()
+        kwargs = super(OrderCreate, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
@@ -479,7 +479,7 @@ class CrearPedido(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_pedido_formset = DetallePedidoFormSet(request.POST)
+        detalle_pedido_formset = OrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_pedido_formset.is_valid():
             return self.form_valid(form, detalle_pedido_formset)
         else:
@@ -515,7 +515,7 @@ class CrearPedido(CreateView):
                                                              detalle_pedido_formset=detalle_pedido_formset))
 
 
-class ConsultaStock(SoloAjaxMixin, TemplateView):
+class StockQuery(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('warehouse', 'code')
     def get(self, request, *args, **kwargs):
@@ -530,34 +530,34 @@ class ConsultaStock(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class DetalleAlmacen(DetailView):
+class WarehouseDetail(DetailView):
     model = Warehouse
     template_name = 'almacen/detalle_almacen.html'
 
 
-class DetalleTipoMovimiento(DetailView):
+class MovementTypeDetail(DetailView):
     model = MovementType
     template_name = 'almacen/detalle_tipo_movimiento.html'
 
 
-class DetalleOperacionPedido(DetailView):
+class OrderDetailView(DetailView):
     model = Order
     context_object_name = 'order'
     template_name = 'almacen/detalle_pedido.html'
 
 
-class DetalleOperacionMovimiento(DetailView):
+class MovementDetailView(DetailView):
     model = Movement
     context_object_name = 'movement'
     template_name = 'almacen/detalle_movimiento.html'
 
 
-class EliminarAlmacen(TemplateView):
+class WarehouseDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('almacen.delete_warehouse'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarAlmacen, self).dispatch(*args, **kwargs)
+        return super(WarehouseDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -575,12 +575,12 @@ class EliminarAlmacen(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarMovimiento(TemplateView):
+class MovementDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('almacen.delete_movement'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarMovimiento, self).dispatch(*args, **kwargs)
+        return super(MovementDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -609,12 +609,12 @@ class EliminarMovimiento(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class EliminarPedido(TemplateView):
+class OrderDelete(TemplateView):
     http_method_names = ['post']
 
     @method_decorator(requiere('almacen.delete_order'))
     def dispatch(self, *args, **kwargs):
-        return super(EliminarPedido, self).dispatch(*args, **kwargs)
+        return super(OrderDelete, self).dispatch(*args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -634,7 +634,7 @@ class EliminarPedido(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ListadoAprobacionPedidos(ListView):
+class OrderApprovalList(ListView):
     model = Order
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
@@ -651,7 +651,7 @@ class ListadoAprobacionPedidos(ListView):
             if worker.signature == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].is_leadership and puestos[0].office == logistica():
-                return super(ListadoAprobacionPedidos, self).dispatch(*args, **kwargs)
+                return super(OrderApprovalList, self).dispatch(*args, **kwargs)
             else:
                 return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         except (IndexError, ObjectDoesNotExist):
@@ -662,21 +662,21 @@ class ListadoAprobacionPedidos(ListView):
         return queryset
 
 
-class ListadoAlmacenes(ListView):
+class WarehouseList(ListView):
     model = Warehouse
     template_name = 'almacen/almacenes.html'
     context_object_name = 'almacenes'
     queryset = Warehouse.objects.all().order_by('description')
 
 
-class ListadoPedidos(ListView):
+class OrderList(ListView):
     model = Order
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
     queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
 
 
-class ListadoTiposMovimiento(ListView):
+class MovementTypeList(ListView):
     model = MovementType
     template_name = 'almacen/tipos_movimiento.html'
     context_object_name = 'tipos_movimiento'
@@ -684,35 +684,35 @@ class ListadoTiposMovimiento(ListView):
     queryset = MovementType.objects.all().order_by('code')
 
 
-class ListadoMovimientos(ListView):
+class MovementList(ListView):
     model = Movement
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT)
 
 
-class ListadoIngresos(ListView):
+class InboundList(ListView):
     model = Movement
     template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=True)
 
 
-class ListadoSalidas(ListView):
+class OutboundList(ListView):
     model = Movement
     template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=False)
 
 
-class ListadoMovimientosPorPedido(ListView):
+class MovementListByOrder(ListView):
     model = Movement
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
 
     @method_decorator(requiere('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
-        return super(ListadoMovimientosPorPedido, self).dispatch(*args, **kwargs)
+        return super(MovementListByOrder, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         order = Order.objects.get(pk=self.kwargs['order'])
@@ -720,11 +720,11 @@ class ListadoMovimientosPorPedido(ListView):
         return queryset
 
 
-class ModificarMovimiento(TemplateView):
+class MovementUpdate(TemplateView):
 
     @method_decorator(requiere('almacen.change_movement'))
     def dispatch(self, *args, **kwargs):
-        return super(ModificarMovimiento, self).dispatch(*args, **kwargs)
+        return super(MovementUpdate, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
@@ -738,14 +738,14 @@ class ModificarMovimiento(TemplateView):
             return HttpResponseRedirect(reverse('almacen:modificar_salida_almacen', args=[movement.pk]))
 
 
-class ModificarIngresoAlmacen(UpdateView):
+class InboundUpdate(UpdateView):
     template_name = 'almacen/ingreso_almacen.html'
-    form_class = MovimientoForm
+    form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
-        kwargs = super(ModificarIngresoAlmacen, self).get_form_kwargs()
+        kwargs = super(InboundUpdate, self).get_form_kwargs()
         kwargs['movement_type'] = 'I'
         return kwargs
 
@@ -783,14 +783,14 @@ class ModificarIngresoAlmacen(UpdateView):
                          'price': detalle.price,
                          'amount': detalle.amount}
                 detalles_data.append(d)
-            detalle_ingreso_formset = DetalleIngresoFormSet(initial=detalles_data)
+            detalle_ingreso_formset = InboundDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_ingreso_formset=detalle_ingreso_formset))
         else:
             return HttpResponseRedirect(reverse('almacen:listado_ingresos'))
 
     def get_initial(self):
-        initial = super(ModificarIngresoAlmacen, self).get_initial()
+        initial = super(InboundUpdate, self).get_initial()
         movement = self.object
         initial['movement_id'] = movement.movement_id
         initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
@@ -807,7 +807,7 @@ class ModificarIngresoAlmacen(UpdateView):
 
     def get_context_data(self, **kwargs):
         movement = self.object
-        context = super(ModificarIngresoAlmacen, self).get_context_data(**kwargs)
+        context = super(InboundUpdate, self).get_context_data(**kwargs)
         context['movement'] = movement
         return context
 
@@ -815,7 +815,7 @@ class ModificarIngresoAlmacen(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_ingreso_formset = DetalleIngresoFormSet(request.POST)
+        detalle_ingreso_formset = InboundDetailFormSet(request.POST)
         if form.is_valid() and detalle_ingreso_formset.is_valid():
             return self.form_valid(form, detalle_ingreso_formset)
         else:
@@ -867,14 +867,14 @@ class ModificarIngresoAlmacen(UpdateView):
                                                              detalle_ingreso_formset=detalle_ingreso_formset))
 
 
-class ModificarSalidaAlmacen(UpdateView):
+class OutboundUpdate(UpdateView):
     template_name = 'almacen/salida_almacen.html'
-    form_class = MovimientoForm
+    form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
-        kwargs = super(ModificarSalidaAlmacen, self).get_form_kwargs()
+        kwargs = super(OutboundUpdate, self).get_form_kwargs()
         kwargs['movement_type'] = 'S'
         return kwargs
 
@@ -902,12 +902,12 @@ class ModificarSalidaAlmacen(UpdateView):
                      'price': detalle.price,
                      'amount': detalle.amount}
             detalles_data.append(d)
-        detalle_salida_formset = DetalleSalidaFormSet(initial=detalles_data)
+        detalle_salida_formset = OutboundDetailFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
                                                              detalle_salida_formset=detalle_salida_formset))
 
     def get_initial(self):
-        initial = super(ModificarSalidaAlmacen, self).get_initial()
+        initial = super(OutboundUpdate, self).get_initial()
         movement = self.object
         self.detalles = MovementDetail.objects.filter(movement=movement)
         initial['movement_id'] = movement.movement_id
@@ -927,7 +927,7 @@ class ModificarSalidaAlmacen(UpdateView):
 
     def get_context_data(self, **kwargs):
         movement = self.object
-        context = super(ModificarSalidaAlmacen, self).get_context_data(**kwargs)
+        context = super(OutboundUpdate, self).get_context_data(**kwargs)
         context['movement'] = movement
         context['detalles'] = self.detalles
         return context
@@ -936,7 +936,7 @@ class ModificarSalidaAlmacen(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_salida_formset = DetalleSalidaFormSet(request.POST)
+        detalle_salida_formset = OutboundDetailFormSet(request.POST)
         if form.is_valid() and detalle_salida_formset.is_valid():
             return self.form_valid(form, detalle_salida_formset)
         else:
@@ -983,16 +983,16 @@ class ModificarSalidaAlmacen(UpdateView):
                                                              detalle_salida_formset=detalle_salida_formset))
 
 
-class ModificarAlmacen(UpdateView):
+class WarehouseUpdate(UpdateView):
     model = Warehouse
     template_name = 'almacen/almacen.html'
-    form_class = AlmacenForm
+    form_class = WarehouseForm
     success_url = reverse_lazy('almacen:almacenes')
 
 
-class ModificarPedido(UpdateView):
+class OrderUpdate(UpdateView):
     template_name = 'almacen/pedido.html'
-    form_class = PedidoForm
+    form_class = OrderForm
     model = Order
     context_object_name = 'order'
 
@@ -1000,17 +1000,17 @@ class ModificarPedido(UpdateView):
     def dispatch(self, *args, **kwargs):
         order = self.get_object()
         if order.status == Order.STATUS.PEND:
-            return super(ModificarPedido, self).dispatch(*args, **kwargs)
+            return super(OrderUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_form_kwargs(self):
-        kwargs = super(ModificarPedido, self).get_form_kwargs()
+        kwargs = super(OrderUpdate, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
-        initial = super(ModificarPedido, self).get_initial()
+        initial = super(OrderUpdate, self).get_initial()
         order = self.object
         initial['date'] = order.date.strftime('%d/%m/%Y')
         initial['notes'] = order.notes
@@ -1020,7 +1020,7 @@ class ModificarPedido(UpdateView):
         order = self.object
         detalles = OrderDetail.objects.filter(order=order).order_by('line_number')
         cant_detalles = detalles.count()
-        context = super(ModificarPedido, self).get_context_data(**kwargs)
+        context = super(OrderUpdate, self).get_context_data(**kwargs)
         context['order'] = order
         context['detalles'] = detalles
         context['cant_detalles'] = cant_detalles
@@ -1039,7 +1039,7 @@ class ModificarPedido(UpdateView):
                      'unidad': detalle.product.unit_of_measure.code,
                      'quantity': detalle.quantity}
                 detalles_data.append(d)
-            detalle_pedido_formset = DetallePedidoFormSet(initial=detalles_data)
+            detalle_pedido_formset = OrderDetailFormSet(initial=detalles_data)
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_pedido_formset=detalle_pedido_formset))
 
@@ -1047,7 +1047,7 @@ class ModificarPedido(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_pedido_formset = DetallePedidoFormSet(request.POST)
+        detalle_pedido_formset = OrderDetailFormSet(request.POST)
         if form.is_valid() and detalle_pedido_formset.is_valid():
             return self.form_valid(form, detalle_pedido_formset)
         else:
@@ -1080,9 +1080,9 @@ class ModificarPedido(UpdateView):
                                                              detalle_pedido_formset=detalle_pedido_formset))
 
 
-class MovimientosPorProducto(FormView):
+class MovementListByProduct(FormView):
     template_name = 'almacen/movimientos_por_producto.html'
-    form_class = FormularioMovimientosProducto
+    form_class = ProductMovementForm
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1131,7 +1131,7 @@ class MovimientosPorProducto(FormView):
             ws.cell(row=cont, column=8).value = detalle.price
             ws.cell(row=cont, column=9).value = detalle.amount
             cont = cont + 1
-        nombre_archivo = "MovimientosPorProducto.xlsx"
+        nombre_archivo = "MovementListByProduct.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -1139,20 +1139,20 @@ class MovimientosPorProducto(FormView):
         return response
 
 
-class RegistrarIngresoAlmacen(CreateView):
+class InboundCreate(CreateView):
     template_name = 'almacen/ingreso_almacen.html'
-    form_class = MovimientoForm
+    form_class = MovementForm
     model = Movement
     context_object_name = 'movement'
 
     def get_initial(self):
-        initial = super(RegistrarIngresoAlmacen, self).get_initial()
+        initial = super(InboundCreate, self).get_initial()
         initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['total'] = 0
         return initial
 
     def get_form_kwargs(self):
-        kwargs = super(RegistrarIngresoAlmacen, self).get_form_kwargs()
+        kwargs = super(InboundCreate, self).get_form_kwargs()
         kwargs['movement_type'] = 'I'
         return kwargs
 
@@ -1168,7 +1168,7 @@ class RegistrarIngresoAlmacen(CreateView):
             if cant_suministros > 0:
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalle_ingreso_formset = DetalleIngresoFormSet()
+                detalle_ingreso_formset = InboundDetailFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
                                                                      detalle_ingreso_formset=detalle_ingreso_formset))
         return HttpResponseRedirect(reverse('almacen:tablero'))
@@ -1177,7 +1177,7 @@ class RegistrarIngresoAlmacen(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_ingreso_formset = DetalleIngresoFormSet(request.POST)
+        detalle_ingreso_formset = InboundDetailFormSet(request.POST)
         if form.is_valid() and detalle_ingreso_formset.is_valid():
             return self.form_valid(form, detalle_ingreso_formset)
         else:
@@ -1225,19 +1225,19 @@ class RegistrarIngresoAlmacen(CreateView):
                                                              detalle_ingreso_formset=detalle_ingreso_formset))
 
 
-class RegistrarSalidaAlmacen(CreateView):
-    form_class = MovimientoForm
+class OutboundCreate(CreateView):
+    form_class = MovementForm
     template_name = "almacen/salida_almacen.html"
     model = Movement
     context_object_name = 'movement'
 
     def get_form_kwargs(self):
-        kwargs = super(RegistrarSalidaAlmacen, self).get_form_kwargs()
+        kwargs = super(OutboundCreate, self).get_form_kwargs()
         kwargs['movement_type'] = 'S'
         return kwargs
 
     def get_initial(self):
-        initial = super(RegistrarSalidaAlmacen, self).get_initial()
+        initial = super(OutboundCreate, self).get_initial()
         initial['total'] = 0
         initial['date'] = date.today().strftime('%d/%m/%Y')
         return initial
@@ -1253,7 +1253,7 @@ class RegistrarSalidaAlmacen(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_salida_formset = DetalleSalidaFormSet()
+            detalle_salida_formset = OutboundDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
                                                                  detalle_salida_formset=detalle_salida_formset))
 
@@ -1261,7 +1261,7 @@ class RegistrarSalidaAlmacen(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_salida_formset = DetalleSalidaFormSet(request.POST)
+        detalle_salida_formset = OutboundDetailFormSet(request.POST)
         if form.is_valid() and detalle_salida_formset.is_valid():
             return self.form_valid(form, detalle_salida_formset)
         else:
@@ -1298,7 +1298,7 @@ class RegistrarSalidaAlmacen(CreateView):
                                                              detalle_salida_formset=detalle_salida_formset))
 
 
-class ReporteExcelAlmacenes(TemplateView):
+class WarehouseExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         almacenes = Warehouse.objects.filter(is_active=True).order_by('code')
@@ -1313,7 +1313,7 @@ class ReporteExcelAlmacenes(TemplateView):
             ws.cell(row=cont, column=2).value = warehouse.code
             ws.cell(row=cont, column=3).value = warehouse.description
             cont = cont + 1
-        nombre_archivo = "ListadoAlmacenes.xlsx"
+        nombre_archivo = "WarehouseList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
         contenido = "attachment; filename={0}".format(nombre_archivo)
         response["Content-Disposition"] = contenido
@@ -1321,7 +1321,7 @@ class ReporteExcelAlmacenes(TemplateView):
         return response
 
 
-class ReporteExcelTiposMovimientos(TemplateView):
+class MovementTypeExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
         tipos = MovementType.objects.filter(is_active=True).order_by('code')
@@ -1344,7 +1344,7 @@ class ReporteExcelTiposMovimientos(TemplateView):
         return response
 
 
-class RespuestaReporteMixin(object):
+class ReportResponseMixin(object):
     """Armado de la respuesta HTTP de los reportes que se descargan como file."""
 
     def _respuesta_pdf(self, contenido, nombre_archivo):
@@ -1360,9 +1360,9 @@ class RespuestaReporteMixin(object):
         return response
 
 
-class ReporteKardexProducto(RespuestaReporteMixin, FormView):
+class KardexProductReport(ReportResponseMixin, FormView):
     template_name = 'almacen/reporte_kardex_producto.html'
-    form_class = FormularioKardexProducto
+    form_class = KardexProductForm
 
     REPORTES_EXCEL = {
         'S': ('obtener_formato_sunat_unidades_fisicas_producto', 'InventarioPermanenteUnidadesFisicas.xlsx'),
@@ -1390,7 +1390,7 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
 
         if formatos == 'XLS':
             metodo, nombre_archivo = self.REPORTES_EXCEL[self._formato_sunat(formato_sunat)]
-            excel = getattr(ReporteKardexExcel(), metodo)(product, desde, hasta, warehouse)
+            excel = getattr(KardexExcelReport(), metodo)(product, desde, hasta, warehouse)
             return self._respuesta_excel(excel, nombre_archivo)
         if formatos == 'PDF':
             clave = self._formato_sunat(formato_sunat)
@@ -1398,14 +1398,14 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
                 return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.',
                                     status=404)
             metodo, nombre_archivo = self.REPORTES_PDF[clave]
-            reporte = ReporteKardexPDF('A4', desde, hasta, warehouse, False)
+            reporte = KardexPdfReport('A4', desde, hasta, warehouse, False)
             return self._respuesta_pdf(getattr(reporte, metodo)(product), nombre_archivo)
         return HttpResponse('Formato no soportado.', status=400)
 
 
-class ReporteKardex(RespuestaReporteMixin, FormView):
+class KardexReport(ReportResponseMixin, FormView):
     template_name = 'almacen/reporte_kardex.html'
-    form_class = FormularioKardexProducto
+    form_class = KardexProductForm
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1448,18 +1448,18 @@ class ReporteKardex(RespuestaReporteMixin, FormView):
         if clave not in self.REPORTES_PDF:
             return HttpResponse('Este reporte no esta disponible en PDF para la combinacion elegida.', status=404)
         metodo, agrupado, nombre_archivo = self.REPORTES_PDF[clave]
-        reporte = ReporteKardexPDF('A4', desde, hasta, warehouse, agrupado)
+        reporte = KardexPdfReport('A4', desde, hasta, warehouse, agrupado)
         return self._respuesta_pdf(getattr(reporte, metodo)(), nombre_archivo)
 
     def _reporte_excel(self, clave, desde, hasta, warehouse):
         metodo, nombre_archivo = self.REPORTES_EXCEL[clave]
-        reporte = ReporteKardexExcel()
+        reporte = KardexExcelReport()
         return self._respuesta_excel(getattr(reporte, metodo)(desde, hasta, warehouse), nombre_archivo)
 
 
-class ReprocesoPrecio(FormView):
+class PriceReprocess(FormView):
     template_name = 'almacen/reproceso_precio.html'
-    form_class = FormularioReprocesoPrecio
+    form_class = PriceReprocessForm
 
     def reprocesar_precio_producto(self, product, warehouse, desde):
         detalles = Kardex.objects.filter(product=product,
@@ -1509,12 +1509,12 @@ class ReprocesoPrecio(FormView):
         return HttpResponseRedirect(reverse('almacen:tablero'))
 
 
-class StockProductos(FormView):
-    form_class = FormularioConsultaStock
+class ProductStock(FormView):
+    form_class = StockQueryForm
     template_name = 'almacen/stock_productos.html'
 
     def get_initial(self):
-        initial = super(StockProductos, self).get_initial()
+        initial = super(ProductStock, self).get_initial()
         initial['desde'] = date.today().strftime('%d/%m/%Y')
         return initial
 
@@ -1580,7 +1580,7 @@ class StockProductos(FormView):
         return response
 
 
-class ListadoStockProducto(SoloAjaxMixin, TemplateView):
+class ProductStockList(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('description', 'warehouse')
 
@@ -1604,8 +1604,8 @@ class ListadoStockProducto(SoloAjaxMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class ReporteExcelMovimientos(FormView):
-    form_class = FormularioReporteMovimientos
+class MovementExcelReport(FormView):
+    form_class = MovementReportForm
     template_name = "almacen/reporte_movimientos.html"
 
     def form_valid(self, form):
@@ -1697,7 +1697,7 @@ class ReporteExcelMovimientos(FormView):
         return response
 
 
-class ReporteExcelMovimientosPorFecha(View):
+class MovementExcelReportByDate(View):
 
     def get(self, request, *args, **kwargs):
         p_start_date = kwargs['start_date']
@@ -1757,19 +1757,19 @@ class ReporteExcelMovimientosPorFecha(View):
         return response
 
 
-class ReportePDFMovimiento(View):
+class MovementPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         movement_id = kwargs['movement_id']
         movement = Movement.objects.get(pk=movement_id)
         response = HttpResponse(content_type='application/pdf')
-        reporte = ReporteMovimiento('A4', movement)
+        reporte = MovementReport('A4', movement)
         pdf = reporte.imprimir()
         response.write(pdf)
         return response
 
 
-class ReportePDFProductos(View):
+class ProductPdfReport(View):
 
     def get(self, request, *args, **kwargs):
         response = HttpResponse(content_type='application/pdf')
@@ -1805,7 +1805,7 @@ class ReportePDFProductos(View):
         return response
 
 
-class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
+class VerifyDocumentRequired(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('tipo',)
 
@@ -1816,7 +1816,7 @@ class VerificarSolicitaDocumento(SoloAjaxMixin, TemplateView):
         return JsonResponse(json_object)
 
 
-class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
+class VerifyReferenceRequired(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('tipo',)
 
@@ -1827,7 +1827,7 @@ class VerificarPideReferencia(SoloAjaxMixin, TemplateView):
         return JsonResponse(json_object)
 
 
-class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
+class VerifyStockForOrder(SoloAjaxMixin, TemplateView):
 
     parametros_requeridos = ('warehouse', 'order')
 
@@ -1862,7 +1862,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
                 det['price'] = round(price, 5)
                 det['amount'] = amount
                 lista_detalles.append(det)
-        formset = DetalleSalidaFormSet(initial=lista_detalles)
+        formset = OutboundDetailFormSet(initial=lista_detalles)
         lista_json = []
         for form in formset:
             detalle_json = {}
@@ -1878,12 +1878,12 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
         return HttpResponse(data, 'application/json')
 
 
-class Inventario(RespuestaReporteMixin, FormView):
-    form_class = FormularioConsultaInventario
+class Inventory(ReportResponseMixin, FormView):
+    form_class = InventoryQueryForm
     template_name = 'almacen/inventario.html'
 
     def get_initial(self):
-        initial = super(Inventario, self).get_initial()
+        initial = super(Inventory, self).get_initial()
         initial['desde'] = date.today().strftime('%d/%m/%Y')
         return initial
 

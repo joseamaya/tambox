@@ -5,7 +5,7 @@ from django.test import RequestFactory, TestCase
 from django.urls import NoReverseMatch, get_resolver, reverse
 from django.views.generic import TemplateView
 
-from almacen.forms import FormularioReporteMovimientos
+from almacen.forms import MovementReportForm
 from seguridad.permisos import permisos_declarados
 
 
@@ -110,7 +110,7 @@ class OpcionesDeFormularioTestCase(TestCase):
         from almacen.models import Warehouse
 
         Warehouse.objects.create(code='AL01', description='ALMACEN UNO')
-        formulario = FormularioReporteMovimientos()
+        formulario = MovementReportForm()
         codes = [code for code, _ in formulario.fields['almacenes'].choices]
 
         self.assertIn('AL01', codes)
@@ -118,11 +118,11 @@ class OpcionesDeFormularioTestCase(TestCase):
     def test_un_almacen_nuevo_aparece_sin_reiniciar(self):
         from almacen.models import Warehouse
 
-        formulario = FormularioReporteMovimientos()
+        formulario = MovementReportForm()
         self.assertEqual([], list(formulario.fields['almacenes'].choices))
 
         Warehouse.objects.create(code='AL02', description='ALMACEN DOS')
-        formulario = FormularioReporteMovimientos()
+        formulario = MovementReportForm()
         codes = [code for code, _ in formulario.fields['almacenes'].choices]
 
         self.assertIn('AL02', codes)

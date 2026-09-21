@@ -2,7 +2,7 @@
 from django.db import models
 
 
-class DetalleMovimientoManager(models.Manager):
+class MovementDetailManager(models.Manager):
 
     def guardar_detalles_con_referencia(self, objs, order):
         requirement = None

@@ -360,9 +360,9 @@ class BaseServiceConformityDetailFormSet(formsets.BaseFormSet):
                 )
 
 
-DetalleCotizacionFormSet = formsets.formset_factory(QuotationDetailForm, BaseQuotationDetailFormSet, 0)
-DetalleOrdenCompraFormSet = formsets.formset_factory(PurchaseOrderDetailLineForm, BasePurchaseOrderDetailFormSet, 0)
-DetalleOrdenServiciosFormSet = formsets.formset_factory(ServiceOrderDetailLineForm,
+QuotationDetailFormSet = formsets.formset_factory(QuotationDetailForm, BaseQuotationDetailFormSet, 0)
+PurchaseOrderDetailFormSet = formsets.formset_factory(PurchaseOrderDetailLineForm, BasePurchaseOrderDetailFormSet, 0)
+ServiceOrderDetailFormSet = formsets.formset_factory(ServiceOrderDetailLineForm,
                                                         BaseServiceOrderDetailFormSet, 0)
-DetalleConformidadServicioFormSet = formsets.formset_factory(ServiceConformityDetailLineForm,
+ServiceConformityDetailFormSet = formsets.formset_factory(ServiceConformityDetailLineForm,
                                                              BaseServiceConformityDetailFormSet, 0)

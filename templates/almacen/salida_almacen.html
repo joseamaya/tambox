@@ -40,7 +40,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Id Movement:</label>
+                        <label>Id Movimiento:</label>
                         <p>{{ object.movement_id }}</p>
                     </div>
                 </div>
@@ -49,7 +49,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Type de Salida:</label>
+                        <label>Tipo de Salida:</label>
                         {% if form.movement_type.errors %}
                         {% for error in form.movement_type.errors %}
                         {% include "includes/error.html" %}
@@ -89,7 +89,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Office a atender:</label>
+                        <label>Oficina a atender:</label>
                         {% if form.office.errors %}
                         {% for error in form.office.errors %}
                         {% include "includes/error.html" %}
@@ -166,8 +166,8 @@
                     <table id="detalles" class="table table-striped table-bordered table-hover">
                         <thead>
                         <tr>
-                            <th>ID Product</th>
-                            <th>Product</th>
+                            <th>ID Producto</th>
+                            <th>Producto</th>
                             <th>Unidad</th>
                             <th>Cantidad</th>
                             <th>Precio</th>

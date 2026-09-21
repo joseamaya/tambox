@@ -54,7 +54,7 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Order"></div>
+<div id="dialog-confirm" title="Eliminar Pedido"></div>
 <div class="panel panel-primary">
     <div class="panel-body">
         {% csrf_token %}
@@ -68,7 +68,7 @@
                 <p>{{ object.requester }}</p>
             </div>
             <div class="col-md-6">
-                <label>Office:</label>
+                <label>Oficina:</label>
                 <p>{{ object.office }}</p>
             </div>
         </div>
@@ -157,7 +157,7 @@ $(document).ready(function()
 			success : function(data) 
 			{
 				removeLoading(mySpinner);
-				alert("Order " + data.code + " eliminado");	
+				alert("Pedido " + data.code + " eliminado");	
 				$(location).attr('href', "{% url 'almacen:pedidos' %}");
 			}
 		});

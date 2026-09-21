@@ -196,7 +196,7 @@ def to_word(number, mi_moneda=None):
                     fraccion = moneda['decimalplural']
 
         except StopIteration:
-            return "Type de moneda inválida"
+            return "Tipo de moneda inválida"
     else:
         entero = ""
         fraccion = ""

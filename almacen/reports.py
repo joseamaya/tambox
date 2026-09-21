@@ -59,7 +59,7 @@ def kardex_del_periodo(reporte, objeto, warehouse, desde, hasta, por_grupo=False
     return lote.get(objeto.pk, ([], 0, 0, 0, 0))
 
 
-class ReporteMovimiento():
+class MovementReport():
 
     def __init__(self, pagesize, movement):
         self.movement = movement
@@ -281,7 +281,7 @@ class ReporteMovimiento():
         return pdf
 
 
-class ReporteKardexPDF():
+class KardexPdfReport():
 
     def __init__(self, pagesize, desde, hasta, warehouse, grupos):
         self.desde = desde
@@ -1087,7 +1087,7 @@ class ReporteKardexPDF():
         return pdf
 
 
-class ReporteKardexExcel():
+class KardexExcelReport():
 
     def obtener_formato_sunat_unidades_fisicas_producto(self, product, desde, hasta, warehouse):
         wb = Workbook()

@@ -20,7 +20,7 @@ from django.contrib import messages
 from requerimientos.models import RequirementApproval, Requirement, \
     RequirementDetail
 from requerimientos.forms import AprobacionRequerimientoForm, RequerimientoForm, DetalleRequerimientoFormSet
-from compras.forms import DetalleCotizacionFormSet
+from compras.forms import QuotationDetailFormSet
 from compras.models import Quotation
 from productos.models import Product
 from requerimientos.mail import correo_creacion_requerimiento
@@ -414,7 +414,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                     lista_detalles.append(det)
                 except AttributeError:
                     pass
-            formset = DetalleCotizacionFormSet(initial=lista_detalles)
+            formset = QuotationDetailFormSet(initial=lista_detalles)
             lista_json = []
             for form in formset:
                 detalle_json = {}

@@ -30,13 +30,13 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar Product"></div>
+<div id="dialog-confirm" title="Eliminar Producto"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-2">
                 <a href="{{ object.image.url }}" class="thumbnail"> <img
-                        src="{{ object.image.url }}" alt="Imagen Product"
+                        src="{{ object.image.url }}" alt="Imagen Producto"
                         style="width: 120px; height: 90px">
                 </a>
             </div>
@@ -131,12 +131,12 @@ $(document).ready(function()
 			success : function(data) {
 				if (data.relaciones == 'NO') 
 				{
-					alert("Product " + data.description + " eliminado");
+					alert("Producto " + data.description + " eliminado");
 					$(location).attr('href', "{% url 'productos:detalle_producto' object.siguiente %}");
 				} 
 				else if (data.relaciones == 'SI') 
 				{
-					alert("Product " + data.description + " no puede eliminarse");
+					alert("Producto " + data.description + " no puede eliminarse");
 				}
 			}
 		});
