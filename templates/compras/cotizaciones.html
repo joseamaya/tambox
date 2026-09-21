@@ -22,7 +22,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">CODIGO</th>
@@ -33,7 +33,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for quotation in cotizaciones %}
+            {% for quotation in quotations %}
             {% if perms.compras.ver_detalle_cotizacion %}
             <tr onclick="location.href='{% url 'compras:quotation_detail' quotation.pk %}';">
                 {% else %}
@@ -54,7 +54,7 @@
 <script>
 $(document).ready(function() 
 {
-	var table = $('#tabla').DataTable({
+	var table = $('#table').DataTable({
 		"language" : {
 			url : "/static/localizacion/es_ES.json"
 		}
@@ -88,11 +88,11 @@ $(document).ready(function()
 			url : "{% url 'compras:purchase_order_delete' %}",
 			type : 'post',
 			success : function(data) {
-				if (data.movimientos == 'NO') {
+				if (data.movements == 'NO') {
 					alert("Orden de Compra " + data.code
 							+ " eliminada");
 					table.row('.selected').remove().draw(false);
-				} else if (data.movimientos == 'SI') {
+				} else if (data.movements == 'SI') {
 					alert("La orden de compra " + data.code
 							+ " no puede cerrarse");
 				}

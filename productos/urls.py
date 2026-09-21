@@ -42,7 +42,7 @@ urlpatterns = [
     re_path(r'^unit_of_measure_detail/(?P<pk>\d+)/$', UnitOfMeasureDetail.as_view(),
         name="unit_of_measure_detail"),
     re_path(r'^service_detail/(?P<pk>.+)/$', ServiceDetail.as_view(), name="service_detail"),
-    re_path(r'^product_list_by_group/(?P<grupo>.+)/$', ProductListByGroup.as_view(),
+    re_path(r'^product_list_by_group/(?P<group>.+)/$', ProductListByGroup.as_view(),
         name="product_list_by_group"),
     re_path(r'^product_excel_report/$', ProductExcelReport.as_view(), name="product_excel_report"),
     re_path(r'^product_group_excel_report/$', ProductGroupExcelReport.as_view(),

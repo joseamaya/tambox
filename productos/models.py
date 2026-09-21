@@ -21,14 +21,14 @@ class UnitOfMeasure(TimeStampedModel):
     history = HistoricalRecords()
 
     class Meta:
-        permissions = (('ver_detalle_unidad_medida', 'Puede ver detalle Unidad de Medida'),
+        permissions = (('ver_detalle_unidad_medida', 'Puede ver detail Unidad de Medida'),
                        ('ver_tabla_unidades_medida', 'Puede ver tabla de unidades de medida'),
                        ('ver_reporte_unidades_medida_excel', 'Puede ver Reporte Unidades de Medida en excel'),)
         ordering = ['code']
 
     def previous(self):
-        ant = UnitOfMeasure.objects.previous(self)
-        return ant.pk
+        previous = UnitOfMeasure.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = UnitOfMeasure.objects.next(self)
@@ -49,24 +49,24 @@ class ProductGroup(TimeStampedModel):
 
     class Meta:
         permissions = (('cargar_grupo_productos', 'Puede cargar Grupos de Productos desde un archivo externo'),
-                       ('ver_detalle_grupo_productos', 'Puede ver detalle Grupo de Productos'),
-                       ('ver_tabla_grupos_productos', 'Puede ver tabla Grupos de Productos'),
+                       ('ver_detalle_grupo_productos', 'Puede ver detail Grupo de Productos'),
+                       ('ver_tabla_grupos_productos', 'Puede ver table Grupos de Productos'),
                        ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel'),)
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            grupo_ant = ProductGroup.objects.all().aggregate(Max('code'))
-            cod_ant = grupo_ant['code__max']
-            if cod_ant is None:
+            previous_group = ProductGroup.objects.all().aggregate(Max('code'))
+            previous_code = previous_group['code__max']
+            if previous_code is None:
                 aux = 1
             else:
-                aux = int(cod_ant) + 1
+                aux = int(previous_code) + 1
             self.code = str(aux).zfill(6)
         super(ProductGroup, self).save()
 
     def previous(self):
-        ant = ProductGroup.objects.previous(self)
-        return ant.pk
+        previous = ProductGroup.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = ProductGroup.objects.next(self)
@@ -97,16 +97,16 @@ class ProductGroup(TimeStampedModel):
                 totales['out_amount'] or 0)
 
     @staticmethod
-    def kardex_by_batch(grupos, warehouse, start_date, end_date):
+    def kardex_by_batch(groups, warehouse, start_date, end_date):
         """Igual que `get_kardex()`, pero para todos los grupos de una vez.
 
-        Devuelve {grupo_id: (filas, in_quantity, in_amount,
+        Devuelve {grupo_id: (rows, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total.
         """
         from almacen.models import Kardex
-        return Kardex.kardex_by_batch(start_date, end_date, por_grupo=True,
+        return Kardex.kardex_by_batch(start_date, end_date, by_group=True,
                                       warehouse=warehouse,
-                                      product__product_group__in=grupos)
+                                      product__product_group__in=groups)
 
 
 class Product(TimeStampedModel):
@@ -130,7 +130,7 @@ class Product(TimeStampedModel):
         """Ultimo kardex de cada almacén, en una sola consulta.
 
         Antes recorria Warehouse.objects.all() lanzando un .latest() por almacén, y
-        las plantillas invocan la property varias veces en la misma pagina. El
+        las plantillas invocan la property varias veces en la misma page. El
         resultado se memoriza para no repetirla en el mismo render.
         """
         if not hasattr(self, '_stock_calculado'):
@@ -176,7 +176,7 @@ class Product(TimeStampedModel):
     def kardex_by_batch(productos, warehouse, start_date, end_date):
         """Igual que `get_kardex()`, pero para todo el lote de una vez.
 
-        Devuelve {product_id: (filas, in_quantity, in_amount,
+        Devuelve {product_id: (rows, in_quantity, in_amount,
         out_quantity, out_amount)} con dos consultas en total, en vez de
         dos por producto.
         """
@@ -190,13 +190,13 @@ class Product(TimeStampedModel):
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
                        ('cargar_productos', 'Puede cargar Productos desde un archivo externo'),
                        ('ver_detalle_producto', 'Puede ver detalle de Productos'),
-                       ('ver_tabla_productos', 'Puede ver tabla Productos'),
+                       ('ver_tabla_productos', 'Puede ver table Productos'),
                        ('ver_reporte_productos_excel', 'Puede ver Reporte de Productos en excel'),
                        ('puede_hacer_busqueda_producto', 'Puede hacer busqueda Producto'),)
 
     def previous(self):
-        ant = Product.objects.previous(self)
-        return ant.pk
+        previous = Product.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Product.objects.next(self)
@@ -204,12 +204,12 @@ class Product(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            prod_ant = Product.objects.filter(product_group=self.product_group).aggregate(Max('code'))
-            cod_ant = prod_ant['code__max']
-            if cod_ant is None:
+            previous_product = Product.objects.filter(product_group=self.product_group).aggregate(Max('code'))
+            previous_code = previous_product['code__max']
+            if previous_code is None:
                 self.code = self.product_group.code + '0001'
             else:
-                aux = int(cod_ant) + 1
+                aux = int(previous_code) + 1
                 self.code = str(aux).zfill(10)
             if self.is_service:
                 unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',

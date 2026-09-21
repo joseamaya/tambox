@@ -167,7 +167,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <table id="detalles" class="table table-striped table-bordered table-hover">
+                    <table id="details" class="table table-striped table-bordered table-hover">
                         <thead>
                         <tr>
                             <th>ID Producto</th>
@@ -181,65 +181,65 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {{ detalle_orden_compra_formset.management_form }}
-                        {% for detalle_orden_compra_form in detalle_orden_compra_formset %}
-                        <tr class="detalle_orden_compra_formset">
+                        {{ purchase_order_detail_formset.management_form }}
+                        {% for purchase_order_detail_form in purchase_order_detail_formset %}
+                        <tr class="purchase_order_detail_formset">
                             <td>
-                                {{ detalle_orden_compra_form.quotation }}
-                                {% if detalle_orden_compra_form.code.errors %}
-                                {% for error in detalle_orden_compra_form.code.errors %}
+                                {{ purchase_order_detail_form.quotation }}
+                                {% if purchase_order_detail_form.code.errors %}
+                                {% for error in purchase_order_detail_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.code }}
+                                {{ purchase_order_detail_form.code }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.name.errors %}
-                                {% for error in detalle_orden_compra_form.name.errors %}
+                                {% if purchase_order_detail_form.name.errors %}
+                                {% for error in purchase_order_detail_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.name }}
+                                {{ purchase_order_detail_form.name }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.unit.errors %}
-                                {% for error in detalle_orden_compra_form.unit.errors %}
+                                {% if purchase_order_detail_form.unit.errors %}
+                                {% for error in purchase_order_detail_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.unit }}
+                                {{ purchase_order_detail_form.unit }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.quantity.errors %}
-                                {% for error in detalle_orden_compra_form.quantity.errors %}
+                                {% if purchase_order_detail_form.quantity.errors %}
+                                {% for error in purchase_order_detail_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.quantity }}
+                                {{ purchase_order_detail_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.price.errors %}
-                                {% for error in detalle_orden_compra_form.price.errors %}
+                                {% if purchase_order_detail_form.price.errors %}
+                                {% for error in purchase_order_detail_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.price }}
+                                {{ purchase_order_detail_form.price }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.tax.errors %}
-                                {% for error in detalle_orden_compra_form.tax.errors %}
+                                {% if purchase_order_detail_form.tax.errors %}
+                                {% for error in purchase_order_detail_form.tax.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.tax }}
+                                {{ purchase_order_detail_form.tax }}
                             </td>
                             <td>
-                                {% if detalle_orden_compra_form.amount.errors %}
-                                {% for error in detalle_orden_compra_form.amount.errors %}
+                                {% if purchase_order_detail_form.amount.errors %}
+                                {% for error in purchase_order_detail_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_orden_compra_form.amount }}
+                                {{ purchase_order_detail_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -356,7 +356,7 @@ $(document).ready(function()
 	var impuesto_total = parseFloat($('#id_tax').val());
 	var total=parseFloat($('#id_total').val());
 	var with_tax = false;
-	var tipo_cambio = 1;
+	var exchange_rate = 1;
 
 	$('#id_in_dollars').change(function()
 	{
@@ -370,7 +370,7 @@ $(document).ready(function()
 			  {
 			  	if (data.amount != 0)
 			  	{
-					tipo_cambio = data.amount;
+					exchange_rate = data.amount;
 				}
 				else
 				{
@@ -480,7 +480,7 @@ $(document).ready(function()
 		$("#id_total_in_words").val(NumeroALetras(total));
 		contDetalles = contDetalles - 1;
 		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('detalle_orden_compra_formset');
+		updateFormElementIndices('purchase_order_detail_formset');
 	});
 	
 	$(document).on("keyup",".quantity",function()
@@ -540,7 +540,7 @@ $(document).ready(function()
 			{
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
-						"<tr class='detalle_orden_compra_formset'>" +
+						"<tr class='purchase_order_detail_formset'>" +
 						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unit + "</td>" +
@@ -553,7 +553,7 @@ $(document).ready(function()
 					contDetalles = parseInt(contDetalles) + 1;											
 				});
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
-				updateFormElementIndices('detalle_orden_compra_formset');
+				updateFormElementIndices('purchase_order_detail_formset');
 				bindAutoComplete('productos');		
 				$(".decimal").keydown(validar_decimales);
 			}
@@ -642,7 +642,7 @@ $(document).ready(function()
 			{
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
-					"<tr class='detalle_orden_compra_formset'>" +
+					"<tr class='purchase_order_detail_formset'>" +
 						"<td>" + item.quotation + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unit + "</td>" +
@@ -736,12 +736,12 @@ $(document).ready(function()
 						}
 						else
 						{
-							alert("Revise el detail el valor no puede ser cero");
+							alert("Revise el detalle el valor no puede ser cero");
 						}		
 					}
 					else
 					{
-						alert("No ha ingresado ningún detail");	
+						alert("No ha ingresado ningún detalle");	
 					}
 				}
 				else

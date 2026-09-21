@@ -28,7 +28,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">CODIGO</th>
@@ -37,15 +37,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for grupo in grupos_productos %}
+            {% for group in grupos_productos %}
             {% if perms.productos.ver_detalle_grupo_productos %}
-            <tr onclick="location.href='{% url 'productos:product_group_detail' grupo.pk %}';">
+            <tr onclick="location.href='{% url 'productos:product_group_detail' group.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ grupo.code }}</td>
-                <td>{{ grupo.description }}</td>
-                <td>{{ grupo.account }}</td>
+                <td>{{ group.code }}</td>
+                <td>{{ group.description }}</td>
+                <td>{{ group.account }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -57,7 +57,7 @@
 <script>
 $(document).ready(function() 
 {	
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

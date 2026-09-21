@@ -24,7 +24,7 @@ class ContenidoDeLasPaginasTest(TestCase):
 
     def setUp(self):
         self.usuario = User.objects.create_superuser(
-            'contenido', 'contenido@example.com', 'clave-segura-123')
+            'contenido', 'contenido@example.com', 'key-segura-123')
         self.client.force_login(self.usuario)
 
     def test_la_lista_de_productos_muestra_la_description(self):
@@ -37,8 +37,8 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
     def test_la_lista_de_movimientos_muestra_el_tipo(self):
-        tipo = baker.make(MovementType, description='TIPO-XYZ')
-        baker.make(Movement, movement_type=tipo)
+        type = baker.make(MovementType, description='TIPO-XYZ')
+        baker.make(Movement, movement_type=type)
 
         respuesta = self.client.get(reverse('almacen:movement_list'))
 

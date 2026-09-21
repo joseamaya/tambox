@@ -32,23 +32,23 @@ class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_trabajadores = Worker.objects.all().count()
-        cant_puestos = Position.objects.all().count()
-        cant_profesiones = Profession.objects.all().count()
+        worker_count = Worker.objects.all().count()
+        position_count = Position.objects.all().count()
+        profession_count = Profession.objects.all().count()
         office, creada = Office.objects.get_or_create(code='GGEN',
                                                        defaults={'name': 'GERENCIA GENERAL',
                                                                  'is_management': True})
         if creada:
             lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
-        if cant_trabajadores == 0:
+        if worker_count == 0:
             lista_notificaciones.append("No se ha registrado ningún trabajador")
-        if cant_puestos == 0:
+        if position_count == 0:
             lista_notificaciones.append("No se ha registrado ningún puesto")
-        if cant_profesiones == 0:
+        if profession_count == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")
-        nivel_logistica, creada = ApprovalLevel.objects.get_or_create(description="LOGISTICA")
+        logistics_level, creada = ApprovalLevel.objects.get_or_create(description="LOGISTICA")
         _, creado = ApprovalLevel.objects.get_or_create(description="USUARIO",
-                                                         defaults={'superior_level': nivel_logistica})
+                                                         defaults={'superior_level': logistics_level})
         if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
@@ -101,11 +101,11 @@ class OfficeImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('administracion:office_list')
 
-    def process_row(self, fila):
-        Office.objects.get_or_create(code=fila[0],
+    def process_row(self, row):
+        Office.objects.get_or_create(code=row[0],
                                       defaults={
-                                          'name': fila[1],
-                                          'dependency': Office.objects.get(code=fila[2])},
+                                          'name': row[1],
+                                          'dependency': Office.objects.get(code=row[2])},
                                       )
 
 
@@ -114,13 +114,13 @@ class ProducerImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('administracion:producer_list')
 
-    def process_row(self, fila):
-        dni = fila[0]
+    def process_row(self, row):
+        dni = row[0]
         if dni != "":
             try:
                 Producer.objects.get_or_create(dni=dni,
-                                                defaults={'last_name': (fila[1] + ' ' + fila[2]).upper(),
-                                                          'first_name': fila[3].upper()})
+                                                defaults={'last_name': (row[1] + ' ' + row[2]).upper(),
+                                                          'first_name': row[3].upper()})
             except Exception:
                 logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
 
@@ -130,22 +130,22 @@ class WorkerImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('administracion:worker_list')
 
-    def process_row(self, fila):
-        usuario_hoja = fila[0]
+    def process_row(self, row):
+        usuario_hoja = row[0]
         if usuario_hoja != "":
             usuario, creado = User.objects.get_or_create(username=usuario_hoja,
-                                                         defaults={'email': fila[5]}, )
+                                                         defaults={'email': row[5]}, )
             if creado:
                 usuario.set_unusable_password()
                 usuario.save()
                 Worker.objects.get_or_create(user=usuario,
-                                                 defaults={'dni': fila[1].strip(),
-                                                           'last_name': (fila[2] + ' ' + fila[3]).strip(),
-                                                           'first_name': fila[4]})
+                                                 defaults={'dni': row[1].strip(),
+                                                           'last_name': (row[2] + ' ' + row[3]).strip(),
+                                                           'first_name': row[4]})
         else:
-            Worker.objects.get_or_create(dni=fila[1].strip(),
-                                             defaults={'last_name': (fila[2] + ' ' + fila[3]).strip(),
-                                                       'first_name': fila[4]})
+            Worker.objects.get_or_create(dni=row[1].strip(),
+                                             defaults={'last_name': (row[2] + ' ' + row[3]).strip(),
+                                                       'first_name': row[4]})
 
 
 class PositionImport(CsvImportMixin, FormView):
@@ -153,16 +153,16 @@ class PositionImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('administracion:position_list')
 
-    def process_row(self, fila):
-        date = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
+    def process_row(self, row):
+        date = datetime.date(int(row[3][6:]), int(row[3][3:5]), int(row[3][0:2]))
         try:
-            Position.objects.get_or_create(name=fila[0],
-                                         defaults={'office': Office.objects.get(code=fila[1].strip()),
-                                                   'worker': Worker.objects.get(dni=fila[2].strip()),
+            Position.objects.get_or_create(name=row[0],
+                                         defaults={'office': Office.objects.get(code=row[1].strip()),
+                                                   'worker': Worker.objects.get(dni=row[2].strip()),
                                                    'start_date': date,
-                                                   'is_leadership': fila[4] == 'SI'})
+                                                   'is_leadership': row[4] == 'SI'})
         except Exception:
-            logger.warning("No se pudo importar el puesto %s", fila[0], exc_info=True)
+            logger.warning("No se pudo importar el puesto %s", row[0], exc_info=True)
 
 
 class ApprovalLevelCreate(CreateView):
@@ -271,14 +271,14 @@ class ApprovalLevelDetail(DetailView):
 class OfficeList(ListView):
     model = Office
     template_name = 'administracion/oficinas.html'
-    context_object_name = 'oficinas'
+    context_object_name = 'offices'
     queryset = Office.objects.all().order_by('name')
 
 
 class WorkerList(ListView):
     model = Worker
     template_name = 'administracion/trabajadores.html'
-    context_object_name = 'trabajadores'
+    context_object_name = 'workers'
 
 
 class ProducerList(ListView):
@@ -290,7 +290,7 @@ class ProducerList(ListView):
 class PositionList(ListView):
     model = Position
     template_name = 'administracion/puestos.html'
-    context_object_name = 'puestos'
+    context_object_name = 'positions'
     queryset = Position.objects.filter(is_active=True)
 
 
@@ -395,7 +395,7 @@ class PositionUpdate(UpdateView):
 
 class OfficeExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        oficinas = Office.objects.filter(is_active=True).order_by('code')
+        offices = Office.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE OFICINAS'
@@ -405,7 +405,7 @@ class OfficeExcelReport(TemplateView):
         ws['D3'] = 'DEPENDENCIA'
         ws['E3'] = 'GERENCIA'
         cont = 4
-        for office in oficinas:
+        for office in offices:
             try:
                 ws.cell(row=cont, column=2).value = office.code
                 ws.cell(row=cont, column=3).value = office.name
@@ -414,9 +414,9 @@ class OfficeExcelReport(TemplateView):
                 cont = cont + 1
             except Exception:
                 logger.warning("No se pudo exportar la oficina %s", office.pk, exc_info=True)
-        nombre_archivo = "Oficinas.xlsx"
+        file_name = "Oficinas.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -438,9 +438,9 @@ class ProfessionExcelReport(TemplateView):
             ws.cell(row=cont, column=3).value = profession.description
             ws.cell(row=cont, column=4).value = profession.is_active
             cont = cont + 1
-        nombre_archivo = "Profesiones.xlsx"
+        file_name = "Profesiones.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -448,7 +448,7 @@ class ProfessionExcelReport(TemplateView):
 
 class PositionExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        puestos = Position.objects.filter(is_active=True)
+        positions = Position.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PUESTOS'
@@ -461,7 +461,7 @@ class PositionExcelReport(TemplateView):
         ws['G3'] = 'ES JEFATURA'
         ws['H3'] = 'ESTADO'
         cont = 4
-        for position in puestos:
+        for position in positions:
             ws.cell(row=cont, column=2).value = position.name
             ws.cell(row=cont, column=3).value = position.office.name
             ws.cell(row=cont, column=4).value = position.worker.full_name()
@@ -473,9 +473,9 @@ class PositionExcelReport(TemplateView):
                 ws.cell(row=cont, column=7).value = "NO"
             ws.cell(row=cont, column=8).value = position.is_active
             cont = cont + 1
-        nombre_archivo = "Puestos.xlsx"
+        file_name = "Puestos.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -483,7 +483,7 @@ class PositionExcelReport(TemplateView):
 
 class WorkerExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        trabajadores = Worker.objects.filter(is_active=True)
+        workers = Worker.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TRABAJADORES'
@@ -495,7 +495,7 @@ class WorkerExcelReport(TemplateView):
         ws['F3'] = 'EMAIL'
         ws['G3'] = 'ESTADO'
         cont = 4
-        for worker in trabajadores:
+        for worker in workers:
             ws.cell(row=cont, column=2).value = worker.user.username
             ws.cell(row=cont, column=3).value = worker.dni
             ws.cell(row=cont, column=4).value = worker.last_name
@@ -503,9 +503,9 @@ class WorkerExcelReport(TemplateView):
             ws.cell(row=cont, column=6).value = worker.user.email
             ws.cell(row=cont, column=7).value = worker.is_active
             cont = cont + 1
-        nombre_archivo = "Trabajadores.xlsx"
+        file_name = "Trabajadores.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response

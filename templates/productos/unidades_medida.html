@@ -28,7 +28,7 @@
     <hr/>
     <div class="row">
         <div class="col-lg-12">
-            <table id="tabla" class="display" cellspacing="0" width="100%">
+            <table id="table" class="display" cellspacing="0" width="100%">
                 <thead>
                 <tr>
                     <th class="text-center">UNIDAD</th>
@@ -37,7 +37,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                {% for unit in unidades %}
+                {% for unit in units %}
                 {% if perms.productos.ver_detalle_unidad_medida %}
                 <tr onclick="location.href='{% url 'productos:unit_of_measure_detail' unit.pk %}';">
                     {% else %}
@@ -57,7 +57,7 @@
     <script>
 $(document).ready(function() 
 {	
-    var table = $('#tabla').dataTable( {
+    var table = $('#table').dataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

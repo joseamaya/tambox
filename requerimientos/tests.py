@@ -188,7 +188,7 @@ class EstadosDeRequerimientoTest(TestCase):
 
 
 class EstadosDeDetalleRequerimientoTest(TestCase):
-    """Estos metodos solo leen los campos de la instancia, asi que no hace falta
+    """Estos metodos solo leen los campos de la instance, asi que no hace falta
     tocar la base de datos."""
 
     def _detail(self, quantity, cotizada=0, comprada=0, atendida=0):

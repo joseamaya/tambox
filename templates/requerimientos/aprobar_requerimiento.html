@@ -65,8 +65,8 @@ $(document).ready(function()
 	$("#id_is_active").on('change',verificar_estado);
 	function verificar_estado()
 	{
-		var estado = $('#id_is_active').val();
-		if(estado.indexOf('DESAP') != -1)
+		var status = $('#id_is_active').val();
+		if(status.indexOf('DESAP') != -1)
 		{
 			$("#id_rejection_reason").attr("readonly", false);
 		}

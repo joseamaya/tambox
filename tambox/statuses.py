@@ -3,14 +3,14 @@ PARTIAL = 'parcial'
 COMPLETE = 'completo'
 
 
-def classify(cantidad_actual, total_quantity):
+def classify(current_quantity, total_quantity):
     """Clasifica el avance de una cantidad frente a su total.
 
     Es la regla unica detras de la maquina de estados de pedidos, cotizaciones y
     requerimientos: sin avance, avance parcial o avance completo.
     """
-    if cantidad_actual == 0:
+    if current_quantity == 0:
         return EMPTY
-    if cantidad_actual < total_quantity:
+    if current_quantity < total_quantity:
         return PARTIAL
     return COMPLETE

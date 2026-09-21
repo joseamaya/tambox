@@ -21,7 +21,7 @@ class QuotationDetailManager(models.Manager):
 
     def save_details_with_reference(self, objs, requirement, order):
         from compras.models import ServiceOrderDetail
-        detalles = []
+        details = []
         for detail in objs:
             requirement_detail = detail.requirement_detail
             requirement_detail.quoted_quantity = requirement_detail.quoted_quantity + detail.quantity
@@ -30,11 +30,11 @@ class QuotationDetailManager(models.Manager):
             detail.save()
             if order is not None:
                 service_order_detail = self.save_detail_service_order(order, detail)
-                detalles.append(service_order_detail)
+                details.append(service_order_detail)
         requirement.set_status_quoted()
         requirement.save()
         if order is not None:
-            ServiceOrderDetail.objects.bulk_create(detalles, order.quotation)
+            ServiceOrderDetail.objects.bulk_create(details, order.quotation)
 
     def save_details_without_reference(self, objs, order):
         for detail in objs:
@@ -57,16 +57,16 @@ class ServiceConformityDetailManager(models.Manager):
         except ObjectDoesNotExist:
             requirement = None
         for detail in objs:
-            detalle_orden = detail.service_order_detail
-            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity + detail.quantity
-            detalle_orden.set_status_served()
-            detalle_orden.save()
+            order_detail = detail.service_order_detail
+            order_detail.conformed_quantity = order_detail.conformed_quantity + detail.quantity
+            order_detail.set_status_served()
+            order_detail.save()
             try:
-                requirement_detail = detalle_orden.quotation_detail.requirement_detail
+                requirement_detail = order_detail.quotation_detail.requirement_detail
             except ObjectDoesNotExist:
                 requirement_detail = None
             if requirement_detail is not None:
-                requirement_detail.served_quantity = requirement_detail.served_quantity + detalle_orden.conformed_quantity
+                requirement_detail.served_quantity = requirement_detail.served_quantity + order_detail.conformed_quantity
                 requirement_detail.set_status_served()
                 requirement_detail.save()
             detail.save()

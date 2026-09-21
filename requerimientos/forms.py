@@ -23,18 +23,18 @@ class RequirementApprovalForm(forms.ModelForm):
         office = self.instance.get_superior_approval_office()
         if office is not None:
             try:
-                puesto_jefe = Position.objects.get(office=office, is_leadership=True, is_active=True)
-                jefe = puesto_jefe.worker
-                destinatario = jefe.user.email
+                boss_position = Position.objects.get(office=office, is_leadership=True, is_active=True)
+                boss = boss_position.worker
+                destinatario = boss.user.email
                 requirement_creation_mail(destinatario, self.instance.requirement)
             except Position.DoesNotExist:
                 raise ValidationError("No existe el puesto superior, imposible continuar.")
 
     def save(self, *args, **kwargs):
         usuario = self.request.user
-        puesto_usuario = usuario.worker.position
-        oficina_requerimiento = self.instance.requirement.office
-        self.instance.level = puesto_usuario.set_level(oficina_requerimiento)
+        user_position = usuario.worker.position
+        requirement_office = self.instance.requirement.office
+        self.instance.level = user_position.set_level(requirement_office)
         return super(RequirementApprovalForm, self).save(*args, **kwargs)
 
 

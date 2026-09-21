@@ -33,8 +33,8 @@ class RequirementReport():
                             fontName="Times-Roman")
         requirement = self.requirement
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
         nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
@@ -64,8 +64,8 @@ class RequirementReport():
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
-        datos = [[solicitado, office], [reason], [date, month], [para_stock, entrega]]
-        data_table = Table(datos, colWidths=[11 * cm, 9 * cm])
+        data = [[solicitado, office], [reason], [date, month], [para_stock, entrega]]
+        data_table = Table(data, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(
             [
                 ('SPAN', (0, 1), (1, 1)),
@@ -74,23 +74,23 @@ class RequirementReport():
         data_table.setStyle(style)
         return data_table
 
-    def tabla_detalle(self):
+    def detail_table(self):
         requirement = self.requirement
         encabezados = ['Nro', 'Cantidad', 'Unidad', u'Descripción', 'Uso']
-        detalles = RequirementDetail.objects.filter(requirement=requirement)
+        details = RequirementDetail.objects.filter(requirement=requirement)
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
         sp.fontName = "Times-Roman"
-        lista_detalles = []
-        for detail in detalles:
-            tupla_producto = [Paragraph(str(detail.line_number), sp),
+        detail_list = []
+        for detail in details:
+            product_tuple = [Paragraph(str(detail.line_number), sp),
                               Paragraph(str(detail.quantity), sp),
                               Paragraph(detail.product.unit_of_measure.description, sp),
                               Paragraph(detail.product.description, sp),
                               Paragraph(detail.use, sp)]
-            lista_detalles.append(tupla_producto)
-        tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
+            detail_list.append(product_tuple)
+        detail_table = Table([encabezados] + detail_list, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
         style = TableStyle(
             [
                 ('ALIGN', (0, 0), (4, 0), 'CENTER'),
@@ -100,8 +100,8 @@ class RequirementReport():
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def notes_table(self):
         requirement = self.requirement
@@ -122,14 +122,14 @@ class RequirementReport():
         ))
         return notes_table
 
-    def get_signature(self, firma_trabajador):
+    def get_signature(self, worker_signature):
         p = ParagraphStyle('parrafos',
                            alignment=TA_CENTER,
                            fontSize=8,
                            fontName="Times-Roman")
-        if firma_trabajador != '':
-            archivo_firma = os.path.join(settings.MEDIA_ROOT, str(firma_trabajador))
-            signature = Image(archivo_firma, width=90, height=50, hAlign='CENTER')
+        if worker_signature != '':
+            signature_file = os.path.join(settings.MEDIA_ROOT, str(worker_signature))
+            signature = Image(signature_file, width=90, height=50, hAlign='CENTER')
         else:
             signature = Paragraph(u"Firma No Encontrada", p)
         return signature
@@ -156,27 +156,27 @@ class RequirementReport():
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
         jefatura_logistica = self.get_position(logistics(), requirement)
-        jefe_logistica = jefatura_logistica.worker
-        firma_solicitante = self.get_signature(requester.signature)
-        firma_jefe_oficina_logistica = self.get_signature(jefe_logistica.signature)
+        logistics_boss = jefatura_logistica.worker
+        requester_signature = self.get_signature(requester.signature)
+        logistics_office_boss_signature = self.get_signature(logistics_boss.signature)
         requester = requirement.requester.full_name()
         cuerpo = [('', '', '', '', '', '')]
         if requirement.approval.level.description == "USUARIO" and requirement.approval.is_active:
-            cuerpo = [('', firma_solicitante, '', '', '', '')]
+            cuerpo = [('', requester_signature, '', '', '', '')]
         elif requirement.approval.level.description == "LOGISTICA" and requirement.approval.is_active:
-            cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
+            cuerpo = [(logistics_office_boss_signature, requester_signature, '', '', '', '')]
 
         try:
             received_date = requirement.received_date.strftime('%d/%m/%Y')
         except AttributeError:
             received_date = ''
-        pie = [(Paragraph('Fecha: ' + received_date + "<br/>" + jefe_logistica.full_name(), p),
+        footer = [(Paragraph('Fecha: ' + received_date + "<br/>" + logistics_boss.full_name(), p),
                 Paragraph("Solicitado por: <br/>" + requester, p),
                 '',
                 '',
                 '',
                 '')]
-        signatures_table = Table(encabezados + cuerpo + pie,
+        signatures_table = Table(encabezados + cuerpo + footer,
                              colWidths=[3.3 * cm, 3.3 * cm, 3.3 * cm, 3.3 * cm, 3.4 * cm, 3.4 * cm],
                              rowHeights=[0.5 * cm, 2 * cm, 1.8 * cm])
         signatures_table.setStyle(TableStyle(
@@ -206,7 +206,7 @@ class RequirementReport():
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.data_table(styles))
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_detalle())
+        elements.append(self.detail_table())
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.notes_table())
         elements.append(Spacer(1, 0.25 * cm))

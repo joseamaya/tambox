@@ -44,8 +44,8 @@ class PurchaseOrderReport():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
@@ -76,8 +76,8 @@ class PurchaseOrderReport():
             supplier = order.supplier
         else:
             supplier = order.quotation.supplier
-        razon_social_proveedor = Paragraph(u"SEÑOR(ES): " + supplier.business_name, izquierda)
-        ruc_proveedor = Paragraph(u"R.U.C.: " + supplier.tax_id, izquierda)
+        supplier_business_name = Paragraph(u"SEÑOR(ES): " + supplier.business_name, izquierda)
+        supplier_tax_id = Paragraph(u"R.U.C.: " + supplier.tax_id, izquierda)
         address = Paragraph(u"DIRECCIÓN: " + supplier.address, izquierda)
         try:
             phone = Paragraph(u"TELÉFONO: " + supplier.phone, izquierda)
@@ -91,28 +91,28 @@ class PurchaseOrderReport():
             reference = Paragraph(u"REFERENCIA: ", izquierda)
         process = Paragraph(u"PROCESO: " + order.process, izquierda)
         nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo next: ", izquierda)
-        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [reference, ''], [process, ''],
+        data = [[supplier_business_name, supplier_tax_id], [address, phone], [reference, ''], [process, ''],
                  [nota, '']]
-        tabla_detalle = Table(datos, colWidths=[11 * cm, 9 * cm])
-        tabla_detalle.setStyle(TableStyle(
+        detail_table = Table(data, colWidths=[11 * cm, 9 * cm])
+        detail_table.setStyle(TableStyle(
             [
                 ('SPAN', (0, 2), (1, 2)),
             ]
         ))
-        return tabla_detalle
+        return detail_table
 
-    def tabla_detalle(self):
+    def detail_table(self):
         order = self.purchase_order
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = PurchaseOrderDetail.objects.filter(order=order).order_by('pk')
+        details = PurchaseOrderDetail.objects.filter(order=order).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
         sp.fontName = "Times-Roman"
-        lista_detalles = []
-        for detail in detalles:
+        detail_list = []
+        for detail in details:
             try:
-                tupla_producto = [Paragraph(str(detail.line_number), sp),
+                product_tuple = [Paragraph(str(detail.line_number), sp),
                                   Paragraph(str(detail.quantity), sp),
                                   Paragraph(
                                       detail.quotation_detail.requirement_detail.product.unit_of_measure.description,
@@ -121,15 +121,15 @@ class PurchaseOrderReport():
                                   Paragraph(str(detail.price), sp),
                                   Paragraph(str(detail.amount), sp)]
             except (ObjectDoesNotExist, AttributeError):
-                tupla_producto = [Paragraph(str(detail.line_number), sp),
+                product_tuple = [Paragraph(str(detail.line_number), sp),
                                   Paragraph(str(detail.quantity), sp),
                                   Paragraph(detail.product.unit_of_measure.description, sp),
                                   Paragraph(detail.product.description, sp),
                                   Paragraph(str(detail.price), sp),
                                   Paragraph(str(detail.amount), sp)]
-            lista_detalles.append(tupla_producto)
-        adicionales = [('', '', '', '', '')] * (15 - len(lista_detalles))
-        tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
+            detail_list.append(product_tuple)
+        adicionales = [('', '', '', '', '')] * (15 - len(detail_list))
+        detail_table = Table([encabezados] + detail_list + adicionales,
                               colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 10.2 * cm, 2 * cm, 2.5 * cm])
         style = TableStyle(
             [
@@ -140,8 +140,8 @@ class PurchaseOrderReport():
                 ('VALIGN', (0, 0), (-1, -1), 'TOP'),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def total_in_words_table(self):
         order = self.purchase_order
@@ -164,14 +164,14 @@ class PurchaseOrderReport():
         sub_total = Paragraph(u"SUBTOTAL: ", p)
         igv = Paragraph(u"IGV: ", p)
         total = Paragraph(u"TOTAL: ", p)
-        datos_otros = [
+        other_data = [
             [Paragraph(u"LUGAR DE ENTREGA", p), Paragraph(u"PLAZO DE ENTREGA", p), Paragraph(u"FORMA DE PAGO", p),
              sub_total, order.subtotal],
             [Paragraph(company().address(), p), Paragraph(u"INMEDIATA", p), Paragraph(order.payment_method.description, p),
              igv, str(order.igv)],
             ['', '', '', total, str(order.total)],
             ]
-        others_table = Table(datos_otros, colWidths=[5.5 * cm, 5 * cm, 5 * cm, 2 * cm, 2.5 * cm])
+        others_table = Table(other_data, colWidths=[5.5 * cm, 5 * cm, 5 * cm, 2 * cm, 2.5 * cm])
         others_table.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (2, 2), 1, colors.black),
@@ -208,7 +208,7 @@ class PurchaseOrderReport():
                            alignment=TA_JUSTIFY,
                            fontSize=8,
                            fontName="Times-Roman")
-        hoja_afectacion = Paragraph(u"HOJA DE AFECTACIÓN PRESUPUESTAL: ", p)
+        budget_sheet = Paragraph(u"HOJA DE AFECTACIÓN PRESUPUESTAL: ", p)
         importante = Paragraph(u"IMPORTANTE: ", p)
         recibido = Paragraph(u"RECIBIDO POR: ", p)
         signature = Paragraph(u"FIRMA: ", p)
@@ -223,14 +223,14 @@ class PurchaseOrderReport():
             Paragraph("""El pago de toda factura se hará de acuerdo a las condiciones establecidas.""", p)
         ], bulletType='1'
         )
-        datos_otros = [[hoja_afectacion, ''],
+        other_data = [[budget_sheet, ''],
                        [importante, recibido],
                        [lista, ''],
                        ['', signature],
                        ['', name],
                        ['', dni],
                        ]
-        budget_impact_table = Table(datos_otros, colWidths=[10 * cm, 10 * cm])
+        budget_impact_table = Table(other_data, colWidths=[10 * cm, 10 * cm])
         budget_impact_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 1), (1, 1), 'CENTER'),
@@ -255,7 +255,7 @@ class PurchaseOrderReport():
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.data_table(styles))
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_detalle())
+        elements.append(self.detail_table())
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.total_in_words_table())
         elements.append(Spacer(1, 0.25 * cm))
@@ -264,9 +264,9 @@ class PurchaseOrderReport():
         elements.append(self.notes_table())
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.budget_impact_table())
-        linea_firma = Line(280, y - 250, 470, y - 250)
+        signature_line = Line(280, y - 250, 470, y - 250)
         d = Drawing(100, 1)
-        d.add(linea_firma)
+        d.add(signature_line)
         elements.append(d)
         doc.build(elements)
         pdf = buffer.getvalue()
@@ -276,7 +276,7 @@ class PurchaseOrderReport():
 
 def purchase_order_xls_report(order):
     """Construye el libro de Excel de la orden de compra."""
-    detalle_index = 0
+    detail_index = 0
     quotation = order.quotation
     if quotation is None:
         supplier = order.supplier
@@ -508,111 +508,111 @@ def purchase_order_xls_report(order):
     ws['I30'] = 'TOTAL'
 
     for item in PurchaseOrderDetail.objects.filter(order=order):
-        fila = 31 + detalle_index
-        ws['B' + str(fila)].alignment = Alignment(horizontal="center")
-        ws['B' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+        row = 31 + detail_index
+        ws['B' + str(row)].alignment = Alignment(horizontal="center")
+        ws['B' + str(row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['B' + str(fila)] = item.product.unit_of_measure.description
-        ws.merge_cells('C' + str(fila) + ':F' + str(fila))
-        ws['C' + str(fila)].alignment = Alignment(horizontal="center")
-        ws['C' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+        ws['B' + str(row)] = item.product.unit_of_measure.description
+        ws.merge_cells('C' + str(row) + ':F' + str(row))
+        ws['C' + str(row)].alignment = Alignment(horizontal="center")
+        ws['C' + str(row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['C' + str(fila)] = item.product.description
-        ws['G' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+        ws['C' + str(row)] = item.product.description
+        ws['G' + str(row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['G' + str(fila)] = item.quantity
-        ws['H' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+        ws['G' + str(row)] = item.quantity
+        ws['H' + str(row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['H' + str(fila)] = item.price
-        ws['I' + str(fila)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+        ws['H' + str(row)] = item.price
+        ws['I' + str(row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                             top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-        ws['I' + str(fila)] = item.quantity * item.price
-        detalle_index += 1
+        ws['I' + str(row)] = item.quantity * item.price
+        detail_index += 1
 
-    fila_total = 31 + detalle_index
-    ws.merge_cells('G' + str(fila_total) + ':H' + str(fila_total))
-    ws['G' + str(fila_total)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_total)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    total_row = 31 + detail_index
+    ws.merge_cells('G' + str(total_row) + ':H' + str(total_row))
+    ws['G' + str(total_row)].alignment = Alignment(horizontal="center")
+    ws['G' + str(total_row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['G' + str(fila_total)] = 'SUBTOTAL'
-    ws['I' + str(fila_total)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    ws['G' + str(total_row)] = 'SUBTOTAL'
+    ws['I' + str(total_row)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total)] = order.subtotal
-    ws.merge_cells('G' + str(fila_total + 1) + ':H' + str(fila_total + 1))
-    ws['G' + str(fila_total + 1)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_total + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    ws['I' + str(total_row)] = order.subtotal
+    ws.merge_cells('G' + str(total_row + 1) + ':H' + str(total_row + 1))
+    ws['G' + str(total_row + 1)].alignment = Alignment(horizontal="center")
+    ws['G' + str(total_row + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['G' + str(fila_total + 1)] = 'IMPUESTO 18% IGV'
-    ws['I' + str(fila_total + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    ws['G' + str(total_row + 1)] = 'IMPUESTO 18% IGV'
+    ws['I' + str(total_row + 1)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total + 1)] = order.tax
-    ws.merge_cells('G' + str(fila_total + 2) + ':H' + str(fila_total + 2))
-    ws['G' + str(fila_total + 2)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_total + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    ws['I' + str(total_row + 1)] = order.tax
+    ws.merge_cells('G' + str(total_row + 2) + ':H' + str(total_row + 2))
+    ws['G' + str(total_row + 2)].alignment = Alignment(horizontal="center")
+    ws['G' + str(total_row + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['G' + str(fila_total + 2)] = 'TOTAL'
-    ws['I' + str(fila_total + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
+    ws['G' + str(total_row + 2)] = 'TOTAL'
+    ws['I' + str(total_row + 2)].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                   top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I' + str(fila_total + 2)] = order.total
+    ws['I' + str(total_row + 2)] = order.total
 
-    ws['B' + str(fila_total + 7)] = 'SON:'
-    ws.merge_cells('C' + str(fila_total + 7) + ':I' + str(fila_total + 7))
-    ws['C' + str(fila_total + 7)].font = Font(underline="single")
-    ws['C' + str(fila_total + 7)].alignment = Alignment(horizontal="center")
-    ws['C' + str(fila_total + 7)] = order.total_in_words
+    ws['B' + str(total_row + 7)] = 'SON:'
+    ws.merge_cells('C' + str(total_row + 7) + ':I' + str(total_row + 7))
+    ws['C' + str(total_row + 7)].font = Font(underline="single")
+    ws['C' + str(total_row + 7)].alignment = Alignment(horizontal="center")
+    ws['C' + str(total_row + 7)] = order.total_in_words
 
-    fila_pago = fila_total + 9
-    ws.merge_cells('E' + str(fila_pago) + ':F' + str(fila_pago))
-    ws['E' + str(fila_pago)] = 'FORMA DE PAGO'
+    payment_row = total_row + 9
+    ws.merge_cells('E' + str(payment_row) + ':F' + str(payment_row))
+    ws['E' + str(payment_row)] = 'FORMA DE PAGO'
 
-    ws.merge_cells('G' + str(fila_pago) + ':I' + str(fila_pago))
-    ws['G' + str(fila_pago)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago)] = order.payment_method.description
-    ws.merge_cells('E' + str(fila_pago + 1) + ':F' + str(fila_pago + 1))
-    ws['E' + str(fila_pago + 1)] = 'BANCO'
-    ws.merge_cells('G' + str(fila_pago + 1) + ':I' + str(fila_pago + 1))
-    ws['G' + str(fila_pago + 1)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago + 1)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago + 1)] = ''
+    ws.merge_cells('G' + str(payment_row) + ':I' + str(payment_row))
+    ws['G' + str(payment_row)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row)] = order.payment_method.description
+    ws.merge_cells('E' + str(payment_row + 1) + ':F' + str(payment_row + 1))
+    ws['E' + str(payment_row + 1)] = 'BANCO'
+    ws.merge_cells('G' + str(payment_row + 1) + ':I' + str(payment_row + 1))
+    ws['G' + str(payment_row + 1)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row + 1)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row + 1)] = ''
 
-    ws.merge_cells('E' + str(fila_pago + 2) + ':F' + str(fila_pago + 2))
-    ws['E' + str(fila_pago + 2)] = 'NÚMERO DE CTA:'
-    ws.merge_cells('G' + str(fila_pago + 2) + ':I' + str(fila_pago + 2))
-    ws['G' + str(fila_pago + 2)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago + 2)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago + 2)] = ''
+    ws.merge_cells('E' + str(payment_row + 2) + ':F' + str(payment_row + 2))
+    ws['E' + str(payment_row + 2)] = 'NÚMERO DE CTA:'
+    ws.merge_cells('G' + str(payment_row + 2) + ':I' + str(payment_row + 2))
+    ws['G' + str(payment_row + 2)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row + 2)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row + 2)] = ''
 
-    ws.merge_cells('E' + str(fila_pago + 3) + ':F' + str(fila_pago + 3))
-    ws['E' + str(fila_pago + 3)] = 'TIPO DE CUENTA'
-    ws.merge_cells('G' + str(fila_pago + 3) + ':I' + str(fila_pago + 3))
-    ws['G' + str(fila_pago + 3)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago + 3)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago + 3)] = ''
+    ws.merge_cells('E' + str(payment_row + 3) + ':F' + str(payment_row + 3))
+    ws['E' + str(payment_row + 3)] = 'TIPO DE CUENTA'
+    ws.merge_cells('G' + str(payment_row + 3) + ':I' + str(payment_row + 3))
+    ws['G' + str(payment_row + 3)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row + 3)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row + 3)] = ''
 
-    ws.merge_cells('E' + str(fila_pago + 4) + ':F' + str(fila_pago + 4))
-    ws['E' + str(fila_pago + 4)] = 'MONEDA'
-    ws.merge_cells('G' + str(fila_pago + 4) + ':I' + str(fila_pago + 4))
-    ws['G' + str(fila_pago + 4)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago + 4)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago + 4)] = ''
+    ws.merge_cells('E' + str(payment_row + 4) + ':F' + str(payment_row + 4))
+    ws['E' + str(payment_row + 4)] = 'MONEDA'
+    ws.merge_cells('G' + str(payment_row + 4) + ':I' + str(payment_row + 4))
+    ws['G' + str(payment_row + 4)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row + 4)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row + 4)] = ''
 
-    ws.merge_cells('E' + str(fila_pago + 5) + ':F' + str(fila_pago + 5))
-    ws['E' + str(fila_pago + 5)] = 'CCI'
-    ws.merge_cells('G' + str(fila_pago + 5) + ':I' + str(fila_pago + 5))
-    ws['G' + str(fila_pago + 5)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_pago + 5)].border = Border(bottom=Side(border_style="thin"))
-    ws['G' + str(fila_pago + 5)] = ''
+    ws.merge_cells('E' + str(payment_row + 5) + ':F' + str(payment_row + 5))
+    ws['E' + str(payment_row + 5)] = 'CCI'
+    ws.merge_cells('G' + str(payment_row + 5) + ':I' + str(payment_row + 5))
+    ws['G' + str(payment_row + 5)].alignment = Alignment(horizontal="center")
+    ws['G' + str(payment_row + 5)].border = Border(bottom=Side(border_style="thin"))
+    ws['G' + str(payment_row + 5)] = ''
 
-    fila_firmas = fila_pago + 11
-    ws.merge_cells('C' + str(fila_firmas) + ':E' + str(fila_firmas))
-    ws['C' + str(fila_firmas)].alignment = Alignment(horizontal="center")
-    ws['C' + str(fila_firmas)].border = Border(top=Side(border_style="thin"))
-    ws['C' + str(fila_firmas)] = 'RESPONSABLE'
-    ws.merge_cells('G' + str(fila_firmas) + ':I' + str(fila_firmas))
-    ws['G' + str(fila_firmas)].alignment = Alignment(horizontal="center")
-    ws['G' + str(fila_firmas)].border = Border(top=Side(border_style="thin"))
-    ws['G' + str(fila_firmas)] = 'APROBADO POR'
+    signatures_row = payment_row + 11
+    ws.merge_cells('C' + str(signatures_row) + ':E' + str(signatures_row))
+    ws['C' + str(signatures_row)].alignment = Alignment(horizontal="center")
+    ws['C' + str(signatures_row)].border = Border(top=Side(border_style="thin"))
+    ws['C' + str(signatures_row)] = 'RESPONSABLE'
+    ws.merge_cells('G' + str(signatures_row) + ':I' + str(signatures_row))
+    ws['G' + str(signatures_row)].alignment = Alignment(horizontal="center")
+    ws['G' + str(signatures_row)].border = Border(top=Side(border_style="thin"))
+    ws['G' + str(signatures_row)] = 'APROBADO POR'
     return wb
 
 
@@ -620,8 +620,8 @@ class QuotationRequestPdf(object):
 
     def header(self, pdf, quotation):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            pdf.drawImage(archivo_imagen, 20, 750, 120, 90, preserveAspectRatio=True)
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            pdf.drawImage(image_file, 20, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(20, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
@@ -654,16 +654,16 @@ class QuotationRequestPdf(object):
 
     def detail(self, pdf, y, quotation):
         encabezados = ('Nro', 'Descripción', 'Unidad', 'Cantidad')
-        detalles = quotation.details.all()
-        lista_detalles = []
-        for detail in detalles:
-            tupla_producto = (detail.line_number, detail.requirement_detail.product.description,
+        details = quotation.details.all()
+        detail_list = []
+        for detail in details:
+            product_tuple = (detail.line_number, detail.requirement_detail.product.description,
                               detail.requirement_detail.product.unit_of_measure.description, detail.quantity)
-            lista_detalles.append(tupla_producto)
-        adicionales = [('', '', '', '')] * (15 - len(detalles))
-        tabla_detalle = Table([encabezados] + lista_detalles + adicionales,
+            detail_list.append(product_tuple)
+        adicionales = [('', '', '', '')] * (15 - len(details))
+        detail_table = Table([encabezados] + detail_list + adicionales,
                               colWidths=[1 * cm, 13.5 * cm, 1.5 * cm, 2 * cm])
-        tabla_detalle.setStyle(TableStyle(
+        detail_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (3, 0), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -671,8 +671,8 @@ class QuotationRequestPdf(object):
                 ('ALIGN', (3, 1), (-1, -1), 'LEFT'),
             ]
         ))
-        tabla_detalle.wrapOn(pdf, 800, 600)
-        tabla_detalle.drawOn(pdf, 40, y + 80)
+        detail_table.wrapOn(pdf, 800, 600)
+        detail_table.drawOn(pdf, 40, y + 80)
 
     def notes_box(self, pdf, y, quotation):
         p = ParagraphStyle('parrafos')
@@ -741,8 +741,8 @@ class ServiceConformityMemoPdf(object):
 
     def header(self, pdf, conformity):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            pdf.drawImage(archivo_imagen, 40, 750, 100, 70, preserveAspectRatio=True)
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            pdf.drawImage(image_file, 40, 750, 100, 70, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 750, 'LOGO')
         pdf.setFont("Times-Roman", 14)
@@ -755,40 +755,40 @@ class ServiceConformityMemoPdf(object):
         requirement = conformity.service_order.quotation.requirement
         gerencia_inmediata = requirement.office.management
         requester = requirement.requester
-        puesto_solicitante = requester.position
-        if puesto_solicitante is None:
-            puesto_solicitante = self.get_position(requirement.office, conformity)
-        puesto_jefe_inmediato = self.superior_position(requirement.office, conformity)
-        jefe_inmediato = puesto_jefe_inmediato.worker
+        requester_position = requester.position
+        if requester_position is None:
+            requester_position = self.get_position(requirement.office, conformity)
+        immediate_boss_position = self.superior_position(requirement.office, conformity)
+        immediate_boss = immediate_boss_position.worker
         y = 690
-        if puesto_solicitante.office.code == 'GGEN':
-            puesto_gerente = self.get_position(configuration().administration, conformity)
-        elif puesto_solicitante.office.code == 'GOPE' and not puesto_solicitante.is_leadership:
-            puesto_gerente = self.get_position(requirement.office, conformity)
+        if requester_position.office.code == 'GGEN':
+            management_position = self.get_position(configuration().administration, conformity)
+        elif requester_position.office.code == 'GOPE' and not requester_position.is_leadership:
+            management_position = self.get_position(requirement.office, conformity)
         else:
-            puesto_gerente = self.get_position(gerencia_inmediata, conformity)
-        gerente = puesto_gerente.worker
-        if puesto_gerente.pk == puesto_jefe_inmediato.pk or puesto_jefe_inmediato.pk == puesto_solicitante.pk:
+            management_position = self.get_position(gerencia_inmediata, conformity)
+        gerente = management_position.worker
+        if management_position.pk == immediate_boss_position.pk or immediate_boss_position.pk == requester_position.pk:
             pdf.drawString(50, y, u"A           :    " + gerente.full_name())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_gerente.name)
+            pdf.drawString(50, y, u"                   " + management_position.name)
             y = y - 20
-            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.worker.full_name())
+            pdf.drawString(50, y, u"DE        :     " + requester_position.worker.full_name())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
+            pdf.drawString(50, y, u"                   " + requester_position.name)
             y = y - 50
         else:
             pdf.drawString(50, y, u"A           :    " + gerente.full_name())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_gerente.name)
+            pdf.drawString(50, y, u"                   " + management_position.name)
             y = y - 20
-            pdf.drawString(50, y, u"                   " + jefe_inmediato.full_name())
+            pdf.drawString(50, y, u"                   " + immediate_boss.full_name())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_jefe_inmediato.name)
+            pdf.drawString(50, y, u"                   " + immediate_boss_position.name)
             y = y - 20
-            pdf.drawString(50, y, u"DE        :     " + puesto_solicitante.worker.full_name())
+            pdf.drawString(50, y, u"DE        :     " + requester_position.worker.full_name())
             y = y - 20
-            pdf.drawString(50, y, u"                   " + puesto_solicitante.name)
+            pdf.drawString(50, y, u"                   " + requester_position.name)
             y = y - 30
         estilo_parrafo = ParagraphStyle('parrafos')
         estilo_parrafo.alignment = TA_JUSTIFY
@@ -807,16 +807,16 @@ class ServiceConformityMemoPdf(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 9
         p.fontName = "Times-Roman"
-        detalles = []
+        details = []
         cont = 0
         for detail in ServiceConformityDetail.objects.filter(conformity=conformity):
             description = detail.service_order_detail.quotation_detail.requirement_detail.product.description + '-' + detail.service_order_detail.quotation_detail.requirement_detail.use
             if len(description) > 58:
                 cont = cont + 1
-            detalles.append((detail.line_number, Paragraph(description, p)))
-        adicionales = [('', '')] * (8 - cont - len(detalles))
-        detalle_orden = Table([encabezados] + detalles + adicionales, colWidths=[0.8 * cm, 17 * cm])
-        detalle_orden.setStyle(TableStyle(
+            details.append((detail.line_number, Paragraph(description, p)))
+        adicionales = [('', '')] * (8 - cont - len(details))
+        order_detail = Table([encabezados] + details + adicionales, colWidths=[0.8 * cm, 17 * cm])
+        order_detail.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (1, 0), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -825,11 +825,11 @@ class ServiceConformityMemoPdf(object):
                 ('ALIGN', (1, 1), (-1, -1), 'RIGHT'),
             ]
         ))
-        detalle_orden.wrapOn(pdf, 800, 600)
-        detalle_orden.drawOn(pdf, 40, y + 75)
+        order_detail.wrapOn(pdf, 800, 600)
+        order_detail.drawOn(pdf, 40, y + 75)
 
-    def signature(self, pdf, x_texto, y_texto, texto, x_ini_linea, x_fin_linea, y_linea):
-        pdf.drawString(x_texto, y_texto, texto)
+    def signature(self, pdf, x_text, y_text, text, x_ini_linea, x_fin_linea, y_linea):
+        pdf.drawString(x_text, y_text, text)
         pdf.line(x_ini_linea, y_linea, x_fin_linea, y_linea)
 
     def render(self, conformity):
@@ -857,8 +857,8 @@ class ServiceOrderPdf(object):
 
     def header(self, pdf, order):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            pdf.drawImage(archivo_imagen, 40, 750, 120, 90, preserveAspectRatio=True)
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            pdf.drawImage(image_file, 40, 750, 120, 90, preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
@@ -903,7 +903,7 @@ class ServiceOrderPdf(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 9
         p.fontName = "Times-Roman"
-        detalles = []
+        details = []
         cont = 0
 
         for detail in ServiceOrderDetail.objects.filter(order=order):
@@ -911,20 +911,20 @@ class ServiceOrderPdf(object):
                 description = detail.quotation_detail.requirement_detail.product.description
                 if len(description) > 58:
                     cont = cont + 1
-                detalles.append(
+                details.append(
                     (detail.line_number, detail.quantity, Paragraph(description, p), detail.price, detail.amount))
             except (ObjectDoesNotExist, AttributeError):
                 description = detail.product.description
                 if len(description) > 58:
                     cont = cont + 1
-                detalles.append(
+                details.append(
                     (detail.line_number, detail.quantity, Paragraph(description, p), detail.price, detail.amount))
 
-        # detalles = [(detail.line_number, detail.quantity, Paragraph(detail.service.description+'-'+detail.description,p), detail.price,detail.amount) for detail in ServiceOrderDetail.objects.filter(order=order)]
-        adicionales = [('', '', '', '', '')] * (15 - cont - len(detalles))
-        detalle_orden = Table([encabezados] + detalles + adicionales,
+        # details = [(detail.line_number, detail.quantity, Paragraph(detail.service.description+'-'+detail.description,p), detail.price,detail.amount) for detail in ServiceOrderDetail.objects.filter(order=order)]
+        adicionales = [('', '', '', '', '')] * (15 - cont - len(details))
+        order_detail = Table([encabezados] + details + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 11.3 * cm, 2 * cm, 2.5 * cm])
-        detalle_orden.setStyle(TableStyle(
+        order_detail.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (4, 0), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -933,8 +933,8 @@ class ServiceOrderPdf(object):
                 ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
             ]
         ))
-        detalle_orden.wrapOn(pdf, 800, 600)
-        detalle_orden.drawOn(pdf, 40, y + 75)
+        order_detail.wrapOn(pdf, 800, 600)
+        order_detail.drawOn(pdf, 40, y + 75)
         # Letras
         total_in_words = [("SON: " + order.total_in_words, '')]
         total_in_words_table = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
@@ -1021,26 +1021,26 @@ class ServiceOrderPdf(object):
         pdf.setFont("Times-Roman", 6)
         pdf.drawString(525, y - 127, "FECHA")
         afectacion = [[(Paragraph("IMPORTANTE:", p), lista), "RECIBIDO POR:"]]
-        tabla_afectacion = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
-        tabla_afectacion.setStyle(TableStyle(
+        budget_table = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
+        budget_table.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (1, 0), 1, colors.black),
                 ('VALIGN', (1, 0), (1, 0), 'TOP'),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
             ]
         ))
-        tabla_afectacion.wrapOn(pdf, 800, 600)
-        tabla_afectacion.drawOn(pdf, 40, y - 200)
+        budget_table.wrapOn(pdf, 800, 600)
+        budget_table.drawOn(pdf, 40, y - 200)
         date = [[' ', ' ', ' ']]
-        tabla_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
-        tabla_date.setStyle(TableStyle(
+        table_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
+        table_date.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 5),
             ]
         ))
-        tabla_date.wrapOn(pdf, 800, 600)
-        tabla_date.drawOn(pdf, 510, y - 120)
+        table_date.wrapOn(pdf, 800, 600)
+        table_date.drawOn(pdf, 510, y - 120)
 
     def render(self, order):
         """Devuelve el PDF ya generado."""
@@ -1071,8 +1071,8 @@ class PurchaseOrderPdf(object):
 
     def header(self, pdf, order):
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            pdf.drawImage(archivo_imagen, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            pdf.drawImage(image_file, 40, 750, 100, 90, mask='auto', preserveAspectRatio=True)
         except Exception:
             pdf.drawString(40, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
@@ -1114,18 +1114,18 @@ class PurchaseOrderPdf(object):
     def detail(self, pdf, y, order):
         encabezados = ('Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total')
         try:
-            detalles = [(detail.line_number, detail.quantity,
+            details = [(detail.line_number, detail.quantity,
                          detail.quotation_detail.requirement_detail.product.unit_of_measure.description,
                          detail.quotation_detail.requirement_detail.product.description, detail.price,
                          round(detail.amount, 5)) for detail in PurchaseOrderDetail.objects.filter(order=order)]
         except (ObjectDoesNotExist, AttributeError):
-            detalles = [(detail.line_number, detail.quantity, detail.product.unit_of_measure.description,
+            details = [(detail.line_number, detail.quantity, detail.product.unit_of_measure.description,
                          detail.product.description, detail.price, round(detail.price, 5)) for detail in
                         PurchaseOrderDetail.objects.filter(order=order)]
-        adicionales = [('', '', '', '', '', '')] * (15 - len(detalles))
-        detalle_orden = Table([encabezados] + detalles + adicionales,
+        adicionales = [('', '', '', '', '', '')] * (15 - len(details))
+        order_detail = Table([encabezados] + details + adicionales,
                               colWidths=[0.8 * cm, 1.9 * cm, 2 * cm, 9.3 * cm, 2 * cm, 2.5 * cm])
-        detalle_orden.setStyle(TableStyle(
+        order_detail.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (5, 0), 'CENTER'),
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -1134,8 +1134,8 @@ class PurchaseOrderPdf(object):
                 ('ALIGN', (4, 1), (-1, -1), 'RIGHT'),
             ]
         ))
-        detalle_orden.wrapOn(pdf, 800, 600)
-        detalle_orden.drawOn(pdf, 40, y + 75)
+        order_detail.wrapOn(pdf, 800, 600)
+        order_detail.drawOn(pdf, 40, y + 75)
         # Letras
         total_in_words = [("SON: " + order.total_in_words, '')]
         total_in_words_table = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
@@ -1223,26 +1223,26 @@ class PurchaseOrderPdf(object):
         pdf.setFont("Times-Roman", 6)
         pdf.drawString(525, y - 127, "FECHA")
         afectacion = [[(Paragraph("IMPORTANTE:", p), lista), "RECIBIDO POR:"]]
-        tabla_afectacion = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
-        tabla_afectacion.setStyle(TableStyle(
+        budget_table = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
+        budget_table.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (1, 0), 1, colors.black),
                 ('VALIGN', (1, 0), (1, 0), 'TOP'),
                 ('FONTSIZE', (0, 0), (-1, -1), 8),
             ]
         ))
-        tabla_afectacion.wrapOn(pdf, 800, 600)
-        tabla_afectacion.drawOn(pdf, 40, y - 200)
+        budget_table.wrapOn(pdf, 800, 600)
+        budget_table.drawOn(pdf, 40, y - 200)
         date = [[' ', ' ', ' ']]
-        tabla_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
-        tabla_date.setStyle(TableStyle(
+        table_date = Table(date, colWidths=[0.6 * cm, 0.6 * cm, 0.6 * cm], rowHeights=0.6 * cm)
+        table_date.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
                 ('FONTSIZE', (0, 0), (-1, -1), 5),
             ]
         ))
-        tabla_date.wrapOn(pdf, 800, 600)
-        tabla_date.drawOn(pdf, 510, y - 120)
+        table_date.wrapOn(pdf, 800, 600)
+        table_date.drawOn(pdf, 510, y - 120)
 
     def render(self, order):
         """Devuelve el PDF ya generado."""

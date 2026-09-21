@@ -23,8 +23,8 @@ class ExchangeRate(TimeStampedModel):
         ordering = ['date']
 
     def previous(self):
-        ant = ExchangeRate.objects.previous(self)
-        return ant.pk
+        previous = ExchangeRate.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = ExchangeRate.objects.next(self)
@@ -50,8 +50,8 @@ class Account(TimeStampedModel):
         ordering = ['account_number']
 
     def previous(self):
-        ant = Account.objects.previous(self)
-        return ant.pk
+        previous = Account.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Account.objects.next(self)
@@ -71,12 +71,12 @@ class PaymentMethod(TimeStampedModel):
     class Meta:
         permissions = (('cargar_formas_pago', 'Puede cargar Formas de Pago desde un archivo externo'),
                        ('ver_detalle_forma_pago', 'Puede ver detalle de Forma de Pago'),
-                       ('ver_tabla_formas_pago', 'Puede ver tabla Formas de Pago'),
+                       ('ver_tabla_formas_pago', 'Puede ver table Formas de Pago'),
                        ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel'),)
 
     def previous(self):
-        ant = PaymentMethod.objects.previous(self)
-        return ant.pk
+        previous = PaymentMethod.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = PaymentMethod.objects.next(self)
@@ -95,14 +95,14 @@ class DocumentType(TimeStampedModel):
 
     class Meta:
         permissions = (('cargar_tipos_documento', 'Puede cargar Tipos de Documento desde un archivo externo'),
-                       ('ver_detalle_tipo_documento', 'Puede ver detalle Tipo de Documento'),
+                       ('ver_detalle_tipo_documento', 'Puede ver detail Tipo de Documento'),
                        ('ver_tabla_tipos_documentos', 'Puede ver tabla de Tipos de Documentos'),
                        ('ver_reporte_tipos_documentos_excel', 'Puede ver Reporte de Tipos de Documentos en excel'),)
         ordering = ['sunat_code']
 
     def previous(self):
-        ant = DocumentType.objects.previous(self)
-        return ant.pk
+        previous = DocumentType.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = DocumentType.objects.next(self)
@@ -120,7 +120,7 @@ class Type(TimeStampedModel):
     quantity = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
 
     class Meta:
-        permissions = (('ver_detalle_tipo', 'Puede ver detalle Tipo de Documento'),
+        permissions = (('ver_detalle_tipo', 'Puede ver detail Tipo de Documento'),
                        ('ver_tabla_tipos', 'Puede ver tabla de Tipos de Documentos'),
                        ('ver_reporte_tipos_excel', 'Puede ver Reporte de Tipos de Documentos en excel'),)
         ordering = ['code']
@@ -143,14 +143,14 @@ class Tax(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
 
     class Meta:
-        permissions = (('ver_detalle_impuesto', 'Puede ver detalle Impuesto'),
+        permissions = (('ver_detalle_impuesto', 'Puede ver detail Impuesto'),
                        ('ver_tabla_impuestos', 'Puede ver tabla de Impuestos'),
                        ('ver_reporte_impuestos_excel', 'Puede ver Reporte de Impuestos en excel'),)
         ordering = ['abbreviation']
 
     def previous(self):
-        ant = Tax.objects.previous(self)
-        return ant.pk
+        previous = Tax.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Tax.objects.next(self)

@@ -28,7 +28,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">COD_SUNAT</th>
@@ -36,14 +36,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for tipo in tipos %}
+            {% for type in types %}
             {% if perms.contabilidad.ver_detalle_tipo_documento %}
-            <tr onclick="location.href='{% url 'contabilidad:document_type_detail' tipo.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:document_type_detail' type.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ tipo.sunat_code }}</td>
-                <td>{{ tipo.name }}</td>
+                <td>{{ type.sunat_code }}</td>
+                <td>{{ type.name }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -56,7 +56,7 @@
 $(document).ready(function() 
 {	
     var borrarSeleccionado;
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

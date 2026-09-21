@@ -47,24 +47,24 @@ class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_proveedores = Supplier.objects.count()
-        cant_productos = Product.objects.filter(is_service=False).count()
-        cant_tipos_unidad_medida = UnitOfMeasure.objects.count()
-        cant_grupos_suministros = ProductGroup.objects.count()
-        cant_servicios = Product.objects.filter(is_service=True).count()
+        supplier_count = Supplier.objects.count()
+        product_count = Product.objects.filter(is_service=False).count()
+        unit_of_measure_count = UnitOfMeasure.objects.count()
+        supply_group_count = ProductGroup.objects.count()
+        service_count = Product.objects.filter(is_service=True).count()
         unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
-        if cant_proveedores == 0:
+        if supplier_count == 0:
             lista_notificaciones.append("No se ha creado ningún proveedor")
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
-        if cant_productos == 0:
+        if product_count == 0:
             lista_notificaciones.append("No se ha creado ningún producto")
-        if cant_tipos_unidad_medida == 0:
+        if unit_of_measure_count == 0:
             lista_notificaciones.append("No se ha creado ningún tipo de unidad de medida")
-        if cant_grupos_suministros == 0:
+        if supply_group_count == 0:
             lista_notificaciones.append("No se ha creado ningún grupo de productos")
-        if cant_servicios == 0:
+        if service_count == 0:
             lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'compras/tablero_compras.html', context)
@@ -78,11 +78,11 @@ class QuotationSearch(AjaxOnlyMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
             quotation = Quotation.objects.get(code=code)
-            cotizacion_json = {}
-            cotizacion_json['tax_id'] = quotation.supplier.tax_id
-            cotizacion_json['business_name'] = quotation.supplier.business_name
-            cotizacion_json['address'] = quotation.supplier.address
-            data = simplejson.dumps(cotizacion_json)
+            quotation_json = {}
+            quotation_json['tax_id'] = quotation.supplier.tax_id
+            quotation_json['business_name'] = quotation.supplier.business_name
+            quotation_json['address'] = quotation.supplier.address
+            data = simplejson.dumps(quotation_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -93,16 +93,16 @@ class SupplierNameSearch(AjaxOnlyMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             business_name = request.GET['business_name']
-            proveedores = Supplier.objects.filter(business_name__icontains=business_name)[:20]
-            lista_proveedores = []
-            for supplier in proveedores:
-                proveedor_json = {}
-                proveedor_json['label'] = supplier.business_name
-                proveedor_json['tax_id'] = supplier.tax_id
-                proveedor_json['address'] = supplier.address
-                proveedor_json['order'] = str(ServiceOrder.objects.last_record())
-                lista_proveedores.append(proveedor_json)
-            data = json.dumps(lista_proveedores)
+            suppliers = Supplier.objects.filter(business_name__icontains=business_name)[:20]
+            supplier_list = []
+            for supplier in suppliers:
+                supplier_json = {}
+                supplier_json['label'] = supplier.business_name
+                supplier_json['tax_id'] = supplier.tax_id
+                supplier_json['address'] = supplier.address
+                supplier_json['order'] = str(ServiceOrder.objects.last_record())
+                supplier_list.append(supplier_json)
+            data = json.dumps(supplier_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -114,13 +114,13 @@ class SupplierTaxIdSearch(AjaxOnlyMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             tax_id = request.GET['tax_id']
             supplier = Supplier.objects.get(tax_id=tax_id)
-            proveedor_json = {}
-            proveedor_json['business_name'] = supplier.business_name
-            proveedor_json['address'] = supplier.address
-            proveedor_json['estado'] = supplier.sunat_status
-            proveedor_json['es_locador'] = supplier.es_locador
-            proveedor_json['order'] = str(ServiceOrder.objects.last_record())
-            data = simplejson.dumps(proveedor_json)
+            supplier_json = {}
+            supplier_json['business_name'] = supplier.business_name
+            supplier_json['address'] = supplier.address
+            supplier_json['status'] = supplier.sunat_status
+            supplier_json['es_locador'] = supplier.es_locador
+            supplier_json['order'] = str(ServiceOrder.objects.last_record())
+            data = simplejson.dumps(supplier_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -129,10 +129,10 @@ class SupplierImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('compras:supplier_list')
 
-    def process_row(self, fila):
-        Supplier.objects.get_or_create(tax_id=fila[0],
-                                        defaults={'business_name': fila[1],
-                                                  'address': fila[2],
+    def process_row(self, row):
+        Supplier.objects.get_or_create(tax_id=row[0],
+                                        defaults={'business_name': row[1],
+                                                  'address': row[2],
                                                   'registration_date': datetime.datetime.now(),
                                                   'sunat_status': 'ACTIVO',
                                                   'sunat_condition': 'HABIDO',
@@ -160,7 +160,7 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            lista_detalles = []
+            detail_list = []
             det = {}
             det['quotation'] = '0'
             det['code'] = ''
@@ -170,20 +170,20 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['price'] = '0'
             det['tax'] = '0'
             det['amount'] = '0'
-            lista_detalles.append(det)
-            formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
+            detail_list.append(det)
+            formset = PurchaseOrderDetailFormSet(initial=detail_list)
             lista_json = []
             for form in formset:
-                detalle_json = {}
-                detalle_json['quotation'] = str(form['quotation'])
-                detalle_json['code'] = str(form['code'])
-                detalle_json['name'] = str(form['name'])
-                detalle_json['unit'] = str(form['unit'])
-                detalle_json['quantity'] = str(form['quantity'])
-                detalle_json['price'] = str(form['price'])
-                detalle_json['tax'] = str(form['tax'])
-                detalle_json['amount'] = str(form['amount'])
-                lista_json.append(detalle_json)
+                detail_json = {}
+                detail_json['quotation'] = str(form['quotation'])
+                detail_json['code'] = str(form['code'])
+                detail_json['name'] = str(form['name'])
+                detail_json['unit'] = str(form['unit'])
+                detail_json['quantity'] = str(form['quantity'])
+                detail_json['price'] = str(form['price'])
+                detail_json['tax'] = str(form['tax'])
+                detail_json['amount'] = str(form['amount'])
+                lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -192,7 +192,7 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            lista_detalles = []
+            detail_list = []
             det = {}
             det['quotation'] = '0'
             det['code'] = ''
@@ -201,19 +201,19 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['quantity'] = '0'
             det['price'] = '0'
             det['amount'] = '0'
-            lista_detalles.append(det)
-            formset = ServiceOrderDetailFormSet(initial=lista_detalles)
+            detail_list.append(det)
+            formset = ServiceOrderDetailFormSet(initial=detail_list)
             lista_json = []
             for form in formset:
-                detalle_json = {}
-                detalle_json['quotation'] = str(form['quotation'])
-                detalle_json['code'] = str(form['code'])
-                detalle_json['name'] = str(form['name'])
-                detalle_json['unit'] = str(form['unit'])
-                detalle_json['quantity'] = str(form['quantity'])
-                detalle_json['price'] = str(form['price'])
-                detalle_json['amount'] = str(form['amount'])
-                lista_json.append(detalle_json)
+                detail_json = {}
+                detail_json['quotation'] = str(form['quotation'])
+                detail_json['code'] = str(form['code'])
+                detail_json['name'] = str(form['name'])
+                detail_json['unit'] = str(form['unit'])
+                detail_json['quantity'] = str(form['quantity'])
+                detail_json['price'] = str(form['price'])
+                detail_json['amount'] = str(form['amount'])
+                lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -235,53 +235,53 @@ class QuotationCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        proveedores = Supplier.objects.all()
-        if not proveedores:
+        suppliers = Supplier.objects.all()
+        if not suppliers:
             return HttpResponseRedirect(reverse('compras:supplier_create'))
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_cotizacion_formset = QuotationDetailFormSet()
+            quotation_detail_formset = QuotationDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_cotizacion_formset=detalle_cotizacion_formset))
+                                                                 quotation_detail_formset=quotation_detail_formset))
 
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_cotizacion_formset = QuotationDetailFormSet(request.POST)
-        if form.is_valid() and detalle_cotizacion_formset.is_valid():
-            return self.form_valid(form, detalle_cotizacion_formset)
+        quotation_detail_formset = QuotationDetailFormSet(request.POST)
+        if form.is_valid() and quotation_detail_formset.is_valid():
+            return self.form_valid(form, quotation_detail_formset)
         else:
-            return self.form_invalid(form, detalle_cotizacion_formset)
+            return self.form_invalid(form, quotation_detail_formset)
 
-    def form_valid(self, form, detalle_cotizacion_formset):
+    def form_valid(self, form, quotation_detail_formset):
         # try:
         with transaction.atomic():
             self.object = form.save()
             reference = self.object.requirement
-            detalles = []
+            details = []
             cont = 1
-            for detalle_cotizacion_form in detalle_cotizacion_formset:
-                requirement = detalle_cotizacion_form.cleaned_data.get('requirement')
-                quantity = detalle_cotizacion_form.cleaned_data.get('quantity')
+            for quotation_detail_form in quotation_detail_formset:
+                requirement = quotation_detail_form.cleaned_data.get('requirement')
+                quantity = quotation_detail_form.cleaned_data.get('quantity')
                 requirement_detail = RequirementDetail.objects.get(pk=requirement)
                 if quantity:
                     quotation_detail = QuotationDetail(requirement_detail=requirement_detail,
                                                            line_number=cont,
                                                            quotation=self.object,
                                                            quantity=quantity)
-                    detalles.append(quotation_detail)
+                    details.append(quotation_detail)
 
                     cont = cont + 1
-            QuotationDetail.objects.bulk_create(detalles, reference, None)
+            QuotationDetail.objects.bulk_create(details, reference, None)
             return HttpResponseRedirect(reverse('compras:quotation_detail', args=[self.object.code]))
         # except IntegrityError:
         # messages.error(self.request, 'Error guardando la cotizacion.')
 
-    def form_invalid(self, form, detalle_cotizacion_formset):
+    def form_invalid(self, form, quotation_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_cotizacion_formset=detalle_cotizacion_formset))
+                                                             quotation_detail_formset=quotation_detail_formset))
 
 
 class PurchaseOrderCreate(CreateView):
@@ -296,12 +296,12 @@ class PurchaseOrderCreate(CreateView):
     def get_initial(self):
         initial = super(PurchaseOrderCreate, self).get_initial()
         try:
-            monto_impuesto = purchase_tax().amount
+            tax_amount = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuration'))
         initial['date'] = date.today().strftime('%d/%m/%Y')
         initial['code'] = PurchaseOrder.objects.last_record()
-        initial['current_tax'] = monto_impuesto
+        initial['current_tax'] = tax_amount
         initial['total'] = 0
         initial['subtotal'] = 0
         initial['tax'] = 0
@@ -318,9 +318,9 @@ class PurchaseOrderCreate(CreateView):
                 configuration()
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalle_orden_compra_formset = PurchaseOrderDetailFormSet()
+                purchase_order_detail_formset = PurchaseOrderDetailFormSet()
                 return self.render_to_response(self.get_context_data(form=form,
-                                                                     detalle_orden_compra_formset=detalle_orden_compra_formset))
+                                                                     purchase_order_detail_formset=purchase_order_detail_formset))
             except Exception:
                 return HttpResponseRedirect(reverse('contabilidad:configuration'))
 
@@ -328,26 +328,26 @@ class PurchaseOrderCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_compra_formset = PurchaseOrderDetailFormSet(request.POST)
-        if form.is_valid() and detalle_orden_compra_formset.is_valid():
-            return self.form_valid(form, detalle_orden_compra_formset)
+        purchase_order_detail_formset = PurchaseOrderDetailFormSet(request.POST)
+        if form.is_valid() and purchase_order_detail_formset.is_valid():
+            return self.form_valid(form, purchase_order_detail_formset)
         else:
-            return self.form_invalid(form, detalle_orden_compra_formset)
+            return self.form_invalid(form, purchase_order_detail_formset)
 
-    def form_valid(self, form, detalle_orden_compra_formset):
+    def form_valid(self, form, purchase_order_detail_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 reference = self.object.quotation
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_orden_compra_form in detalle_orden_compra_formset:
-                    quotation = detalle_orden_compra_form.cleaned_data.get('quotation')
-                    code = detalle_orden_compra_form.cleaned_data.get('code')
-                    quantity = detalle_orden_compra_form.cleaned_data.get('quantity')
-                    price = detalle_orden_compra_form.cleaned_data.get('price')
-                    amount = detalle_orden_compra_form.cleaned_data.get('amount')
-                    tax = detalle_orden_compra_form.cleaned_data.get('tax')
+                for purchase_order_detail_form in purchase_order_detail_formset:
+                    quotation = purchase_order_detail_form.cleaned_data.get('quotation')
+                    code = purchase_order_detail_form.cleaned_data.get('code')
+                    quantity = purchase_order_detail_form.cleaned_data.get('quantity')
+                    price = purchase_order_detail_form.cleaned_data.get('price')
+                    amount = purchase_order_detail_form.cleaned_data.get('amount')
+                    tax = purchase_order_detail_form.cleaned_data.get('tax')
                     if quantity and price and amount and tax:
                         try:
                             quotation_detail = QuotationDetail.objects.get(pk=quotation)
@@ -363,17 +363,17 @@ class PurchaseOrderCreate(CreateView):
                                                                       order=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
-                        detalles.append(purchase_order_detail)
+                        details.append(purchase_order_detail)
                         cont = cont + 1
                 if cont > 1:
-                    PurchaseOrderDetail.objects.bulk_create(detalles, reference)
+                    PurchaseOrderDetail.objects.bulk_create(details, reference)
                 return HttpResponseRedirect(reverse('compras:purchase_order_detail', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la orden de compra.')
 
-    def form_invalid(self, form, detalle_orden_compra_formset):
+    def form_invalid(self, form, purchase_order_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_orden_compra_formset=detalle_orden_compra_formset))
+                                                             purchase_order_detail_formset=purchase_order_detail_formset))
 
 
 class ServiceOrderCreate(CreateView):
@@ -402,33 +402,33 @@ class ServiceOrderCreate(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_orden_servicios_formset = ServiceOrderDetailFormSet()
+            service_order_detail_formset = ServiceOrderDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+                                                                 service_order_detail_formset=service_order_detail_formset))
 
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_servicios_formset = ServiceOrderDetailFormSet(request.POST)
-        if form.is_valid() and detalle_orden_servicios_formset.is_valid():
-            return self.form_valid(form, detalle_orden_servicios_formset)
+        service_order_detail_formset = ServiceOrderDetailFormSet(request.POST)
+        if form.is_valid() and service_order_detail_formset.is_valid():
+            return self.form_valid(form, service_order_detail_formset)
         else:
-            return self.form_invalid(form, detalle_orden_servicios_formset)
+            return self.form_invalid(form, service_order_detail_formset)
 
-    def form_valid(self, form, detalle_orden_servicios_formset):
+    def form_valid(self, form, service_order_detail_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 reference = self.object.quotation
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_orden_servicios_form in detalle_orden_servicios_formset:
-                    quotation = detalle_orden_servicios_form.cleaned_data.get('quotation')
-                    code = detalle_orden_servicios_form.cleaned_data.get('code')
-                    quantity = detalle_orden_servicios_form.cleaned_data.get('quantity')
-                    price = detalle_orden_servicios_form.cleaned_data.get('price')
-                    amount = detalle_orden_servicios_form.cleaned_data.get('amount')
+                for service_order_detail_form in service_order_detail_formset:
+                    quotation = service_order_detail_form.cleaned_data.get('quotation')
+                    code = service_order_detail_form.cleaned_data.get('code')
+                    quantity = service_order_detail_form.cleaned_data.get('quantity')
+                    price = service_order_detail_form.cleaned_data.get('price')
+                    amount = service_order_detail_form.cleaned_data.get('amount')
                     if quantity and price and amount:
                         try:
                             quotation_detail = QuotationDetail.objects.get(pk=quotation)
@@ -447,16 +447,16 @@ class ServiceOrderCreate(CreateView):
                                                                             price=price,
                                                                             amount=amount)
 
-                        detalles.append(service_order_detail)
+                        details.append(service_order_detail)
                         cont = cont + 1
-                ServiceOrderDetail.objects.bulk_create(detalles, reference)
+                ServiceOrderDetail.objects.bulk_create(details, reference)
                 return HttpResponseRedirect(reverse('compras:service_order_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
-    def form_invalid(self, form, detalle_orden_servicios_formset):
+    def form_invalid(self, form, service_order_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+                                                             service_order_detail_formset=service_order_detail_formset))
 
 
 class ServiceConformityCreate(CreateView):
@@ -483,32 +483,32 @@ class ServiceConformityCreate(CreateView):
         else:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_conformidad_servicio_formset = ServiceConformityDetailFormSet()
+            service_conformity_detail_formset = ServiceConformityDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_conformidad_servicio_formset=detalle_conformidad_servicio_formset))
+                                                                 service_conformity_detail_formset=service_conformity_detail_formset))
 
     def post(self, request, *args, **kwargs):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_conformidad_servicio_formset = ServiceConformityDetailFormSet(request.POST)
-        if form.is_valid() and detalle_conformidad_servicio_formset.is_valid():
-            return self.form_valid(form, detalle_conformidad_servicio_formset)
+        service_conformity_detail_formset = ServiceConformityDetailFormSet(request.POST)
+        if form.is_valid() and service_conformity_detail_formset.is_valid():
+            return self.form_valid(form, service_conformity_detail_formset)
         else:
-            return self.form_invalid(form, detalle_conformidad_servicio_formset)
+            return self.form_invalid(form, service_conformity_detail_formset)
 
-    def form_valid(self, form, detalle_conformidad_servicio_formset):
+    def form_valid(self, form, service_conformity_detail_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
                 reference = self.object.service_order
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_orden_servicios_form in detalle_conformidad_servicio_formset:
-                    service_order = detalle_orden_servicios_form.cleaned_data.get('service_order')
-                    quantity = detalle_orden_servicios_form.cleaned_data.get('quantity')
-                    price = detalle_orden_servicios_form.cleaned_data.get('price')
-                    amount = detalle_orden_servicios_form.cleaned_data.get('amount')
+                for service_order_detail_form in service_conformity_detail_formset:
+                    service_order = service_order_detail_form.cleaned_data.get('service_order')
+                    quantity = service_order_detail_form.cleaned_data.get('quantity')
+                    price = service_order_detail_form.cleaned_data.get('price')
+                    amount = service_order_detail_form.cleaned_data.get('amount')
                     service_order_detail = ServiceOrderDetail.objects.get(pk=service_order)
                     if quantity and price and amount:
                         detalle_conformidad_servicio = ServiceConformityDetail(
@@ -516,16 +516,16 @@ class ServiceConformityCreate(CreateView):
                             line_number=cont,
                             conformity=self.object,
                             quantity=quantity)
-                        detalles.append(detalle_conformidad_servicio)
+                        details.append(detalle_conformidad_servicio)
                         cont = cont + 1
-                ServiceConformityDetail.objects.bulk_create(detalles, reference)
+                ServiceConformityDetail.objects.bulk_create(details, reference)
                 return HttpResponseRedirect(reverse('compras:service_conformity_detail_view', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
-    def form_invalid(self, form, detalle_conformidad_servicio_formset):
+    def form_invalid(self, form, service_conformity_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_conformidad_servicio_form=detalle_conformidad_servicio_formset))
+                                                             service_conformity_detail_form=service_conformity_detail_formset))
 
 
 class SupplierDetail(DetailView):
@@ -565,24 +565,24 @@ class QuotationDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             quotation = Quotation.objects.get(code=code)
-            cotizacion_json = {}
-            cotizacion_json['code'] = code
-            ordenes_servicios = quotation.service_orders.all()
-            if len(ordenes_servicios) > 0:
-                cotizacion_json['ordenes'] = 'SI'
+            quotation_json = {}
+            quotation_json['code'] = code
+            service_orders = quotation.service_orders.all()
+            if len(service_orders) > 0:
+                quotation_json['orders'] = 'SI'
             else:
-                cotizacion_json['ordenes'] = 'NO'
-                ordenes_compras = quotation.purchase_orders.all()
-                if len(ordenes_compras) > 0:
-                    cotizacion_json['ordenes'] = 'SI'
+                quotation_json['orders'] = 'NO'
+                purchase_orders = quotation.purchase_orders.all()
+                if len(purchase_orders) > 0:
+                    quotation_json['orders'] = 'SI'
                 else:
-                    cotizacion_json['ordenes'] = 'NO'
+                    quotation_json['orders'] = 'NO'
 
                 with transaction.atomic():
                     quotation.delete_reference()
                     quotation.delete_quotation()
                     QuotationDetail.objects.filter(quotation=quotation).delete()
-            data = simplejson.dumps(cotizacion_json)
+            data = simplejson.dumps(quotation_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -597,18 +597,18 @@ class PurchaseOrderDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             order = PurchaseOrder.objects.get(code=code)
-            movimiento_json = {}
-            movimiento_json['code'] = code
+            movement_json = {}
+            movement_json['code'] = code
             if len(order.movements.all()) > 0:
-                movimiento_json['movimientos'] = 'SI'
+                movement_json['movements'] = 'SI'
             else:
-                movimiento_json['movimientos'] = 'NO'
+                movement_json['movements'] = 'NO'
                 with transaction.atomic():
                     if order.quotation is not None:
                         order.delete_reference()
                     PurchaseOrder.objects.filter(code=code).update(status=PurchaseOrder.STATUS.CANC, quotation=None)
                     PurchaseOrderDetail.objects.filter(order=order).delete()
-            data = simplejson.dumps(movimiento_json)
+            data = simplejson.dumps(movement_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -623,19 +623,19 @@ class ServiceOrderDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             order = ServiceOrder.objects.get(code=code)
-            orden_json = {}
-            orden_json['code'] = code
+            order_json = {}
+            order_json['code'] = code
             if len(order.conformities.all()) > 0:
-                orden_json['conformidades'] = 'SI'
+                order_json['conformidades'] = 'SI'
             else:
-                orden_json['conformidades'] = 'NO'
+                order_json['conformidades'] = 'NO'
                 with transaction.atomic():
                     if order.quotation is not None:
                         order.delete_reference()
                     ServiceOrder.objects.filter(code=code).update(status=ServiceOrder.STATUS.CANC,
                                                                         quotation=None)
                     ServiceOrderDetail.objects.filter(order=order).delete()
-            data = simplejson.dumps(orden_json)
+            data = simplejson.dumps(order_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -650,14 +650,14 @@ class ServiceConformityDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             conformity = ServiceConformity.objects.get(code=code)
-            conformidad_json = {}
-            conformidad_json['code'] = code
+            conformity_json = {}
+            conformity_json['code'] = code
             with transaction.atomic():
                 if conformity.service_order is not None:
                     conformity.delete_reference()
                 ServiceConformity.objects.filter(code=code).update(is_active=False)
                 ServiceConformityDetail.objects.filter(conformity=conformity).delete()
-            data = simplejson.dumps(conformidad_json)
+            data = simplejson.dumps(conformity_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -671,17 +671,17 @@ class SupplierDelete(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             tax_id = request.POST['tax_id']
-            proveedor_json = {}
-            proveedor_json['tax_id'] = tax_id
+            supplier_json = {}
+            supplier_json['tax_id'] = tax_id
             Supplier.objects.filter(pk=tax_id).update(is_active=False)
-            data = simplejson.dumps(proveedor_json)
+            data = simplejson.dumps(supplier_json)
             return HttpResponse(data, 'application/json')
 
 
 class SupplierList(ListView):
     model = Supplier
     template_name = 'compras/proveedores.html'
-    context_object_name = 'proveedores'
+    context_object_name = 'suppliers'
     queryset = Supplier.objects.filter(is_active=True).order_by('business_name')
 
     @method_decorator(requires('compras.ver_tabla_proveedores'))
@@ -692,7 +692,7 @@ class SupplierList(ListView):
 class QuotationList(ListView):
     model = Quotation
     template_name = 'compras/cotizaciones.html'
-    context_object_name = 'cotizaciones'
+    context_object_name = 'quotations'
     queryset = Quotation.objects.exclude(status=Quotation.STATUS.CANC).order_by('code')
 
     @method_decorator(requires('compras.ver_tabla_cotizaciones'))
@@ -703,7 +703,7 @@ class QuotationList(ListView):
 class PurchaseOrderList(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_compra.html'
-    context_object_name = 'ordenes_compra'
+    context_object_name = 'purchase_orders'
     queryset = PurchaseOrder.objects.exclude(status=PurchaseOrder.STATUS.CANC).order_by('code')
 
     @method_decorator(
@@ -715,7 +715,7 @@ class PurchaseOrderList(ListView):
 class ServiceOrderList(ListView):
     model = ServiceOrder
     template_name = 'compras/ordenes_servicios.html'
-    context_object_name = 'ordenes_servicios'
+    context_object_name = 'service_orders'
     queryset = ServiceOrder.objects.filter().order_by('code')
 
     @method_decorator(
@@ -727,7 +727,7 @@ class ServiceOrderList(ListView):
 class PurchaseOrderListByQuotation(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_compra.html'
-    context_object_name = 'ordenes_compra'
+    context_object_name = 'purchase_orders'
 
     @method_decorator(
         requires('compras.ver_tabla_ordenes_compra'))
@@ -743,7 +743,7 @@ class PurchaseOrderListByQuotation(ListView):
 class ServiceOrderListByQuotation(ListView):
     model = PurchaseOrder
     template_name = 'compras/ordenes_servicios.html'
-    context_object_name = 'ordenes_servicios'
+    context_object_name = 'service_orders'
 
     @method_decorator(
         requires('compras.ver_tabla_ordenes_servicios'))
@@ -770,7 +770,7 @@ class ServiceConformityList(ListView):
 
 class MovementListByPurchaseOrder(ListView):
     template_name = 'almacen/movimientos.html'
-    context_object_name = 'movimientos'
+    context_object_name = 'movements'
 
     @method_decorator(requires('almacen.ver_tabla_movimientos'))
     def dispatch(self, *args, **kwargs):
@@ -844,65 +844,65 @@ class QuotationUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         quotation = self.object
-        detalles = QuotationDetail.objects.filter(quotation=quotation).order_by('line_number')
-        cant_detalles = detalles.count()
+        details = QuotationDetail.objects.filter(quotation=quotation).order_by('line_number')
+        detail_count = details.count()
         context = super(QuotationUpdate, self).get_context_data(**kwargs)
         context['quotation'] = quotation
-        context['detalles'] = detalles
-        context['cant_detalles'] = cant_detalles
+        context['details'] = details
+        context['detail_count'] = detail_count
         return context
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = QuotationDetail.objects.filter(quotation=self.object).order_by('line_number')
-        detalles_data = []
-        for detail in detalles:
+        details = QuotationDetail.objects.filter(quotation=self.object).order_by('line_number')
+        details_data = []
+        for detail in details:
             d = {'requirement': detail.requirement_detail.pk,
                  'code': detail.requirement_detail.product.code,
                  'name': detail.requirement_detail.product.description,
                  'unit': detail.requirement_detail.product.unit_of_measure.code,
                  'quantity': detail.quantity}
-            detalles_data.append(d)
-        detalle_cotizacion_formset = QuotationDetailFormSet(initial=detalles_data)
+            details_data.append(d)
+        quotation_detail_formset = QuotationDetailFormSet(initial=details_data)
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_cotizacion_formset=detalle_cotizacion_formset))
+                                                             quotation_detail_formset=quotation_detail_formset))
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_cotizacion_formset = QuotationDetailFormSet(request.POST)
-        if form.is_valid() and detalle_cotizacion_formset.is_valid():
-            return self.form_valid(form, detalle_cotizacion_formset)
+        quotation_detail_formset = QuotationDetailFormSet(request.POST)
+        if form.is_valid() and quotation_detail_formset.is_valid():
+            return self.form_valid(form, quotation_detail_formset)
         else:
-            return self.form_invalid(form, detalle_cotizacion_formset)
+            return self.form_invalid(form, quotation_detail_formset)
 
-    def form_valid(self, form, detalle_cotizacion_formset):
+    def form_valid(self, form, quotation_detail_formset):
         try:
             with transaction.atomic():
                 self.object.delete_reference()
                 form.save()
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_cotizacion_form in detalle_cotizacion_formset:
-                    requirement_detail = detalle_cotizacion_form.cleaned_data.get('requirement')
-                    quantity = detalle_cotizacion_form.cleaned_data.get('quantity')
+                for quotation_detail_form in quotation_detail_formset:
+                    requirement_detail = quotation_detail_form.cleaned_data.get('requirement')
+                    quantity = quotation_detail_form.cleaned_data.get('quantity')
                     requirement_detail = RequirementDetail.objects.get(pk=requirement_detail)
                     if quantity:
                         quotation_detail = QuotationDetail(requirement_detail=requirement_detail,
                                                                line_number=cont,
                                                                quotation=self.object,
                                                                quantity=quantity)
-                        detalles.append(quotation_detail)
+                        details.append(quotation_detail)
                         cont = cont + 1
-                QuotationDetail.objects.bulk_create(detalles, self.object.requirement)
+                QuotationDetail.objects.bulk_create(details, self.object.requirement)
                 return HttpResponseRedirect(reverse('compras:quotation_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
 
-    def form_invalid(self, form, detalle_cotizacion_formset):
+    def form_invalid(self, form, quotation_detail_formset):
         return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -928,12 +928,12 @@ class ServiceConformityUpdate(UpdateView):
 
     def get_context_data(self, **kwargs):
         conformity = self.object
-        detalles = ServiceConformityDetail.objects.filter(conformity=conformity)
-        cant_detalles = detalles.count()
+        details = ServiceConformityDetail.objects.filter(conformity=conformity)
+        detail_count = details.count()
         context = super(ServiceConformityUpdate, self).get_context_data(**kwargs)
         context['conformity'] = conformity
-        context['detalles'] = detalles
-        context['cant_detalles'] = cant_detalles
+        context['details'] = details
+        context['detail_count'] = detail_count
         return context
 
     def post(self, request, *args, **kwargs):
@@ -973,12 +973,12 @@ class PurchaseOrderUpdate(UpdateView):
         if self.object.status == PurchaseOrder.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = (PurchaseOrderDetail.objects.filter(order=self.object)
+            details = (PurchaseOrderDetail.objects.filter(order=self.object)
                         .select_related('order', 'product__unit_of_measure',
                                         'quotation_detail__requirement_detail__product__unit_of_measure')
                         .order_by('line_number'))
-            detalles_data = []
-            for detail in detalles:
+            details_data = []
+            for detail in details:
                 try:
                     d = {'quotation': detail.quotation_detail.pk,
                          'code': detail.quotation_detail.requirement_detail.product.code,
@@ -997,10 +997,10 @@ class PurchaseOrderUpdate(UpdateView):
                          'price': detail.price,
                          'tax': detail.tax,
                          'amount': detail.amount_without_tax}
-                detalles_data.append(d)
-            detalle_orden_compra_formset = PurchaseOrderDetailFormSet(initial=detalles_data)
+                details_data.append(d)
+            purchase_order_detail_formset = PurchaseOrderDetailFormSet(initial=details_data)
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_orden_compra_formset=detalle_orden_compra_formset))
+                                                                 purchase_order_detail_formset=purchase_order_detail_formset))
         else:
             return HttpResponseRedirect(reverse('compras:purchase_order_list'))
 
@@ -1020,10 +1020,10 @@ class PurchaseOrderUpdate(UpdateView):
         initial['formas_pago'] = order.payment_method
         initial['reference'] = order.quotation
         try:
-            monto_impuesto = purchase_tax().amount
+            tax_amount = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuration'))
-        initial['current_tax'] = monto_impuesto
+        initial['current_tax'] = tax_amount
         initial['total'] = order.total
         initial['subtotal'] = order.subtotal
         initial['tax'] = order.tax
@@ -1041,13 +1041,13 @@ class PurchaseOrderUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_compra_formset = PurchaseOrderDetailFormSet(request.POST)
-        if form.is_valid() and detalle_orden_compra_formset.is_valid():
-            return self.form_valid(form, detalle_orden_compra_formset)
+        purchase_order_detail_formset = PurchaseOrderDetailFormSet(request.POST)
+        if form.is_valid() and purchase_order_detail_formset.is_valid():
+            return self.form_valid(form, purchase_order_detail_formset)
         else:
-            return self.form_invalid(form, detalle_orden_compra_formset)
+            return self.form_invalid(form, purchase_order_detail_formset)
 
-    def form_valid(self, form, detalle_orden_compra_formset):
+    def form_valid(self, form, purchase_order_detail_formset):
         try:
             with transaction.atomic():
                 if self.object.quotation is not None:
@@ -1055,15 +1055,15 @@ class PurchaseOrderUpdate(UpdateView):
                 PurchaseOrderDetail.objects.filter(order=self.object).delete()
                 self.object = form.save()
                 reference = self.object.quotation
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_orden_compra_form in detalle_orden_compra_formset:
-                    quotation = detalle_orden_compra_form.cleaned_data.get('quotation')
-                    code = detalle_orden_compra_form.cleaned_data.get('code')
-                    quantity = detalle_orden_compra_form.cleaned_data.get('quantity')
-                    price = detalle_orden_compra_form.cleaned_data.get('price')
-                    amount = detalle_orden_compra_form.cleaned_data.get('amount')
-                    tax = detalle_orden_compra_form.cleaned_data.get('tax')
+                for purchase_order_detail_form in purchase_order_detail_formset:
+                    quotation = purchase_order_detail_form.cleaned_data.get('quotation')
+                    code = purchase_order_detail_form.cleaned_data.get('code')
+                    quantity = purchase_order_detail_form.cleaned_data.get('quantity')
+                    price = purchase_order_detail_form.cleaned_data.get('price')
+                    amount = purchase_order_detail_form.cleaned_data.get('amount')
+                    tax = purchase_order_detail_form.cleaned_data.get('tax')
                     if quantity and price and amount and tax:
                         try:
                             quotation_detail = QuotationDetail.objects.get(pk=quotation)
@@ -1079,17 +1079,17 @@ class PurchaseOrderUpdate(UpdateView):
                                                                       order=self.object,
                                                                       quantity=quantity,
                                                                       price=price)
-                        detalles.append(purchase_order_detail)
+                        details.append(purchase_order_detail)
                         cont = cont + 1
                         if cont > 1:
-                            PurchaseOrderDetail.objects.bulk_create(detalles, reference)
+                            PurchaseOrderDetail.objects.bulk_create(details, reference)
                 return HttpResponseRedirect(reverse('compras:purchase_order_detail', args=[self.object.pk]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
-    def form_invalid(self, form, detalle_orden_compra_formset):
+    def form_invalid(self, form, purchase_order_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_orden_compra_formset=detalle_orden_compra_formset))
+                                                             purchase_order_detail_formset=purchase_order_detail_formset))
 
 
 class ServiceOrderUpdate(UpdateView):
@@ -1133,9 +1133,9 @@ class ServiceOrderUpdate(UpdateView):
         if self.object.status == PurchaseOrder.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalles = ServiceOrderDetail.objects.filter(order=self.object).order_by('line_number')
-            detalles_data = []
-            for detail in detalles:
+            details = ServiceOrderDetail.objects.filter(order=self.object).order_by('line_number')
+            details_data = []
+            for detail in details:
                 try:
                     d = {'quotation': detail.quotation_detail.pk,
                          'code': detail.quotation_detail.requirement_detail.product.code,
@@ -1152,10 +1152,10 @@ class ServiceOrderUpdate(UpdateView):
                          'quantity': detail.quantity,
                          'price': detail.price,
                          'amount': detail.amount}
-                detalles_data.append(d)
-            detalle_orden_servicios_formset = ServiceOrderDetailFormSet(initial=detalles_data)
+                details_data.append(d)
+            service_order_detail_formset = ServiceOrderDetailFormSet(initial=details_data)
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+                                                                 service_order_detail_formset=service_order_detail_formset))
         else:
             return HttpResponseRedirect(reverse('compras:purchase_order_list'))
 
@@ -1169,13 +1169,13 @@ class ServiceOrderUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_orden_servicios_formset = ServiceOrderDetailFormSet(request.POST)
-        if form.is_valid() and detalle_orden_servicios_formset.is_valid():
-            return self.form_valid(form, detalle_orden_servicios_formset)
+        service_order_detail_formset = ServiceOrderDetailFormSet(request.POST)
+        if form.is_valid() and service_order_detail_formset.is_valid():
+            return self.form_valid(form, service_order_detail_formset)
         else:
-            return self.form_invalid(form, detalle_orden_servicios_formset)
+            return self.form_invalid(form, service_order_detail_formset)
 
-    def form_valid(self, form, detalle_orden_servicios_formset):
+    def form_valid(self, form, service_order_detail_formset):
         # try:
         with transaction.atomic():
             if self.object.quotation is not None:
@@ -1183,14 +1183,14 @@ class ServiceOrderUpdate(UpdateView):
             ServiceOrderDetail.objects.filter(order=self.object).delete()
             self.object = form.save()
             reference = self.object.quotation
-            detalles = []
+            details = []
             cont = 1
-            for detalle_orden_servicios_form in detalle_orden_servicios_formset:
-                quotation = detalle_orden_servicios_form.cleaned_data.get('quotation')
-                code = detalle_orden_servicios_form.cleaned_data.get('code')
-                quantity = detalle_orden_servicios_form.cleaned_data.get('quantity')
-                price = detalle_orden_servicios_form.cleaned_data.get('price')
-                amount = detalle_orden_servicios_form.cleaned_data.get('amount')
+            for service_order_detail_form in service_order_detail_formset:
+                quotation = service_order_detail_form.cleaned_data.get('quotation')
+                code = service_order_detail_form.cleaned_data.get('code')
+                quantity = service_order_detail_form.cleaned_data.get('quantity')
+                price = service_order_detail_form.cleaned_data.get('price')
+                amount = service_order_detail_form.cleaned_data.get('amount')
                 if quantity and price and amount:
                     try:
                         quotation_detail = QuotationDetail.objects.get(pk=quotation)
@@ -1208,16 +1208,16 @@ class ServiceOrderUpdate(UpdateView):
                                                                         quantity=quantity,
                                                                         price=price,
                                                                         amount=amount)
-                    detalles.append(service_order_detail)
+                    details.append(service_order_detail)
                     cont = cont + 1
-            ServiceOrderDetail.objects.bulk_create(detalles, reference)
+            ServiceOrderDetail.objects.bulk_create(details, reference)
             return HttpResponseRedirect(reverse('compras:service_order_detail', args=[self.object.code]))
             # except IntegrityError:
             # messages.error(self.request, 'Error guardando la Orden de Servicios.')
 
-    def form_invalid(self, form, detalle_orden_servicios_formset):
+    def form_invalid(self, form, service_order_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_orden_servicios_formset=detalle_orden_servicios_formset))
+                                                             service_order_detail_formset=service_order_detail_formset))
 
 
 class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
@@ -1229,22 +1229,22 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
             quotation = request.GET['quotation']
             search_type = request.GET['search_type']
             if search_type == 'PRODUCTOS':
-                detalles = QuotationDetail.objects.filter(
+                details = QuotationDetail.objects.filter(
                     Q(status=QuotationDetail.STATUS.PEND) | Q(status=QuotationDetail.STATUS.ELEG_PARC),
                     quotation__code=quotation,
                     requirement_detail__product__is_service=False).order_by('line_number')
                 try:
-                    monto_impuesto = purchase_tax().amount
+                    tax_amount = purchase_tax().amount
                 except AttributeError:
-                    monto_impuesto = 0
+                    tax_amount = 0
             elif search_type == 'SERVICIOS':
-                monto_impuesto = 1
-                detalles = QuotationDetail.objects.filter(quotation__code=quotation,
+                tax_amount = 1
+                details = QuotationDetail.objects.filter(quotation__code=quotation,
                                                             requirement_detail__product__is_service=True).order_by(
                     'line_number')
 
-            lista_detalles = []
-            for detail in detalles:
+            detail_list = []
+            for detail in details:
                 det = {}
                 det['quotation'] = detail.id
                 try:
@@ -1256,43 +1256,43 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                     amount = detail.requirement_detail.product.price * quantity
                     if search_type == 'PRODUCTOS':
                         det['unit'] = detail.requirement_detail.product.unit_of_measure.code
-                        base = amount / (monto_impuesto + 1)
+                        base = amount / (tax_amount + 1)
                         det['tax'] = str(round(amount - base, 5))
                         det['amount'] = str(round(amount, 5))
                     elif search_type == 'SERVICIOS':
                         det['unit'] = detail.requirement_detail.product.unit_of_measure.code
                         det['amount'] = str(round(amount))
-                    lista_detalles.append(det)
+                    detail_list.append(det)
                 except (ObjectDoesNotExist, AttributeError):
                     pass
             if search_type == 'PRODUCTOS':
-                formset = PurchaseOrderDetailFormSet(initial=lista_detalles)
+                formset = PurchaseOrderDetailFormSet(initial=detail_list)
             elif search_type == 'SERVICIOS':
-                formset = ServiceOrderDetailFormSet(initial=lista_detalles)
+                formset = ServiceOrderDetailFormSet(initial=detail_list)
             lista_json = []
             if search_type == 'PRODUCTOS':
                 for form in formset:
-                    detalle_json = {}
-                    detalle_json['quotation'] = str(form['quotation'])
-                    detalle_json['code'] = str(form['code'])
-                    detalle_json['name'] = str(form['name'])
-                    detalle_json['price'] = str(form['price'])
-                    detalle_json['unit'] = str(form['unit'])
-                    detalle_json['quantity'] = str(form['quantity'])
-                    detalle_json['tax'] = str(form['tax'])
-                    detalle_json['amount'] = str(form['amount'])
-                    lista_json.append(detalle_json)
+                    detail_json = {}
+                    detail_json['quotation'] = str(form['quotation'])
+                    detail_json['code'] = str(form['code'])
+                    detail_json['name'] = str(form['name'])
+                    detail_json['price'] = str(form['price'])
+                    detail_json['unit'] = str(form['unit'])
+                    detail_json['quantity'] = str(form['quantity'])
+                    detail_json['tax'] = str(form['tax'])
+                    detail_json['amount'] = str(form['amount'])
+                    lista_json.append(detail_json)
             elif search_type == 'SERVICIOS':
                 for form in formset:
-                    detalle_json = {}
-                    detalle_json['quotation'] = str(form['quotation'])
-                    detalle_json['code'] = str(form['code'])
-                    detalle_json['name'] = str(form['name'])
-                    detalle_json['price'] = str(form['price'])
-                    detalle_json['unit'] = str(form['unit'])
-                    detalle_json['quantity'] = str(form['quantity'])
-                    detalle_json['amount'] = str(form['amount'])
-                    lista_json.append(detalle_json)
+                    detail_json = {}
+                    detail_json['quotation'] = str(form['quotation'])
+                    detail_json['code'] = str(form['code'])
+                    detail_json['name'] = str(form['name'])
+                    detail_json['price'] = str(form['price'])
+                    detail_json['unit'] = str(form['unit'])
+                    detail_json['quantity'] = str(form['quantity'])
+                    detail_json['amount'] = str(form['amount'])
+                    lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -1302,57 +1302,57 @@ class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
     required_params = ('purchase_order', 'date')
 
     def get_date(self, r_date):
-        anio = int(r_date[6:])
+        year = int(r_date[6:])
         month = int(r_date[3:5])
         dia = int(r_date[0:2])
-        date = datetime.date(anio, month, dia)
+        date = datetime.date(year, month, dia)
         return date
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             purchase_order = PurchaseOrder.objects.get(code=request.GET['purchase_order'])
             date = self.get_date(request.GET['date'])
-            tipo_cambio = 1
+            exchange_rate = 1
             if purchase_order.in_dollars:
                 try:
-                    tipo_cambio = ExchangeRate.objects.get(date=date).amount
+                    exchange_rate = ExchangeRate.objects.get(date=date).amount
                 except ExchangeRate.DoesNotExist:
-                    tipo_cambio = 0
-            lista_detalles = []
+                    exchange_rate = 0
+            detail_list = []
             lista_json = []
-            if tipo_cambio > 0:
-                detalles = PurchaseOrderDetail.objects.filter(order=purchase_order,
+            if exchange_rate > 0:
+                details = PurchaseOrderDetail.objects.filter(order=purchase_order,
                                                              status=PurchaseOrderDetail.STATUS.PEND).order_by(
                     'line_number')
-                for detail in detalles:
+                for detail in details:
                     det = {}
                     det['purchase_order'] = detail.id
                     try:
                         det['code'] = detail.quotation_detail.requirement_detail.product.code
                         det['name'] = detail.quotation_detail.requirement_detail.product.description
                         det['quantity'] = str(detail.quantity - detail.received_quantity)
-                        det['price'] = str(round(Decimal(detail.price_without_tax) * tipo_cambio, 5))
+                        det['price'] = str(round(Decimal(detail.price_without_tax) * exchange_rate, 5))
                         det['unit'] = detail.quotation_detail.requirement_detail.product.unit_of_measure.code
-                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * tipo_cambio, 5))
+                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * exchange_rate, 5))
                     except (ObjectDoesNotExist, AttributeError):
                         det['code'] = detail.product.code
                         det['name'] = detail.product.description
                         det['quantity'] = str(detail.quantity - detail.received_quantity)
-                        det['price'] = str(round(Decimal(detail.price_without_tax) * tipo_cambio, 5))
+                        det['price'] = str(round(Decimal(detail.price_without_tax) * exchange_rate, 5))
                         det['unit'] = detail.product.unit_of_measure.code
-                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * tipo_cambio, 5))
-                    lista_detalles.append(det)
-                formset = InboundDetailFormSet(initial=lista_detalles)
+                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * exchange_rate, 5))
+                    detail_list.append(det)
+                formset = InboundDetailFormSet(initial=detail_list)
                 for form in formset:
-                    detalle_json = {}
-                    detalle_json['purchase_order'] = str(form['purchase_order'])
-                    detalle_json['code'] = str(form['code'])
-                    detalle_json['name'] = str(form['name'])
-                    detalle_json['quantity'] = str(form['quantity'])
-                    detalle_json['price'] = str(form['price'])
-                    detalle_json['unit'] = str(form['unit'])
-                    detalle_json['amount'] = str(form['amount'])
-                    lista_json.append(detalle_json)
+                    detail_json = {}
+                    detail_json['purchase_order'] = str(form['purchase_order'])
+                    detail_json['code'] = str(form['code'])
+                    detail_json['name'] = str(form['name'])
+                    detail_json['quantity'] = str(form['quantity'])
+                    detail_json['price'] = str(form['price'])
+                    detail_json['unit'] = str(form['unit'])
+                    detail_json['amount'] = str(form['amount'])
+                    lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -1364,11 +1364,11 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             service_order = request.GET['service_order']
-            detalles = ServiceOrderDetail.objects.filter(order__code=service_order,
+            details = ServiceOrderDetail.objects.filter(order__code=service_order,
                                                             status=ServiceOrderDetail.STATUS.PEND).order_by(
                 'line_number')
-            lista_detalles = []
-            for detail in detalles:
+            detail_list = []
+            for detail in details:
                 try:
                     det = {}
                     det['service_order'] = detail.id
@@ -1387,18 +1387,18 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                     det['price'] = str(detail.price)
                     det['quantity'] = str(detail.quantity)
                     det['amount'] = str(detail.amount)
-                lista_detalles.append(det)
-            formset = ServiceConformityDetailFormSet(initial=lista_detalles)
+                detail_list.append(det)
+            formset = ServiceConformityDetailFormSet(initial=detail_list)
             lista_json = []
             for form in formset:
-                detalle_json = {}
-                detalle_json['service_order'] = str(form['service_order'])
-                detalle_json['service'] = str(form['service'])
-                detalle_json['use'] = str(form['use'])
-                detalle_json['price'] = str(form['price'])
-                detalle_json['quantity'] = str(form['quantity'])
-                detalle_json['amount'] = str(form['amount'])
-                lista_json.append(detalle_json)
+                detail_json = {}
+                detail_json['service_order'] = str(form['service_order'])
+                detail_json['service'] = str(form['service'])
+                detail_json['use'] = str(form['use'])
+                detail_json['price'] = str(form['price'])
+                detail_json['quantity'] = str(form['quantity'])
+                detail_json['amount'] = str(form['amount'])
+                lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -1430,8 +1430,8 @@ class PurchaseOrderXlsReport(TemplateView):
         order = get_object_or_404(PurchaseOrder, pk=kwargs['pk'])
         wb = purchase_order_xls_report(order)
         response = HttpResponse(content_type="application/ms-excel")
-        nombre_archivo = "ORDEN_DE_COMPRA_N°.xlsx"
-        response["Content-Disposition"] = "attachment; filename={0}".format(nombre_archivo)
+        file_name = "ORDEN_DE_COMPRA_N°.xlsx"
+        response["Content-Disposition"] = "attachment; filename={0}".format(file_name)
         wb.save(response)
         return response
 
@@ -1466,7 +1466,7 @@ class QuotationRequestPdfReport(View):
 class SupplierExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        proveedores = Supplier.objects.all().order_by('tax_id')
+        suppliers = Supplier.objects.all().order_by('tax_id')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PROVEEDORES'
@@ -1482,7 +1482,7 @@ class SupplierExcelReport(TemplateView):
         ws['J3'] = 'CIIU'
         ws['K3'] = 'FECHA_ALTA'
         cont = 4
-        for supplier in proveedores:
+        for supplier in suppliers:
             ws.cell(row=cont, column=2).value = supplier.tax_id
             ws.cell(row=cont, column=3).value = supplier.business_name
             ws.cell(row=cont, column=4).value = supplier.address
@@ -1491,16 +1491,16 @@ class SupplierExcelReport(TemplateView):
             ws.cell(row=cont, column=7).value = supplier.sunat_status
             ws.cell(row=cont, column=8).value = supplier.sunat_condition
             try:
-                ws.cell(row=cont, column=9).value = supplier.representante.name
+                ws.cell(row=cont, column=9).value = supplier.representative.name
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=9).value = '-'
             ws.cell(row=cont, column=10).value = supplier.ciiu
             ws.cell(row=cont, column=11).value = supplier.registration_date
             ws.cell(row=cont, column=11).number_format = 'dd/mm/yyyy'
             cont = cont + 1
-        nombre_archivo = "SupplierList.xlsx"
+        file_name = "SupplierList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -1517,24 +1517,24 @@ class ServiceOrderExcelReportByDate(FormView):
         ws = wb.active
         if search_type == 'F':
             p_start_date = data['start_date']
-            p_fecha_final = data['end_date']
-            anio = int(p_start_date[6:])
+            previous_end_date = data['end_date']
+            year = int(p_start_date[6:])
             month = int(p_start_date[3:5])
             dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
-            anio = int(p_fecha_final[6:])
-            month = int(p_fecha_final[3:5])
-            dia = int(p_fecha_final[0:2])
-            fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
+            start_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
+            year = int(previous_end_date[6:])
+            month = int(previous_end_date[3:5])
+            dia = int(previous_end_date[0:2])
+            end_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
             ws['C3'] = p_start_date
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = p_fecha_final
+            ws['E3'] = previous_end_date
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_servicios = ServiceOrder.objects.filter(date__range=[start_date, fecha_final])
+            service_orders = ServiceOrder.objects.filter(date__range=[start_date, end_date])
         elif search_type == 'M':
             month = data['month'].strip()
             year = data['year'].strip()
@@ -1544,14 +1544,14 @@ class ServiceOrderExcelReportByDate(FormView):
             ws['C3'] = month
             ws['D3'] = 'AÑO'
             ws['E3'] = year
-            ordenes_servicios = ServiceOrder.objects.filter(date__month=month, date__year=year)
+            service_orders = ServiceOrder.objects.filter(date__month=month, date__year=year)
         elif search_type == 'A':
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = year
-            ordenes_servicios = ServiceOrder.objects.filter(date__year=year)
+            service_orders = ServiceOrder.objects.filter(date__year=year)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'
@@ -1559,11 +1559,11 @@ class ServiceOrderExcelReportByDate(FormView):
         ws['F5'] = 'FORMA_PAGO'
         ws['G5'] = 'CREADO'
         ws['H5'] = 'ESTADO'
-        ordenes_servicios = ordenes_servicios.select_related(
+        service_orders = service_orders.select_related(
             'supplier', 'payment_method', 'quotation__supplier'
         ).prefetch_related('details')
         cont = 6
-        for order in ordenes_servicios:
+        for order in service_orders:
             ws.cell(row=cont, column=2).value = order.code
             ws.cell(row=cont, column=3).value = order.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
@@ -1578,9 +1578,9 @@ class ServiceOrderExcelReportByDate(FormView):
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=8).value = order.get_status_display()
             cont = cont + 1
-        nombre_archivo = "ReporteOrdenesServicio.xlsx"
+        file_name = "ReporteOrdenesServicio.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -1597,24 +1597,24 @@ class PurchaseOrderExcelReportByDate(FormView):
         ws = wb.active
         if search_type == 'F':
             p_start_date = data['start_date']
-            p_fecha_final = data['end_date']
-            anio = int(p_start_date[6:])
+            previous_end_date = data['end_date']
+            year = int(p_start_date[6:])
             month = int(p_start_date[3:5])
             dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
-            anio = int(p_fecha_final[6:])
-            month = int(p_fecha_final[3:5])
-            dia = int(p_fecha_final[0:2])
-            fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
+            start_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
+            year = int(previous_end_date[6:])
+            month = int(previous_end_date[3:5])
+            dia = int(previous_end_date[0:2])
+            end_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
             ws['C3'] = p_start_date
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = p_fecha_final
+            ws['E3'] = previous_end_date
             ws['F3'].number_format = 'dd/mm/yyyy'
-            ordenes_compra = PurchaseOrder.objects.filter(date__range=[start_date, fecha_final])
+            purchase_orders = PurchaseOrder.objects.filter(date__range=[start_date, end_date])
         elif search_type == 'M':
             month = data['month'].strip()
             year = data['year'].strip()
@@ -1624,14 +1624,14 @@ class PurchaseOrderExcelReportByDate(FormView):
             ws['C3'] = month
             ws['D3'] = 'AÑO'
             ws['E3'] = year
-            ordenes_compra = PurchaseOrder.objects.filter(date__month=month, date__year=year)
+            purchase_orders = PurchaseOrder.objects.filter(date__month=month, date__year=year)
         elif search_type == 'A':
             year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = year
-            ordenes_compra = PurchaseOrder.objects.filter(date__year=year)
+            purchase_orders = PurchaseOrder.objects.filter(date__year=year)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'
@@ -1639,11 +1639,11 @@ class PurchaseOrderExcelReportByDate(FormView):
         ws['F5'] = 'FORMA_PAGO'
         ws['G5'] = 'CREADO'
         ws['H5'] = 'ESTADO'
-        ordenes_compra = ordenes_compra.select_related(
+        purchase_orders = purchase_orders.select_related(
             'supplier', 'payment_method', 'quotation__supplier'
         ).prefetch_related('details')
         cont = 6
-        for purchase_order in ordenes_compra:
+        for purchase_order in purchase_orders:
             ws.cell(row=cont, column=2).value = purchase_order.code
             ws.cell(row=cont, column=3).value = purchase_order.date
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
@@ -1658,9 +1658,9 @@ class PurchaseOrderExcelReportByDate(FormView):
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=8).value = purchase_order.get_status_display()
             cont = cont + 1
-        nombre_archivo = "ReporteOrdenesCompra.xlsx"
+        file_name = "ReporteOrdenesCompra.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -1671,7 +1671,7 @@ class QuotationTransfer(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(QuotationTransfer, self).get_context_data(**kwargs)
-        context['cotizaciones'] = Quotation.objects.filter(status=Quotation.STATUS.PEND)
+        context['quotations'] = Quotation.objects.filter(status=Quotation.STATUS.PEND)
         return context
 
 
@@ -1680,7 +1680,7 @@ class PurchaseOrderTransfer(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(PurchaseOrderTransfer, self).get_context_data(**kwargs)
-        context['ordenes'] = PurchaseOrder.objects.filter(
+        context['orders'] = PurchaseOrder.objects.filter(
             Q(status=PurchaseOrder.STATUS.PEND) | Q(status=PurchaseOrder.STATUS.ING_PARC))
         return context
 
@@ -1690,5 +1690,5 @@ class ServiceOrderTransfer(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ServiceOrderTransfer, self).get_context_data(**kwargs)
-        context['ordenes'] = ServiceOrder.objects.filter(status=ServiceOrder.STATUS.PEND)
+        context['orders'] = ServiceOrder.objects.filter(status=ServiceOrder.STATUS.PEND)
         return context

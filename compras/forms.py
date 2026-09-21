@@ -92,12 +92,12 @@ class QuotationForm(forms.ModelForm):
             })
 
     def clean_order(self):
-        code_orden = self.cleaned_data.get('order')
-        if len(code_orden) != 12 and len(code_orden) != 0:
+        order_code = self.cleaned_data.get('order')
+        if len(order_code) != 12 and len(order_code) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
-        elif len(code_orden) == 12:
-            ordenes = ServiceOrder.objects.filter(code=code_orden)
-            if len(ordenes) > 0:
+        elif len(order_code) == 12:
+            orders = ServiceOrder.objects.filter(code=order_code)
+            if len(orders) > 0:
                 raise ValidationError('La orden ya existe.')
         return self.cleaned_data['order']
 

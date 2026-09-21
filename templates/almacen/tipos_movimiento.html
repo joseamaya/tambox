@@ -28,7 +28,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">CODIGO</th>
@@ -39,25 +39,25 @@
             </tr>
             </thead>
             <tbody>
-            {% for tipo in movement_types %}
+            {% for type in movement_types %}
             {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'almacen:movement_type_detail' tipo.pk %}';">
+            <tr onclick="location.href='{% url 'almacen:movement_type_detail' type.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ tipo.code }}</td>
-                <td>{{ tipo.description }}</td>
-                {% if tipo.increases %}
+                <td>{{ type.code }}</td>
+                <td>{{ type.description }}</td>
+                {% if type.increases %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>
                 {% endif %}
-                {% if tipo.requires_reference %}
+                {% if type.requires_reference %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>
                 {% endif %}
-                {% if tipo.is_active %}
+                {% if type.is_active %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>
@@ -73,7 +73,7 @@
 <script>
 $(document).ready(function() 
 {	
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

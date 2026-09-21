@@ -25,13 +25,13 @@ class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_cuentas_contables = Account.objects.count()
+        account_count = Account.objects.count()
         document_type, creado = DocumentType.objects.get_or_create(sunat_code='PEC',
                                                                      defaults={'description': 'PECOSA',
                                                                                'name': 'PECOSA'})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de documento PECOSA")
-        if cant_cuentas_contables == 0:
+        if account_count == 0:
             lista_notificaciones.append("No se ha creado ninguna cuenta contable")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'contabilidad/tablero_contabilidad.html', context)
@@ -42,9 +42,9 @@ class AccountImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:account_list')
 
-    def process_row(self, fila):
-        Account.objects.get_or_create(account_number=fila[0].strip(),
-                                             defaults={'description': fila[1].strip()})
+    def process_row(self, row):
+        Account.objects.get_or_create(account_number=row[0].strip(),
+                                             defaults={'description': row[1].strip()})
 
 
 class StockTypeImport(CsvImportMixin, FormView):
@@ -52,9 +52,9 @@ class StockTypeImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:stock_type_list')
 
-    def process_row(self, fila):
-        StockType.objects.get_or_create(sunat_code=fila[0].strip(),
-                                             defaults={'description': fila[1].strip()})
+    def process_row(self, row):
+        StockType.objects.get_or_create(sunat_code=row[0].strip(),
+                                             defaults={'description': row[1].strip()})
 
 
 class DocumentTypeImport(CsvImportMixin, FormView):
@@ -62,10 +62,10 @@ class DocumentTypeImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('contabilidad:document_type_list')
 
-    def process_row(self, fila):
-        DocumentType.objects.create(sunat_code=fila[0],
-                                     name=fila[1],
-                                     description=fila[1])
+    def process_row(self, row):
+        DocumentType.objects.create(sunat_code=row[0],
+                                     name=row[1],
+                                     description=row[1])
 
 
 class PaymentMethodCreate(CreateView):
@@ -196,19 +196,19 @@ class PaymentMethodDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             payment_method = PaymentMethod.objects.get(pk=code)
-            forma_pago_json = {}
-            forma_pago_json['code'] = payment_method.code
-            forma_pago_json['description'] = payment_method.description
+            payment_method_json = {}
+            payment_method_json['code'] = payment_method.code
+            payment_method_json['description'] = payment_method.description
             if len(payment_method.purchase_orders.all()) > 0:
-                forma_pago_json['relaciones'] = 'SI'
+                payment_method_json['relaciones'] = 'SI'
             elif len(payment_method.detalleordencompra_set.all()) > 0:
-                forma_pago_json['relaciones'] = 'SI'
+                payment_method_json['relaciones'] = 'SI'
             elif len(payment_method.detallemovimiento_set.all()) > 0:
-                forma_pago_json['relaciones'] = 'SI'
+                payment_method_json['relaciones'] = 'SI'
             else:
-                forma_pago_json['relaciones'] = 'NO'
+                payment_method_json['relaciones'] = 'NO'
                 PaymentMethod.objects.filter(pk=code).update(is_active=False)
-            data = simplejson.dumps(forma_pago_json)
+            data = simplejson.dumps(payment_method_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -223,22 +223,22 @@ class DocumentTypeDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
             document_type = DocumentType.objects.get(pk=id)
-            tipo_documento_json = {}
-            tipo_documento_json['sunat_code'] = document_type.sunat_code
-            tipo_documento_json['name'] = document_type.name
+            document_type_json = {}
+            document_type_json['sunat_code'] = document_type.sunat_code
+            document_type_json['name'] = document_type.name
             if len(document_type.movements.all()) > 0:
-                tipo_documento_json['relaciones'] = 'SI'
+                document_type_json['relaciones'] = 'SI'
             else:
-                tipo_documento_json['relaciones'] = 'NO'
+                document_type_json['relaciones'] = 'NO'
                 DocumentType.objects.filter(pk=id).update(is_active=False)
-            data = simplejson.dumps(tipo_documento_json)
+            data = simplejson.dumps(document_type_json)
             return HttpResponse(data, 'application/json')
 
 
 class DocumentTypeList(ListView):
     model = DocumentType
     template_name = 'contabilidad/tipos_documento.html'
-    context_object_name = 'tipos'
+    context_object_name = 'types'
     queryset = DocumentType.objects.filter(is_active=True).order_by('name')
 
     @method_decorator(
@@ -250,7 +250,7 @@ class DocumentTypeList(ListView):
 class ExchangeRateList(ListView):
     model = ExchangeRate
     template_name = 'contabilidad/tipos_cambio.html'
-    context_object_name = 'tipos'
+    context_object_name = 'types'
 
     @method_decorator(
         requires('contabilidad.ver_tabla_tipos_cambio'))
@@ -261,7 +261,7 @@ class ExchangeRateList(ListView):
 class AccountList(ListView):
     model = Account
     template_name = 'contabilidad/cuentas_contables.html'
-    context_object_name = 'cuentas_contables'
+    context_object_name = 'chart_of_accounts'
     queryset = Account.objects.all().order_by('account_number')
 
     @method_decorator(
@@ -399,23 +399,23 @@ class ExchangeRateFetch(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            fecha_get = request.GET['date']
-            anio = int(fecha_get[6:])
-            month = int(fecha_get[3:5])
-            dia = int(fecha_get[0:2])
-            date = datetime.date(anio, month, dia)
+            fetched_date = request.GET['date']
+            year = int(fetched_date[6:])
+            month = int(fetched_date[3:5])
+            dia = int(fetched_date[0:2])
+            date = datetime.date(year, month, dia)
             try:
-                tipo_cambio = ExchangeRate.objects.get(date=date)
+                exchange_rate = ExchangeRate.objects.get(date=date)
             except ExchangeRate.DoesNotExist:
-                tipo_cambio = {'date': fecha_get, 'amount': 0}
-            data = simplejson.dumps(tipo_cambio)
+                exchange_rate = {'date': fetched_date, 'amount': 0}
+            data = simplejson.dumps(exchange_rate)
             return HttpResponse(data, 'application/json')
 
 
 class AccountExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        cuentas = Account.objects.all().order_by('account_number')
+        accounts = Account.objects.all().order_by('account_number')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -424,14 +424,14 @@ class AccountExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'DEPRECIACION'
         cont = 4
-        for account_number in cuentas:
+        for account_number in accounts:
             ws.cell(row=cont, column=2).value = account_number.account_number
             ws.cell(row=cont, column=3).value = account_number.description
             ws.cell(row=cont, column=4).value = account_number.depreciation
             cont = cont + 1
-        nombre_archivo = "AccountList.xlsx"
+        file_name = "AccountList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -454,9 +454,9 @@ class PaymentMethodExcelReport(TemplateView):
             ws.cell(row=cont, column=3).value = payment_method.description
             ws.cell(row=cont, column=4).value = payment_method.credit_days
             cont = cont + 1
-        nombre_archivo = "PaymentMethodList.xlsx"
+        file_name = "PaymentMethodList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -465,7 +465,7 @@ class PaymentMethodExcelReport(TemplateView):
 class DocumentTypeExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = DocumentType.objects.all().order_by('sunat_code')
+        types = DocumentType.objects.all().order_by('sunat_code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE DOCUMENTOS'
@@ -474,14 +474,14 @@ class DocumentTypeExcelReport(TemplateView):
         ws['C3'] = 'NOMBRE'
         ws['D3'] = 'DESCRIPCIÓN'
         cont = 4
-        for tipo in tipos:
-            ws.cell(row=cont, column=2).value = tipo.sunat_code
-            ws.cell(row=cont, column=3).value = tipo.name
-            ws.cell(row=cont, column=4).value = tipo.description
+        for type in types:
+            ws.cell(row=cont, column=2).value = type.sunat_code
+            ws.cell(row=cont, column=3).value = type.name
+            ws.cell(row=cont, column=4).value = type.description
             cont = cont + 1
-        nombre_archivo = "DocumentTypeList.xlsx"
+        file_name = "DocumentTypeList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response

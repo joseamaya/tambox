@@ -28,7 +28,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">RUC</th>
@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for supplier in proveedores %}
+            {% for supplier in suppliers %}
             {% if perms.compras.ver_detalle_proveedor %}
             <tr onclick="location.href='{% url 'compras:supplier_detail' supplier.pk %}';">
                 {% else %}
@@ -55,7 +55,7 @@
 <script>
 $(document).ready(function() 
 {	
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

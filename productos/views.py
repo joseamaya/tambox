@@ -28,21 +28,21 @@ class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
-        cant_productos = Product.objects.filter(is_service=False).count()
-        cant_tipos_unidad_medida = UnitOfMeasure.objects.count()
-        cant_grupos_suministros = ProductGroup.objects.count()
-        cant_servicios = Product.objects.filter(is_service=True).count()
+        product_count = Product.objects.filter(is_service=False).count()
+        unit_of_measure_count = UnitOfMeasure.objects.count()
+        supply_group_count = ProductGroup.objects.count()
+        service_count = Product.objects.filter(is_service=True).count()
         unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
-        if cant_productos == 0:
+        if product_count == 0:
             lista_notificaciones.append("No se ha creado ningún producto")
-        if cant_tipos_unidad_medida == 0:
+        if unit_of_measure_count == 0:
             lista_notificaciones.append("No se ha creado ningún tipo de unidad de medida")
-        if cant_grupos_suministros == 0:
+        if supply_group_count == 0:
             lista_notificaciones.append("No se ha creado ningún grupo de productos")
-        if cant_servicios == 0:
+        if service_count == 0:
             lista_notificaciones.append("No se ha creado ningún service")
         context = {'notificaciones': lista_notificaciones}
         return render(request, 'productos/tablero_productos.html', context)
@@ -68,16 +68,16 @@ class ProductDescriptionSearch(AjaxOnlyMixin, TemplateView):
                                                     is_service=True).select_related(
                     'unit_of_measure').order_by('description')[:20]
 
-            lista_productos = []
+            product_list = []
             for product in productos:
-                producto_json = {}
-                producto_json['label'] = product.description
-                producto_json['code'] = product.code
-                producto_json['description'] = product.description
-                producto_json['unit'] = product.unit_of_measure.description
-                producto_json['price'] = str(product.price)
-                lista_productos.append(producto_json)
-            data = json.dumps(lista_productos)
+                product_json = {}
+                product_json['label'] = product.description
+                product_json['code'] = product.code
+                product_json['description'] = product.description
+                product_json['unit'] = product.unit_of_measure.description
+                product_json['price'] = str(product.price)
+                product_list.append(product_json)
+            data = json.dumps(product_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -89,16 +89,16 @@ class ProductCodeSearch(AjaxOnlyMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
             productos = Product.objects.filter(code__icontains=code).select_related('unit_of_measure')[:20]
-            lista_productos = []
+            product_list = []
             for product in productos:
-                producto_json = {}
-                producto_json['label'] = product.code
-                producto_json['code'] = product.code
-                producto_json['description'] = product.description
-                producto_json['unit'] = product.unit_of_measure.description
-                producto_json['price'] = str(product.price)
-                lista_productos.append(producto_json)
-            data = json.dumps(lista_productos)
+                product_json = {}
+                product_json['label'] = product.code
+                product_json['code'] = product.code
+                product_json['description'] = product.description
+                product_json['unit'] = product.unit_of_measure.description
+                product_json['price'] = str(product.price)
+                product_list.append(product_json)
+            data = json.dumps(product_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -107,10 +107,10 @@ class ProductGroupImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_group_list')
 
-    def process_row(self, fila):
+    def process_row(self, row):
         try:
-            account_number = Account.objects.get(account_number=fila[0])
-            ProductGroup.objects.get_or_create(description=fila[1],
+            account_number = Account.objects.get(account_number=row[0])
+            ProductGroup.objects.get_or_create(description=row[1],
                                                  defaults={'account': account_number})
         except Account.DoesNotExist:
             pass
@@ -127,10 +127,10 @@ class ServiceImport(CsvImportMixin, FormView):
         except ProductGroup.DoesNotExist:
             return HttpResponseRedirect(reverse('productos:product_group_create'))
 
-    def process_row(self, fila):
-        grupo = ProductGroup.objects.get(code=fila[0].strip())
-        Product.objects.get_or_create(description=fila[1],
-                                       defaults={'product_group': grupo,
+    def process_row(self, row):
+        group = ProductGroup.objects.get(code=row[0].strip())
+        Product.objects.get_or_create(description=row[1],
+                                       defaults={'product_group': group,
                                                  'is_service': True})
 
 
@@ -139,25 +139,25 @@ class ProductImport(CsvImportMixin, FormView):
     form_class = UploadForm
     success_url = reverse_lazy('productos:product_list')
 
-    def process_row(self, fila):
+    def process_row(self, row):
         try:
-            grupo = ProductGroup.objects.get(code=fila[0].strip())
-            cod_und = fila[2][0:5]
+            group = ProductGroup.objects.get(code=row[0].strip())
+            cod_und = row[2][0:5]
             und, creado = UnitOfMeasure.objects.get_or_create(code=cod_und.strip(),
                                                              defaults={'code': cod_und,
-                                                                       'description': fila[2].strip()})
-            if fila[3] != '':
-                price = fila[3]
+                                                                       'description': row[2].strip()})
+            if row[3] != '':
+                price = row[3]
             else:
                 price = 0
-            stock_type = StockType.objects.get(sunat_code=fila[4].strip())
-            product, creado = Product.objects.get_or_create(description=fila[1].strip(),
+            stock_type = StockType.objects.get(sunat_code=row[4].strip())
+            product, creado = Product.objects.get_or_create(description=row[1].strip(),
                                                               defaults={'unit_of_measure': und,
-                                                                        'product_group': grupo,
+                                                                        'product_group': group,
                                                                         'price': price,
                                                                         'stock_type': stock_type})
         except Exception:
-            logger.warning("No se pudo importar el producto %s", fila[1], exc_info=True)
+            logger.warning("No se pudo importar el producto %s", row[1], exc_info=True)
 
 
 class ProductStockQuery(AjaxOnlyMixin, TemplateView):
@@ -168,9 +168,9 @@ class ProductStockQuery(AjaxOnlyMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.GET['code']
             product = Product.objects.get(code=code)
-            producto_json = {}
-            producto_json['stock'] = product.stock
-            data = simplejson.dumps(producto_json)
+            product_json = {}
+            product_json['stock'] = product.stock
+            data = simplejson.dumps(product_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -263,14 +263,14 @@ class UnitOfMeasureDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
             unit_of_measure = UnitOfMeasure.objects.get(pk=id)
-            unidad_medida_json = {}
-            unidad_medida_json['unit'] = unit_of_measure.unit
+            unit_of_measure_json = {}
+            unit_of_measure_json['unit'] = unit_of_measure.unit
             if len(unit_of_measure.products.all()) > 0:
-                unidad_medida_json['productos'] = 'SI'
+                unit_of_measure_json['productos'] = 'SI'
             else:
-                unidad_medida_json['productos'] = 'NO'
+                unit_of_measure_json['productos'] = 'NO'
                 UnitOfMeasure.objects.filter(pk=id).update(is_active=False)
-            data = simplejson.dumps(unidad_medida_json)
+            data = simplejson.dumps(unit_of_measure_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -285,15 +285,15 @@ class ProductGroupDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             product_group = ProductGroup.objects.get(pk=code)
-            grupo_productos_json = {}
-            grupo_productos_json['code'] = product_group.code
-            grupo_productos_json['description'] = product_group.description
+            product_group_json = {}
+            product_group_json['code'] = product_group.code
+            product_group_json['description'] = product_group.description
             if len(product_group.products.all()) > 0:
-                grupo_productos_json['productos'] = 'SI'
+                product_group_json['productos'] = 'SI'
             else:
-                grupo_productos_json['productos'] = 'NO'
+                product_group_json['productos'] = 'NO'
                 ProductGroup.objects.filter(pk=code).update(is_active=False)
-            data = simplejson.dumps(grupo_productos_json)
+            data = simplejson.dumps(product_group_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -308,17 +308,17 @@ class ProductDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             product = Product.objects.get(pk=code)
-            producto_json = {}
-            producto_json['code'] = product.code
-            producto_json['description'] = product.description
+            product_json = {}
+            product_json['code'] = product.code
+            product_json['description'] = product.description
             if len(product.details.all()) > 0:
-                producto_json['relaciones'] = 'SI'
+                product_json['relaciones'] = 'SI'
             elif len(product.details.all()) > 0:
-                producto_json['relaciones'] = 'SI'
+                product_json['relaciones'] = 'SI'
             else:
-                producto_json['relaciones'] = 'NO'
+                product_json['relaciones'] = 'NO'
                 Product.objects.filter(pk=code).update(is_active=False)
-            data = simplejson.dumps(producto_json)
+            data = simplejson.dumps(product_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -336,9 +336,9 @@ class ServiceDelete(TemplateView):
             servicio_json = {}
             servicio_json['code'] = code
             if len(service.service_order_details.all()) > 0:
-                servicio_json['ordenes'] = 'SI'
+                servicio_json['orders'] = 'SI'
             else:
-                servicio_json['ordenes'] = 'NO'
+                servicio_json['orders'] = 'NO'
                 Product.objects.filter(code=code).update(is_active=False)
             data = simplejson.dumps(servicio_json)
             return HttpResponse(data, 'application/json')
@@ -347,7 +347,7 @@ class ServiceDelete(TemplateView):
 class UnitOfMeasureList(ListView):
     model = UnitOfMeasure
     template_name = 'productos/unidades_medida.html'
-    context_object_name = 'unidades'
+    context_object_name = 'units'
     queryset = UnitOfMeasure.objects.filter(is_active=True).order_by('description')
 
     @method_decorator(
@@ -400,8 +400,8 @@ class ProductListByGroup(ListView):
         return super(ProductListByGroup, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
-        grupo = ProductGroup.objects.get(pk=self.kwargs['grupo'])
-        queryset = grupo.products.all()
+        group = ProductGroup.objects.get(pk=self.kwargs['group'])
+        queryset = group.products.all()
         return queryset
 
 
@@ -491,9 +491,9 @@ class ProductExcelReport(TemplateView):
             ws.cell(row=cont, column=10).value = product.created
             ws.cell(row=cont, column=10).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "ProductList.xlsx"
+        file_name = "ProductList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -519,9 +519,9 @@ class ProductGroupExcelReport(TemplateView):
             ws.cell(row=cont, column=5).value = product_group.created
             ws.cell(row=cont, column=5).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "ProductGroupList.xlsx"
+        file_name = "ProductGroupList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -530,7 +530,7 @@ class ProductGroupExcelReport(TemplateView):
 class UnitOfMeasureExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        unidades = UnitOfMeasure.objects.filter(is_active=True).order_by('code')
+        units = UnitOfMeasure.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -539,14 +539,14 @@ class UnitOfMeasureExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for unit in unidades:
+        for unit in units:
             ws.cell(row=cont, column=2).value = unit.code
             ws.cell(row=cont, column=3).value = unit.description
             ws.cell(row=cont, column=4).value = unit.is_active
             cont = cont + 1
-        nombre_archivo = "UnidadesMedida.xlsx"
+        file_name = "UnidadesMedida.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response
@@ -569,9 +569,9 @@ class ServiceExcelReport(TemplateView):
             ws.cell(row=cont, column=3).value = service.description
             ws.cell(row=cont, column=4).value = service.is_active
             cont = cont + 1
-        nombre_archivo = "ServiceList.xlsx"
+        file_name = "ServiceList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response

@@ -17,8 +17,8 @@ class Profession(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
 
     def previous(self):
-        ant = Profession.objects.previous(self)
-        return ant.pk
+        previous = Profession.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Profession.objects.next(self)
@@ -42,7 +42,7 @@ class Worker(TimeStampedModel):
     last_name = models.CharField(max_length=120)
     profession = models.ForeignKey(Profession, on_delete=models.CASCADE, related_name='workers', null=True)
     signature = models.ImageField(upload_to='firmas')
-    photo = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
+    photo = models.ImageField(upload_to='workers', default='workers/sinimagen.png')
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavigableQuerySet.as_manager()
@@ -54,16 +54,16 @@ class Worker(TimeStampedModel):
             return self.first_name + ' ' + self.last_name
 
     def previous(self):
-        ant = Worker.objects.previous(self)
-        return ant.pk
+        previous = Worker.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Worker.objects.next(self)
         return sig.pk
 
     def previous_full_name(self):
-        ant = Worker.objects.previous(self)
-        return ant.first_name + " " + ant.last_name
+        previous = Worker.objects.previous(self)
+        return previous.first_name + " " + previous.last_name
 
     def next_full_name(self):
         sig = Worker.objects.next(self)
@@ -97,16 +97,16 @@ class Producer(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
 
     def previous(self):
-        ant = Producer.objects.previous(self)
-        return ant.pk
+        previous = Producer.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Producer.objects.next(self)
         return sig.pk
 
     def previous_full_name(self):
-        ant = Producer.objects.previous(self)
-        return ant.first_name + " " + ant.last_name
+        previous = Producer.objects.previous(self)
+        return previous.first_name + " " + previous.last_name
 
     def next_full_name(self):
         sig = Producer.objects.next(self)
@@ -145,15 +145,15 @@ class Office(TimeStampedModel):
 
     @property
     def management(self):
-        oficina_superior = self.dependency
-        if oficina_superior.is_management:
-            return oficina_superior
+        superior_office = self.dependency
+        if superior_office.is_management:
+            return superior_office
         else:
-            return oficina_superior.management
+            return superior_office.management
 
     def previous(self):
-        ant = Office.objects.previous(self)
-        return ant
+        previous = Office.objects.previous(self)
+        return previous
 
     def next(self):
         sig = Office.objects.next(self)
@@ -176,8 +176,8 @@ class Position(TimeStampedModel):
     objects = NavigableQuerySet.as_manager()
 
     def previous(self):
-        ant = Position.objects.previous(self)
-        return ant.pk
+        previous = Position.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Position.objects.next(self)
@@ -185,16 +185,16 @@ class Position(TimeStampedModel):
 
     @property
     def superior_position(self):
-        puestos_superiores = Position.objects.filter(office=self.office,
+        superior_positions = Position.objects.filter(office=self.office,
                                                    is_leadership=True,
                                                    is_active=True)
-        if puestos_superiores.count() > 0:
-            superior_position = puestos_superiores[0]
+        if superior_positions.count() > 0:
+            superior_position = superior_positions[0]
         else:
             superior_position = None
         return superior_position
 
-    def set_level(self, oficina_requerimiento):
+    def set_level(self, requirement_office):
         from tambox.config import logistics
         description = "LOGISTICA" if (self.office == logistics() and self.is_leadership) else "USUARIO"
         try:
@@ -227,8 +227,8 @@ class ApprovalLevel(TimeStampedModel):
         return force_str(self.description)
 
     def previous(self):
-        ant = ApprovalLevel.objects.previous(self)
-        return ant.pk
+        previous = ApprovalLevel.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = ApprovalLevel.objects.next(self)

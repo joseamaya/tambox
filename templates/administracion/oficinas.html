@@ -29,7 +29,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">CODIGO</th>
@@ -39,7 +39,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for office in oficinas %}
+            {% for office in offices %}
             {% if perms.administracion.ver_detalle_oficina %}
             <tr>
                 {% else %}
@@ -84,7 +84,7 @@
 <script>
 $(document).ready(function() 
 {	
-    var table = $('#tabla').dataTable( 
+    var table = $('#table').dataTable( 
     {
         "language": {
         	url: "/static/localizacion/es_ES.json"

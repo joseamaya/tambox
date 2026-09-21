@@ -12,7 +12,7 @@ from seguridad.permisos import declared_permissions
 class AutorizacionTestCase(TestCase):
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser('verificador', 'verificador@example.com', 'clave-segura-123')
+        self.usuario = User.objects.create_superuser('verificador', 'verificador@example.com', 'key-segura-123')
 
     def test_contabilidad_exige_login(self):
         self.client.logout()
@@ -66,7 +66,7 @@ class AutorizacionTestCase(TestCase):
         de un acceso correcto."""
         self.client.raise_request_exception = False
         self.client.force_login(
-            User.objects.create_user('consulta', 'consulta@example.com', 'clave-consulta-123'))
+            User.objects.create_user('consulta', 'consulta@example.com', 'key-consulta-123'))
 
         respuesta = self.client.get('/contabilidad/tax_list/')
 
@@ -77,7 +77,7 @@ class AutorizacionTestCase(TestCase):
 class RenderTestCase(TestCase):
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser('humo', 'humo@example.com', 'clave-segura-456')
+        self.usuario = User.objects.create_superuser('humo', 'humo@example.com', 'key-segura-456')
 
     def test_login_renderiza(self):
         respuesta = self.client.get('/')
@@ -214,7 +214,7 @@ class TodasLasPaginasTest(TestCase):
 
     def setUp(self):
         self.usuario = User.objects.create_superuser('navegante', 'navegante@example.com',
-                                                     'clave-segura-123')
+                                                     'key-segura-123')
         self.client.force_login(self.usuario)
 
     def test_ninguna_pagina_responde_500(self):
@@ -226,11 +226,11 @@ class TodasLasPaginasTest(TestCase):
                 continue    # necesita argumentos: la cubren los tests de su vista
             try:
                 respuesta = self.client.get(url, raise_request_exception=False)
-                estado = respuesta.status_code
+                status = respuesta.status_code
             except Exception as error:
-                estado = '%s: %s' % (type(error).__name__, error)
-            if not isinstance(estado, int) or estado >= 500:
-                fallos[name] = '%s (%s) -> %s' % (name, url, estado)
+                status = '%s: %s' % (type(error).__name__, error)
+            if not isinstance(status, int) or status >= 500:
+                fallos[name] = '%s (%s) -> %s' % (name, url, status)
 
         self.assertEqual(sorted(fallos), sorted(self.PENDIENTES))
 
@@ -245,7 +245,7 @@ class ErroresDeFormularioTest(TestCase):
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('errores', 'errores@example.com',
-                                                              'clave-segura-123'))
+                                                              'key-segura-123'))
 
     def test_el_error_de_un_campo_se_ve(self):
         respuesta = self.client.post(reverse('contabilidad:account_create'), {})

@@ -164,7 +164,7 @@
             </div>
             <div class="row">
                 <div class="col-lg-12">
-                    <table id="detalles" class="table table-striped table-bordered table-hover">
+                    <table id="details" class="table table-striped table-bordered table-hover">
                         <thead>
                         <tr>
                             <th>ID Producto</th>
@@ -177,57 +177,57 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {{ detalle_ingreso_formset.management_form }}
-                        {% for detalle_ingreso_form in detalle_ingreso_formset %}
-                        <tr class="detalle_ingreso_formset">
+                        {{ inbound_detail_formset.management_form }}
+                        {% for inbound_detail_form in inbound_detail_formset %}
+                        <tr class="inbound_detail_formset">
                             <td>
-                                {{ detalle_ingreso_form.purchase_order }}
-                                {% if detalle_ingreso_form.code.errors %}
-                                {% for error in detalle_ingreso_form.code.errors %}
+                                {{ inbound_detail_form.purchase_order }}
+                                {% if inbound_detail_form.code.errors %}
+                                {% for error in inbound_detail_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.code }}
+                                {{ inbound_detail_form.code }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.name.errors %}
-                                {% for error in detalle_ingreso_form.name.errors %}
+                                {% if inbound_detail_form.name.errors %}
+                                {% for error in inbound_detail_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.name }}
+                                {{ inbound_detail_form.name }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.unit.errors %}
-                                {% for error in detalle_ingreso_form.unit.errors %}
+                                {% if inbound_detail_form.unit.errors %}
+                                {% for error in inbound_detail_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.unit }}
+                                {{ inbound_detail_form.unit }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.quantity.errors %}
-                                {% for error in detalle_ingreso_form.quantity.errors %}
+                                {% if inbound_detail_form.quantity.errors %}
+                                {% for error in inbound_detail_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.quantity }}
+                                {{ inbound_detail_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.price.errors %}
-                                {% for error in detalle_ingreso_form.price.errors %}
+                                {% if inbound_detail_form.price.errors %}
+                                {% for error in inbound_detail_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.price }}
+                                {{ inbound_detail_form.price }}
                             </td>
                             <td>
-                                {% if detalle_ingreso_form.amount.errors %}
-                                {% for error in detalle_ingreso_form.amount.errors %}
+                                {% if inbound_detail_form.amount.errors %}
+                                {% for error in inbound_detail_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.amount }}
+                                {{ inbound_detail_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -313,7 +313,7 @@ $(document).ready(function()
 		$("#id_total").val(total.toFixed(5));
 		contDetalles = contDetalles - 1;
 		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('detalle_ingreso_formset');
+		updateFormElementIndices('inbound_detail_formset');
 	});
 	
 	$(document).on("keyup",".quantity",function()
@@ -355,7 +355,7 @@ $(document).ready(function()
 	{
 		tipo_ingreso = $('#id_movement_type').val();
 		$.ajax({
-			data : {'tipo': tipo_ingreso},
+			data : {'type': tipo_ingreso},
 			url : "{% url 'almacen:verify_reference_required' %}",
 			type : 'get',
 			success : function(data)
@@ -384,7 +384,7 @@ $(document).ready(function()
 			{
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
-					"<tr class='detalle_ingreso_formset'>" +
+					"<tr class='inbound_detail_formset'>" +
 						"<td>" + item.purchase_order + item.code + "</td>" +
 						"<td>" + item.name + "</td>" +
 						"<td>" + item.unit + "</td>" +
@@ -396,7 +396,7 @@ $(document).ready(function()
 					contDetalles = parseInt(contDetalles) + 1;											
 				});
 				$("#id_form-TOTAL_FORMS").val(contDetalles);
-				updateFormElementIndices('detalle_ingreso_formset');
+				updateFormElementIndices('inbound_detail_formset');
 				bindAutoComplete('productos');		
 				$(".decimal").keydown(validar_decimales);
 			}
@@ -471,7 +471,7 @@ $(document).ready(function()
 					$.each(data, function(i,item){
 						cont = i+1;
 						$("#detalles tbody").append(
-						"<tr class='detalle_ingreso_formset'>" +
+						"<tr class='inbound_detail_formset'>" +
 							"<td>" + item.purchase_order + item.code + "</td>" +
 							"<td>" + item.name + "</td>" +
 							"<td>" + item.unit + "</td>" +
@@ -514,7 +514,7 @@ $(document).ready(function()
 		$('#id_details_count').val(ultimo_item);
 		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
-		var solicita_documento = $('#id_document_type').is(':enabled');
+		var requires_document = $('#id_document_type').is(':enabled');
 		var document_type;
 		var series;
 		var number;

@@ -45,10 +45,10 @@ class RepresentanteLegalTest(TestCase):
 class CotizacionTest(TestCase):
 
     def setUp(self):
-        self.fecha_actual = date.today()
-        self.c1 = baker.make(Quotation, code='', date=self.fecha_actual)
-        self.c2 = baker.make(Quotation, code='', date=self.fecha_actual)
-        self.c3 = baker.make(Quotation, code='', date=self.fecha_actual)
+        self.current_date = date.today()
+        self.c1 = baker.make(Quotation, code='', date=self.current_date)
+        self.c2 = baker.make(Quotation, code='', date=self.current_date)
+        self.c3 = baker.make(Quotation, code='', date=self.current_date)
 
     def test_creacion_proveedor(self):
         self.assertTrue(isinstance(self.c1, Quotation))
@@ -141,7 +141,7 @@ class ReportesPDFTest(TestCase):
 
 
 class EstadosDeDetalleTest(TestCase):
-    """Estos metodos solo leen campos de la instancia, asi que no hace falta
+    """Estos metodos solo leen campos de la instance, asi que no hace falta
     tocar la base de datos, y fijan la regla compartida de classify()."""
 
     def test_detalle_cotizacion(self):
@@ -174,7 +174,7 @@ class EstadosDeDetalleTest(TestCase):
 class TotalesDeOrdenCompraTest(TestCase):
     """`total` y `total_in_words` encadenan `subtotal` e `tax`, y las
     plantillas las invocan mas de una vez: sin memorizar se repiten las
-    consultas. No se convierten en agregados SQL porque redondean fila a fila."""
+    consultas. No se convierten en agregados SQL porque redondean fila a row."""
 
     def test_subtotal_e_impuesto_se_calculan_una_sola_vez(self):
         order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
@@ -195,9 +195,9 @@ class TotalesDeOrdenCompraTest(TestCase):
         prefetch_related evita una consulta por orden en los reportes."""
         baker.make(PurchaseOrder, supplier=baker.make(Supplier))
 
-        ordenes = list(PurchaseOrder.objects.prefetch_related('details'))
+        orders = list(PurchaseOrder.objects.prefetch_related('details'))
 
         with self.assertNumQueries(0):
-            for order in ordenes:
+            for order in orders:
                 order.subtotal
                 order.tax

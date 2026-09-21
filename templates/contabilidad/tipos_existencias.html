@@ -13,7 +13,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">COD_SUNAT</th>
@@ -21,10 +21,10 @@
             </tr>
             </thead>
             <tbody>
-            {% for tipo in tipos_existencias %}
+            {% for type in tipos_existencias %}
             <tr>
-                <td>{{ tipo.sunat_code }}</td>
-                <td>{{ tipo.description }}</td>
+                <td>{{ type.sunat_code }}</td>
+                <td>{{ type.description }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -37,7 +37,7 @@
 $(document).ready(function()
 {
     var borrarSeleccionado;
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

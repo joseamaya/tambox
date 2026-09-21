@@ -165,7 +165,7 @@ class TableroAdministracionTest(TestCase):
     nunca y `set_level()` fallaba para todos los requerimientos."""
 
     def setUp(self):
-        self.client.force_login(User.objects.create_superuser('jefe', 'jefe@example.com', 'clave-segura'))
+        self.client.force_login(User.objects.create_superuser('boss', 'boss@example.com', 'key-segura'))
 
     def test_completa_los_niveles_que_faltan(self):
         ApprovalLevel.objects.create(description='LOGISTICA')

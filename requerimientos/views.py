@@ -49,9 +49,9 @@ class RequirementApprove(UpdateView):
 
     @method_decorator(requires('requerimientos.change_requirementapproval'))
     def dispatch(self, *args, **kwargs):
-        aprobacion_requerimiento = get_object_or_404(self.model, pk=kwargs['pk'])
+        requirement_approval = get_object_or_404(self.model, pk=kwargs['pk'])
         usuario = self.request.user
-        if aprobacion_requerimiento.check_approval_access(usuario):
+        if requirement_approval.check_approval_access(usuario):
             return super(RequirementApprove, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -72,24 +72,24 @@ class RequirementApprove(UpdateView):
 class RequirementDetailCreate(AjaxOnlyMixin, FormView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            lista_detalles = []
+            detail_list = []
             det = {}
             det['code'] = ''
             det['product'] = ''
             det['unit'] = ''
             det['quantity'] = '0'
             det['use'] = ''
-            lista_detalles.append(det)
-            formset = RequirementDetailFormSet(initial=lista_detalles)
+            detail_list.append(det)
+            formset = RequirementDetailFormSet(initial=detail_list)
             lista_json = []
             for form in formset:
-                detalle_json = {}
-                detalle_json['code'] = str(form['code'])
-                detalle_json['product'] = str(form['product'])
-                detalle_json['unit'] = str(form['unit'])
-                detalle_json['quantity'] = str(form['quantity'])
-                detalle_json['use'] = str(form['use'])
-                lista_json.append(detalle_json)
+                detail_json = {}
+                detail_json['code'] = str(form['code'])
+                detail_json['product'] = str(form['product'])
+                detail_json['unit'] = str(form['unit'])
+                detail_json['quantity'] = str(form['quantity'])
+                detail_json['use'] = str(form['use'])
+                lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -114,8 +114,8 @@ class RequirementCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        oficinas = Office.objects.all()
-        if not oficinas:
+        offices = Office.objects.all()
+        if not offices:
             return HttpResponseRedirect(reverse('administracion:office_create'))
         try:
             worker = self.request.user.worker
@@ -126,18 +126,18 @@ class RequirementCreate(CreateView):
         position = worker.position
         if position is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
-        puesto_jefe = position.superior_position
-        if puesto_jefe is None:
+        boss_position = position.superior_position
+        if boss_position is None:
             return HttpResponseRedirect(reverse('administracion:position_create'))
-        niveles_aprobacion = ApprovalLevel.objects.all()
-        if not niveles_aprobacion:
+        approval_levels = ApprovalLevel.objects.all()
+        if not approval_levels:
             return HttpResponseRedirect(reverse('administracion:approval_level_create'))
         if configuration() is not None:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
-            detalle_requerimiento_formset = RequirementDetailFormSet()
+            requirement_detail_formset = RequirementDetailFormSet()
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 detalle_requerimiento_formset=detalle_requerimiento_formset))
+                                                                 requirement_detail_formset=requirement_detail_formset))
         else:
             return HttpResponseRedirect(reverse('contabilidad:configuration'))
 
@@ -145,43 +145,43 @@ class RequirementCreate(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_requerimiento_formset = RequirementDetailFormSet(request.POST)
-        if form.is_valid() and detalle_requerimiento_formset.is_valid():
-            return self.form_valid(form, detalle_requerimiento_formset)
+        requirement_detail_formset = RequirementDetailFormSet(request.POST)
+        if form.is_valid() and requirement_detail_formset.is_valid():
+            return self.form_valid(form, requirement_detail_formset)
         else:
-            return self.form_invalid(form, detalle_requerimiento_formset)
+            return self.form_invalid(form, requirement_detail_formset)
 
-    def form_valid(self, form, detalle_requerimiento_formset):
+    def form_valid(self, form, requirement_detail_formset):
         try:
             with transaction.atomic():
                 self.object = form.save()
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_requerimiento_form in detalle_requerimiento_formset:
-                    code = detalle_requerimiento_form.cleaned_data.get('code')
-                    quantity = detalle_requerimiento_form.cleaned_data.get('quantity')
-                    use = detalle_requerimiento_form.cleaned_data.get('use')
+                for requirement_detail_form in requirement_detail_formset:
+                    code = requirement_detail_form.cleaned_data.get('code')
+                    quantity = requirement_detail_form.cleaned_data.get('quantity')
+                    use = requirement_detail_form.cleaned_data.get('use')
                     if code and quantity:
                         product = Product.objects.get(code=code)
-                        detalles.append(RequirementDetail(requirement=self.object,
+                        details.append(RequirementDetail(requirement=self.object,
                                                              line_number=cont,
                                                              product=product,
                                                              quantity=quantity,
                                                              use=use))
                         cont = cont + 1
-                RequirementDetail.objects.bulk_create(detalles)
-                puesto_jefe = self.object.requester.position.superior_position  # Position.objects.get(office=self.object.office, is_leadership=True, is_active=True)
-                jefe = puesto_jefe.worker
-                destinatario = jefe.user.email
-                if jefe.pk != self.object.requester.pk:
+                RequirementDetail.objects.bulk_create(details)
+                boss_position = self.object.requester.position.superior_position  # Position.objects.get(office=self.object.office, is_leadership=True, is_active=True)
+                boss = boss_position.worker
+                destinatario = boss.user.email
+                if boss.pk != self.object.requester.pk:
                     requirement_creation_mail(destinatario, self.object)
                 return HttpResponseRedirect(reverse('requerimientos:requirement_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
 
-    def form_invalid(self, form, detalle_requerimiento_formset):
+    def form_invalid(self, form, requirement_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
+                                                             requirement_detail_formset=requirement_detail_formset))
 
 
 class RequirementDetailView(DetailView):
@@ -213,17 +213,17 @@ class RequirementDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             requirement = Requirement.objects.get(code=code)
-            requerimiento_json = {}
-            requerimiento_json['code'] = code
-            cotizaciones = requirement.quotations.all()
-            if len(cotizaciones) > 0:
-                requerimiento_json['cotizaciones'] = 'SI'
+            requirement_json = {}
+            requirement_json['code'] = code
+            quotations = requirement.quotations.all()
+            if len(quotations) > 0:
+                requirement_json['quotations'] = 'SI'
             else:
-                requerimiento_json['cotizaciones'] = 'NO'
+                requirement_json['quotations'] = 'NO'
                 with transaction.atomic():
                     requirement.delete_requirement()
                     RequirementDetail.objects.filter(requirement=requirement).delete()
-            data = simplejson.dumps(requerimiento_json)
+            data = simplejson.dumps(requirement_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -258,7 +258,7 @@ class RequirementApprovalList(ListView):
 class QuotationListByRequirement(ListView):
     model = Quotation
     template_name = 'compras/cotizaciones.html'
-    context_object_name = 'cotizaciones'
+    context_object_name = 'quotations'
 
     @method_decorator(requires('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
@@ -277,8 +277,8 @@ class RequirementList(ListView):
 
     def get_queryset(self):
         usuario = self.request.user
-        requerimientos_visibles = Requirement.get_visible_requirements(usuario)
-        return requerimientos_visibles
+        visible_requirements = Requirement.get_visible_requirements(usuario)
+        return visible_requirements
 
     @method_decorator(
         requires('requerimientos.ver_tabla_requerimientos'))
@@ -321,9 +321,9 @@ class RequirementUpdate(UpdateView):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalles = RequirementDetail.objects.filter(requirement=self.object).order_by('line_number')
-        detalles_data = []
-        for detail in detalles:
+        details = RequirementDetail.objects.filter(requirement=self.object).order_by('line_number')
+        details_data = []
+        for detail in details:
             try:
                 d = {'code': detail.product.code,
                      'product': detail.product.description,
@@ -336,51 +336,51 @@ class RequirementUpdate(UpdateView):
                      'quantity': detail.quantity,
                      'unit': '',
                      'use': detail.use}
-            detalles_data.append(d)
-        detalle_requerimiento_formset = RequirementDetailFormSet(initial=detalles_data)
+            details_data.append(d)
+        requirement_detail_formset = RequirementDetailFormSet(initial=details_data)
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
+                                                             requirement_detail_formset=requirement_detail_formset))
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        detalle_requerimiento_formset = RequirementDetailFormSet(request.POST)
-        if form.is_valid() and detalle_requerimiento_formset.is_valid():
-            return self.form_valid(form, detalle_requerimiento_formset)
+        requirement_detail_formset = RequirementDetailFormSet(request.POST)
+        if form.is_valid() and requirement_detail_formset.is_valid():
+            return self.form_valid(form, requirement_detail_formset)
         else:
-            return self.form_invalid(form, detalle_requerimiento_formset)
+            return self.form_invalid(form, requirement_detail_formset)
 
-    def form_valid(self, form, detalle_requerimiento_formset):
+    def form_valid(self, form, requirement_detail_formset):
         try:
             with transaction.atomic():
                 RequirementDetail.objects.filter(requirement=self.object).delete()
                 form.save()
-                detalles = []
+                details = []
                 cont = 1
-                for detalle_requerimiento_form in detalle_requerimiento_formset:
-                    code = detalle_requerimiento_form.cleaned_data.get('code')
-                    quantity = detalle_requerimiento_form.cleaned_data.get('quantity')
-                    use = detalle_requerimiento_form.cleaned_data.get('use')
+                for requirement_detail_form in requirement_detail_formset:
+                    code = requirement_detail_form.cleaned_data.get('code')
+                    quantity = requirement_detail_form.cleaned_data.get('quantity')
+                    use = requirement_detail_form.cleaned_data.get('use')
                     if code and quantity:
                         product = Product.objects.get(code=code)
-                        detalles.append(
+                        details.append(
                             RequirementDetail(requirement=self.object, line_number=cont, product=product,
                                                  quantity=quantity, use=use))
                         cont = cont + 1
                     elif quantity:
-                        product = detalle_requerimiento_form.cleaned_data.get('product')
-                        detalles.append(RequirementDetail(requirement=self.object, line_number=cont, otro=product,
+                        product = requirement_detail_form.cleaned_data.get('product')
+                        details.append(RequirementDetail(requirement=self.object, line_number=cont, otro=product,
                                                              quantity=quantity, use=use))
                         cont = cont + 1
-                RequirementDetail.objects.bulk_create(detalles)
+                RequirementDetail.objects.bulk_create(details)
                 return HttpResponseRedirect(reverse('requerimientos:requirement_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
 
-    def form_invalid(self, form, detalle_requerimiento_formset):
+    def form_invalid(self, form, requirement_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
-                                                             detalle_requerimiento_formset=detalle_requerimiento_formset))
+                                                             requirement_detail_formset=requirement_detail_formset))
 
 
 class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
@@ -391,16 +391,16 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
             requirement = request.GET['requirement']
             search_type = request.GET['search_type']
             if search_type == 'TODOS':
-                detalles = RequirementDetail.objects.filter(
+                details = RequirementDetail.objects.filter(
                     Q(status=RequirementDetail.STATUS.PEND) | Q(status=RequirementDetail.STATUS.COTIZ),
                     requirement__code=requirement).order_by('line_number')
             elif search_type == 'PRODUCTOS':
-                detalles = RequirementDetail.objects.filter(Q(status=RequirementDetail.STATUS.PEND) |
+                details = RequirementDetail.objects.filter(Q(status=RequirementDetail.STATUS.PEND) |
                                                                Q(status=RequirementDetail.STATUS.COTIZ),
                                                                requirement__code=requirement,
                                                                product__isnull=False).order_by('line_number')
-            lista_detalles = []
-            for detail in detalles:
+            detail_list = []
+            for detail in details:
                 det = {}
                 det['requirement'] = detail.id
                 try:
@@ -411,19 +411,19 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                     det['quantity'] = str(detail.quantity - detail.served_quantity)
                     # det['price'] = str(detail.product.price)
                     # det['amount'] = str(detail.product.price*(detail.quantity-detail.served_quantity))
-                    lista_detalles.append(det)
+                    detail_list.append(det)
                 except AttributeError:
                     pass
-            formset = QuotationDetailFormSet(initial=lista_detalles)
+            formset = QuotationDetailFormSet(initial=detail_list)
             lista_json = []
             for form in formset:
-                detalle_json = {}
-                detalle_json['requirement'] = str(form['requirement'])
-                detalle_json['code'] = str(form['code'])
-                detalle_json['name'] = str(form['name'])
-                detalle_json['unit'] = str(form['unit'])
-                detalle_json['quantity'] = str(form['quantity'])
-                lista_json.append(detalle_json)
+                detail_json = {}
+                detail_json['requirement'] = str(form['requirement'])
+                detail_json['code'] = str(form['code'])
+                detail_json['name'] = str(form['name'])
+                detail_json['unit'] = str(form['unit'])
+                detail_json['quantity'] = str(form['quantity'])
+                lista_json.append(detail_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
 
@@ -461,9 +461,9 @@ class RequirementExcelReport(TemplateView):
             ws.cell(row=cont, column=6).value = requirement.created
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
-        nombre_archivo = "RequirementList.xlsx"
+        file_name = "RequirementList.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
-        contenido = "attachment; filename={0}".format(nombre_archivo)
+        contenido = "attachment; filename={0}".format(file_name)
         response["Content-Disposition"] = contenido
         wb.save(response)
         return response

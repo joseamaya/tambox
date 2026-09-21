@@ -22,7 +22,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">FECHA</th>
@@ -30,14 +30,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for tipo in tipos %}
+            {% for type in types %}
             {% if perms.contabilidad.ver_detalle_tipo_cambio %}
-            <tr onclick="location.href='{% url 'contabilidad:exchange_rate_detail' tipo.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:exchange_rate_detail' type.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ tipo.date|date:"d/m/y" }}</td>
-                <td>{{ tipo.amount }}</td>
+                <td>{{ type.date|date:"d/m/y" }}</td>
+                <td>{{ type.amount }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -50,7 +50,7 @@
 $(document).ready(function() 
 {	
     var borrarSeleccionado;
-    var table = $('#tabla').DataTable( {
+    var table = $('#table').DataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

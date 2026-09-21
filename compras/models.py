@@ -27,8 +27,8 @@ class DetalleOrdenManager(models.Manager):
             self.save_details_without_reference(objs)
 
     def update_quotations(self):
-        cotizaciones = Quotation.objects.filter(status=Quotation.STATUS.PEND)
-        for cot in cotizaciones:
+        quotations = Quotation.objects.filter(status=Quotation.STATUS.PEND)
+        for cot in quotations:
             cot.set_status_purchased()
             cot.save()
 
@@ -85,7 +85,7 @@ class Supplier(TimeStampedModel):
     email = models.EmailField(null=True)
     sunat_status = models.CharField(max_length=50)
     sunat_condition = models.CharField(max_length=50)
-    representantes = models.ManyToManyField(LegalRepresentative, related_name='suppliers')
+    representatives = models.ManyToManyField(LegalRepresentative, related_name='suppliers')
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
     is_active = models.BooleanField(default=True)
@@ -93,14 +93,14 @@ class Supplier(TimeStampedModel):
     history = HistoricalRecords()
 
     class Meta:
-        permissions = (('ver_detalle_proveedor', 'Puede ver detalle Proveedor'),
+        permissions = (('ver_detalle_proveedor', 'Puede ver detail Proveedor'),
                        ('ver_tabla_proveedores', 'Puede ver tabla de Proveedores'),
                        ('ver_reporte_proveedores_excel', 'Puede ver Reporte Proveedores en excel'),)
         ordering = ['tax_id']
 
     def previous(self):
-        ant = Supplier.objects.previous(self)
-        return ant.pk
+        previous = Supplier.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Supplier.objects.next(self)
@@ -122,8 +122,8 @@ class Quotation(TimeStampedModel):
     history = HistoricalRecords()
 
     def previous(self):
-        ant = Quotation.objects.previous(self)
-        return ant.pk
+        previous = Quotation.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = Quotation.objects.next(self)
@@ -136,8 +136,8 @@ class Quotation(TimeStampedModel):
     def delete_reference(self):
         quotation = self
         requirement = quotation.requirement
-        detalles = QuotationDetail.objects.filter(quotation=quotation)
-        for detail in detalles:
+        details = QuotationDetail.objects.filter(quotation=quotation)
+        for detail in details:
             requirement_detail = detail.requirement_detail
             if requirement_detail.quoted_quantity > 0:
                 requirement_detail.quoted_quantity = requirement_detail.quoted_quantity - detail.quantity
@@ -155,32 +155,32 @@ class Quotation(TimeStampedModel):
             total_purchased = total_purchased + detail.purchased_quantity
         caso = classify(total_purchased, total)
         if caso == EMPTY:
-            estado = Quotation.STATUS.DESC
+            status = Quotation.STATUS.DESC
         elif caso == PARTIAL:
-            estado = Quotation.STATUS.ELEG_PARC
+            status = Quotation.STATUS.ELEG_PARC
         else:
-            estado = Quotation.STATUS.ELEG
-        self.status = estado
+            status = Quotation.STATUS.ELEG
+        self.status = status
         return self.status
 
     class Meta:
         unique_together = (('supplier', 'requirement'),)
         permissions = (('ver_detalle_cotizacion', 'Puede ver detalle de Cotización'),
-                       ('ver_tabla_cotizaciones', 'Puede ver tabla Cotizaciones'),
+                       ('ver_tabla_cotizaciones', 'Puede ver table Cotizaciones'),
                        ('ver_reporte_cotizaciones_excel', 'Puede ver Reporte de Cotizaciones en excel'),
                        ('puede_hacer_transferencia_cotizacion', 'Puede hacer transferencia de Cotización'),)
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.date.year
-            mov_ant = Quotation.objects.filter(date__year=anio).aggregate(Max('code'))
-            id_ant = mov_ant['code__max']
-            if id_ant is None:
+            year = self.date.year
+            previous_movement = Quotation.objects.filter(date__year=year).aggregate(Max('code'))
+            previous_id = previous_movement['code__max']
+            if previous_id is None:
                 aux = 1
             else:
-                aux = int(id_ant[-6:]) + 1
+                aux = int(previous_id[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.code = 'CO' + str(anio) + correlativo
+            self.code = 'CO' + str(year) + correlativo
         super(Quotation, self).save()
 
     def __str__(self):
@@ -205,12 +205,12 @@ class QuotationDetail(TimeStampedModel):
     def set_status_purchased(self):
         caso = classify(self.purchased_quantity, self.quantity)
         if caso == EMPTY:
-            estado = QuotationDetail.STATUS.PEND
+            status = QuotationDetail.STATUS.PEND
         elif caso == PARTIAL:
-            estado = QuotationDetail.STATUS.ELEG_PARC
+            status = QuotationDetail.STATUS.ELEG_PARC
         else:
-            estado = QuotationDetail.STATUS.ELEG
-        self.status = estado
+            status = QuotationDetail.STATUS.ELEG
+        self.status = status
         return self.status
 
     class Meta:
@@ -236,8 +236,8 @@ class PurchaseOrder(TimeStampedModel):
     history = HistoricalRecords()
 
     def previous(self):
-        ant = PurchaseOrder.objects.previous(self)
-        return ant.pk
+        previous = PurchaseOrder.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = PurchaseOrder.objects.next(self)
@@ -246,8 +246,8 @@ class PurchaseOrder(TimeStampedModel):
     def delete_reference(self):
         quotation = self.quotation
         requirement = quotation.requirement
-        detalles = PurchaseOrderDetail.objects.filter(order=self)
-        for detail in detalles:
+        details = PurchaseOrderDetail.objects.filter(order=self)
+        for detail in details:
             quotation_detail = detail.quotation_detail
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
             quotation_detail.set_status_purchased()
@@ -262,18 +262,18 @@ class PurchaseOrder(TimeStampedModel):
 
     def set_status(self):
         total = 0
-        total_ingresado = 0
+        total_received = 0
         for detail in PurchaseOrderDetail.objects.filter(order=self):
             total = total + detail.quantity
-            total_ingresado = total_ingresado + detail.received_quantity
-        caso = classify(total_ingresado, total)
+            total_received = total_received + detail.received_quantity
+        caso = classify(total_received, total)
         if caso == EMPTY:
-            estado = PurchaseOrder.STATUS.PEND
+            status = PurchaseOrder.STATUS.PEND
         elif caso == PARTIAL:
-            estado = PurchaseOrder.STATUS.ING_PARC
+            status = PurchaseOrder.STATUS.ING_PARC
         else:
-            estado = PurchaseOrder.STATUS.ING
-        self.status = estado
+            status = PurchaseOrder.STATUS.ING
+        self.status = status
         return self.status
 
     @property
@@ -284,18 +284,18 @@ class PurchaseOrder(TimeStampedModel):
     @property
     def tax(self):
         """Se memoriza: `total` y `total_in_words` la encadenan, y las plantillas
-        las invocan mas de una vez en la misma pagina.
+        las invocan mas de una vez en la misma page.
 
         No se convierte en agregado SQL a proposito: suma una propiedad que
-        redondea fila a fila, y SUM(...) redondearia una sola vez al final, lo
+        redondea fila a row, y SUM(...) redondearia una sola vez al final, lo
         que cambia los last_records decimales del importe.
         """
-        if not hasattr(self, '_impuesto_calculado'):
+        if not hasattr(self, '_calculated_tax'):
             imp = 0
             for detail in self.details.all():
                 imp = imp + detail.tax
-            self._impuesto_calculado = imp
-        return self._impuesto_calculado
+            self._calculated_tax = imp
+        return self._calculated_tax
 
     @property
     def subtotal(self):
@@ -314,22 +314,22 @@ class PurchaseOrder(TimeStampedModel):
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
                        ('ver_detalle_orden_compra', 'Puede ver detalle de Orden de Compra'),
-                       ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'),
+                       ('ver_tabla_ordenes_compra', 'Puede ver table Ordenes de Compra'),
                        ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'),
                        ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra'),)
         ordering = ('code',)
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.date.year
-            mov_ant = PurchaseOrder.objects.filter(date__year=anio).aggregate(Max('code'))
-            id_ant = mov_ant['code__max']
-            if id_ant is None:
+            year = self.date.year
+            previous_movement = PurchaseOrder.objects.filter(date__year=year).aggregate(Max('code'))
+            previous_id = previous_movement['code__max']
+            if previous_id is None:
                 aux = 1
             else:
-                aux = int(id_ant[-6:]) + 1
+                aux = int(previous_id[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.code = 'OC' + str(anio) + correlativo
+            self.code = 'OC' + str(year) + correlativo
         super(PurchaseOrder, self).save()
 
     def __str__(self):
@@ -358,15 +358,15 @@ class PurchaseOrderDetail(TimeStampedModel):
         if self.order.with_tax:
             price_with_tax = self.price
         else:
-            monto_impuesto = configuration().purchase_tax.amount
-            price_with_tax = round(self.price * (monto_impuesto + 1), 5)
+            tax_amount = configuration().purchase_tax.amount
+            price_with_tax = round(self.price * (tax_amount + 1), 5)
         return price_with_tax
 
     @property
     def price_without_tax(self):
         if self.order.with_tax:
-            monto_impuesto = configuration().purchase_tax.amount
-            price_without_tax = round(self.price / (monto_impuesto + 1), 5)
+            tax_amount = configuration().purchase_tax.amount
+            price_without_tax = round(self.price / (tax_amount + 1), 5)
         else:
             price_without_tax = self.price
         return price_without_tax
@@ -374,8 +374,8 @@ class PurchaseOrderDetail(TimeStampedModel):
     @property
     def amount_without_tax(self):
         if self.order.with_tax:
-            monto_impuesto = configuration().purchase_tax.amount
-            amount_without_tax = (self.price * self.quantity) / (monto_impuesto + 1)
+            tax_amount = configuration().purchase_tax.amount
+            amount_without_tax = (self.price * self.quantity) / (tax_amount + 1)
         else:
             amount_without_tax = self.price * self.quantity
         return round(amount_without_tax, 5)
@@ -385,28 +385,28 @@ class PurchaseOrderDetail(TimeStampedModel):
         if self.order.with_tax:
             amount_with_tax = self.price * self.quantity
         else:
-            monto_impuesto = configuration().purchase_tax.amount
-            amount_with_tax = (self.price * self.quantity) * (monto_impuesto + 1)
+            tax_amount = configuration().purchase_tax.amount
+            amount_with_tax = (self.price * self.quantity) * (tax_amount + 1)
         return round(amount_with_tax, 5)
 
     @property
     def tax(self):
-        monto_impuesto = configuration().purchase_tax.amount
+        tax_amount = configuration().purchase_tax.amount
         if self.order.with_tax:
-            imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
+            imp = self.price * self.quantity - (self.price * self.quantity) / (tax_amount + 1)
         else:
-            imp = self.price * self.quantity * monto_impuesto
+            imp = self.price * self.quantity * tax_amount
         return round(imp, 5)
 
     def set_status(self):
         caso = classify(self.received_quantity, self.quantity)
         if caso == EMPTY:
-            estado = PurchaseOrderDetail.STATUS.PEND
+            status = PurchaseOrderDetail.STATUS.PEND
         elif caso == PARTIAL:
-            estado = PurchaseOrderDetail.STATUS.ING_PARC
+            status = PurchaseOrderDetail.STATUS.ING_PARC
         else:
-            estado = PurchaseOrderDetail.STATUS.ING
-        self.status = estado
+            status = PurchaseOrderDetail.STATUS.ING
+        self.status = status
         return self.status
 
     class Meta:
@@ -454,8 +454,8 @@ class ServiceOrder(TimeStampedModel):
         return letras
 
     def previous(self):
-        ant = ServiceOrder.objects.previous(self)
-        return ant.pk
+        previous = ServiceOrder.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = ServiceOrder.objects.next(self)
@@ -464,8 +464,8 @@ class ServiceOrder(TimeStampedModel):
     def delete_reference(self):
         quotation = self.quotation
         requirement = self.quotation
-        detalles = ServiceOrderDetail.objects.filter(order=self)
-        for detail in detalles:
+        details = ServiceOrderDetail.objects.filter(order=self)
+        for detail in details:
             quotation_detail = detail.quotation_detail
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
             quotation_detail.set_status_purchased()
@@ -480,18 +480,18 @@ class ServiceOrder(TimeStampedModel):
 
     def set_status(self):
         total = 0
-        total_conforme = 0
+        total_conformed = 0
         for detail in ServiceOrderDetail.objects.filter(order=self):
             total = total + detail.quantity
-            total_conforme = total_conforme + detail.conformed_quantity
-        caso = classify(total_conforme, total)
+            total_conformed = total_conformed + detail.conformed_quantity
+        caso = classify(total_conformed, total)
         if caso == EMPTY:
-            estado = ServiceOrder.STATUS.PEND
+            status = ServiceOrder.STATUS.PEND
         elif caso == PARTIAL:
-            estado = ServiceOrder.STATUS.CONF_PARC
+            status = ServiceOrder.STATUS.CONF_PARC
         else:
-            estado = ServiceOrder.STATUS.CONF
-        self.status = estado
+            status = ServiceOrder.STATUS.CONF
+        self.status = status
         return self.status
 
     class Meta:
@@ -501,15 +501,15 @@ class ServiceOrder(TimeStampedModel):
         ordering = ('code',)
 
     def generate_code(self):
-        anio = self.date.year
-        mov_ant = ServiceOrder.objects.filter(date__year=anio).aggregate(Max('code'))
-        id_ant = mov_ant['code__max']
-        if id_ant is None:
+        year = self.date.year
+        previous_movement = ServiceOrder.objects.filter(date__year=year).aggregate(Max('code'))
+        previous_id = previous_movement['code__max']
+        if previous_id is None:
             aux = 1
         else:
-            aux = int(id_ant[-6:]) + 1
+            aux = int(previous_id[-6:]) + 1
         correlativo = str(aux).zfill(6)
-        code = 'OS' + str(anio) + correlativo
+        code = 'OS' + str(year) + correlativo
         return code
 
     def save(self, *args, **kwargs):
@@ -553,12 +553,12 @@ class ServiceOrderDetail(TimeStampedModel):
     def set_status_served(self):
         caso = classify(self.conformed_quantity, self.quantity)
         if caso == EMPTY:
-            estado = ServiceOrderDetail.STATUS.PEND
+            status = ServiceOrderDetail.STATUS.PEND
         elif caso == PARTIAL:
-            estado = ServiceOrderDetail.STATUS.CONF_PARC
+            status = ServiceOrderDetail.STATUS.CONF_PARC
         else:
-            estado = ServiceOrderDetail.STATUS.CONF
-        self.status = estado
+            status = ServiceOrderDetail.STATUS.CONF
+        self.status = status
         return self.status
 
 
@@ -581,8 +581,8 @@ class ServiceConformity(TimeStampedModel):
                         'Puede ver Reporte de Conformidades de Servicio en excel'),)
 
     def previous(self):
-        ant = ServiceConformity.objects.previous(self)
-        return ant.pk
+        previous = ServiceConformity.objects.previous(self)
+        return previous.pk
 
     def next(self):
         sig = ServiceConformity.objects.next(self)
@@ -592,13 +592,13 @@ class ServiceConformity(TimeStampedModel):
         order = self.service_order
         quotation = order.quotation
         requirement = quotation.requirement
-        detalles = ServiceConformityDetail.objects.filter(conformity=self)
-        for detail in detalles:
-            detalle_orden = detail.service_order_detail
-            detalle_orden.conformed_quantity = detalle_orden.conformed_quantity - detail.quantity
-            detalle_orden.set_status_served()
-            detalle_orden.save()
-            requirement_detail = detalle_orden.quotation_detail.requirement_detail
+        details = ServiceConformityDetail.objects.filter(conformity=self)
+        for detail in details:
+            order_detail = detail.service_order_detail
+            order_detail.conformed_quantity = order_detail.conformed_quantity - detail.quantity
+            order_detail.set_status_served()
+            order_detail.save()
+            requirement_detail = order_detail.quotation_detail.requirement_detail
             requirement_detail.served_quantity = requirement_detail.served_quantity - detail.quantity
             requirement_detail.set_status_served()
             requirement_detail.save()
@@ -609,15 +609,15 @@ class ServiceConformity(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.date.year
-            conf_ant = ServiceConformity.objects.filter(date__year=anio).aggregate(Max('code'))
-            id_ant = conf_ant['code__max']
-            if id_ant is None:
+            year = self.date.year
+            previous_conformity = ServiceConformity.objects.filter(date__year=year).aggregate(Max('code'))
+            previous_id = previous_conformity['code__max']
+            if previous_id is None:
                 aux = 1
             else:
-                aux = int(id_ant[-6:]) + 1
+                aux = int(previous_id[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.code = 'CS' + str(anio) + correlativo
+            self.code = 'CS' + str(year) + correlativo
         super(ServiceConformity, self).save()
 
     def __str__(self):

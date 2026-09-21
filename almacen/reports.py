@@ -28,7 +28,7 @@ def initial_kardex_of(report, product, warehouse, start_date):
 
     Los informes que recorren el catalogo precargan el lote entero en
     `report.kardex_iniciales` (una sola consulta); los que exportan un solo
-    producto no lo hacen y aqui se consulta ese producto. Antes cada fila
+    producto no lo hacen y aqui se consulta ese producto. Antes cada row
     lanzaba un `latest('operation_date')`, que ademas revienta con
     MultipleObjectsReturned si dos movimientos comparten date.
     """
@@ -44,19 +44,19 @@ def initial_kardex_of(report, product, warehouse, start_date):
     return iniciales.get(product.pk)
 
 
-def kardex_for_period(report, objeto, warehouse, start_date, end_date, por_grupo=False):
+def kardex_for_period(report, objeto, warehouse, start_date, end_date, by_group=False):
     """Kardex del periodo, con sus totales, del lote que el informe precargo.
 
-    Los informes que recorren el catalogo llenan `report.kardex_lote` -o
-    `kardex_lote_grupos`- con dos consultas para todo el lote; los que exportan
+    Los informes que recorren el catalogo llenan `report.kardex_batch` -o
+    `kardex_batch_groups`- con dos consultas para todo el lote; los que exportan
     un solo producto lo dejan vacio y aqui se resuelve ese producto, que es lo
     que hacian todos antes. Un producto sin movimientos en el periodo no tiene
     clave en el lote, y su valor es el mismo que devolvia `get_kardex()`.
     """
-    lote = getattr(report, 'kardex_lote_grupos' if por_grupo else 'kardex_lote', None)
-    if lote is None:
+    batch = getattr(report, 'kardex_batch_groups' if by_group else 'kardex_batch', None)
+    if batch is None:
         return objeto.get_kardex(warehouse, start_date, end_date)
-    return lote.get(objeto.pk, ([], 0, 0, 0, 0))
+    return batch.get(objeto.pk, ([], 0, 0, 0, 0))
 
 
 class MovementReport():
@@ -77,8 +77,8 @@ class MovementReport():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
@@ -122,11 +122,11 @@ class MovementReport():
         except (ObjectDoesNotExist, AttributeError):
             purchase_order = Paragraph(u"REFERENCIA: -", izquierda)
         try:
-            documento = Paragraph(
+            document = Paragraph(
                 u"DOCUMENTO: " + movement.document_type.description + " SERIE:" + movement.series + u" NÚMERO:" + movement.number,
                 izquierda)
         except (ObjectDoesNotExist, TypeError):
-            documento = ""
+            document = ""
         try:
             order = Paragraph(u"PEDIDO: " + movement.order.code, izquierda)
         except (ObjectDoesNotExist, AttributeError):
@@ -135,7 +135,7 @@ class MovementReport():
                       [warehouse, ''],
                       [supplier, ''],
                       [purchase_order, ''],
-                      [documento, ''],
+                      [document, ''],
                       [order, '']]
         data_table = Table(encabezado, colWidths=[11 * cm, 9 * cm])
         data_table.setStyle(TableStyle(
@@ -145,24 +145,24 @@ class MovementReport():
         ))
         return data_table
 
-    def tabla_detalle(self):
+    def detail_table(self):
         movement = self.movement
         encabezados = ['Item', 'Cantidad', 'Unidad', u'Descripción', 'Precio', 'Total']
-        detalles = MovementDetail.objects.filter(movement=movement).order_by('pk')
+        details = MovementDetail.objects.filter(movement=movement).order_by('pk')
         sp = ParagraphStyle('parrafos')
         sp.alignment = TA_JUSTIFY
         sp.fontSize = 8
         sp.fontName = "Times-Roman"
-        lista_detalles = []
-        for detail in detalles:
-            tupla_producto = [str(detail.line_number),
+        detail_list = []
+        for detail in details:
+            product_tuple = [str(detail.line_number),
                               format(detail.quantity, '.5f'),
                               str(detail.product.unit_of_measure.code),
                               detail.product.description,
                               format(detail.price, '.5f'),
                               format(detail.amount, '.5f')]
-            lista_detalles.append(tupla_producto)
-        tabla_detalle = Table([encabezados] + lista_detalles,
+            detail_list.append(product_tuple)
+        detail_table = Table([encabezados] + detail_list,
                               colWidths=[1.5 * cm, 2.5 * cm, 1.5 * cm, 10 * cm, 2 * cm, 2.5 * cm])
         style = TableStyle(
             [
@@ -171,8 +171,8 @@ class MovementReport():
                 ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def total_table(self):
         movement = self.movement
@@ -181,9 +181,9 @@ class MovementReport():
                                    fontSize=10,
                                    fontName="Times-Roman")
 
-        texto_total = Paragraph("Total: ", izquierda)
+        total_text = Paragraph("Total: ", izquierda)
         total = Paragraph(str(round(movement.total, 2)), izquierda)
-        total = [['', texto_total, total]]
+        total = [['', total_text, total]]
         total_table = Table(total, colWidths=[15.5 * cm, 2 * cm, 2.5 * cm])
         total_table.setStyle(TableStyle(
             [
@@ -219,10 +219,10 @@ class MovementReport():
                                    alignment=TA_CENTER,
                                    fontSize=8,
                                    fontName="Times-Roman")
-        nombre_oficina_administracion = Paragraph(administration_office().name, izquierda)
-        nombre_oficina_logistica = Paragraph(logistics().name, izquierda)
+        administration_office_name = Paragraph(administration_office().name, izquierda)
+        logistics_office_name = Paragraph(logistics().name, izquierda)
         if movement.movement_type.increases:
-            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica]]
+            total = [[administration_office_name, '', logistics_office_name]]
             signatures_table = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
             signatures_table.setStyle(TableStyle(
                 [
@@ -233,7 +233,7 @@ class MovementReport():
             ))
         else:
             requester = Paragraph('SOLICITANTE', izquierda)
-            total = [[nombre_oficina_administracion, '', nombre_oficina_logistica, '', requester]]
+            total = [[administration_office_name, '', logistics_office_name, '', requester]]
             signatures_table = Table(total, colWidths=[5 * cm, 1 * cm, 5 * cm, 1 * cm, 5 * cm])
             signatures_table.setStyle(TableStyle(
                 [
@@ -268,7 +268,7 @@ class MovementReport():
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.data_table(styles))
         elements.append(Spacer(1, 0.25 * cm))
-        elements.append(self.tabla_detalle())
+        elements.append(self.detail_table())
         elements.append(Spacer(1, 0.25 * cm))
         elements.append(self.total_table())
         elements.append(Spacer(1, 0.25 * cm))
@@ -283,12 +283,12 @@ class MovementReport():
 
 class KardexPdfReport():
 
-    def __init__(self, pagesize, start_date, end_date, warehouse, grupos):
+    def __init__(self, pagesize, start_date, end_date, warehouse, groups):
         self.start_date = start_date
         self.end_date = end_date
         self.warehouse = warehouse
-        self.grupos = grupos
-        self.total_paginas = 0
+        self.groups = groups
+        self.total_pages = 0
         self.buffer = BytesIO()
         if pagesize == 'A4':
             self.pagesize = landscape(A4)
@@ -296,17 +296,17 @@ class KardexPdfReport():
             self.pagesize = letter
         self.width, self.height = self.pagesize
 
-    def header_table(self, valorizado):
+    def header_table(self, valued):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        if valorizado:
+        if valued:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
@@ -315,17 +315,17 @@ class KardexPdfReport():
         header_table = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return header_table
 
-    def consolidated_header_table(self, grupos):
+    def consolidated_header_table(self, groups):
         sp = ParagraphStyle('parrafos',
                             alignment=TA_CENTER,
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        if grupos:
+        if groups:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR PRODUCTOS", sp)
@@ -341,7 +341,7 @@ class KardexPdfReport():
         return header_table
 
     def physical_units_detail_table(self, product, start_date, end_date, warehouse):
-        tabla = []
+        table = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "",
                       "",
@@ -350,18 +350,18 @@ class KardexPdfReport():
                       u"ENTRADAS",
                       u"SALIDAS",
                       u"SALDO FINAL"]
-        tabla.append(encab_prim)
+        table.append(encab_prim)
         encab_seg = ["FECHA", "TIPO (TABLA 10)", "SERIE", "NÚMERO", "", "", "", ""]
-        tabla.append(encab_seg)
+        table.append(encab_seg)
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
+            opening_quantity = kardex_inicial.total_quantity
         except AttributeError:
-            cant_saldo_inicial = 0
-        saldo_inicial = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
-                         format(cant_saldo_inicial, '.2f')]
-        total_quantity = cant_saldo_inicial
-        tabla.append(saldo_inicial)
+            opening_quantity = 0
+        opening_balance = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16', format(0, '.2f'), format(0, '.2f'),
+                         format(opening_quantity, '.2f')]
+        total_quantity = opening_quantity
+        table.append(opening_balance)
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
             self, product, warehouse, start_date, end_date)
 
@@ -377,7 +377,7 @@ class KardexPdfReport():
 
             total_quantity = kardex.total_quantity
 
-            tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
+            table.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           document_type,
                           kardex.movement.series,
                           kardex.movement.number,
@@ -387,14 +387,14 @@ class KardexPdfReport():
                           format(total_quantity, '.2f')])
         totales = ['', '', '', '', "TOTALES", format(in_quantity, '.2f'), format(out_quantity, '.2f'),
                    format(total_quantity, '.2f')]
-        tabla.append(totales)
+        table.append(totales)
 
-        self.total_paginas += 1;
-        total_registros_producto = len(listado_kardex) + 2
-        if total_registros_producto > 11:
-            self.total_paginas += int(math.ceil((total_registros_producto - 11) / 21.0))
+        self.total_pages += 1;
+        total_product_records = len(listado_kardex) + 2
+        if total_product_records > 11:
+            self.total_pages += int(math.ceil((total_product_records - 11) / 21.0))
 
-        tabla_detalle = Table(tabla, repeatRows=2,
+        detail_table = Table(table, repeatRows=2,
                               colWidths=[3 * cm, 4 * cm, 3 * cm, 3 * cm, 3 * cm, 3.5 * cm, 3.5 * cm, 3.5 * cm])
         style = TableStyle(
             [
@@ -411,63 +411,63 @@ class KardexPdfReport():
                 ('SPAN', (7, 0), (7, 1)),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def consolidated_product_detail_table(self, productos):
         warehouse = self.warehouse
         start_date = self.start_date
         end_date = self.end_date
-        tabla = []
+        table = []
         encabezado1 = ["CODIGO", u"DENOMINACIÓN", u"UNIDAD", u"CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"",
                        u"SALIDAS", u"", u"SALDO",
                        u""]
         encabezado2 = [u"", u"", u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
                        u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
-        tabla.append(encabezado1)
-        tabla.append(encabezado2)
-        total_cant_saldo_inicial = 0
-        total_valor_saldo_inicial = 0
-        total_cantidad_ingreso = 0
-        total_valor_ingreso = 0
-        total_cantidad_salida = 0
-        total_valor_salida = 0
-        total_cantidad_total = 0
-        total_valor_total = 0
-        self.total_paginas = int(math.ceil(productos.count() / 22.0))
-        iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        table.append(encabezado1)
+        table.append(encabezado2)
+        total_opening_quantity = 0
+        total_opening_amount = 0
+        total_in_quantity = 0
+        total_in_amount = 0
+        total_out_quantity = 0
+        total_out_amount = 0
+        total_total_quantity = 0
+        total_total_amount = 0
+        self.total_pages = int(math.ceil(productos.count() / 22.0))
+        iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             try:
                 kardex_inicial = iniciales.get(product.pk)
-                cant_saldo_inicial = kardex_inicial.total_quantity
-                valor_saldo_inicial = kardex_inicial.total_amount
+                opening_quantity = kardex_inicial.total_quantity
+                opening_amount = kardex_inicial.total_amount
             except AttributeError:
-                cant_saldo_inicial = 0
-                valor_saldo_inicial = 0
+                opening_quantity = 0
+                opening_amount = 0
 
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
                 self, product, warehouse, start_date, end_date)
-            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
-            total_amount = valor_saldo_inicial + in_amount - out_amount
+            total_quantity = opening_quantity + in_quantity - out_quantity
+            total_amount = opening_amount + in_amount - out_amount
 
-            total_cant_saldo_inicial += cant_saldo_inicial
-            total_valor_saldo_inicial += valor_saldo_inicial
-            total_cantidad_ingreso += in_quantity
-            total_valor_ingreso += in_amount
-            total_cantidad_salida += out_quantity
-            total_valor_salida += out_amount
-            total_cantidad_total += total_quantity
-            total_valor_total += total_amount
+            total_opening_quantity += opening_quantity
+            total_opening_amount += opening_amount
+            total_in_quantity += in_quantity
+            total_in_amount += in_amount
+            total_out_quantity += out_quantity
+            total_out_amount += out_amount
+            total_total_quantity += total_quantity
+            total_total_amount += total_amount
 
-            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
-            if temp_valor_saldo_inicial == '-0.000':
-                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.3f')
+            temp_opening_amount = format(opening_amount, '.3f')
+            if temp_opening_amount == '-0.000':
+                opening_amount = format(abs(opening_amount), '.3f')
             else:
-                valor_saldo_inicial = format(valor_saldo_inicial, '.3f')
+                opening_amount = format(opening_amount, '.3f')
 
-            temp_valor_total = format(total_amount, '.3f')
-            if temp_valor_total == '-0.000':
+            temp_total_amount = format(total_amount, '.3f')
+            if temp_total_amount == '-0.000':
                 total_amount = format(abs(total_amount), '.3f')
             else:
                 total_amount = format(total_amount, '.3f')
@@ -476,23 +476,23 @@ class KardexPdfReport():
                         product.description,
                         product.unit_of_measure.description,
                         product.product_group.account,
-                        format(cant_saldo_inicial, '.3f'),
-                        valor_saldo_inicial,
+                        format(opening_quantity, '.3f'),
+                        opening_amount,
                         format(in_quantity, '.3f'),
                         format(in_amount, '.3f'),
                         format(out_quantity, '.3f'),
                         format(out_amount, '.3f'),
                         format(total_quantity, '.3f'),
                         total_amount]
-            tabla.append(registro)
+            table.append(registro)
 
         totales = ["", "", "", "TOTALES",
-                   format(total_cant_saldo_inicial, '.3f'), format(total_valor_saldo_inicial, '.3f'),
-                   format(total_cantidad_ingreso, '.3f'), format(total_valor_ingreso, '.3f'),
-                   format(total_cantidad_salida, '.3f'), format(total_valor_salida, '.3f'),
-                   format(total_cantidad_total, '.3f'), format(total_valor_total, '.3f')]
-        tabla.append(totales)
-        tabla_detalle = Table(tabla,
+                   format(total_opening_quantity, '.3f'), format(total_opening_amount, '.3f'),
+                   format(total_in_quantity, '.3f'), format(total_in_amount, '.3f'),
+                   format(total_out_quantity, '.3f'), format(total_out_amount, '.3f'),
+                   format(total_total_quantity, '.3f'), format(total_total_amount, '.3f')]
+        table.append(totales)
+        detail_table = Table(table,
                               repeatRows=2)  # ,colWidths=[2 * cm, 7 * cm, 2.2 * cm, 1.5 * cm,2.3 * cm, 2.3 * cm,2.3 * cm, 2.4 * cm,2.3 * cm, 2.5 * cm])
         style = TableStyle(
             [
@@ -513,92 +513,92 @@ class KardexPdfReport():
                 ('SPAN', (10, 0), (11, 0)),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
-    def consolidated_group_detail_table(self, grupos):
+    def consolidated_group_detail_table(self, groups):
         warehouse = self.warehouse
         start_date = self.start_date
         end_date = self.end_date
-        tabla = []
+        table = []
         encabezado1 = ["CODIGO", "NOMBRE", "CUENTA", u"SALDO INICIAL", u"", u"INGRESOS", u"", u"SALIDAS", u"", u"SALDO",
                        u""]
         encabezado2 = [u"", u"", u"", u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR",
                        u"CANTIDAD", u"VALOR", u"CANTIDAD", u"VALOR"]
-        tabla.append(encabezado1)
-        tabla.append(encabezado2)
-        total_cant_saldo_inicial = 0
-        total_valor_saldo_inicial = 0
-        total_cantidad_ingreso = 0
-        total_valor_ingreso = 0
-        total_cantidad_salida = 0
-        total_valor_salida = 0
-        total_cantidad_total = 0
-        total_valor_total = 0
-        self.total_paginas = int(math.ceil(grupos.count() / 22.0))
-        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, start_date, end_date)
-        for grupo in grupos:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0
-            productos = Product.objects.filter(product_group=grupo)
-            iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
+        table.append(encabezado1)
+        table.append(encabezado2)
+        total_opening_quantity = 0
+        total_opening_amount = 0
+        total_in_quantity = 0
+        total_in_amount = 0
+        total_out_quantity = 0
+        total_out_amount = 0
+        total_total_quantity = 0
+        total_total_amount = 0
+        self.total_pages = int(math.ceil(groups.count() / 22.0))
+        self.kardex_batch_groups = ProductGroup.kardex_by_batch(groups, warehouse, start_date, end_date)
+        for group in groups:
+            opening_quantity = 0
+            opening_amount = 0
+            productos = Product.objects.filter(product_group=group)
+            iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
             for product in productos:
                 try:
                     kardex_inicial = iniciales.get(product.pk)
-                    cant_saldo_inicial_producto = kardex_inicial.total_quantity
-                    valor_saldo_inicial_producto = kardex_inicial.total_amount
+                    opening_quantity_product = kardex_inicial.total_quantity
+                    opening_amount_product = kardex_inicial.total_amount
                 except AttributeError:
-                    cant_saldo_inicial_producto = 0
-                    valor_saldo_inicial_producto = 0
-                cant_saldo_inicial += cant_saldo_inicial_producto
-                valor_saldo_inicial += valor_saldo_inicial_producto
+                    opening_quantity_product = 0
+                    opening_amount_product = 0
+                opening_quantity += opening_quantity_product
+                opening_amount += opening_amount_product
 
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, grupo, warehouse, start_date, end_date, por_grupo=True)
-            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
-            total_amount = valor_saldo_inicial + in_amount - out_amount
+                self, group, warehouse, start_date, end_date, by_group=True)
+            total_quantity = opening_quantity + in_quantity - out_quantity
+            total_amount = opening_amount + in_amount - out_amount
 
-            total_cant_saldo_inicial += cant_saldo_inicial
-            total_valor_saldo_inicial += valor_saldo_inicial
-            total_cantidad_ingreso += in_quantity
-            total_valor_ingreso += in_amount
-            total_cantidad_salida += out_quantity
-            total_valor_salida += out_amount
-            total_cantidad_total += total_quantity
-            total_valor_total += total_amount
+            total_opening_quantity += opening_quantity
+            total_opening_amount += opening_amount
+            total_in_quantity += in_quantity
+            total_in_amount += in_amount
+            total_out_quantity += out_quantity
+            total_out_amount += out_amount
+            total_total_quantity += total_quantity
+            total_total_amount += total_amount
 
-            temp_valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
-            if temp_valor_saldo_inicial == '-0.00000':
-                valor_saldo_inicial = format(abs(valor_saldo_inicial), '.5f')
+            temp_opening_amount = format(opening_amount, '.5f')
+            if temp_opening_amount == '-0.00000':
+                opening_amount = format(abs(opening_amount), '.5f')
             else:
-                valor_saldo_inicial = format(valor_saldo_inicial, '.5f')
+                opening_amount = format(opening_amount, '.5f')
 
-            temp_valor_total = format(total_amount, '.5f')
-            if temp_valor_total == '-0.00000':
+            temp_total_amount = format(total_amount, '.5f')
+            if temp_total_amount == '-0.00000':
                 total_amount = format(abs(total_amount), '.5f')
             else:
                 total_amount = format(total_amount, '.5f')
 
-            registro = [grupo.code,
-                        grupo.description,
-                        grupo.account.account_number,
-                        format(cant_saldo_inicial, '.5f'),
-                        valor_saldo_inicial,
+            registro = [group.code,
+                        group.description,
+                        group.account.account_number,
+                        format(opening_quantity, '.5f'),
+                        opening_amount,
                         format(in_quantity, '.5f'),
                         format(in_amount, '.5f'),
                         format(out_quantity, '.5f'),
                         format(out_amount, '.5f'),
                         format(total_quantity, '.5f'),
                         total_amount]
-            tabla.append(registro)
+            table.append(registro)
 
         totales = ["", "", "TOTALES",
-                   format(total_cant_saldo_inicial, '.5f'), format(total_valor_saldo_inicial, '.5f'),
-                   format(total_cantidad_ingreso, '.5f'), format(total_valor_ingreso, '.5f'),
-                   format(total_cantidad_salida, '.5f'), format(total_valor_salida, '.5f'),
-                   format(total_cantidad_total, '.5f'), format(total_valor_total, '.5f')]
-        tabla.append(totales)
-        tabla_detalle = Table(tabla, repeatRows=2,
+                   format(total_opening_quantity, '.5f'), format(total_opening_amount, '.5f'),
+                   format(total_in_quantity, '.5f'), format(total_in_amount, '.5f'),
+                   format(total_out_quantity, '.5f'), format(total_out_amount, '.5f'),
+                   format(total_total_quantity, '.5f'), format(total_total_amount, '.5f')]
+        table.append(totales)
+        detail_table = Table(table, repeatRows=2,
                               colWidths=[1.4 * cm, 7 * cm, 1.8 * cm, 2.2 * cm, 2.3 * cm, 2.3 * cm, 2.3 * cm, 2.3 * cm,
                                          2.4 * cm, 2.3 * cm, 2.5 * cm])
         style = TableStyle(
@@ -618,56 +618,56 @@ class KardexPdfReport():
                 ('SPAN', (9, 0), (10, 0)),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def valued_detail_table(self, product, start_date, end_date, warehouse):
-        tabla = []
+        table = []
         encab_prim = [u"DOCUMENTO DE TRASLADO, COMPROBANTE DE PAGO,\n DOCUMENTO INTERNO O SIMILAR",
                       "", "", "",
                       u"TIPO DE \n OPERACIÓN \n (TABLA 12)",
                       u"ENTRADAS", "", "",
                       u"SALIDAS", "", "",
                       u"SALDO FINAL", "", ""]
-        tabla.append(encab_prim)
+        table.append(encab_prim)
         encab_seg = ["", "", "", "", "",
                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL",
                      "CANTIDAD", "COSTO\nUNITARIO", "TOTAL"]
-        tabla.append(encab_seg)
+        table.append(encab_seg)
         encab_terc = ["FECHA", "TIPO\n(TABLA 10)", "SERIE", "NÚMERO",
                       "", "", "",
                       "", "", "",
                       "", "", ""]
-        tabla.append(encab_terc)
+        table.append(encab_terc)
 
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
-            precio_saldo_inicial = kardex_inicial.total_price
-            valor_saldo_inicial = kardex_inicial.total_amount
+            opening_quantity = kardex_inicial.total_quantity
+            opening_price = kardex_inicial.total_price
+            opening_amount = kardex_inicial.total_amount
         except AttributeError:
-            cant_saldo_inicial = 0
-            precio_saldo_inicial = 0
-            valor_saldo_inicial = 0
+            opening_quantity = 0
+            opening_price = 0
+            opening_amount = 0
 
-        cant_saldo_inicial = format(cant_saldo_inicial, '.2f')
-        precio_saldo_inicial = format(precio_saldo_inicial, '.2f')
-        temp_valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
-        if temp_valor_saldo_inicial == '-0.00':
-            valor_saldo_inicial = format(abs(valor_saldo_inicial), '.2f')
+        opening_quantity = format(opening_quantity, '.2f')
+        opening_price = format(opening_price, '.2f')
+        temp_opening_amount = format(opening_amount, '.2f')
+        if temp_opening_amount == '-0.00':
+            opening_amount = format(abs(opening_amount), '.2f')
         else:
-            valor_saldo_inicial = format(valor_saldo_inicial, '.2f')
+            opening_amount = format(opening_amount, '.2f')
 
-        saldo_inicial = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16',
+        opening_balance = [start_date.strftime('%d/%m/%Y'), '00', 'SALDO', 'INICIAL', '16',
                          format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
                          format(0, '.2f'), format(0, '.2f'), format(0, '.2f'),
-                         cant_saldo_inicial, precio_saldo_inicial, valor_saldo_inicial]
-        tabla.append(saldo_inicial)
+                         opening_quantity, opening_price, opening_amount]
+        table.append(opening_balance)
 
-        total_quantity = cant_saldo_inicial
-        total_price = precio_saldo_inicial
-        total_amount = valor_saldo_inicial
+        total_quantity = opening_quantity
+        total_price = opening_price
+        total_amount = opening_amount
 
         listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
             self, product, warehouse, start_date, end_date)
@@ -688,7 +688,7 @@ class KardexPdfReport():
             if total_amount == '-0.00':
                 total_amount = format(abs(kardex.total_amount), '.2f')
 
-            tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
+            table.append([kardex.operation_date.strftime('%d/%m/%Y'),
                           document_type,
                           kardex.movement.series,
                           kardex.movement.number,
@@ -707,14 +707,14 @@ class KardexPdfReport():
                    format(in_quantity, '.2f'), "", format(in_amount, '.2f'),
                    format(out_quantity, '.2f'), "", format(out_amount, '.2f'),
                    total_quantity, total_price, total_amount]
-        tabla.append(totales)
+        table.append(totales)
 
-        self.total_paginas += 1;
-        total_registros_producto = len(listado_kardex) + 2
-        if total_registros_producto > 10:
-            self.total_paginas += int(math.ceil((total_registros_producto - 10) / 20.0))
+        self.total_pages += 1;
+        total_product_records = len(listado_kardex) + 2
+        if total_product_records > 10:
+            self.total_pages += int(math.ceil((total_product_records - 10) / 20.0))
 
-        tabla_detalle = Table(tabla, repeatRows=3)
+        detail_table = Table(table, repeatRows=3)
         style = TableStyle(
             [
                 ('GRID', (0, 0), (-1, -1), 1, colors.black),
@@ -739,15 +739,15 @@ class KardexPdfReport():
                 ('SPAN', (13, 1), (13, 2)),
             ]
         )
-        tabla_detalle.setStyle(style)
-        return tabla_detalle
+        detail_table.setStyle(style)
+        return detail_table
 
     def render_sunat_physical_units_product_format(self, product):
         start_date = self.start_date
         end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
-        self.valorizado = False
+        self.valued = False
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=11,
@@ -776,10 +776,10 @@ class KardexPdfReport():
         code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
-        tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
+        type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
-        elements.append(tipo)
+        elements.append(type)
         elements.append(Spacer(1, 0.25 * cm))
         description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
@@ -804,7 +804,7 @@ class KardexPdfReport():
         end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
-        self.valorizado = True
+        self.valued = True
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -833,10 +833,10 @@ class KardexPdfReport():
         code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
-        tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
+        type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
-        elements.append(tipo)
+        elements.append(type)
         elements.append(Spacer(1, 0.25 * cm))
         description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
         elements.append(description)
@@ -861,7 +861,7 @@ class KardexPdfReport():
         end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
-        self.valorizado = False
+        self.valued = False
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -874,12 +874,12 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
+        product_kardex = Kardex.objects.exclude(in_quantity=0, out_quantity=0).order_by().values(
             'product').distinct()
-        productos = Product.objects.filter(pk__in=productos_kardex).order_by(
+        productos = Product.objects.filter(pk__in=product_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -898,10 +898,10 @@ class KardexPdfReport():
             code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
-            tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
+            type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+            """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
-            elements.append(tipo)
+            elements.append(type)
             elements.append(Spacer(1, 0.25 * cm))
             description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
@@ -946,18 +946,18 @@ class KardexPdfReport():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        ruc_empresa = "RUC: " + company().tax_id
-        if self.grupos:
+        company_tax_id = "RUC: " + company().tax_id
+        if self.groups:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
         periodo = "PERIODO: " + self.start_date.strftime('%d/%m/%Y') + ' - ' + self.end_date.strftime('%d/%m/%Y')
-        pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[image, titulo, pagina], [ruc_empresa, periodo, ""]]
+        page = u"Página " + str(doc.page) + " de " + str(self.total_pages)
+        encabezado = [[image, titulo, page], [company_tax_id, periodo, ""]]
         header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -978,17 +978,17 @@ class KardexPdfReport():
                             fontSize=14,
                             fontName="Times-Roman")
         try:
-            archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
+            image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        ruc_empresa = "RUC: " + company().tax_id
-        if self.valorizado:
+        company_tax_id = "RUC: " + company().tax_id
+        if self.valued:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
-        pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[image, titulo, pagina], [ruc_empresa, "", ""]]
+        page = u"Página " + str(doc.page) + " de " + str(self.total_pages)
+        encabezado = [[image, titulo, page], [company_tax_id, "", ""]]
         header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -1011,9 +1011,9 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        grupos = ProductGroup.objects.filter(is_active=True,
+        groups = ProductGroup.objects.filter(is_active=True,
                                                contains_products=True).order_by('description')
-        elements.append(self.consolidated_group_detail_table(grupos))
+        elements.append(self.consolidated_group_detail_table(groups))
 
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
@@ -1025,7 +1025,7 @@ class KardexPdfReport():
         end_date = self.end_date
         warehouse = self.warehouse
         buffer = self.buffer
-        self.valorizado = True
+        self.valued = True
         izquierda = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
@@ -1038,12 +1038,12 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos_kardex = Kardex.objects.exclude(in_quantity=0,
+        product_kardex = Kardex.objects.exclude(in_quantity=0,
                                                   out_quantity=0).order_by().values('product').distinct()
-        productos = Product.objects.filter(pk__in=productos_kardex).order_by(
+        productos = Product.objects.filter(pk__in=product_kardex).order_by(
             'description').select_related('unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
                                 izquierda)
@@ -1062,10 +1062,10 @@ class KardexPdfReport():
             code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
-            tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
+            type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+            """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
-            elements.append(tipo)
+            elements.append(type)
             elements.append(Spacer(1, 0.25 * cm))
             description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
             elements.append(description)
@@ -1158,9 +1158,9 @@ class KardexExcelReport():
 
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
+            opening_quantity = kardex_inicial.total_quantity
         except AttributeError:
-            cant_saldo_inicial = 0
+            opening_quantity = 0
         cont = 16
         ws.cell(row=cont, column=2).border = thin_border
         ws.cell(row=cont, column=3).value = '00'
@@ -1177,7 +1177,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=8).value = 0
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = cant_saldo_inicial
+        ws.cell(row=cont, column=9).value = opening_quantity
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
@@ -1248,18 +1248,18 @@ class KardexExcelReport():
         cont = cont + 1
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
-            valor_saldo_inicial = kardex_inicial.total_amount
+            opening_quantity = kardex_inicial.total_quantity
+            opening_amount = kardex_inicial.total_amount
         except AttributeError:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0
+            opening_quantity = 0
+            opening_amount = 0
         ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
         ws.merge_cells(start_row=cont, start_column=8, end_row=cont, end_column=9)
         ws.cell(row=cont, column=10).value = "Cantidad: "
-        ws.cell(row=cont, column=11).value = cant_saldo_inicial
+        ws.cell(row=cont, column=11).value = opening_quantity
         ws.cell(row=cont, column=11).number_format = '#.00000'
         ws.cell(row=cont, column=12).value = "Valor: "
-        ws.cell(row=cont, column=13).value = valor_saldo_inicial
+        ws.cell(row=cont, column=13).value = opening_amount
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws['B5'] = 'FECHA'
         ws['C5'] = 'NRO_DOC'
@@ -1334,8 +1334,8 @@ class KardexExcelReport():
             ws.cell(row=cont, column=8).value = 0
             ws.cell(row=cont, column=10).value = 0
             ws.cell(row=cont, column=10).number_format = '#.00000'
-            ws.cell(row=cont, column=11).value = cant_saldo_inicial
-            ws.cell(row=cont, column=13).value = valor_saldo_inicial
+            ws.cell(row=cont, column=11).value = opening_quantity
+            ws.cell(row=cont, column=13).value = opening_amount
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont = cont + 2
         return wb
@@ -1441,11 +1441,11 @@ class KardexExcelReport():
 
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
-            valor_saldo_inicial = kardex_inicial.total_amount
+            opening_quantity = kardex_inicial.total_quantity
+            opening_amount = kardex_inicial.total_amount
         except AttributeError:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0
+            opening_quantity = 0
+            opening_amount = 0
         cont = 16
         ws.cell(row=cont, column=2).border = thin_border
         ws.cell(row=cont, column=3).value = '00'
@@ -1473,16 +1473,16 @@ class KardexExcelReport():
         ws.cell(row=cont, column=12).value = 0
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
-        ws.cell(row=cont, column=13).value = cant_saldo_inicial
+        ws.cell(row=cont, column=13).value = opening_quantity
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws.cell(row=cont, column=13).border = thin_border
         try:
-            ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
+            ws.cell(row=cont, column=14).value = opening_amount / opening_quantity
         except ZeroDivisionError:
             ws.cell(row=cont, column=14).value = 0
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
-        ws.cell(row=cont, column=15).value = valor_saldo_inicial
+        ws.cell(row=cont, column=15).value = opening_amount
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
@@ -1636,9 +1636,9 @@ class KardexExcelReport():
 
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
+            opening_quantity = kardex_inicial.total_quantity
         except AttributeError:
-            cant_saldo_inicial = 0
+            opening_quantity = 0
         cont = cont + 1
         ws.cell(row=cont, column=2).border = thin_border
         ws.cell(row=cont, column=3).value = '00'
@@ -1655,7 +1655,7 @@ class KardexExcelReport():
         ws.cell(row=cont, column=8).value = 0
         ws.cell(row=cont, column=8).number_format = '#.00000'
         ws.cell(row=cont, column=8).border = thin_border
-        ws.cell(row=cont, column=9).value = cant_saldo_inicial
+        ws.cell(row=cont, column=9).value = opening_quantity
         ws.cell(row=cont, column=9).number_format = '#.00000'
         ws.cell(row=cont, column=9).border = thin_border
 
@@ -1702,8 +1702,8 @@ class KardexExcelReport():
     def get_sunat_physical_units_all(self, start_date, end_date, warehouse):
         productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1819,11 +1819,11 @@ class KardexExcelReport():
         ws.cell(row=cont - 1, column=15).border = thin_border
         try:
             kardex_inicial = initial_kardex_of(self, product, warehouse, start_date)
-            cant_saldo_inicial = kardex_inicial.total_quantity
-            valor_saldo_inicial = kardex_inicial.total_amount
+            opening_quantity = kardex_inicial.total_quantity
+            opening_amount = kardex_inicial.total_amount
         except AttributeError:
-            cant_saldo_inicial = 0
-            valor_saldo_inicial = 0
+            opening_quantity = 0
+            opening_amount = 0
         cont = cont + 1
         ws.cell(row=cont, column=2).border = thin_border
         ws.cell(row=cont, column=3).value = '00'
@@ -1852,16 +1852,16 @@ class KardexExcelReport():
         ws.cell(row=cont, column=12).value = 0
         ws.cell(row=cont, column=12).number_format = '#.00000'
         ws.cell(row=cont, column=12).border = thin_border
-        ws.cell(row=cont, column=13).value = cant_saldo_inicial
+        ws.cell(row=cont, column=13).value = opening_quantity
         ws.cell(row=cont, column=13).number_format = '#.00000'
         ws.cell(row=cont, column=13).border = thin_border
         try:
-            ws.cell(row=cont, column=14).value = valor_saldo_inicial / cant_saldo_inicial
+            ws.cell(row=cont, column=14).value = opening_amount / opening_quantity
         except ZeroDivisionError:
             ws.cell(row=cont, column=14).value = 0
         ws.cell(row=cont, column=14).number_format = '#.00000'
         ws.cell(row=cont, column=14).border = thin_border
-        ws.cell(row=cont, column=15).value = valor_saldo_inicial
+        ws.cell(row=cont, column=15).value = opening_amount
         ws.cell(row=cont, column=15).number_format = '#.00000'
         ws.cell(row=cont, column=15).border = thin_border
 
@@ -1945,8 +1945,8 @@ class KardexExcelReport():
     def get_sunat_valued_all(self, start_date, end_date, warehouse):
         productos = Product.objects.all().order_by('description').select_related(
             'unit_of_measure', 'stock_type')
-        self.kardex_iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        self.kardex_iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -1962,9 +1962,9 @@ class KardexExcelReport():
         return wb
 
     def get_consolidated_groups(self, start_date, end_date, warehouse):
-        grupos = ProductGroup.objects.filter(is_active=True,
+        groups = ProductGroup.objects.filter(is_active=True,
                                                contains_products=True)
-        self.kardex_lote_grupos = ProductGroup.kardex_by_batch(grupos, warehouse, start_date, end_date)
+        self.kardex_batch_groups = ProductGroup.kardex_by_batch(groups, warehouse, start_date, end_date)
         wb = Workbook()
         ws = wb.active
         thin_border = Border(left=Side(style='thin'),
@@ -2009,32 +2009,32 @@ class KardexExcelReport():
         ws['K3'].border = thin_border
         ws['L3'].border = thin_border
         cont = 4
-        for grupo in grupos:
-            ws.cell(row=cont, column=2).value = grupo.code
+        for group in groups:
+            ws.cell(row=cont, column=2).value = group.code
             ws.cell(row=cont, column=2).border = thin_border
-            ws.cell(row=cont, column=3).value = grupo.description
+            ws.cell(row=cont, column=3).value = group.description
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = grupo.account.account_number
+            ws.cell(row=cont, column=4).value = group.account.account_number
             ws.cell(row=cont, column=4).border = thin_border
             try:
-                kardex_inicial = Kardex.objects.filter(product__product_group=grupo,
+                kardex_inicial = Kardex.objects.filter(product__product_group=group,
                                                        warehouse=warehouse,
                                                        operation_date__lt=start_date).latest('operation_date')
-                cant_saldo_inicial = kardex_inicial.total_quantity
-                valor_saldo_inicial = kardex_inicial.total_amount
+                opening_quantity = kardex_inicial.total_quantity
+                opening_amount = kardex_inicial.total_amount
             except Kardex.DoesNotExist:
-                cant_saldo_inicial = 0
-                valor_saldo_inicial = 0
-            ws.cell(row=cont, column=5).value = cant_saldo_inicial
+                opening_quantity = 0
+                opening_amount = 0
+            ws.cell(row=cont, column=5).value = opening_quantity
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
-            ws.cell(row=cont, column=6).value = valor_saldo_inicial
+            ws.cell(row=cont, column=6).value = opening_amount
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
-                self, grupo, warehouse, start_date, end_date, por_grupo=True)
-            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
-            total_amount = valor_saldo_inicial + in_amount - out_amount
+                self, group, warehouse, start_date, end_date, by_group=True)
+            total_quantity = opening_quantity + in_quantity - out_quantity
+            total_amount = opening_amount + in_amount - out_amount
             ws.cell(row=cont, column=7).value = in_quantity
             ws.cell(row=cont, column=7).number_format = '#.00000'
             ws.cell(row=cont, column=7).border = thin_border
@@ -2099,8 +2099,8 @@ class KardexExcelReport():
         ws['J3'].border = thin_border
         ws['K3'].border = thin_border
         cont = 4
-        iniciales = Kardex.last_by_product(productos, antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
+        iniciales = Kardex.last_by_product(productos, before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch(productos, warehouse, start_date, end_date)
         for product in productos:
             ws.cell(row=cont, column=2).value = product.code
             ws.cell(row=cont, column=2).border = thin_border
@@ -2108,21 +2108,21 @@ class KardexExcelReport():
             ws.cell(row=cont, column=3).border = thin_border
             try:
                 kardex_inicial = iniciales.get(product.pk)
-                cant_saldo_inicial = kardex_inicial.total_quantity
-                valor_saldo_inicial = kardex_inicial.total_amount
+                opening_quantity = kardex_inicial.total_quantity
+                opening_amount = kardex_inicial.total_amount
             except AttributeError:
-                cant_saldo_inicial = 0
-                valor_saldo_inicial = 0
-            ws.cell(row=cont, column=4).value = cant_saldo_inicial
+                opening_quantity = 0
+                opening_amount = 0
+            ws.cell(row=cont, column=4).value = opening_quantity
             ws.cell(row=cont, column=4).number_format = '#.00000'
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = valor_saldo_inicial
+            ws.cell(row=cont, column=5).value = opening_amount
             ws.cell(row=cont, column=5).number_format = '#.00000'
             ws.cell(row=cont, column=5).border = thin_border
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
                 self, product, warehouse, start_date, end_date)
-            total_quantity = cant_saldo_inicial + in_quantity - out_quantity
-            total_amount = valor_saldo_inicial + in_amount - out_amount
+            total_quantity = opening_quantity + in_quantity - out_quantity
+            total_amount = opening_amount + in_amount - out_amount
             ws.cell(row=cont, column=6).value = in_quantity
             ws.cell(row=cont, column=6).number_format = '#.00000'
             ws.cell(row=cont, column=6).border = thin_border
@@ -2168,8 +2168,8 @@ class KardexExcelReport():
         ws['M3'] = 'VALOR. TOT'
         cont = 4
         last_records = Kardex.last_by_product([prod.product_id for prod in productos],
-                                              antes_de=start_date, warehouse=warehouse)
-        self.kardex_lote = Product.kardex_by_batch([prod.product_id for prod in productos],
+                                              before=start_date, warehouse=warehouse)
+        self.kardex_batch = Product.kardex_by_batch([prod.product_id for prod in productos],
                                                     warehouse, start_date, end_date)
         for prod in productos:
             product = prod.product
@@ -2182,18 +2182,18 @@ class KardexExcelReport():
             cont += 1
             try:
                 kardex_inicial = last_records.get(product.pk)
-                cant_saldo_inicial = kardex_inicial.total_quantity
-                valor_saldo_inicial = kardex_inicial.total_amount
+                opening_quantity = kardex_inicial.total_quantity
+                opening_amount = kardex_inicial.total_amount
             except AttributeError:
-                cant_saldo_inicial = 0
-                valor_saldo_inicial = 0
+                opening_quantity = 0
+                opening_amount = 0
             ws.cell(row=cont, column=8).value = "SALDO INICIAL:"
             ws.merge_cells(start_row=cont, start_column=8, end_row=cont, end_column=9)
             ws.cell(row=cont, column=10).value = "Cantidad: "
-            ws.cell(row=cont, column=11).value = cant_saldo_inicial
+            ws.cell(row=cont, column=11).value = opening_quantity
             ws.cell(row=cont, column=11).number_format = '#.00000'
             ws.cell(row=cont, column=12).value = "Valor: "
-            ws.cell(row=cont, column=13).value = valor_saldo_inicial
+            ws.cell(row=cont, column=13).value = opening_amount
             ws.cell(row=cont, column=13).number_format = '#.00000'
             cont += 1
             listado_kardex, in_quantity, in_amount, out_quantity, out_amount = kardex_for_period(
@@ -2253,8 +2253,8 @@ class KardexExcelReport():
                 ws.cell(row=cont, column=8).value = 0
                 ws.cell(row=cont, column=10).value = 0
                 ws.cell(row=cont, column=10).number_format = '#.00000'
-                ws.cell(row=cont, column=11).value = cant_saldo_inicial
-                ws.cell(row=cont, column=13).value = valor_saldo_inicial
+                ws.cell(row=cont, column=11).value = opening_quantity
+                ws.cell(row=cont, column=13).value = opening_amount
                 ws.cell(row=cont, column=13).number_format = '#.00000'
                 cont += 2
         return wb
@@ -2331,21 +2331,21 @@ def inventory_report(start_date):
     ws.column_dimensions["H"].width = 12
     cont = 5
     total_final = 0
-    resumen_inventario = []
-    for grupo_producto in product_group:
+    inventory_summary = []
+    for product_group in product_group:
 
-        productos = list(Product.objects.filter(product_group=grupo_producto)
+        productos = list(Product.objects.filter(product_group=product_group)
                          .select_related('unit_of_measure'))
         bandera = " "
-        tempo_cuenta = ""
+        temp_account = ""
 
         if productos:
-            sum_valor = 0
+            amount_sum = 0
             ws['A' + str(cont)].alignment = Alignment(horizontal="center")
             ws.merge_cells('A' + str(cont) + ':H' + str(cont))
             ws['A' + str(cont)].fill = PatternFill(start_color='F2DCDB', end_color='F2DCDB', fill_type='solid')
-            ws.cell(row=cont, column=1).value = grupo_producto.description
-            bandera = grupo_producto.description
+            ws.cell(row=cont, column=1).value = product_group.description
+            bandera = product_group.description
             cont += 2
             last_records = Kardex.last_by_product(productos)
             for product in productos:
@@ -2358,7 +2358,7 @@ def inventory_report(start_date):
                     price = kardex.total_price
                     amount = kardex.total_amount
                     detail = kardex.movement_line_number
-                    sum_valor += amount
+                    amount_sum += amount
 
                 except (Kardex.DoesNotExist, AttributeError):
                     code = product.code
@@ -2374,8 +2374,8 @@ def inventory_report(start_date):
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=1).value = grupo_producto.account.account_number
-                tempo_cuenta = grupo_producto.account.account_number
+                ws.cell(row=cont, column=1).value = product_group.account.account_number
+                temp_account = product_group.account.account_number
                 ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
                 ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"),
                                                             right=Side(border_style="thin"),
@@ -2416,8 +2416,8 @@ def inventory_report(start_date):
                 ws.cell(row=cont, column=6).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=6).value = unit_of_measure
 
-                temp_precio = format(price, '.3f')
-                if temp_precio == '-0.000':
+                temp_price = format(price, '.3f')
+                if temp_price == '-0.000':
                     price = format(abs(price), '.3f')
                 else:
                     price = format(price, '.3f')
@@ -2429,8 +2429,8 @@ def inventory_report(start_date):
                 ws.cell(row=cont, column=7).font = Font(name='Calibri', size=8)
                 ws.cell(row=cont, column=7).value = price
                 ws.cell(row=cont, column=7).number_format = '#.000'
-                temp_valor = format(amount, '.3f')
-                if temp_valor == '-0.000':
+                temp_amount = format(amount, '.3f')
+                if temp_amount == '-0.000':
                     amount = format(abs(amount), '.3f')
                 else:
                     amount = format(amount, '.3f')
@@ -2444,13 +2444,13 @@ def inventory_report(start_date):
                 ws.cell(row=cont, column=8).number_format = '#.000'
 
                 cont = cont + 1
-            tempo_resumen = [bandera, tempo_cuenta, sum_valor]
-            resumen_inventario.append(tempo_resumen)
-            temp_sum_valor = format(sum_valor, '.3f')
-            if temp_sum_valor == '-0.000':
-                amount = format(abs(sum_valor), '.3f')
+            temp_summary = [bandera, temp_account, amount_sum]
+            inventory_summary.append(temp_summary)
+            temp_amount_sum = format(amount_sum, '.3f')
+            if temp_amount_sum == '-0.000':
+                amount = format(abs(amount_sum), '.3f')
             else:
-                amount = format(sum_valor, '.3f')
+                amount = format(amount_sum, '.3f')
             ws.cell(row=cont, column=8).alignment = Alignment(horizontal="right")
             ws.cell(row=cont, column=8).border = Border(left=Side(border_style="thin"),
                                                         right=Side(border_style="thin"),
@@ -2459,9 +2459,9 @@ def inventory_report(start_date):
             ws.cell(row=cont, column=8).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2',
                                                            fill_type='solid')
             ws.cell(row=cont, column=8).font = Font(name='Calibri', size=8)
-            ws.cell(row=cont, column=8).value = sum_valor
+            ws.cell(row=cont, column=8).value = amount_sum
             ws.cell(row=cont, column=8).number_format = '#.000'
-            total_final += sum_valor
+            total_final += amount_sum
             cont = cont + 2
 
     ws.cell(row=cont, column=6).fill = PatternFill(start_color='DCE6F2', end_color='DCE6F2', fill_type='solid')
@@ -2474,8 +2474,8 @@ def inventory_report(start_date):
     ws.cell(row=cont, column=7).font = Font(name='Calibri', size=12)
     ws.cell(row=cont, column=7).value = "Monto Total  S/."
 
-    temp_sum_valor = format(total_final, '.3f')
-    if temp_sum_valor == '-0.000':
+    temp_amount_sum = format(total_final, '.3f')
+    if temp_amount_sum == '-0.000':
         amount = format(abs(total_final), '.3f')
     else:
         amount = format(total_final, '.3f')
@@ -2548,7 +2548,7 @@ def inventory_report(start_date):
 
     cont = cont + 1
 
-    for resumen in resumen_inventario:
+    for summary in inventory_summary:
         ws.cell(row=cont, column=1).alignment = Alignment(horizontal="center")
         ws.cell(row=cont, column=1).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
@@ -2559,13 +2559,13 @@ def inventory_report(start_date):
         ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=2).font = Font(name='Calibri', size=8)
-        ws.cell(row=cont, column=2).value = resumen[1]
+        ws.cell(row=cont, column=2).value = summary[1]
 
         ws.cell(row=cont, column=3).alignment = Alignment(horizontal="left")
         ws.cell(row=cont, column=3).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
-        ws.cell(row=cont, column=3).value = resumen[0]
+        ws.cell(row=cont, column=3).value = summary[0]
 
         ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
         ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -2577,7 +2577,7 @@ def inventory_report(start_date):
         ws.cell(row=cont, column=5).border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                                                     top=Side(border_style="thin"), bottom=Side(border_style="thin"))
         ws.cell(row=cont, column=5).font = Font(name='Calibri', size=8)
-        ws.cell(row=cont, column=5).value = resumen[2]
+        ws.cell(row=cont, column=5).value = summary[2]
         ws.cell(row=cont, column=5).number_format = '#.000'
 
         ws.cell(row=cont, column=6).alignment = Alignment(horizontal="center")

@@ -24,7 +24,7 @@
 <hr/>
 <div class="row">
     <div class="col-lg-12">
-        <table id="tabla" class="display" cellspacing="0" width="100%">
+        <table id="table" class="display" cellspacing="0" width="100%">
             <thead>
             <tr>
                 <th class="text-center">CUENTA</th>
@@ -32,7 +32,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for cuenta_contable in cuentas_contables %}
+            {% for cuenta_contable in chart_of_accounts %}
             {% if perms.contabilidad.ver_detalle_cuenta_contable %}
             <tr onclick="location.href='{% url 'contabilidad:account_detail' cuenta_contable.pk %}';">
                 {% else %}
@@ -52,7 +52,7 @@
 
 $(document).ready(function() 
 {	
-    var table = $('#tabla').dataTable( {
+    var table = $('#table').dataTable( {
         "language": {
         	url: "/static/localizacion/es_ES.json"
         }

@@ -6,18 +6,18 @@ register = template.Library()
 
 
 @register.simple_tag
-def previous_url(url, instancia, usuario):
-    ant = instancia.previous()
-    if ant.check_access(usuario, administration_office(), logistics(), budget()):
-        url = reverse(url, args=[ant])
+def previous_url(url, instance, usuario):
+    previous = instance.previous()
+    if previous.check_access(usuario, administration_office(), logistics(), budget()):
+        url = reverse(url, args=[previous])
         return url
     else:
-        return previous_url(url, ant, usuario)
+        return previous_url(url, previous, usuario)
 
 
 @register.simple_tag
-def next_url(url, instancia, usuario):
-    sig = instancia.next()
+def next_url(url, instance, usuario):
+    sig = instance.next()
     if sig.check_access(usuario, administration_office(), logistics(), budget()):
         url = reverse(url, args=[sig])
         return url

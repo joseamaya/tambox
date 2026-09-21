@@ -111,7 +111,7 @@ class ProductoTest(TestCase):
 
 class ConsultaDeStockTest(TestCase):
     """Product.stock recorria todos los almacenes con un .latest() cada uno, y
-    las plantillas lo invocan varias veces en la misma pagina."""
+    las plantillas lo invocan varias veces en la misma page."""
 
     def test_una_sola_consulta_y_luego_cache(self):
         from almacen.models import Warehouse
@@ -150,28 +150,28 @@ class ObtenerKardexTest(TestCase):
 
     def test_los_totales_salen_de_una_sola_consulta(self):
         with self.assertNumQueries(1):
-            listado, cantidad_i, valor_i, cantidad_s, valor_s = self.product.get_kardex(
+            listado, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
-        self.assertEqual((cantidad_i, valor_i), (Decimal('10'), Decimal('50')))
-        self.assertEqual((cantidad_s, valor_s), (Decimal('2'), Decimal('9')))
+        self.assertEqual((quantity_i, valor_i), (Decimal('10'), Decimal('50')))
+        self.assertEqual((quantity_s, valor_s), (Decimal('2'), Decimal('9')))
         self.assertEqual(listado.count(), 1)
 
     def test_sin_movimientos_los_totales_son_cero(self):
         with self.assertNumQueries(1):
-            _, cantidad_i, valor_i, cantidad_s, valor_s = self.product.get_kardex(
+            _, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
                 self.warehouse, date(2024, 3, 1), date(2024, 3, 31))
 
-        self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s), (0, 0, 0, 0))
+        self.assertEqual((quantity_i, valor_i, quantity_s, valor_s), (0, 0, 0, 0))
 
     def test_el_grupo_usa_el_mismo_camino(self):
-        grupo = self.product.product_group
+        group = self.product.product_group
 
         with self.assertNumQueries(1):
-            _, cantidad_i, valor_i, cantidad_s, valor_s = grupo.get_kardex(
+            _, quantity_i, valor_i, quantity_s, valor_s = group.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
-        self.assertEqual((cantidad_i, valor_i, cantidad_s, valor_s),
+        self.assertEqual((quantity_i, valor_i, quantity_s, valor_s),
                          (Decimal('10'), Decimal('50'), Decimal('2'), Decimal('9')))
 
 
@@ -181,7 +181,7 @@ class CargarServiciosTest(TestCase):
     primera fila del CSV y el resto se perdia en silencio."""
 
     def setUp(self):
-        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
+        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'key-segura'))
 
     def test_importa_todas_las_filas(self):
         baker.make(ProductGroup, code='000001')
@@ -208,7 +208,7 @@ class CargarServiciosTest(TestCase):
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
 class CargarProductosTest(TestCase):
     def setUp(self):
-        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
+        self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'key-segura'))
 
     def test_salta_la_fila_sin_tipo_de_existencia(self):
         baker.make(ProductGroup, code='000001')
@@ -229,40 +229,40 @@ class BusquedaProductosTest(TestCase):
     llama en cada tecleo."""
 
     def setUp(self):
-        self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
+        self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'key-segura'))
         self.unit = baker.make(UnitOfMeasure, code='UND01', description='UNIDAD')
         baker.make(Product, code='COD0000001', description='PRODUCTO', unit_of_measure=self.unit)
 
-    def extend(self, cuantos):
-        for number in range(cuantos):
+    def extend(self, count):
+        for number in range(count):
             baker.make(Product, description='PRODUCTO %s' % number, unit_of_measure=self.unit)
 
-    def search(self, url, parametros):
-        return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    def search(self, url, params):
+        return self.client.get(url, params, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_las_consultas_no_crecen_con_los_resultados(self):
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
 
         url = '/productos/product_description_search/'
-        parametros = {'description': 'PRODUCTO', 'search_type': 'TODOS'}
+        params = {'description': 'PRODUCTO', 'search_type': 'TODOS'}
         with CaptureQueriesContext(connection) as un_resultado:
-            self.search(url, parametros)
+            self.search(url, params)
 
         self.extend(19)
 
         with CaptureQueriesContext(connection) as veinte_resultados:
-            respuesta = self.search(url, parametros)
+            respuesta = self.search(url, params)
 
         self.assertEqual(len(un_resultado), len(veinte_resultados))
-        datos = respuesta.json()
-        self.assertEqual(len(datos), 20)
-        self.assertEqual(datos[0]['unit'], 'UNIDAD')
+        data = respuesta.json()
+        self.assertEqual(len(data), 20)
+        self.assertEqual(data[0]['unit'], 'UNIDAD')
 
     def test_busqueda_por_code(self):
         respuesta = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
 
         self.assertEqual(respuesta.status_code, 200)
-        datos = respuesta.json()
-        self.assertEqual(len(datos), 1)
-        self.assertEqual(datos[0]['unit'], 'UNIDAD')
+        data = respuesta.json()
+        self.assertEqual(len(data), 1)
+        self.assertEqual(data[0]['unit'], 'UNIDAD')

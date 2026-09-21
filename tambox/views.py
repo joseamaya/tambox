@@ -19,10 +19,10 @@ class AjaxOnlyMixin(object):
     def dispatch(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') != 'XMLHttpRequest':
             return HttpResponseBadRequest('Esta direccion responde al JavaScript del sistema.')
-        faltantes = [parametro for parametro in self.required_params
-                     if parametro not in request.GET]
-        if faltantes:
-            return HttpResponseBadRequest('Faltan los parametros: %s.' % ', '.join(faltantes))
+        missing = [param for param in self.required_params
+                     if param not in request.GET]
+        if missing:
+            return HttpResponseBadRequest('Faltan los params: %s.' % ', '.join(missing))
         return super(AjaxOnlyMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -36,9 +36,9 @@ class CsvImportMixin(object):
 
     def form_valid(self, form):
         form.save()
-        for fila in read_rows(form.cleaned_data['file']):
-            self.process_row(fila)
+        for row in read_rows(form.cleaned_data['file']):
+            self.process_row(row)
         return super(CsvImportMixin, self).form_valid(form)
 
-    def process_row(self, fila):
+    def process_row(self, row):
         raise NotImplementedError

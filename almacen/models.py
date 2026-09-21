@@ -29,7 +29,7 @@ class Warehouse(TimeStampedModel):
         verbose_name_plural = 'Almacenes'
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),
                        ('cargar_almacenes', 'Puede cargar Almacenes desde un archivo externo'),
-                       ('ver_detalle_almacen', 'Puede ver detalle Almacén'),
+                       ('ver_detalle_almacen', 'Puede ver detail Almacén'),
                        ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'),
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)
         ordering = ['code']
@@ -67,27 +67,27 @@ class MovementType(TimeStampedModel):
         return MovementType.objects.next(self).pk
 
     class Meta:
-        permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
+        permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detail Tipo de Movimiento'),
                        ('ver_tabla_tipos_movimientos', 'Puede ver tabla de Tipos de Movimientos'),
                        ('ver_reporte_tipos_movimientos_excel', 'Puede ver Reporte Tipos de Movimientos en excel'),)
         ordering = ['code']
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            tipo_mov_ant = MovementType.objects.filter(increases=self.increases).aggregate(Max('code'))
-            cod_ant = tipo_mov_ant['code__max']
+            previous_movement_type = MovementType.objects.filter(increases=self.increases).aggregate(Max('code'))
+            previous_code = previous_movement_type['code__max']
 
             if self.increases:
-                if cod_ant is None:
+                if previous_code is None:
                     self.code = 'I00'
                 else:
-                    aux = int(cod_ant[1:]) + 1
+                    aux = int(previous_code[1:]) + 1
                     self.code = 'I' + str(aux).zfill(2)
             else:
-                if cod_ant is None:
+                if previous_code is None:
                     self.code = 'S01'
                 else:
-                    aux = int(cod_ant[1:]) + 1
+                    aux = int(previous_code[1:]) + 1
                     self.code = 'S' + str(aux).zfill(2)
         super(MovementType, self).save()
 
@@ -121,18 +121,18 @@ class Order(TimeStampedModel):
 
     def set_status_served(self):
         total = 0
-        total_atendida = 0
+        total_served = 0
         for detail in OrderDetail.objects.filter(order=self):
             total = total + detail.quantity
-            total_atendida = total_atendida + detail.served_quantity
-        caso = classify(total_atendida, total)
+            total_served = total_served + detail.served_quantity
+        caso = classify(total_served, total)
         if caso == EMPTY:
-            estado = Order.STATUS.PEND
+            status = Order.STATUS.PEND
         elif caso == PARTIAL:
-            estado = Order.STATUS.ATEN_PARC
+            status = Order.STATUS.ATEN_PARC
         else:
-            estado = Order.STATUS.ATEN
-        self.status = estado
+            status = Order.STATUS.ATEN
+        self.status = status
         return self.status
 
     class Meta:
@@ -147,15 +147,15 @@ class Order(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.code == '':
-            anio = self.date.year
-            mov_ant = Order.objects.filter(date__year=anio).aggregate(Max('code'))
-            id_ant = mov_ant['code__max']
-            if id_ant is None:
+            year = self.date.year
+            previous_movement = Order.objects.filter(date__year=year).aggregate(Max('code'))
+            previous_id = previous_movement['code__max']
+            if previous_id is None:
                 aux = 1
             else:
-                aux = int(id_ant[-6:]) + 1
+                aux = int(previous_id[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            code = 'PE' + str(anio) + correlativo
+            code = 'PE' + str(year) + correlativo
             self.code = code
             super(Order, self).save()
         else:
@@ -185,12 +185,12 @@ class OrderDetail(TimeStampedModel):
     def set_status_served(self):
         caso = classify(self.served_quantity, self.quantity)
         if caso == EMPTY:
-            estado = OrderDetail.STATUS.PEND
+            status = OrderDetail.STATUS.PEND
         elif caso == PARTIAL:
-            estado = OrderDetail.STATUS.ATEN_PARC
+            status = OrderDetail.STATUS.ATEN_PARC
         else:
-            estado = OrderDetail.STATUS.ATEN
-        self.status = estado
+            status = OrderDetail.STATUS.ATEN
+        self.status = status
         return self.status
 
     class Meta:
@@ -235,8 +235,8 @@ class Movement(TimeStampedModel):
         requirement = None
         if order.quotation is not None:
             requirement = order.quotation.requirement
-        detalles = MovementDetail.objects.filter(movement=self)
-        for detail in detalles:
+        details = MovementDetail.objects.filter(movement=self)
+        for detail in details:
             purchase_order_detail = detail.purchase_order_detail
             if purchase_order_detail.quotation_detail is not None:
                 requirement_detail = purchase_order_detail.quotation_detail.requirement_detail
@@ -255,8 +255,8 @@ class Movement(TimeStampedModel):
     @transaction.atomic
     def delete_order(self):
         order = self.order
-        detalles = MovementDetail.objects.filter(movement=self)
-        for detail in detalles:
+        details = MovementDetail.objects.filter(movement=self)
+        for detail in details:
             order_detail = detail.order_detail
             order_detail.served_quantity = order_detail.served_quantity - detail.quantity
             order_detail.set_status_served()
@@ -271,9 +271,9 @@ class Movement(TimeStampedModel):
     def delete_kardex(self):
         movement = self
         warehouse = movement.warehouse
-        detalle_kardex = Kardex.objects.filter(movement=movement,
+        kardex_detail = Kardex.objects.filter(movement=movement,
                                                warehouse=warehouse)
-        for kardex in detalle_kardex:
+        for kardex in kardex_detail:
             control = WarehouseProductControl.objects.get(product=kardex.product, warehouse=warehouse)
             control.stock = control.stock - kardex.in_quantity
             control.save()
@@ -298,17 +298,17 @@ class Movement(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.movement_id == '':
-            tipo = self.movement_type
-            anio = self.operation_date.year
-            mov_ant = Movement.objects.filter(movement_type__increases=tipo.increases,
-                                                operation_date__year=anio).aggregate(Max('movement_id'))
-            id_ant = mov_ant['movement_id__max']
-            if id_ant is None:
+            type = self.movement_type
+            year = self.operation_date.year
+            previous_movement = Movement.objects.filter(movement_type__increases=type.increases,
+                                                operation_date__year=year).aggregate(Max('movement_id'))
+            previous_id = previous_movement['movement_id__max']
+            if previous_id is None:
                 aux = 1
             else:
-                aux = int(id_ant[-7:]) + 1
+                aux = int(previous_id[-7:]) + 1
             correlativo = str(aux).zfill(7)
-            code = str(tipo.code[0:1]) + str(anio) + correlativo
+            code = str(type.code[0:1]) + str(year) + correlativo
             self.movement_id = code
         super(Movement, self).save()
 
@@ -328,14 +328,14 @@ class MovementDetail(TimeStampedModel):
     @transaction.atomic
     def save(self, *args, **kwargs):
         movi = self.movement
-        t_movimiento = movi.movement_type
+        movement_type = movi.movement_type
         val = self.amount
         kardex = Kardex(product=self.product,
                         operation_date=movi.operation_date,
                         movement=movi,
                         movement_line_number=self.line_number,
                         warehouse=movi.warehouse)
-        if t_movimiento.increases:
+        if movement_type.increases:
             kardex.in_quantity = self.quantity
             kardex.in_price = self.price
             kardex.in_amount = val
@@ -343,11 +343,11 @@ class MovementDetail(TimeStampedModel):
             kardex.out_price = 0
             kardex.out_amount = 0
             try:
-                kardex_ant = Kardex.objects.filter(product=self.product,
+                previous_kardex = Kardex.objects.filter(product=self.product,
                                                    warehouse=self.movement.warehouse,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.total_quantity = self.quantity + kardex_ant.total_quantity
-                kardex.total_amount = val + kardex_ant.total_amount
+                kardex.total_quantity = self.quantity + previous_kardex.total_quantity
+                kardex.total_amount = val + previous_kardex.total_amount
                 kardex.total_price = self.price
             except Kardex.DoesNotExist:
                 kardex.total_quantity = self.quantity
@@ -361,26 +361,26 @@ class MovementDetail(TimeStampedModel):
             kardex.out_price = self.price
             kardex.out_amount = val
             try:
-                kardex_ant = Kardex.objects.filter(product=self.product,
+                previous_kardex = Kardex.objects.filter(product=self.product,
                                                    warehouse=self.movement.warehouse,
                                                    operation_date__lt=kardex.operation_date).latest('operation_date')
-                kardex.total_quantity = kardex_ant.total_quantity - self.quantity
-                kardex.total_amount = kardex_ant.total_amount - val
+                kardex.total_quantity = previous_kardex.total_quantity - self.quantity
+                kardex.total_amount = previous_kardex.total_amount - val
                 kardex.total_price = self.price
             except Kardex.DoesNotExist:
                 kardex.total_quantity = 0 - self.quantity
                 kardex.total_price = 0 - self.price
                 kardex.total_amount = 0 - val
         if kardex.total_quantity == 0:
-            precio_control = 0
+            control_price = 0
         else:
-            precio_control = kardex.total_amount / kardex.total_quantity
+            control_price = kardex.total_amount / kardex.total_quantity
 
-        control_producto, creado = WarehouseProductControl.objects.update_or_create(
+        product_control, creado = WarehouseProductControl.objects.update_or_create(
             warehouse=self.movement.warehouse,
             product=self.product,
             defaults={'stock': kardex.total_quantity,
-                      'price': precio_control}
+                      'price': control_price}
         )
         super(MovementDetail, self).save()
         kardex.save()
@@ -415,10 +415,10 @@ class Kardex(TimeStampedModel):
         return Kardex.objects.next(self).pk
 
     @classmethod
-    def last_by_product(cls, productos, antes_de=None, **filtro):
+    def last_by_product(cls, productos, before=None, **filtro):
         """Ultimo Kardex de cada producto del lote, en una sola consulta.
 
-        Con `antes_de` devuelve el ultimo movimiento anterior a esa date, que
+        Con `before` devuelve el ultimo movimiento anterior a esa date, que
         es el saldo inicial de los informes de kardex.
 
         Las vistas pedian un `latest('operation_date')` por producto: una
@@ -432,20 +432,20 @@ class Kardex(TimeStampedModel):
         from tambox.dates import aware
 
         consulta = cls.objects.filter(product__in=productos, **filtro)
-        if antes_de is not None:
-            consulta = consulta.filter(operation_date__lt=aware(antes_de))
+        if before is not None:
+            consulta = consulta.filter(operation_date__lt=aware(before))
         last_records = (consulta.select_related('product__unit_of_measure')
                    .order_by('product_id', '-operation_date', '-pk')
                    .distinct('product_id'))
         return {kardex.product_id: kardex for kardex in last_records}
 
     @classmethod
-    def kardex_by_batch(cls, start_date, end_date, por_grupo=False, **filtro):
+    def kardex_by_batch(cls, start_date, end_date, by_group=False, **filtro):
         """Kardex del periodo de todo el lote, en dos consultas.
 
-        Devuelve {clave: (filas, in_quantity, in_amount,
+        Devuelve {key: (rows, in_quantity, in_amount,
         out_quantity, out_amount)}, con la misma forma que
-        `get_kardex()`, agrupado por producto o por grupo segun `por_grupo`.
+        `get_kardex()`, agrupado por producto o por grupo segun `by_group`.
 
         Los informes llamaban a `get_kardex()` dentro del bucle, o sea dos
         consultas por producto. Los totales se suman aqui en Python: con Decimal
@@ -454,23 +454,23 @@ class Kardex(TimeStampedModel):
         from tambox.dates import aware
 
         start_date, end_date = aware(start_date), aware(end_date) + timedelta(days=1)
-        filas = (cls.objects.filter(operation_date__gte=start_date,
+        rows = (cls.objects.filter(operation_date__gte=start_date,
                                     operation_date__lte=end_date,
                                     **filtro)
                  .select_related('product', 'movement__document_type',
                                  'movement__movement_type')
                  .order_by('product__description', 'operation_date',
                            'out_quantity', 'created'))
-        lote = {}
-        for kardex in filas:
-            clave = kardex.product.product_group_id if por_grupo else kardex.product_id
-            totales = lote.setdefault(clave, [[], Decimal(0), Decimal(0), Decimal(0), Decimal(0)])
+        batch = {}
+        for kardex in rows:
+            key = kardex.product.product_group_id if by_group else kardex.product_id
+            totales = batch.setdefault(key, [[], Decimal(0), Decimal(0), Decimal(0), Decimal(0)])
             totales[0].append(kardex)
             totales[1] = totales[1] + kardex.in_quantity
             totales[2] = totales[2] + kardex.in_amount
             totales[3] = totales[3] + kardex.out_quantity
             totales[4] = totales[4] + kardex.out_amount
-        return lote
+        return batch
 
     def __str__(self):
         return str(self.movement.movement_id) + '-' + str(

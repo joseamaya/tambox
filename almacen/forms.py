@@ -20,13 +20,13 @@ class MovementTypeForm(forms.ModelForm):
         fields = ['description', 'sunat_code', 'increases', 'requires_reference', 'is_purchase', 'is_sale']
 
     def __init__(self, *args, **kwargs):
-        self.aestado = True
+        self.is_active = True
         super(MovementTypeForm, self).__init__(*args, **kwargs)
         self.fields['description'].widget.attrs.update({'class': 'form-control'})
         self.fields['sunat_code'].widget.attrs.update({'class': 'form-control'})
 
     def save(self, *args, **kwargs):
-        self.instance.aestado = self.aestado
+        self.instance.is_active = self.is_active
         return super(MovementTypeForm, self).save(*args, **kwargs)
 
 
@@ -132,13 +132,13 @@ class MovementForm(forms.ModelForm):
 
     def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
-        anio = int(r_date[6:])
+        year = int(r_date[6:])
         month = int(r_date[3:5])
         dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(anio, month, dia, horas, minutos, segundos))
+        date = timezone.make_aware(datetime.datetime(year, month, dia, horas, minutos, segundos))
         return date
 
     def save(self, *args, **kwargs):
@@ -252,8 +252,8 @@ class OrderForm(forms.ModelForm):
 
     def save(self, *args, **kwargs):
         self.instance.requester = self.request.user.worker
-        puestos = self.request.user.worker.positions.all().filter(is_active=True)
-        self.instance.office = puestos[0].office
+        positions = self.request.user.worker.positions.all().filter(is_active=True)
+        self.instance.office = positions[0].office
         return super(OrderForm, self).save(*args, **kwargs)
 
     class Meta:
@@ -281,13 +281,13 @@ class OrderApprovalForm(forms.ModelForm):
 
     def get_datetime(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
-        anio = int(r_date[6:])
+        year = int(r_date[6:])
         month = int(r_date[3:5])
         dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(anio, month, dia, horas, minutos, segundos))
+        date = timezone.make_aware(datetime.datetime(year, month, dia, horas, minutos, segundos))
         return date
 
     def save(self, *args, **kwargs):
