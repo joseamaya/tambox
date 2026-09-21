@@ -59,14 +59,14 @@ class Tablero(View):
             codigo=cod_mov_invent_ini).count()
         cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_invent_ini,
-                                                                       defaults={'descripcion': 'INVENTARIO INICIAL',
+                                                                       defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'codigo_sunat': '16',
                                                                                  'incrementa': True,
                                                                                  'estado': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_ingreso_compra,
-                                                                       defaults={'descripcion': 'INGRESO POR COMPRA',
+                                                                       defaults={'description': 'INGRESO POR COMPRA',
                                                                                  'codigo_sunat': '02',
                                                                                  'incrementa': True,
                                                                                  'pide_referencia': True,
@@ -74,7 +74,7 @@ class Tablero(View):
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_salida_pedido,
-                                                                       defaults={'descripcion': 'SALIDA POR PEDIDO',
+                                                                       defaults={'description': 'SALIDA POR PEDIDO',
                                                                                  'codigo_sunat': '10',
                                                                                  'incrementa': False,
                                                                                  'pide_referencia': True,
@@ -141,7 +141,7 @@ class AprobarPedido(CreateView):
                 for detalle in detalles:
                     d = {'pedido': detalle.id,
                          'codigo': detalle.producto.codigo,
-                         'nombre': detalle.producto.descripcion,
+                         'nombre': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad
                          }
@@ -199,14 +199,14 @@ class AprobarPedido(CreateView):
 
 class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('descripcion', 'almacen')
+    parametros_requeridos = ('description', 'almacen')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_productos = []
-            descripcion = request.GET['descripcion']
+            description = request.GET['description']
             almacen = request.GET['almacen']
-            ids = list(Kardex.objects.filter(producto__descripcion__icontains=descripcion,
+            ids = list(Kardex.objects.filter(producto__description__icontains=description,
                                              almacen__id=almacen)
                        .order_by('producto_id').distinct('producto_id')
                        .values_list('producto_id', flat=True)[:20])
@@ -214,10 +214,10 @@ class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
             for producto_id in ids:
                 control = ultimos[producto_id]
                 producto_json = {}
-                producto_json['label'] = control.producto.descripcion
+                producto_json['label'] = control.producto.description
                 producto_json['codigo'] = control.producto.codigo
-                producto_json['descripcion'] = control.producto.descripcion
-                producto_json['unidad'] = control.producto.unidad_medida.descripcion
+                producto_json['description'] = control.producto.description
+                producto_json['unidad'] = control.producto.unidad_medida.description
                 try:
                     precio = round(control.valor_total / control.cantidad_total, 5)
                 except (TypeError, ZeroDivisionError):
@@ -235,7 +235,7 @@ class CargarAlmacenes(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         Almacen.objects.create(codigo=fila[0],
-                               descripcion=fila[1])
+                               description=fila[1])
 
 
 class CargarInventarioInicial(CargarCsvMixin, FormView):
@@ -285,7 +285,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         try:
-            producto = Producto.objects.get(descripcion=fila[0].strip())
+            producto = Producto.objects.get(description=fila[0].strip())
             cantidad = Decimal(fila[1])
             try:
                 precio = Decimal(fila[2])
@@ -562,7 +562,7 @@ class EliminarAlmacen(TemplateView):
             almacen = Almacen.objects.get(pk=codigo)
             almacen_json = {}
             almacen_json['codigo'] = almacen.codigo
-            almacen_json['descripcion'] = almacen.descripcion
+            almacen_json['description'] = almacen.description
             if len(almacen.movimiento_set.all()) > 0:
                 almacen_json['relaciones'] = 'SI'
             else:
@@ -663,7 +663,7 @@ class ListadoAlmacenes(ListView):
     model = Almacen
     template_name = 'almacen/almacenes.html'
     context_object_name = 'almacenes'
-    queryset = Almacen.objects.all().order_by('descripcion')
+    queryset = Almacen.objects.all().order_by('description')
 
 
 class ListadoPedidos(ListView):
@@ -757,7 +757,7 @@ class ModificarIngresoAlmacen(UpdateView):
                     if detalle.detalle_orden_compra.detalle_cotizacion is not None:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
                              'codigo': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.codigo,
-                             'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                             'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.description,
                              'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
@@ -765,7 +765,7 @@ class ModificarIngresoAlmacen(UpdateView):
                     else:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
                              'codigo': detalle.detalle_orden_compra.producto.codigo,
-                             'nombre': detalle.detalle_orden_compra.producto.descripcion,
+                             'nombre': detalle.detalle_orden_compra.producto.description,
                              'unidad': detalle.detalle_orden_compra.producto.unidad_medida.codigo,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
@@ -773,7 +773,7 @@ class ModificarIngresoAlmacen(UpdateView):
                 else:
                     d = {'orden_compra': '0',
                          'codigo': detalle.producto.codigo,
-                         'nombre': detalle.producto.descripcion,
+                         'nombre': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -883,7 +883,7 @@ class ModificarSalidaAlmacen(UpdateView):
             try:
                 d = {'pedido': detalle.detalle_pedido.pk,
                      'codigo': detalle.producto.pk,
-                     'nombre': detalle.producto.descripcion,
+                     'nombre': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
@@ -891,7 +891,7 @@ class ModificarSalidaAlmacen(UpdateView):
             except (ObjectDoesNotExist, AttributeError):
                 d = {'pedido': 0,
                      'codigo': detalle.producto.pk,
-                     'nombre': detalle.producto.descripcion,
+                     'nombre': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
                      'precio': detalle.precio,
@@ -1029,7 +1029,7 @@ class ModificarPedido(UpdateView):
             detalles_data = []
             for detalle in detalles:
                 d = {'codigo': detalle.producto.codigo,
-                     'nombre': detalle.producto.descripcion,
+                     'nombre': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida.codigo,
                      'cantidad': detalle.cantidad}
                 detalles_data.append(d)
@@ -1094,9 +1094,9 @@ class MovimientosPorProducto(FormView):
             'movimiento__fecha_operacion')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = u'Producto: ' + producto.descripcion
+        ws['B1'] = u'Producto: ' + producto.description
         ws.merge_cells('B1:I1')
-        ws['B2'] = u'Almacén: ' + almacen.descripcion
+        ws['B2'] = u'Almacén: ' + almacen.description
         ws.merge_cells('B2:D2')
         ws['E2'] = 'Periodo: Desde: ' + desde.strftime('%d/%m/%Y') + ' Hasta: ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('E2:H2')
@@ -1303,7 +1303,7 @@ class ReporteExcelAlmacenes(TemplateView):
         cont = 4
         for almacen in almacenes:
             ws.cell(row=cont, column=2).value = almacen.codigo
-            ws.cell(row=cont, column=3).value = almacen.descripcion
+            ws.cell(row=cont, column=3).value = almacen.description
             cont = cont + 1
         nombre_archivo = "ListadoAlmacenes.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1326,7 +1326,7 @@ class ReporteExcelTiposMovimientos(TemplateView):
         cont = 4
         for tipo in tipos:
             ws.cell(row=cont, column=2).value = tipo.codigo
-            ws.cell(row=cont, column=3).value = tipo.descripcion
+            ws.cell(row=cont, column=3).value = tipo.description
             cont = cont + 1
         nombre_archivo = "MaestroTiposMovimientos.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1513,9 +1513,9 @@ class StockProductos(FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         almacen = data['almacen']
-        descripcion = data['descripcion']
-        productos = list(Producto.objects.filter(descripcion__icontains=descripcion)
-                         .select_related('unidad_medida').order_by('descripcion'))
+        description = data['description']
+        productos = list(Producto.objects.filter(description__icontains=description)
+                         .select_related('unidad_medida').order_by('description'))
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'STOCK DE PRODUCTOS'
@@ -1533,19 +1533,19 @@ class StockProductos(FormView):
         for producto in productos:
             kardex = ultimos.get(producto.pk)
             codigo = producto.codigo
-            descripcion = producto.descripcion
+            description = producto.description
             if kardex is None:
                 unidad_medida = producto.unidad_medida.codigo
                 stock = 0
                 precio = 0
                 valor = 0
             else:
-                unidad_medida = producto.unidad_medida.descripcion
+                unidad_medida = producto.unidad_medida.description
                 stock = kardex.cantidad_total
                 precio = kardex.precio_total
                 valor = kardex.valor_total
             ws.cell(row=cont, column=2).value = codigo
-            ws.cell(row=cont, column=3).value = descripcion
+            ws.cell(row=cont, column=3).value = description
             ws.cell(row=cont, column=4).value = unidad_medida
             ws.cell(row=cont, column=5).value = stock
 
@@ -1574,21 +1574,21 @@ class StockProductos(FormView):
 
 class ListadoStockProducto(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('descripcion', 'almacen')
+    parametros_requeridos = ('description', 'almacen')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            descripcion = request.GET['descripcion']
+            description = request.GET['description']
             almacen = request.GET['almacen']
             lista_productos = []
-            productos = list(Producto.objects.filter(descripcion__icontains=descripcion)
-                             .select_related('unidad_medida').order_by('descripcion'))
+            productos = list(Producto.objects.filter(description__icontains=description)
+                             .select_related('unidad_medida').order_by('description'))
             ultimos = Kardex.ultimos_por_producto(productos, almacen__pk=almacen)
             for producto in productos:
                 kardex = ultimos.get(producto.pk)
                 kardex_json = {}
                 kardex_json['codigo'] = producto.codigo
-                kardex_json['label'] = producto.descripcion
+                kardex_json['label'] = producto.description
                 kardex_json['unidad'] = producto.unidad_medida.codigo
                 kardex_json['stock'] = kardex.cantidad_total if kardex else 0
                 lista_productos.append(kardex_json)
@@ -1614,9 +1614,9 @@ class ReporteExcelMovimientos(FormView):
             fecha_final = data['hasta']
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.description
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'DESDE'
             ws['C3'] = fecha_inicio
@@ -1631,9 +1631,9 @@ class ReporteExcelMovimientos(FormView):
             annio = data['annio'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR MES'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.description
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'MES'
             ws['C3'] = mes
@@ -1647,9 +1647,9 @@ class ReporteExcelMovimientos(FormView):
             annio = data['annio'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR AÑO'
             ws.merge_cells('B1:H1')
-            ws['B2'] = 'ALMACEN: ' + almacen.descripcion
+            ws['B2'] = 'ALMACEN: ' + almacen.description
             ws.merge_cells('B2:D2')
-            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
+            ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'AÑO'
             ws['C3'] = annio
@@ -1669,7 +1669,7 @@ class ReporteExcelMovimientos(FormView):
         for movimiento in movimientos:
             ws.cell(row=cont, column=2).value = movimiento.id_movimiento
             try:
-                ws.cell(row=cont, column=3).value = movimiento.tipo_documento.descripcion
+                ws.cell(row=cont, column=3).value = movimiento.tipo_documento.description
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '--'
             ws.cell(row=cont, column=4).value = movimiento.serie
@@ -1710,9 +1710,9 @@ class ReporteExcelMovimientosPorFecha(View):
         ws = wb.active
         ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
         ws.merge_cells('B1:H1')
-        ws['B2'] = 'ALMACEN: ' + almacen.descripcion
+        ws['B2'] = 'ALMACEN: ' + almacen.description
         ws.merge_cells('B2:D2')
-        ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.descripcion
+        ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
         ws.merge_cells('E2:H2')
         ws['B3'] = 'DESDE'
         ws['C3'] = p_fecha_inicio
@@ -1780,7 +1780,7 @@ class ReportePDFProductos(View):
         header = Paragraph("Listado de Clientes", styles['Heading1'])
         clientes.append(header)
         headings = ('Nombre', 'Email', 'Edad', 'Direccion')
-        allclientes = [(p.codigo, p.descripcion, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
+        allclientes = [(p.codigo, p.description, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
 
         t = Table([headings] + allclientes)
         t.setStyle(TableStyle(
@@ -1844,8 +1844,8 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
                 det = {}
                 det['pedido'] = detalle.id
                 det['codigo'] = detalle.producto.codigo
-                det['nombre'] = detalle.producto.descripcion
-                det['unidad'] = detalle.producto.unidad_medida.descripcion
+                det['nombre'] = detalle.producto.description
+                det['unidad'] = detalle.producto.unidad_medida.description
                 cantidad = detalle.cantidad - detalle.cantidad_atendida
                 if cantidad > stock:
                     cantidad = stock

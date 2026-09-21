@@ -43,7 +43,7 @@
             <tr>
                 {% endif %}
                 <td>{{ almacen.codigo }}</td>
-                <td>{{ almacen.descripcion }}</td>
+                <td>{{ almacen.description }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -93,12 +93,12 @@ $(document).ready(function()
 	   		{
 	   			if(data.relaciones=='NO')
 	   			{
-	   				alert("Almacen "+data.descripcion+ " eliminado");
+	   				alert("Almacen "+data.description+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Almacen "+data.descripcion+" no puede eliminarse");	
+	   				alert("Almacen "+data.description+" no puede eliminarse");	
 	   			}    			
 	   		}
 	   	});

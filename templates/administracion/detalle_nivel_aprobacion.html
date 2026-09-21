@@ -1,6 +1,6 @@
 {% extends "administracion/base_administracion.html" %}
 {% block cuerpo %}
-<h3>Nivel Aprobación / {{ object.descripcion }}</h3>
+<h3>Nivel Aprobación / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administracion.change_nivelaprobacion %}
@@ -35,7 +35,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group"></div>

@@ -26,12 +26,12 @@
             <div class="row">
                 <div class="col-lg-7">
                     <label>Descripción:</label>
-                    {% if form.descripcion.errors %}
-                    {% for error in form.descripcion.errors %}
+                    {% if form.description.errors %}
+                    {% for error in form.description.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <h3>{{ form.descripcion }}</h3>
+                    <h3>{{ form.description }}</h3>
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group"></div>

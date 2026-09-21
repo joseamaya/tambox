@@ -1,5 +1,5 @@
 {% extends "almacen/base_almacen.html" %} {% block cuerpo %}
-<h3>Almacenes / {{ object.descripcion }}</h3>
+<h3>Almacenes / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.almacen.change_almacen %} <a class="btn btn-primary"
@@ -33,7 +33,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group">
@@ -104,10 +104,10 @@
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
-								alert("almacen " + data.descripcion
+								alert("almacen " + data.description
 										+ " eliminado");
 							} else if (data.relaciones == 'SI') {
-								alert("almacen " + data.descripcion
+								alert("almacen " + data.description
 										+ " no puede eliminarse");
 							}
 						}

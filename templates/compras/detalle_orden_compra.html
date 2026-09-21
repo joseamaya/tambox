@@ -172,8 +172,8 @@
                     {% for detalle in object.detalleordencompra_set.all %}
                     <tr>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}
+                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
+                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
                         </td>
                         <td>{{ detalle.cantidad|floatformat:5 }}</td>
                         <td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
@@ -185,8 +185,8 @@
                     {% for detalle in object.detalleordencompra_set.all %}
                     <tr>
                         <td>{{ detalle.producto.codigo }}</td>
-                        <td>{{ detalle.producto.descripcion }}</td>
-                        <td>{{ detalle.producto.unidad_medida.descripcion }}</td>
+                        <td>{{ detalle.producto.description }}</td>
+                        <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad|floatformat:5 }}</td>
                         <td>{{ detalle.precio_sin_igv|floatformat:5 }}</td>
                         <td>{{ detalle.impuesto|floatformat:5 }}</td>
@@ -299,7 +299,7 @@ $(document).ready(function()
 				} 
 				else if (data.movimientos == 'SI') 
 				{
-					alert("Orden de Compra " + data.descripcion + " no puede eliminarse");
+					alert("Orden de Compra " + data.description + " no puede eliminarse");
 				}
 			}
 		});

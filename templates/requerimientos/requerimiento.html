@@ -259,8 +259,8 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 			    $.ajax({
-			      url: "{% url 'productos:busqueda_productos_descripcion' %}",
-			      data: {'descripcion': request.term,'tipo_busqueda': 'TODOS'},
+			      url: "{% url 'productos:busqueda_productos_description' %}",
+			      data: {'description': request.term,'tipo_busqueda': 'TODOS'},
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -273,7 +273,7 @@ $(document).ready(function()
 			var id_producto = $(this).prop('id');
 			var id = id_producto.replace("producto", "");
 			$("#"+id+"codigo").val(ui.item.codigo);
-			$("#"+id+"producto").val(ui.item.descripcion);
+			$("#"+id+"producto").val(ui.item.description);
 			$("#"+id+"unidad").val(ui.item.unidad);
 			return false;
 		  },

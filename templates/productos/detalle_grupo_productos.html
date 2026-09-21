@@ -1,6 +1,6 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
-<h3>Grupos de Productos / {{ object.descripcion }}</h3>
+<h3>Grupos de Productos / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.productos.change_grupoproductos %} <a
@@ -35,7 +35,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group">
@@ -112,11 +112,11 @@
 						type : 'post',
 						success : function(data) {
 							if (data.productos == 'NO') {
-								alert("Grupo de Productos " + data.descripcion
+								alert("Grupo de Productos " + data.description
 										+ " eliminada");
 								table.row('.selected').remove().draw(false);
 							} else if (data.productos == 'SI') {
-								alert("Grupo de Productos " + data.descripcion
+								alert("Grupo de Productos " + data.description
 										+ " no puede eliminarse");
 							}
 						}

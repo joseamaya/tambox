@@ -164,9 +164,9 @@
                     {% for detalle in object.detallerequerimiento_set.all %}
                     <tr>
                         {% if detalle.producto %}
-                        <td>{{ detalle.producto.descripcion }}</td>
+                        <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.uso }}</td>
-                        <td>{{ detalle.producto.unidad_medida.descripcion }}</td>
+                        <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad }}</td>
                         <td>{{ detalle.cantidad_cotizada }}</td>
                         <td>{{ detalle.cantidad_comprada }}</td>

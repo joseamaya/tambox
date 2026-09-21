@@ -20,7 +20,7 @@ from simple_history.models import HistoricalRecords
 
 class Almacen(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=5)
-    descripcion = models.CharField(max_length=30)
+    description = models.CharField(max_length=30)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
 
@@ -43,14 +43,14 @@ class Almacen(TimeStampedModel):
         return Almacen.objects.siguiente(self).pk
 
     def __str__(self):
-        return self.descripcion
+        return self.description
 
 
 # Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=10)
     codigo_sunat = models.CharField(max_length=2)
-    descripcion = models.CharField(max_length=25)
+    description = models.CharField(max_length=25)
     incrementa = models.BooleanField()
     pide_referencia = models.BooleanField(default=False)
     es_compra = models.BooleanField(default=False)
@@ -92,7 +92,7 @@ class TipoMovimiento(TimeStampedModel):
         super(TipoMovimiento, self).save()
 
     def __str__(self):
-        return force_str(self.descripcion)
+        return force_str(self.description)
 
 
 class Pedido(TimeStampedModel):
@@ -459,7 +459,7 @@ class Kardex(TimeStampedModel):
                                     **filtro)
                  .select_related('producto', 'movimiento__tipo_documento',
                                  'movimiento__tipo_movimiento')
-                 .order_by('producto__descripcion', 'fecha_operacion',
+                 .order_by('producto__description', 'fecha_operacion',
                            'cantidad_salida', 'created'))
         lote = {}
         for kardex in filas:
@@ -474,7 +474,7 @@ class Kardex(TimeStampedModel):
 
     def __str__(self):
         return str(self.movimiento.id_movimiento) + '-' + str(
-            self.nro_detalle_movimiento) + '-' + self.producto.descripcion
+            self.nro_detalle_movimiento) + '-' + self.producto.description
 
     class Meta:
         verbose_name = 'Kardex'

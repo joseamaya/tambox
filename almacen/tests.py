@@ -22,7 +22,7 @@ class AlmacenTest(TestCase):
 
     def test_creacion_profesion_mommy(self):
         self.assertTrue(isinstance(self.a1, Almacen))
-        self.assertEqual(self.a1.__str__(), self.a1.descripcion)
+        self.assertEqual(self.a1.__str__(), self.a1.description)
 
     def test_siguiente_almacen(self):
         self.assertEqual(self.a3.pk, self.a2.siguiente())
@@ -46,7 +46,7 @@ class TipoMovimientoTest(TestCase):
 
     def test_creacion_tipo_movimiento_mommy(self):
         self.assertTrue(isinstance(self.tm1, TipoMovimiento))
-        self.assertEqual(self.tm1.__str__(), self.tm1.descripcion)
+        self.assertEqual(self.tm1.__str__(), self.tm1.description)
 
     def test_siguiente_tipo_movimiento(self):
         self.assertEqual(self.tm3.pk, self.tm2.siguiente())
@@ -204,10 +204,10 @@ class ReporteInventarioTest(TestCase):
         from productos.models import GrupoProductos, Producto, UnidadMedida
 
         cuenta = baker.make(CuentaContable)
-        grupo = baker.make(GrupoProductos, codigo='GR0001', descripcion='GRUPO UNO',
+        grupo = baker.make(GrupoProductos, codigo='GR0001', description='GRUPO UNO',
                            ctacontable=cuenta, son_productos=True)
         unidad = baker.make(UnidadMedida, codigo='UND01')
-        baker.make(Producto, codigo='GR00010001', descripcion='PRODUCTO UNO',
+        baker.make(Producto, codigo='GR00010001', description='PRODUCTO UNO',
                    grupo_productos=grupo, unidad_medida=unidad,
                    tipo_existencia=baker.make(TipoExistencia))
 
@@ -274,14 +274,14 @@ class CargarCsvTest(TestCase):
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(Almacen.objects.filter(codigo__in=['AL01', 'AL02']).count(), 2)
-        self.assertEqual(Almacen.objects.get(codigo='AL01').descripcion, 'ALMACEN UNO')
+        self.assertEqual(Almacen.objects.get(codigo='AL01').description, 'ALMACEN UNO')
 
     def test_cargar_inventario_inicial(self):
         tipo_movimiento = baker.make(TipoMovimiento, codigo='I00', incrementa=True)
         baker.make(TipoDocumento, codigo_sunat='PEC')
         almacen = baker.make(Almacen)
-        producto_uno = baker.make(Producto, descripcion='PRODUCTO UNO')
-        producto_dos = baker.make(Producto, descripcion='PRODUCTO DOS')
+        producto_uno = baker.make(Producto, description='PRODUCTO UNO')
+        producto_dos = baker.make(Producto, description='PRODUCTO DOS')
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
         archivo = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
@@ -355,7 +355,7 @@ class UltimosPorProductoTest(TestCase):
 
     def test_el_producto_viene_cargado(self):
         """El `select_related` es lo que evita una consulta por fila al leer
-        `kardex.producto.descripcion` en los bucles."""
+        `kardex.producto.description` en los bucles."""
         ultimos = Kardex.ultimos_por_producto(self.productos, almacen=self.almacen)
 
         with self.assertNumQueries(0):
@@ -570,7 +570,7 @@ class StockAjaxTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
         self.almacen = baker.make(Almacen)
-        self.producto = baker.make(Producto, descripcion='ACERO INOXIDABLE',
+        self.producto = baker.make(Producto, description='ACERO INOXIDABLE',
                                    unidad_medida=baker.make(UnidadMedida))
         self.unidad = self.producto.unidad_medida
         baker.make(Kardex, almacen=self.almacen, producto=self.producto,
@@ -578,7 +578,7 @@ class StockAjaxTest(TestCase):
                    cantidad_total=Decimal('7'), valor_total=Decimal('21'), precio_total=Decimal('3'))
 
     def obtener(self, url):
-        return self.client.get(url, {'descripcion': 'ACERO', 'almacen': self.almacen.pk},
+        return self.client.get(url, {'description': 'ACERO', 'almacen': self.almacen.pk},
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_listado_stock_producto(self):
@@ -599,5 +599,5 @@ class StockAjaxTest(TestCase):
         datos = respuesta.json()
         self.assertEqual(len(datos), 1)
         self.assertEqual(datos[0]['codigo'], self.producto.codigo)
-        self.assertEqual(datos[0]['unidad'], self.unidad.descripcion)
+        self.assertEqual(datos[0]['unidad'], self.unidad.description)
         self.assertEqual(Decimal(datos[0]['precio']), Decimal('3'))

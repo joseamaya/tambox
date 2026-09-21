@@ -10,7 +10,7 @@ def crear_requerimiento(**kwargs):
     """Un requerimiento necesita que su solicitante tenga puesto asignado:
     `save()` lanza ValidationError si no lo tiene, porque de ahi sale la oficina
     y la cadena de aprobaciones. Los tests viejos no armaban ese grafo."""
-    NivelAprobacion.objects.get_or_create(descripcion='USUARIO')
+    NivelAprobacion.objects.get_or_create(description='USUARIO')
     oficina = baker.make(Oficina)
     trabajador = baker.make(Trabajador)
     baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)

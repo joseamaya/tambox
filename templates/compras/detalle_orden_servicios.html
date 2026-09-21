@@ -168,8 +168,8 @@
                     <tr>
                         <td>{{ detalle.cantidad }}</td>
                         <td>{{ detalle.cantidad_conforme }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion }}</td>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.descripcion }}
+                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
+                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
                         </td>
                         <td>{{ detalle.precio }}</td>
                         <td>{{ detalle.valor }}</td>
@@ -179,8 +179,8 @@
                     {% for detalle in object.detalleordenservicios_set.all %}
                     <tr>
                         <td>{{ detalle.cantidad }}</td>
-                        <td>{{ detalle.producto.descripcion }}</td>
-                        <td>{{ detalle.producto.unidad_medida.descripcion }}</td>
+                        <td>{{ detalle.producto.description }}</td>
+                        <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.precio }}</td>
                         <td>{{ detalle.valor }}</td>
                     </tr>
@@ -269,7 +269,7 @@ $(document).ready(function()
 				} 
 				else if (data.conformidades == 'SI') 
 				{
-					alert("Orden de Servicios " + data.descripcion + " no puede eliminarse");
+					alert("Orden de Servicios " + data.description + " no puede eliminarse");
 				}
 			}
 		});

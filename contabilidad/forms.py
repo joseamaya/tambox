@@ -19,7 +19,7 @@ class FormaPagoForm(forms.ModelForm):
 
     class Meta:
         model = FormaPago
-        fields = ['codigo', 'descripcion', 'dias_credito']
+        fields = ['codigo', 'description', 'dias_credito']
 
 
 class UploadForm(forms.ModelForm):
@@ -45,7 +45,7 @@ class TipoCambioForm(forms.ModelForm):
 class TipoDocumentoForm(forms.ModelForm):
     class Meta:
         model = TipoDocumento
-        fields = ['codigo_sunat', 'nombre', 'descripcion']
+        fields = ['codigo_sunat', 'nombre', 'description']
 
     def __init__(self, *args, **kwargs):
         super(TipoDocumentoForm, self).__init__(*args, **kwargs)
@@ -58,7 +58,7 @@ class TipoDocumentoForm(forms.ModelForm):
 class ImpuestoForm(forms.ModelForm):
     class Meta:
         model = Impuesto
-        fields = ['abreviatura', 'descripcion', 'monto', 'fecha_inicio', 'fecha_fin']
+        fields = ['abreviatura', 'description', 'monto', 'fecha_inicio', 'fecha_fin']
 
     def __init__(self, *args, **kwargs):
         super(ImpuestoForm, self).__init__(*args, **kwargs)
@@ -86,7 +86,7 @@ class ConfiguracionForm(forms.ModelForm):
 class CuentaContableForm(forms.ModelForm):
     class Meta:
         model = CuentaContable
-        fields = ['cuenta', 'descripcion', 'divisionaria', 'depreciacion']
+        fields = ['cuenta', 'description', 'divisionaria', 'depreciacion']
 
     def __init__(self, *args, **kwargs):
         super(CuentaContableForm, self).__init__(*args, **kwargs)

@@ -40,7 +40,7 @@ class TestFormaPago(TestCase):
 
     def test_creacion_forma_pago(self):
         self.assertTrue(isinstance(self.fp1, FormaPago))
-        self.assertEqual(self.fp1.__str__(), self.fp1.descripcion)
+        self.assertEqual(self.fp1.__str__(), self.fp1.description)
 
     def test_siguiente_forma_pago(self):
         self.assertEqual(self.fp2.pk, self.fp1.siguiente())
@@ -102,7 +102,7 @@ class TestImpuesto(TestCase):
 
     def test_creacion_impuesto(self):
         self.assertTrue(isinstance(self.imp1, Impuesto))
-        self.assertEqual(self.imp1.__str__(), self.imp1.descripcion)
+        self.assertEqual(self.imp1.__str__(), self.imp1.description)
 
     def test_siguiente_impuesto(self):
         self.assertEqual(self.imp2.pk, self.imp1.siguiente())
@@ -143,4 +143,4 @@ class TestTipoExistencia(TestCase):
         self.te1 = baker.make(TipoExistencia)
 
     def test_creacion_tipo_existencia(self):
-        self.assertEqual(self.te1.__str__(), self.te1.descripcion)
+        self.assertEqual(self.te1.__str__(), self.te1.description)

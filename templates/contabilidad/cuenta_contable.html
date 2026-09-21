@@ -1,7 +1,7 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Cuentas Contables / {{ object.descripcion }}</h3>
+<h3>Cuentas Contables / {{ object.description }}</h3>
 {% else %}
 <h3>Cuentas Contables / Nuevo</h3>
 {% endif %}
@@ -47,12 +47,12 @@
             <div class="row">
                 <div class="col-lg-7">
                     <label>Descripción:</label>
-                    {% if form.descripcion.errors %}
-                    {% for error in form.descripcion.errors %}
+                    {% if form.description.errors %}
+                    {% for error in form.description.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <h3>{{ form.descripcion }}</h3>
+                    <h3>{{ form.description }}</h3>
                     <p>ES DIVISIONARIA: {{ form.divisionaria }}</p>
                 </div>
                 <div class="col-lg-5">

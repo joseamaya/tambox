@@ -1,5 +1,5 @@
 {% extends "contabilidad/base_contabilidad.html" %} {% block cuerpo %}
-<h3>Formas de Pago / {{ object.descripcion }}</h3>
+<h3>Formas de Pago / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.change_forma_pago %} <a class="btn btn-primary"
@@ -33,7 +33,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group"></div>
@@ -97,10 +97,10 @@
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
-								alert("Producto " + data.descripcion
+								alert("Producto " + data.description
 										+ " eliminado");
 							} else if (data.relaciones == 'SI') {
-								alert("Producto " + data.descripcion
+								alert("Producto " + data.description
 										+ " no puede eliminarse");
 							}
 						}

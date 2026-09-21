@@ -25,8 +25,8 @@ class AlmacenResources(resources.ModelResource):
 
 class ProductosAlmacenAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [FilaProductoAdmin]
-    list_display = ('codigo', 'descripcion')
-    search_fields = ['codigo', 'descripcion']
+    list_display = ('codigo', 'description')
+    search_fields = ['codigo', 'description']
     resource_class = AlmacenResources
 
 
@@ -46,7 +46,7 @@ class ProductoResources(resources.ModelResource):
 
 class KardexProductoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [FilaKardexAdmin]
-    list_display = ('codigo', 'grupo_productos', 'descripcion', 'es_servicio', 'unidad_medida')
+    list_display = ('codigo', 'grupo_productos', 'description', 'es_servicio', 'unidad_medida')
     resource_class = ProductoResources
 
 

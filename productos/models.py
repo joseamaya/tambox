@@ -15,7 +15,7 @@ from django.db.models import Sum
 class UnidadMedida(TimeStampedModel):
     codigo = models.CharField(max_length=5, unique=True)
     codigo_sunat = models.CharField(max_length=2)
-    descripcion = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -35,12 +35,12 @@ class UnidadMedida(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return self.descripcion
+        return self.description
 
 
 class GrupoProductos(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=6)
-    descripcion = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
     ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE)
     son_productos = models.BooleanField(default=True)
     estado = models.BooleanField(default=True)
@@ -73,7 +73,7 @@ class GrupoProductos(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return self.descripcion
+        return self.description
 
     def obtener_kardex(self, almacen, desde, hasta):
         from almacen.models import Kardex
@@ -82,7 +82,7 @@ class GrupoProductos(TimeStampedModel):
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
                                                producto__grupo_productos=self).select_related(
-            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__descripcion',
+            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'fecha_operacion',
                                                                                   'cantidad_salida',
                                                                                   'created')
@@ -112,7 +112,7 @@ class GrupoProductos(TimeStampedModel):
 class Producto(TimeStampedModel):
     codigo = models.CharField(primary_key=True, max_length=10)
     grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
-    descripcion = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=100, unique=True)
     es_servicio = models.BooleanField(default=False)
     unidad_medida = models.ForeignKey(UnidadMedida, on_delete=models.CASCADE)
     marca = models.CharField(max_length=40, blank=True)
@@ -158,7 +158,7 @@ class Producto(TimeStampedModel):
                                                fecha_operacion__gte=desde,
                                                fecha_operacion__lte=hasta,
                                                producto=self).select_related(
-            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__descripcion',
+            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'fecha_operacion',
                                                                                   'cantidad_salida',
                                                                                   'created')
@@ -213,9 +213,9 @@ class Producto(TimeStampedModel):
                 self.codigo = str(aux).zfill(10)
             if self.es_servicio:
                 unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
-                                                                           defaults={'descripcion': 'SERVICIO'})
+                                                                           defaults={'description': 'SERVICIO'})
                 self.unidad_medida = unidad_medida
         super(Producto, self).save()
 
     def __str__(self):
-        return force_str(self.descripcion)
+        return force_str(self.description)

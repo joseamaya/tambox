@@ -33,8 +33,8 @@ CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
 
 
 def choices_tipos_movimiento():
-    return [(tm.codigo, tm.descripcion) for tm in TipoMovimiento.objects.all()]
+    return [(tm.codigo, tm.description) for tm in TipoMovimiento.objects.all()]
 
 
 def choices_almacenes():
-    return [(alm.codigo, alm.descripcion) for alm in Almacen.objects.all()]
+    return [(alm.codigo, alm.description) for alm in Almacen.objects.all()]

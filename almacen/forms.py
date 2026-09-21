@@ -17,12 +17,12 @@ from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
 class TipoMovimientoForm(forms.ModelForm):
     class Meta:
         model = TipoMovimiento
-        fields = ['descripcion', 'codigo_sunat', 'incrementa', 'pide_referencia', 'es_compra', 'es_venta']
+        fields = ['description', 'codigo_sunat', 'incrementa', 'pide_referencia', 'es_compra', 'es_venta']
 
     def __init__(self, *args, **kwargs):
         self.aestado = True
         super(TipoMovimientoForm, self).__init__(*args, **kwargs)
-        self.fields['descripcion'].widget.attrs.update({'class': 'form-control'})
+        self.fields['description'].widget.attrs.update({'class': 'form-control'})
         self.fields['codigo_sunat'].widget.attrs.update({'class': 'form-control'})
 
     def save(self, *args, **kwargs):
@@ -33,7 +33,7 @@ class TipoMovimientoForm(forms.ModelForm):
 class AlmacenForm(forms.ModelForm):
     class Meta:
         model = Almacen
-        fields = ['codigo', 'descripcion']
+        fields = ['codigo', 'description']
 
     def __init__(self, *args, **kwargs):
         super(AlmacenForm, self).__init__(*args, **kwargs)
@@ -189,7 +189,7 @@ class FormularioMovimientosProducto(forms.Form):
     hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    descripcion = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
     def clean_hasta(self):
         self.cleaned_data['hasta'] = self.cleaned_data.get('hasta') + datetime.timedelta(days=1)
@@ -202,7 +202,7 @@ class FormularioReprocesoPrecio(forms.Form):
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    descripcion = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     seleccion = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
 
 
@@ -212,7 +212,7 @@ class FormularioConsultaStock(forms.Form):
     desde = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    descripcion = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
 
 
 class CargarInventarioInicialForm(forms.ModelForm):

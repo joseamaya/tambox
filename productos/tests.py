@@ -34,7 +34,7 @@ class UnidadMedidaTest(TestCase):
 
     def test_creacion_unidad_medida(self):
         self.assertTrue(isinstance(self.um1, UnidadMedida))
-        self.assertEqual(self.um1.__str__(), self.um1.descripcion)
+        self.assertEqual(self.um1.__str__(), self.um1.description)
 
     def test_siguiente_unidad_medida(self):
         self.assertEqual(self.um3.pk, self.um2.siguiente())
@@ -59,7 +59,7 @@ class GrupoProductosTest(TestCase):
     def test_creacion_grupo_productos(self):
         self.assertTrue(isinstance(self.gp1, GrupoProductos))
         self.assertEqual("1".zfill(6), self.gp1.codigo)
-        self.assertEqual(self.gp1.__str__(), self.gp1.descripcion)
+        self.assertEqual(self.gp1.__str__(), self.gp1.description)
 
     def test_siguiente_grupo_productos(self):
         self.assertEqual(self.gp2.pk, self.gp1.siguiente())
@@ -89,7 +89,7 @@ class ProductoTest(TestCase):
         self.assertTrue(isinstance(self.p1, Producto))
         self.assertEqual(self.gp1.codigo + "1".zfill(4), self.p1.codigo)
         self.assertEqual(self.gp1.codigo + "2".zfill(4), self.p2.codigo)
-        self.assertEqual(self.p1.__str__(), self.p1.descripcion)
+        self.assertEqual(self.p1.__str__(), self.p1.description)
 
     def test_siguiente_producto(self):
         self.assertEqual(self.p2.pk, self.p1.siguiente())
@@ -191,7 +191,7 @@ class CargarServiciosTest(TestCase):
         respuesta = self.client.post('/productos/cargar_servicios/', {'archivo': archivo})
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(sorted(Producto.objects.values_list('descripcion', flat=True)),
+        self.assertEqual(sorted(Producto.objects.values_list('description', flat=True)),
                          ['SERVICIO DOS', 'SERVICIO UNO'])
 
     def test_sin_grupo_manda_a_crearlos(self):
@@ -219,23 +219,23 @@ class CargarProductosTest(TestCase):
         respuesta = self.client.post('/productos/cargar_productos/', {'archivo': archivo})
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(list(Producto.objects.values_list('descripcion', flat=True)), ['PRODUCTO UNO'])
-        self.assertEqual(UnidadMedida.objects.get(codigo='UNIDA').descripcion, 'UNIDAD X')
+        self.assertEqual(list(Producto.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
+        self.assertEqual(UnidadMedida.objects.get(codigo='UNIDA').description, 'UNIDAD X')
 
 
 class BusquedaProductosTest(TestCase):
-    """Los dos endpoints de busqueda leian `producto.unidad_medida.descripcion`
+    """Los dos endpoints de busqueda leian `producto.unidad_medida.description`
     dentro del bucle: una consulta por resultado, en endpoints que el JavaScript
     llama en cada tecleo."""
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
-        self.unidad = baker.make(UnidadMedida, codigo='UND01', descripcion='UNIDAD')
-        baker.make(Producto, codigo='COD0000001', descripcion='PRODUCTO', unidad_medida=self.unidad)
+        self.unidad = baker.make(UnidadMedida, codigo='UND01', description='UNIDAD')
+        baker.make(Producto, codigo='COD0000001', description='PRODUCTO', unidad_medida=self.unidad)
 
     def ampliar(self, cuantos):
         for numero in range(cuantos):
-            baker.make(Producto, descripcion='PRODUCTO %s' % numero, unidad_medida=self.unidad)
+            baker.make(Producto, description='PRODUCTO %s' % numero, unidad_medida=self.unidad)
 
     def buscar(self, url, parametros):
         return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
@@ -244,8 +244,8 @@ class BusquedaProductosTest(TestCase):
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
 
-        url = '/productos/busqueda_productos_descripcion/'
-        parametros = {'descripcion': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
+        url = '/productos/busqueda_productos_description/'
+        parametros = {'description': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
         with CaptureQueriesContext(connection) as un_resultado:
             self.buscar(url, parametros)
 

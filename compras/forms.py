@@ -53,7 +53,7 @@ class DetalleOrdenServicioForm(forms.Form):
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     servicio = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
-    descripcion = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
+    description = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
     precio = forms.DecimalField(max_digits=15, decimal_places=5,
                                 widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
     valor = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(

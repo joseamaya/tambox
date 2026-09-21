@@ -53,7 +53,7 @@ class Tablero(View):
         cant_grupos_suministros = GrupoProductos.objects.count()
         cant_servicios = Producto.objects.filter(es_servicio=True).count()
         unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
-                                                                   defaults={'descripcion': 'SERVICIO'})
+                                                                   defaults={'description': 'SERVICIO'})
         if cant_proveedores == 0:
             lista_notificaciones.append("No se ha creado ningún proveedor")
         if creado:
@@ -308,7 +308,7 @@ class CrearOrdenCompra(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = FormaPago.objects.all().order_by('descripcion')
+        formas_pago = FormaPago.objects.all().order_by('description')
         if not formas_pago:
             return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
@@ -394,7 +394,7 @@ class CrearOrdenServicios(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = FormaPago.objects.all().order_by('descripcion')
+        formas_pago = FormaPago.objects.all().order_by('description')
         if not formas_pago:
             return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
@@ -475,7 +475,7 @@ class CrearConformidadServicio(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = FormaPago.objects.all().order_by('descripcion')
+        formas_pago = FormaPago.objects.all().order_by('description')
         if not formas_pago:
             return HttpResponseRedirect(reverse('contabilidad:crear_forma_pago'))
         else:
@@ -856,7 +856,7 @@ class ModificarCotizacion(UpdateView):
         for detalle in detalles:
             d = {'requerimiento': detalle.detalle_requerimiento.pk,
                  'codigo': detalle.detalle_requerimiento.producto.codigo,
-                 'nombre': detalle.detalle_requerimiento.producto.descripcion,
+                 'nombre': detalle.detalle_requerimiento.producto.description,
                  'unidad': detalle.detalle_requerimiento.producto.unidad_medida.codigo,
                  'cantidad': detalle.cantidad}
             detalles_data.append(d)
@@ -977,7 +977,7 @@ class ModificarOrdenCompra(UpdateView):
                 try:
                     d = {'cotizacion': detalle.detalle_cotizacion.pk,
                          'codigo': detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo,
-                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
                          'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -986,7 +986,7 @@ class ModificarOrdenCompra(UpdateView):
                 except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'codigo': detalle.producto.codigo,
-                         'nombre': detalle.producto.descripcion,
+                         'nombre': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1134,7 +1134,7 @@ class ModificarOrdenServicios(UpdateView):
                 try:
                     d = {'cotizacion': detalle.detalle_cotizacion.pk,
                          'codigo': detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo,
-                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion,
+                         'nombre': detalle.detalle_cotizacion.detalle_requerimiento.producto.description,
                          'unidad': detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1142,7 +1142,7 @@ class ModificarOrdenServicios(UpdateView):
                 except (ObjectDoesNotExist, AttributeError):
                     d = {'cotizacion': '0',
                          'codigo': detalle.producto.codigo,
-                         'nombre': detalle.producto.descripcion,
+                         'nombre': detalle.producto.description,
                          'unidad': detalle.producto.unidad_medida.codigo,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
@@ -1244,7 +1244,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                 det['cotizacion'] = detalle.id
                 try:
                     det['codigo'] = detalle.detalle_requerimiento.producto.codigo
-                    det['nombre'] = detalle.detalle_requerimiento.producto.descripcion
+                    det['nombre'] = detalle.detalle_requerimiento.producto.description
                     det['precio'] = str(detalle.detalle_requerimiento.producto.precio)
                     cantidad = detalle.cantidad - detalle.detalle_requerimiento.cantidad_comprada
                     det['cantidad'] = str(cantidad)
@@ -1324,14 +1324,14 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
                     det['orden_compra'] = detalle.id
                     try:
                         det['codigo'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo
-                        det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion
+                        det['nombre'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
                         det['cantidad'] = str(detalle.cantidad - detalle.cantidad_ingresada)
                         det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo
                         det['valor'] = str(round(Decimal(detalle.valor_sin_igv) * tipo_cambio, 5))
                     except (ObjectDoesNotExist, AttributeError):
                         det['codigo'] = detalle.producto.codigo
-                        det['nombre'] = detalle.producto.descripcion
+                        det['nombre'] = detalle.producto.description
                         det['cantidad'] = str(detalle.cantidad - detalle.cantidad_ingresada)
                         det['precio'] = str(round(Decimal(detalle.precio_sin_igv) * tipo_cambio, 5))
                         det['unidad'] = detalle.producto.unidad_medida.codigo
@@ -1368,7 +1368,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                     det = {}
                     det['orden_servicios'] = detalle.id
                     det['codigo'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo
-                    det['servicio'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.descripcion
+                    det['servicio'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
                     det['uso'] = detalle.detalle_cotizacion.detalle_requerimiento.uso
                     det['precio'] = str(detalle.precio)
                     det['cantidad'] = str(detalle.cantidad)
@@ -1377,8 +1377,8 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                     det = {}
                     det['orden_servicios'] = detalle.id
                     det['codigo'] = detalle.producto.codigo
-                    det['servicio'] = detalle.producto.descripcion
-                    det['uso'] = detalle.producto.unidad_medida.descripcion
+                    det['servicio'] = detalle.producto.description
+                    det['uso'] = detalle.producto.unidad_medida.description
                     det['precio'] = str(detalle.precio)
                     det['cantidad'] = str(detalle.cantidad)
                     det['valor'] = str(detalle.valor)
@@ -1567,7 +1567,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=4).value = orden.proveedor.razon_social
             ws.cell(row=cont, column=5).value = orden.total
-            ws.cell(row=cont, column=6).value = orden.forma_pago.descripcion
+            ws.cell(row=cont, column=6).value = orden.forma_pago.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = orden.created
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
@@ -1647,7 +1647,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=4).value = orden_compra.proveedor.razon_social
             ws.cell(row=cont, column=5).value = orden_compra.total
-            ws.cell(row=cont, column=6).value = orden_compra.forma_pago.descripcion
+            ws.cell(row=cont, column=6).value = orden_compra.forma_pago.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = orden_compra.created
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'

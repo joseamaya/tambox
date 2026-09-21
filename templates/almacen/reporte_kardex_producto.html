@@ -54,7 +54,7 @@
                         {{ form.cod_producto }}
                     </div>
                     <div class="col-md-8">
-                        <label for="descripcion">Descripcion de Producto: </label>
+                        <label for="description">Descripcion de Producto: </label>
                         {% if form.desc_producto.errors %}
                         {% for error in form.desc_producto.errors %}
                         {% include "includes/error.html" %}
@@ -105,8 +105,8 @@ $("#id_hasta").datepicker();
 $("#id_desc_producto").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'productos:busqueda_productos_descripcion' %}",
-      data: {'descripcion': $("#id_desc_producto").val(), 'tipo_busqueda': 'PRODUCTOS'},
+      url: "{% url 'productos:busqueda_productos_description' %}",
+      data: {'description': $("#id_desc_producto").val(), 'tipo_busqueda': 'PRODUCTOS'},
       success: function( data ) 
       {
           response( data );
@@ -117,7 +117,7 @@ $("#id_desc_producto").autocomplete({
   select: function( event, ui ) 
   {
 	$("#id_cod_producto").val(ui.item.codigo);
-	$("#id_desc_producto").val(ui.item.descripcion);
+	$("#id_desc_producto").val(ui.item.description);
 	return false;
   },
 });

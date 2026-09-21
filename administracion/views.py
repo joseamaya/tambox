@@ -46,8 +46,8 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ningún puesto")
         if cant_profesiones == 0:
             lista_notificaciones.append("No se ha registrado ninguna profesión")
-        nivel_logistica, creada = NivelAprobacion.objects.get_or_create(descripcion="LOGISTICA")
-        _, creado = NivelAprobacion.objects.get_or_create(descripcion="USUARIO",
+        nivel_logistica, creada = NivelAprobacion.objects.get_or_create(description="LOGISTICA")
+        _, creado = NivelAprobacion.objects.get_or_create(description="USUARIO",
                                                          defaults={'nivel_superior': nivel_logistica})
         if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
@@ -438,7 +438,7 @@ class ReporteExcelProfesiones(TemplateView):
         cont = 4
         for profesion in profesiones:
             ws.cell(row=cont, column=2).value = profesion.abreviatura
-            ws.cell(row=cont, column=3).value = profesion.descripcion
+            ws.cell(row=cont, column=3).value = profesion.description
             ws.cell(row=cont, column=4).value = profesion.estado
             cont = cont + 1
         nombre_archivo = "Profesiones.xlsx"

@@ -36,7 +36,7 @@ class TipoCambio(TimeStampedModel):
 
 class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True, max_length=12)
-    descripcion = models.CharField(max_length=150)
+    description = models.CharField(max_length=150)
     depreciacion = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     divisionaria = models.BooleanField(default=False)
     estado = models.BooleanField(default=True)
@@ -63,7 +63,7 @@ class CuentaContable(TimeStampedModel):
 
 class FormaPago(TimeStampedModel):
     codigo = models.CharField(unique=True, max_length=5)
-    descripcion = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
     dias_credito = models.IntegerField()
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -83,13 +83,13 @@ class FormaPago(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return force_str(self.descripcion)
+        return force_str(self.description)
 
 
 class TipoDocumento(TimeStampedModel):
     codigo_sunat = models.CharField(max_length=10)
     nombre = models.CharField(max_length=100)
-    descripcion = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
     estado = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
@@ -131,7 +131,7 @@ class Tipo(TimeStampedModel):
 
 class Impuesto(TimeStampedModel):
     abreviatura = models.CharField(max_length=10)
-    descripcion = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
     monto = models.DecimalField(max_digits=14, decimal_places=2)
     fecha_inicio = models.DateField()
     fecha_fin = models.DateField(null=True)
@@ -157,7 +157,7 @@ class Impuesto(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return self.descripcion
+        return self.description
 
 
 class Upload(TimeStampedModel):
@@ -200,10 +200,10 @@ class Configuracion(TimeStampedModel):
 
 class TipoExistencia(TimeStampedModel):
     codigo_sunat = models.CharField(primary_key=True, max_length=2)
-    descripcion = models.CharField(max_length=50)
+    description = models.CharField(max_length=50)
 
     def __str__(self):
-        return u'%s' % self.descripcion
+        return u'%s' % self.description
 
     class Meta:
         permissions = (('ver_tabla_tipos_existencias', 'Puede ver tabla de Tipos de Existencias'),)

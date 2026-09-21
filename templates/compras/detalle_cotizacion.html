@@ -129,8 +129,8 @@
                     {% for detalle in object.detallecotizacion_set.all %}
                     <tr>
                         <td>{{ detalle.detalle_requerimiento.producto.codigo }}</td>
-                        <td>{{ detalle.detalle_requerimiento.producto.descripcion }}</td>
-                        <td>{{ detalle.detalle_requerimiento.producto.unidad_medida.descripcion }}</td>
+                        <td>{{ detalle.detalle_requerimiento.producto.description }}</td>
+                        <td>{{ detalle.detalle_requerimiento.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad }}</td>
                         <td>{{ detalle.cantidad_comprada }}</td>
                     </tr>

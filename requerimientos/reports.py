@@ -86,8 +86,8 @@ class ReporteRequerimiento():
         for detalle in detalles:
             tupla_producto = [Paragraph(str(detalle.nro_detalle), sp),
                               Paragraph(str(detalle.cantidad), sp),
-                              Paragraph(detalle.producto.unidad_medida.descripcion, sp),
-                              Paragraph(detalle.producto.descripcion, sp),
+                              Paragraph(detalle.producto.unidad_medida.description, sp),
+                              Paragraph(detalle.producto.description, sp),
                               Paragraph(detalle.uso, sp)]
             lista_detalles.append(tupla_producto)
         tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
@@ -161,9 +161,9 @@ class ReporteRequerimiento():
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.firma)
         solicitante = requerimiento.solicitante.nombre_completo()
         cuerpo = [('', '', '', '', '', '')]
-        if requerimiento.aprobacionrequerimiento.nivel.descripcion == "USUARIO" and requerimiento.aprobacionrequerimiento.estado:
+        if requerimiento.aprobacionrequerimiento.nivel.description == "USUARIO" and requerimiento.aprobacionrequerimiento.estado:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
-        elif requerimiento.aprobacionrequerimiento.nivel.descripcion == "LOGISTICA" and requerimiento.aprobacionrequerimiento.estado:
+        elif requerimiento.aprobacionrequerimiento.nivel.description == "LOGISTICA" and requerimiento.aprobacionrequerimiento.estado:
             cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:

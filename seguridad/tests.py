@@ -109,7 +109,7 @@ class OpcionesDeFormularioTestCase(TestCase):
     def test_las_opciones_se_leen_de_la_base_de_datos(self):
         from almacen.models import Almacen
 
-        Almacen.objects.create(codigo='AL01', descripcion='ALMACEN UNO')
+        Almacen.objects.create(codigo='AL01', description='ALMACEN UNO')
         formulario = FormularioReporteMovimientos()
         codigos = [codigo for codigo, _ in formulario.fields['almacenes'].choices]
 
@@ -121,7 +121,7 @@ class OpcionesDeFormularioTestCase(TestCase):
         formulario = FormularioReporteMovimientos()
         self.assertEqual([], list(formulario.fields['almacenes'].choices))
 
-        Almacen.objects.create(codigo='AL02', descripcion='ALMACEN DOS')
+        Almacen.objects.create(codigo='AL02', description='ALMACEN DOS')
         formulario = FormularioReporteMovimientos()
         codigos = [codigo for codigo, _ in formulario.fields['almacenes'].choices]
 

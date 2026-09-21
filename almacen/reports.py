@@ -115,15 +115,15 @@ class ReporteMovimiento():
                 proveedor = Paragraph(u"PROVEEDOR: " + movimiento.referencia.proveedor.razon_social, izquierda)
         except (ObjectDoesNotExist, AttributeError):
             proveedor = Paragraph(u"PROVEEDOR:", izquierda)
-        operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.descripcion, izquierda)
-        almacen = Paragraph(u"ALMACÉN: " + movimiento.almacen.codigo + "-" + movimiento.almacen.descripcion, izquierda)
+        operacion = Paragraph(u"OPERACIÓN: " + movimiento.tipo_movimiento.description, izquierda)
+        almacen = Paragraph(u"ALMACÉN: " + movimiento.almacen.codigo + "-" + movimiento.almacen.description, izquierda)
         try:
             orden_compra = Paragraph(u"ORDEN DE COMPRA: " + movimiento.referencia.codigo, izquierda)
         except (ObjectDoesNotExist, AttributeError):
             orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
         try:
             documento = Paragraph(
-                u"DOCUMENTO: " + movimiento.tipo_documento.descripcion + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
+                u"DOCUMENTO: " + movimiento.tipo_documento.description + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
                 izquierda)
         except (ObjectDoesNotExist, TypeError):
             documento = ""
@@ -158,7 +158,7 @@ class ReporteMovimiento():
             tupla_producto = [str(detalle.nro_detalle),
                               format(detalle.cantidad, '.5f'),
                               str(detalle.producto.unidad_medida.codigo),
-                              detalle.producto.descripcion,
+                              detalle.producto.description,
                               format(detalle.precio, '.5f'),
                               format(detalle.valor, '.5f')]
             lista_detalles.append(tupla_producto)
@@ -473,8 +473,8 @@ class ReporteKardexPDF():
                 valor_total = format(valor_total, '.3f')
 
             registro = [producto.codigo,
-                        producto.descripcion,
-                        producto.unidad_medida.descripcion,
+                        producto.description,
+                        producto.unidad_medida.description,
                         producto.grupo_productos.ctacontable,
                         format(cant_saldo_inicial, '.3f'),
                         valor_saldo_inicial,
@@ -580,7 +580,7 @@ class ReporteKardexPDF():
                 valor_total = format(valor_total, '.5f')
 
             registro = [grupo.codigo,
-                        grupo.descripcion,
+                        grupo.description,
                         grupo.ctacontable.cuenta,
                         format(cant_saldo_inicial, '.5f'),
                         valor_saldo_inicial,
@@ -777,15 +777,15 @@ class ReporteKardexPDF():
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
-        elements.append(descripcion)
+        description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+        elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -834,15 +834,15 @@ class ReporteKardexPDF():
         elements.append(codigo)
         elements.append(Spacer(1, 0.25 * cm))
         tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+        """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
                          izquierda)"""
         elements.append(tipo)
         elements.append(Spacer(1, 0.25 * cm))
-        descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
-        elements.append(descripcion)
+        description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+        elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unidad = Paragraph(
-            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+            u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
             izquierda)
         elements.append(unidad)
         elements.append(Spacer(1, 0.25 * cm))
@@ -877,7 +877,7 @@ class ReporteKardexPDF():
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0, cantidad_salida=0).order_by().values(
             'producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
-            'descripcion').select_related('unidad_medida', 'tipo_existencia')
+            'description').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
@@ -899,15 +899,15 @@ class ReporteKardexPDF():
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
-            elements.append(descripcion)
+            description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+            elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -932,7 +932,7 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        productos = Producto.objects.all().order_by('descripcion')
+        productos = Producto.objects.all().order_by('description')
         elements.append(self.tabla_detalle_consolidado_productos(productos))
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
         pdf = buffer.getvalue()
@@ -1012,7 +1012,7 @@ class ReporteKardexPDF():
 
         elements = []
         grupos = GrupoProductos.objects.filter(estado=True,
-                                               son_productos=True).order_by('descripcion')
+                                               son_productos=True).order_by('description')
         elements.append(self.tabla_detalle_consolidado_grupo(grupos))
 
         doc.build(elements, onFirstPage=self._header_footer, onLaterPages=self._header_footer)
@@ -1041,7 +1041,7 @@ class ReporteKardexPDF():
         productos_kardex = Kardex.objects.exclude(cantidad_ingreso=0,
                                                   cantidad_salida=0).order_by().values('producto').distinct()
         productos = Producto.objects.filter(pk__in=productos_kardex).order_by(
-            'descripcion').select_related('unidad_medida', 'tipo_existencia')
+            'description').select_related('unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
         for producto in productos:
@@ -1063,15 +1063,15 @@ class ReporteKardexPDF():
             elements.append(codigo)
             elements.append(Spacer(1, 0.25 * cm))
             tipo = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
-            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion,
+            """tipo = Paragraph(u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description,
                              izquierda)"""
             elements.append(tipo)
             elements.append(Spacer(1, 0.25 * cm))
-            descripcion = Paragraph(u"DESCRIPCIÓN: " + producto.descripcion, izquierda)
-            elements.append(descripcion)
+            description = Paragraph(u"DESCRIPCIÓN: " + producto.description, izquierda)
+            elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unidad = Paragraph(
-                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.descripcion,
+                u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo_sunat + " - " + producto.unidad_medida.description,
                 izquierda)
             elements.append(unidad)
             elements.append(Spacer(1, 0.25 * cm))
@@ -1121,12 +1121,12 @@ class ReporteKardexExcel():
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
         ws.merge_cells('B8:G8')
-        ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
+        ws['B9'] = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells('B9:E9')
         ws[
-            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.description
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1234,16 +1234,16 @@ class ReporteKardexExcel():
         ws.column_dimensions["K"].width = 12
         ws.column_dimensions["L"].width = 12
         ws.column_dimensions["M"].width = 15
-        ws['E1'] = u'Almacén: ' + almacen.descripcion
+        ws['E1'] = u'Almacén: ' + almacen.description
         ws.merge_cells('E1:G1')
         ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
         cont = 3
         ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
-        ws.cell(row=cont, column=4).value = u" Denominación: " + producto.descripcion
+        ws.cell(row=cont, column=4).value = u" Denominación: " + producto.description
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
-        ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.descripcion
+        ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.description
         ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
         cont = cont + 1
         try:
@@ -1372,12 +1372,12 @@ class ReporteKardexExcel():
         ws['B7'] = u"CÓDIGO DE LA EXISTENCIA: " + producto.codigo
         ws.merge_cells('B7:E7')
         ws[
-            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+            'B8'] = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
         ws.merge_cells('B8:G8')
-        ws['B9'] = u"DESCRIPCIÓN: " + producto.descripcion
+        ws['B9'] = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells('B9:E9')
         ws[
-            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+            'B10'] = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.description
         ws.merge_cells('B10:H10')
         ws['B11'] = u"MÉTODO DE VALUACIÓN: PEPS"
         ws.merge_cells('B11:E11')
@@ -1596,14 +1596,14 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.descripcion
+        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1700,7 +1700,7 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_unidades_fisicas_todos(self, desde, hasta, almacen):
-        productos = Producto.objects.all().order_by('descripcion').select_related(
+        productos = Producto.objects.all().order_by('description').select_related(
             'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
@@ -1751,14 +1751,14 @@ class ReporteKardexExcel():
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.descripcion
+                column=2).value = u"TIPO (TABLA 5): " + producto.tipo_existencia.codigo_sunat + " - " + producto.tipo_existencia.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=7)
         cont = cont + 1
-        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.descripcion
+        ws.cell(row=cont, column=2).value = u"DESCRIPCIÓN: " + producto.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=5)
         cont = cont + 1
         ws.cell(row=cont,
-                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.descripcion
+                column=2).value = u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + producto.unidad_medida.codigo + " - " + producto.unidad_medida.description
         ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = u"MÉTODO DE VALUACIÓN: PEPS"
@@ -1943,7 +1943,7 @@ class ReporteKardexExcel():
         return ws
 
     def obtener_formato_sunat_valorizado_todos(self, desde, hasta, almacen):
-        productos = Producto.objects.all().order_by('descripcion').select_related(
+        productos = Producto.objects.all().order_by('description').select_related(
             'unidad_medida', 'tipo_existencia')
         self.kardex_iniciales = Kardex.ultimos_por_producto(productos, antes_de=desde, almacen=almacen)
         self.kardex_lote = Producto.kardex_por_lote(productos, almacen, desde, hasta)
@@ -1982,7 +1982,7 @@ class ReporteKardexExcel():
         ws.column_dimensions["J"].width = 14
         ws.column_dimensions["K"].width = 14
         ws.column_dimensions["L"].width = 14
-        ws['D1'] = u'Almacén: ' + almacen.descripcion
+        ws['D1'] = u'Almacén: ' + almacen.description
         ws.merge_cells('D1:F1')
         ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + '-' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
@@ -2012,7 +2012,7 @@ class ReporteKardexExcel():
         for grupo in grupos:
             ws.cell(row=cont, column=2).value = grupo.codigo
             ws.cell(row=cont, column=2).border = thin_border
-            ws.cell(row=cont, column=3).value = grupo.descripcion
+            ws.cell(row=cont, column=3).value = grupo.description
             ws.cell(row=cont, column=3).border = thin_border
             ws.cell(row=cont, column=4).value = grupo.ctacontable.cuenta
             ws.cell(row=cont, column=4).border = thin_border
@@ -2057,7 +2057,7 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_consolidado_productos(self, desde, hasta, almacen):
-        productos = Producto.objects.all().order_by('descripcion')
+        productos = Producto.objects.all().order_by('description')
         wb = Workbook()
         thin_border = Border(left=Side(style='thin'),
                              right=Side(style='thin'),
@@ -2074,7 +2074,7 @@ class ReporteKardexExcel():
         ws.column_dimensions["I"].width = 12
         ws.column_dimensions["J"].width = 12
         ws.column_dimensions["K"].width = 12
-        ws['D1'] = u'Almacén: ' + almacen.descripcion
+        ws['D1'] = u'Almacén: ' + almacen.description
         ws.merge_cells('D1:F1')
         ws['G1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('G1:I1')
@@ -2104,7 +2104,7 @@ class ReporteKardexExcel():
         for producto in productos:
             ws.cell(row=cont, column=2).value = producto.codigo
             ws.cell(row=cont, column=2).border = thin_border
-            ws.cell(row=cont, column=3).value = producto.descripcion
+            ws.cell(row=cont, column=3).value = producto.description
             ws.cell(row=cont, column=3).border = thin_border
             try:
                 kardex_inicial = iniciales.get(producto.pk)
@@ -2150,7 +2150,7 @@ class ReporteKardexExcel():
                      .select_related('producto__unidad_medida'))
         wb = Workbook()
         ws = wb.active
-        ws['E1'] = u'Almacén: ' + almacen.descripcion
+        ws['E1'] = u'Almacén: ' + almacen.description
         ws.merge_cells('E1:G1')
         ws['H1'] = 'Periodo: ' + desde.strftime('%d/%m/%Y') + ' - ' + hasta.strftime('%d/%m/%Y')
         ws.merge_cells('H1:J1')
@@ -2175,9 +2175,9 @@ class ReporteKardexExcel():
             producto = prod.producto
             ws.cell(row=cont, column=2).value = 'Codigo: ' + producto.codigo
             ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
-            ws.cell(row=cont, column=4).value = u" Denominación: " + producto.descripcion
+            ws.cell(row=cont, column=4).value = u" Denominación: " + producto.description
             ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=10)
-            ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.descripcion
+            ws.cell(row=cont, column=11).value = " Unidad: " + producto.unidad_medida.description
             ws.merge_cells(start_row=cont, start_column=11, end_row=cont, end_column=12)
             cont += 1
             try:
@@ -2344,16 +2344,16 @@ def reporte_inventario(desde):
             ws['A' + str(cont)].alignment = Alignment(horizontal="center")
             ws.merge_cells('A' + str(cont) + ':H' + str(cont))
             ws['A' + str(cont)].fill = PatternFill(start_color='F2DCDB', end_color='F2DCDB', fill_type='solid')
-            ws.cell(row=cont, column=1).value = grupo_producto.descripcion
-            bandera = grupo_producto.descripcion
+            ws.cell(row=cont, column=1).value = grupo_producto.description
+            bandera = grupo_producto.description
             cont += 2
             ultimos = Kardex.ultimos_por_producto(productos)
             for producto in productos:
                 try:
                     kardex = ultimos.get(producto.pk)
                     codigo = kardex.producto.codigo
-                    descripcion = kardex.producto.descripcion
-                    unidad_medida = kardex.producto.unidad_medida.descripcion
+                    description = kardex.producto.description
+                    unidad_medida = kardex.producto.unidad_medida.description
                     stock = kardex.cantidad_total
                     precio = kardex.precio_total
                     valor = kardex.valor_total
@@ -2362,7 +2362,7 @@ def reporte_inventario(desde):
 
                 except (Kardex.DoesNotExist, AttributeError):
                     codigo = producto.codigo
-                    descripcion = producto.descripcion
+                    description = producto.description
                     unidad_medida = producto.unidad_medida.codigo
                     stock = 0
                     precio = 0
@@ -2390,7 +2390,7 @@ def reporte_inventario(desde):
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=3).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=3).value = descripcion
+                ws.cell(row=cont, column=3).value = description
 
                 ws.cell(row=cont, column=4).alignment = Alignment(horizontal="center")
                 ws.cell(row=cont, column=4).border = Border(left=Side(border_style="thin"),

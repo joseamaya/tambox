@@ -323,7 +323,7 @@ class ModificarRequerimiento(UpdateView):
         for detalle in detalles:
             try:
                 d = {'codigo': detalle.producto.codigo,
-                     'producto': detalle.producto.descripcion,
+                     'producto': detalle.producto.description,
                      'cantidad': detalle.cantidad,
                      'unidad': detalle.producto.unidad_medida.codigo,
                      'uso': detalle.uso}
@@ -402,7 +402,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                 det['requerimiento'] = detalle.id
                 try:
                     det['codigo'] = detalle.producto.codigo
-                    det['nombre'] = detalle.producto.descripcion
+                    det['nombre'] = detalle.producto.description
                     det['unidad'] = detalle.producto.unidad_medida.codigo
                     # det['uso'] = detalle.uso
                     det['cantidad'] = str(detalle.cantidad - detalle.cantidad_atendida)

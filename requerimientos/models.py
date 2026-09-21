@@ -168,7 +168,7 @@ class Requerimiento(TimeStampedModel):
     def obtener_requerimientos_listos_transferencia():
         listado_requerimientos = []
         requerimientos = Requerimiento.objects.filter(
-            aprobacionrequerimiento__nivel__descripcion="LOGISTICA",
+            aprobacionrequerimiento__nivel__description="LOGISTICA",
             aprobacionrequerimiento__estado=True).prefetch_related('detallerequerimiento_set')
         for requerimiento in requerimientos:
             total = requerimiento.total
@@ -201,7 +201,7 @@ class Requerimiento(TimeStampedModel):
         """Crea la aprobacion del primer nivel. Requiere que el requerimiento ya
         tenga pk, por eso se llama despues de guardar."""
         if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.es_jefatura:
-            niveles_aprobacion = NivelAprobacion.objects.filter(descripcion="JEFATURA")
+            niveles_aprobacion = NivelAprobacion.objects.filter(description="JEFATURA")
             if niveles_aprobacion.count() > 0:
                 AprobacionRequerimiento.objects.create(requerimiento=self,
                                                         nivel=niveles_aprobacion[0])
@@ -287,24 +287,24 @@ class AprobacionRequerimiento(TimeStampedModel):
         nivel_actual = puesto_usuario.establecer_nivel(oficina_requerimiento)
         nivel_anterior = nivel_actual.superior.all()[0]
         if ((self.nivel == nivel_actual or self.nivel == nivel_anterior) or
-                (self.nivel.descripcion == "JEFATURA" and nivel_actual.descripcion == "GERENCIA ADMINISTRACION") or
+                (self.nivel.description == "JEFATURA" and nivel_actual.description == "GERENCIA ADMINISTRACION") or
                 (
-                        self.nivel.descripcion == "USUARIO" and oficina_requerimiento == operaciones() and nivel_actual.descripcion == "GERENCIA INMEDIATA")):
+                        self.nivel.description == "USUARIO" and oficina_requerimiento == operaciones() and nivel_actual.description == "GERENCIA INMEDIATA")):
             return True
         else:
             return False
 
     def obtener_oficina_aprobacion_superior(self):
         nivel = self.nivel
-        if nivel.descripcion == "PRESUPUESTO":
+        if nivel.description == "PRESUPUESTO":
             oficina = logistica()
-        elif nivel.descripcion == "GERENCIA ADMINISTRACION":
+        elif nivel.description == "GERENCIA ADMINISTRACION":
             oficina = presupuesto()
-        elif nivel.descripcion == "GERENCIA INMEDIATA":
+        elif nivel.description == "GERENCIA INMEDIATA":
             oficina = oficina_administracion()
-        elif nivel.descripcion == "JEFATURA":
+        elif nivel.description == "JEFATURA":
             oficina = self.requerimiento.oficina.gerencia
-        elif nivel.descripcion == "USUARIO":
+        elif nivel.description == "USUARIO":
             oficina = self.requerimiento.oficina
         else:
             oficina = None
@@ -317,11 +317,11 @@ class AprobacionRequerimiento(TimeStampedModel):
         queryset = []
         if oficina_usuario == logistica() and puesto_usuario.es_jefatura:
             queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__estado=Requerimiento.STATUS.CANC),
-                                                              nivel__descripcion="USUARIO",
+                                                              nivel__description="USUARIO",
                                                               estado=True)
         return queryset
 
     def save(self, *args, **kwargs):
-        if self.nivel.descripcion == "LOGISTICA" and self.estado == True:
+        if self.nivel.description == "LOGISTICA" and self.estado == True:
             self.requerimiento.fecha_recepcion = date.today()
         super(AprobacionRequerimiento, self).save()

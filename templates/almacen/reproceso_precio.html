@@ -58,13 +58,13 @@
                         {{ form.producto }}
                     </div>
                     <div class="col-md-8">
-                        <label for="descripcion">Descripcion de Producto: </label>
-                        {% if form.descripcion.errors %}
-                        {% for error in form.descripcion.errors %}
+                        <label for="description">Descripcion de Producto: </label>
+                        {% if form.description.errors %}
+                        {% for error in form.description.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.descripcion }}
+                        {{ form.description }}
                     </div>
                 </div>
             </div>
@@ -77,11 +77,11 @@
 {% block js %}
 <script>
 $("#id_desde").datepicker();
-$("#id_descripcion").autocomplete({
+$("#id_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'productos:busqueda_productos_descripcion' %}",
-      data: {'descripcion': $("#id_descripcion").val(), 'tipo_busqueda': 'PRODUCTOS'},
+      url: "{% url 'productos:busqueda_productos_description' %}",
+      data: {'description': $("#id_description").val(), 'tipo_busqueda': 'PRODUCTOS'},
       success: function( data ) 
       {
           response( data );
@@ -101,12 +101,12 @@ $("input[name=seleccion]").change(function ()
 	if($(this).val()=='T')
 	{
 		$("input[name=producto]").attr("disabled",true);
-		$("input[name=descripcion]").attr("disabled",true);
+		$("input[name=description]").attr("disabled",true);
 	}
 	else
 	{
 		$("input[name=producto]").attr("disabled",false);
-		$("input[name=descripcion]").attr("disabled",false);	
+		$("input[name=description]").attr("disabled",false);	
 	}
 });
 

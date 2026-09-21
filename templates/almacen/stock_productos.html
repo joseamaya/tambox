@@ -46,13 +46,13 @@
                         {{ form.producto }}
                     </div>
                     <div class="col-md-9">
-                        <label for="descripcion">Descripcion de Producto: </label>
-                        {% if form.descripcion.errors %}
-                        {% for error in form.descripcion.errors %}
+                        <label for="description">Descripcion de Producto: </label>
+                        {% if form.description.errors %}
+                        {% for error in form.description.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.descripcion }}
+                        {{ form.description }}
                     </div>
                 </div>
             </div>
@@ -140,11 +140,11 @@ function mostrarPrimeraPagina()
 	mostrarProductos();
 }
 
-$("#id_descripcion").autocomplete({
+$("#id_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'productos:busqueda_productos_descripcion' %}",
-      data: {'descripcion': $("#id_descripcion").val(), 'tipo_busqueda': 'PRODUCTOS'},
+      url: "{% url 'productos:busqueda_productos_description' %}",
+      data: {'description': $("#id_description").val(), 'tipo_busqueda': 'PRODUCTOS'},
       success: function( data )
       {
           response( data );
@@ -155,7 +155,7 @@ $("#id_descripcion").autocomplete({
   select: function( event, ui )
   {
 	$("#id_producto").val(ui.item.codigo);
-	$("#id_descripcion").val(ui.item.label);
+	$("#id_description").val(ui.item.label);
 	return false;
   },
 });
@@ -171,7 +171,7 @@ $("#id_buscar").click(function()
 			url: "{% url 'almacen:listado_stock_producto' %}",
 			data:
 			{
-				'descripcion': $("#id_descripcion").val(),
+				'description': $("#id_description").val(),
 				'desde': $("#id_desde").val(),
 				'almacen': almacen
 			},

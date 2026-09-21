@@ -6,7 +6,7 @@ from productos.models import UnidadMedida, GrupoProductos, Producto
 class UnidadMedidaForm(forms.ModelForm):
     class Meta:
         model = UnidadMedida
-        fields = ['codigo', 'codigo_sunat', 'descripcion']
+        fields = ['codigo', 'codigo_sunat', 'description']
 
     def __init__(self, *args, **kwargs):
         super(UnidadMedidaForm, self).__init__(*args, **kwargs)
@@ -27,7 +27,7 @@ class GrupoProductosForm(forms.ModelForm):
 
     class Meta:
         model = GrupoProductos
-        fields = ['descripcion', 'ctacontable', 'son_productos']
+        fields = ['description', 'ctacontable', 'son_productos']
 
 
 class ProductoForm(forms.ModelForm):
@@ -48,7 +48,7 @@ class ProductoForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['descripcion', 'grupo_productos', 'unidad_medida', 'marca', 'modelo', 'precio', 'tipo_existencia']
+        fields = ['description', 'grupo_productos', 'unidad_medida', 'marca', 'modelo', 'precio', 'tipo_existencia']
 
 
 class ServicioForm(forms.ModelForm):
@@ -66,4 +66,4 @@ class ServicioForm(forms.ModelForm):
 
     class Meta:
         model = Producto
-        fields = ['descripcion', 'grupo_productos', 'precio']
+        fields = ['description', 'grupo_productos', 'precio']

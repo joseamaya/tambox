@@ -43,7 +43,7 @@
             <tr>
                 {% endif %}
                 <td>{{ servicio.codigo }}</td>
-                <td>{{ servicio.descripcion }}</td>
+                <td>{{ servicio.description }}</td>
             </tr>
             {% endfor %}
             </tbody>
@@ -93,12 +93,12 @@ $(document).ready(function()
 	   		{
 	   			if(data.ordenes=='NO')
 	   			{
-	   				alert("Servicio "+data.descripcion+ " eliminado");
+	   				alert("Servicio "+data.description+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.ordenes=='SI')
 	   			{
-	   				alert("Servicio "+data.descripcion+" no puede eliminarse");	
+	   				alert("Servicio "+data.description+" no puede eliminarse");	
 	   			}    			
 	   		}
 	   	});

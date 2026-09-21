@@ -1,6 +1,6 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
-<h3>Impuesto / {{ object.descripcion }}</h3>
+<h3>Impuesto / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.contabilidad.change_impuesto %}
@@ -36,7 +36,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group">

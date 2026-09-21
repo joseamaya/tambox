@@ -33,7 +33,7 @@ class Tablero(View):
         cant_grupos_suministros = GrupoProductos.objects.count()
         cant_servicios = Producto.objects.filter(es_servicio=True).count()
         unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
-                                                                   defaults={'descripcion': 'SERVICIO'})
+                                                                   defaults={'description': 'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
         if cant_productos == 0:
@@ -50,31 +50,31 @@ class Tablero(View):
 
 class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('descripcion', 'tipo_busqueda')
+    parametros_requeridos = ('description', 'tipo_busqueda')
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            descripcion = request.GET['descripcion']
+            description = request.GET['description']
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion).select_related(
-                    'unidad_medida').order_by('descripcion')[:20]
+                productos = Producto.objects.filter(description__icontains=description).select_related(
+                    'unidad_medida').order_by('description')[:20]
             elif tipo_busqueda == 'PRODUCTOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion,
+                productos = Producto.objects.filter(description__icontains=description,
                                                     es_servicio=False).select_related(
-                    'unidad_medida').order_by('descripcion')[:20]
+                    'unidad_medida').order_by('description')[:20]
             elif tipo_busqueda == 'SERVICIOS':
-                productos = Producto.objects.filter(descripcion__icontains=descripcion,
+                productos = Producto.objects.filter(description__icontains=description,
                                                     es_servicio=True).select_related(
-                    'unidad_medida').order_by('descripcion')[:20]
+                    'unidad_medida').order_by('description')[:20]
 
             lista_productos = []
             for producto in productos:
                 producto_json = {}
-                producto_json['label'] = producto.descripcion
+                producto_json['label'] = producto.description
                 producto_json['codigo'] = producto.codigo
-                producto_json['descripcion'] = producto.descripcion
-                producto_json['unidad'] = producto.unidad_medida.descripcion
+                producto_json['description'] = producto.description
+                producto_json['unidad'] = producto.unidad_medida.description
                 producto_json['precio'] = str(producto.precio)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
@@ -94,8 +94,8 @@ class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
                 producto_json = {}
                 producto_json['label'] = producto.codigo
                 producto_json['codigo'] = producto.codigo
-                producto_json['descripcion'] = producto.descripcion
-                producto_json['unidad'] = producto.unidad_medida.descripcion
+                producto_json['description'] = producto.description
+                producto_json['unidad'] = producto.unidad_medida.description
                 producto_json['precio'] = str(producto.precio)
                 lista_productos.append(producto_json)
             data = json.dumps(lista_productos)
@@ -110,7 +110,7 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         try:
             cuenta = CuentaContable.objects.get(cuenta=fila[0])
-            GrupoProductos.objects.get_or_create(descripcion=fila[1],
+            GrupoProductos.objects.get_or_create(description=fila[1],
                                                  defaults={'ctacontable': cuenta})
         except CuentaContable.DoesNotExist:
             pass
@@ -129,7 +129,7 @@ class CargarServicios(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
-        Producto.objects.get_or_create(descripcion=fila[1],
+        Producto.objects.get_or_create(description=fila[1],
                                        defaults={'grupo_productos': grupo,
                                                  'es_servicio': True})
 
@@ -145,13 +145,13 @@ class CargarProductos(CargarCsvMixin, FormView):
             cod_und = fila[2][0:5]
             und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
                                                              defaults={'codigo': cod_und,
-                                                                       'descripcion': fila[2].strip()})
+                                                                       'description': fila[2].strip()})
             if fila[3] != '':
                 precio = fila[3]
             else:
                 precio = 0
             tipo_existencia = TipoExistencia.objects.get(codigo_sunat=fila[4].strip())
-            producto, creado = Producto.objects.get_or_create(descripcion=fila[1].strip(),
+            producto, creado = Producto.objects.get_or_create(description=fila[1].strip(),
                                                               defaults={'unidad_medida': und,
                                                                         'grupo_productos': grupo,
                                                                         'precio': precio,
@@ -286,7 +286,7 @@ class EliminarGrupoProductos(TemplateView):
             grupo_productos = GrupoProductos.objects.get(pk=codigo)
             grupo_productos_json = {}
             grupo_productos_json['codigo'] = grupo_productos.codigo
-            grupo_productos_json['descripcion'] = grupo_productos.descripcion
+            grupo_productos_json['description'] = grupo_productos.description
             if len(grupo_productos.producto_set.all()) > 0:
                 grupo_productos_json['productos'] = 'SI'
             else:
@@ -309,7 +309,7 @@ class EliminarProducto(TemplateView):
             producto = Producto.objects.get(pk=codigo)
             producto_json = {}
             producto_json['codigo'] = producto.codigo
-            producto_json['descripcion'] = producto.descripcion
+            producto_json['description'] = producto.description
             if len(producto.detallerequerimiento_set.all()) > 0:
                 producto_json['relaciones'] = 'SI'
             elif len(producto.detallemovimiento_set.all()) > 0:
@@ -347,7 +347,7 @@ class ListadoUnidadesMedida(ListView):
     model = UnidadMedida
     template_name = 'productos/unidades_medida.html'
     context_object_name = 'unidades'
-    queryset = UnidadMedida.objects.filter(estado=True).order_by('descripcion')
+    queryset = UnidadMedida.objects.filter(estado=True).order_by('description')
 
     @method_decorator(
         requiere('productos.ver_tabla_unidades_medida'))
@@ -359,7 +359,7 @@ class ListadoServicios(ListView):
     model = Producto
     template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
-    queryset = Producto.objects.filter(estado=True, es_servicio=True).order_by('descripcion')
+    queryset = Producto.objects.filter(estado=True, es_servicio=True).order_by('description')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -478,10 +478,10 @@ class ReporteExcelProductos(TemplateView):
         cont = 4
         for producto in productos:
             ws.cell(row=cont, column=2).value = producto.codigo
-            ws.cell(row=cont, column=3).value = producto.descripcion
+            ws.cell(row=cont, column=3).value = producto.description
             ws.cell(row=cont, column=4).value = producto.desc_abreviada
-            ws.cell(row=cont, column=5).value = producto.grupo_productos.descripcion
-            ws.cell(row=cont, column=6).value = producto.unidad_medida.descripcion
+            ws.cell(row=cont, column=5).value = producto.grupo_productos.description
+            ws.cell(row=cont, column=6).value = producto.unidad_medida.description
             ws.cell(row=cont, column=7).value = producto.marca
             ws.cell(row=cont, column=8).value = producto.modelo
             ws.cell(row=cont, column=9).value = producto.precio
@@ -512,7 +512,7 @@ class ReporteExcelGruposProductos(TemplateView):
         cont = 4
         for grupo_productos in grupos_productos:
             ws.cell(row=cont, column=2).value = grupo_productos.codigo
-            ws.cell(row=cont, column=3).value = grupo_productos.descripcion
+            ws.cell(row=cont, column=3).value = grupo_productos.description
             ws.cell(row=cont, column=4).value = grupo_productos.ctacontable.cuenta
             ws.cell(row=cont, column=5).value = grupo_productos.created
             ws.cell(row=cont, column=5).number_format = 'dd/mm/yyyy hh:mm:ss'
@@ -539,7 +539,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
         cont = 4
         for unidad in unidades:
             ws.cell(row=cont, column=2).value = unidad.codigo
-            ws.cell(row=cont, column=3).value = unidad.descripcion
+            ws.cell(row=cont, column=3).value = unidad.description
             ws.cell(row=cont, column=4).value = unidad.estado
             cont = cont + 1
         nombre_archivo = "UnidadesMedida.xlsx"
@@ -564,7 +564,7 @@ class ReporteExcelServicios(TemplateView):
         cont = 4
         for servicio in servicios:
             ws.cell(row=cont, column=2).value = servicio.codigo
-            ws.cell(row=cont, column=3).value = servicio.descripcion
+            ws.cell(row=cont, column=3).value = servicio.description
             ws.cell(row=cont, column=4).value = servicio.estado
             cont = cont + 1
         nombre_archivo = "ListadoServicios.xlsx"

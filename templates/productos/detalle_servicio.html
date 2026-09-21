@@ -1,6 +1,6 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
-<h3>Servicios / {{ object.descripcion }}</h3>
+<h3>Servicios / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.productos.change_servicio %}
@@ -35,7 +35,7 @@
     <div class="panel-body">
         <div class="row">
             <div class="col-lg-7">
-                <h3>{{ object.descripcion }}</h3>
+                <h3>{{ object.description }}</h3>
             </div>
             <div class="col-lg-5">
                 <div class="btn-group">
@@ -113,10 +113,10 @@
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {
-								alert("Producto " + data.descripcion
+								alert("Producto " + data.description
 										+ " eliminado");
 							} else if (data.relaciones == 'SI') {
-								alert("Producto " + data.descripcion
+								alert("Producto " + data.description
 										+ " no puede eliminarse");
 							}
 						}

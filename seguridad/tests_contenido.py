@@ -1,7 +1,7 @@
 """Afirman valores renderizados, no solo que la pagina responda.
 
 Django pinta vacio, sin error, cuando una plantilla referencia un campo que ya no
-existe: `{{ producto.descripcion }}` deja la celda en blanco y `{% if campo %}` se
+existe: `{{ producto.description }}` deja la celda en blanco y `{% if campo %}` se
 vuelve falso. El test que recorre todas las URLs solo ve errores duros, asi que sin
 estos tests un renombrado puede dejar una columna vacia con la suite en verde.
 
@@ -27,9 +27,9 @@ class ContenidoDeLasPaginasTest(TestCase):
             'contenido', 'contenido@example.com', 'clave-segura-123')
         self.client.force_login(self.usuario)
 
-    def test_la_lista_de_productos_muestra_la_descripcion(self):
+    def test_la_lista_de_productos_muestra_la_description(self):
         # El codigo tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
-        baker.make(Producto, codigo='0000000001', descripcion='PRODUCTO-XYZ')
+        baker.make(Producto, codigo='0000000001', description='PRODUCTO-XYZ')
 
         respuesta = self.client.get(reverse('productos:productos'))
 
@@ -37,7 +37,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
     def test_la_lista_de_movimientos_muestra_el_tipo(self):
-        tipo = baker.make(TipoMovimiento, descripcion='TIPO-XYZ')
+        tipo = baker.make(TipoMovimiento, description='TIPO-XYZ')
         baker.make(Movimiento, tipo_movimiento=tipo)
 
         respuesta = self.client.get(reverse('almacen:movimientos'))
@@ -46,7 +46,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'TIPO-XYZ')
 
     def test_el_detalle_de_movimiento_muestra_el_producto(self):
-        producto = baker.make(Producto, descripcion='PRODUCTO-XYZ')
+        producto = baker.make(Producto, description='PRODUCTO-XYZ')
         movimiento = baker.make(Movimiento)
         baker.make('almacen.DetalleMovimiento', movimiento=movimiento, producto=producto)
 
@@ -66,12 +66,12 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_el_detalle_de_requerimiento_muestra_el_producto(self):
         """La vista lee `request.user.trabajador`, asi que el grafo tiene que
         colgar del usuario que navega, no de uno cualquiera."""
-        NivelAprobacion.objects.get_or_create(descripcion='USUARIO')
+        NivelAprobacion.objects.get_or_create(description='USUARIO')
         oficina = baker.make(Oficina)
         trabajador = baker.make(Trabajador, usuario=self.usuario)
         baker.make(Puesto, oficina=oficina, trabajador=trabajador, fecha_fin=None)
         requerimiento = baker.make(Requerimiento, solicitante=trabajador, oficina=oficina)
-        producto = baker.make(Producto, descripcion='PRODUCTO-XYZ')
+        producto = baker.make(Producto, description='PRODUCTO-XYZ')
         baker.make('requerimientos.DetalleRequerimiento',
                    requerimiento=requerimiento, producto=producto)
 
@@ -105,40 +105,40 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'name="incrementa"')
 
-    def test_la_lista_de_unidades_de_medida_muestra_la_descripcion(self):
-        baker.make('productos.UnidadMedida', codigo='UND01', descripcion='UNIDAD-XYZ')
+    def test_la_lista_de_unidades_de_medida_muestra_la_description(self):
+        baker.make('productos.UnidadMedida', codigo='UND01', description='UNIDAD-XYZ')
 
         respuesta = self.client.get(reverse('productos:unidades_medida'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'UNIDAD-XYZ')
 
-    def test_la_lista_de_grupos_de_productos_muestra_la_descripcion(self):
-        baker.make('productos.GrupoProductos', codigo='000001', descripcion='GRUPO-XYZ')
+    def test_la_lista_de_grupos_de_productos_muestra_la_description(self):
+        baker.make('productos.GrupoProductos', codigo='000001', description='GRUPO-XYZ')
 
         respuesta = self.client.get(reverse('productos:grupos_productos'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'GRUPO-XYZ')
 
-    def test_la_lista_de_tipos_de_existencia_muestra_la_descripcion(self):
-        baker.make('contabilidad.TipoExistencia', codigo_sunat='01', descripcion='EXISTENCIA-XYZ')
+    def test_la_lista_de_tipos_de_existencia_muestra_la_description(self):
+        baker.make('contabilidad.TipoExistencia', codigo_sunat='01', description='EXISTENCIA-XYZ')
 
         respuesta = self.client.get(reverse('contabilidad:tipos_existencias'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'EXISTENCIA-XYZ')
 
-    def test_la_lista_de_almacenes_muestra_la_descripcion(self):
-        baker.make('almacen.Almacen', codigo='AL01', descripcion='ALMACEN-XYZ')
+    def test_la_lista_de_almacenes_muestra_la_description(self):
+        baker.make('almacen.Almacen', codigo='AL01', description='ALMACEN-XYZ')
 
         respuesta = self.client.get(reverse('almacen:almacenes'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'ALMACEN-XYZ')
 
-    def test_la_lista_de_tipos_de_movimiento_muestra_la_descripcion(self):
-        baker.make('almacen.TipoMovimiento', codigo='T01', descripcion='MOVIMIENTO-XYZ')
+    def test_la_lista_de_tipos_de_movimiento_muestra_la_description(self):
+        baker.make('almacen.TipoMovimiento', codigo='T01', description='MOVIMIENTO-XYZ')
 
         respuesta = self.client.get(reverse('almacen:tipos_movimientos'))
 

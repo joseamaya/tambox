@@ -27,7 +27,7 @@ class Tablero(View):
         lista_notificaciones = []
         cant_cuentas_contables = CuentaContable.objects.count()
         tipo_documento, creado = TipoDocumento.objects.get_or_create(codigo_sunat='PEC',
-                                                                     defaults={'descripcion': 'PECOSA',
+                                                                     defaults={'description': 'PECOSA',
                                                                                'nombre': 'PECOSA'})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de documento PECOSA")
@@ -44,7 +44,7 @@ class CargarCuentasContables(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
-                                             defaults={'descripcion': fila[1].strip()})
+                                             defaults={'description': fila[1].strip()})
 
 
 class CargarTiposExistencias(CargarCsvMixin, FormView):
@@ -54,7 +54,7 @@ class CargarTiposExistencias(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         TipoExistencia.objects.get_or_create(codigo_sunat=fila[0].strip(),
-                                             defaults={'descripcion': fila[1].strip()})
+                                             defaults={'description': fila[1].strip()})
 
 
 class CargarTiposDocumentos(CargarCsvMixin, FormView):
@@ -65,7 +65,7 @@ class CargarTiposDocumentos(CargarCsvMixin, FormView):
     def procesar_fila(self, fila):
         TipoDocumento.objects.create(codigo_sunat=fila[0],
                                      nombre=fila[1],
-                                     descripcion=fila[1])
+                                     description=fila[1])
 
 
 class CrearFormaPago(CreateView):
@@ -198,7 +198,7 @@ class EliminarFormaPago(TemplateView):
             forma_pago = FormaPago.objects.get(pk=codigo)
             forma_pago_json = {}
             forma_pago_json['codigo'] = forma_pago.codigo
-            forma_pago_json['descripcion'] = forma_pago.descripcion
+            forma_pago_json['description'] = forma_pago.description
             if len(forma_pago.ordencompra_set.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
             elif len(forma_pago.detalleordencompra_set.all()) > 0:
@@ -426,7 +426,7 @@ class ReporteExcelCuentasContables(TemplateView):
         cont = 4
         for cuenta in cuentas:
             ws.cell(row=cont, column=2).value = cuenta.cuenta
-            ws.cell(row=cont, column=3).value = cuenta.descripcion
+            ws.cell(row=cont, column=3).value = cuenta.description
             ws.cell(row=cont, column=4).value = cuenta.depreciacion
             cont = cont + 1
         nombre_archivo = "ListadoCuentasContables.xlsx"
@@ -451,7 +451,7 @@ class ReporteExcelFormasPago(TemplateView):
         cont = 4
         for forma_pago in formas_pago:
             ws.cell(row=cont, column=2).value = forma_pago.codigo
-            ws.cell(row=cont, column=3).value = forma_pago.descripcion
+            ws.cell(row=cont, column=3).value = forma_pago.description
             ws.cell(row=cont, column=4).value = forma_pago.dias_credito
             cont = cont + 1
         nombre_archivo = "ListadoFormasPago.xlsx"
@@ -477,7 +477,7 @@ class ReporteExcelTiposDocumentos(TemplateView):
         for tipo in tipos:
             ws.cell(row=cont, column=2).value = tipo.codigo_sunat
             ws.cell(row=cont, column=3).value = tipo.nombre
-            ws.cell(row=cont, column=4).value = tipo.descripcion
+            ws.cell(row=cont, column=4).value = tipo.description
             cont = cont + 1
         nombre_archivo = "ListadoTiposDocumentos.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

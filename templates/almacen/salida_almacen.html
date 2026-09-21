@@ -393,7 +393,7 @@ $(document).ready(function()
 			{
 				$.ajax({
 				  url: "{% url 'almacen:busqueda_productos_almacen' %}",
-				  data: {'almacen': $("#id_almacen").val(),'descripcion': request.term },
+				  data: {'almacen': $("#id_almacen").val(),'description': request.term },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -406,7 +406,7 @@ $(document).ready(function()
 		    	var id_producto = $(this).prop('id');
 				var id = id_producto.replace("nombre", "");
 				$("#"+id+"codigo").val(ui.item.codigo);
-				$("#"+id+"nombre").val(ui.item.descripcion);
+				$("#"+id+"nombre").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
 				$("#"+id+"precio").val(ui.item.precio);
 				return false;

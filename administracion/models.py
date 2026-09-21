@@ -11,7 +11,7 @@ from simple_history.models import HistoricalRecords
 # Create your models here.
 class Profesion(TimeStampedModel):
     abreviatura = models.CharField(max_length=7)
-    descripcion = models.CharField(max_length=30)
+    description = models.CharField(max_length=30)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -29,10 +29,10 @@ class Profesion(TimeStampedModel):
                        ('cargar_profesiones', 'Puede cargar profesiones desde un archivo externo'),
                        ('ver_tabla_profesiones', 'Puede ver tabla de Profesiones'),
                        ('ver_reporte_profesiones_excel', 'Puede ver Reporte de Profesiones en excel'),)
-        ordering = ['descripcion']
+        ordering = ['description']
 
     def __str__(self):
-        return force_str(self.descripcion)
+        return force_str(self.description)
 
 
 class Trabajador(TimeStampedModel):
@@ -198,13 +198,13 @@ class Puesto(TimeStampedModel):
 
     def establecer_nivel(self, oficina_requerimiento):
         from tambox.configuracion import logistica
-        descripcion = "LOGISTICA" if (self.oficina == logistica() and self.es_jefatura) else "USUARIO"
+        description = "LOGISTICA" if (self.oficina == logistica() and self.es_jefatura) else "USUARIO"
         try:
-            return NivelAprobacion.objects.get(descripcion=descripcion)
+            return NivelAprobacion.objects.get(description=description)
         except NivelAprobacion.DoesNotExist:
             raise ValidationError(
                 'Falta el nivel de aprobacion "%s". Cargalo en Administracion antes de registrar requerimientos.'
-                % descripcion)
+                % description)
 
     class Meta:
         permissions = (('ver_detalle_puesto', 'Puede ver detalle de Puesto'),
@@ -220,13 +220,13 @@ class Puesto(TimeStampedModel):
 
 
 class NivelAprobacion(TimeStampedModel):
-    descripcion = models.CharField(max_length=100)
+    description = models.CharField(max_length=100)
     nivel_superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
     def __str__(self):
-        return force_str(self.descripcion)
+        return force_str(self.description)
 
     def anterior(self):
         ant = NivelAprobacion.objects.anterior(self)
@@ -241,4 +241,4 @@ class NivelAprobacion(TimeStampedModel):
                        ('cargar_niveles_aprobacion', 'Puede cargar niveles de aprobacion desde un archivo externo'),
                        ('ver_tabla_niveles_aprobacion', 'Puede ver tabla de Puestos'),
                        ('ver_reporte_niveles_aprobacion_excel', 'Puede ver Reporte de niveles de aprobacion en excel'),)
-        ordering = ['descripcion']
+        ordering = ['description']

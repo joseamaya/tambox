@@ -44,7 +44,7 @@
             <tr>
                 {% endif %}
                 <td>{{ forma.codigo }}</td>
-                <td>{{ forma.descripcion }}</td>
+                <td>{{ forma.description }}</td>
                 <td>{{ forma.dias_credito }}</td>
             </tr>
             {% endfor %}
@@ -95,12 +95,12 @@ $(document).ready(function()
 	   		{
 	   			if(data.relaciones=='NO')
 	   			{
-	   				alert("Forma de Pago "+data.descripcion+ " eliminado");
+	   				alert("Forma de Pago "+data.description+ " eliminado");
 	   				table.row('.selected').remove().draw(false);
 	   			}
 	   			else if(data.relaciones=='SI')
 	   			{
-	   				alert("Forma de Pago "+data.descripcion+" no puede eliminarse");	
+	   				alert("Forma de Pago "+data.description+" no puede eliminarse");	
 	   			}    			
 	   		}
 	   	});

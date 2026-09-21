@@ -7,7 +7,7 @@ from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
 class NivelAprobacionForm(forms.ModelForm):
     class Meta:
         model = NivelAprobacion
-        fields = ['descripcion', 'nivel_superior']
+        fields = ['description', 'nivel_superior']
 
     def __init__(self, *args, **kwargs):
         super(NivelAprobacionForm, self).__init__(*args, **kwargs)
@@ -21,7 +21,7 @@ class NivelAprobacionForm(forms.ModelForm):
 class ProfesionForm(forms.ModelForm):
     class Meta:
         model = Profesion
-        fields = ['abreviatura', 'descripcion']
+        fields = ['abreviatura', 'description']
 
     def __init__(self, *args, **kwargs):
         super(ProfesionForm, self).__init__(*args, **kwargs)

@@ -1,7 +1,7 @@
 {% extends "contabilidad/base_contabilidad.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Formas de Pago / {{ object.descripcion }}</h3>
+<h3>Formas de Pago / {{ object.description }}</h3>
 {% else %}
 <h3>Formas de Pago / Nuevo</h3>
 {% endif %}
@@ -47,7 +47,7 @@
             <div class="row">
                 <div class="col-lg-7">
                     <label>DESCRIPCIÓN:</label>
-                    <p>{{ form.descripcion }}</p>
+                    <p>{{ form.description }}</p>
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group"></div>
