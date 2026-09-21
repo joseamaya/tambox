@@ -6,7 +6,7 @@ from datetime import date
 
 
 # Create your tests here.
-class ProveedorTest(TestCase):
+class SupplierTest(TestCase):
 
     def setUp(self):
         self.p1 = baker.make(Supplier)
@@ -32,7 +32,7 @@ class ProveedorTest(TestCase):
         self.assertEqual(self.p3.pk, self.p1.previous())
 
 
-class RepresentanteLegalTest(TestCase):
+class LegalRepresentativeTest(TestCase):
 
     def setUp(self):
         self.rl1 = baker.make(LegalRepresentative)
@@ -42,7 +42,7 @@ class RepresentanteLegalTest(TestCase):
         self.assertEqual(self.rl1.__str__(), self.rl1.name)
 
 
-class CotizacionTest(TestCase):
+class QuotationTest(TestCase):
 
     def setUp(self):
         self.current_date = date.today()
@@ -88,7 +88,7 @@ class CotizacionTest(TestCase):
         pass
 
 
-class ReporteXLSOrdenCompraTest(TestCase):
+class PurchaseOrderXlsReportTest(TestCase):
     """Ejecuta el armado del libro de Excel. `manage.py check` no ejecuta
     cuerpos de funcion, asi que sin esto un nombre sin importar en la funcion
     solo se descubriria al descargar el reporte."""
@@ -105,7 +105,7 @@ class ReporteXLSOrdenCompraTest(TestCase):
         self.assertIsNotNone(libro.active)
 
 
-class ReportesPDFTest(TestCase):
+class PdfReportsTest(TestCase):
     """Genera cada PDF de verdad. Los metodos de dibujado se movieron fuera de
     las vistas sin cambios, y ninguna comprobacion estatica garantiza que las
     llamadas encadenadas sigan funcionando: hay que ejecutarlas."""
@@ -140,7 +140,7 @@ class ReportesPDFTest(TestCase):
         self.assertTrue(contenido.startswith(b'%PDF'))
 
 
-class EstadosDeDetalleTest(TestCase):
+class DetailStatusesTest(TestCase):
     """Estos metodos solo leen campos de la instance, asi que no hace falta
     tocar la base de datos, y fijan la regla compartida de classify()."""
 
@@ -171,7 +171,7 @@ class EstadosDeDetalleTest(TestCase):
                          ServiceOrderDetail.STATUS.CONF)
 
 
-class TotalesDeOrdenCompraTest(TestCase):
+class PurchaseOrderTotalsTest(TestCase):
     """`total` y `total_in_words` encadenan `subtotal` e `tax`, y las
     plantillas las invocan mas de una vez: sin memorizar se repiten las
     consultas. No se convierten en agregados SQL porque redondean fila a row."""

@@ -285,7 +285,7 @@ class StockTypeList(ListView):
 class PaymentMethodList(ListView):
     model = PaymentMethod
     template_name = 'contabilidad/formas_pago.html'
-    context_object_name = 'formas_pago'
+    context_object_name = 'payment_methods'
     paginate_by = 10
     queryset = PaymentMethod.objects.order_by('code')
 
@@ -418,7 +418,7 @@ class AccountExcelReport(TemplateView):
         accounts = Account.objects.all().order_by('account_number')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
+        ws['B1'] = 'REPORTE DE ONES DE MEDIDA'
         ws.merge_cells('B1:J1')
         ws['B3'] = 'CUENTA'
         ws['C3'] = 'DESCRIPCIÓN'
@@ -440,7 +440,7 @@ class AccountExcelReport(TemplateView):
 class PaymentMethodExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        formas_pago = PaymentMethod.objects.all().order_by('code')
+        payment_methods = PaymentMethod.objects.all().order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE FORMAS DE PAGO'
@@ -449,7 +449,7 @@ class PaymentMethodExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'DIAS_CREDITO'
         cont = 4
-        for payment_method in formas_pago:
+        for payment_method in payment_methods:
             ws.cell(row=cont, column=2).value = payment_method.code
             ws.cell(row=cont, column=3).value = payment_method.description
             ws.cell(row=cont, column=4).value = payment_method.credit_days

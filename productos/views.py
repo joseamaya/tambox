@@ -142,9 +142,9 @@ class ProductImport(CsvImportMixin, FormView):
     def process_row(self, row):
         try:
             group = ProductGroup.objects.get(code=row[0].strip())
-            cod_und = row[2][0:5]
-            und, creado = UnitOfMeasure.objects.get_or_create(code=cod_und.strip(),
-                                                             defaults={'code': cod_und,
+            unit_code = row[2][0:5]
+            und, creado = UnitOfMeasure.objects.get_or_create(code=unit_code.strip(),
+                                                             defaults={'code': unit_code,
                                                                        'description': row[2].strip()})
             if row[3] != '':
                 price = row[3]
@@ -333,14 +333,14 @@ class ServiceDelete(TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             code = request.POST['code']
             service = Product.objects.get(code=code)
-            servicio_json = {}
-            servicio_json['code'] = code
+            service_json = {}
+            service_json['code'] = code
             if len(service.service_order_details.all()) > 0:
-                servicio_json['orders'] = 'SI'
+                service_json['orders'] = 'SI'
             else:
-                servicio_json['orders'] = 'NO'
+                service_json['orders'] = 'NO'
                 Product.objects.filter(code=code).update(is_active=False)
-            data = simplejson.dumps(servicio_json)
+            data = simplejson.dumps(service_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -533,7 +533,7 @@ class UnitOfMeasureExcelReport(TemplateView):
         units = UnitOfMeasure.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
-        ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
+        ws['B1'] = 'REPORTE DE ONES DE MEDIDA'
         ws.merge_cells('B1:J1')
         ws['B3'] = 'UNIDAD'
         ws['C3'] = 'DESCRIPCIÓN'

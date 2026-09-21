@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tambox.mail import enviar_correo
+from tambox.mail import send_mail
 
 
 def requirement_creation_mail(destinatario, requirement):
@@ -13,4 +13,4 @@ def requirement_creation_mail(destinatario, requirement):
     Saludos. 
     ''' % (
     requirement.code, requirement.requester.full_name(), requirement.created.strftime('%d/%m/%Y'))
-    enviar_correo([destinatario], asunto, cuerpo)
+    send_mail([destinatario], asunto, cuerpo)

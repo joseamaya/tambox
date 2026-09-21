@@ -11,7 +11,7 @@ from almacen.models import MovementType, Warehouse
 
 PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
-MESES = (
+MONTHS = (
     ('01', 'ENERO'),
     ('02', 'FEBRERO'),
     ('03', 'MARZO'),
@@ -26,7 +26,7 @@ MESES = (
     ('12', 'DICIEMBRE'),
 )
 
-FORMATOS_SUNAT = (('S', 'UNIDADES FISICAS',), ('V', 'VALORIZADO',))
+FORMATOS_SUNAT = (('S', 'ONES FISICAS',), ('V', 'VALORIZADO',))
 FORMATOS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
 SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
 CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))

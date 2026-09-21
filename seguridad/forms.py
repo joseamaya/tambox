@@ -32,14 +32,14 @@ class PasswordChangeForm(forms.Form):
         return self.cleaned_data['password_confirmation']
 
     def clean(self):
-        usuario = self.request.user
+        user = self.request.user
         old_password = self.cleaned_data.get('old_password')
         new_password = self.cleaned_data.get('new_password')
         password_confirmation = self.cleaned_data.get('password_confirmation')
         if old_password and new_password and password_confirmation:
             new_password = self.clean_password_nueva()
-            usuario.set_password(new_password)
-            usuario.save()
+            user.set_password(new_password)
+            user.save()
             logout(self.request)
 
 

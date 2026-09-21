@@ -49,9 +49,9 @@ class PurchaseOrderReport():
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
-        nro = Paragraph(u"ORDEN DE COMPRA", sp)
+        number = Paragraph(u"ORDEN DE COMPRA", sp)
         tax_id = Paragraph("R.U.C." + company().tax_id, sp)
-        encabezado = [[image, nro, tax_id], ['', u"N°" + purchase_order.code,
+        encabezado = [[image, number, tax_id], ['', u"N°" + purchase_order.code,
                                            company().district + " " + purchase_order.date.strftime('%d de %b de %Y')]]
         header_table = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         header_table.setStyle(TableStyle(
@@ -753,7 +753,7 @@ class ServiceConformityMemoPdf(object):
         pdf.drawString(430, 780, company().district + " " + conformity.date.strftime('%d de %b de %Y'))
         pdf.drawString(475, 710, conformity.service_order.code)
         requirement = conformity.service_order.quotation.requirement
-        gerencia_inmediata = requirement.office.management
+        immediate_management = requirement.office.management
         requester = requirement.requester
         requester_position = requester.position
         if requester_position is None:
@@ -766,7 +766,7 @@ class ServiceConformityMemoPdf(object):
         elif requester_position.office.code == 'GOPE' and not requester_position.is_leadership:
             management_position = self.get_position(requirement.office, conformity)
         else:
-            management_position = self.get_position(gerencia_inmediata, conformity)
+            management_position = self.get_position(immediate_management, conformity)
         gerente = management_position.worker
         if management_position.pk == immediate_boss_position.pk or immediate_boss_position.pk == requester_position.pk:
             pdf.drawString(50, y, u"A           :    " + gerente.full_name())

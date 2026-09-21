@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tambox.mail import enviar_correo
+from tambox.mail import send_mail
 
 
 def order_creation_mail(destinatario, order):
@@ -12,4 +12,4 @@ def order_creation_mail(destinatario, order):
     http://172.20.30.29/tambox \n
     Saludos. 
     ''' % (order.code, order.requester.full_name(), order.date.strftime('%d/%m/%Y'))
-    enviar_correo([destinatario], asunto, cuerpo)
+    send_mail([destinatario], asunto, cuerpo)

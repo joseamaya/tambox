@@ -2,10 +2,10 @@
 <h3>Formas de Pago / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.contabilidad.change_forma_pago %} <a class="btn btn-primary"
+        {% if perms.contabilidad.change_paymentmethod %} <a class="btn btn-primary"
                                                          href="{% url 'contabilidad:payment_method_update' object.pk %}">
         Editar
-    </a> {% endif %} {% if perms.contabilidad.delete_forma_pago %}
+    </a> {% endif %} {% if perms.contabilidad.delete_paymentmethod %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

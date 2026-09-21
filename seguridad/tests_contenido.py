@@ -20,12 +20,12 @@ from productos.models import Product
 from requerimientos.models import Requirement
 
 
-class ContenidoDeLasPaginasTest(TestCase):
+class PageContentTest(TestCase):
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser(
+        self.user = User.objects.create_superuser(
             'contenido', 'contenido@example.com', 'key-segura-123')
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
 
     def test_lists_products_shows_description(self):
         # El code tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
@@ -68,7 +68,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         colgar del usuario que navega, no de uno cualquiera."""
         ApprovalLevel.objects.get_or_create(description='USUARIO')
         office = baker.make(Office)
-        worker = baker.make(Worker, user=self.usuario)
+        worker = baker.make(Worker, user=self.user)
         baker.make(Position, office=office, worker=worker, end_date=None)
         requirement = baker.make(Requirement, requester=worker, office=office)
         product = baker.make(Product, description='PRODUCTO-XYZ')

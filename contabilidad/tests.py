@@ -5,7 +5,7 @@ from contabilidad.models import Account, PaymentMethod, DocumentType, Type, \
 
 
 # Create your tests here.
-class TestCuentaContable(TestCase):
+class AccountTest(TestCase):
 
     def setUp(self):
         self.c1 = baker.make(Account)
@@ -31,7 +31,7 @@ class TestCuentaContable(TestCase):
         self.assertEqual(self.c3.pk, self.c1.previous())
 
 
-class TestFormaPago(TestCase):
+class PaymentMethodTest(TestCase):
 
     def setUp(self):
         self.fp1 = baker.make(PaymentMethod)
@@ -57,7 +57,7 @@ class TestFormaPago(TestCase):
         self.assertEqual(self.fp3.pk, self.fp1.previous())
 
 
-class TestTipoDocumento(TestCase):
+class DocumentTypeTest(TestCase):
 
     def setUp(self):
         self.td1 = baker.make(DocumentType)
@@ -83,7 +83,7 @@ class TestTipoDocumento(TestCase):
         self.assertEqual(self.td3.pk, self.td1.previous())
 
 
-class TestTipo(TestCase):
+class TypeTest(TestCase):
 
     def setUp(self):
         self.t1 = baker.make(Type)
@@ -93,7 +93,7 @@ class TestTipo(TestCase):
         self.assertEqual(self.t1.__str__(), self.t1.value_description)
 
 
-class TestImpuesto(TestCase):
+class TaxTest(TestCase):
 
     def setUp(self):
         self.imp1 = baker.make(Tax)
@@ -119,7 +119,7 @@ class TestImpuesto(TestCase):
         self.assertEqual(self.imp3.pk, self.imp1.previous())
 
 
-class TestEmpresa(TestCase):
+class CompanyTest(TestCase):
 
     def setUp(self):
         self.emp1 = baker.make(Company)
@@ -137,7 +137,7 @@ class TestEmpresa(TestCase):
         self.assertEqual(address, self.emp1.address())
 
 
-class TestTipoExistencia(TestCase):
+class StockTypeTest(TestCase):
 
     def setUp(self):
         self.te1 = baker.make(StockType)

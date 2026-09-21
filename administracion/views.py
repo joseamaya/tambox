@@ -131,14 +131,14 @@ class WorkerImport(CsvImportMixin, FormView):
     success_url = reverse_lazy('administracion:worker_list')
 
     def process_row(self, row):
-        usuario_hoja = row[0]
-        if usuario_hoja != "":
-            usuario, creado = User.objects.get_or_create(username=usuario_hoja,
+        sheet_user = row[0]
+        if sheet_user != "":
+            user, creado = User.objects.get_or_create(username=sheet_user,
                                                          defaults={'email': row[5]}, )
             if creado:
-                usuario.set_unusable_password()
-                usuario.save()
-                Worker.objects.get_or_create(user=usuario,
+                user.set_unusable_password()
+                user.save()
+                Worker.objects.get_or_create(user=user,
                                                  defaults={'dni': row[1].strip(),
                                                            'last_name': (row[2] + ' ' + row[3]).strip(),
                                                            'first_name': row[4]})

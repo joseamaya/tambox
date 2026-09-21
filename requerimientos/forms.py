@@ -31,8 +31,8 @@ class RequirementApprovalForm(forms.ModelForm):
                 raise ValidationError("No existe el puesto superior, imposible continuar.")
 
     def save(self, *args, **kwargs):
-        usuario = self.request.user
-        user_position = usuario.worker.position
+        user = self.request.user
+        user_position = user.worker.position
         requirement_office = self.instance.requirement.office
         self.instance.level = user_position.set_level(requirement_office)
         return super(RequirementApprovalForm, self).save(*args, **kwargs)

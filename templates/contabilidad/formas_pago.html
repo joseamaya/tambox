@@ -37,15 +37,15 @@
             </tr>
             </thead>
             <tbody>
-            {% for forma in formas_pago %}
+            {% for payment_method in payment_methods %}
             {% if perms.almacen.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'contabilidad:payment_method_detail' forma.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:payment_method_detail' payment_method.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ forma.code }}</td>
-                <td>{{ forma.description }}</td>
-                <td>{{ forma.credit_days }}</td>
+                <td>{{ payment_method.code }}</td>
+                <td>{{ payment_method.description }}</td>
+                <td>{{ payment_method.credit_days }}</td>
             </tr>
             {% endfor %}
             </tbody>

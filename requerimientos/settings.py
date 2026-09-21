@@ -6,7 +6,7 @@ Los valores que salen de la base de datos viven en tambox.config.
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
 
-CHOICES_MESES = Choices((1, _('ENERO')),
+MONTH_CHOICES = Choices((1, _('ENERO')),
                         (2, _('FEBRERO')),
                         (3, _('MARZO')),
                         (4, _('ABRIL')),
@@ -20,7 +20,7 @@ CHOICES_MESES = Choices((1, _('ENERO')),
                         (12, _('DICIEMBRE')),
                         )
 
-CHOICES_ESTADO_REQ = Choices(('PEND', _('PENDIENTE')),
+REQUIREMENT_STATUS_CHOICES = Choices(('PEND', _('PENDIENTE')),
                              ('COTIZ', _('COTIZADO')),
                              ('COTIZ_PARC', _('COTIZADO PARCIALMENTE')),
                              ('COMP', _('COMPRADO')),
@@ -30,7 +30,7 @@ CHOICES_ESTADO_REQ = Choices(('PEND', _('PENDIENTE')),
                              ('CANC', _('CANCELADO')),
                              )
 
-CHOICES_JEFATURA = Choices(('APROB_JEF', _('APROBADO JEFATURA')),
+LEADERSHIP_CHOICES = Choices(('APROB_JEF', _('APROBADO JEFATURA')),
                            ('DESAP_JEF', _('DESAPROBADO JEFATURA')))
 
 CHOICES_GER_INM = Choices(('APROB_GER_INM', _('APROBADO GERENCIA INMEDIATA')),

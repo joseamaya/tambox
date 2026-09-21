@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
-MESES = (
+MONTHS = (
     (1, 'ENERO'),
     (2, 'FEBRERO'),
     (3, 'MARZO'),
@@ -24,7 +24,7 @@ MESES = (
     (12, 'DICIEMBRE'),
 )
 
-CHOICES_ESTADO_COTIZ = Choices(('PEND', _('PENDIENTE')),
+QUOTATION_STATUS_CHOICES = Choices(('PEND', _('PENDIENTE')),
                                ('ELEG', _('ELEGIDA')),
                                ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
                                ('DESC', _('DESCARTADA')),

@@ -3,10 +3,10 @@
 <h3>Servicios / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.change_servicio %}
+        {% if perms.productos.change_product %}
         <a class="btn btn-primary" href="{% url 'productos:service_update' object.pk %}"> Editar </a>
         {% endif %}
-        {% if perms.productos.delete_servicio %}
+        {% if perms.productos.delete_product %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

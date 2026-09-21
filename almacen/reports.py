@@ -309,7 +309,7 @@ class KardexPdfReport():
         if valued:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
 
         encabezado = [[image, titulo]]
         header_table = Table(encabezado, colWidths=[2 * cm, 23 * cm])
@@ -986,7 +986,7 @@ class KardexPdfReport():
         if self.valued:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
+            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
         page = u"Página " + str(doc.page) + " de " + str(self.total_pages)
         encabezado = [[image, titulo, page], [company_tax_id, "", ""]]
         header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
@@ -1108,7 +1108,7 @@ class KardexExcelReport():
         ws.column_dimensions["N"].width = 15
         ws.column_dimensions["O"].width = 15
 
-        ws['D1'] = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
+        ws['D1'] = u'REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS'
         ws.merge_cells('D1:G1')
         ws['B3'] = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y')
         ws.merge_cells('B3:E3')
@@ -1576,7 +1576,7 @@ class KardexExcelReport():
         ws.column_dimensions["M"].width = 15
         ws.column_dimensions["N"].width = 15
         ws.column_dimensions["O"].width = 15
-        ws.cell(row=cont, column=4).value = u'REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS'
+        ws.cell(row=cont, column=4).value = u'REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS'
         ws.merge_cells(start_row=cont, start_column=4, end_row=cont, end_column=8)
         cont = cont + 1
         ws.cell(row=cont, column=2).value = "PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime(
@@ -2167,12 +2167,12 @@ class KardexExcelReport():
         ws['L3'] = 'PRE. TOT'
         ws['M3'] = 'VALOR. TOT'
         cont = 4
-        last_records = Kardex.last_by_product([prod.product_id for prod in productos],
+        last_records = Kardex.last_by_product([product.product_id for product in productos],
                                               before=start_date, warehouse=warehouse)
-        self.kardex_batch = Product.kardex_by_batch([prod.product_id for prod in productos],
+        self.kardex_batch = Product.kardex_by_batch([product.product_id for product in productos],
                                                     warehouse, start_date, end_date)
-        for prod in productos:
-            product = prod.product
+        for product in productos:
+            product = product.product
             ws.cell(row=cont, column=2).value = 'Codigo: ' + product.code
             ws.merge_cells(start_row=cont, start_column=2, end_row=cont, end_column=3)
             ws.cell(row=cont, column=4).value = u" Denominación: " + product.description

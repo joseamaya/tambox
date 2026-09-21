@@ -6,7 +6,7 @@ from productos.models import Product
 from requerimientos.querysets import RequirementQuerySet, RequirementApprovalQuerySet
 from django.core.validators import MaxValueValidator
 from datetime import date
-from requerimientos.settings import CHOICES_MESES, CHOICES_ESTADO_REQ
+from requerimientos.settings import MONTH_CHOICES, REQUIREMENT_STATUS_CHOICES
 from tambox.statuses import classify, PARTIAL, EMPTY
 from tambox.config import administration_office, budget, logistics, operations
 from simple_history.models import HistoricalRecords
@@ -21,12 +21,12 @@ class Requirement(TimeStampedModel):
     reason = models.CharField(max_length=100, blank=True)
     date = models.DateField()
     received_date = models.DateField(null=True)
-    month = models.IntegerField(choices=CHOICES_MESES)
+    month = models.IntegerField(choices=MONTH_CHOICES)
     year = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     notes = models.TextField()
     report = models.FileField(upload_to='informes', null=True)
     direct_delivery_to_requester = models.BooleanField(default=False)
-    STATUS = CHOICES_ESTADO_REQ
+    STATUS = REQUIREMENT_STATUS_CHOICES
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
     objects = RequirementQuerySet.as_manager()
@@ -56,24 +56,24 @@ class Requirement(TimeStampedModel):
         la cache. Se memoriza porque la maquina de estados y las plantillas lo
         invocan varias veces.
         """
-        if not hasattr(self, '_total_calculado'):
-            self._total_calculado = sum(detail.quantity
+        if not hasattr(self, '_calculated_total'):
+            self._calculated_total = sum(detail.quantity
                                         for detail in self.details.all())
-        return self._total_calculado
+        return self._calculated_total
 
     @property
     def total_quoted(self):
-        if not hasattr(self, '_total_cotizado_calculado'):
-            self._total_cotizado_calculado = sum(detail.quoted_quantity
+        if not hasattr(self, '_calculated_quoted_total'):
+            self._calculated_quoted_total = sum(detail.quoted_quantity
                                                  for detail in self.details.all())
-        return self._total_cotizado_calculado
+        return self._calculated_quoted_total
 
     @property
     def total_purchased(self):
-        if not hasattr(self, '_total_comprado_calculado'):
-            self._total_comprado_calculado = sum(detail.purchased_quantity
+        if not hasattr(self, '_calculated_purchased_total'):
+            self._calculated_purchased_total = sum(detail.purchased_quantity
                                                  for detail in self.details.all())
-        return self._total_comprado_calculado
+        return self._calculated_purchased_total
 
     def __str__(self):
         return self.code
@@ -129,12 +129,12 @@ class Requirement(TimeStampedModel):
         code = 'RQ' + str(year) + correlativo
         return code
 
-    def check_access(self, usuario, administration_office, logistics, budget):
+    def check_access(self, user, administration_office, logistics, budget):
         requester = self.requester
-        worker = usuario.worker
+        worker = user.worker
         user_position = worker.position
         user_office = user_position.office
-        if (usuario.is_staff
+        if (user.is_staff
                 or requester == worker
                 or (user_office == self.office and user_position.is_leadership)
                 or ((user_office == self.office.management
@@ -146,20 +146,20 @@ class Requirement(TimeStampedModel):
             return False
 
     @staticmethod
-    def get_visible_requirements(usuario):
+    def get_visible_requirements(user):
         try:
-            worker = usuario.worker
+            worker = user.worker
             user_position = worker.position
             user_office = user_position.office
             if (((
                          user_office == administration_office() or user_office == budget()) and user_position.is_leadership) or
                     (user_office == logistics() and (user_position.is_leadership or user_position.is_assistant)) or
-                    usuario.is_staff):
+                    user.is_staff):
                 queryset = Requirement.objects.all()
             elif user_position.is_leadership:
                 queryset = Requirement.objects.office_user_requirements(user_office)
             else:
-                queryset = Requirement.objects.active_requirements_by_user(usuario, Requirement.STATUS.CANC)
+                queryset = Requirement.objects.active_requirements_by_user(user, Requirement.STATUS.CANC)
         except (AttributeError, ObjectDoesNotExist):
             queryset = []
         return queryset
@@ -219,7 +219,7 @@ class RequirementDetail(TimeStampedModel):
     quoted_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    STATUS = CHOICES_ESTADO_REQ
+    STATUS = REQUIREMENT_STATUS_CHOICES
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
@@ -281,8 +281,8 @@ class RequirementApproval(TimeStampedModel):
     def __str__(self):
         return str(self.pk)
 
-    def check_approval_access(self, usuario):
-        user_position = usuario.worker.position
+    def check_approval_access(self, user):
+        user_position = user.worker.position
         requirement_office = self.requirement.office
         current_level = user_position.set_level(requirement_office)
         previous_level = current_level.superior.all()[0]
@@ -311,8 +311,8 @@ class RequirementApproval(TimeStampedModel):
         return office
 
     @staticmethod
-    def get_pending_approvals(usuario):
-        user_position = usuario.worker.position
+    def get_pending_approvals(user):
+        user_position = user.worker.position
         user_office = user_position.office
         queryset = []
         if user_office == logistics() and user_position.is_leadership:

@@ -10,8 +10,8 @@ class PreviousQuerySet(models.query.QuerySet):
 
 
 class RequirementQuerySet(NavigableQuerySet, PreviousQuerySet):
-    def active_requirements_by_user(self, usuario, status):
-        return self.filter(requester__user=usuario).exclude(status=status).order_by('code')
+    def active_requirements_by_user(self, user, status):
+        return self.filter(requester__user=user).exclude(status=status).order_by('code')
 
     def update_requirement(self, code):
         return self.filter(code=code).update(status=False)

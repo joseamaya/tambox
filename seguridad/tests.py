@@ -9,10 +9,10 @@ from almacen.forms import MovementReportForm
 from seguridad.permisos import declared_permissions
 
 
-class AutorizacionTestCase(TestCase):
+class AuthorizationTestCase(TestCase):
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser('verificador', 'verificador@example.com', 'key-segura-123')
+        self.user = User.objects.create_superuser('verificador', 'verificador@example.com', 'key-segura-123')
 
     def test_accounting_requires_login(self):
         self.client.logout()
@@ -29,7 +29,7 @@ class AutorizacionTestCase(TestCase):
             self.assertIn('/?next=', respuesta['Location'], url)
 
     def test_delete_by_get_not_allowed(self):
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
         for url in ['/almacen/warehouse_delete/',
                     '/almacen/movement_delete/',
                     '/almacen/order_delete/',
@@ -49,7 +49,7 @@ class AutorizacionTestCase(TestCase):
             self.assertEqual(respuesta.status_code, 405, 'GET permitido en: ' + url)
 
     def test_logout_requires_post(self):
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
         self.assertEqual(self.client.get('/logout').status_code, 405)
         self.assertEqual(self.client.post('/logout').status_code, 302)
 
@@ -77,7 +77,7 @@ class AutorizacionTestCase(TestCase):
 class RenderTestCase(TestCase):
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser('humo', 'humo@example.com', 'key-segura-456')
+        self.user = User.objects.create_superuser('humo', 'humo@example.com', 'key-segura-456')
 
     def test_login_renders(self):
         respuesta = self.client.get('/')
@@ -85,12 +85,12 @@ class RenderTestCase(TestCase):
         self.assertContains(respuesta, 'TAMBOX')
 
     def test_page_authenticated_renders(self):
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
         respuesta = self.client.get('/home/')
         self.assertEqual(respuesta.status_code, 200)
 
     def test_lists_render(self):
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
         for url in ['/contabilidad/tax_list/',
                     '/contabilidad/payment_method_list/',
                     '/administracion/dashboard/',
@@ -101,7 +101,7 @@ class RenderTestCase(TestCase):
                 self.assertContains(respuesta, 'TAMBOX', status_code=200)
 
 
-class OpcionesDeFormularioTestCase(TestCase):
+class FormOptionsTestCase(TestCase):
     """Las opciones que salen de la base de datos se leen al construir el
     formulario, no al importar el modulo: antes quedaban congeladas y un almacén
     nuevo no aparecia en el desplegable hasta reiniciar el process."""
@@ -174,7 +174,7 @@ class URLsProtegidasTest(TestCase):
                          'Cambio el conjunto de vistas publicas sin login')
 
 
-class PermisosDeclaradosTest(TestCase):
+class DeclaredPermissionsTest(TestCase):
     """Los permisos se piden por cadena, asi que uno mal escrito no rompe nada:
     deniega a todo el mundo en silencio. El registro de `seguridad.permisos`
     hace que se puedan comprobar."""
@@ -213,9 +213,9 @@ class TodasLasPaginasTest(TestCase):
     }
 
     def setUp(self):
-        self.usuario = User.objects.create_superuser('navegante', 'navegante@example.com',
+        self.user = User.objects.create_superuser('navegante', 'navegante@example.com',
                                                      'key-segura-123')
-        self.client.force_login(self.usuario)
+        self.client.force_login(self.user)
 
     def test_none_page_responds_500(self):
         fallos = {}
@@ -235,7 +235,7 @@ class TodasLasPaginasTest(TestCase):
         self.assertEqual(sorted(fallos), sorted(self.PENDIENTES))
 
 
-class ErroresDeFormularioTest(TestCase):
+class FormErrorsTest(TestCase):
     """Los bloques de error de los formularios son dos includes compartidos.
 
     El test de paginas no ejerce este caso: pide los formularios sin errores, y
@@ -256,7 +256,7 @@ class ErroresDeFormularioTest(TestCase):
         self.assertContains(respuesta, 'alert-danger')
 
 
-class MensajesEnPantallaTest(TestCase):
+class OnScreenMessagesTest(TestCase):
     """`base.html` no pintaba los mensajes: el context processor estaba puesto,
     pero los `messages.error` del proyecto se perdian y el usuario no se
     enteraba de que un guardado habia fallado."""

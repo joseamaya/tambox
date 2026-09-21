@@ -5,13 +5,13 @@ from requerimientos.models import RequirementDetail, Requirement, \
 
 
 # Register your models here.
-class FilaDetalleRequerimientoAdmin(admin.TabularInline):
+class RequirementDetailRowAdmin(admin.TabularInline):
     model = RequirementDetail
 
 
-class DetallesRequerimientoAdmin(admin.ModelAdmin):
-    inlines = [FilaDetalleRequerimientoAdmin]
+class RequirementDetailsAdmin(admin.ModelAdmin):
+    inlines = [RequirementDetailRowAdmin]
 
 
-admin.site.register(Requirement, DetallesRequerimientoAdmin)
+admin.site.register(Requirement, RequirementDetailsAdmin)
 admin.site.register(RequirementApproval)

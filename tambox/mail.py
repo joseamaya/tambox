@@ -24,7 +24,7 @@ except Exception as exc:
     connection = None
 
 
-def enviar_correo(destinatario, asunto, cuerpo):
+def send_mail(destinatario, asunto, cuerpo):
     email = EmailMessage()
     email.subject = asunto
     email.body = cuerpo

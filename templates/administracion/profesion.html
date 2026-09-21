@@ -84,12 +84,12 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <label>USUARIO:</label>
-                            {% if form.usuario.errors %}
-                            {% for error in form.usuario.errors %}
+                            {% if form.user.errors %}
+                            {% for error in form.user.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.usuario }}</p>
+                            <p>{{ form.user }}</p>
                         </div>
                     </div>
                 </div>

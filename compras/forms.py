@@ -3,7 +3,7 @@ from django import forms
 from compras.models import Supplier, Quotation, PurchaseOrder, ServiceOrder, ServiceConformity
 from django.forms import formsets
 from requerimientos.models import Requirement
-from almacen.settings import MESES
+from almacen.settings import MONTHS
 from compras.settings import PARAMETROS_BUSQUEDA
 from django.core.exceptions import ValidationError
 
@@ -67,7 +67,7 @@ class OrderDateReportForm(forms.Form):
                                    label='Fecha de Inicio:', required=False)
     end_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                 label='Fecha de Fin:', required=False)
-    month = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
 

@@ -5,28 +5,28 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 
-class EmpresaResource(resources.ModelResource):
+class CompanyResource(resources.ModelResource):
     class Meta:
         model = Company
 
 
-class EmpresaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+class CompanyAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     search_fields = ['business_name', 'tax_id', 'province']
     list_display = ('business_name', 'tax_id', 'place', 'district', 'province')
-    resource_class = EmpresaResource
+    resource_class = CompanyResource
 
 
-class TipoExistenciaResource(resources.ModelResource):
+class StockTypeResource(resources.ModelResource):
     class Meta:
         model = StockType
 
 
-class TipoExistenciaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+class StockTypeAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     search_fields = ['sunat_code', 'description']
     list_display = ('sunat_code', 'description')
-    resource_class = TipoExistenciaResource
+    resource_class = StockTypeResource
 
 
 # Register your models here.
-admin.site.register(Company, EmpresaAdmin)
-admin.site.register(StockType, TipoExistenciaAdmin)
+admin.site.register(Company, CompanyAdmin)
+admin.site.register(StockType, StockTypeAdmin)

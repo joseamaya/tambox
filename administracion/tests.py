@@ -6,7 +6,7 @@ from model_bakery import baker
 from datetime import date
 
 """
- class ProfesionTest(TestCase):
+ class ProfessionTest(TestCase):
     fixtures = ['usuarios.json']
 
     def test_list_professions_view(self):
@@ -30,7 +30,7 @@ from datetime import date
 
 
 # Create your tests here.
-class ProfesionTest(TestCase):
+class ProfessionTest(TestCase):
 
     def setUp(self):
         self.p1 = baker.make(Profession)
@@ -54,7 +54,7 @@ class ProfesionTest(TestCase):
         self.assertEqual(self.p3.pk, self.p1.previous())
 
 
-class TrabajadorTest(TestCase):
+class WorkerTest(TestCase):
 
     def setUp(self):
         self.t1 = baker.make(Worker)
@@ -87,7 +87,7 @@ class TrabajadorTest(TestCase):
                          t.profession.abbreviation + ' ' + t.first_name + ' ' + t.last_name)
 
 
-class OficinaTest(TestCase):
+class OfficeTest(TestCase):
 
     def setUp(self):
         self.o1 = baker.make(Office)
@@ -111,7 +111,7 @@ class OficinaTest(TestCase):
         self.assertEqual(self.o3, self.o1.previous())
 
 
-class PuestoTest(TestCase):
+class PositionTest(TestCase):
 
     def setUp(self):
         self.p1 = baker.make(Position)
@@ -140,7 +140,7 @@ class PuestoTest(TestCase):
         self.assertFalse(p.is_active)
 
 
-class EstablecerNivelTest(TestCase):
+class SetLevelTest(TestCase):
     """Sin los niveles semilla, registrar un requerimiento fallaba con un
     DoesNotExist sin contexto. Ahora dice cual falta."""
 
@@ -173,8 +173,8 @@ class TableroAdministracionTest(TestCase):
         respuesta = self.client.get('/administracion/dashboard/')
 
         self.assertEqual(respuesta.status_code, 200)
-        usuario = ApprovalLevel.objects.get(description='USUARIO')
-        self.assertEqual(usuario.superior_level.description, 'LOGISTICA')
+        user = ApprovalLevel.objects.get(description='USUARIO')
+        self.assertEqual(user.superior_level.description, 'LOGISTICA')
 
     def test_creates_office_management(self):
         respuesta = self.client.get('/administracion/dashboard/')

@@ -50,15 +50,15 @@ locale.setlocale(locale.LC_ALL, "")
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        cod_mov_invent_ini = 'I00'
+        inventory_initial_movement_code = 'I00'
         purchase_inbound_code = 'I01'
         order_outbound_code = 'S01'
         lista_notificaciones = []
         warehouse_count = Warehouse.objects.count()
         inbound_movement_type_count = MovementType.objects.filter(increases=True).exclude(
-            code=cod_mov_invent_ini).count()
+            code=inventory_initial_movement_code).count()
         outbound_movement_type_count = MovementType.objects.filter(increases=False).count()
-        movement_type, creado = MovementType.objects.get_or_create(code=cod_mov_invent_ini,
+        movement_type, creado = MovementType.objects.get_or_create(code=inventory_initial_movement_code,
                                                                        defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'sunat_code': '16',
                                                                                  'increases': True,
@@ -79,7 +79,7 @@ class Dashboard(View):
                                                                                  'increases': False,
                                                                                  'requires_reference': True,
                                                                                  'is_active': True})
-        inventario_inicial = Movement.objects.filter(movement_type__code=cod_mov_invent_ini).count()
+        inventario_inicial = Movement.objects.filter(movement_type__code=inventory_initial_movement_code).count()
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
         if warehouse_count == 0:
@@ -1380,8 +1380,8 @@ class KardexProductReport(ReportResponseMixin, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        cod_prod = data.get('product_code')
-        product = Product.objects.get(code=cod_prod)
+        product_code = data.get('product_code')
+        product = Product.objects.get(code=product_code)
         start_date = data.get('start_date')
         end_date = data.get('end_date')
         warehouse = data.get('warehouses')
@@ -1499,8 +1499,8 @@ class PriceReprocess(FormView):
         warehouse = data['warehouse']
         selection = data['selection']
         if selection == 'P':
-            cod_prod = data['product']
-            product = Product.objects.get(code=cod_prod)
+            product_code = data['product']
+            product = Product.objects.get(code=product_code)
             self.reprocess_product_price(product, warehouse, start_date)
         else:
             listado_kardex = Kardex.objects.filter(warehouse=warehouse).order_by('product').distinct('product__code')

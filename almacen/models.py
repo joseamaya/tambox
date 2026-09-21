@@ -282,10 +282,10 @@ class Movement(TimeStampedModel):
     @property
     def total(self):
         """Suma la columna `amount`, asi que el agregado es exacto."""
-        if not hasattr(self, '_total_calculado'):
-            self._total_calculado = MovementDetail.objects.filter(
+        if not hasattr(self, '_calculated_total'):
+            self._calculated_total = MovementDetail.objects.filter(
                 movement=self).aggregate(total=Sum('amount'))['total'] or 0
-        return self._total_calculado
+        return self._calculated_total
 
     class Meta:
         permissions = (('ver_detalle_movimiento', 'Puede ver detalle de Movimiento'),

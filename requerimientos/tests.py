@@ -18,7 +18,7 @@ def create_requirement(**kwargs):
 
 
 # Create your tests here.
-class RequerimientoTest(TestCase):
+class RequirementTest(TestCase):
     def setUp(self):
         self.r1 = create_requirement(code='')
         self.r2 = create_requirement(code='')
@@ -54,7 +54,7 @@ class RequerimientoTest(TestCase):
         self.assertEqual(quantity, Requirement.objects.count())
 
 
-class DetalleRequerimientoTest(TestCase):
+class RequirementDetailTest(TestCase):
     def setUp(self):
         self.r1 = create_requirement(code='')
 
@@ -75,7 +75,7 @@ class DetalleRequerimientoTest(TestCase):
         self.assertEqual(dr3.status, RequirementDetail.STATUS.ATEN)
 
 
-class AprobacionRequerimientoTest(TestCase):
+class RequirementApprovalTest(TestCase):
     def setUp(self):
         self.r1 = create_requirement(code='')
         self.apr1 = baker.make(RequirementApproval, requirement=self.r1)
@@ -85,7 +85,7 @@ class AprobacionRequerimientoTest(TestCase):
         self.assertEqual(self.apr1.requirement, self.r1)
 
 
-class ClasificarTest(TestCase):
+class ClassifyTest(TestCase):
     """La regla detras de la maquina de estados."""
 
     def test_without_progress(self):
@@ -101,17 +101,17 @@ class ClasificarTest(TestCase):
         self.assertEqual(classify(12, 10), COMPLETE)
 
 
-class EstadosDeRequerimientoTest(TestCase):
+class RequirementStatusesTest(TestCase):
 
-    def _requirement(self, quantity, cotizada=0, comprada=0, atendida=0):
+    def _requirement(self, quantity, quoted=0, purchased=0, served=0):
         requirement = create_requirement(code='')
         baker.make(RequirementDetail, requirement=requirement, line_number=1,
-                   quantity=quantity, quoted_quantity=cotizada,
-                   purchased_quantity=comprada, served_quantity=atendida)
+                   quantity=quantity, quoted_quantity=quoted,
+                   purchased_quantity=purchased, served_quantity=served)
         return requirement
 
     def test_purchased_partial_not_marks_as_purchased(self):
-        requirement = self._requirement(quantity=10, comprada=4)
+        requirement = self._requirement(quantity=10, purchased=4)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP_PARC)
 
@@ -123,32 +123,32 @@ class EstadosDeRequerimientoTest(TestCase):
         self.assertTrue(RequirementApproval.objects.filter(requirement=requirement).exists())
 
     def test_purchased_complete(self):
-        requirement = self._requirement(quantity=10, comprada=10)
+        requirement = self._requirement(quantity=10, purchased=10)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP)
 
     def test_purchased_by_above_total(self):
-        requirement = self._requirement(quantity=10, comprada=12)
+        requirement = self._requirement(quantity=10, purchased=12)
 
         self.assertEqual(requirement.set_status_purchased(), Requirement.STATUS.COMP)
 
     def test_quoted_partial(self):
-        requirement = self._requirement(quantity=10, cotizada=4)
+        requirement = self._requirement(quantity=10, quoted=4)
 
         self.assertEqual(requirement.set_status_quoted(), Requirement.STATUS.COTIZ_PARC)
 
     def test_quoted_complete(self):
-        requirement = self._requirement(quantity=10, cotizada=10)
+        requirement = self._requirement(quantity=10, quoted=10)
 
         self.assertEqual(requirement.set_status_quoted(), Requirement.STATUS.COTIZ)
 
     def test_served_partial(self):
-        requirement = self._requirement(quantity=10, atendida=4)
+        requirement = self._requirement(quantity=10, served=4)
 
         self.assertEqual(requirement.set_status_served(), Requirement.STATUS.ATEN_PARC)
 
     def test_served_complete(self):
-        requirement = self._requirement(quantity=10, atendida=10)
+        requirement = self._requirement(quantity=10, served=10)
 
         self.assertEqual(requirement.set_status_served(), Requirement.STATUS.ATEN)
 
@@ -187,29 +187,29 @@ class EstadosDeRequerimientoTest(TestCase):
                 requirement.total_purchased
 
 
-class EstadosDeDetalleRequerimientoTest(TestCase):
+class RequirementDetailStatusesTest(TestCase):
     """Estos metodos solo leen los campos de la instance, asi que no hace falta
     tocar la base de datos."""
 
-    def _detail(self, quantity, cotizada=0, comprada=0, atendida=0):
-        return RequirementDetail(quantity=quantity, quoted_quantity=cotizada,
-                                    purchased_quantity=comprada, served_quantity=atendida)
+    def _detail(self, quantity, quoted=0, purchased=0, served=0):
+        return RequirementDetail(quantity=quantity, quoted_quantity=quoted,
+                                    purchased_quantity=purchased, served_quantity=served)
 
     def test_quoted(self):
         self.assertEqual(self._detail(10).set_status_quoted(), RequirementDetail.STATUS.PEND)
-        self.assertEqual(self._detail(10, cotizada=4).set_status_quoted(),
+        self.assertEqual(self._detail(10, quoted=4).set_status_quoted(),
                          RequirementDetail.STATUS.COTIZ_PARC)
-        self.assertEqual(self._detail(10, cotizada=10).set_status_quoted(),
+        self.assertEqual(self._detail(10, quoted=10).set_status_quoted(),
                          RequirementDetail.STATUS.COTIZ)
 
     def test_purchased(self):
-        self.assertEqual(self._detail(10, comprada=4).set_status_purchased(),
+        self.assertEqual(self._detail(10, purchased=4).set_status_purchased(),
                          RequirementDetail.STATUS.COMP_PARC)
-        self.assertEqual(self._detail(10, comprada=10).set_status_purchased(),
+        self.assertEqual(self._detail(10, purchased=10).set_status_purchased(),
                          RequirementDetail.STATUS.COMP)
 
     def test_served(self):
-        self.assertEqual(self._detail(10, atendida=4).set_status_served(),
+        self.assertEqual(self._detail(10, served=4).set_status_served(),
                          RequirementDetail.STATUS.ATEN_PARC)
-        self.assertEqual(self._detail(10, atendida=10).set_status_served(),
+        self.assertEqual(self._detail(10, served=10).set_status_served(),
                          RequirementDetail.STATUS.ATEN)

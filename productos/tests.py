@@ -12,7 +12,7 @@ from decimal import Decimal
 import tempfile
 
 # Create your tests here.
-"""class NewUnidadMedidaTestCase(TestCase):
+"""class NewUnitOfMeasureTestCase(TestCase):
     fixtures = ['usuarios.json','unidadesmedida.json']
     
     def test_index(self):
@@ -25,7 +25,7 @@ import tempfile
         self.assertEqual(200,resp.status_code)"""
 
 
-class UnidadMedidaTest(TestCase):
+class UnitOfMeasureTest(TestCase):
 
     def setUp(self):
         self.um1 = baker.make(UnitOfMeasure)
@@ -49,7 +49,7 @@ class UnidadMedidaTest(TestCase):
         self.assertEqual(self.um3.pk, self.um1.previous())
 
 
-class GrupoProductosTest(TestCase):
+class ProductGroupTest(TestCase):
 
     def setUp(self):
         self.gp1 = baker.make(ProductGroup, code='')
@@ -76,7 +76,7 @@ class GrupoProductosTest(TestCase):
         self.assertEqual(self.gp3.pk, self.gp1.previous())
 
 
-class ProductoTest(TestCase):
+class ProductTest(TestCase):
 
     def setUp(self):
         self.gp1 = baker.make(ProductGroup, code='')
@@ -109,7 +109,7 @@ class ProductoTest(TestCase):
         self.assertEqual(self.p3.unit_of_measure.code, 'SERV')
 
 
-class ConsultaDeStockTest(TestCase):
+class StockQueryTest(TestCase):
     """Product.stock recorria todos los almacenes con un .latest() cada uno, y
     las plantillas lo invocan varias veces en la misma page."""
 
@@ -135,7 +135,7 @@ class ConsultaDeStockTest(TestCase):
             product.forecast
 
 
-class ObtenerKardexTest(TestCase):
+class GetKardexTest(TestCase):
     """`get_kardex` hacia un `len()` que cargaba todas las filas y despues
     cuatro `aggregate` por separado: cinco consultas por producto, en reportes
     que recorren el catalogo entero."""
@@ -150,33 +150,33 @@ class ObtenerKardexTest(TestCase):
 
     def test_totals_come_out_only_query(self):
         with self.assertNumQueries(1):
-            listado, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
+            listado, quantity_i, amount_i, quantity_s, amount_s = self.product.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
-        self.assertEqual((quantity_i, valor_i), (Decimal('10'), Decimal('50')))
-        self.assertEqual((quantity_s, valor_s), (Decimal('2'), Decimal('9')))
+        self.assertEqual((quantity_i, amount_i), (Decimal('10'), Decimal('50')))
+        self.assertEqual((quantity_s, amount_s), (Decimal('2'), Decimal('9')))
         self.assertEqual(listado.count(), 1)
 
     def test_without_movements_totals_are_cero(self):
         with self.assertNumQueries(1):
-            _, quantity_i, valor_i, quantity_s, valor_s = self.product.get_kardex(
+            _, quantity_i, amount_i, quantity_s, amount_s = self.product.get_kardex(
                 self.warehouse, date(2024, 3, 1), date(2024, 3, 31))
 
-        self.assertEqual((quantity_i, valor_i, quantity_s, valor_s), (0, 0, 0, 0))
+        self.assertEqual((quantity_i, amount_i, quantity_s, amount_s), (0, 0, 0, 0))
 
     def test_group_uses_same_path(self):
         group = self.product.product_group
 
         with self.assertNumQueries(1):
-            _, quantity_i, valor_i, quantity_s, valor_s = group.get_kardex(
+            _, quantity_i, amount_i, quantity_s, amount_s = group.get_kardex(
                 self.warehouse, date(2024, 1, 1), date(2024, 1, 31))
 
-        self.assertEqual((quantity_i, valor_i, quantity_s, valor_s),
+        self.assertEqual((quantity_i, amount_i, quantity_s, amount_s),
                          (Decimal('10'), Decimal('50'), Decimal('2'), Decimal('9')))
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class CargarServiciosTest(TestCase):
+class ServiceImportTest(TestCase):
     """`ServiceImport` devolvia dentro del bucle, asi que importaba solo la
     primera fila del CSV y el resto se perdia en silencio."""
 
@@ -206,7 +206,7 @@ class CargarServiciosTest(TestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class CargarProductosTest(TestCase):
+class ProductImportTest(TestCase):
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'key-segura'))
 
@@ -223,7 +223,7 @@ class CargarProductosTest(TestCase):
         self.assertEqual(UnitOfMeasure.objects.get(code='UNIDA').description, 'UNIDAD X')
 
 
-class BusquedaProductosTest(TestCase):
+class ProductSearchTest(TestCase):
     """Los dos endpoints de busqueda leian `product.unit_of_measure.description`
     dentro del bucle: una consulta por resultado, en endpoints que el JavaScript
     llama en cada tecleo."""

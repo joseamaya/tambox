@@ -13,7 +13,7 @@ from contabilidad.models import DocumentType
 from productos.models import Product, UnitOfMeasure
 
 
-class AlmacenTest(TestCase):
+class WarehouseTest(TestCase):
 
     def setUp(self):
         self.a1 = baker.make(Warehouse)
@@ -37,7 +37,7 @@ class AlmacenTest(TestCase):
         self.assertEqual(self.a3.pk, self.a1.previous())
 
 
-class TipoMovimientoTest(TestCase):
+class MovementTypeTest(TestCase):
 
     def setUp(self):
         self.tm1 = baker.make(MovementType, code='')
@@ -65,7 +65,7 @@ class TipoMovimientoTest(TestCase):
         self.assertEqual("I", tm1.code[0])
 
 
-class PedidoTest(TestCase):
+class OrderTest(TestCase):
 
     def setUp(self):
         self.current_date = date.today()
@@ -106,7 +106,7 @@ class PedidoTest(TestCase):
         self.assertEqual(self.pe4.pk, self.pe1.previous())
 
 
-class DetallePedidoTest(TestCase):
+class OrderDetailTest(TestCase):
 
     def setUp(self):
         self.current_date = date.today()
@@ -117,12 +117,12 @@ class DetallePedidoTest(TestCase):
         self.assertTrue(isinstance(self.dpe1, OrderDetail))
         self.assertEqual(self.dpe1.__str__(), self.dpe1.order.code + ' ' + str(self.dpe1.line_number))
 
-    def test_cantidad_by_serve(self):
+    def test_quantity_by_serve(self):
         resultado = self.dpe1.quantity - self.dpe1.served_quantity
         self.assertEqual(resultado, self.dpe1.quantity_to_serve())
 
 
-class MovimientoTest(TestCase):
+class MovementTest(TestCase):
 
     def test_creation_movement(self):
         mov1 = baker.make(Movement, movement_id='', operation_date=timezone.now())
@@ -185,7 +185,7 @@ class MovimientoTest(TestCase):
         self.assertEqual(mov1.reference.status, PurchaseOrder.STATUS.PEND)
 
 
-class ReporteInventarioTest(TestCase):
+class InventoryReportTest(TestCase):
     """Ejecuta el armado del libro de Excel. `manage.py check` no ejecuta
     cuerpos de funcion, asi que sin esto un nombre sin importar en la funcion
     solo se descubriria al pedir el reporte."""
@@ -244,7 +244,7 @@ class ReporteInventarioTest(TestCase):
         self.assertEqual(len(with_one_product), len(con_diez))
 
 
-class EstadoDeDetallePedidoTest(TestCase):
+class OrderDetailStatusTest(TestCase):
     """Solo lee campos de la instance, y fija la regla compartida de classify()."""
 
     def test_served(self):
@@ -259,7 +259,7 @@ class EstadoDeDetallePedidoTest(TestCase):
 
 
 @override_settings(MEDIA_ROOT=tempfile.mkdtemp())
-class CargarCsvTest(TestCase):
+class CsvImportTest(TestCase):
     """Ejercita de punta a punta el lector de CSV y el mixin compartido, que es
     lo unico que garantiza que el refactor de los importadores funcione."""
 
@@ -322,7 +322,7 @@ class CargarCsvTest(TestCase):
         self.assertEqual(MovementDetail.objects.count(), 0)
 
 
-class TotalDeMovimientoTest(TestCase):
+class MovementTotalsTest(TestCase):
     """Suma la columna `amount`, asi que el agregado es exacto y ademas se memoriza."""
 
     def test_calculates_only_time(self):
@@ -335,7 +335,7 @@ class TotalDeMovimientoTest(TestCase):
             movement.total
 
 
-class UltimosPorProductoTest(TestCase):
+class LastByProductTest(TestCase):
     """Las vistas de stock resolvian el ultimo Kardex con un `latest()` por
     product: una consulta por fila y MultipleObjectsReturned si dos movements
     compartian date."""
@@ -374,7 +374,7 @@ class UltimosPorProductoTest(TestCase):
         self.assertEqual(last_records[product.pk].pk, segundo.pk)
 
 
-class ReporteKardexConsolidadoTest(TestCase):
+class ConsolidatedKardexReportTest(TestCase):
     """Ejecuta las dos tablas consolidadas del kardex, donde el saldo inicial de
     cada producto se resolvia con un `latest()` dentro del bucle. `manage.py
     check` no ejecuta cuerpos de funcion, asi que sin esto un nombre roto dentro
@@ -411,7 +411,7 @@ class ReporteKardexConsolidadoTest(TestCase):
         self.assertEqual(len(table._cellvalues), 3 + 1)
 
 
-class ReporteKardexExcelTest(TestCase):
+class KardexExcelReportTest(TestCase):
     """Los consolidados del kardex en Excel resolvian el saldo inicial con un
     `latest()` por producto. El test fija la semantica -el ultimo kardex
     *anterior* al periodo, no el ultimo a secas- porque en estos informes el
@@ -492,7 +492,7 @@ class ReporteKardexExcelTest(TestCase):
         self.assertEqual(sheet.cell(row=5, column=8).value, 'SALDO INICIAL:')
 
 
-class ReporteKardexPorProductoTest(TestCase):
+class KardexByProductReportTest(TestCase):
     """Los informes de kardex por producto resolvian el saldo inicial con un
     `latest()` por fila. `initial_kardex_of()` lee el lote que el reporte
     precargo, y si el informe exporta un solo producto consulta ese producto:

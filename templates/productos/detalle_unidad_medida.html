@@ -3,9 +3,9 @@
 <h3>Unidades de Medida / {{ object.description }}</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.productos.change_unidad_medida %} <a class="btn btn-primary"
+        {% if perms.productos.change_unitofmeasure %} <a class="btn btn-primary"
                                                          href="{% url 'productos:unit_of_measure_update' object.pk %}">
-        Editar </a> {% endif %} {% if perms.productos.delete_unidad_medida %}
+        Editar </a> {% endif %} {% if perms.productos.delete_unitofmeasure %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
         </button>

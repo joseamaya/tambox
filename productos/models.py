@@ -133,22 +133,22 @@ class Product(TimeStampedModel):
         las plantillas invocan la property varias veces en la misma page. El
         resultado se memoriza para no repetirla en el mismo render.
         """
-        if not hasattr(self, '_stock_calculado'):
+        if not hasattr(self, '_calculated_stock'):
             from almacen.models import Kardex
             last_records = (Kardex.objects.filter(product=self)
                        .order_by('warehouse_id', '-operation_date', '-pk')
                        .distinct('warehouse_id'))
-            self._stock_calculado = sum(kardex.total_quantity for kardex in last_records)
-        return self._stock_calculado
+            self._calculated_stock = sum(kardex.total_quantity for kardex in last_records)
+        return self._calculated_stock
 
     @property
     def forecast(self):
-        if not hasattr(self, '_previsto_calculado'):
+        if not hasattr(self, '_calculated_forecast'):
             from compras.models import PurchaseOrderDetail
-            self._previsto_calculado = PurchaseOrderDetail.objects.filter(
+            self._calculated_forecast = PurchaseOrderDetail.objects.filter(
                 Q(product=self) | Q(quotation_detail__requirement_detail__product=self)
             ).aggregate(total=Sum('quantity'))['total'] or 0
-        return self._previsto_calculado
+        return self._calculated_forecast
 
     def get_kardex(self, warehouse, start_date, end_date):
         from almacen.models import Movement, Kardex

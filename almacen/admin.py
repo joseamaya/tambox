@@ -6,28 +6,28 @@ from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
 
-class FilaKardexAdmin(admin.TabularInline):
+class KardexRowAdmin(admin.TabularInline):
     model = Kardex
 
 
-class FilaProductoAdmin(admin.TabularInline):
+class ProductRowAdmin(admin.TabularInline):
     model = WarehouseProductControl
 
 
-class FilaDetalleMovimientoAdmin(admin.TabularInline):
+class MovementDetailRowAdmin(admin.TabularInline):
     model = MovementDetail
 
 
-class AlmacenResources(resources.ModelResource):
+class WarehouseResources(resources.ModelResource):
     class Meta:
         model = Warehouse
 
 
-class ProductosAlmacenAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    inlines = [FilaProductoAdmin]
+class WarehouseProductsAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    inlines = [ProductRowAdmin]
     list_display = ('code', 'description')
     search_fields = ['code', 'description']
-    resource_class = AlmacenResources
+    resource_class = WarehouseResources
 
 
 class KardexResources(resources.ModelResource):
@@ -39,30 +39,30 @@ class KardexAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     resource_class = KardexResources
 
 
-class ProductoResources(resources.ModelResource):
+class ProductResources(resources.ModelResource):
     class Meta:
         model = Product
 
 
-class KardexProductoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    inlines = [FilaKardexAdmin]
+class KardexProductAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    inlines = [KardexRowAdmin]
     list_display = ('code', 'product_group', 'description', 'is_service', 'unit_of_measure')
-    resource_class = ProductoResources
+    resource_class = ProductResources
 
 
-class MovimientoResources(resources.ModelResource):
+class MovementResources(resources.ModelResource):
     class Meta:
         model = Movement
 
 
-class DetallesMovimientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    inlines = [FilaDetalleMovimientoAdmin]
+class MovementDetailsAdmin(ImportExportModelAdmin, admin.ModelAdmin):
+    inlines = [MovementDetailRowAdmin]
     list_display = ('movement_id', 'movement_type', 'reference', 'order', 'series', 'office')
-    resource_class = MovimientoResources
+    resource_class = MovementResources
 
 
-admin.site.register(Movement, DetallesMovimientoAdmin)
+admin.site.register(Movement, MovementDetailsAdmin)
 admin.site.register(MovementType)
-admin.site.register(Warehouse, ProductosAlmacenAdmin)
-admin.site.register(Product, KardexProductoAdmin)
+admin.site.register(Warehouse, WarehouseProductsAdmin)
+admin.site.register(Product, KardexProductAdmin)
 admin.site.register(Kardex, KardexAdmin)

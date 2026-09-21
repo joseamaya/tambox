@@ -71,7 +71,7 @@ class PaymentMethod(TimeStampedModel):
     class Meta:
         permissions = (('cargar_formas_pago', 'Puede cargar Formas de Pago desde un archivo externo'),
                        ('ver_detalle_forma_pago', 'Puede ver detalle de Forma de Pago'),
-                       ('ver_tabla_formas_pago', 'Puede ver table Formas de Pago'),
+                       ('ver_tabla_formas_pago', 'Puede ver tabla Formas de Pago'),
                        ('ver_reporte_formas_pago_excel', 'Puede ver Reporte de Formas de Pago en excel'),)
 
     def previous(self):

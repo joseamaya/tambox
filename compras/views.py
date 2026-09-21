@@ -310,8 +310,8 @@ class PurchaseOrderCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = PaymentMethod.objects.all().order_by('description')
-        if not formas_pago:
+        payment_methods = PaymentMethod.objects.all().order_by('description')
+        if not payment_methods:
             return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             try:
@@ -396,8 +396,8 @@ class ServiceOrderCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = PaymentMethod.objects.all().order_by('description')
-        if not formas_pago:
+        payment_methods = PaymentMethod.objects.all().order_by('description')
+        if not payment_methods:
             return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             form_class = self.get_form_class()
@@ -477,8 +477,8 @@ class ServiceConformityCreate(CreateView):
 
     def get(self, request, *args, **kwargs):
         self.object = None
-        formas_pago = PaymentMethod.objects.all().order_by('description')
-        if not formas_pago:
+        payment_methods = PaymentMethod.objects.all().order_by('description')
+        if not payment_methods:
             return HttpResponseRedirect(reverse('contabilidad:payment_method_create'))
         else:
             form_class = self.get_form_class()
@@ -511,12 +511,12 @@ class ServiceConformityCreate(CreateView):
                     amount = service_order_detail_form.cleaned_data.get('amount')
                     service_order_detail = ServiceOrderDetail.objects.get(pk=service_order)
                     if quantity and price and amount:
-                        detalle_conformidad_servicio = ServiceConformityDetail(
+                        service_conformity_detail = ServiceConformityDetail(
                             service_order_detail=service_order_detail,
                             line_number=cont,
                             conformity=self.object,
                             quantity=quantity)
-                        details.append(detalle_conformidad_servicio)
+                        details.append(service_conformity_detail)
                         cont = cont + 1
                 ServiceConformityDetail.objects.bulk_create(details, reference)
                 return HttpResponseRedirect(reverse('compras:service_conformity_detail_view', args=[self.object.code]))
@@ -1017,7 +1017,7 @@ class PurchaseOrderUpdate(UpdateView):
         initial['business_name'] = supplier.business_name
         initial['address'] = supplier.address
         initial['date'] = order.date.strftime('%d/%m/%Y')
-        initial['formas_pago'] = order.payment_method
+        initial['payment_methods'] = order.payment_method
         initial['reference'] = order.quotation
         try:
             tax_amount = purchase_tax().amount
@@ -1118,7 +1118,7 @@ class ServiceOrderUpdate(UpdateView):
         initial['business_name'] = supplier.business_name
         initial['address'] = supplier.address
         initial['date'] = order.date.strftime('%d/%m/%Y')
-        initial['formas_pago'] = order.payment_method
+        initial['payment_methods'] = order.payment_method
         initial['reference'] = order.quotation
         initial['process'] = order.process
         initial['total'] = order.total

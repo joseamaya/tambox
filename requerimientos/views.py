@@ -50,8 +50,8 @@ class RequirementApprove(UpdateView):
     @method_decorator(requires('requerimientos.change_requirementapproval'))
     def dispatch(self, *args, **kwargs):
         requirement_approval = get_object_or_404(self.model, pk=kwargs['pk'])
-        usuario = self.request.user
-        if requirement_approval.check_approval_access(usuario):
+        user = self.request.user
+        if requirement_approval.check_approval_access(user):
             return super(RequirementApprove, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permission_denied'))
@@ -230,7 +230,7 @@ class RequirementDelete(TemplateView):
 class RequirementApprovalList(ListView):
     model = RequirementApproval
     template_name = 'requerimientos/listado_aprobacion_requerimientos.html'
-    context_object_name = 'aprobacion_requerimientos'
+    context_object_name = 'requirement_approvals'
 
     @method_decorator(
         requires('requerimientos.ver_tabla_requerimientos'))
@@ -276,8 +276,8 @@ class RequirementList(ListView):
     context_object_name = 'requerimientos'
 
     def get_queryset(self):
-        usuario = self.request.user
-        visible_requirements = Requirement.get_visible_requirements(usuario)
+        user = self.request.user
+        visible_requirements = Requirement.get_visible_requirements(user)
         return visible_requirements
 
     @method_decorator(
@@ -296,8 +296,8 @@ class RequirementUpdate(UpdateView):
         requires('requerimientos.change_requirement'))
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
-        if (requirement.approval.is_active == RequirementApproval.NIVEL.USU or
-                requirement.approval.is_active == RequirementApproval.NIVEL.JEF or
+        if (requirement.approval.is_active == RequirementApproval.LEVEL.USU or
+                requirement.approval.is_active == RequirementApproval.LEVEL.JEF or
                 self.request.user.is_superuser):
             return super(RequirementUpdate, self).dispatch(*args, **kwargs)
         else:

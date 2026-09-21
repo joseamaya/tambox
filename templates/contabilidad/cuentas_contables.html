@@ -32,14 +32,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for cuenta_contable in chart_of_accounts %}
+            {% for account in chart_of_accounts %}
             {% if perms.contabilidad.ver_detalle_cuenta_contable %}
-            <tr onclick="location.href='{% url 'contabilidad:account_detail' cuenta_contable.pk %}';">
+            <tr onclick="location.href='{% url 'contabilidad:account_detail' account.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ cuenta_contable.account_number }}</td>
-                <td>{{ cuenta_contable.description }}</td>
+                <td>{{ account.account_number }}</td>
+                <td>{{ account.description }}</td>
             </tr>
             {% endfor %}
             </tbody>

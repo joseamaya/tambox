@@ -37,8 +37,8 @@ class RequirementReport():
             image = Image(image_file, width=90, height=50, hAlign='LEFT')
         except Exception:
             image = Paragraph(u"LOGO", sp)
-        nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
-        encabezado = [[image, nro, '']]
+        number = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
+        encabezado = [[image, number, '']]
         header_table = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
         header_table.setStyle(TableStyle(
             [
@@ -58,7 +58,7 @@ class RequirementReport():
         office = Paragraph(u"OFICINA: " + requirement.office.name, izquierda)
         reason = Paragraph(u"MOTIVO: " + requirement.reason, izquierda)
         date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requirement.date.strftime('%d/%m/%Y'), izquierda)
-        month = Paragraph(u"MES EN QUE SE NECESITA: " + requirement.get_mes_display(), izquierda)
+        month = Paragraph(u"MES EN QUE SE NECESITA: " + requirement.get_month_display(), izquierda)
         para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requirement.year), izquierda)
         if requirement.direct_delivery_to_requester:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
@@ -136,16 +136,16 @@ class RequirementReport():
 
     def get_position(self, office, requirement):
         try:
-            jefatura = Position.objects.get(office=office,
+            leadership = Position.objects.get(office=office,
                                           is_leadership=True,
                                           start_date__lte=requirement.date,
                                           end_date=None)
         except Position.DoesNotExist:
-            jefatura = Position.objects.get(office=office,
+            leadership = Position.objects.get(office=office,
                                           is_leadership=True,
                                           start_date__lte=requirement.date,
                                           end_date__gte=requirement.date)
-        return jefatura
+        return leadership
 
     def signatures_table(self):
         requirement = self.requirement
@@ -155,8 +155,8 @@ class RequirementReport():
                            fontSize=8,
                            fontName="Times-Roman")
         encabezados = [(u'Recepción', '', '', '', '', '')]
-        jefatura_logistica = self.get_position(logistics(), requirement)
-        logistics_boss = jefatura_logistica.worker
+        logistics_leadership = self.get_position(logistics(), requirement)
+        logistics_boss = logistics_leadership.worker
         requester_signature = self.get_signature(requester.signature)
         logistics_office_boss_signature = self.get_signature(logistics_boss.signature)
         requester = requirement.requester.full_name()

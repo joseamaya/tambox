@@ -10,7 +10,7 @@ from contabilidad.models import PaymentMethod
 from productos.models import Product
 from tambox.querysets import NavigableQuerySet
 from tambox.statuses import classify, PARTIAL, EMPTY
-from compras.settings import CHOICES_ESTADO_COTIZ
+from compras.settings import QUOTATION_STATUS_CHOICES
 from tambox.config import configuration
 from compras.managers import QuotationDetailManager, \
     ServiceConformityDetailManager
@@ -18,7 +18,7 @@ from tambox.util import to_word
 from simple_history.models import HistoricalRecords
 
 
-class DetalleOrdenManager(models.Manager):
+class OrderDetailManager(models.Manager):
 
     def bulk_create(self, objs, quotation):
         if quotation is not None:
@@ -116,7 +116,7 @@ class Quotation(TimeStampedModel):
     requirement = models.ForeignKey(Requirement, on_delete=models.CASCADE, related_name='quotations', null=True)
     date = models.DateField()
     notes = models.TextField(blank=True)
-    STATUS = CHOICES_ESTADO_COTIZ
+    STATUS = QUOTATION_STATUS_CHOICES
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
@@ -299,12 +299,12 @@ class PurchaseOrder(TimeStampedModel):
 
     @property
     def subtotal(self):
-        if not hasattr(self, '_subtotal_calculado'):
+        if not hasattr(self, '_calculated_subtotal'):
             subtotal = 0
             for detail in self.details.all():
                 subtotal = subtotal + detail.amount_without_tax
-            self._subtotal_calculado = subtotal
-        return self._subtotal_calculado
+            self._calculated_subtotal = subtotal
+        return self._calculated_subtotal
 
     @property
     def total_in_words(self):
@@ -337,7 +337,7 @@ class PurchaseOrder(TimeStampedModel):
 
 
 class PurchaseOrderDetail(TimeStampedModel):
-    objects = DetalleOrdenManager()
+    objects = OrderDetailManager()
     line_number = models.IntegerField()
     order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='details')
     quotation_detail = models.ForeignKey(QuotationDetail, on_delete=models.CASCADE, related_name='purchase_order_details', null=True)
@@ -434,10 +434,10 @@ class ServiceOrder(TimeStampedModel):
 
     @property
     def subtotal(self):
-        if not hasattr(self, '_subtotal_calculado'):
-            self._subtotal_calculado = sum(detail.amount
+        if not hasattr(self, '_calculated_subtotal'):
+            self._calculated_subtotal = sum(detail.amount
                                            for detail in self.details.all())
-        return self._subtotal_calculado
+        return self._calculated_subtotal
 
     @property
     def tax(self):
@@ -522,7 +522,7 @@ class ServiceOrder(TimeStampedModel):
 
 
 class ServiceOrderDetail(TimeStampedModel):
-    objects = DetalleOrdenManager()
+    objects = OrderDetailManager()
     line_number = models.IntegerField()
     order = models.ForeignKey(ServiceOrder, on_delete=models.CASCADE, related_name='details')
     quotation_detail = models.ForeignKey(QuotationDetail, on_delete=models.CASCADE, related_name='service_order_details', null=True)

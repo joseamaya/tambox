@@ -9,7 +9,7 @@ from compras.models import PurchaseOrder
 from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from almacen.settings import MESES, PARAMETROS, FORMATOS_SUNAT, \
+from almacen.settings import MONTHS, PARAMETROS, FORMATOS_SUNAT, \
     movement_type_choices, warehouse_choices, \
     CHOICES_CONSOLIDADO, SELECCION, FORMATOS
 
@@ -64,7 +64,7 @@ class MovementReportForm(forms.Form):
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    month = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
     movement_types = forms.ChoiceField(choices=[],
@@ -115,7 +115,7 @@ class MovementForm(forms.ModelForm):
                 'class': 'form-control'
             })
 
-    def clean_dni_receptor(self):
+    def clean_receiver_dni(self):
         receiver_dni = self.cleaned_data.get('receiver_dni')
         if receiver_dni != "":
             if self.cleaned_data['movement_type'].is_sale:
