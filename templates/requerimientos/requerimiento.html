@@ -259,7 +259,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 			    $.ajax({
-			      url: "{% url 'productos:busqueda_productos_description' %}",
+			      url: "{% url 'productos:product_description_search' %}",
 			      data: {'description': request.term,'tipo_busqueda': 'TODOS'},
 			      success: function( data ) 
 			      {

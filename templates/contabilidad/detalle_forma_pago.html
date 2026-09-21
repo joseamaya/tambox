@@ -93,7 +93,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'productos:eliminar_producto' %}",
+						url : "{% url 'productos:product_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

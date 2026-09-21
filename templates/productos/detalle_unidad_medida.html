@@ -4,7 +4,7 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.productos.change_unidad_medida %} <a class="btn btn-primary"
-                                                         href="{% url 'productos:modificar_unidad_medida' object.pk %}">
+                                                         href="{% url 'productos:unit_of_measure_update' object.pk %}">
         Editar </a> {% endif %} {% if perms.productos.delete_unidad_medida %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
@@ -14,15 +14,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:detalle_unidad_medida' object.anterior %}';">
+                    onclick="location.href='{% url 'productos:unit_of_measure_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:detalle_unidad_medida' object.siguiente %}';">
+                    onclick="location.href='{% url 'productos:unit_of_measure_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:unidades_medida' %}';">
+                    onclick="location.href='{% url 'productos:unit_of_measure_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -99,7 +99,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'productos:eliminar_producto' %}",
+						url : "{% url 'productos:product_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.relaciones == 'NO') {

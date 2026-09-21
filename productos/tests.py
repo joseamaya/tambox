@@ -21,7 +21,7 @@ import tempfile
         
     def test_new_unidad_medida_view(self):
         self.client.login(username='test',password='test')
-        resp = self.client.get('/productos/crear_unidad_medida/')
+        resp = self.client.get('/productos/unit_of_measure_create/')
         self.assertEqual(200,resp.status_code)"""
 
 
@@ -188,7 +188,7 @@ class CargarServiciosTest(TestCase):
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_servicios/', {'file': file})
+        respuesta = self.client.post('/productos/service_import/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(sorted(Product.objects.values_list('description', flat=True)),
@@ -198,10 +198,10 @@ class CargarServiciosTest(TestCase):
         contenido = 'G99,SERVICIO UNO\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_servicios/', {'file': file})
+        respuesta = self.client.post('/productos/service_import/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(respuesta.url, reverse('productos:crear_grupo_productos'))
+        self.assertEqual(respuesta.url, reverse('productos:product_group_create'))
         self.assertEqual(Product.objects.count(), 0)
 
 
@@ -216,7 +216,7 @@ class CargarProductosTest(TestCase):
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
         file = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/cargar_productos/', {'file': file})
+        respuesta = self.client.post('/productos/product_import/', {'file': file})
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(list(Product.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
@@ -244,7 +244,7 @@ class BusquedaProductosTest(TestCase):
         from django.db import connection
         from django.test.utils import CaptureQueriesContext
 
-        url = '/productos/busqueda_productos_description/'
+        url = '/productos/product_description_search/'
         parametros = {'description': 'PRODUCTO', 'tipo_busqueda': 'TODOS'}
         with CaptureQueriesContext(connection) as un_resultado:
             self.buscar(url, parametros)
@@ -260,7 +260,7 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(datos[0]['unidad'], 'UNIDAD')
 
     def test_busqueda_por_code(self):
-        respuesta = self.buscar('/productos/busqueda_productos_code/', {'code': 'COD0000001'})
+        respuesta = self.buscar('/productos/product_code_search/', {'code': 'COD0000001'})
 
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()

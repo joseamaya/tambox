@@ -5,7 +5,7 @@
     <div class="col-lg-10">
         {% if perms.productos.change_productgroup %} <a
             class="btn btn-primary"
-            href="{% url 'productos:modificar_grupo_productos' object.pk %}">
+            href="{% url 'productos:product_group_update' object.pk %}">
         Editar </a> {% endif %} {% if perms.productos.delete_productgroup %}
         <button class="btn btn-danger" type="button" id="id_eliminar">
             Eliminar
@@ -15,15 +15,15 @@
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:detalle_grupo_productos' object.anterior %}';">
+                    onclick="location.href='{% url 'productos:product_group_detail' object.anterior %}';">
                 <span class="glyphicon glyphicon-step-backward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:detalle_grupo_productos' object.siguiente %}';">
+                    onclick="location.href='{% url 'productos:product_group_detail' object.siguiente %}';">
                 <span class="glyphicon glyphicon-step-forward"></span>
             </button>
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:grupos_productos' %}';">
+                    onclick="location.href='{% url 'productos:product_group_list' %}';">
                 <span class="glyphicon glyphicon-th-list"></span>
             </button>
         </div>
@@ -48,7 +48,7 @@
                         Previsto
                     </button>
                     <button class="btn btn-default" type="button"
-                            onclick="location.href='{% url 'productos:listado_productos_grupo' object.pk %}';">
+                            onclick="location.href='{% url 'productos:product_list_by_group' object.pk %}';">
                         <span class="fa fa-shopping-cart fa-2x"></span> {{ object.stock }}
                         <br> Productos
                     </button>
@@ -108,7 +108,7 @@
 						data : {
 							'code' : "{{ object.code }}"
 						},
-						url : "{% url 'productos:eliminar_grupo_productos' %}",
+						url : "{% url 'productos:product_group_delete' %}",
 						type : 'post',
 						success : function(data) {
 							if (data.productos == 'NO') {

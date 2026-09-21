@@ -198,7 +198,7 @@ $(document).ready(function()
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'productos:busqueda_productos_description' %}",
+				  url: "{% url 'productos:product_description_search' %}",
 				  data: {'description': request.term, 'tipo_busqueda': 'PRODUCTOS' },
 				  success: function( data ) 
 			      {
@@ -225,7 +225,7 @@ $(document).ready(function()
 		var id_product = $(this).prop('id');
 		var id = id_product.replace("quantity", "");
 		$.ajax({
-	      url: "{% url 'productos:consulta_stock_producto' %}",
+	      url: "{% url 'productos:product_stock_query' %}",
 	      data: {
 	    	  'code': $("#"+id+"code").val()
 	   	  },

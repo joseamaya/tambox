@@ -4,12 +4,12 @@
 <div class="row">
     <div class="col-lg-10">
         {% if perms.productos.add_productgroup %}
-        <a href="{% url 'productos:crear_grupo_productos' %}" class="btn btn-primary">
+        <a href="{% url 'productos:product_group_create' %}" class="btn btn-primary">
             Crear
         </a>
         {% endif %}
         {% if perms.productos.cargar_grupo_productos %}
-        <a href="{% url 'productos:cargar_grupo_productos' %}" class="btn btn-default">
+        <a href="{% url 'productos:product_group_import' %}" class="btn btn-default">
             Importar
         </a>
         {% endif %}
@@ -18,7 +18,7 @@
         <div class="btn-group">
             {% if perms.productos.ver_reporte_grupos_productos_excel %}
             <button class="btn btn-default" type="button"
-                    onclick="location.href='{% url 'productos:maestro_grupos_productos_excel' %}';">
+                    onclick="location.href='{% url 'productos:product_group_excel_report' %}';">
                 <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
@@ -39,7 +39,7 @@
             <tbody>
             {% for grupo in grupos_productos %}
             {% if perms.productos.ver_detalle_grupo_productos %}
-            <tr onclick="location.href='{% url 'productos:detalle_grupo_productos' grupo.pk %}';">
+            <tr onclick="location.href='{% url 'productos:product_group_detail' grupo.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}

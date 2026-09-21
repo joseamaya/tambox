@@ -4,16 +4,16 @@
                 <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
                 <ul class="nav nav-second-level">
                     {% if perms.productos.ver_tabla_grupos_productos %}
-                    <li><a href="{% url 'productos:grupos_productos' %}">Grupos de Productos</a></li>
+                    <li><a href="{% url 'productos:product_group_list' %}">Grupos de Productos</a></li>
                     {% endif %}
                     {% if perms.productos.ver_tabla_productos %}
-                    <li><a href="{% url 'productos:productos' %}">Productos</a></li>
+                    <li><a href="{% url 'productos:product_list' %}">Productos</a></li>
                     {% endif %}
                     {% if perms.productos.ver_tabla_productos %}
-                    <li><a href="{% url 'productos:servicios' %}">Servicios</a></li>
+                    <li><a href="{% url 'productos:service_list' %}">Servicios</a></li>
                     {% endif %}
                     {% if perms.productos.ver_tabla_unidades_medida %}
-                    <li><a href="{% url 'productos:unidades_medida' %}">Unidades de Medida</a></li>
+                    <li><a href="{% url 'productos:unit_of_measure_list' %}">Unidades de Medida</a></li>
                     {% endif %}
                 </ul>
             </li>

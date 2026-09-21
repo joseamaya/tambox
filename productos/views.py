@@ -105,7 +105,7 @@ class ProductCodeSearch(SoloAjaxMixin, TemplateView):
 class ProductGroupImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_grupo_productos.html'
     form_class = UploadForm
-    success_url = reverse_lazy('productos:grupos_productos')
+    success_url = reverse_lazy('productos:product_group_list')
 
     def procesar_fila(self, fila):
         try:
@@ -119,13 +119,13 @@ class ProductGroupImport(CargarCsvMixin, FormView):
 class ServiceImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_servicios.html'
     form_class = UploadForm
-    success_url = reverse_lazy('productos:servicios')
+    success_url = reverse_lazy('productos:service_list')
 
     def form_valid(self, form):
         try:
             return super(ServiceImport, self).form_valid(form)
         except ProductGroup.DoesNotExist:
-            return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
+            return HttpResponseRedirect(reverse('productos:product_group_create'))
 
     def procesar_fila(self, fila):
         grupo = ProductGroup.objects.get(code=fila[0].strip())
@@ -137,7 +137,7 @@ class ServiceImport(CargarCsvMixin, FormView):
 class ProductImport(CargarCsvMixin, FormView):
     template_name = 'productos/cargar_productos.html'
     form_class = UploadForm
-    success_url = reverse_lazy('productos:productos')
+    success_url = reverse_lazy('productos:product_list')
 
     def procesar_fila(self, fila):
         try:
@@ -178,14 +178,14 @@ class ProductGroupCreate(CreateView):
     model = ProductGroup
     template_name = 'productos/grupo_productos.html'
     form_class = ProductGroupForm
-    success_url = reverse_lazy('productos:grupos_productos')
+    success_url = reverse_lazy('productos:product_group_list')
 
     @method_decorator(requiere('productos.add_productgroup'))
     def dispatch(self, *args, **kwargs):
         return super(ProductGroupCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_grupo_productos', args=[self.object.pk])
+        return reverse('productos:product_group_detail', args=[self.object.pk])
 
 
 class ProductCreate(CreateView):
@@ -199,7 +199,7 @@ class ProductCreate(CreateView):
         return super(ProductCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_producto', args=[self.object.pk])
+        return reverse('productos:product_detail', args=[self.object.pk])
 
 
 class UnitOfMeasureCreate(CreateView):
@@ -217,7 +217,7 @@ class UnitOfMeasureCreate(CreateView):
         return super(UnitOfMeasureCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('productos:detalle_unidad_medida', args=[self.object.pk])
+        return reverse('productos:unit_of_measure_detail', args=[self.object.pk])
 
 
 class ServiceCreate(CreateView):
@@ -229,7 +229,7 @@ class ServiceCreate(CreateView):
         return super(ServiceCreate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_servicio', args=[self.object.code])
+        return reverse('productos:service_detail', args=[self.object.code])
 
 
 class ProductDetail(DetailView):
@@ -416,7 +416,7 @@ class ProductUpdate(UpdateView):
         return super(ProductUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_producto', args=[self.object.pk])
+        return reverse('productos:product_detail', args=[self.object.pk])
 
 
 class UnitOfMeasureUpdate(UpdateView):
@@ -429,14 +429,14 @@ class UnitOfMeasureUpdate(UpdateView):
         return super(UnitOfMeasureUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_unidad_medida', args=[self.object.pk])
+        return reverse('productos:unit_of_measure_detail', args=[self.object.pk])
 
 
 class ProductGroupUpdate(UpdateView):
     model = ProductGroup
     template_name = 'productos/grupo_productos.html'
     form_class = ProductGroupForm
-    success_url = reverse_lazy('productos:grupos_productos')
+    success_url = reverse_lazy('productos:product_group_list')
 
     @method_decorator(
         requiere('productos.change_productgroup'))
@@ -444,7 +444,7 @@ class ProductGroupUpdate(UpdateView):
         return super(ProductGroupUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_grupo_productos', args=[self.object.pk])
+        return reverse('productos:product_group_detail', args=[self.object.pk])
 
 
 class ServiceUpdate(UpdateView):
@@ -457,7 +457,7 @@ class ServiceUpdate(UpdateView):
         return super(ServiceUpdate, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_servicio', args=[self.object.pk])
+        return reverse('productos:service_detail', args=[self.object.pk])
 
 
 class ProductExcelReport(TemplateView):

@@ -31,7 +31,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         # El code tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
         baker.make(Product, code='0000000001', description='PRODUCTO-XYZ')
 
-        respuesta = self.client.get(reverse('productos:productos'))
+        respuesta = self.client.get(reverse('productos:product_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
@@ -108,7 +108,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_unidades_de_medida_muestra_la_description(self):
         baker.make('productos.UnitOfMeasure', code='UND01', description='UNIDAD-XYZ')
 
-        respuesta = self.client.get(reverse('productos:unidades_medida'))
+        respuesta = self.client.get(reverse('productos:unit_of_measure_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'UNIDAD-XYZ')
@@ -116,7 +116,7 @@ class ContenidoDeLasPaginasTest(TestCase):
     def test_la_lista_de_grupos_de_productos_muestra_la_description(self):
         baker.make('productos.ProductGroup', code='000001', description='GRUPO-XYZ')
 
-        respuesta = self.client.get(reverse('productos:grupos_productos'))
+        respuesta = self.client.get(reverse('productos:product_group_list'))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'GRUPO-XYZ')

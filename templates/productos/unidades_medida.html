@@ -4,7 +4,7 @@
     <div class="row">
         <div class="col-lg-10">
             {% if perms.productos.add_unidad_medida %}
-            <a href="{% url 'productos:crear_unidad_medida' %}" class="btn btn-primary">
+            <a href="{% url 'productos:unit_of_measure_create' %}" class="btn btn-primary">
                 Crear
             </a>
             {% endif %}
@@ -18,7 +18,7 @@
             <div class="btn-group">
                 {% if perms.productos.ver_reporte_unidades_medida_excel %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'productos:maestro_unidades_medida_excel' %}';">
+                        onclick="location.href='{% url 'productos:unit_of_measure_excel_report' %}';">
                     <span class="glyphicon glyphicon-list-alt"></span>
                 </button>
                 {% endif %}
@@ -39,7 +39,7 @@
                 <tbody>
                 {% for unidad in unidades %}
                 {% if perms.productos.ver_detalle_unidad_medida %}
-                <tr onclick="location.href='{% url 'productos:detalle_unidad_medida' unidad.pk %}';">
+                <tr onclick="location.href='{% url 'productos:unit_of_measure_detail' unidad.pk %}';">
                     {% else %}
                 <tr>
                     {% endif %}
@@ -89,7 +89,7 @@ $(document).ready(function()
 	   	var id = id_boton.replace("elim_","");
 	   	$.ajax({
 	   		data : {'id': id},
-	   		url : "{% url 'productos:eliminar_unidad_medida' %}",
+	   		url : "{% url 'productos:unit_of_measure_delete' %}",
 	   		type : 'post',
 	   		success : function(data)
 	   		{

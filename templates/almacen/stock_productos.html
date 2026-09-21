@@ -143,7 +143,7 @@ function mostrarPrimeraPagina()
 $("#id_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
-      url: "{% url 'productos:busqueda_productos_description' %}",
+      url: "{% url 'productos:product_description_search' %}",
       data: {'description': $("#id_description").val(), 'tipo_busqueda': 'PRODUCTOS'},
       success: function( data )
       {
