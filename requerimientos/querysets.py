@@ -25,8 +25,8 @@ class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
 
 
 class AprobacionRequerimientoQuerySet(models.query.QuerySet):
-    def aprobaciones_pendientes_oficina_usuario(self, requerimientos, nivel):
-        return self.filter(requerimiento__in=requerimientos, nivel=nivel, is_active=True)
+    def aprobaciones_pendientes_oficina_usuario(self, requerimientos, level):
+        return self.filter(requerimiento__in=requerimientos, level=level, is_active=True)
 
-    def aprobaciones_pendientes_gerencia_usuario(self, requerimientos, nivel):
-        return self.filter(requerimiento__in=requerimientos, nivel=nivel, is_active=True)
+    def aprobaciones_pendientes_gerencia_usuario(self, requerimientos, level):
+        return self.filter(requerimiento__in=requerimientos, level=level, is_active=True)

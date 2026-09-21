@@ -234,8 +234,8 @@ class BusquedaProductosTest(TestCase):
         baker.make(Producto, code='COD0000001', description='PRODUCTO', unidad_medida=self.unidad)
 
     def ampliar(self, cuantos):
-        for numero in range(cuantos):
-            baker.make(Producto, description='PRODUCTO %s' % numero, unidad_medida=self.unidad)
+        for number in range(cuantos):
+            baker.make(Producto, description='PRODUCTO %s' % number, unidad_medida=self.unidad)
 
     def buscar(self, url, parametros):
         return self.client.get(url, parametros, HTTP_X_REQUESTED_WITH='XMLHttpRequest')

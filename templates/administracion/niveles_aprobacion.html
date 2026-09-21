@@ -26,14 +26,14 @@
             </tr>
             </thead>
             <tbody>
-            {% for nivel in niveles %}
+            {% for level in niveles %}
             {% if perms.administracion.ver_detalle_puesto %}
-            <tr onclick="location.href='{% url 'administracion:detalle_nivel_aprobacion' nivel.pk %}';">
+            <tr onclick="location.href='{% url 'administracion:detalle_nivel_aprobacion' level.pk %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ nivel.description }}</td>
-                <td>{{ nivel.superior_level }}</td>
+                <td>{{ level.description }}</td>
+                <td>{{ level.superior_level }}</td>
             </tr>
             {% endfor %}
             </tbody>

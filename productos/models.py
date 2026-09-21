@@ -82,7 +82,7 @@ class GrupoProductos(TimeStampedModel):
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
                                                producto__grupo_productos=self).select_related(
-            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
+            'movimiento__document_type', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'operation_date',
                                                                                   'out_quantity',
                                                                                   'created')
@@ -158,7 +158,7 @@ class Producto(TimeStampedModel):
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
                                                producto=self).select_related(
-            'movimiento__tipo_documento', 'movimiento__tipo_movimiento').order_by('producto__description',
+            'movimiento__document_type', 'movimiento__tipo_movimiento').order_by('producto__description',
                                                                                   'operation_date',
                                                                                   'out_quantity',
                                                                                   'created')

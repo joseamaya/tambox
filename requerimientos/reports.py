@@ -56,15 +56,15 @@ class ReporteRequerimiento():
                                    fontName="Times-Roman")
         solicitado = Paragraph(u"SOLICITADO POR: " + requerimiento.solicitante.nombre_completo(), izquierda)
         oficina = Paragraph(u"OFICINA: " + requerimiento.oficina.name, izquierda)
-        motivo = Paragraph(u"MOTIVO: " + requerimiento.motivo, izquierda)
+        reason = Paragraph(u"MOTIVO: " + requerimiento.reason, izquierda)
         date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requerimiento.date.strftime('%d/%m/%Y'), izquierda)
-        mes = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)
-        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requerimiento.annio), izquierda)
+        month = Paragraph(u"MES EN QUE SE NECESITA: " + requerimiento.get_mes_display(), izquierda)
+        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requerimiento.year), izquierda)
         if requerimiento.direct_delivery_to_requester:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
         else:
             entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
-        datos = [[solicitado, oficina], [motivo], [date, mes], [para_stock, entrega]]
+        datos = [[solicitado, oficina], [reason], [date, month], [para_stock, entrega]]
         tabla_datos = Table(datos, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(
             [
@@ -88,7 +88,7 @@ class ReporteRequerimiento():
                               Paragraph(str(detalle.quantity), sp),
                               Paragraph(detalle.producto.unidad_medida.description, sp),
                               Paragraph(detalle.producto.description, sp),
-                              Paragraph(detalle.uso, sp)]
+                              Paragraph(detalle.use, sp)]
             lista_detalles.append(tupla_producto)
         tabla_detalle = Table([encabezados] + lista_detalles, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
         style = TableStyle(
@@ -161,9 +161,9 @@ class ReporteRequerimiento():
         firma_jefe_oficina_logistica = self.obtener_firma(jefe_logistica.firma)
         solicitante = requerimiento.solicitante.nombre_completo()
         cuerpo = [('', '', '', '', '', '')]
-        if requerimiento.approval.nivel.description == "USUARIO" and requerimiento.approval.is_active:
+        if requerimiento.approval.level.description == "USUARIO" and requerimiento.approval.is_active:
             cuerpo = [('', firma_solicitante, '', '', '', '')]
-        elif requerimiento.approval.nivel.description == "LOGISTICA" and requerimiento.approval.is_active:
+        elif requerimiento.approval.level.description == "LOGISTICA" and requerimiento.approval.is_active:
             cuerpo = [(firma_jefe_oficina_logistica, firma_solicitante, '', '', '', '')]
 
         try:

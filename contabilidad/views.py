@@ -26,7 +26,7 @@ class Tablero(View):
     def get(self, request, *args, **kwargs):
         lista_notificaciones = []
         cant_cuentas_contables = CuentaContable.objects.count()
-        tipo_documento, creado = TipoDocumento.objects.get_or_create(sunat_code='PEC',
+        document_type, creado = TipoDocumento.objects.get_or_create(sunat_code='PEC',
                                                                      defaults={'description': 'PECOSA',
                                                                                'name': 'PECOSA'})
         if creado:
@@ -222,11 +222,11 @@ class EliminarTipoDocumento(TemplateView):
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             id = request.POST['id']
-            tipo_documento = TipoDocumento.objects.get(pk=id)
+            document_type = TipoDocumento.objects.get(pk=id)
             tipo_documento_json = {}
-            tipo_documento_json['sunat_code'] = tipo_documento.sunat_code
-            tipo_documento_json['name'] = tipo_documento.name
-            if len(tipo_documento.movements.all()) > 0:
+            tipo_documento_json['sunat_code'] = document_type.sunat_code
+            tipo_documento_json['name'] = document_type.name
+            if len(document_type.movements.all()) > 0:
                 tipo_documento_json['relaciones'] = 'SI'
             else:
                 tipo_documento_json['relaciones'] = 'NO'
@@ -401,9 +401,9 @@ class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             fecha_get = request.GET['date']
             anio = int(fecha_get[6:])
-            mes = int(fecha_get[3:5])
+            month = int(fecha_get[3:5])
             dia = int(fecha_get[0:2])
-            date = datetime.date(anio, mes, dia)
+            date = datetime.date(anio, month, dia)
             try:
                 tipo_cambio = TipoCambio.objects.get(date=date)
             except TipoCambio.DoesNotExist:

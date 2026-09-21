@@ -57,7 +57,7 @@ class MovimientoResources(resources.ModelResource):
 
 class DetallesMovimientoAdmin(ImportExportModelAdmin, admin.ModelAdmin):
     inlines = [FilaDetalleMovimientoAdmin]
-    list_display = ('id_movimiento', 'tipo_movimiento', 'referencia', 'pedido', 'serie', 'oficina')
+    list_display = ('id_movimiento', 'tipo_movimiento', 'referencia', 'pedido', 'series', 'oficina')
     resource_class = MovimientoResources
 
 

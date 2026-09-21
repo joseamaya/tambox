@@ -123,7 +123,7 @@ class ReporteMovimiento():
             orden_compra = Paragraph(u"REFERENCIA: -", izquierda)
         try:
             documento = Paragraph(
-                u"DOCUMENTO: " + movimiento.tipo_documento.description + " SERIE:" + movimiento.serie + u" NÚMERO:" + movimiento.numero,
+                u"DOCUMENTO: " + movimiento.document_type.description + " SERIE:" + movimiento.series + u" NÚMERO:" + movimiento.number,
                 izquierda)
         except (ObjectDoesNotExist, TypeError):
             documento = ""
@@ -367,9 +367,9 @@ class ReporteKardexPDF():
 
         for kardex in listado_kardex:
             try:
-                tipo_documento = kardex.movimiento.tipo_documento.sunat_code
+                document_type = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
-                tipo_documento = '-'
+                document_type = '-'
             try:
                 tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
             except ObjectDoesNotExist:
@@ -378,9 +378,9 @@ class ReporteKardexPDF():
             total_quantity = kardex.total_quantity
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
-                          tipo_documento,
-                          kardex.movimiento.serie,
-                          kardex.movimiento.numero,
+                          document_type,
+                          kardex.movimiento.series,
+                          kardex.movimiento.number,
                           tipo_movimiento,
                           format(kardex.in_quantity, '.2f'),
                           format(kardex.out_quantity, '.2f'),
@@ -674,9 +674,9 @@ class ReporteKardexPDF():
 
         for kardex in listado_kardex:
             try:
-                tipo_documento = kardex.movimiento.tipo_documento.sunat_code
+                document_type = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
-                tipo_documento = '-'
+                document_type = '-'
             try:
                 tipo_movimiento = kardex.movimiento.tipo_movimiento.sunat_code
             except ObjectDoesNotExist:
@@ -689,9 +689,9 @@ class ReporteKardexPDF():
                 total_amount = format(abs(kardex.total_amount), '.2f')
 
             tabla.append([kardex.operation_date.strftime('%d/%m/%Y'),
-                          tipo_documento,
-                          kardex.movimiento.serie,
-                          kardex.movimiento.numero,
+                          document_type,
+                          kardex.movimiento.series,
+                          kardex.movimiento.number,
                           tipo_movimiento,
                           format(kardex.in_quantity, '.2f'),
                           format(kardex.in_price, '.2f'),
@@ -1188,13 +1188,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).value = kardex.movimiento.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).value = kardex.movimiento.number
             ws.cell(row=cont, column=5).border = thin_border
             ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
@@ -1493,13 +1493,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).value = kardex.movimiento.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).value = kardex.movimiento.number
             ws.cell(row=cont, column=5).border = thin_border
             ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
@@ -1666,13 +1666,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).value = kardex.movimiento.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).value = kardex.movimiento.number
             ws.cell(row=cont, column=5).border = thin_border
             ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border
@@ -1872,13 +1872,13 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
             ws.cell(row=cont, column=2).border = thin_border
             try:
-                ws.cell(row=cont, column=3).value = kardex.movimiento.tipo_documento.sunat_code
+                ws.cell(row=cont, column=3).value = kardex.movimiento.document_type.sunat_code
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '-'
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = kardex.movimiento.serie
+            ws.cell(row=cont, column=4).value = kardex.movimiento.series
             ws.cell(row=cont, column=4).border = thin_border
-            ws.cell(row=cont, column=5).value = kardex.movimiento.numero
+            ws.cell(row=cont, column=5).value = kardex.movimiento.number
             ws.cell(row=cont, column=5).border = thin_border
             ws.cell(row=cont, column=6).value = kardex.movimiento.tipo_movimiento.sunat_code
             ws.cell(row=cont, column=6).border = thin_border

@@ -104,7 +104,7 @@ class RenderTestCase(TestCase):
 class OpcionesDeFormularioTestCase(TestCase):
     """Las opciones que salen de la base de datos se leen al construir el
     formulario, no al importar el modulo: antes quedaban congeladas y un almacen
-    nuevo no aparecia en el desplegable hasta reiniciar el proceso."""
+    nuevo no aparecia en el desplegable hasta reiniciar el process."""
 
     def test_las_opciones_se_leen_de_la_base_de_datos(self):
         from almacen.models import Almacen

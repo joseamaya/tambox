@@ -18,13 +18,13 @@ class Requerimiento(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE, related_name='requirements')
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='requirements')
-    motivo = models.CharField(max_length=100, blank=True)
+    reason = models.CharField(max_length=100, blank=True)
     date = models.DateField()
     received_date = models.DateField(null=True)
-    mes = models.IntegerField(choices=CHOICES_MESES)
-    annio = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
+    month = models.IntegerField(choices=CHOICES_MESES)
+    year = models.PositiveIntegerField(validators=[MaxValueValidator(9999)])
     notes = models.TextField()
-    informe = models.FileField(upload_to='informes', null=True)
+    report = models.FileField(upload_to='informes', null=True)
     direct_delivery_to_requester = models.BooleanField(default=False)
     STATUS = CHOICES_ESTADO_REQ
     status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20, verbose_name='Estado')
@@ -168,7 +168,7 @@ class Requerimiento(TimeStampedModel):
     def obtener_requerimientos_listos_transferencia():
         listado_requerimientos = []
         requerimientos = Requerimiento.objects.filter(
-            approval__nivel__description="LOGISTICA",
+            approval__level__description="LOGISTICA",
             approval__is_active=True).prefetch_related('details')
         for requerimiento in requerimientos:
             total = requerimiento.total
@@ -198,23 +198,23 @@ class Requerimiento(TimeStampedModel):
             self.crear_aprobacion_inicial(puesto)
 
     def crear_aprobacion_inicial(self, puesto):
-        """Crea la aprobacion del primer nivel. Requiere que el requerimiento ya
+        """Crea la aprobacion del primer level. Requiere que el requerimiento ya
         tenga pk, por eso se llama despues de guardar."""
         if (self.oficina == oficina_administracion() or self.oficina == operaciones()) and puesto.is_leadership:
             niveles_aprobacion = NivelAprobacion.objects.filter(description="JEFATURA")
             if niveles_aprobacion.count() > 0:
                 AprobacionRequerimiento.objects.create(requerimiento=self,
-                                                        nivel=niveles_aprobacion[0])
+                                                        level=niveles_aprobacion[0])
             return
         AprobacionRequerimiento.objects.create(requerimiento=self,
-                                               nivel=puesto.establecer_nivel(self.oficina))
+                                               level=puesto.establecer_nivel(self.oficina))
 
 
 class DetalleRequerimiento(TimeStampedModel):
     line_number = models.IntegerField()
     requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, related_name='details')
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='requirement_details', null=True)
-    uso = models.TextField(null=True)
+    use = models.TextField(null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     quoted_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
@@ -266,9 +266,9 @@ class DetalleRequerimiento(TimeStampedModel):
 
 class AprobacionRequerimiento(TimeStampedModel):
     requerimiento = models.OneToOneField(Requerimiento, on_delete=models.CASCADE, related_name='approval', primary_key=True)
-    nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE, related_name='approvals')
+    level = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE, related_name='approvals')
     is_active = models.BooleanField(default=True, verbose_name='Estado')
-    motivo_desaprobacion = models.TextField(default='')
+    rejection_reason = models.TextField(default='')
     received_date = models.DateField(null=True)
     history = HistoricalRecords()
     objects = AprobacionRequerimientoQuerySet.as_manager()
@@ -286,25 +286,25 @@ class AprobacionRequerimiento(TimeStampedModel):
         oficina_requerimiento = self.requerimiento.oficina
         nivel_actual = puesto_usuario.establecer_nivel(oficina_requerimiento)
         nivel_anterior = nivel_actual.superior.all()[0]
-        if ((self.nivel == nivel_actual or self.nivel == nivel_anterior) or
-                (self.nivel.description == "JEFATURA" and nivel_actual.description == "GERENCIA ADMINISTRACION") or
+        if ((self.level == nivel_actual or self.level == nivel_anterior) or
+                (self.level.description == "JEFATURA" and nivel_actual.description == "GERENCIA ADMINISTRACION") or
                 (
-                        self.nivel.description == "USUARIO" and oficina_requerimiento == operaciones() and nivel_actual.description == "GERENCIA INMEDIATA")):
+                        self.level.description == "USUARIO" and oficina_requerimiento == operaciones() and nivel_actual.description == "GERENCIA INMEDIATA")):
             return True
         else:
             return False
 
     def obtener_oficina_aprobacion_superior(self):
-        nivel = self.nivel
-        if nivel.description == "PRESUPUESTO":
+        level = self.level
+        if level.description == "PRESUPUESTO":
             oficina = logistica()
-        elif nivel.description == "GERENCIA ADMINISTRACION":
+        elif level.description == "GERENCIA ADMINISTRACION":
             oficina = presupuesto()
-        elif nivel.description == "GERENCIA INMEDIATA":
+        elif level.description == "GERENCIA INMEDIATA":
             oficina = oficina_administracion()
-        elif nivel.description == "JEFATURA":
+        elif level.description == "JEFATURA":
             oficina = self.requerimiento.oficina.gerencia
-        elif nivel.description == "USUARIO":
+        elif level.description == "USUARIO":
             oficina = self.requerimiento.oficina
         else:
             oficina = None
@@ -317,11 +317,11 @@ class AprobacionRequerimiento(TimeStampedModel):
         queryset = []
         if oficina_usuario == logistica() and puesto_usuario.is_leadership:
             queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__status=Requerimiento.STATUS.CANC),
-                                                              nivel__description="USUARIO",
+                                                              level__description="USUARIO",
                                                               is_active=True)
         return queryset
 
     def save(self, *args, **kwargs):
-        if self.nivel.description == "LOGISTICA" and self.is_active == True:
+        if self.level.description == "LOGISTICA" and self.is_active == True:
             self.requerimiento.received_date = date.today()
         super(AprobacionRequerimiento, self).save()

@@ -138,12 +138,12 @@
             <div class="row">
                 <div class="col-md-3">
                     <label>Proceso:</label>
-                    <p>{{ object.proceso }}</p>
+                    <p>{{ object.process }}</p>
                 </div>
                 <div class="col-md-3">
                     <label>Informe:</label>
-                    {% if object.informe %} <a
-                        href="{{ object.informe.url }}">Ver informe</a>
+                    {% if object.report %} <a
+                        href="{{ object.report.url }}">Ver informe</a>
                     {% endif %}
                 </div>
             </div>
@@ -191,7 +191,7 @@
                     </tr>
                     <tr>
                         <td colspan="4">
-                            SON: {{ object.total_letras }}
+                            SON: {{ object.total_in_words }}
                         </td>
                         <td>
                             SUBTOTAL:

@@ -58,12 +58,12 @@
                 <div class="row">
                     <div class="col-md-12">
                         <label>Motivo:</label>
-                        {% if form.motivo.errors %}
-                        {% for error in form.motivo.errors %}
+                        {% if form.reason.errors %}
+                        {% for error in form.reason.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.motivo }}
+                        {{ form.reason }}
                     </div>
                 </div>
             </div>
@@ -80,30 +80,30 @@
                     </div>
                     <div class="col-md-3">
                         <label>Mes en que se necesita:</label>
-                        {% if form.mes.errors %}
-                        {% for error in form.mes.errors %}
+                        {% if form.month.errors %}
+                        {% for error in form.month.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.mes }}
+                        {{ form.month }}
                     </div>
                     <div class="col-md-3">
                         <label>Año en que se necesita:</label>
-                        {% if form.annio.errors %}
-                        {% for error in form.annio.errors %}
+                        {% if form.year.errors %}
+                        {% for error in form.year.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.annio }}
+                        {{ form.year }}
                     </div>
                     <div class="col-md-4">
                         <label>Informe:</label>
-                        {% if form.informe.errors %}
-                        {% for error in form.informe.errors %}
+                        {% if form.report.errors %}
+                        {% for error in form.report.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.informe }}
+                        {{ form.report }}
                     </div>
                 </div>
             </div>
@@ -186,12 +186,12 @@
                                 {{ detalle_requerimiento_form.quantity }}
                             </td>
                             <td>
-                                {% if detalle_requerimiento_form.uso.errors %}
-                                {% for error in detalle_requerimiento_form.uso.errors %}
+                                {% if detalle_requerimiento_form.use.errors %}
+                                {% for error in detalle_requerimiento_form.use.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_requerimiento_form.uso }}
+                                {{ detalle_requerimiento_form.use }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -238,7 +238,7 @@ $(document).ready(function()
 							"<td>" + item.producto + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.quantity + "</td>" +
-							"<td>" + item.uso + "</td>" +
+							"<td>" + item.use + "</td>" +
 							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
 						"</tr>");
 						contDetalles = parseInt(contDetalles) + 1;											

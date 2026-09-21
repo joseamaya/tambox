@@ -35,12 +35,12 @@
                         <div class="row">
                             <div class="col-md-3">
                                 <label>MOTIVO DESAPROBACION:</label>
-                                {% if form.motivo_desaprobacion.errors %}
-                                {% for error in form.motivo_desaprobacion.errors %}
+                                {% if form.rejection_reason.errors %}
+                                {% for error in form.rejection_reason.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.motivo_desaprobacion }}
+                                {{ form.rejection_reason }}
                             </div>
                         </div>
                     </div>
@@ -68,12 +68,12 @@ $(document).ready(function()
 		var estado = $('#id_is_active').val();
 		if(estado.indexOf('DESAP') != -1)
 		{
-			$("#id_motivo_desaprobacion").attr("readonly", false);
+			$("#id_rejection_reason").attr("readonly", false);
 		}
 		else
 		{
-			$("#id_motivo_desaprobacion").val('');
-			$("#id_motivo_desaprobacion").attr("readonly", true);
+			$("#id_rejection_reason").val('');
+			$("#id_rejection_reason").attr("readonly", true);
 		}	
 	}
 });

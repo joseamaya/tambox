@@ -172,7 +172,7 @@ class EstadosDeDetalleTest(TestCase):
 
 
 class TotalesDeOrdenCompraTest(TestCase):
-    """`total` y `total_letras` encadenan `subtotal` e `impuesto`, y las
+    """`total` y `total_in_words` encadenan `subtotal` e `impuesto`, y las
     plantillas las invocan mas de una vez: sin memorizar se repiten las
     consultas. No se convierten en agregados SQL porque redondean fila a fila."""
 

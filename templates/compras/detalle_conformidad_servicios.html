@@ -61,7 +61,7 @@
                 </div>
                 <div class="col-md-5">
                     <label>Doc. Sustento:</label>
-                    <p>{{ object.doc_sustento }}
+                    <p>{{ object.supporting_document }}
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
                             detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description
                             }}
                         </td>
-                        <td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.uso }}</td>
+                        <td>{{ detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.use }}</td>
                         <td>{{ detalle.detalle_orden_servicios.price }}</td>
                         <td>{{ detalle.detalle_orden_servicios.amount }}</td>
                     </tr>
@@ -96,7 +96,7 @@
                     </tr>
                     <tr>
                         <td colspan="3">
-                            SON: {{ object.total_letras }}
+                            SON: {{ object.total_in_words }}
                         </td>
                         <td>
                             SUBTOTAL

@@ -303,7 +303,7 @@ class CrearOrdenCompra(CreateView):
         initial['total'] = 0
         initial['subtotal'] = 0
         initial['impuesto'] = 0
-        initial['total_letras'] = ''
+        initial['total_in_words'] = ''
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -389,7 +389,7 @@ class CrearOrdenServicios(CreateView):
         initial['total'] = 0
         initial['subtotal'] = 0
         initial['impuesto'] = 0
-        initial['total_letras'] = ''
+        initial['total_in_words'] = ''
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -470,7 +470,7 @@ class CrearConformidadServicio(CreateView):
         initial = super(CrearConformidadServicio, self).get_initial()
         initial['total'] = 0
         initial['subtotal'] = 0
-        initial['total_letras'] = ''
+        initial['total_in_words'] = ''
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -917,7 +917,7 @@ class ModificarConformidadServicio(UpdateView):
         conformidad = self.object
         initial['cod_conformidad_servicio'] = conformidad.code
         initial['orden_servicios'] = conformidad.orden_servicios
-        initial['doc_sustento'] = conformidad.doc_sustento
+        initial['supporting_document'] = conformidad.supporting_document
         initial['date'] = conformidad.date.strftime('%d/%m/%Y')
         return initial
 
@@ -1022,7 +1022,7 @@ class ModificarOrdenCompra(UpdateView):
         initial['total'] = orden.total
         initial['subtotal'] = orden.subtotal
         initial['impuesto'] = orden.impuesto
-        initial['total_letras'] = orden.total_letras
+        initial['total_in_words'] = orden.total_in_words
         initial['notes'] = orden.notes
         return initial
 
@@ -1115,11 +1115,11 @@ class ModificarOrdenServicios(UpdateView):
         initial['date'] = orden.date.strftime('%d/%m/%Y')
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
-        initial['proceso'] = orden.proceso
+        initial['process'] = orden.process
         initial['total'] = orden.total
         initial['subtotal'] = orden.subtotal
         initial['impuesto'] = orden.impuesto
-        initial['total_letras'] = orden.total_letras
+        initial['total_in_words'] = orden.total_in_words
         initial['notes'] = orden.notes
         return initial
 
@@ -1298,9 +1298,9 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
 
     def obtener_date(self, r_date):
         anio = int(r_date[6:])
-        mes = int(r_date[3:5])
+        month = int(r_date[3:5])
         dia = int(r_date[0:2])
-        date = datetime.date(anio, mes, dia)
+        date = datetime.date(anio, month, dia)
         return date
 
     def get(self, request, *args, **kwargs):
@@ -1369,7 +1369,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                     det['orden_servicios'] = detalle.id
                     det['code'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.code
                     det['servicio'] = detalle.detalle_cotizacion.detalle_requerimiento.producto.description
-                    det['uso'] = detalle.detalle_cotizacion.detalle_requerimiento.uso
+                    det['use'] = detalle.detalle_cotizacion.detalle_requerimiento.use
                     det['price'] = str(detalle.price)
                     det['quantity'] = str(detalle.quantity)
                     det['amount'] = str(detalle.amount)
@@ -1378,7 +1378,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                     det['orden_servicios'] = detalle.id
                     det['code'] = detalle.producto.code
                     det['servicio'] = detalle.producto.description
-                    det['uso'] = detalle.producto.unidad_medida.description
+                    det['use'] = detalle.producto.unidad_medida.description
                     det['price'] = str(detalle.price)
                     det['quantity'] = str(detalle.quantity)
                     det['amount'] = str(detalle.amount)
@@ -1389,7 +1389,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
                 detalle_json = {}
                 detalle_json['orden_servicios'] = str(form['orden_servicios'])
                 detalle_json['servicio'] = str(form['servicio'])
-                detalle_json['uso'] = str(form['uso'])
+                detalle_json['use'] = str(form['use'])
                 detalle_json['price'] = str(form['price'])
                 detalle_json['quantity'] = str(form['quantity'])
                 detalle_json['amount'] = str(form['amount'])
@@ -1514,13 +1514,13 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             p_start_date = data['start_date']
             p_fecha_final = data['end_date']
             anio = int(p_start_date[6:])
-            mes = int(p_start_date[3:5])
+            month = int(p_start_date[3:5])
             dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            start_date = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
-            mes = int(p_fecha_final[3:5])
+            month = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
-            fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
@@ -1531,22 +1531,22 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws['F3'].number_format = 'dd/mm/yyyy'
             ordenes_servicios = OrdenServicios.objects.filter(date__range=[start_date, fecha_final])
         elif tipo_busqueda == 'M':
-            mes = data['mes'].strip()
-            annio = data['annio'].strip()
+            month = data['month'].strip()
+            year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR MES'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'MES'
-            ws['C3'] = mes
+            ws['C3'] = month
             ws['D3'] = 'AÑO'
-            ws['E3'] = annio
-            ordenes_servicios = OrdenServicios.objects.filter(date__month=mes, date__year=annio)
+            ws['E3'] = year
+            ordenes_servicios = OrdenServicios.objects.filter(date__month=month, date__year=year)
         elif tipo_busqueda == 'A':
-            annio = data['annio'].strip()
+            year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
-            ws['C3'] = annio
-            ordenes_servicios = OrdenServicios.objects.filter(date__year=annio)
+            ws['C3'] = year
+            ordenes_servicios = OrdenServicios.objects.filter(date__year=year)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'
@@ -1594,13 +1594,13 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             p_start_date = data['start_date']
             p_fecha_final = data['end_date']
             anio = int(p_start_date[6:])
-            mes = int(p_start_date[3:5])
+            month = int(p_start_date[3:5])
             dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            start_date = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
             anio = int(p_fecha_final[6:])
-            mes = int(p_fecha_final[3:5])
+            month = int(p_fecha_final[3:5])
             dia = int(p_fecha_final[0:2])
-            fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+            fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
@@ -1611,22 +1611,22 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws['F3'].number_format = 'dd/mm/yyyy'
             ordenes_compra = OrdenCompra.objects.filter(date__range=[start_date, fecha_final])
         elif tipo_busqueda == 'M':
-            mes = data['mes'].strip()
-            annio = data['annio'].strip()
+            month = data['month'].strip()
+            year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR MES'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'MES'
-            ws['C3'] = mes
+            ws['C3'] = month
             ws['D3'] = 'AÑO'
-            ws['E3'] = annio
-            ordenes_compra = OrdenCompra.objects.filter(date__month=mes, date__year=annio)
+            ws['E3'] = year
+            ordenes_compra = OrdenCompra.objects.filter(date__month=month, date__year=year)
         elif tipo_busqueda == 'A':
-            annio = data['annio'].strip()
+            year = data['year'].strip()
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR AÑO'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'AÑO'
-            ws['C3'] = annio
-            ordenes_compra = OrdenCompra.objects.filter(date__year=annio)
+            ws['C3'] = year
+            ordenes_compra = OrdenCompra.objects.filter(date__year=year)
         ws['B5'] = 'CODIGO'
         ws['C5'] = 'FECHA'
         ws['D5'] = 'PROVEEDOR'

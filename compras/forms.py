@@ -67,8 +67,8 @@ class FormularioReporteOrdenesFecha(forms.Form):
                                    label='Fecha de Inicio:', required=False)
     end_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                 label='Fecha de Fin:', required=False)
-    mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    annio = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
+    month = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
 
 
@@ -136,7 +136,7 @@ class OrdenCompraForm(forms.ModelForm):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    total_letras = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
+    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
@@ -149,7 +149,7 @@ class OrdenCompraForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_letras':
+            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_in_words':
                 self.fields[field].widget.attrs.update({
                     'readonly': "readonly"
                 })
@@ -186,22 +186,22 @@ class OrdenServiciosForm(forms.ModelForm):
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    total_letras = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
+    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
 
     def __init__(self, *args, **kwargs):
         super(OrdenServiciosForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        self.fields['proceso'].required = False
+        self.fields['process'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
         self.fields['report_name'].required = False
-        self.fields['informe'].required = False
+        self.fields['report'].required = False
         self.fields['referencia'].required = False
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
-            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_letras':
+            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_in_words':
                 self.fields[field].widget.attrs.update({
                     'readonly': "readonly"
                 })
@@ -222,7 +222,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     class Meta:
         model = OrdenServicios
-        fields = ['code', 'forma_pago', 'proceso', 'notes', 'date', 'report_name', 'informe']
+        fields = ['code', 'forma_pago', 'process', 'notes', 'date', 'report_name', 'report']
 
 
 class ConformidadServicioForm(forms.ModelForm):
@@ -234,9 +234,9 @@ class ConformidadServicioForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ConformidadServicioForm, self).__init__(*args, **kwargs)
         self.fields['total'].widget.attrs['readonly'] = True
-        self.fields['total_letras'].widget.attrs['readonly'] = True
+        self.fields['total_in_words'].widget.attrs['readonly'] = True
         self.fields['code'].required = False
-        self.fields['doc_sustento'].required = False
+        self.fields['supporting_document'].required = False
         self.fields['file'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
@@ -250,7 +250,7 @@ class ConformidadServicioForm(forms.ModelForm):
 
     class Meta:
         model = ConformidadServicio
-        fields = ['code', 'doc_sustento', 'file', 'date', 'total', 'total_letras']
+        fields = ['code', 'supporting_document', 'file', 'date', 'total', 'total_in_words']
 
 
 class FormularioDetalleCotizacion(forms.Form):
@@ -300,7 +300,7 @@ class FormularioDetalleConformidadServicio(forms.Form):
         attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
     servicio = forms.CharField(
         widget=forms.TextInput(attrs={'size': 35, 'readonly': "readonly", 'class': 'form-control'}))
-    uso = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}),
+    use = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}),
                           required=False)
     price = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
         attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal form-control'}))

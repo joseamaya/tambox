@@ -235,7 +235,7 @@ class ReporteInventarioTest(TestCase):
         with CaptureQueriesContext(connection) as con_un_producto:
             reporte_inventario(date.today())
 
-        for numero in range(9):
+        for number in range(9):
             baker.make(Producto, code='', **campos)
 
         with CaptureQueriesContext(connection) as con_diez:
@@ -388,7 +388,7 @@ class ReporteKardexConsolidadoTest(TestCase):
         self.grupo = baker.make(GrupoProductos, code='000001',
                                 ctacontable=baker.make(CuentaContable), contains_products=True)
         self.productos = [baker.make(Producto, code='', grupo_productos=self.grupo)
-                          for numero in range(3)]
+                          for number in range(3)]
 
     def reporte(self):
         from almacen.reports import ReporteKardexPDF
@@ -427,7 +427,7 @@ class ReporteKardexExcelTest(TestCase):
                                 ctacontable=baker.make(CuentaContable))
         self.unidad = baker.make(UnidadMedida)
         self.tipo_existencia = baker.make(TipoExistencia)
-        self.tipo_documento = baker.make(TipoDocumento, sunat_code='PEC')
+        self.document_type = baker.make(TipoDocumento, sunat_code='PEC')
         self.tipo_movimiento = baker.make(TipoMovimiento, code='I01', sunat_code='01')
         self.producto = baker.make(Producto, code='', grupo_productos=self.grupo,
                                    unidad_medida=self.unidad,
@@ -450,12 +450,12 @@ class ReporteKardexExcelTest(TestCase):
         with CaptureQueriesContext(connection) as con_uno:
             reporte.obtener_formato_sunat_unidades_fisicas_todos(self.desde, self.hasta, self.almacen)
 
-        for numero in range(9):
+        for number in range(9):
             producto = baker.make(Producto, code='', grupo_productos=self.grupo,
                                   unidad_medida=self.unidad,
                                   tipo_existencia=self.tipo_existencia)
             baker.make(Kardex, almacen=self.almacen, producto=producto,
-                       movimiento=baker.make(Movimiento, tipo_documento=self.tipo_documento,
+                       movimiento=baker.make(Movimiento, document_type=self.document_type,
                                              tipo_movimiento=self.tipo_movimiento),
                        operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
                        total_quantity=Decimal('5'), total_amount=Decimal('10'))
@@ -494,7 +494,7 @@ class ReporteKardexExcelTest(TestCase):
 
 class ReporteKardexPorProductoTest(TestCase):
     """Los informes de kardex por producto resolvian el saldo inicial con un
-    `latest()` por fila. `kardex_inicial_de()` lee el lote que el informe
+    `latest()` por fila. `kardex_inicial_de()` lee el lote que el report
     precargo, y si el informe exporta un solo producto consulta ese producto:
     los dos caminos se ejercitan aqui, porque `manage.py check` no ejecuta
     cuerpos de funcion."""

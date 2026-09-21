@@ -7,7 +7,7 @@
         {% if perms.requerimientos.add_requerimiento %}
         <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
-        {% if object.approval.nivel == "USU" or object.approval.nivel == "JEF" %}
+        {% if object.approval.level == "USU" or object.approval.level == "JEF" %}
         {% if object.status %}
         {% if perms.requerimientos.change_requerimiento %}
         <a class="btn btn-warning" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a>
@@ -106,7 +106,7 @@
             </div>
             <div class="col-md-3">
                 <label>Nivel Aprob:</label>
-                <p>{{ object.approval.nivel }}</p>
+                <p>{{ object.approval.level }}</p>
             </div>
         </div>
         <div class="row">
@@ -114,7 +114,7 @@
         <div class="row">
             <div class="col-md-12">
                 <label>Motivo:</label>
-                <p>{{ object.motivo }}</p>
+                <p>{{ object.reason }}</p>
             </div>
         </div>
         <div class="row">
@@ -128,12 +128,12 @@
             </div>
             <div class="col-md-3">
                 <label>Año en que se necesita:</label>
-                <p>{{ object.annio }}</p>
+                <p>{{ object.year }}</p>
             </div>
             <div class="col-md-3">
                 <label>Informe:</label>
-                {% if object.informe %}
-                <a href="{{ object.informe.url }}">Ver informe</a>
+                {% if object.report %}
+                <a href="{{ object.report.url }}">Ver informe</a>
                 {% endif %}
             </div>
         </div>
@@ -165,14 +165,14 @@
                     <tr>
                         {% if detalle.producto %}
                         <td>{{ detalle.producto.description }}</td>
-                        <td>{{ detalle.uso }}</td>
+                        <td>{{ detalle.use }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.quoted_quantity }}</td>
                         <td>{{ detalle.purchased_quantity }}</td>
                         {% else %}
                         <td>{{ detalle.otro }}</td>
-                        <td>{{ detalle.uso }}</td>
+                        <td>{{ detalle.use }}</td>
                         <td>-</td>
                         <td>{{ detalle.quantity }}</td>
                         <td>{{ detalle.quoted_quantity }}</td>

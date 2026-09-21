@@ -64,8 +64,8 @@ class FormularioReporteMovimientos(forms.Form):
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     hasta = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    mes = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    annio = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
+    month = forms.ChoiceField(choices=MESES, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
+    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
     tipos_movimiento = forms.ChoiceField(choices=[],
                                          widget=forms.Select(attrs={'class': 'form-control'}))
@@ -98,9 +98,9 @@ class MovimientoForm(forms.ModelForm):
         self.tipo_movimiento = kwargs.pop("tipo_movimiento")
         super(MovimientoForm, self).__init__(*args, **kwargs)
         self.fields['id_movimiento'].required = False
-        self.fields['tipo_documento'].required = False
-        self.fields['serie'].required = False
-        self.fields['numero'].required = False
+        self.fields['document_type'].required = False
+        self.fields['series'].required = False
+        self.fields['number'].required = False
         self.fields['notes'].required = False
         self.fields['oficina'].required = False
         self.fields['dni_receptor'].required = False
@@ -133,12 +133,12 @@ class MovimientoForm(forms.ModelForm):
     def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
-        mes = int(r_date[3:5])
+        month = int(r_date[3:5])
         dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
+        date = timezone.make_aware(datetime.datetime(anio, month, dia, horas, minutos, segundos))
         return date
 
     def save(self, *args, **kwargs):
@@ -162,7 +162,7 @@ class MovimientoForm(forms.ModelForm):
 
     class Meta:
         model = Movimiento
-        fields = ['id_movimiento', 'tipo_movimiento', 'tipo_documento', 'serie', 'numero', 'almacen', 'oficina',
+        fields = ['id_movimiento', 'tipo_movimiento', 'document_type', 'series', 'number', 'almacen', 'oficina',
                   'notes']
 
 
@@ -282,12 +282,12 @@ class AprobacionPedidoForm(forms.ModelForm):
     def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
-        mes = int(r_date[3:5])
+        month = int(r_date[3:5])
         dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos, segundos))
+        date = timezone.make_aware(datetime.datetime(anio, month, dia, horas, minutos, segundos))
         return date
 
     def save(self, *args, **kwargs):

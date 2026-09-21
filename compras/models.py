@@ -283,7 +283,7 @@ class OrdenCompra(TimeStampedModel):
 
     @property
     def impuesto(self):
-        """Se memoriza: `total` y `total_letras` la encadenan, y las plantillas
+        """Se memoriza: `total` y `total_in_words` la encadenan, y las plantillas
         las invocan mas de una vez en la misma pagina.
 
         No se convierte en agregado SQL a proposito: suma una propiedad que
@@ -307,7 +307,7 @@ class OrdenCompra(TimeStampedModel):
         return self._subtotal_calculado
 
     @property
-    def total_letras(self):
+    def total_in_words(self):
         letras = to_word(self.total).upper()
         return letras
 
@@ -418,9 +418,9 @@ class OrdenServicios(TimeStampedModel):
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, related_name='service_orders', null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, related_name='service_orders', null=True)
     forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE, related_name='service_orders')
-    proceso = models.CharField(max_length=50, default='')
+    process = models.CharField(max_length=50, default='')
     report_name = models.CharField(max_length=150, default='')
-    informe = models.FileField(upload_to='informes', null=True)
+    report = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
     notes = models.TextField(default='')
     STATUS = Choices(('PEND', _('PENDIENTE')),
@@ -449,7 +449,7 @@ class OrdenServicios(TimeStampedModel):
         return total
 
     @property
-    def total_letras(self):
+    def total_in_words(self):
         letras = to_word(self.total).upper()
         return letras
 
@@ -565,11 +565,11 @@ class DetalleOrdenServicios(TimeStampedModel):
 class ConformidadServicio(TimeStampedModel):
     code = models.CharField(unique=True, max_length=12)
     orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE, related_name='conformities')
-    doc_sustento = models.CharField(max_length=50)
+    supporting_document = models.CharField(max_length=50)
     file = models.FileField(upload_to='informes', null=True)
     date = models.DateField()
     total = models.DecimalField(max_digits=15, decimal_places=5)
-    total_letras = models.CharField(max_length=150)
+    total_in_words = models.CharField(max_length=150)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()

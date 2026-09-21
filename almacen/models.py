@@ -206,9 +206,9 @@ class Movimiento(TimeStampedModel):
     tipo_movimiento = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE, related_name='movements')
     referencia = models.ForeignKey(OrdenCompra, on_delete=models.CASCADE, related_name='movements', null=True)
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name='movements', null=True)
-    tipo_documento = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='movements', null=True)
-    serie = models.CharField(max_length=15, null=True)
-    numero = models.CharField(max_length=10, null=True)
+    document_type = models.ForeignKey(TipoDocumento, on_delete=models.CASCADE, related_name='movements', null=True)
+    series = models.CharField(max_length=15, null=True)
+    number = models.CharField(max_length=10, null=True)
     operation_date = models.DateTimeField()
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movements')
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='movements', null=True)
@@ -457,7 +457,7 @@ class Kardex(TimeStampedModel):
         filas = (cls.objects.filter(operation_date__gte=desde,
                                     operation_date__lte=hasta,
                                     **filtro)
-                 .select_related('producto', 'movimiento__tipo_documento',
+                 .select_related('producto', 'movimiento__document_type',
                                  'movimiento__tipo_movimiento')
                  .order_by('producto__description', 'operation_date',
                            'out_quantity', 'created'))

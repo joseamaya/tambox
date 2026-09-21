@@ -3,7 +3,7 @@
 Con `USE_TZ = True`, filtrar un `DateTimeField` con un `date` suelto dispara
 `RuntimeWarning: received a naive datetime`. Django lo interpreta igual -en la
 zona del proyecto-, asi que el resultado no cambia, pero ensucia los logs de cada
-informe. Esta conversion vive aqui para que sea una sola.
+report. Esta conversion vive aqui para que sea una sola.
 """
 import datetime
 

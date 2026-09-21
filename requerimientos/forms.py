@@ -11,13 +11,13 @@ from productos.models import Producto
 class AprobacionRequerimientoForm(forms.ModelForm):
     class Meta:
         model = AprobacionRequerimiento
-        fields = ['is_active', 'motivo_desaprobacion']
+        fields = ['is_active', 'rejection_reason']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(AprobacionRequerimientoForm, self).__init__(*args, **kwargs)
-        self.fields['motivo_desaprobacion'].widget.attrs['readonly'] = True
-        self.fields['motivo_desaprobacion'].required = False
+        self.fields['rejection_reason'].widget.attrs['readonly'] = True
+        self.fields['rejection_reason'].required = False
 
     def clean(self):
         oficina = self.instance.obtener_oficina_aprobacion_superior()
@@ -34,7 +34,7 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         usuario = self.request.user
         puesto_usuario = usuario.worker.puesto
         oficina_requerimiento = self.instance.requerimiento.oficina
-        self.instance.nivel = puesto_usuario.establecer_nivel(oficina_requerimiento)
+        self.instance.level = puesto_usuario.establecer_nivel(oficina_requerimiento)
         return super(AprobacionRequerimientoForm, self).save(*args, **kwargs)
 
 
@@ -62,7 +62,7 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    uso = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    use = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
 
 
 class FormularioDetalleRequerimiento(forms.Form):
@@ -71,7 +71,7 @@ class FormularioDetalleRequerimiento(forms.Form):
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(required=False,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
-    uso = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
+    use = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
 
     def clean_code(self):
         code = self.cleaned_data.get('code')
@@ -91,8 +91,8 @@ class RequerimientoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(RequerimientoForm, self).__init__(*args, **kwargs)
-        self.fields['motivo'].required = False
-        self.fields['informe'].required = False
+        self.fields['reason'].required = False
+        self.fields['report'].required = False
         self.fields['code'].required = False
         self.fields['notes'].required = False
         self.fields['date'].input_formats = ['%d/%m/%Y']
@@ -101,9 +101,9 @@ class RequerimientoForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-            if field == 'annio':
+            if field == 'year':
                 self.fields[field].widget.attrs.update({
-                    'class': 'form-control numero'
+                    'class': 'form-control number'
                 })
 
     def save(self, *args, **kwargs):
@@ -112,7 +112,7 @@ class RequerimientoForm(forms.ModelForm):
 
     class Meta:
         model = Requerimiento
-        fields = ['code', 'motivo', 'date', 'mes', 'annio', 'notes', 'informe',
+        fields = ['code', 'reason', 'date', 'month', 'year', 'notes', 'report',
                   'direct_delivery_to_requester']
 
 

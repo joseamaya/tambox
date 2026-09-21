@@ -29,22 +29,22 @@ $("input[name=tipo_busqueda]").change(function ()
 	{
 		$("#id_desde").attr("disabled",false);
 		$("#id_hasta").attr("disabled",false);
-		$("#id_mes").attr("disabled",true);
-		$("#id_annio").attr("disabled",true);
+		$("#id_month").attr("disabled",true);
+		$("#id_year").attr("disabled",true);
 	}
 	else if($(this).val()=='M')
 	{
 		$("#id_desde").attr("disabled",true);
 		$("#id_hasta").attr("disabled",true);
-		$("#id_mes").attr("disabled",false);
-		$("#id_annio").attr("disabled",false);	
+		$("#id_month").attr("disabled",false);
+		$("#id_year").attr("disabled",false);	
 	}
 	else if($(this).val()=='A')
 	{
 		$("#id_desde").attr("disabled",true);
 		$("#id_hasta").attr("disabled",true);
-		$("#id_mes").attr("disabled",true);
-		$("#id_annio").attr("disabled",false);	
+		$("#id_month").attr("disabled",true);
+		$("#id_year").attr("disabled",false);	
 	}
 });	 
 

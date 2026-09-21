@@ -152,11 +152,11 @@ class EstablecerNivelTest(TestCase):
             puesto.establecer_nivel(oficina)
 
     def test_usa_el_nivel_existente(self):
-        nivel = baker.make(NivelAprobacion, description='USUARIO')
+        level = baker.make(NivelAprobacion, description='USUARIO')
         oficina = baker.make(Oficina)
         puesto = baker.make(Puesto, oficina=oficina, trabajador=baker.make(Trabajador), end_date=None)
 
-        self.assertEqual(puesto.establecer_nivel(oficina), nivel)
+        self.assertEqual(puesto.establecer_nivel(oficina), level)
 
 
 class TableroAdministracionTest(TestCase):

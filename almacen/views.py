@@ -245,23 +245,23 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
     def obtener_fecha_hora(self, r_date, r_hora):
         r_hora = r_hora.replace(" ", "")
         anio = int(r_date[6:])
-        mes = int(r_date[3:5])
+        month = int(r_date[3:5])
         dia = int(r_date[0:2])
         horas = int(r_hora[0:2])
         minutos = int(r_hora[3:5])
         # segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(anio, mes, dia, horas, minutos))
+        date = timezone.make_aware(datetime.datetime(anio, month, dia, horas, minutos))
         return date
 
     def form_valid(self, form):
         data = form.cleaned_data
         tipo_movimiento = TipoMovimiento.objects.filter(code='I00').first()
-        tipo_documento = TipoDocumento.objects.filter(sunat_code='PEC').first()
+        document_type = TipoDocumento.objects.filter(sunat_code='PEC').first()
         faltantes = []
         if tipo_movimiento is None:
             faltantes.append('Falta el tipo de movimiento "I00" (INVENTARIO INICIAL): '
                              'entra al tablero de Almacen para crearlo y vuelve a cargar el file.')
-        if tipo_documento is None:
+        if document_type is None:
             faltantes.append('Falta el tipo de documento "PEC" (PECOSA): '
                              'entra al tablero de Contabilidad para crearlo y vuelve a cargar el file.')
         if faltantes:
@@ -272,12 +272,12 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
         self.detalles = []
         with transaction.atomic():
             self.movimiento = Movimiento.objects.create(tipo_movimiento=tipo_movimiento,
-                                                        tipo_documento=tipo_documento,
+                                                        document_type=document_type,
                                                         almacen=data['almacenes'],
                                                         operation_date=self.operation_date,
                                                         notes='INVENTARIO INICIAL',
-                                                        serie='SALDO',
-                                                        numero='INICIAL')
+                                                        series='SALDO',
+                                                        number='INICIAL')
             respuesta = super(CargarInventarioInicial, self).form_valid(form)
             DetalleMovimiento.objects.bulk_create(self.detalles, None, None)
             self.movimiento.save()
@@ -794,9 +794,9 @@ class ModificarIngresoAlmacen(UpdateView):
         initial['almacen'] = movimiento.almacen
         initial['tipo_movimiento'] = movimiento.tipo_movimiento
         initial['doc_referencia'] = movimiento.referencia
-        initial['tipo_documento'] = movimiento.tipo_documento
-        initial['serie'] = movimiento.serie
-        initial['numero'] = movimiento.numero
+        initial['document_type'] = movimiento.document_type
+        initial['series'] = movimiento.series
+        initial['number'] = movimiento.number
         initial['total'] = movimiento.total
         initial['notes'] = movimiento.notes
         return initial
@@ -912,9 +912,9 @@ class ModificarSalidaAlmacen(UpdateView):
         initial['tipos_salida'] = movimiento.tipo_movimiento
         initial['oficina'] = movimiento.oficina
         initial['referencia'] = movimiento.referencia
-        initial['doc_referencia'] = movimiento.tipo_documento
-        initial['serie'] = movimiento.serie
-        initial['numero'] = movimiento.numero
+        initial['doc_referencia'] = movimiento.document_type
+        initial['series'] = movimiento.series
+        initial['number'] = movimiento.number
         initial['total'] = movimiento.total
         initial['notes'] = movimiento.notes
         initial['cdetalles'] = self.detalles.count()
@@ -1627,8 +1627,8 @@ class ReporteExcelMovimientos(FormView):
             movimientos = Movimiento.objects.filter(operation_date__range=[start_date, fecha_final],
                                                     tipo_movimiento=tipo_movimiento, almacen=almacen)
         elif tipo_busqueda == 'M':
-            mes = data['mes'].strip()
-            annio = data['annio'].strip()
+            month = data['month'].strip()
+            year = data['year'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR MES'
             ws.merge_cells('B1:H1')
             ws['B2'] = 'ALMACEN: ' + almacen.description
@@ -1636,15 +1636,15 @@ class ReporteExcelMovimientos(FormView):
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'MES'
-            ws['C3'] = mes
+            ws['C3'] = month
             ws['D3'] = 'AÑO'
-            ws['E3'] = annio
-            movimientos = Movimiento.objects.filter(operation_date__month=mes,
-                                                    operation_date__year=annio,
+            ws['E3'] = year
+            movimientos = Movimiento.objects.filter(operation_date__month=month,
+                                                    operation_date__year=year,
                                                     tipo_movimiento=tipo_movimiento,
                                                     almacen=almacen)
         elif tipo_busqueda == 'A':
-            annio = data['annio'].strip()
+            year = data['year'].strip()
             ws['B1'] = 'REPORTE DE MOVIMIENTOS POR AÑO'
             ws.merge_cells('B1:H1')
             ws['B2'] = 'ALMACEN: ' + almacen.description
@@ -1652,8 +1652,8 @@ class ReporteExcelMovimientos(FormView):
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + tipo_movimiento.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'AÑO'
-            ws['C3'] = annio
-            movimientos = Movimiento.objects.filter(operation_date__year=annio,
+            ws['C3'] = year
+            movimientos = Movimiento.objects.filter(operation_date__year=year,
                                                     tipo_movimiento=tipo_movimiento,
                                                     almacen=almacen)
         ws['B5'] = 'ID_MOVIMIENTO'
@@ -1669,11 +1669,11 @@ class ReporteExcelMovimientos(FormView):
         for movimiento in movimientos:
             ws.cell(row=cont, column=2).value = movimiento.id_movimiento
             try:
-                ws.cell(row=cont, column=3).value = movimiento.tipo_documento.description
+                ws.cell(row=cont, column=3).value = movimiento.document_type.description
             except ObjectDoesNotExist:
                 ws.cell(row=cont, column=3).value = '--'
-            ws.cell(row=cont, column=4).value = movimiento.serie
-            ws.cell(row=cont, column=5).value = movimiento.numero
+            ws.cell(row=cont, column=4).value = movimiento.series
+            ws.cell(row=cont, column=5).value = movimiento.number
             ws.cell(row=cont, column=6).value = movimiento.operation_date
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = movimiento.notes
@@ -1697,13 +1697,13 @@ class ReporteExcelMovimientosPorFecha(View):
         p_almacen = kwargs['almacen']
         p_tipo_movimiento = kwargs['tipo_movimiento']
         anio = int(p_start_date[6:])
-        mes = int(p_start_date[3:5])
+        month = int(p_start_date[3:5])
         dia = int(p_start_date[0:2])
-        start_date = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+        start_date = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
         anio = int(p_fecha_final[6:])
-        mes = int(p_fecha_final[3:5])
+        month = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
-        fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
+        fecha_final = timezone.make_aware(datetime.datetime(anio, month, dia, 23, 59, 59))
         almacen = Almacen.objects.get(code=p_almacen)
         tipo_movimiento = TipoMovimiento.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
@@ -1732,9 +1732,9 @@ class ReporteExcelMovimientosPorFecha(View):
         cont = 6
         for movimiento in movimientos:
             ws.cell(row=cont, column=2).value = movimiento.id_movimiento
-            ws.cell(row=cont, column=3).value = movimiento.tipo_documento
-            ws.cell(row=cont, column=4).value = movimiento.serie
-            ws.cell(row=cont, column=5).value = movimiento.numero
+            ws.cell(row=cont, column=3).value = movimiento.document_type
+            ws.cell(row=cont, column=4).value = movimiento.series
+            ws.cell(row=cont, column=5).value = movimiento.number
             ws.cell(row=cont, column=6).value = movimiento.operation_date
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = movimiento.observacion

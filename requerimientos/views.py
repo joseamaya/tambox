@@ -78,7 +78,7 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
             det['producto'] = ''
             det['unidad'] = ''
             det['quantity'] = '0'
-            det['uso'] = ''
+            det['use'] = ''
             lista_detalles.append(det)
             formset = DetalleRequerimientoFormSet(initial=lista_detalles)
             lista_json = []
@@ -88,7 +88,7 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
                 detalle_json['producto'] = str(form['producto'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['quantity'] = str(form['quantity'])
-                detalle_json['uso'] = str(form['uso'])
+                detalle_json['use'] = str(form['use'])
                 lista_json.append(detalle_json)
             data = json.dumps(lista_json)
             return HttpResponse(data, 'application/json')
@@ -106,9 +106,9 @@ class CrearRequerimiento(CreateView):
 
     def get_initial(self):
         initial = super(CrearRequerimiento, self).get_initial()
-        initial['annio'] = date.today().year
+        initial['year'] = date.today().year
         initial['date'] = date.today().strftime('%d/%m/%Y')
-        initial['mes'] = date.today().month
+        initial['month'] = date.today().month
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -159,14 +159,14 @@ class CrearRequerimiento(CreateView):
                 for detalle_requerimiento_form in detalle_requerimiento_formset:
                     code = detalle_requerimiento_form.cleaned_data.get('code')
                     quantity = detalle_requerimiento_form.cleaned_data.get('quantity')
-                    uso = detalle_requerimiento_form.cleaned_data.get('uso')
+                    use = detalle_requerimiento_form.cleaned_data.get('use')
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(DetalleRequerimiento(requerimiento=self.object,
                                                              line_number=cont,
                                                              producto=producto,
                                                              quantity=quantity,
-                                                             uso=uso))
+                                                             use=use))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
                 puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, is_leadership=True, is_active=True)
@@ -326,13 +326,13 @@ class ModificarRequerimiento(UpdateView):
                      'producto': detalle.producto.description,
                      'quantity': detalle.quantity,
                      'unidad': detalle.producto.unidad_medida.code,
-                     'uso': detalle.uso}
+                     'use': detalle.use}
             except AttributeError:
                 d = {'code': '',
                      'producto': detalle.otro,
                      'quantity': detalle.quantity,
                      'unidad': '',
-                     'uso': detalle.uso}
+                     'use': detalle.use}
             detalles_data.append(d)
         detalle_requerimiento_formset = DetalleRequerimientoFormSet(initial=detalles_data)
         return self.render_to_response(self.get_context_data(form=form,
@@ -358,17 +358,17 @@ class ModificarRequerimiento(UpdateView):
                 for detalle_requerimiento_form in detalle_requerimiento_formset:
                     code = detalle_requerimiento_form.cleaned_data.get('code')
                     quantity = detalle_requerimiento_form.cleaned_data.get('quantity')
-                    uso = detalle_requerimiento_form.cleaned_data.get('uso')
+                    use = detalle_requerimiento_form.cleaned_data.get('use')
                     if code and quantity:
                         producto = Producto.objects.get(code=code)
                         detalles.append(
                             DetalleRequerimiento(requerimiento=self.object, line_number=cont, producto=producto,
-                                                 quantity=quantity, uso=uso))
+                                                 quantity=quantity, use=use))
                         cont = cont + 1
                     elif quantity:
                         producto = detalle_requerimiento_form.cleaned_data.get('producto')
                         detalles.append(DetalleRequerimiento(requerimiento=self.object, line_number=cont, otro=producto,
-                                                             quantity=quantity, uso=uso))
+                                                             quantity=quantity, use=use))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
                 return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.code]))
@@ -404,7 +404,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
                     det['code'] = detalle.producto.code
                     det['name'] = detalle.producto.description
                     det['unidad'] = detalle.producto.unidad_medida.code
-                    # det['uso'] = detalle.uso
+                    # det['use'] = detalle.use
                     det['quantity'] = str(detalle.quantity - detalle.served_quantity)
                     # det['price'] = str(detalle.producto.price)
                     # det['amount'] = str(detalle.producto.price*(detalle.quantity-detalle.served_quantity))

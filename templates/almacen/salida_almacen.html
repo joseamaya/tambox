@@ -122,30 +122,30 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>DOC. REFER:</label>
-                        {% if form.tipo_documento.errors %}
-                        {% for error in form.tipo_documento.errors %}
+                        {% if form.document_type.errors %}
+                        {% for error in form.document_type.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.tipo_documento }}
+                        {{ form.document_type }}
                     </div>
                     <div class="col-md-3">
                         <label>SERIE:</label>
-                        {% if form.serie.errors %}
-                        {% for error in form.serie.errors %}
+                        {% if form.series.errors %}
+                        {% for error in form.series.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.serie }}
+                        {{ form.series }}
                     </div>
                     <div class="col-md-3">
                         <label>NUMERO:</label>
-                        {% if form.numero.errors %}
-                        {% for error in form.numero.errors %}
+                        {% if form.number.errors %}
+                        {% for error in form.number.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.numero }}
+                        {{ form.number }}
                     </div>
                 </div>
             </div>
@@ -458,9 +458,9 @@ $(document).ready(function()
 		$('#id_cdetalles').val(ultimo_item);
 		var almacen = $('#id_almacen').val().trim();
 		var date = $('#id_date').val().trim();
-		var tipo_documento;
-		var serie;
-		var numero;
+		var document_type;
+		var series;
+		var number;
 		if(tipo_salida != '') 
 		{			
 			if(almacen != '') 

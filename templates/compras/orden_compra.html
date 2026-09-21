@@ -263,12 +263,12 @@
                                 SON
                             </td>
                             <td WIDTH="550">
-                                {% if form.total_letras.errors %}
-                                {% for error in form.total_letras.errors %}
+                                {% if form.total_in_words.errors %}
+                                {% for error in form.total_in_words.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.total_letras }}
+                                {{ form.total_in_words }}
                             </td>
                             <td WIDTH="50">
                                 SUBTOTAL
@@ -417,7 +417,7 @@ $(document).ready(function()
 			$("#id_subtotal").val(subtotal.toFixed(2));
 			$("#id_impuesto").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
-			$("#id_total_letras").val(NumeroALetras(total));
+			$("#id_total_in_words").val(NumeroALetras(total));
 		});
 	});
 
@@ -477,7 +477,7 @@ $(document).ready(function()
 		$("#id_subtotal").val(subtotal.toFixed(2));
 		$("#id_impuesto").val(impuesto_total.toFixed(2));
 		$("#id_total").val(total.toFixed(2));
-		$("#id_total_letras").val(NumeroALetras(total));
+		$("#id_total_in_words").val(NumeroALetras(total));
 		contDetalles = contDetalles - 1;
 		$("#id_form-TOTAL_FORMS").val(contDetalles);
 		updateFormElementIndices('detalle_orden_compra_formset');
@@ -525,7 +525,7 @@ $(document).ready(function()
 			$("#id_subtotal").val(subtotal.toFixed(2));
 			$("#id_impuesto").val(impuesto_total.toFixed(2));
 			$("#id_total").val(total.toFixed(2));
-			$("#id_total_letras").val(NumeroALetras(total));
+			$("#id_total_in_words").val(NumeroALetras(total));
 		}
 	}
 	
@@ -664,7 +664,7 @@ $(document).ready(function()
 				$("#id_subtotal").val(subtotal.toFixed(2));
 				$("#id_impuesto").val(impuesto_total.toFixed(2));
 				$("#id_total").val(total.toFixed(2));
-				$("#id_total_letras").val(NumeroALetras(total));
+				$("#id_total_in_words").val(NumeroALetras(total));
 				$(".decimal").keydown(validar_decimales);
 				$("#id_observaciones").val(notes);
 				$(".decimal").keydown(validar_decimales);

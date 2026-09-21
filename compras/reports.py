@@ -89,9 +89,9 @@ class ReporteOrdenCompra():
                 izquierda)
         except (ObjectDoesNotExist, AttributeError):
             referencia = Paragraph(u"REFERENCIA: ", izquierda)
-        proceso = Paragraph(u"PROCESO: " + orden.proceso, izquierda)
+        process = Paragraph(u"PROCESO: " + orden.process, izquierda)
         nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ", izquierda)
-        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [referencia, ''], [proceso, ''],
+        datos = [[razon_social_proveedor, ruc_proveedor], [address, phone], [referencia, ''], [process, ''],
                  [nota, '']]
         tabla_detalle = Table(datos, colWidths=[11 * cm, 9 * cm])
         tabla_detalle.setStyle(TableStyle(
@@ -145,8 +145,8 @@ class ReporteOrdenCompra():
 
     def tabla_total_letras(self):
         orden = self.orden_compra
-        total_letras = [("SON: " + orden.total_letras, '')]
-        tabla_total_letras = Table(total_letras, colWidths=[17.5 * cm, 2.5 * cm])
+        total_in_words = [("SON: " + orden.total_in_words, '')]
+        tabla_total_letras = Table(total_in_words, colWidths=[17.5 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (1, 0), 1, colors.black),
@@ -559,7 +559,7 @@ def reporte_xls_orden_compra(orden):
     ws.merge_cells('C' + str(fila_total + 7) + ':I' + str(fila_total + 7))
     ws['C' + str(fila_total + 7)].font = Font(underline="single")
     ws['C' + str(fila_total + 7)].alignment = Alignment(horizontal="center")
-    ws['C' + str(fila_total + 7)] = orden.total_letras
+    ws['C' + str(fila_total + 7)] = orden.total_in_words
 
     fila_pago = fila_total + 9
     ws.merge_cells('E' + str(fila_pago) + ':F' + str(fila_pago))
@@ -796,7 +796,7 @@ class PDFMemorandoConformidadServicio(object):
         estilo_parrafo.fontName = "Times-Roman"
         cadena_parrafo = u"""Mediante el presente comunico a Ud. que el servicio requerido con REQ DE BIENES Y SERV. N° %s, 
         ha sido concluido a satisfacción, según %s, lo que comunicamos para que proceda al pago del servicio correspondiente que 
-        se detalla como sigue: """ % (requerimiento.code, conformidad.doc_sustento)
+        se detalla como sigue: """ % (requerimiento.code, conformidad.supporting_document)
         p1 = Paragraph(cadena_parrafo, estilo_parrafo)
         p1.wrapOn(pdf, 500, y - 20)
         p1.drawOn(pdf, 40, y - 20)
@@ -810,7 +810,7 @@ class PDFMemorandoConformidadServicio(object):
         detalles = []
         cont = 0
         for detalle in DetalleConformidadServicio.objects.filter(conformidad=conformidad):
-            description = detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description + '-' + detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.uso
+            description = detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.producto.description + '-' + detalle.detalle_orden_servicios.detalle_cotizacion.detalle_requerimiento.use
             if len(description) > 58:
                 cont = cont + 1
             detalles.append((detalle.line_number, Paragraph(description, p)))
@@ -893,7 +893,7 @@ class PDFOrdenServicios(object):
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: " + orden.report_name)
 
-        pdf.drawString(40, 690, u"PROCESO: " + orden.proceso)
+        pdf.drawString(40, 690, u"PROCESO: " + orden.process)
         pdf.setFont("Times-Roman", 8)
         pdf.drawString(40, 670, u"Sírvase remitirnos según especificaciones que detallamos lo siguiente: ")
 
@@ -936,8 +936,8 @@ class PDFOrdenServicios(object):
         detalle_orden.wrapOn(pdf, 800, 600)
         detalle_orden.drawOn(pdf, 40, y + 75)
         # Letras
-        total_letras = [("SON: " + orden.total_letras, '')]
-        tabla_total_letras = Table(total_letras, colWidths=[16 * cm, 2.5 * cm])
+        total_in_words = [("SON: " + orden.total_in_words, '')]
+        tabla_total_letras = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (1, 0), 1, colors.black),
@@ -1137,8 +1137,8 @@ class PDFOrdenCompra(object):
         detalle_orden.wrapOn(pdf, 800, 600)
         detalle_orden.drawOn(pdf, 40, y + 75)
         # Letras
-        total_letras = [("SON: " + orden.total_letras, '')]
-        tabla_total_letras = Table(total_letras, colWidths=[16 * cm, 2.5 * cm])
+        total_in_words = [("SON: " + orden.total_in_words, '')]
+        tabla_total_letras = Table(total_in_words, colWidths=[16 * cm, 2.5 * cm])
         tabla_total_letras.setStyle(TableStyle(
             [
                 ('GRID', (0, 0), (1, 0), 1, colors.black),
