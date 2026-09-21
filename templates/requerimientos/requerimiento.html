@@ -49,7 +49,7 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Código:</label>
-                        <p>{{ object.codigo }}</p>
+                        <p>{{ object.code }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -154,12 +154,12 @@
                         {% for detalle_requerimiento_form in detalle_requerimiento_formset %}
                         <tr class="detalle_requerimiento_formset">
                             <td>
-                                {% if detalle_requerimiento_form.codigo.errors %}
-                                {% for error in detalle_requerimiento_form.codigo.errors %}
+                                {% if detalle_requerimiento_form.code.errors %}
+                                {% for error in detalle_requerimiento_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_requerimiento_form.codigo }}
+                                {{ detalle_requerimiento_form.code }}
                             </td>
                             <td>
                                 {% if detalle_requerimiento_form.producto.errors %}
@@ -234,7 +234,7 @@ $(document).ready(function()
 					$.each(data, function(i,item){
 						$("#detalles tbody").append( 
 						"<tr class='detalle_requerimiento_formset'>" +
-							"<td>" + item.codigo + "</td>" +
+							"<td>" + item.code + "</td>" +
 							"<td>" + item.producto + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.cantidad + "</td>" +
@@ -272,7 +272,7 @@ $(document).ready(function()
 		  {
 			var id_producto = $(this).prop('id');
 			var id = id_producto.replace("producto", "");
-			$("#"+id+"codigo").val(ui.item.codigo);
+			$("#"+id+"code").val(ui.item.code);
 			$("#"+id+"producto").val(ui.item.description);
 			$("#"+id+"unidad").val(ui.item.unidad);
 			return false;

@@ -52,12 +52,12 @@
                 <div class="row">
                     <div class="col-md-2">
                         <label>CODIGO:</label>
-                        {% if form.codigo.errors %}
-                        {% for error in form.codigo.errors %}
+                        {% if form.code.errors %}
+                        {% for error in form.code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        <p>{{ object.codigo }}</p>
+                        <p>{{ object.code }}</p>
                     </div>
                 </div>
                 {% endif %}
@@ -153,12 +153,12 @@
                             </td>
                             <td>
                                 {{ form.requerimiento }}
-                                {% if form.codigo.errors %}
-                                {% for error in form.codigo.errors %}
+                                {% if form.code.errors %}
+                                {% for error in form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ form.codigo }}
+                                {{ form.code }}
                             </td>
                             <td>
                                 {% if form.nombre.errors %}
@@ -315,7 +315,7 @@ $(document).ready(function()
 					$("#detalles tbody").append(
 					"<tr class='detalle_cotizacion_formset'>" +				
 						"<td>" + cont + "</td>" +
-						"<td>" + item.requerimiento + item.codigo + "</td>" +
+						"<td>" + item.requerimiento + item.code + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +	

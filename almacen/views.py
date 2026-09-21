@@ -56,16 +56,16 @@ class Tablero(View):
         lista_notificaciones = []
         cant_almacenes = Almacen.objects.count()
         cant_tipos_movimientos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(
-            codigo=cod_mov_invent_ini).count()
+            code=cod_mov_invent_ini).count()
         cant_tipos_movimientos_salida = TipoMovimiento.objects.filter(incrementa=False).count()
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_invent_ini,
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_invent_ini,
                                                                        defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'codigo_sunat': '16',
                                                                                  'incrementa': True,
                                                                                  'estado': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_ingreso_compra,
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_ingreso_compra,
                                                                        defaults={'description': 'INGRESO POR COMPRA',
                                                                                  'codigo_sunat': '02',
                                                                                  'incrementa': True,
@@ -73,13 +73,13 @@ class Tablero(View):
                                                                                  'estado': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
-        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(codigo=cod_mov_salida_pedido,
+        tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_salida_pedido,
                                                                        defaults={'description': 'SALIDA POR PEDIDO',
                                                                                  'codigo_sunat': '10',
                                                                                  'incrementa': False,
                                                                                  'pide_referencia': True,
                                                                                  'estado': True})
-        inventario_inicial = Movimiento.objects.filter(tipo_movimiento__codigo=cod_mov_invent_ini).count()
+        inventario_inicial = Movimiento.objects.filter(tipo_movimiento__code=cod_mov_invent_ini).count()
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
         if cant_almacenes == 0:
@@ -101,7 +101,7 @@ class AprobarPedido(CreateView):
 
     @method_decorator(requiere('almacen.aprobar_pedido'))
     def dispatch(self, *args, **kwargs):
-        self.codigo = kwargs['codigo']
+        self.code = kwargs['code']
         return super(AprobarPedido, self).dispatch(*args, **kwargs)
 
     def get_form_kwargs(self):
@@ -111,11 +111,11 @@ class AprobarPedido(CreateView):
 
     def get_initial(self):
         initial = super(AprobarPedido, self).get_initial()
-        initial['cod_pedido'] = self.codigo
+        initial['cod_pedido'] = self.code
         return initial
 
     def get_context_data(self, **kwargs):
-        pedido = Pedido.objects.get(codigo=self.codigo)
+        pedido = Pedido.objects.get(code=self.code)
         context = super(AprobarPedido, self).get_context_data(**kwargs)
         context['pedido'] = pedido
         return context
@@ -124,7 +124,7 @@ class AprobarPedido(CreateView):
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)
-        pedido = Pedido.objects.get(codigo=self.codigo)
+        pedido = Pedido.objects.get(code=self.code)
         try:
             trabajador = self.request.user.trabajador
         except ObjectDoesNotExist:
@@ -140,9 +140,9 @@ class AprobarPedido(CreateView):
                 detalles_data = []
                 for detalle in detalles:
                     d = {'pedido': detalle.id,
-                         'codigo': detalle.producto.codigo,
+                         'code': detalle.producto.code,
                          'nombre': detalle.producto.description,
-                         'unidad': detalle.producto.unidad_medida.codigo,
+                         'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad
                          }
                     detalles_data.append(d)
@@ -173,14 +173,14 @@ class AprobarPedido(CreateView):
                 cont = 1
                 for detalle_salida_form in detalle_salida_formset:
                     detalle_pedido = detalle_salida_form.cleaned_data.get('pedido')
-                    codigo = detalle_salida_form.cleaned_data.get('codigo')
+                    code = detalle_salida_form.cleaned_data.get('code')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
-                                                               producto=Producto.objects.get(pk=codigo),
+                                                               producto=Producto.objects.get(pk=code),
                                                                detalle_pedido=DetallePedido.objects.get(
                                                                    pk=detalle_pedido),
                                                                cantidad=cantidad,
@@ -215,7 +215,7 @@ class BusquedaProductosAlmacen(SoloAjaxMixin, TemplateView):
                 control = ultimos[producto_id]
                 producto_json = {}
                 producto_json['label'] = control.producto.description
-                producto_json['codigo'] = control.producto.codigo
+                producto_json['code'] = control.producto.code
                 producto_json['description'] = control.producto.description
                 producto_json['unidad'] = control.producto.unidad_medida.description
                 try:
@@ -234,7 +234,7 @@ class CargarAlmacenes(CargarCsvMixin, FormView):
     success_url = reverse_lazy('almacen:almacenes')
 
     def procesar_fila(self, fila):
-        Almacen.objects.create(codigo=fila[0],
+        Almacen.objects.create(code=fila[0],
                                description=fila[1])
 
 
@@ -255,7 +255,7 @@ class CargarInventarioInicial(CargarCsvMixin, FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
-        tipo_movimiento = TipoMovimiento.objects.filter(codigo='I00').first()
+        tipo_movimiento = TipoMovimiento.objects.filter(code='I00').first()
         tipo_documento = TipoDocumento.objects.filter(codigo_sunat='PEC').first()
         faltantes = []
         if tipo_movimiento is None:
@@ -364,7 +364,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
-            det['codigo'] = ''
+            det['code'] = ''
             det['nombre'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
@@ -375,7 +375,7 @@ class CrearDetalleSalida(SoloAjaxMixin, TemplateView):
             lista_json = []
             for form in formset:
                 detalle_json = {}
-                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['code'] = str(form['code'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
@@ -392,7 +392,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
-            det['codigo'] = ''
+            det['code'] = ''
             det['nombre'] = ''
             det['cantidad'] = '0'
             det['unidad'] = ''
@@ -401,7 +401,7 @@ class CrearDetallePedido(SoloAjaxMixin, TemplateView):
             lista_json = []
             for form in formset:
                 detalle_json = {}
-                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['code'] = str(form['code'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['unidad'] = str(form['unidad'])
@@ -417,7 +417,7 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
             lista_detalles = []
             det = {}
             det['orden_compra'] = '0'
-            det['codigo'] = ''
+            det['code'] = ''
             det['nombre'] = ''
             det['cantidad'] = '0'
             det['precio'] = '0'
@@ -429,7 +429,7 @@ class CrearDetalleIngreso(SoloAjaxMixin, TemplateView):
             for form in formset:
                 detalle_json = {}
                 detalle_json['orden_compra'] = str(form['orden_compra'])
-                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['code'] = str(form['code'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['cantidad'] = str(form['cantidad'])
                 detalle_json['precio'] = str(form['precio'])
@@ -491,10 +491,10 @@ class CrearPedido(CreateView):
                 detalles = []
                 cont = 1
                 for detalle_pedido_form in detalle_pedido_formset:
-                    codigo = detalle_pedido_form.cleaned_data.get('codigo')
+                    code = detalle_pedido_form.cleaned_data.get('code')
                     cantidad = detalle_pedido_form.cleaned_data.get('cantidad')
-                    if codigo and cantidad:
-                        producto = Producto.objects.get(codigo=codigo)
+                    if code and cantidad:
+                        producto = Producto.objects.get(code=code)
                         detalles.append(DetallePedido(pedido=self.object,
                                                       nro_detalle=cont,
                                                       producto=producto,
@@ -516,12 +516,12 @@ class CrearPedido(CreateView):
 
 class ConsultaStock(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('almacen', 'codigo')
+    parametros_requeridos = ('almacen', 'code')
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             almacen = request.GET['almacen']
-            codigo = request.GET['codigo']
-            control_producto = Kardex.objects.filter(producto__codigo=codigo,
+            code = request.GET['code']
+            control_producto = Kardex.objects.filter(producto__code=code,
                                                      almacen__id=almacen).latest('fecha_operacion')
             producto_json = {}
             producto_json['stock'] = control_producto.cantidad_total
@@ -558,16 +558,16 @@ class EliminarAlmacen(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            almacen = Almacen.objects.get(pk=codigo)
+            code = request.POST['code']
+            almacen = Almacen.objects.get(pk=code)
             almacen_json = {}
-            almacen_json['codigo'] = almacen.codigo
+            almacen_json['code'] = almacen.code
             almacen_json['description'] = almacen.description
             if len(almacen.movimiento_set.all()) > 0:
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
-                Almacen.objects.filter(pk=codigo).update(estado=False)
+                Almacen.objects.filter(pk=code).update(estado=False)
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
 
@@ -615,17 +615,17 @@ class EliminarPedido(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            pedido = Pedido.objects.get(pk=codigo)
+            code = request.POST['code']
+            pedido = Pedido.objects.get(pk=code)
             movimientos = pedido.movimiento_set.all()
             almacen_json = {}
-            almacen_json['codigo'] = pedido.codigo
+            almacen_json['code'] = pedido.code
             if len(movimientos) > 0:
                 almacen_json['movimientos'] = 'SI'
             else:
                 almacen_json['movimientos'] = 'NO'
                 with transaction.atomic():
-                    Pedido.objects.filter(codigo=codigo).update(estado=Pedido.STATUS.CANC)
+                    Pedido.objects.filter(code=code).update(estado=Pedido.STATUS.CANC)
                     DetallePedido.objects.filter(pedido=pedido).delete()
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
@@ -670,7 +670,7 @@ class ListadoPedidos(ListView):
     model = Pedido
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
-    queryset = Pedido.objects.exclude(estado=Pedido.STATUS.CANC).order_by('codigo')
+    queryset = Pedido.objects.exclude(estado=Pedido.STATUS.CANC).order_by('code')
 
 
 class ListadoTiposMovimiento(ListView):
@@ -678,7 +678,7 @@ class ListadoTiposMovimiento(ListView):
     template_name = 'almacen/tipos_movimiento.html'
     context_object_name = 'tipos_movimiento'
     paginate_by = 10
-    queryset = TipoMovimiento.objects.all().order_by('codigo')
+    queryset = TipoMovimiento.objects.all().order_by('code')
 
 
 class ListadoMovimientos(ListView):
@@ -756,25 +756,25 @@ class ModificarIngresoAlmacen(UpdateView):
                 if detalle.detalle_orden_compra is not None:
                     if detalle.detalle_orden_compra.detalle_cotizacion is not None:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
-                             'codigo': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.codigo,
+                             'code': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.code,
                              'nombre': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.description,
-                             'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.codigo,
+                             'unidad': detalle.detalle_orden_compra.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.code,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
                              'valor': detalle.valor}
                     else:
                         d = {'orden_compra': detalle.detalle_orden_compra.pk,
-                             'codigo': detalle.detalle_orden_compra.producto.codigo,
+                             'code': detalle.detalle_orden_compra.producto.code,
                              'nombre': detalle.detalle_orden_compra.producto.description,
-                             'unidad': detalle.detalle_orden_compra.producto.unidad_medida.codigo,
+                             'unidad': detalle.detalle_orden_compra.producto.unidad_medida.code,
                              'cantidad': detalle.cantidad,
                              'precio': detalle.precio,
                              'valor': detalle.valor}
                 else:
                     d = {'orden_compra': '0',
-                         'codigo': detalle.producto.codigo,
+                         'code': detalle.producto.code,
                          'nombre': detalle.producto.description,
-                         'unidad': detalle.producto.unidad_medida.codigo,
+                         'unidad': detalle.producto.unidad_medida.code,
                          'cantidad': detalle.cantidad,
                          'precio': detalle.precio,
                          'valor': detalle.valor}
@@ -830,7 +830,7 @@ class ModificarIngresoAlmacen(UpdateView):
                 cont = 1
                 for detalle_ingreso_form in detalle_ingreso_formset:
                     orden_compra = detalle_ingreso_form.cleaned_data.get('orden_compra')
-                    codigo = detalle_ingreso_form.cleaned_data.get('codigo')
+                    code = detalle_ingreso_form.cleaned_data.get('code')
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
                     valor = detalle_ingreso_form.cleaned_data.get('valor')
@@ -840,14 +840,14 @@ class ModificarIngresoAlmacen(UpdateView):
                             detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
                                                                    nro_detalle=cont,
                                                                    movimiento=self.object,
-                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   producto=Producto.objects.get(pk=code),
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
                         except ObjectDoesNotExist:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
-                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   producto=Producto.objects.get(pk=code),
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
@@ -882,7 +882,7 @@ class ModificarSalidaAlmacen(UpdateView):
         for detalle in detalles:
             try:
                 d = {'pedido': detalle.detalle_pedido.pk,
-                     'codigo': detalle.producto.pk,
+                     'code': detalle.producto.pk,
                      'nombre': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
@@ -890,7 +890,7 @@ class ModificarSalidaAlmacen(UpdateView):
                      'valor': detalle.valor}
             except (ObjectDoesNotExist, AttributeError):
                 d = {'pedido': 0,
-                     'codigo': detalle.producto.pk,
+                     'code': detalle.producto.pk,
                      'nombre': detalle.producto.description,
                      'unidad': detalle.producto.unidad_medida,
                      'cantidad': detalle.cantidad,
@@ -950,7 +950,7 @@ class ModificarSalidaAlmacen(UpdateView):
                 cont = 1
                 for detalle_salida_form in detalle_salida_formset:
                     detalle_pedido = detalle_salida_form.cleaned_data.get('pedido')
-                    codigo = detalle_salida_form.cleaned_data.get('codigo')
+                    code = detalle_salida_form.cleaned_data.get('code')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
@@ -962,7 +962,7 @@ class ModificarSalidaAlmacen(UpdateView):
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
                                                                detalle_pedido=det_ped,
-                                                               producto=Producto.objects.get(pk=codigo),
+                                                               producto=Producto.objects.get(pk=code),
                                                                cantidad=cantidad,
                                                                precio=precio,
                                                                valor=valor)
@@ -1028,9 +1028,9 @@ class ModificarPedido(UpdateView):
             detalles = DetallePedido.objects.filter(pedido=self.object).order_by('nro_detalle')
             detalles_data = []
             for detalle in detalles:
-                d = {'codigo': detalle.producto.codigo,
+                d = {'code': detalle.producto.code,
                      'nombre': detalle.producto.description,
-                     'unidad': detalle.producto.unidad_medida.codigo,
+                     'unidad': detalle.producto.unidad_medida.code,
                      'cantidad': detalle.cantidad}
                 detalles_data.append(d)
             detalle_pedido_formset = DetallePedidoFormSet(initial=detalles_data)
@@ -1055,17 +1055,17 @@ class ModificarPedido(UpdateView):
                 detalles = []
                 cont = 1
                 for detalle_pedido_form in detalle_pedido_formset:
-                    codigo = detalle_pedido_form.cleaned_data.get('codigo')
+                    code = detalle_pedido_form.cleaned_data.get('code')
                     cantidad = detalle_pedido_form.cleaned_data.get('cantidad')
-                    if codigo and cantidad:
-                        producto = Producto.objects.get(codigo=codigo)
+                    if code and cantidad:
+                        producto = Producto.objects.get(code=code)
                         detalles.append(DetallePedido(pedido=self.object,
                                                       nro_detalle=cont,
                                                       producto=producto,
                                                       cantidad=cantidad))
                         cont = cont + 1
                 DetallePedido.objects.bulk_create(detalles)
-                return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.codigo]))
+                return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
 
@@ -1083,7 +1083,7 @@ class MovimientosPorProducto(FormView):
         desde = data['desde']
         hasta = data['hasta']
         almacen = data['almacen']
-        producto = Producto.objects.get(codigo=data['producto'])
+        producto = Producto.objects.get(code=data['producto'])
         return self.obtener_movimientos(desde, hasta, almacen, producto)
 
     def obtener_movimientos(self, desde, hasta, almacen, producto):
@@ -1152,7 +1152,7 @@ class RegistrarIngresoAlmacen(CreateView):
     def get(self, request, *args, **kwargs):
         self.object = None
         cod_tipo_mov = 'I00'
-        tipos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(codigo=cod_tipo_mov)
+        tipos_ingreso = TipoMovimiento.objects.filter(incrementa=True).exclude(code=cod_tipo_mov)
         if not tipos_ingreso:
             return HttpResponseRedirect(reverse('almacen:crear_tipo_movimiento'))
         almacenes = Almacen.objects.all()
@@ -1185,7 +1185,7 @@ class RegistrarIngresoAlmacen(CreateView):
                 cont = 1
                 for detalle_ingreso_form in detalle_ingreso_formset:
                     orden_compra = detalle_ingreso_form.cleaned_data.get('orden_compra')
-                    codigo = detalle_ingreso_form.cleaned_data.get('codigo')
+                    code = detalle_ingreso_form.cleaned_data.get('code')
                     cantidad = detalle_ingreso_form.cleaned_data.get('cantidad')
                     precio = detalle_ingreso_form.cleaned_data.get('precio')
                     valor = detalle_ingreso_form.cleaned_data.get('valor')
@@ -1195,14 +1195,14 @@ class RegistrarIngresoAlmacen(CreateView):
                             detalle_movimiento = DetalleMovimiento(detalle_orden_compra=detalle_orden_compra,
                                                                    nro_detalle=cont,
                                                                    movimiento=self.object,
-                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   producto=Producto.objects.get(pk=code),
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
                         except ObjectDoesNotExist:
                             detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                    movimiento=self.object,
-                                                                   producto=Producto.objects.get(pk=codigo),
+                                                                   producto=Producto.objects.get(pk=code),
                                                                    cantidad=cantidad,
                                                                    precio=precio,
                                                                    valor=valor)
@@ -1267,14 +1267,14 @@ class RegistrarSalidaAlmacen(CreateView):
                 detalles = []
                 cont = 1
                 for detalle_salida_form in detalle_salida_formset:
-                    codigo = detalle_salida_form.cleaned_data.get('codigo')
+                    code = detalle_salida_form.cleaned_data.get('code')
                     cantidad = detalle_salida_form.cleaned_data.get('cantidad')
                     precio = detalle_salida_form.cleaned_data.get('precio')
                     valor = detalle_salida_form.cleaned_data.get('valor')
                     if cantidad and precio and valor:
                         detalle_movimiento = DetalleMovimiento(nro_detalle=cont,
                                                                movimiento=self.object,
-                                                               producto=Producto.objects.get(pk=codigo),
+                                                               producto=Producto.objects.get(pk=code),
                                                                cantidad=cantidad,
                                                                precio=precio,
                                                                valor=valor)
@@ -1293,7 +1293,7 @@ class RegistrarSalidaAlmacen(CreateView):
 class ReporteExcelAlmacenes(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        almacenes = Almacen.objects.filter(estado=True).order_by('codigo')
+        almacenes = Almacen.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE ALMACENES'
@@ -1302,7 +1302,7 @@ class ReporteExcelAlmacenes(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         cont = 4
         for almacen in almacenes:
-            ws.cell(row=cont, column=2).value = almacen.codigo
+            ws.cell(row=cont, column=2).value = almacen.code
             ws.cell(row=cont, column=3).value = almacen.description
             cont = cont + 1
         nombre_archivo = "ListadoAlmacenes.xlsx"
@@ -1316,7 +1316,7 @@ class ReporteExcelAlmacenes(TemplateView):
 class ReporteExcelTiposMovimientos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = TipoMovimiento.objects.filter(estado=True).order_by('codigo')
+        tipos = TipoMovimiento.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE MOVIMIENTOS'
@@ -1325,7 +1325,7 @@ class ReporteExcelTiposMovimientos(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         cont = 4
         for tipo in tipos:
-            ws.cell(row=cont, column=2).value = tipo.codigo
+            ws.cell(row=cont, column=2).value = tipo.code
             ws.cell(row=cont, column=3).value = tipo.description
             cont = cont + 1
         nombre_archivo = "MaestroTiposMovimientos.xlsx"
@@ -1373,7 +1373,7 @@ class ReporteKardexProducto(RespuestaReporteMixin, FormView):
     def form_valid(self, form):
         data = form.cleaned_data
         cod_prod = data.get('cod_producto')
-        producto = Producto.objects.get(codigo=cod_prod)
+        producto = Producto.objects.get(code=cod_prod)
         desde = data.get('desde')
         hasta = data.get('hasta')
         almacen = data.get('almacenes')
@@ -1492,10 +1492,10 @@ class ReprocesoPrecio(FormView):
         seleccion = data['seleccion']
         if seleccion == 'P':
             cod_prod = data['producto']
-            producto = Producto.objects.get(codigo=cod_prod)
+            producto = Producto.objects.get(code=cod_prod)
             self.reprocesar_precio_producto(producto, almacen, desde)
         else:
-            listado_kardex = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__codigo')
+            listado_kardex = Kardex.objects.filter(almacen=almacen).order_by('producto').distinct('producto__code')
             for kardex in listado_kardex:
                 self.reprocesar_precio_producto(kardex.producto, almacen, desde)
         return HttpResponseRedirect(reverse('almacen:tablero'))
@@ -1532,10 +1532,10 @@ class StockProductos(FormView):
         ultimos = Kardex.ultimos_por_producto(productos, almacen=almacen)
         for producto in productos:
             kardex = ultimos.get(producto.pk)
-            codigo = producto.codigo
+            code = producto.code
             description = producto.description
             if kardex is None:
-                unidad_medida = producto.unidad_medida.codigo
+                unidad_medida = producto.unidad_medida.code
                 stock = 0
                 precio = 0
                 valor = 0
@@ -1544,7 +1544,7 @@ class StockProductos(FormView):
                 stock = kardex.cantidad_total
                 precio = kardex.precio_total
                 valor = kardex.valor_total
-            ws.cell(row=cont, column=2).value = codigo
+            ws.cell(row=cont, column=2).value = code
             ws.cell(row=cont, column=3).value = description
             ws.cell(row=cont, column=4).value = unidad_medida
             ws.cell(row=cont, column=5).value = stock
@@ -1587,9 +1587,9 @@ class ListadoStockProducto(SoloAjaxMixin, TemplateView):
             for producto in productos:
                 kardex = ultimos.get(producto.pk)
                 kardex_json = {}
-                kardex_json['codigo'] = producto.codigo
+                kardex_json['code'] = producto.code
                 kardex_json['label'] = producto.description
-                kardex_json['unidad'] = producto.unidad_medida.codigo
+                kardex_json['unidad'] = producto.unidad_medida.code
                 kardex_json['stock'] = kardex.cantidad_total if kardex else 0
                 lista_productos.append(kardex_json)
             data = simplejson.dumps(lista_productos)
@@ -1605,8 +1605,8 @@ class ReporteExcelMovimientos(FormView):
         tipo_busqueda = data['tipo_busqueda']
         p_almacen = data['almacenes']
         p_tipo_movimiento = data['tipos_movimiento']
-        almacen = Almacen.objects.get(codigo=p_almacen)
-        tipo_movimiento = TipoMovimiento.objects.get(codigo=p_tipo_movimiento)
+        almacen = Almacen.objects.get(code=p_almacen)
+        tipo_movimiento = TipoMovimiento.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         if tipo_busqueda == 'F':
@@ -1704,8 +1704,8 @@ class ReporteExcelMovimientosPorFecha(View):
         mes = int(p_fecha_final[3:5])
         dia = int(p_fecha_final[0:2])
         fecha_final = timezone.make_aware(datetime.datetime(anio, mes, dia, 23, 59, 59))
-        almacen = Almacen.objects.get(codigo=p_almacen)
-        tipo_movimiento = TipoMovimiento.objects.get(codigo=p_tipo_movimiento)
+        almacen = Almacen.objects.get(code=p_almacen)
+        tipo_movimiento = TipoMovimiento.objects.get(code=p_tipo_movimiento)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE MOVIMIENTOS POR FECHA'
@@ -1780,7 +1780,7 @@ class ReportePDFProductos(View):
         header = Paragraph("Listado de Clientes", styles['Heading1'])
         clientes.append(header)
         headings = ('Nombre', 'Email', 'Edad', 'Direccion')
-        allclientes = [(p.codigo, p.description, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
+        allclientes = [(p.code, p.description, p.precio_mercado, p.grupo_suministros) for p in Producto.objects.all()]
 
         t = Table([headings] + allclientes)
         t.setStyle(TableStyle(
@@ -1826,11 +1826,11 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         almacen = request.GET['almacen']
         pedido = request.GET['pedido']
-        detalles = list(DetallePedido.objects.filter(pedido__codigo=pedido,
+        detalles = list(DetallePedido.objects.filter(pedido__code=pedido,
                                                      estado=DetallePedido.STATUS.PEND)
                         .select_related('producto__unidad_medida').order_by('nro_detalle'))
         ultimos = Kardex.ultimos_por_producto([detalle.producto for detalle in detalles],
-                                              almacen__codigo=almacen)
+                                              almacen__code=almacen)
         lista_detalles = []
         for detalle in detalles:
             control_producto = ultimos.get(detalle.producto_id)
@@ -1843,7 +1843,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
             if stock != 0:
                 det = {}
                 det['pedido'] = detalle.id
-                det['codigo'] = detalle.producto.codigo
+                det['code'] = detalle.producto.code
                 det['nombre'] = detalle.producto.description
                 det['unidad'] = detalle.producto.unidad_medida.description
                 cantidad = detalle.cantidad - detalle.cantidad_atendida
@@ -1859,7 +1859,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
         for form in formset:
             detalle_json = {}
             detalle_json['pedido'] = str(form['pedido'])
-            detalle_json['codigo'] = str(form['codigo'])
+            detalle_json['code'] = str(form['code'])
             detalle_json['nombre'] = str(form['nombre'])
             detalle_json['cantidad'] = str(form['cantidad'])
             detalle_json['precio'] = str(form['precio'])

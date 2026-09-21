@@ -39,11 +39,11 @@
             <tbody>
             {% for requerimiento in requerimientos %}
             {% if perms.requerimientos.ver_detalle_requerimiento %}
-            <tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.codigo %}';">
+            <tr onclick="location.href='{% url 'requerimientos:detalle_requerimiento' requerimiento.code %}';">
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ requerimiento.codigo }}</td>
+                <td>{{ requerimiento.code }}</td>
                 <td>{{ requerimiento.oficina }}</td>
                 <td>{{ requerimiento.aprobacionrequerimiento.nivel }}</td>
                 {% if requerimiento.aprobacionrequerimiento.estado %}

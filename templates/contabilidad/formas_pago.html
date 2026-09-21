@@ -43,7 +43,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ forma.codigo }}</td>
+                <td>{{ forma.code }}</td>
                 <td>{{ forma.description }}</td>
                 <td>{{ forma.dias_credito }}</td>
             </tr>
@@ -86,9 +86,9 @@ $(document).ready(function()
 	function borrarFormaPago()
 	{
 	   	var id_boton= $(borrarSeleccionado).prop('id');
-	   	var codigo = id_boton.replace("elim_","");
+	   	var code = id_boton.replace("elim_","");
 	   	$.ajax({
-	   		data : {'codigo': codigo},
+	   		data : {'code': code},
 	   		url : "{% url 'contabilidad:eliminar_forma_pago' %}",
 	   		type : 'post',
 	   		success : function(data)

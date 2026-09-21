@@ -1,6 +1,6 @@
 {% extends "compras/base_compras.html" %}
 {% block cuerpo %}
-<h3>Órdenes de Compra / {{ object.codigo }}</h3>
+<h3>Órdenes de Compra / {{ object.code }}</h3>
 <div class="row">
     <div class="col-lg-5">
         {% if perms.compras.add_ordencompra %}
@@ -70,7 +70,7 @@
         <div class="row">
             <div class="col-md-2">
                 <label>CODIGO:</label>
-                <p>{{ object.codigo }}</p>
+                <p>{{ object.code }}</p>
             </div>
             <div class="col-md-2">
                 <label>Fecha Creación:</label>
@@ -171,7 +171,7 @@
                     {% if object.cotizacion %}
                     {% for detalle in object.detalleordencompra_set.all %}
                     <tr>
-                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.codigo }}</td>
+                        <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.code }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.description }}</td>
                         <td>{{ detalle.detalle_cotizacion.detalle_requerimiento.producto.unidad_medida.description }}
                         </td>
@@ -184,7 +184,7 @@
                     {% else %}
                     {% for detalle in object.detalleordencompra_set.all %}
                     <tr>
-                        <td>{{ detalle.producto.codigo }}</td>
+                        <td>{{ detalle.producto.code }}</td>
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad|floatformat:5 }}</td>
@@ -288,13 +288,13 @@ $(document).ready(function()
 	function borrarOrdenCompra() 
 	{
 		$.ajax({
-			data : { 'codigo' : "{{ object.codigo }}" },
+			data : { 'code' : "{{ object.code }}" },
 			url : "{% url 'compras:eliminar_orden_compra' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.movimientos == 'NO')
 				{
-					alert("Orden de Compra " + data.codigo + " eliminada");
+					alert("Orden de Compra " + data.code + " eliminada");
 					$(location).attr('href', "{% url 'compras:detalle_orden_compra' object.siguiente %}");
 				} 
 				else if (data.movimientos == 'SI') 

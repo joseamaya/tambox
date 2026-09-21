@@ -33,7 +33,7 @@ class TipoMovimientoForm(forms.ModelForm):
 class AlmacenForm(forms.ModelForm):
     class Meta:
         model = Almacen
-        fields = ['codigo', 'description']
+        fields = ['code', 'description']
 
     def __init__(self, *args, **kwargs):
         super(AlmacenForm, self).__init__(*args, **kwargs)
@@ -45,7 +45,7 @@ class AlmacenForm(forms.ModelForm):
 
 class FormularioDetalleMovimiento(forms.Form):
     almacen = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
+    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -144,7 +144,7 @@ class MovimientoForm(forms.ModelForm):
     def save(self, *args, **kwargs):
         if self.tipo_movimiento == 'I':
             try:
-                self.instance.referencia = OrdenCompra.objects.get(codigo=self.cleaned_data['doc_referencia'])
+                self.instance.referencia = OrdenCompra.objects.get(code=self.cleaned_data['doc_referencia'])
             except ObjectDoesNotExist:
                 self.instance.referencia = None
         if self.cleaned_data['tipo_movimiento'].es_venta:
@@ -238,7 +238,7 @@ class PedidoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(PedidoForm, self).__init__(*args, **kwargs)
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['observaciones'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
@@ -258,7 +258,7 @@ class PedidoForm(forms.ModelForm):
 
     class Meta:
         model = Pedido
-        fields = ['codigo', 'fecha', 'observaciones']
+        fields = ['code', 'fecha', 'observaciones']
 
 
 class AprobacionPedidoForm(forms.ModelForm):
@@ -291,9 +291,9 @@ class AprobacionPedidoForm(forms.ModelForm):
         return fecha
 
     def save(self, *args, **kwargs):
-        self.instance.pedido = Pedido.objects.get(codigo=self.cleaned_data['cod_pedido'])
+        self.instance.pedido = Pedido.objects.get(code=self.cleaned_data['cod_pedido'])
         self.instance.fecha_operacion = self.obtener_fecha_hora(self.cleaned_data['fecha'], self.cleaned_data['hora'])
-        self.instance.tipo_movimiento = TipoMovimiento.objects.get(codigo="S01")
+        self.instance.tipo_movimiento = TipoMovimiento.objects.get(code="S01")
         self.instance.oficina = self.instance.pedido.oficina
         return super(AprobacionPedidoForm, self).save(*args, **kwargs)
 
@@ -313,7 +313,7 @@ class FormularioPedido(forms.Form):
 
 
 class FormularioDetallePedido(forms.Form):
-    codigo = forms.CharField(max_length=14, widget=forms.TextInput(
+    code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 17, 'readonly': "readonly", 'class': 'entero form-control'}))
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(max_length=20,
@@ -324,7 +324,7 @@ class FormularioDetallePedido(forms.Form):
 
 class FormularioDetalleIngreso(forms.Form):
     orden_compra = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(
+    code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
@@ -351,7 +351,7 @@ class BaseDetalleIngresoFormSet(formsets.BaseFormSet):
 
 class FormularioDetalleSalida(forms.Form):
     pedido = forms.CharField(widget=forms.HiddenInput(), required=False)
-    codigo = forms.CharField(
+    code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
     nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))

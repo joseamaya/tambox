@@ -36,7 +36,7 @@
             <tbody>
             {% for pedido in pedidos %}
             <tr onclick="location.href='{% url 'almacen:detalle_pedido' pedido.pk %}';">
-                <td>{{ pedido.codigo }}</td>
+                <td>{{ pedido.code }}</td>
                 <td>{{ pedido.oficina }}</td>
                 <td>{{ pedido.fecha|date:"d/m/y" }}</td>
                 <td>{{ pedido.get_estado_display }}</td>

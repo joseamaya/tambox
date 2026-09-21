@@ -62,7 +62,7 @@ class CuentaContable(TimeStampedModel):
 
 
 class FormaPago(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=5)
+    code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=50)
     dias_credito = models.IntegerField()
     estado = models.BooleanField(default=True)
@@ -115,7 +115,7 @@ class TipoDocumento(TimeStampedModel):
 class Tipo(TimeStampedModel):
     tabla = models.CharField(max_length=25)
     descripcion_campo = models.CharField(max_length=25)
-    codigo = models.CharField(max_length=10)
+    code = models.CharField(max_length=10)
     descripcion_valor = models.CharField(max_length=100)
     cantidad = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
 
@@ -123,7 +123,7 @@ class Tipo(TimeStampedModel):
         permissions = (('ver_detalle_tipo', 'Puede ver detalle Tipo de Documento'),
                        ('ver_tabla_tipos', 'Puede ver tabla de Tipos de Documentos'),
                        ('ver_reporte_tipos_excel', 'Puede ver Reporte de Tipos de Documentos en excel'),)
-        ordering = ['codigo']
+        ordering = ['code']
 
     def __str__(self):
         return self.descripcion_valor

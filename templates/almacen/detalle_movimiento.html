@@ -181,7 +181,7 @@
                     <tbody>
                     {% for detalle in object.detallemovimiento_set.all %}
                     <tr>
-                        <td>{{ detalle.producto.codigo }}</td>
+                        <td>{{ detalle.producto.code }}</td>
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad }}</td>

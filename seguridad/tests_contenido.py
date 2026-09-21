@@ -28,8 +28,8 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.client.force_login(self.usuario)
 
     def test_la_lista_de_productos_muestra_la_description(self):
-        # El codigo tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
-        baker.make(Producto, codigo='0000000001', description='PRODUCTO-XYZ')
+        # El code tiene que ser numerico: la URL de detalle pide (?P<pk>\d+).
+        baker.make(Producto, code='0000000001', description='PRODUCTO-XYZ')
 
         respuesta = self.client.get(reverse('productos:productos'))
 
@@ -55,8 +55,8 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
-    def test_la_lista_de_ordenes_de_compra_muestra_el_codigo(self):
-        baker.make(OrdenCompra, codigo='ORD-XYZ')
+    def test_la_lista_de_ordenes_de_compra_muestra_el_code(self):
+        baker.make(OrdenCompra, code='ORD-XYZ')
 
         respuesta = self.client.get(reverse('compras:ordenes_compra'))
 
@@ -76,7 +76,7 @@ class ContenidoDeLasPaginasTest(TestCase):
                    requerimiento=requerimiento, producto=producto)
 
         respuesta = self.client.get(reverse('requerimientos:detalle_requerimiento',
-                                            args=[requerimiento.codigo]))
+                                            args=[requerimiento.code]))
 
         self.assertEqual(respuesta.status_code, 200)
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
@@ -106,7 +106,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'name="incrementa"')
 
     def test_la_lista_de_unidades_de_medida_muestra_la_description(self):
-        baker.make('productos.UnidadMedida', codigo='UND01', description='UNIDAD-XYZ')
+        baker.make('productos.UnidadMedida', code='UND01', description='UNIDAD-XYZ')
 
         respuesta = self.client.get(reverse('productos:unidades_medida'))
 
@@ -114,7 +114,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'UNIDAD-XYZ')
 
     def test_la_lista_de_grupos_de_productos_muestra_la_description(self):
-        baker.make('productos.GrupoProductos', codigo='000001', description='GRUPO-XYZ')
+        baker.make('productos.GrupoProductos', code='000001', description='GRUPO-XYZ')
 
         respuesta = self.client.get(reverse('productos:grupos_productos'))
 
@@ -130,7 +130,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'EXISTENCIA-XYZ')
 
     def test_la_lista_de_almacenes_muestra_la_description(self):
-        baker.make('almacen.Almacen', codigo='AL01', description='ALMACEN-XYZ')
+        baker.make('almacen.Almacen', code='AL01', description='ALMACEN-XYZ')
 
         respuesta = self.client.get(reverse('almacen:almacenes'))
 
@@ -138,7 +138,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'ALMACEN-XYZ')
 
     def test_la_lista_de_tipos_de_movimiento_muestra_la_description(self):
-        baker.make('almacen.TipoMovimiento', codigo='T01', description='MOVIMIENTO-XYZ')
+        baker.make('almacen.TipoMovimiento', code='T01', description='MOVIMIENTO-XYZ')
 
         respuesta = self.client.get(reverse('almacen:tipos_movimientos'))
 

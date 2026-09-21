@@ -37,7 +37,7 @@ class ReporteRequerimiento():
             imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
             imagen = Paragraph(u"LOGO", sp)
-        nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.codigo, sp)
+        nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.code, sp)
         encabezado = [[imagen, nro, '']]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
         tabla_encabezado.setStyle(TableStyle(

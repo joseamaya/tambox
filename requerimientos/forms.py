@@ -56,7 +56,7 @@ class BaseDetalleRequerimientoFormSet(formsets.BaseFormSet):
 
 
 class FormularioDetalleRequerimientoProducto(forms.Form):
-    codigo = forms.CharField(widget=forms.HiddenInput())
+    code = forms.CharField(widget=forms.HiddenInput())
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -66,18 +66,18 @@ class FormularioDetalleRequerimientoProducto(forms.Form):
 
 
 class FormularioDetalleRequerimiento(forms.Form):
-    codigo = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
+    code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
     cantidad = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
     producto = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
     unidad = forms.CharField(required=False,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     uso = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
 
-    def clean_codigo(self):
-        codigo = self.cleaned_data.get('codigo')
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
         try:
-            Producto.objects.get(codigo=codigo)
-            return self.cleaned_data['codigo']
+            Producto.objects.get(code=code)
+            return self.cleaned_data['code']
         except Producto.DoesNotExist:
             raise ValidationError("El código no es válido.")
 
@@ -93,7 +93,7 @@ class RequerimientoForm(forms.ModelForm):
         super(RequerimientoForm, self).__init__(*args, **kwargs)
         self.fields['motivo'].required = False
         self.fields['informe'].required = False
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['observaciones'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
@@ -112,7 +112,7 @@ class RequerimientoForm(forms.ModelForm):
 
     class Meta:
         model = Requerimiento
-        fields = ['codigo', 'motivo', 'fecha', 'mes', 'annio', 'observaciones', 'informe',
+        fields = ['code', 'motivo', 'fecha', 'mes', 'annio', 'observaciones', 'informe',
                   'entrega_directa_solicitante']
 
 

@@ -48,15 +48,15 @@
                         <div class="row">
                             <div class="col-lg-4">
                                 <label>CÓDIGO:</label>
-                                {% if form.codigo.errors %}
-                                {% for error in form.codigo.errors %}
+                                {% if form.code.errors %}
+                                {% for error in form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                <p>{{ form.codigo }}</p>
+                                <p>{{ form.code }}</p>
                                 <label>DEPENDENCIA:</label>
-                                {% if form.codigo.errors %}
-                                {% for error in form.codigo.errors %}
+                                {% if form.code.errors %}
+                                {% for error in form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}

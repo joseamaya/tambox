@@ -194,10 +194,10 @@ class EliminarFormaPago(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            forma_pago = FormaPago.objects.get(pk=codigo)
+            code = request.POST['code']
+            forma_pago = FormaPago.objects.get(pk=code)
             forma_pago_json = {}
-            forma_pago_json['codigo'] = forma_pago.codigo
+            forma_pago_json['code'] = forma_pago.code
             forma_pago_json['description'] = forma_pago.description
             if len(forma_pago.ordencompra_set.all()) > 0:
                 forma_pago_json['relaciones'] = 'SI'
@@ -207,7 +207,7 @@ class EliminarFormaPago(TemplateView):
                 forma_pago_json['relaciones'] = 'SI'
             else:
                 forma_pago_json['relaciones'] = 'NO'
-                FormaPago.objects.filter(pk=codigo).update(estado=False)
+                FormaPago.objects.filter(pk=code).update(estado=False)
             data = simplejson.dumps(forma_pago_json)
             return HttpResponse(data, 'application/json')
 
@@ -287,7 +287,7 @@ class ListadoFormasPago(ListView):
     template_name = 'contabilidad/formas_pago.html'
     context_object_name = 'formas_pago'
     paginate_by = 10
-    queryset = FormaPago.objects.order_by('codigo')
+    queryset = FormaPago.objects.order_by('code')
 
     @method_decorator(requiere('contabilidad.ver_tabla_formas_pago'))
     def dispatch(self, *args, **kwargs):
@@ -440,7 +440,7 @@ class ReporteExcelCuentasContables(TemplateView):
 class ReporteExcelFormasPago(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        formas_pago = FormaPago.objects.all().order_by('codigo')
+        formas_pago = FormaPago.objects.all().order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE FORMAS DE PAGO'
@@ -450,7 +450,7 @@ class ReporteExcelFormasPago(TemplateView):
         ws['D3'] = 'DIAS_CREDITO'
         cont = 4
         for forma_pago in formas_pago:
-            ws.cell(row=cont, column=2).value = forma_pago.codigo
+            ws.cell(row=cont, column=2).value = forma_pago.code
             ws.cell(row=cont, column=3).value = forma_pago.description
             ws.cell(row=cont, column=4).value = forma_pago.dias_credito
             cont = cont + 1

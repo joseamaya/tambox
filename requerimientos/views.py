@@ -74,7 +74,7 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             lista_detalles = []
             det = {}
-            det['codigo'] = ''
+            det['code'] = ''
             det['producto'] = ''
             det['unidad'] = ''
             det['cantidad'] = '0'
@@ -84,7 +84,7 @@ class CrearDetalleRequerimiento(SoloAjaxMixin, FormView):
             lista_json = []
             for form in formset:
                 detalle_json = {}
-                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['code'] = str(form['code'])
                 detalle_json['producto'] = str(form['producto'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['cantidad'] = str(form['cantidad'])
@@ -157,11 +157,11 @@ class CrearRequerimiento(CreateView):
                 detalles = []
                 cont = 1
                 for detalle_requerimiento_form in detalle_requerimiento_formset:
-                    codigo = detalle_requerimiento_form.cleaned_data.get('codigo')
+                    code = detalle_requerimiento_form.cleaned_data.get('code')
                     cantidad = detalle_requerimiento_form.cleaned_data.get('cantidad')
                     uso = detalle_requerimiento_form.cleaned_data.get('uso')
-                    if codigo and cantidad:
-                        producto = Producto.objects.get(codigo=codigo)
+                    if code and cantidad:
+                        producto = Producto.objects.get(code=code)
                         detalles.append(DetalleRequerimiento(requerimiento=self.object,
                                                              nro_detalle=cont,
                                                              producto=producto,
@@ -174,7 +174,7 @@ class CrearRequerimiento(CreateView):
                 destinatario = jefe.usuario.email
                 if jefe.pk != self.object.solicitante.pk:
                     correo_creacion_requerimiento(destinatario, self.object)
-                return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.codigo]))
+                return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
 
@@ -185,8 +185,8 @@ class CrearRequerimiento(CreateView):
 
 class DetalleOperacionRequerimiento(DetailView):
     model = Requerimiento
-    slug_field = 'codigo'
-    slug_url_kwarg = 'codigo'
+    slug_field = 'code'
+    slug_url_kwarg = 'code'
     template_name = 'requerimientos/detalle_requerimiento.html'
 
     @method_decorator(
@@ -209,10 +209,10 @@ class EliminarRequerimiento(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            requerimiento = Requerimiento.objects.get(codigo=codigo)
+            code = request.POST['code']
+            requerimiento = Requerimiento.objects.get(code=code)
             requerimiento_json = {}
-            requerimiento_json['codigo'] = codigo
+            requerimiento_json['code'] = code
             cotizaciones = requerimiento.cotizacion_set.all()
             if len(cotizaciones) > 0:
                 requerimiento_json['cotizaciones'] = 'SI'
@@ -322,13 +322,13 @@ class ModificarRequerimiento(UpdateView):
         detalles_data = []
         for detalle in detalles:
             try:
-                d = {'codigo': detalle.producto.codigo,
+                d = {'code': detalle.producto.code,
                      'producto': detalle.producto.description,
                      'cantidad': detalle.cantidad,
-                     'unidad': detalle.producto.unidad_medida.codigo,
+                     'unidad': detalle.producto.unidad_medida.code,
                      'uso': detalle.uso}
             except AttributeError:
-                d = {'codigo': '',
+                d = {'code': '',
                      'producto': detalle.otro,
                      'cantidad': detalle.cantidad,
                      'unidad': '',
@@ -356,11 +356,11 @@ class ModificarRequerimiento(UpdateView):
                 detalles = []
                 cont = 1
                 for detalle_requerimiento_form in detalle_requerimiento_formset:
-                    codigo = detalle_requerimiento_form.cleaned_data.get('codigo')
+                    code = detalle_requerimiento_form.cleaned_data.get('code')
                     cantidad = detalle_requerimiento_form.cleaned_data.get('cantidad')
                     uso = detalle_requerimiento_form.cleaned_data.get('uso')
-                    if codigo and cantidad:
-                        producto = Producto.objects.get(codigo=codigo)
+                    if code and cantidad:
+                        producto = Producto.objects.get(code=code)
                         detalles.append(
                             DetalleRequerimiento(requerimiento=self.object, nro_detalle=cont, producto=producto,
                                                  cantidad=cantidad, uso=uso))
@@ -371,7 +371,7 @@ class ModificarRequerimiento(UpdateView):
                                                              cantidad=cantidad, uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
-                return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.codigo]))
+                return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')
 
@@ -390,20 +390,20 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
             if tipo_busqueda == 'TODOS':
                 detalles = DetalleRequerimiento.objects.filter(
                     Q(estado=DetalleRequerimiento.STATUS.PEND) | Q(estado=DetalleRequerimiento.STATUS.COTIZ),
-                    requerimiento__codigo=requerimiento).order_by('nro_detalle')
+                    requerimiento__code=requerimiento).order_by('nro_detalle')
             elif tipo_busqueda == 'PRODUCTOS':
                 detalles = DetalleRequerimiento.objects.filter(Q(estado=DetalleRequerimiento.STATUS.PEND) |
                                                                Q(estado=DetalleRequerimiento.STATUS.COTIZ),
-                                                               requerimiento__codigo=requerimiento,
+                                                               requerimiento__code=requerimiento,
                                                                producto__isnull=False).order_by('nro_detalle')
             lista_detalles = []
             for detalle in detalles:
                 det = {}
                 det['requerimiento'] = detalle.id
                 try:
-                    det['codigo'] = detalle.producto.codigo
+                    det['code'] = detalle.producto.code
                     det['nombre'] = detalle.producto.description
-                    det['unidad'] = detalle.producto.unidad_medida.codigo
+                    det['unidad'] = detalle.producto.unidad_medida.code
                     # det['uso'] = detalle.uso
                     det['cantidad'] = str(detalle.cantidad - detalle.cantidad_atendida)
                     # det['precio'] = str(detalle.producto.precio)
@@ -416,7 +416,7 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
             for form in formset:
                 detalle_json = {}
                 detalle_json['requerimiento'] = str(form['requerimiento'])
-                detalle_json['codigo'] = str(form['codigo'])
+                detalle_json['code'] = str(form['code'])
                 detalle_json['nombre'] = str(form['nombre'])
                 detalle_json['unidad'] = str(form['unidad'])
                 detalle_json['cantidad'] = str(form['cantidad'])
@@ -451,7 +451,7 @@ class ReporteExcelRequerimientos(TemplateView):
         ws['F3'] = 'FECHA'
         cont = 4
         for requerimiento in requerimientos:
-            ws.cell(row=cont, column=2).value = requerimiento.codigo
+            ws.cell(row=cont, column=2).value = requerimiento.code
             ws.cell(row=cont, column=3).value = requerimiento.oficina.nombre
             ws.cell(row=cont, column=4).value = requerimiento.get_estado_display()
             ws.cell(row=cont, column=5).value = requerimiento.aprobacionrequerimiento.get_estado_display()
@@ -468,8 +468,8 @@ class ReporteExcelRequerimientos(TemplateView):
 
 class ReportePDFRequerimiento(View):
     def get(self, request, *args, **kwargs):
-        codigo = kwargs['codigo']
-        requerimiento = Requerimiento.objects.get(codigo=codigo)
+        code = kwargs['code']
+        requerimiento = Requerimiento.objects.get(code=code)
         response = HttpResponse(content_type='application/pdf')
         reporte = ReporteRequerimiento('A4', requerimiento)
         pdf = reporte.imprimir()

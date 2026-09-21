@@ -42,7 +42,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ almacen.codigo }}</td>
+                <td>{{ almacen.code }}</td>
                 <td>{{ almacen.description }}</td>
             </tr>
             {% endfor %}
@@ -84,9 +84,9 @@ $(document).ready(function()
 	function borrarAlmacen()
 	{
 	   	var id_boton= $(borrarSeleccionado).prop('id');
-	   	var codigo = id_boton.replace("elim_","");
+	   	var code = id_boton.replace("elim_","");
 	   	$.ajax({
-	   		data : {'codigo': codigo},
+	   		data : {'code': code},
 	   		url : "{% url 'almacen:eliminar_almacen' %}",
 	   		type : 'post',
 	   		success : function(data)

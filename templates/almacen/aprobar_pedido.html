@@ -1,6 +1,6 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
-<h3>Aprobar Pedido / {{ pedido.codigo }}</h3>
+<h3>Aprobar Pedido / {{ pedido.code }}</h3>
 <form role="form" method="post">
     <div class="row">
         <div class="col-lg-10">
@@ -34,8 +34,8 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Código:</label>
-                        {% if detalle_salida_form.codigo.errors %}
-                        {% for error in detalle_salida_form.codigo.errors %}
+                        {% if detalle_salida_form.code.errors %}
+                        {% for error in detalle_salida_form.code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
@@ -45,8 +45,8 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Almacén:</label>
-                        {% if detalle_salida_form.codigo.errors %}
-                        {% for error in detalle_salida_form.codigo.errors %}
+                        {% if detalle_salida_form.code.errors %}
+                        {% for error in detalle_salida_form.code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
@@ -54,8 +54,8 @@
                     </div>
                     <div class="col-md-3">
                         <label>Fecha:</label>
-                        {% if detalle_salida_form.codigo.errors %}
-                        {% for error in detalle_salida_form.codigo.errors %}
+                        {% if detalle_salida_form.code.errors %}
+                        {% for error in detalle_salida_form.code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
@@ -63,8 +63,8 @@
                     </div>
                     <div class="col-md-3">
                         <label>Hora:</label>
-                        {% if detalle_salida_form.codigo.errors %}
-                        {% for error in detalle_salida_form.codigo.errors %}
+                        {% if detalle_salida_form.code.errors %}
+                        {% for error in detalle_salida_form.code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
@@ -92,12 +92,12 @@
                         <tr class="detalle_salida_formset">
                             <td>
                                 {{ detalle_salida_form.pedido }}
-                                {% if detalle_salida_form.codigo.errors %}
-                                {% for error in detalle_salida_form.codigo.errors %}
+                                {% if detalle_salida_form.code.errors %}
+                                {% for error in detalle_salida_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_salida_form.codigo }}
+                                {{ detalle_salida_form.code }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.nombre.errors %}
@@ -218,7 +218,7 @@ $(document).ready(function()
 	{	
 		var almacen = $('#id_almacen').val();
 		$.ajax({			
-			data : {'almacen': almacen, 'pedido': "{{ pedido.codigo }}" },
+			data : {'almacen': almacen, 'pedido': "{{ pedido.code }}" },
 			url : "{% url 'almacen:verificar_stock_para_pedido' %}",
 			type : 'get',
 			success : function(data)
@@ -233,7 +233,7 @@ $(document).ready(function()
 					cont = i+1;
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
-						"<td>" + item.pedido + item.codigo + "</td>" +
+						"<td>" + item.pedido + item.code + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
@@ -278,13 +278,13 @@ $(document).ready(function()
 		var id_cantidad= $(this).prop('id');
 		var cantidad = $(this).val();
 		var id = id_cantidad.replace("cantidad","");
-		var codigo = $("#codigo"+id).val();
+		var code = $("#code"+id).val();
 		var almacen = $('#id_almacenes').val();
 		$.ajax({
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
 	    	  'almacen': almacen,
-	    	  'codigo': codigo
+	    	  'code': code
 	   	  },
 	      success: function(data) 
 	      {

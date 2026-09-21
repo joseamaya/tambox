@@ -1,7 +1,7 @@
 {% extends "almacen/base_almacen.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Pedidos / {{ pedido.codigo }}</h3>
+<h3>Pedidos / {{ pedido.code }}</h3>
 {% else %}
 <h3>Pedidos / Nuevo</h3>
 {% endif %}
@@ -47,7 +47,7 @@
                 <div class="row">
                     <div class="col-md-3">
                         <label>Código:</label>
-                        {{ form.codigo }}
+                        {{ form.code }}
                     </div>
                 </div>
             </div>
@@ -89,12 +89,12 @@
                         {% for detalle_pedido_form in detalle_pedido_formset %}
                         <tr class="detalle_pedido_formset">
                             <td>
-                                {% if detalle_pedido_form.codigo.errors %}
-                                {% for error in detalle_pedido_form.codigo.errors %}
+                                {% if detalle_pedido_form.code.errors %}
+                                {% for error in detalle_pedido_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_pedido_form.codigo }}
+                                {{ detalle_pedido_form.code }}
                             </td>
                             <td>
                                 {% if detalle_pedido_form.nombre.errors %}
@@ -177,7 +177,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_pedido_formset'>" +
-						"<td>" + item.codigo + "</td>" +
+						"<td>" + item.code + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
@@ -211,7 +211,7 @@ $(document).ready(function()
 		    {
 		    	var id_producto = $(this).prop('id');
 				var id = id_producto.replace("nombre", "");
-				$("#"+id+"codigo").val(ui.item.codigo);
+				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"nombre").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);				
 				return false;
@@ -227,7 +227,7 @@ $(document).ready(function()
 		$.ajax({
 	      url: "{% url 'productos:consulta_stock_producto' %}",
 	      data: {
-	    	  'codigo': $("#"+id+"codigo").val()
+	    	  'code': $("#"+id+"code").val()
 	   	  },
 	      success: function(data) 
 	      {

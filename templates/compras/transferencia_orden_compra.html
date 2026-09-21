@@ -26,7 +26,7 @@
                             <tbody>
                             {% for orden in ordenes %}
                             <tr>
-                                <td>{{ orden.codigo }}</td>
+                                <td>{{ orden.code }}</td>
                                 {% if orden.cotizacion %}
                                 <td>{{ orden.cotizacion.proveedor }}</td>
                                 {% else %}

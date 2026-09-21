@@ -180,13 +180,13 @@
                         {% for detalle_salida_form in detalle_salida_formset %}
                         <tr class="detalle_salida_formset">
                             <td>
-                                {% if detalle_salida_form.codigo.errors %}
-                                {% for error in detalle_salida_form.codigo.errors %}
+                                {% if detalle_salida_form.code.errors %}
+                                {% for error in detalle_salida_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
                                 {{ detalle_salida_form.pedido }}
-                                {{ detalle_salida_form.codigo }}
+                                {{ detalle_salida_form.code }}
                             </td>
                             <td>
                                 {% if detalle_salida_form.nombre.errors %}
@@ -363,7 +363,7 @@ $(document).ready(function()
 					$.each(data, function(i,item){
 						$("#detalles tbody").append( 
 						"<tr class='detalle_salida_formset'>" +
-							"<td>" + item.codigo + "</td>" +
+							"<td>" + item.code + "</td>" +
 							"<td>" + item.nombre + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.cantidad + "</td>" +
@@ -405,7 +405,7 @@ $(document).ready(function()
 		    {
 		    	var id_producto = $(this).prop('id');
 				var id = id_producto.replace("nombre", "");
-				$("#"+id+"codigo").val(ui.item.codigo);
+				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"nombre").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
 				$("#"+id+"precio").val(ui.item.precio);
@@ -426,7 +426,7 @@ $(document).ready(function()
 	      url: "{% url 'almacen:consulta_stock' %}",
 	      data: {
 	    	  'almacen': $("#id_almacen").val(),
-	    	  'codigo': $("#"+id+"codigo").val()
+	    	  'code': $("#"+id+"code").val()
 	   	  },
 	      success: function(data) 
 	      {

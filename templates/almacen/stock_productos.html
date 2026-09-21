@@ -37,7 +37,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label for="codigo">Codigo de Producto: </label>
+                        <label for="code">Codigo de Producto: </label>
                         {% if form.producto.errors %}
                         {% for error in form.producto.errors %}
                         {% include "includes/error.html" %}
@@ -125,7 +125,7 @@ function mostrarProductos()
 	{
 		$("#tabla tbody").append(
 		"<tr>" +
-			"<td>" + item.codigo + "</td>" +
+			"<td>" + item.code + "</td>" +
 			"<td>" + item.label + "</td>" +
 			"<td>" + item.unidad + "</td>" +
 			"<td>" + item.stock + "</td>" +
@@ -154,7 +154,7 @@ $("#id_description").autocomplete({
   minLength: 2,
   select: function( event, ui )
   {
-	$("#id_producto").val(ui.item.codigo);
+	$("#id_producto").val(ui.item.code);
 	$("#id_description").val(ui.item.label);
 	return false;
   },

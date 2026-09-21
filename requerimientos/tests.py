@@ -20,13 +20,13 @@ def crear_requerimiento(**kwargs):
 # Create your tests here.
 class RequerimientoTest(TestCase):
     def setUp(self):
-        self.r1 = crear_requerimiento(codigo='')
-        self.r2 = crear_requerimiento(codigo='')
-        self.r3 = crear_requerimiento(codigo='')
+        self.r1 = crear_requerimiento(code='')
+        self.r2 = crear_requerimiento(code='')
+        self.r3 = crear_requerimiento(code='')
 
     def test_creacion_requerimiento(self):
         self.assertTrue(isinstance(self.r1, Requerimiento))
-        self.assertEqual(self.r1.__str__(), self.r1.codigo)
+        self.assertEqual(self.r1.__str__(), self.r1.code)
 
     def test_siguiente_requerimiento(self):
         self.assertEqual(self.r2, self.r1.siguiente())
@@ -43,25 +43,25 @@ class RequerimientoTest(TestCase):
         self.assertEqual(self.r3, self.r1.anterior())
 
     def test_actualizacion_requerimiento(self):
-        """`save()` solo genera el codigo cuando esta vacio, asi que guardar un
-        requerimiento existente no lo duplica ni le cambia el codigo."""
-        codigo = self.r1.codigo
+        """`save()` solo genera el code cuando esta vacio, asi que guardar un
+        requerimiento existente no lo duplica ni le cambia el code."""
+        code = self.r1.code
         cantidad = Requerimiento.objects.count()
 
         self.r1.save()
 
-        self.assertEqual(codigo, Requerimiento.objects.get(pk=self.r1.pk).codigo)
+        self.assertEqual(code, Requerimiento.objects.get(pk=self.r1.pk).code)
         self.assertEqual(cantidad, Requerimiento.objects.count())
 
 
 class DetalleRequerimientoTest(TestCase):
     def setUp(self):
-        self.r1 = crear_requerimiento(codigo='')
+        self.r1 = crear_requerimiento(code='')
 
     def test_creacion_detalle_requerimiento(self):
         dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1)
         self.assertTrue(isinstance(dr1, DetalleRequerimiento))
-        self.assertEqual(dr1.__str__(), self.r1.codigo + ' ' + str(dr1.nro_detalle))
+        self.assertEqual(dr1.__str__(), self.r1.code + ' ' + str(dr1.nro_detalle))
 
     def test_estado_atendido(self):
         dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, cantidad=5, cantidad_atendida=5)
@@ -77,7 +77,7 @@ class DetalleRequerimientoTest(TestCase):
 
 class AprobacionRequerimientoTest(TestCase):
     def setUp(self):
-        self.r1 = crear_requerimiento(codigo='')
+        self.r1 = crear_requerimiento(code='')
         self.apr1 = baker.make(AprobacionRequerimiento, requerimiento=self.r1)
 
     def test_creacion_aprobacion_requerimiento(self):
@@ -104,7 +104,7 @@ class ClasificarTest(TestCase):
 class EstadosDeRequerimientoTest(TestCase):
 
     def _requerimiento(self, cantidad, cotizada=0, comprada=0, atendida=0):
-        requerimiento = crear_requerimiento(codigo='')
+        requerimiento = crear_requerimiento(code='')
         baker.make(DetalleRequerimiento, requerimiento=requerimiento, nro_detalle=1,
                    cantidad=cantidad, cantidad_cotizada=cotizada,
                    cantidad_comprada=comprada, cantidad_atendida=atendida)

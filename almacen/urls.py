@@ -39,7 +39,7 @@ urlpatterns = [
     re_path(r'^modificar_salida_almacen/(?P<pk>.+)/$', ModificarSalidaAlmacen.as_view(),
         name="modificar_salida_almacen"),
     re_path(r'^modificar_pedido/(?P<pk>.+)/$', ModificarPedido.as_view(), name="modificar_pedido"),
-    re_path(r'^aprobar_pedido/(?P<codigo>.+)/$', AprobarPedido.as_view(), name="aprobar_pedido"),
+    re_path(r'^aprobar_pedido/(?P<code>.+)/$', AprobarPedido.as_view(), name="aprobar_pedido"),
     re_path(r'^verificar_solicita_documento/$', VerificarSolicitaDocumento.as_view(),
         name="verificar_solicita_documento"),
     re_path(r'^verificar_pide_referencia/$', VerificarPideReferencia.as_view(),

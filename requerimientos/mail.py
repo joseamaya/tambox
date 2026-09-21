@@ -12,5 +12,5 @@ def correo_creacion_requerimiento(destinatario, requerimiento):
     http://IP/tambox \n
     Saludos. 
     ''' % (
-    requerimiento.codigo, requerimiento.solicitante.nombre_completo(), requerimiento.created.strftime('%d/%m/%Y'))
+    requerimiento.code, requerimiento.solicitante.nombre_completo(), requerimiento.created.strftime('%d/%m/%Y'))
     enviar_correo([destinatario], asunto, cuerpo)

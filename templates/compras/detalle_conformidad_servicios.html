@@ -36,7 +36,7 @@
             <div class="row">
                 <div class="col-md-2">
                     <label>CODIGO:</label>
-                    <p>{{ object.codigo }}</p>
+                    <p>{{ object.code }}</p>
                 </div>
                 <div class="col-md-3">
                     <label>Fecha Creación:</label>
@@ -143,11 +143,11 @@ $(document).ready(function()
 	function borrarConformidad() 
 	{
 		$.ajax({
-			data : { 'codigo' : "{{ object.codigo }}" },
+			data : { 'code' : "{{ object.code }}" },
 			url : "{% url 'compras:eliminar_conformidad_servicio' %}",
 			type : 'post',
 			success : function(data) {
-				alert("Conformidad " + data.codigo + " eliminada");
+				alert("Conformidad " + data.code + " eliminada");
 				$(location).attr('href', "{% url 'compras:detalle_conformidad_servicios' object.siguiente %}");				
 			}
 		});

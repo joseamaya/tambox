@@ -67,7 +67,7 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <label>CODIGO:</label>
-                        <p>{{ object.codigo }}</p>
+                        <p>{{ object.code }}</p>
                         <label>GRUPO PRODUCTOS:</label>
                         <p>{{ object.grupo_productos }}</p>
                         <label>DESCRIPCION ABREVIADA: </label>
@@ -125,7 +125,7 @@ $(document).ready(function()
 	function borrarProducto() 
 	{
 		$.ajax({
-			data : { 'codigo' : "{{ object.codigo }}" },
+			data : { 'code' : "{{ object.code }}" },
 			url : "{% url 'productos:eliminar_producto' %}",
 			type : 'post',
 			success : function(data) {

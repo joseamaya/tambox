@@ -34,7 +34,7 @@ class ProfesionForm(forms.ModelForm):
 class OficinaForm(forms.ModelForm):
     class Meta:
         model = Oficina
-        fields = ['codigo', 'nombre', 'dependencia', 'es_gerencia']
+        fields = ['code', 'nombre', 'dependencia', 'es_gerencia']
 
     def __init__(self, *args, **kwargs):
         super(OficinaForm, self).__init__(*args, **kwargs)

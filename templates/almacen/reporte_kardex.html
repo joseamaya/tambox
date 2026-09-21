@@ -45,7 +45,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">CONSOLIDADO : </label>
+                        <label for="code">CONSOLIDADO : </label>
                         {% if form.consolidado.errors %}
                         {% for error in form.consolidado.errors %}
                         {% include "includes/error.html" %}
@@ -58,7 +58,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">FORMATO PARA SUNAT: </label>
+                        <label for="code">FORMATO PARA SUNAT: </label>
                         {% if form.formato_sunat.errors %}
                         {% for error in form.formato_sunat.errors %}
                         {% include "includes/error.html" %}
@@ -71,7 +71,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">ESCOJA EL FORMATO: </label>
+                        <label for="code">ESCOJA EL FORMATO: </label>
                         {% if form.formatos.errors %}
                         {% for error in form.formatos.errors %}
                         {% include "includes/error.html" %}

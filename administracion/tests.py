@@ -180,15 +180,15 @@ class TableroAdministracionTest(TestCase):
         respuesta = self.client.get('/administracion/tablero/')
 
         self.assertEqual(respuesta.status_code, 200)
-        self.assertTrue(Oficina.objects.filter(codigo='GGEN', es_gerencia=True).exists())
+        self.assertTrue(Oficina.objects.filter(code='GGEN', es_gerencia=True).exists())
 
     def test_no_duplica_lo_que_ya_existe(self):
-        Oficina.objects.create(codigo='GGEN', nombre='GERENCIA GENERAL', es_gerencia=True)
+        Oficina.objects.create(code='GGEN', nombre='GERENCIA GENERAL', es_gerencia=True)
         NivelAprobacion.objects.create(description='LOGISTICA')
 
         self.client.get('/administracion/tablero/')
         self.client.get('/administracion/tablero/')
 
-        self.assertEqual(Oficina.objects.filter(codigo='GGEN').count(), 1)
+        self.assertEqual(Oficina.objects.filter(code='GGEN').count(), 1)
         self.assertEqual(NivelAprobacion.objects.filter(description='LOGISTICA').count(), 1)
         self.assertEqual(NivelAprobacion.objects.filter(description='USUARIO').count(), 1)

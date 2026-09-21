@@ -42,7 +42,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ servicio.codigo }}</td>
+                <td>{{ servicio.code }}</td>
                 <td>{{ servicio.description }}</td>
             </tr>
             {% endfor %}
@@ -84,9 +84,9 @@ $(document).ready(function()
 	function borrarServicio()
 	{
 	   	var id_boton= $(borrarSeleccionado).prop('id');
-	   	var codigo = id_boton.replace("elim_","");
+	   	var code = id_boton.replace("elim_","");
 	   	$.ajax({
-	   		data : {'codigo': codigo},
+	   		data : {'code': code},
 	   		url : "{% url 'productos:eliminar_servicio' %}",
 	   		type : 'post',
 	   		success : function(data)

@@ -51,7 +51,7 @@ class ReporteOrdenCompra():
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
         ruc = Paragraph("R.U.C." + empresa().ruc, sp)
-        encabezado = [[imagen, nro, ruc], ['', u"N°" + orden_compra.codigo,
+        encabezado = [[imagen, nro, ruc], ['', u"N°" + orden_compra.code,
                                            empresa().distrito + " " + orden_compra.fecha.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
@@ -85,7 +85,7 @@ class ReporteOrdenCompra():
             telefono = Paragraph(u"TELÉFONO: -", izquierda)
         try:
             referencia = Paragraph(
-                u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre,
+                u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre,
                 izquierda)
         except (ObjectDoesNotExist, AttributeError):
             referencia = Paragraph(u"REFERENCIA: ", izquierda)
@@ -636,7 +636,7 @@ class PDFSolicitudCotizacion(object):
         ))
         tabla_encabezado.wrapOn(pdf, 800, 600)
         tabla_encabezado.drawOn(pdf, 200, 800)
-        pdf.drawString(270, 780, u"N°" + cotizacion.codigo)
+        pdf.drawString(270, 780, u"N°" + cotizacion.code)
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(40, 750, u"SEÑOR(ES): " + cotizacion.proveedor.razon_social)
         pdf.drawString(440, 750, u"R.U.C.: " + cotizacion.proveedor.ruc)
@@ -748,10 +748,10 @@ class PDFMemorandoConformidadServicio(object):
         pdf.setFont("Times-Roman", 14)
         pdf.drawString(130, 750, u"MEMORANDO DE CONFORMIDAD DEL SERVICIO")
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 730, u"N°" + conformidad.codigo)
+        pdf.drawString(250, 730, u"N°" + conformidad.code)
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(430, 780, empresa().distrito + " " + conformidad.fecha.strftime('%d de %b de %Y'))
-        pdf.drawString(475, 710, conformidad.orden_servicios.codigo)
+        pdf.drawString(475, 710, conformidad.orden_servicios.code)
         requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
         gerencia_inmediata = requerimiento.oficina.gerencia
         solicitante = requerimiento.solicitante
@@ -761,9 +761,9 @@ class PDFMemorandoConformidadServicio(object):
         puesto_jefe_inmediato = self.puesto_superior(requerimiento.oficina, conformidad)
         jefe_inmediato = puesto_jefe_inmediato.trabajador
         y = 690
-        if puesto_solicitante.oficina.codigo == 'GGEN':
+        if puesto_solicitante.oficina.code == 'GGEN':
             puesto_gerente = self.obtener_puesto(configuracion().administracion, conformidad)
-        elif puesto_solicitante.oficina.codigo == 'GOPE' and not puesto_solicitante.es_jefatura:
+        elif puesto_solicitante.oficina.code == 'GOPE' and not puesto_solicitante.es_jefatura:
             puesto_gerente = self.obtener_puesto(requerimiento.oficina, conformidad)
         else:
             puesto_gerente = self.obtener_puesto(gerencia_inmediata, conformidad)
@@ -796,7 +796,7 @@ class PDFMemorandoConformidadServicio(object):
         estilo_parrafo.fontName = "Times-Roman"
         cadena_parrafo = u"""Mediante el presente comunico a Ud. que el servicio requerido con REQ DE BIENES Y SERV. N° %s, 
         ha sido concluido a satisfacción, según %s, lo que comunicamos para que proceda al pago del servicio correspondiente que 
-        se detalla como sigue: """ % (requerimiento.codigo, conformidad.doc_sustento)
+        se detalla como sigue: """ % (requerimiento.code, conformidad.doc_sustento)
         p1 = Paragraph(cadena_parrafo, estilo_parrafo)
         p1.wrapOn(pdf, 500, y - 20)
         p1.drawOn(pdf, 40, y - 20)
@@ -866,7 +866,7 @@ class PDFOrdenServicios(object):
         pdf.setFont("Times-Roman", 11)
         pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 780, u"N°" + orden.codigo)
+        pdf.drawString(250, 780, u"N°" + orden.code)
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
@@ -889,7 +889,7 @@ class PDFOrdenServicios(object):
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre)
+                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre)
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: " + orden.nombre_informe)
 
@@ -1080,7 +1080,7 @@ class PDFOrdenCompra(object):
         pdf.setFont("Times-Roman", 11)
         pdf.drawString(455, 800, u"R.U.C. " + empresa().ruc)
         pdf.setFont("Times-Roman", 13)
-        pdf.drawString(250, 780, u"N° " + orden.codigo)
+        pdf.drawString(250, 780, u"N° " + orden.code)
         pdf.setFont("Times-Roman", 10)
         pdf.drawString(430, 780, empresa().distrito + " " + orden.fecha.strftime(
             '%d de %b de %Y'))  # orden.fecha.strftime('%d de %B de %Y')
@@ -1104,7 +1104,7 @@ class PDFOrdenCompra(object):
             pdf.drawString(440, 730, u"TELÉFONO: -")
         try:
             pdf.drawString(40, 710,
-                           u"REFERENCIA: " + orden.cotizacion.requerimiento.codigo + " - " + orden.cotizacion.requerimiento.oficina.nombre)
+                           u"REFERENCIA: " + orden.cotizacion.requerimiento.code + " - " + orden.cotizacion.requerimiento.oficina.nombre)
         except (ObjectDoesNotExist, AttributeError):
             pdf.drawString(40, 710, u"REFERENCIA: -")
         pdf.drawString(40, 690, u"PROCESO: -")

@@ -129,7 +129,7 @@ class Productor(TimeStampedModel):
 
 
 class Oficina(TimeStampedModel):
-    codigo = models.CharField(max_length=4, unique=True)
+    code = models.CharField(max_length=4, unique=True)
     nombre = models.CharField(max_length=50)
     es_gerencia = models.BooleanField(default=False)
     dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)

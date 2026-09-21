@@ -6,7 +6,7 @@ class NavegableQuerySet(models.query.QuerySet):
 
     `anterior()` y `siguiente()` devuelven el objeto (no la pk), porque hay
     consumidores que necesitan la instancia: el tag `url_anterior` llama a
-    `verificar_acceso()` sobre ella, y las URL montadas sobre `codigo` la
+    `verificar_acceso()` sobre ella, y las URL montadas sobre `code` la
     resuelven via `__str__`. Los modelos cuyas rutas usan `pk` exponen un
     envoltorio que devuelve `pk`, que es lo que esperan sus plantillas.
     """

@@ -36,7 +36,7 @@ class ProveedorForm(forms.ModelForm):
 
 
 class DetalleOrdenCompraForm(forms.Form):
-    codigo = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
+    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
     unidad = forms.CharField(max_length=6,
                              widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -49,7 +49,7 @@ class DetalleOrdenCompraForm(forms.Form):
 
 
 class DetalleOrdenServicioForm(forms.Form):
-    codigo = forms.CharField(widget=forms.HiddenInput())
+    code = forms.CharField(widget=forms.HiddenInput())
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,
                                   widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
     servicio = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
@@ -84,7 +84,7 @@ class CotizacionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(CotizacionForm, self).__init__(*args, **kwargs)
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
@@ -92,11 +92,11 @@ class CotizacionForm(forms.ModelForm):
             })
 
     def clean_orden(self):
-        codigo_orden = self.cleaned_data.get('orden')
-        if len(codigo_orden) != 12 and len(codigo_orden) != 0:
+        code_orden = self.cleaned_data.get('orden')
+        if len(code_orden) != 12 and len(code_orden) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
-        elif len(codigo_orden) == 12:
-            ordenes = OrdenServicios.objects.filter(codigo=codigo_orden)
+        elif len(code_orden) == 12:
+            ordenes = OrdenServicios.objects.filter(code=code_orden)
             if len(ordenes) > 0:
                 raise ValidationError('La orden ya existe.')
         return self.cleaned_data['orden']
@@ -119,7 +119,7 @@ class CotizacionForm(forms.ModelForm):
 
     class Meta:
         model = Cotizacion
-        fields = ['codigo', 'fecha', 'observaciones']
+        fields = ['code', 'fecha', 'observaciones']
 
 
 class OrdenCompraForm(forms.ModelForm):
@@ -140,7 +140,7 @@ class OrdenCompraForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OrdenCompraForm, self).__init__(*args, **kwargs)
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['referencia'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
@@ -154,15 +154,15 @@ class OrdenCompraForm(forms.ModelForm):
                     'readonly': "readonly"
                 })
 
-    def clean_codigo(self):
-        codigo = self.cleaned_data.get('codigo')
-        if len(codigo) != 12 and len(codigo) != 0:
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if len(code) != 12 and len(code) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
-        return self.cleaned_data['codigo']
+        return self.cleaned_data['code']
 
     def save(self, *args, **kwargs):
         try:
-            self.instance.cotizacion = Cotizacion.objects.get(codigo=self.cleaned_data['referencia'])
+            self.instance.cotizacion = Cotizacion.objects.get(code=self.cleaned_data['referencia'])
         except Cotizacion.DoesNotExist:
             self.instance.cotizacion = None
             self.instance.proveedor = Proveedor.objects.get(ruc=self.cleaned_data['ruc'])
@@ -170,7 +170,7 @@ class OrdenCompraForm(forms.ModelForm):
 
     class Meta:
         model = OrdenCompra
-        fields = ['codigo', 'forma_pago', 'fecha', 'observaciones', 'con_impuesto', 'dolares']
+        fields = ['code', 'forma_pago', 'fecha', 'observaciones', 'con_impuesto', 'dolares']
 
 
 class OrdenServiciosForm(forms.ModelForm):
@@ -190,7 +190,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(OrdenServiciosForm, self).__init__(*args, **kwargs)
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['proceso'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
         self.fields['observaciones'].required = False
@@ -206,11 +206,11 @@ class OrdenServiciosForm(forms.ModelForm):
                     'readonly': "readonly"
                 })
 
-    def clean_codigo(self):
-        codigo = self.cleaned_data.get('codigo')
-        if len(codigo) != 12 and len(codigo) != 0:
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if len(code) != 12 and len(code) != 0:
             raise ValidationError('El código debe tener 12 dígitos.')
-        return self.cleaned_data['codigo']
+        return self.cleaned_data['code']
 
     def save(self, *args, **kwargs):
         try:
@@ -222,7 +222,7 @@ class OrdenServiciosForm(forms.ModelForm):
 
     class Meta:
         model = OrdenServicios
-        fields = ['codigo', 'forma_pago', 'proceso', 'observaciones', 'fecha', 'nombre_informe', 'informe']
+        fields = ['code', 'forma_pago', 'proceso', 'observaciones', 'fecha', 'nombre_informe', 'informe']
 
 
 class ConformidadServicioForm(forms.ModelForm):
@@ -235,7 +235,7 @@ class ConformidadServicioForm(forms.ModelForm):
         super(ConformidadServicioForm, self).__init__(*args, **kwargs)
         self.fields['total'].widget.attrs['readonly'] = True
         self.fields['total_letras'].widget.attrs['readonly'] = True
-        self.fields['codigo'].required = False
+        self.fields['code'].required = False
         self.fields['doc_sustento'].required = False
         self.fields['archivo'].required = False
         self.fields['fecha'].input_formats = ['%d/%m/%Y']
@@ -250,12 +250,12 @@ class ConformidadServicioForm(forms.ModelForm):
 
     class Meta:
         model = ConformidadServicio
-        fields = ['codigo', 'doc_sustento', 'archivo', 'fecha', 'total', 'total_letras']
+        fields = ['code', 'doc_sustento', 'archivo', 'fecha', 'total', 'total_letras']
 
 
 class FormularioDetalleCotizacion(forms.Form):
     requerimiento = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(max_length=14, widget=forms.TextInput(
+    code = forms.CharField(max_length=14, widget=forms.TextInput(
         attrs={'size': 14, 'readonly': "readonly", 'class': 'entero form-control'}))
     nombre = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 120, 'readonly': "readonly", 'class': 'form-control'}))
@@ -267,7 +267,7 @@ class FormularioDetalleCotizacion(forms.Form):
 
 class FormularioDetalleOrdenCompra(forms.Form):
     cotizacion = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(
+    code = forms.CharField(
         widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
     nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
@@ -283,7 +283,7 @@ class FormularioDetalleOrdenCompra(forms.Form):
 
 class FormularioDetalleOrdenServicios(forms.Form):
     cotizacion = forms.CharField(widget=forms.HiddenInput())
-    codigo = forms.CharField(widget=forms.HiddenInput())
+    code = forms.CharField(widget=forms.HiddenInput())
     nombre = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
     unidad = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
     cantidad = forms.DecimalField(max_digits=15, decimal_places=5,

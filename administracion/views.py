@@ -35,7 +35,7 @@ class Tablero(View):
         cant_trabajadores = Trabajador.objects.all().count()
         cant_puestos = Puesto.objects.all().count()
         cant_profesiones = Profesion.objects.all().count()
-        oficina, creada = Oficina.objects.get_or_create(codigo='GGEN',
+        oficina, creada = Oficina.objects.get_or_create(code='GGEN',
                                                        defaults={'nombre': 'GERENCIA GENERAL',
                                                                  'es_gerencia': True})
         if creada:
@@ -102,10 +102,10 @@ class CargarOficinas(CargarCsvMixin, FormView):
     success_url = reverse_lazy('administracion:maestro_oficinas')
 
     def procesar_fila(self, fila):
-        Oficina.objects.get_or_create(codigo=fila[0],
+        Oficina.objects.get_or_create(code=fila[0],
                                       defaults={
                                           'nombre': fila[1],
-                                          'dependencia': Oficina.objects.get(codigo=fila[2])},
+                                          'dependencia': Oficina.objects.get(code=fila[2])},
                                       )
 
 
@@ -160,7 +160,7 @@ class CargarPuestos(CargarCsvMixin, FormView):
         fecha = datetime.date(int(fila[3][6:]), int(fila[3][3:5]), int(fila[3][0:2]))
         try:
             Puesto.objects.get_or_create(nombre=fila[0],
-                                         defaults={'oficina': Oficina.objects.get(codigo=fila[1].strip()),
+                                         defaults={'oficina': Oficina.objects.get(code=fila[1].strip()),
                                                    'trabajador': Trabajador.objects.get(dni=fila[2].strip()),
                                                    'fecha_inicio': fecha,
                                                    'es_jefatura': fila[4] == 'SI'})
@@ -398,7 +398,7 @@ class ModificarPuesto(UpdateView):
 
 class ReporteExcelOficinas(TemplateView):
     def get(self, request, *args, **kwargs):
-        oficinas = Oficina.objects.filter(estado=True).order_by('codigo')
+        oficinas = Oficina.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE OFICINAS'
@@ -410,7 +410,7 @@ class ReporteExcelOficinas(TemplateView):
         cont = 4
         for oficina in oficinas:
             try:
-                ws.cell(row=cont, column=2).value = oficina.codigo
+                ws.cell(row=cont, column=2).value = oficina.code
                 ws.cell(row=cont, column=3).value = oficina.nombre
                 ws.cell(row=cont, column=4).value = oficina.dependencia.nombre
                 ws.cell(row=cont, column=5).value = oficina.gerencia.nombre

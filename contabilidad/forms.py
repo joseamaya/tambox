@@ -19,7 +19,7 @@ class FormaPagoForm(forms.ModelForm):
 
     class Meta:
         model = FormaPago
-        fields = ['codigo', 'description', 'dias_credito']
+        fields = ['code', 'description', 'dias_credito']
 
 
 class UploadForm(forms.ModelForm):

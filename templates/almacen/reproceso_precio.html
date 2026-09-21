@@ -36,7 +36,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">SELECCIONE : </label>
+                        <label for="code">SELECCIONE : </label>
                         {% if form.seleccion.errors %}
                         {% for error in form.seleccion.errors %}
                         {% include "includes/error.html" %}
@@ -49,7 +49,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">Codigo de Producto: </label>
+                        <label for="code">Codigo de Producto: </label>
                         {% if form.producto.errors %}
                         {% for error in form.producto.errors %}
                         {% include "includes/error.html" %}
@@ -91,7 +91,7 @@ $("#id_description").autocomplete({
   minLength: 2,
   select: function( event, ui ) 
   {
-	$("#id_producto").val(ui.item.codigo);	
+	$("#id_producto").val(ui.item.code);	
 	return false;
   },
 });

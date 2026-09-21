@@ -40,7 +40,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ orden_compra.codigo }}</td>
+                <td>{{ orden_compra.code }}</td>
                 {% if orden_compra.cotizacion %}
                 <td>{{ orden_compra.cotizacion }}</td>
                 {% else %}
@@ -89,21 +89,21 @@ $(document).ready(function()
     function borrarOrdenCompra()
 	{
     	var id_boton= $(borrarSeleccionado).prop('id');
-    	var codigo = id_boton.replace("elim_","");
+    	var code = id_boton.replace("elim_","");
     	$.ajax({
-    		data : {'codigo': codigo},
+    		data : {'code': code},
     		url : "{% url 'compras:eliminar_orden_compra' %}",
     		type : 'post',
     		success : function(data)
     		{
     			if(data.movimientos=='NO')
     			{
-    				alert("Orden de Compra "+data.codigo+ " eliminada");
+    				alert("Orden de Compra "+data.code+ " eliminada");
     				table.row('.selected').remove().draw(false);
     			}
     			else if(data.movimientos=='SI')
     			{
-    				alert("La orden de compra "+data.codigo+" no puede cerrarse");	
+    				alert("La orden de compra "+data.code+" no puede cerrarse");	
     			}    			
     		}
     	});

@@ -111,7 +111,7 @@ class Proveedor(TimeStampedModel):
 
 
 class Cotizacion(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     requerimiento = models.ForeignKey(Requerimiento, on_delete=models.CASCADE, null=True)
     fecha = models.DateField()
@@ -171,20 +171,20 @@ class Cotizacion(TimeStampedModel):
                        ('puede_hacer_transferencia_cotizacion', 'Puede hacer transferencia de Cotización'),)
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
+        if self.code == '':
             anio = self.fecha.year
-            mov_ant = Cotizacion.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant = mov_ant['codigo__max']
+            mov_ant = Cotizacion.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
             else:
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.codigo = 'CO' + str(anio) + correlativo
+            self.code = 'CO' + str(anio) + correlativo
         super(Cotizacion, self).save()
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
 
 class DetalleCotizacion(TimeStampedModel):
@@ -218,7 +218,7 @@ class DetalleCotizacion(TimeStampedModel):
 
 
 class OrdenCompra(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
     fecha = models.DateField()
@@ -317,23 +317,23 @@ class OrdenCompra(TimeStampedModel):
                        ('ver_tabla_ordenes_compra', 'Puede ver tabla Ordenes de Compra'),
                        ('ver_reporte_ordenes_compra_excel', 'Puede ver Reporte de Ordenes de Compra en excel'),
                        ('puede_hacer_transferencia_orden_compra', 'Puede hacer transferencia de Orden de Compra'),)
-        ordering = ('codigo',)
+        ordering = ('code',)
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
+        if self.code == '':
             anio = self.fecha.year
-            mov_ant = OrdenCompra.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant = mov_ant['codigo__max']
+            mov_ant = OrdenCompra.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
             else:
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.codigo = 'OC' + str(anio) + correlativo
+            self.code = 'OC' + str(anio) + correlativo
         super(OrdenCompra, self).save()
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
 
 class DetalleOrdenCompra(TimeStampedModel):
@@ -414,7 +414,7 @@ class DetalleOrdenCompra(TimeStampedModel):
 
 
 class OrdenServicios(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     cotizacion = models.ForeignKey(Cotizacion, on_delete=models.CASCADE, null=True)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, null=True)
     forma_pago = models.ForeignKey(FormaPago, on_delete=models.CASCADE)
@@ -498,27 +498,27 @@ class OrdenServicios(TimeStampedModel):
         permissions = (('ver_detalle_orden_servicios', 'Puede ver detalle de Orden de Servicios'),
                        ('ver_tabla_ordenes_servicios', 'Puede ver tabla de Ordenes de Servicios'),
                        ('ver_reporte_ordenes_servicios_excel', 'Puede ver Reporte de Ordenes de Servicios en excel'),)
-        ordering = ('codigo',)
+        ordering = ('code',)
 
-    def generar_codigo(self):
+    def generar_code(self):
         anio = self.fecha.year
-        mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-        id_ant = mov_ant['codigo__max']
+        mov_ant = OrdenServicios.objects.filter(fecha__year=anio).aggregate(Max('code'))
+        id_ant = mov_ant['code__max']
         if id_ant is None:
             aux = 1
         else:
             aux = int(id_ant[-6:]) + 1
         correlativo = str(aux).zfill(6)
-        codigo = 'OS' + str(anio) + correlativo
-        return codigo
+        code = 'OS' + str(anio) + correlativo
+        return code
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
-            self.codigo = self.generar_codigo()
+        if self.code == '':
+            self.code = self.generar_code()
         super(OrdenServicios, self).save()
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
 
 class DetalleOrdenServicios(TimeStampedModel):
@@ -563,7 +563,7 @@ class DetalleOrdenServicios(TimeStampedModel):
 
 
 class ConformidadServicio(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     orden_servicios = models.ForeignKey(OrdenServicios, on_delete=models.CASCADE)
     doc_sustento = models.CharField(max_length=50)
     archivo = models.FileField(upload_to='informes', null=True)
@@ -608,20 +608,20 @@ class ConformidadServicio(TimeStampedModel):
         requerimiento.save()
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
+        if self.code == '':
             anio = self.fecha.year
-            conf_ant = ConformidadServicio.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant = conf_ant['codigo__max']
+            conf_ant = ConformidadServicio.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            id_ant = conf_ant['code__max']
             if id_ant is None:
                 aux = 1
             else:
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            self.codigo = 'CS' + str(anio) + correlativo
+            self.code = 'CS' + str(anio) + correlativo
         super(ConformidadServicio, self).save()
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
 
 class DetalleConformidadServicio(TimeStampedModel):

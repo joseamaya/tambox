@@ -6,15 +6,15 @@ from tambox.querysets import NavegableQuerySet
 
 class AnteriorQuerySet(models.query.QuerySet):
     def requerimiento_anterior(self, anio):
-        return self.filter(created__year=anio).aggregate(Max('codigo'))
+        return self.filter(created__year=anio).aggregate(Max('code'))
 
 
 class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
     def requerimientos_activos_por_usuario(self, usuario, estado):
-        return self.filter(solicitante__usuario=usuario).exclude(estado=estado).order_by('codigo')
+        return self.filter(solicitante__usuario=usuario).exclude(estado=estado).order_by('code')
 
-    def actualizar_requerimiento(self, codigo):
-        return self.filter(codigo=codigo).update(estado=False)
+    def actualizar_requerimiento(self, code):
+        return self.filter(code=code).update(estado=False)
 
     def requerimientos_oficina_usuario(self, oficina_usuario):
         return self.filter(oficina=oficina_usuario)

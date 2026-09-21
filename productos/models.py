@@ -13,7 +13,7 @@ from django.db.models import Sum
 
 
 class UnidadMedida(TimeStampedModel):
-    codigo = models.CharField(max_length=5, unique=True)
+    code = models.CharField(max_length=5, unique=True)
     codigo_sunat = models.CharField(max_length=2)
     description = models.CharField(max_length=50)
     estado = models.BooleanField(default=True)
@@ -24,7 +24,7 @@ class UnidadMedida(TimeStampedModel):
         permissions = (('ver_detalle_unidad_medida', 'Puede ver detalle Unidad de Medida'),
                        ('ver_tabla_unidades_medida', 'Puede ver tabla de unidades de medida'),
                        ('ver_reporte_unidades_medida_excel', 'Puede ver Reporte Unidades de Medida en excel'),)
-        ordering = ['codigo']
+        ordering = ['code']
 
     def anterior(self):
         ant = UnidadMedida.objects.anterior(self)
@@ -39,7 +39,7 @@ class UnidadMedida(TimeStampedModel):
 
 
 class GrupoProductos(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=6)
+    code = models.CharField(primary_key=True, max_length=6)
     description = models.CharField(max_length=100)
     ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE)
     son_productos = models.BooleanField(default=True)
@@ -54,14 +54,14 @@ class GrupoProductos(TimeStampedModel):
                        ('ver_reporte_grupo_productos_excel', 'Puede ver Reporte de grupo de productos en excel'),)
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
-            grupo_ant = GrupoProductos.objects.all().aggregate(Max('codigo'))
-            cod_ant = grupo_ant['codigo__max']
+        if self.code == '':
+            grupo_ant = GrupoProductos.objects.all().aggregate(Max('code'))
+            cod_ant = grupo_ant['code__max']
             if cod_ant is None:
                 aux = 1
             else:
                 aux = int(cod_ant) + 1
-            self.codigo = str(aux).zfill(6)
+            self.code = str(aux).zfill(6)
         super(GrupoProductos, self).save()
 
     def anterior(self):
@@ -110,7 +110,7 @@ class GrupoProductos(TimeStampedModel):
 
 
 class Producto(TimeStampedModel):
-    codigo = models.CharField(primary_key=True, max_length=10)
+    code = models.CharField(primary_key=True, max_length=10)
     grupo_productos = models.ForeignKey(GrupoProductos, on_delete=models.CASCADE)
     description = models.CharField(max_length=100, unique=True, verbose_name='Descripción')
     es_servicio = models.BooleanField(default=False)
@@ -203,16 +203,16 @@ class Producto(TimeStampedModel):
         return sig.pk
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
-            prod_ant = Producto.objects.filter(grupo_productos=self.grupo_productos).aggregate(Max('codigo'))
-            cod_ant = prod_ant['codigo__max']
+        if self.code == '':
+            prod_ant = Producto.objects.filter(grupo_productos=self.grupo_productos).aggregate(Max('code'))
+            cod_ant = prod_ant['code__max']
             if cod_ant is None:
-                self.codigo = self.grupo_productos.codigo + '0001'
+                self.code = self.grupo_productos.code + '0001'
             else:
                 aux = int(cod_ant) + 1
-                self.codigo = str(aux).zfill(10)
+                self.code = str(aux).zfill(10)
             if self.es_servicio:
-                unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
+                unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                            defaults={'description': 'SERVICIO'})
                 self.unidad_medida = unidad_medida
         super(Producto, self).save()

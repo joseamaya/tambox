@@ -61,7 +61,7 @@
         <div class="row">
             <div class="col-md-2">
                 <label>Código:</label>
-                <p>{{ object.codigo }}</p>
+                <p>{{ object.code }}</p>
             </div>
             <div class="col-md-4">
                 <label>Solicitante:</label>
@@ -105,7 +105,7 @@
                     <tbody>
                     {% for detalle in object.detallepedido_set.all %}
                     <tr>
-                        <td>{{ detalle.producto.codigo }}</td>
+                        <td>{{ detalle.producto.code }}</td>
                         <td>{{ detalle.producto.description }}</td>
                         <td>{{ detalle.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad }}</td>
@@ -151,13 +151,13 @@ $(document).ready(function()
 	{
 		var mySpinner = setupLoading();
 		$.ajax({
-			data : {'codigo' : "{{ object.pk }}" },
+			data : {'code' : "{{ object.pk }}" },
 			url : "{% url 'almacen:eliminar_pedido' %}",
 			type : 'post',
 			success : function(data) 
 			{
 				removeLoading(mySpinner);
-				alert("Pedido " + data.codigo + " eliminado");	
+				alert("Pedido " + data.code + " eliminado");	
 				$(location).attr('href', "{% url 'almacen:pedidos' %}");
 			}
 		});

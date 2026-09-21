@@ -52,13 +52,13 @@ class UnidadMedidaTest(TestCase):
 class GrupoProductosTest(TestCase):
 
     def setUp(self):
-        self.gp1 = baker.make(GrupoProductos, codigo='')
-        self.gp2 = baker.make(GrupoProductos, codigo='')
-        self.gp3 = baker.make(GrupoProductos, codigo='')
+        self.gp1 = baker.make(GrupoProductos, code='')
+        self.gp2 = baker.make(GrupoProductos, code='')
+        self.gp3 = baker.make(GrupoProductos, code='')
 
     def test_creacion_grupo_productos(self):
         self.assertTrue(isinstance(self.gp1, GrupoProductos))
-        self.assertEqual("1".zfill(6), self.gp1.codigo)
+        self.assertEqual("1".zfill(6), self.gp1.code)
         self.assertEqual(self.gp1.__str__(), self.gp1.description)
 
     def test_siguiente_grupo_productos(self):
@@ -79,16 +79,16 @@ class GrupoProductosTest(TestCase):
 class ProductoTest(TestCase):
 
     def setUp(self):
-        self.gp1 = baker.make(GrupoProductos, codigo='')
-        self.gp2 = baker.make(GrupoProductos, codigo='')
-        self.p1 = baker.make(Producto, codigo='', grupo_productos=self.gp1)
-        self.p2 = baker.make(Producto, codigo='', grupo_productos=self.gp1)
-        self.p3 = baker.make(Producto, codigo='', grupo_productos=self.gp2, es_servicio=True)
+        self.gp1 = baker.make(GrupoProductos, code='')
+        self.gp2 = baker.make(GrupoProductos, code='')
+        self.p1 = baker.make(Producto, code='', grupo_productos=self.gp1)
+        self.p2 = baker.make(Producto, code='', grupo_productos=self.gp1)
+        self.p3 = baker.make(Producto, code='', grupo_productos=self.gp2, es_servicio=True)
 
     def test_creacion_producto(self):
         self.assertTrue(isinstance(self.p1, Producto))
-        self.assertEqual(self.gp1.codigo + "1".zfill(4), self.p1.codigo)
-        self.assertEqual(self.gp1.codigo + "2".zfill(4), self.p2.codigo)
+        self.assertEqual(self.gp1.code + "1".zfill(4), self.p1.code)
+        self.assertEqual(self.gp1.code + "2".zfill(4), self.p2.code)
         self.assertEqual(self.p1.__str__(), self.p1.description)
 
     def test_siguiente_producto(self):
@@ -106,7 +106,7 @@ class ProductoTest(TestCase):
         self.assertEqual(self.p3.pk, self.p1.anterior())
 
     def test_creacion_servicio(self):
-        self.assertEqual(self.p3.unidad_medida.codigo, 'SERV')
+        self.assertEqual(self.p3.unidad_medida.code, 'SERV')
 
 
 class ConsultaDeStockTest(TestCase):
@@ -184,7 +184,7 @@ class CargarServiciosTest(TestCase):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
 
     def test_importa_todas_las_filas(self):
-        baker.make(GrupoProductos, codigo='000001')
+        baker.make(GrupoProductos, code='000001')
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
         archivo = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
@@ -211,7 +211,7 @@ class CargarProductosTest(TestCase):
         self.client.force_login(User.objects.create_superuser('cargador', 'c@example.com', 'clave-segura'))
 
     def test_salta_la_fila_sin_tipo_de_existencia(self):
-        baker.make(GrupoProductos, codigo='000001')
+        baker.make(GrupoProductos, code='000001')
         baker.make(TipoExistencia, codigo_sunat='01')
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
         archivo = SimpleUploadedFile('productos.csv', contenido.encode('utf8'), content_type='text/csv')
@@ -220,7 +220,7 @@ class CargarProductosTest(TestCase):
 
         self.assertEqual(respuesta.status_code, 302)
         self.assertEqual(list(Producto.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
-        self.assertEqual(UnidadMedida.objects.get(codigo='UNIDA').description, 'UNIDAD X')
+        self.assertEqual(UnidadMedida.objects.get(code='UNIDA').description, 'UNIDAD X')
 
 
 class BusquedaProductosTest(TestCase):
@@ -230,8 +230,8 @@ class BusquedaProductosTest(TestCase):
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('buscador', 'b@example.com', 'clave-segura'))
-        self.unidad = baker.make(UnidadMedida, codigo='UND01', description='UNIDAD')
-        baker.make(Producto, codigo='COD0000001', description='PRODUCTO', unidad_medida=self.unidad)
+        self.unidad = baker.make(UnidadMedida, code='UND01', description='UNIDAD')
+        baker.make(Producto, code='COD0000001', description='PRODUCTO', unidad_medida=self.unidad)
 
     def ampliar(self, cuantos):
         for numero in range(cuantos):
@@ -259,8 +259,8 @@ class BusquedaProductosTest(TestCase):
         self.assertEqual(len(datos), 20)
         self.assertEqual(datos[0]['unidad'], 'UNIDAD')
 
-    def test_busqueda_por_codigo(self):
-        respuesta = self.buscar('/productos/busqueda_productos_codigo/', {'codigo': 'COD0000001'})
+    def test_busqueda_por_code(self):
+        respuesta = self.buscar('/productos/busqueda_productos_code/', {'code': 'COD0000001'})
 
         self.assertEqual(respuesta.status_code, 200)
         datos = respuesta.json()

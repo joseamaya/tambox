@@ -39,7 +39,7 @@
                 {% else %}
             <tr>
                 {% endif %}
-                <td>{{ cotizacion.codigo }}</td>
+                <td>{{ cotizacion.code }}</td>
                 <td>{{ cotizacion.proveedor }}</td>
                 <td>{{ cotizacion.requerimiento }}</td>
                 <td>{{ cotizacion.fecha|date:"d/m/y" }}</td>
@@ -80,20 +80,20 @@ $(document).ready(function()
 
 	function borrarOrdenCompra() {
 		var id_boton = $(borrarSeleccionado).prop('id');
-		var codigo = id_boton.replace("elim_", "");
+		var code = id_boton.replace("elim_", "");
 		$.ajax({
 			data : {
-				'codigo' : codigo
+				'code' : code
 			},
 			url : "{% url 'compras:eliminar_orden_compra' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.movimientos == 'NO') {
-					alert("Orden de Compra " + data.codigo
+					alert("Orden de Compra " + data.code
 							+ " eliminada");
 					table.row('.selected').remove().draw(false);
 				} else if (data.movimientos == 'SI') {
-					alert("La orden de compra " + data.codigo
+					alert("La orden de compra " + data.code
 							+ " no puede cerrarse");
 				}
 			}

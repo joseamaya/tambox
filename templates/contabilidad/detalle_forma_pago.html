@@ -50,7 +50,7 @@
                 <div class="row">
                     <div class="col-lg-4">
                         <label>CODIGO:</label>
-                        <p>{{ object.codigo }}</p>
+                        <p>{{ object.code }}</p>
                         <label>DIAS CREDITO: </label>
                         <p>{{ object.dias_credito }}</p>
                     </div>
@@ -91,7 +91,7 @@
 				function borrarProducto() {
 					$.ajax({
 						data : {
-							'codigo' : "{{ object.codigo }}"
+							'code' : "{{ object.code }}"
 						},
 						url : "{% url 'productos:eliminar_producto' %}",
 						type : 'post',

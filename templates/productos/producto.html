@@ -88,12 +88,12 @@
                     <div class="row">
                         <div class="col-lg-4">
                             <label>CODIGO:</label>
-                            {% if form.codigo.errors %}
-                            {% for error in form.codigo.errors %}
+                            {% if form.code.errors %}
+                            {% for error in form.code.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ object.codigo }}</p>
+                            <p>{{ object.code }}</p>
                             <label>GRUPO PRODUCTOS:</label>
                             {% if form.grupo_productos.errors %}
                             {% for error in form.grupo_productos.errors %}

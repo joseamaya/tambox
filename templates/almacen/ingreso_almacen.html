@@ -182,12 +182,12 @@
                         <tr class="detalle_ingreso_formset">
                             <td>
                                 {{ detalle_ingreso_form.orden_compra }}
-                                {% if detalle_ingreso_form.codigo.errors %}
-                                {% for error in detalle_ingreso_form.codigo.errors %}
+                                {% if detalle_ingreso_form.code.errors %}
+                                {% for error in detalle_ingreso_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ detalle_ingreso_form.codigo }}
+                                {{ detalle_ingreso_form.code }}
                             </td>
                             <td>
                                 {% if detalle_ingreso_form.nombre.errors %}
@@ -385,7 +385,7 @@ $(document).ready(function()
 				$.each(data, function(i,item){
 					$("#detalles tbody").append( 
 					"<tr class='detalle_ingreso_formset'>" +
-						"<td>" + item.orden_compra + item.codigo + "</td>" +
+						"<td>" + item.orden_compra + item.code + "</td>" +
 						"<td>" + item.nombre + "</td>" +
 						"<td>" + item.unidad + "</td>" +
 						"<td>" + item.cantidad + "</td>" +
@@ -422,7 +422,7 @@ $(document).ready(function()
 		    {
 		    	var id_producto = $(this).prop('id');
 				var id = id_producto.replace("nombre", "");
-				$("#"+id+"codigo").val(ui.item.codigo);
+				$("#"+id+"code").val(ui.item.code);
 				$("#"+id+"nombre").val(ui.item.description);
 				$("#"+id+"unidad").val(ui.item.unidad);
 				$("#"+id+"precio").val(ui.item.precio);
@@ -472,7 +472,7 @@ $(document).ready(function()
 						cont = i+1;
 						$("#detalles tbody").append(
 						"<tr class='detalle_ingreso_formset'>" +
-							"<td>" + item.orden_compra + item.codigo + "</td>" +
+							"<td>" + item.orden_compra + item.code + "</td>" +
 							"<td>" + item.nombre + "</td>" +
 							"<td>" + item.unidad + "</td>" +
 							"<td>" + item.cantidad + "</td>" +

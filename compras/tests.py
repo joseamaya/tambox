@@ -46,13 +46,13 @@ class CotizacionTest(TestCase):
 
     def setUp(self):
         self.fecha_actual = date.today()
-        self.c1 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
-        self.c2 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
-        self.c3 = baker.make(Cotizacion, codigo='', fecha=self.fecha_actual)
+        self.c1 = baker.make(Cotizacion, code='', fecha=self.fecha_actual)
+        self.c2 = baker.make(Cotizacion, code='', fecha=self.fecha_actual)
+        self.c3 = baker.make(Cotizacion, code='', fecha=self.fecha_actual)
 
     def test_creacion_proveedor(self):
         self.assertTrue(isinstance(self.c1, Cotizacion))
-        self.assertEqual(self.c1.__str__(), self.c1.codigo)
+        self.assertEqual(self.c1.__str__(), self.c1.code)
 
     def test_siguiente_cotizacion(self):
         self.assertEqual(self.c2.pk, self.c1.siguiente())

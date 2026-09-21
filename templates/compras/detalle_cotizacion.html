@@ -72,7 +72,7 @@
         <div class="row">
             <div class="col-md-2">
                 <label>CODIGO:</label>
-                <p>{{ object.codigo }}</p>
+                <p>{{ object.code }}</p>
             </div>
             <div class="col-md-2">
                 <label>Fecha Creación:</label>
@@ -128,7 +128,7 @@
                     <tbody>
                     {% for detalle in object.detallecotizacion_set.all %}
                     <tr>
-                        <td>{{ detalle.detalle_requerimiento.producto.codigo }}</td>
+                        <td>{{ detalle.detalle_requerimiento.producto.code }}</td>
                         <td>{{ detalle.detalle_requerimiento.producto.description }}</td>
                         <td>{{ detalle.detalle_requerimiento.producto.unidad_medida.description }}</td>
                         <td>{{ detalle.cantidad }}</td>
@@ -172,18 +172,18 @@ $(document).ready(function()
 	function borrarCotizacion() 
 	{
 		$.ajax({
-			data : { 'codigo' : "{{ object.codigo }}" },
+			data : { 'code' : "{{ object.code }}" },
 			url : "{% url 'compras:eliminar_cotizacion' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.ordenes == 'NO') 
 				{
-					alert("Cotización " + data.codigo + " eliminada");
+					alert("Cotización " + data.code + " eliminada");
 					$(location).attr('href', "{% url 'compras:detalle_cotizacion' cotizacion.siguiente %}");
 				} 
 				else if (data.ordenes == 'SI') 
 				{
-					alert("Cotización " + data.codigo + " no puede eliminarse");
+					alert("Cotización " + data.code + " no puede eliminarse");
 				}
 			}
 		});

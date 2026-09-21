@@ -32,7 +32,7 @@ class Tablero(View):
         cant_tipos_unidad_medida = UnidadMedida.objects.count()
         cant_grupos_suministros = GrupoProductos.objects.count()
         cant_servicios = Producto.objects.filter(es_servicio=True).count()
-        unidad_medida, creado = UnidadMedida.objects.get_or_create(codigo='SERV',
+        unidad_medida, creado = UnidadMedida.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
             lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
@@ -72,7 +72,7 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
             for producto in productos:
                 producto_json = {}
                 producto_json['label'] = producto.description
-                producto_json['codigo'] = producto.codigo
+                producto_json['code'] = producto.code
                 producto_json['description'] = producto.description
                 producto_json['unidad'] = producto.unidad_medida.description
                 producto_json['precio'] = str(producto.precio)
@@ -83,17 +83,17 @@ class BusquedaProductosDescripcion(SoloAjaxMixin, TemplateView):
 
 class BusquedaProductosCodigo(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('codigo',)
+    parametros_requeridos = ('code',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.GET['codigo']
-            productos = Producto.objects.filter(codigo__icontains=codigo).select_related('unidad_medida')[:20]
+            code = request.GET['code']
+            productos = Producto.objects.filter(code__icontains=code).select_related('unidad_medida')[:20]
             lista_productos = []
             for producto in productos:
                 producto_json = {}
-                producto_json['label'] = producto.codigo
-                producto_json['codigo'] = producto.codigo
+                producto_json['label'] = producto.code
+                producto_json['code'] = producto.code
                 producto_json['description'] = producto.description
                 producto_json['unidad'] = producto.unidad_medida.description
                 producto_json['precio'] = str(producto.precio)
@@ -128,7 +128,7 @@ class CargarServicios(CargarCsvMixin, FormView):
             return HttpResponseRedirect(reverse('productos:crear_grupo_productos'))
 
     def procesar_fila(self, fila):
-        grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
+        grupo = GrupoProductos.objects.get(code=fila[0].strip())
         Producto.objects.get_or_create(description=fila[1],
                                        defaults={'grupo_productos': grupo,
                                                  'es_servicio': True})
@@ -141,10 +141,10 @@ class CargarProductos(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         try:
-            grupo = GrupoProductos.objects.get(codigo=fila[0].strip())
+            grupo = GrupoProductos.objects.get(code=fila[0].strip())
             cod_und = fila[2][0:5]
-            und, creado = UnidadMedida.objects.get_or_create(codigo=cod_und.strip(),
-                                                             defaults={'codigo': cod_und,
+            und, creado = UnidadMedida.objects.get_or_create(code=cod_und.strip(),
+                                                             defaults={'code': cod_und,
                                                                        'description': fila[2].strip()})
             if fila[3] != '':
                 precio = fila[3]
@@ -162,12 +162,12 @@ class CargarProductos(CargarCsvMixin, FormView):
 
 class ConsultaStockProducto(SoloAjaxMixin, TemplateView):
 
-    parametros_requeridos = ('codigo',)
+    parametros_requeridos = ('code',)
 
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.GET['codigo']
-            producto = Producto.objects.get(codigo=codigo)
+            code = request.GET['code']
+            producto = Producto.objects.get(code=code)
             producto_json = {}
             producto_json['stock'] = producto.stock
             data = simplejson.dumps(producto_json)
@@ -228,7 +228,7 @@ class CrearServicio(CreateView):
         return super(CrearServicio, self).dispatch(*args, **kwargs)
 
     def get_success_url(self):
-        return reverse('productos:detalle_servicio', args=[self.object.codigo])
+        return reverse('productos:detalle_servicio', args=[self.object.code])
 
 
 class DetalleProducto(DetailView):
@@ -282,16 +282,16 @@ class EliminarGrupoProductos(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            grupo_productos = GrupoProductos.objects.get(pk=codigo)
+            code = request.POST['code']
+            grupo_productos = GrupoProductos.objects.get(pk=code)
             grupo_productos_json = {}
-            grupo_productos_json['codigo'] = grupo_productos.codigo
+            grupo_productos_json['code'] = grupo_productos.code
             grupo_productos_json['description'] = grupo_productos.description
             if len(grupo_productos.producto_set.all()) > 0:
                 grupo_productos_json['productos'] = 'SI'
             else:
                 grupo_productos_json['productos'] = 'NO'
-                GrupoProductos.objects.filter(pk=codigo).update(estado=False)
+                GrupoProductos.objects.filter(pk=code).update(estado=False)
             data = simplejson.dumps(grupo_productos_json)
             return HttpResponse(data, 'application/json')
 
@@ -305,10 +305,10 @@ class EliminarProducto(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            producto = Producto.objects.get(pk=codigo)
+            code = request.POST['code']
+            producto = Producto.objects.get(pk=code)
             producto_json = {}
-            producto_json['codigo'] = producto.codigo
+            producto_json['code'] = producto.code
             producto_json['description'] = producto.description
             if len(producto.detallerequerimiento_set.all()) > 0:
                 producto_json['relaciones'] = 'SI'
@@ -316,7 +316,7 @@ class EliminarProducto(TemplateView):
                 producto_json['relaciones'] = 'SI'
             else:
                 producto_json['relaciones'] = 'NO'
-                Producto.objects.filter(pk=codigo).update(estado=False)
+                Producto.objects.filter(pk=code).update(estado=False)
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
@@ -330,15 +330,15 @@ class EliminarServicio(TemplateView):
 
     def post(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            codigo = request.POST['codigo']
-            servicio = Producto.objects.get(codigo=codigo)
+            code = request.POST['code']
+            servicio = Producto.objects.get(code=code)
             servicio_json = {}
-            servicio_json['codigo'] = codigo
+            servicio_json['code'] = code
             if len(servicio.detalleordenservicio_set.all()) > 0:
                 servicio_json['ordenes'] = 'SI'
             else:
                 servicio_json['ordenes'] = 'NO'
-                Producto.objects.filter(codigo=codigo).update(estado=False)
+                Producto.objects.filter(code=code).update(estado=False)
             data = simplejson.dumps(servicio_json)
             return HttpResponse(data, 'application/json')
 
@@ -370,7 +370,7 @@ class ListadoGruposProductos(ListView):
     model = GrupoProductos
     template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
-    queryset = GrupoProductos.objects.filter(estado=True).order_by('codigo')
+    queryset = GrupoProductos.objects.filter(estado=True).order_by('code')
 
     @method_decorator(
         requiere('productos.ver_tabla_grupos_productos'))
@@ -382,7 +382,7 @@ class ListadoProductos(ListView):
     model = Producto
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
-    queryset = Producto.objects.filter(es_servicio=False, estado=True).order_by('codigo')
+    queryset = Producto.objects.filter(es_servicio=False, estado=True).order_by('code')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -461,7 +461,7 @@ class ModificarServicio(UpdateView):
 class ReporteExcelProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        productos = Producto.objects.filter(estado=True).order_by('codigo')
+        productos = Producto.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PRODUCTOS'
@@ -477,7 +477,7 @@ class ReporteExcelProductos(TemplateView):
         ws['J3'] = 'CREADO'
         cont = 4
         for producto in productos:
-            ws.cell(row=cont, column=2).value = producto.codigo
+            ws.cell(row=cont, column=2).value = producto.code
             ws.cell(row=cont, column=3).value = producto.description
             ws.cell(row=cont, column=4).value = producto.desc_abreviada
             ws.cell(row=cont, column=5).value = producto.grupo_productos.description
@@ -500,7 +500,7 @@ class ReporteExcelProductos(TemplateView):
 class ReporteExcelGruposProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        grupos_productos = GrupoProductos.objects.filter(estado=True).order_by('codigo')
+        grupos_productos = GrupoProductos.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE GRUPOS DE PRODUCTOS'
@@ -511,7 +511,7 @@ class ReporteExcelGruposProductos(TemplateView):
         ws['E3'] = 'CREADO'
         cont = 4
         for grupo_productos in grupos_productos:
-            ws.cell(row=cont, column=2).value = grupo_productos.codigo
+            ws.cell(row=cont, column=2).value = grupo_productos.code
             ws.cell(row=cont, column=3).value = grupo_productos.description
             ws.cell(row=cont, column=4).value = grupo_productos.ctacontable.cuenta
             ws.cell(row=cont, column=5).value = grupo_productos.created
@@ -528,7 +528,7 @@ class ReporteExcelGruposProductos(TemplateView):
 class ReporteExcelUnidadesMedida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        unidades = UnidadMedida.objects.filter(estado=True).order_by('codigo')
+        unidades = UnidadMedida.objects.filter(estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -538,7 +538,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
         ws['D3'] = 'ESTADO'
         cont = 4
         for unidad in unidades:
-            ws.cell(row=cont, column=2).value = unidad.codigo
+            ws.cell(row=cont, column=2).value = unidad.code
             ws.cell(row=cont, column=3).value = unidad.description
             ws.cell(row=cont, column=4).value = unidad.estado
             cont = cont + 1
@@ -553,7 +553,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
 class ReporteExcelServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        servicios = Producto.objects.filter(es_servicio=True, estado=True).order_by('codigo')
+        servicios = Producto.objects.filter(es_servicio=True, estado=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE SERVICIOS'
@@ -563,7 +563,7 @@ class ReporteExcelServicios(TemplateView):
         ws['D3'] = 'ESTADO'
         cont = 4
         for servicio in servicios:
-            ws.cell(row=cont, column=2).value = servicio.codigo
+            ws.cell(row=cont, column=2).value = servicio.code
             ws.cell(row=cont, column=3).value = servicio.description
             ws.cell(row=cont, column=4).value = servicio.estado
             cont = cont + 1

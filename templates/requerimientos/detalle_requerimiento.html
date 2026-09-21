@@ -1,7 +1,7 @@
 {% extends "requerimientos/base_requerimientos.html" %}
 {% load etiquetas %}
 {% block cuerpo %}
-<h3>Requerimientos / {{ object.codigo }}</h3>
+<h3>Requerimientos / {{ object.code }}</h3>
 <div class="row">
     <div class="col-lg-5">
         {% if perms.requerimientos.add_requerimiento %}
@@ -72,7 +72,7 @@
         <div class="row">
             <div class="col-md-2">
                 <label>Código:</label>
-                <p>{{ object.codigo }}</p>
+                <p>{{ object.code }}</p>
             </div>
             <div class="col-md-2">
                 <label>Fecha Creación:</label>
@@ -214,18 +214,18 @@ $(document).ready(function()
 	function borrarRequerimiento() 
 	{
 		$.ajax({
-			data : { 'codigo' : "{{ object.codigo }}" },
+			data : { 'code' : "{{ object.code }}" },
 			url : "{% url 'requerimientos:eliminar_requerimiento' %}",
 			type : 'post',
 			success : function(data) {
 				if (data.cotizaciones == 'NO') 
 				{
-					alert("Requerimiento " + data.codigo + " eliminado");
+					alert("Requerimiento " + data.code + " eliminado");
 					$(location).attr('href', "{% url 'requerimientos:detalle_requerimiento' object.siguiente %}");
 				} 
 				else if (data.cotizaciones == 'SI') 
 				{
-					alert("Requerimiento " + data.codigo + " no puede eliminarse");
+					alert("Requerimiento " + data.code + " no puede eliminarse");
 				}
 			}
 		});

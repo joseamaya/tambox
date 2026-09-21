@@ -19,7 +19,7 @@ from simple_history.models import HistoricalRecords
 
 
 class Almacen(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=5)
+    code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=30, verbose_name='Descripción')
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
@@ -32,7 +32,7 @@ class Almacen(TimeStampedModel):
                        ('ver_detalle_almacen', 'Puede ver detalle Almacén'),
                        ('ver_tabla_almacenes', 'Puede ver tabla de almacenes'),
                        ('ver_reporte_almacenes_excel', 'Puede ver Reporte Almacenes en excel'),)
-        ordering = ['codigo']
+        ordering = ['code']
 
     objects = NavegableQuerySet.as_manager()
 
@@ -48,7 +48,7 @@ class Almacen(TimeStampedModel):
 
 # Vislumbrar la posibilidad de agregar un campo que diga modifica precio
 class TipoMovimiento(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=10)
+    code = models.CharField(unique=True, max_length=10)
     codigo_sunat = models.CharField(max_length=2)
     description = models.CharField(max_length=25, verbose_name='Descripción')
     incrementa = models.BooleanField()
@@ -70,25 +70,25 @@ class TipoMovimiento(TimeStampedModel):
         permissions = (('ver_detalle_tipo_movimiento', 'Puede ver detalle Tipo de Movimiento'),
                        ('ver_tabla_tipos_movimientos', 'Puede ver tabla de Tipos de Movimientos'),
                        ('ver_reporte_tipos_movimientos_excel', 'Puede ver Reporte Tipos de Movimientos en excel'),)
-        ordering = ['codigo']
+        ordering = ['code']
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
-            tipo_mov_ant = TipoMovimiento.objects.filter(incrementa=self.incrementa).aggregate(Max('codigo'))
-            cod_ant = tipo_mov_ant['codigo__max']
+        if self.code == '':
+            tipo_mov_ant = TipoMovimiento.objects.filter(incrementa=self.incrementa).aggregate(Max('code'))
+            cod_ant = tipo_mov_ant['code__max']
 
             if self.incrementa:
                 if cod_ant is None:
-                    self.codigo = 'I00'
+                    self.code = 'I00'
                 else:
                     aux = int(cod_ant[1:]) + 1
-                    self.codigo = 'I' + str(aux).zfill(2)
+                    self.code = 'I' + str(aux).zfill(2)
             else:
                 if cod_ant is None:
-                    self.codigo = 'S01'
+                    self.code = 'S01'
                 else:
                     aux = int(cod_ant[1:]) + 1
-                    self.codigo = 'S' + str(aux).zfill(2)
+                    self.code = 'S' + str(aux).zfill(2)
         super(TipoMovimiento, self).save()
 
     def __str__(self):
@@ -96,7 +96,7 @@ class TipoMovimiento(TimeStampedModel):
 
 
 class Pedido(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     fecha = models.DateField()
@@ -143,20 +143,20 @@ class Pedido(TimeStampedModel):
                        ('ver_reporte_pedidos_excel', 'Puede ver Reporte de Pedidos en excel'),)
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
     def save(self, *args, **kwargs):
-        if self.codigo == '':
+        if self.code == '':
             anio = self.fecha.year
-            mov_ant = Pedido.objects.filter(fecha__year=anio).aggregate(Max('codigo'))
-            id_ant = mov_ant['codigo__max']
+            mov_ant = Pedido.objects.filter(fecha__year=anio).aggregate(Max('code'))
+            id_ant = mov_ant['code__max']
             if id_ant is None:
                 aux = 1
             else:
                 aux = int(id_ant[-6:]) + 1
             correlativo = str(aux).zfill(6)
-            codigo = 'PE' + str(anio) + correlativo
-            self.codigo = codigo
+            code = 'PE' + str(anio) + correlativo
+            self.code = code
             super(Pedido, self).save()
         else:
             super(Pedido, self).save()
@@ -198,7 +198,7 @@ class DetallePedido(TimeStampedModel):
         ordering = ['nro_detalle']
 
     def __str__(self):
-        return self.pedido.codigo + ' ' + str(self.nro_detalle)
+        return self.pedido.code + ' ' + str(self.nro_detalle)
 
 
 class Movimiento(TimeStampedModel):
@@ -308,8 +308,8 @@ class Movimiento(TimeStampedModel):
             else:
                 aux = int(id_ant[-7:]) + 1
             correlativo = str(aux).zfill(7)
-            codigo = str(tipo.codigo[0:1]) + str(anio) + correlativo
-            self.id_movimiento = codigo
+            code = str(tipo.code[0:1]) + str(anio) + correlativo
+            self.id_movimiento = code
         super(Movimiento, self).save()
 
 
@@ -427,7 +427,7 @@ class Kardex(TimeStampedModel):
         resultado es el mismo pero determinista.
 
         `filtro` es el que identifica el almacen (`almacen=`, `almacen__pk=`,
-        `almacen__codigo=`), porque cada vista lo tiene de una forma distinta.
+        `almacen__code=`), porque cada vista lo tiene de una forma distinta.
         """
         from tambox.fechas import aware
 

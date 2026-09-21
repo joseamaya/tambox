@@ -127,7 +127,7 @@
 				function borrarProducto() {
 					$.ajax({
 						data : {
-							'codigo' : "{{ object.codigo }}"
+							'code' : "{{ object.code }}"
 						},
 						url : "{% url 'compras:eliminar_proveedor' %}",
 						type : 'post',

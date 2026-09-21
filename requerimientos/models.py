@@ -15,7 +15,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
 
 class Requerimiento(TimeStampedModel):
-    codigo = models.CharField(unique=True, max_length=12)
+    code = models.CharField(unique=True, max_length=12)
     solicitante = models.ForeignKey(Trabajador, on_delete=models.CASCADE)
     oficina = models.ForeignKey(Oficina, on_delete=models.CASCADE)
     motivo = models.CharField(max_length=100, blank=True)
@@ -76,7 +76,7 @@ class Requerimiento(TimeStampedModel):
         return self._total_comprado_calculado
 
     def __str__(self):
-        return self.codigo
+        return self.code
 
     def establecer_estado_cotizado(self):
         caso = clasificar(self.total_cotizado, self.total)
@@ -117,17 +117,17 @@ class Requerimiento(TimeStampedModel):
         self.estado = estado
         return self.estado
 
-    def generar_codigo(self):
+    def generar_code(self):
         anio = self.created.year
         req_ant = Requerimiento.objects.requerimiento_anterior(anio)
-        id_ant = req_ant['codigo__max']
+        id_ant = req_ant['code__max']
         if id_ant is None:
             aux = 1
         else:
             aux = int(id_ant[-6:]) + 1
         correlativo = str(aux).zfill(6)
-        codigo = 'RQ' + str(anio) + correlativo
-        return codigo
+        code = 'RQ' + str(anio) + correlativo
+        return code
 
     def verificar_acceso(self, usuario, oficina_administracion, logistica, presupuesto):
         solicitante = self.solicitante
@@ -182,9 +182,9 @@ class Requerimiento(TimeStampedModel):
         self.save()
 
     def save(self, *args, **kwargs):
-        es_nuevo = self.codigo == ''
+        es_nuevo = self.code == ''
         if es_nuevo:
-            self.codigo = self.generar_codigo()
+            self.code = self.generar_code()
             puesto = self.solicitante.puesto
             if puesto is None:
                 raise ValidationError(
@@ -228,7 +228,7 @@ class DetalleRequerimiento(TimeStampedModel):
         ordering = ['nro_detalle']
 
     def __str__(self):
-        return self.requerimiento.codigo + ' ' + str(self.nro_detalle)
+        return self.requerimiento.code + ' ' + str(self.nro_detalle)
 
     def establecer_estado_cotizado(self):
         caso = clasificar(self.cantidad_cotizada, self.cantidad)

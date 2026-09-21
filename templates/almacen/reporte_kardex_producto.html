@@ -45,7 +45,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">Codigo de Producto: </label>
+                        <label for="code">Codigo de Producto: </label>
                         {% if form.cod_producto.errors %}
                         {% for error in form.cod_producto.errors %}
                         {% include "includes/error.html" %}
@@ -67,7 +67,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">FORMATO PARA SUNAT : </label>
+                        <label for="code">FORMATO PARA SUNAT : </label>
                         {% if form.formato_sunat.errors %}
                         {% for error in form.formato_sunat.errors %}
                         {% include "includes/error.html" %}
@@ -81,7 +81,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-4">
-                        <label for="codigo">ESCOJA EL FORMATO: </label>
+                        <label for="code">ESCOJA EL FORMATO: </label>
                         {% if form.formatos.errors %}
                         {% for error in form.formatos.errors %}
                         {% include "includes/error.html" %}
@@ -116,7 +116,7 @@ $("#id_desc_producto").autocomplete({
   minLength: 2,
   select: function( event, ui ) 
   {
-	$("#id_cod_producto").val(ui.item.codigo);
+	$("#id_cod_producto").val(ui.item.code);
 	$("#id_desc_producto").val(ui.item.description);
 	return false;
   },
