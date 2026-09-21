@@ -8,7 +8,7 @@ class FormaPagoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormaPagoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field == 'dias_credito':
+            if field == 'credit_days':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control entero',
                     'step': '1',
@@ -19,7 +19,7 @@ class FormaPagoForm(forms.ModelForm):
 
     class Meta:
         model = FormaPago
-        fields = ['code', 'description', 'dias_credito']
+        fields = ['code', 'description', 'credit_days']
 
 
 class UploadForm(forms.ModelForm):
@@ -58,7 +58,7 @@ class TipoDocumentoForm(forms.ModelForm):
 class ImpuestoForm(forms.ModelForm):
     class Meta:
         model = Impuesto
-        fields = ['abreviatura', 'description', 'amount', 'start_date', 'end_date']
+        fields = ['abbreviation', 'description', 'amount', 'start_date', 'end_date']
 
     def __init__(self, *args, **kwargs):
         super(ImpuestoForm, self).__init__(*args, **kwargs)
@@ -72,7 +72,7 @@ class ImpuestoForm(forms.ModelForm):
 class ConfiguracionForm(forms.ModelForm):
     class Meta:
         model = Configuracion
-        fields = ['impuesto_compra', 'operaciones', 'administracion', 'presupuesto', 'logistica']
+        fields = ['purchase_tax', 'operaciones', 'administracion', 'presupuesto', 'logistica']
 
     def __init__(self, *args, **kwargs):
         super(ConfiguracionForm, self).__init__(*args, **kwargs)
@@ -80,13 +80,13 @@ class ConfiguracionForm(forms.ModelForm):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
-        self.fields['impuesto_compra'].queryset = Impuesto.objects.exclude(end_date__isnull=False)
+        self.fields['purchase_tax'].queryset = Impuesto.objects.exclude(end_date__isnull=False)
 
 
 class CuentaContableForm(forms.ModelForm):
     class Meta:
         model = CuentaContable
-        fields = ['cuenta', 'description', 'is_divisional', 'depreciacion']
+        fields = ['cuenta', 'description', 'is_divisional', 'depreciation']
 
     def __init__(self, *args, **kwargs):
         super(CuentaContableForm, self).__init__(*args, **kwargs)

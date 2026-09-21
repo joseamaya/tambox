@@ -36,7 +36,7 @@ from productos.models import Producto, UnidadMedida, GrupoProductos
 from datetime import date
 from compras.reports import reporte_xls_orden_compra, PDFOrdenCompra, \
     PDFOrdenServicios, PDFMemorandoConformidadServicio, PDFSolicitudCotizacion
-from tambox.configuracion import configuracion, impuesto_compra
+from tambox.configuracion import configuracion, purchase_tax
 from tambox.vistas import CargarCsvMixin, SoloAjaxMixin
 from decimal import Decimal
 
@@ -294,7 +294,7 @@ class CrearOrdenCompra(CreateView):
     def get_initial(self):
         initial = super(CrearOrdenCompra, self).get_initial()
         try:
-            monto_impuesto = impuesto_compra().amount
+            monto_impuesto = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['date'] = date.today().strftime('%d/%m/%Y')
@@ -1015,7 +1015,7 @@ class ModificarOrdenCompra(UpdateView):
         initial['formas_pago'] = orden.forma_pago
         initial['referencia'] = orden.cotizacion
         try:
-            monto_impuesto = impuesto_compra().amount
+            monto_impuesto = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('contabilidad:configuracion'))
         initial['impuesto_actual'] = monto_impuesto
@@ -1229,7 +1229,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
                     cotizacion__code=cotizacion,
                     detalle_requerimiento__producto__is_service=False).order_by('line_number')
                 try:
-                    monto_impuesto = impuesto_compra().amount
+                    monto_impuesto = purchase_tax().amount
                 except AttributeError:
                     monto_impuesto = 0
             elif tipo_busqueda == 'SERVICIOS':

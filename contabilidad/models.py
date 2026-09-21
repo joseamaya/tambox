@@ -37,7 +37,7 @@ class TipoCambio(TimeStampedModel):
 class CuentaContable(TimeStampedModel):
     cuenta = models.CharField(unique=True, max_length=12)
     description = models.CharField(max_length=150)
-    depreciacion = models.DecimalField(max_digits=18, decimal_places=2, default=0)
+    depreciation = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     is_divisional = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
@@ -64,7 +64,7 @@ class CuentaContable(TimeStampedModel):
 class FormaPago(TimeStampedModel):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=50)
-    dias_credito = models.IntegerField()
+    credit_days = models.IntegerField()
     is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
@@ -114,9 +114,9 @@ class TipoDocumento(TimeStampedModel):
 
 class Tipo(TimeStampedModel):
     tabla = models.CharField(max_length=25)
-    descripcion_campo = models.CharField(max_length=25)
+    field_description = models.CharField(max_length=25)
     code = models.CharField(max_length=10)
-    descripcion_valor = models.CharField(max_length=100)
+    value_description = models.CharField(max_length=100)
     quantity = models.DecimalField(max_digits=14, decimal_places=2, blank=True, null=True)
 
     class Meta:
@@ -126,11 +126,11 @@ class Tipo(TimeStampedModel):
         ordering = ['code']
 
     def __str__(self):
-        return self.descripcion_valor
+        return self.value_description
 
 
 class Impuesto(TimeStampedModel):
-    abreviatura = models.CharField(max_length=10)
+    abbreviation = models.CharField(max_length=10)
     description = models.CharField(max_length=50)
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     start_date = models.DateField()
@@ -139,14 +139,14 @@ class Impuesto(TimeStampedModel):
     STATUS = Choices(('COM', _('COMPRA')),
                      ('VEN', _('VEN')),
                      )
-    tipo_uso = models.CharField(choices=STATUS, default=STATUS.COM, max_length=20)
+    usage_type = models.CharField(choices=STATUS, default=STATUS.COM, max_length=20)
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
         permissions = (('ver_detalle_impuesto', 'Puede ver detalle Impuesto'),
                        ('ver_tabla_impuestos', 'Puede ver tabla de Impuestos'),
                        ('ver_reporte_impuestos_excel', 'Puede ver Reporte de Impuestos en excel'),)
-        ordering = ['abreviatura']
+        ordering = ['abbreviation']
 
     def anterior(self):
         ant = Impuesto.objects.anterior(self)
@@ -173,8 +173,8 @@ class Empresa(SingletonModel):
     distrito = models.CharField(max_length=100)
     provincia = models.CharField(max_length=100)
     departamento = models.CharField(max_length=100)
-    host_correo = models.CharField(max_length=70)
-    puerto_correo = models.IntegerField(default=25)
+    mail_host = models.CharField(max_length=70)
+    mail_port = models.IntegerField(default=25)
     usuario = models.EmailField()
     password = models.CharField(max_length=20)
     uses_tls = models.BooleanField(default=True)
@@ -191,7 +191,7 @@ class Empresa(SingletonModel):
 
 
 class Configuracion(TimeStampedModel):
-    impuesto_compra = models.ForeignKey(Impuesto, on_delete=models.CASCADE, related_name='configurations')
+    purchase_tax = models.ForeignKey(Impuesto, on_delete=models.CASCADE, related_name='configurations')
     operaciones = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='operaciones', null=True)
     administracion = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='administracion', null=True)
     presupuesto = models.ForeignKey(Oficina, on_delete=models.CASCADE, related_name='presupuesto', null=True)

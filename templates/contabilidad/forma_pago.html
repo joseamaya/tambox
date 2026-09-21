@@ -70,12 +70,12 @@
                             {% endif %}
                             <p>{{ form.code }}</p>
                             <label>DÍAS DE CRÉDITO: </label>
-                            {% if form.dias_credito.errors %}
-                            {% for error in form.dias_credito.errors %}
+                            {% if form.credit_days.errors %}
+                            {% for error in form.credit_days.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.dias_credito }}</p>
+                            <p>{{ form.credit_days }}</p>
                         </div>
                         <div class="col-lg-4"></div>
                         <div class="col-lg-4"></div>

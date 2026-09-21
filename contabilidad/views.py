@@ -427,7 +427,7 @@ class ReporteExcelCuentasContables(TemplateView):
         for cuenta in cuentas:
             ws.cell(row=cont, column=2).value = cuenta.cuenta
             ws.cell(row=cont, column=3).value = cuenta.description
-            ws.cell(row=cont, column=4).value = cuenta.depreciacion
+            ws.cell(row=cont, column=4).value = cuenta.depreciation
             cont = cont + 1
         nombre_archivo = "ListadoCuentasContables.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -452,7 +452,7 @@ class ReporteExcelFormasPago(TemplateView):
         for forma_pago in formas_pago:
             ws.cell(row=cont, column=2).value = forma_pago.code
             ws.cell(row=cont, column=3).value = forma_pago.description
-            ws.cell(row=cont, column=4).value = forma_pago.dias_credito
+            ws.cell(row=cont, column=4).value = forma_pago.credit_days
             cont = cont + 1
         nombre_archivo = "ListadoFormasPago.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

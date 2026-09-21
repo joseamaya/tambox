@@ -10,7 +10,7 @@ from simple_history.models import HistoricalRecords
 
 # Create your models here.
 class Profesion(TimeStampedModel):
-    abreviatura = models.CharField(max_length=7)
+    abbreviation = models.CharField(max_length=7)
     description = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
@@ -49,7 +49,7 @@ class Trabajador(TimeStampedModel):
 
     def nombre_completo(self):
         if self.profesion is not None:
-            return self.profesion.abreviatura + ' ' + self.first_name + ' ' + self.last_name
+            return self.profesion.abbreviation + ' ' + self.first_name + ' ' + self.last_name
         else:
             return self.first_name + ' ' + self.last_name
 

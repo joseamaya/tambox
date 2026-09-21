@@ -18,13 +18,13 @@ from datetime import date
         
     def test_valid_form(self):
         p = self.crear_profesion()
-        data = {'abreviatura': p.abreviatura, 'description': p.description}
+        data = {'abbreviation': p.abbreviation, 'description': p.description}
         form = ProfesionForm(data = data)
         self.assertTrue(form.is_valid())
         
     def test_invalid_form(self):
         p = self.crear_profesion('Dr.','')
-        data = {'abreviatura': p.abreviatura, 'description': p.description}
+        data = {'abbreviation': p.abbreviation, 'description': p.description}
         form = ProfesionForm(data = data)
         self.assertFalse(form.is_valid())"""
 
@@ -84,7 +84,7 @@ class TrabajadorTest(TestCase):
         p = baker.make(Profesion)
         t = baker.make(Trabajador, profesion=p)
         self.assertEqual(t.nombre_completo(),
-                         t.profesion.abreviatura + ' ' + t.first_name + ' ' + t.last_name)
+                         t.profesion.abbreviation + ' ' + t.first_name + ' ' + t.last_name)
 
 
 class OficinaTest(TestCase):

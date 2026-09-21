@@ -21,7 +21,7 @@ class NivelAprobacionForm(forms.ModelForm):
 class ProfesionForm(forms.ModelForm):
     class Meta:
         model = Profesion
-        fields = ['abreviatura', 'description']
+        fields = ['abbreviation', 'description']
 
     def __init__(self, *args, **kwargs):
         super(ProfesionForm, self).__init__(*args, **kwargs)

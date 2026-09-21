@@ -35,7 +35,7 @@ class ProductoForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProductoForm, self).__init__(*args, **kwargs)
         for field in iter(self.fields):
-            if field == 'stock_minimo' or field == 'price':
+            if field == 'minimum_stock' or field == 'price':
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control decimal',
                     'step': 'any',

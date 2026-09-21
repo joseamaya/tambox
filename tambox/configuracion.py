@@ -39,5 +39,5 @@ def operaciones():
     return _campo_configuracion('operaciones')
 
 
-def impuesto_compra():
-    return _campo_configuracion('impuesto_compra')
+def purchase_tax():
+    return _campo_configuracion('purchase_tax')

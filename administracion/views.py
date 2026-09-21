@@ -434,7 +434,7 @@ class ReporteExcelProfesiones(TemplateView):
         ws['D3'] = 'ESTADO'
         cont = 4
         for profesion in profesiones:
-            ws.cell(row=cont, column=2).value = profesion.abreviatura
+            ws.cell(row=cont, column=2).value = profesion.abbreviation
             ws.cell(row=cont, column=3).value = profesion.description
             ws.cell(row=cont, column=4).value = profesion.is_active
             cont = cont + 1

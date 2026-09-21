@@ -90,7 +90,7 @@ class TestTipo(TestCase):
 
     def test_creacion_tipo_documento(self):
         self.assertTrue(isinstance(self.t1, Tipo))
-        self.assertEqual(self.t1.__str__(), self.t1.descripcion_valor)
+        self.assertEqual(self.t1.__str__(), self.t1.value_description)
 
 
 class TestImpuesto(TestCase):

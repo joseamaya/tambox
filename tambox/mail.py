@@ -8,8 +8,8 @@ logger = logging.getLogger(__name__)
 
 try:
     empresa = Empresa.load()
-    my_host = empresa.host_correo
-    my_port = empresa.puerto_correo
+    my_host = empresa.mail_host
+    my_port = empresa.mail_port
     my_username = empresa.usuario
     my_password = empresa.password
     my_use_tls = empresa.uses_tls

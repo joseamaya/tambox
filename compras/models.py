@@ -358,14 +358,14 @@ class DetalleOrdenCompra(TimeStampedModel):
         if self.orden.with_tax:
             precio_con_igv = self.price
         else:
-            monto_impuesto = configuracion().impuesto_compra.amount
+            monto_impuesto = configuracion().purchase_tax.amount
             precio_con_igv = round(self.price * (monto_impuesto + 1), 5)
         return precio_con_igv
 
     @property
     def precio_sin_igv(self):
         if self.orden.with_tax:
-            monto_impuesto = configuracion().impuesto_compra.amount
+            monto_impuesto = configuracion().purchase_tax.amount
             precio_sin_igv = round(self.price / (monto_impuesto + 1), 5)
         else:
             precio_sin_igv = self.price
@@ -374,7 +374,7 @@ class DetalleOrdenCompra(TimeStampedModel):
     @property
     def valor_sin_igv(self):
         if self.orden.with_tax:
-            monto_impuesto = configuracion().impuesto_compra.amount
+            monto_impuesto = configuracion().purchase_tax.amount
             valor_sin_igv = (self.price * self.quantity) / (monto_impuesto + 1)
         else:
             valor_sin_igv = self.price * self.quantity
@@ -385,13 +385,13 @@ class DetalleOrdenCompra(TimeStampedModel):
         if self.orden.with_tax:
             valor_con_igv = self.price * self.quantity
         else:
-            monto_impuesto = configuracion().impuesto_compra.amount
+            monto_impuesto = configuracion().purchase_tax.amount
             valor_con_igv = (self.price * self.quantity) * (monto_impuesto + 1)
         return round(valor_con_igv, 5)
 
     @property
     def impuesto(self):
-        monto_impuesto = configuracion().impuesto_compra.amount
+        monto_impuesto = configuracion().purchase_tax.amount
         if self.orden.with_tax:
             imp = self.price * self.quantity - (self.price * self.quantity) / (monto_impuesto + 1)
         else:

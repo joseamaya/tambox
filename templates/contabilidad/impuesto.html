@@ -60,12 +60,12 @@
             <div class="row">
                 <div class="col-lg-4">
                     <label>ABREVIATURA:</label>
-                    {% if form.abreviatura.errors %}
-                    {% for error in form.abreviatura.errors %}
+                    {% if form.abbreviation.errors %}
+                    {% for error in form.abbreviation.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <p>{{ form.abreviatura }}</p>
+                    <p>{{ form.abbreviation }}</p>
                     <label>MONTO: </label>
                     {% if form.amount.errors %}
                     {% for error in form.amount.errors %}

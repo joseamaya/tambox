@@ -118,7 +118,7 @@ class Producto(TimeStampedModel):
     marca = models.CharField(max_length=40, blank=True)
     modelo = models.CharField(max_length=40, blank=True)
     price = models.DecimalField(max_digits=15, decimal_places=5, default=0)
-    stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
+    minimum_stock = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, related_name='products', null=True)
     is_active = models.BooleanField(default=True, verbose_name='Estado')
