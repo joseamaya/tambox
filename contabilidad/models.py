@@ -35,7 +35,7 @@ class TipoCambio(TimeStampedModel):
 
 
 class CuentaContable(TimeStampedModel):
-    cuenta = models.CharField(unique=True, max_length=12)
+    account_number = models.CharField(unique=True, max_length=12)
     description = models.CharField(max_length=150)
     depreciation = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     is_divisional = models.BooleanField(default=False)
@@ -47,7 +47,7 @@ class CuentaContable(TimeStampedModel):
                        ('ver_detalle_cuenta_contable', 'Puede ver detalle de Cuenta Contable'),
                        ('ver_tabla_cuentas_contables', 'Puede ver tabla de Cuentas Contables'),
                        ('ver_reporte_cuentas_contables_excel', 'Puede ver Reporte Cuentas Contables en excel'),)
-        ordering = ['cuenta']
+        ordering = ['account_number']
 
     def anterior(self):
         ant = CuentaContable.objects.anterior(self)
@@ -58,7 +58,7 @@ class CuentaContable(TimeStampedModel):
         return sig.pk
 
     def __str__(self):
-        return force_str(self.cuenta)
+        return force_str(self.account_number)
 
 
 class FormaPago(TimeStampedModel):
@@ -113,7 +113,7 @@ class TipoDocumento(TimeStampedModel):
 
 
 class Tipo(TimeStampedModel):
-    tabla = models.CharField(max_length=25)
+    table = models.CharField(max_length=25)
     field_description = models.CharField(max_length=25)
     code = models.CharField(max_length=10)
     value_description = models.CharField(max_length=100)
@@ -168,14 +168,14 @@ class Empresa(SingletonModel):
     business_name = models.CharField(max_length=150)
     tax_id = models.CharField(max_length=11)
     logo = models.ImageField(upload_to='configuracion')
-    lugar = models.CharField(max_length=150, default='')
-    calle = models.CharField(max_length=150, default='')
-    distrito = models.CharField(max_length=100)
-    provincia = models.CharField(max_length=100)
-    departamento = models.CharField(max_length=100)
+    place = models.CharField(max_length=150, default='')
+    street = models.CharField(max_length=150, default='')
+    district = models.CharField(max_length=100)
+    province = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
     mail_host = models.CharField(max_length=70)
     mail_port = models.IntegerField(default=25)
-    usuario = models.EmailField()
+    username = models.EmailField()
     password = models.CharField(max_length=20)
     uses_tls = models.BooleanField(default=True)
 
@@ -183,7 +183,7 @@ class Empresa(SingletonModel):
         return u'%s' % self.business_name
 
     def address(self):
-        return self.lugar + ' ' + self.calle + ' ' + self.distrito
+        return self.place + ' ' + self.street + ' ' + self.district
 
     class Meta:
         verbose_name = 'Empresa'

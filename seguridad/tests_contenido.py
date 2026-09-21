@@ -68,7 +68,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         colgar del usuario que navega, no de uno cualquiera."""
         NivelAprobacion.objects.get_or_create(description='USUARIO')
         oficina = baker.make(Oficina)
-        trabajador = baker.make(Trabajador, usuario=self.usuario)
+        trabajador = baker.make(Trabajador, user=self.usuario)
         baker.make(Puesto, oficina=oficina, trabajador=trabajador, end_date=None)
         requerimiento = baker.make(Requerimiento, solicitante=trabajador, oficina=oficina)
         producto = baker.make(Producto, description='PRODUCTO-XYZ')
@@ -82,7 +82,7 @@ class ContenidoDeLasPaginasTest(TestCase):
         self.assertContains(respuesta, 'PRODUCTO-XYZ')
 
     def test_la_lista_de_cuentas_contables_muestra_la_cuenta(self):
-        baker.make(CuentaContable, cuenta='CTA-XYZ')
+        baker.make(CuentaContable, account_number='CTA-XYZ')
 
         respuesta = self.client.get(reverse('contabilidad:cuentas_contables'))
 

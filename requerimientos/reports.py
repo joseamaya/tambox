@@ -34,11 +34,11 @@ class ReporteRequerimiento():
         requerimiento = self.requerimiento
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
         nro = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requerimiento.code, sp)
-        encabezado = [[imagen, nro, '']]
+        encabezado = [[image, nro, '']]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [

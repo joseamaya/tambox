@@ -48,7 +48,7 @@ class Tablero(View):
             lista_notificaciones.append("No se ha registrado ninguna profesión")
         nivel_logistica, creada = NivelAprobacion.objects.get_or_create(description="LOGISTICA")
         _, creado = NivelAprobacion.objects.get_or_create(description="USUARIO",
-                                                         defaults={'nivel_superior': nivel_logistica})
+                                                         defaults={'superior_level': nivel_logistica})
         if creada or creado:
             lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
         context = {'notificaciones': lista_notificaciones}
@@ -138,7 +138,7 @@ class CargarTrabajadores(CargarCsvMixin, FormView):
             if creado:
                 usuario.set_unusable_password()
                 usuario.save()
-                Trabajador.objects.get_or_create(usuario=usuario,
+                Trabajador.objects.get_or_create(user=usuario,
                                                  defaults={'dni': fila[1].strip(),
                                                            'last_name': (fila[2] + ' ' + fila[3]).strip(),
                                                            'first_name': fila[4]})
@@ -496,11 +496,11 @@ class ReporteExcelTrabajadores(TemplateView):
         ws['G3'] = 'ESTADO'
         cont = 4
         for trabajador in trabajadores:
-            ws.cell(row=cont, column=2).value = trabajador.usuario.username
+            ws.cell(row=cont, column=2).value = trabajador.user.username
             ws.cell(row=cont, column=3).value = trabajador.dni
             ws.cell(row=cont, column=4).value = trabajador.last_name
             ws.cell(row=cont, column=5).value = trabajador.first_name
-            ws.cell(row=cont, column=6).value = trabajador.usuario.email
+            ws.cell(row=cont, column=6).value = trabajador.user.email
             ws.cell(row=cont, column=7).value = trabajador.is_active
             cont = cont + 1
         nombre_archivo = "Trabajadores.xlsx"

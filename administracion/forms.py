@@ -7,11 +7,11 @@ from administracion.models import Oficina, Trabajador, Puesto, Profesion, \
 class NivelAprobacionForm(forms.ModelForm):
     class Meta:
         model = NivelAprobacion
-        fields = ['description', 'nivel_superior']
+        fields = ['description', 'superior_level']
 
     def __init__(self, *args, **kwargs):
         super(NivelAprobacionForm, self).__init__(*args, **kwargs)
-        self.fields['nivel_superior'].required = False
+        self.fields['superior_level'].required = False
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -49,7 +49,7 @@ class OficinaForm(forms.ModelForm):
 class TrabajadorForm(forms.ModelForm):
     class Meta:
         model = Trabajador
-        fields = ['dni', 'last_name', 'first_name', 'profesion', 'usuario', 'firma']
+        fields = ['dni', 'last_name', 'first_name', 'profesion', 'user', 'firma']
 
     def __init__(self, *args, **kwargs):
         super(TrabajadorForm, self).__init__(*args, **kwargs)

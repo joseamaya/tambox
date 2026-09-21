@@ -14,7 +14,7 @@ class TestCuentaContable(TestCase):
 
     def test_creacion_cuenta_contable(self):
         self.assertTrue(isinstance(self.c1, CuentaContable))
-        self.assertEqual(self.c1.__str__(), self.c1.cuenta)
+        self.assertEqual(self.c1.__str__(), self.c1.account_number)
 
     def test_siguiente_profesion(self):
         self.assertEqual(self.c2.pk, self.c1.siguiente())
@@ -133,7 +133,7 @@ class TestEmpresa(TestCase):
         self.assertEqual(self.emp1, self.emp2)
 
     def test_direccion_empresa(self):
-        address = self.emp1.lugar + ' ' + self.emp1.calle + ' ' + self.emp1.distrito
+        address = self.emp1.place + ' ' + self.emp1.street + ' ' + self.emp1.district
         self.assertEqual(address, self.emp1.address())
 
 

@@ -11,8 +11,8 @@ class EmpresaResource(resources.ModelResource):
 
 
 class EmpresaAdmin(ImportExportModelAdmin, admin.ModelAdmin):
-    search_fields = ['business_name', 'tax_id', 'provincia']
-    list_display = ('business_name', 'tax_id', 'lugar', 'distrito', 'provincia')
+    search_fields = ['business_name', 'tax_id', 'province']
+    list_display = ('business_name', 'tax_id', 'place', 'district', 'province')
     resource_class = EmpresaResource
 
 

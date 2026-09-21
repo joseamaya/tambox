@@ -37,7 +37,7 @@ class Profesion(TimeStampedModel):
 
 class Trabajador(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
-    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker', null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='worker', null=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
     profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
@@ -219,7 +219,7 @@ class Puesto(TimeStampedModel):
 
 class NivelAprobacion(TimeStampedModel):
     description = models.CharField(max_length=100)
-    nivel_superior = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
+    superior_level = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 

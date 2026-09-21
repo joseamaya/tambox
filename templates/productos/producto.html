@@ -46,8 +46,8 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-lg-2">
-                    <a href="/media/{{ object.imagen.url }}" class="thumbnail"> <img
-                            src="/media/{{ object.imagen.url }}" alt="Imagen Producto"
+                    <a href="/media/{{ object.image.url }}" class="thumbnail"> <img
+                            src="/media/{{ object.image.url }}" alt="Imagen Producto"
                             style="width: 120px; height: 90px">
                     </a>
                 </div>
@@ -118,19 +118,19 @@
                         </div>
                         <div class="col-lg-4">
                             <label>MARCA: </label>
-                            {% if form.marca.errors %}
-                            {% for error in form.marca.errors %}
+                            {% if form.brand.errors %}
+                            {% for error in form.brand.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.marca }}</p>
+                            <p>{{ form.brand }}</p>
                             <label>MODELO: </label>
-                            {% if form.modelo.errors %}
-                            {% for error in form.modelo.errors %}
+                            {% if form.model.errors %}
+                            {% for error in form.model.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.modelo }}</p>
+                            <p>{{ form.model }}</p>
                             <label>PRECIO: </label>
                             {% if form.price.errors %}
                             {% for error in form.price.errors %}

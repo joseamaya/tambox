@@ -109,9 +109,9 @@ class CargarGrupoProductos(CargarCsvMixin, FormView):
 
     def procesar_fila(self, fila):
         try:
-            cuenta = CuentaContable.objects.get(cuenta=fila[0])
+            account_number = CuentaContable.objects.get(account_number=fila[0])
             GrupoProductos.objects.get_or_create(description=fila[1],
-                                                 defaults={'ctacontable': cuenta})
+                                                 defaults={'ctacontable': account_number})
         except CuentaContable.DoesNotExist:
             pass
 
@@ -482,8 +482,8 @@ class ReporteExcelProductos(TemplateView):
             ws.cell(row=cont, column=4).value = producto.desc_abreviada
             ws.cell(row=cont, column=5).value = producto.grupo_productos.description
             ws.cell(row=cont, column=6).value = producto.unidad_medida.description
-            ws.cell(row=cont, column=7).value = producto.marca
-            ws.cell(row=cont, column=8).value = producto.modelo
+            ws.cell(row=cont, column=7).value = producto.brand
+            ws.cell(row=cont, column=8).value = producto.model
             ws.cell(row=cont, column=9).value = producto.price
             ws.cell(row=cont, column=9).number_format = '#.00000'
             ws.cell(row=cont, column=10).value = producto.created
@@ -513,7 +513,7 @@ class ReporteExcelGruposProductos(TemplateView):
         for grupo_productos in grupos_productos:
             ws.cell(row=cont, column=2).value = grupo_productos.code
             ws.cell(row=cont, column=3).value = grupo_productos.description
-            ws.cell(row=cont, column=4).value = grupo_productos.ctacontable.cuenta
+            ws.cell(row=cont, column=4).value = grupo_productos.ctacontable.account_number
             ws.cell(row=cont, column=5).value = grupo_productos.created
             ws.cell(row=cont, column=5).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1

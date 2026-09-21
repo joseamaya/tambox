@@ -25,7 +25,7 @@ class AprobacionRequerimientoForm(forms.ModelForm):
             try:
                 puesto_jefe = Puesto.objects.get(oficina=oficina, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.trabajador
-                destinatario = jefe.usuario.email
+                destinatario = jefe.user.email
                 correo_creacion_requerimiento(destinatario, self.instance.requerimiento)
             except Puesto.DoesNotExist:
                 raise ValidationError("No existe el puesto superior, imposible continuar.")

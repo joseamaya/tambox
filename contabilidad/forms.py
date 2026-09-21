@@ -86,7 +86,7 @@ class ConfiguracionForm(forms.ModelForm):
 class CuentaContableForm(forms.ModelForm):
     class Meta:
         model = CuentaContable
-        fields = ['cuenta', 'description', 'is_divisional', 'depreciation']
+        fields = ['account_number', 'description', 'is_divisional', 'depreciation']
 
     def __init__(self, *args, **kwargs):
         super(CuentaContableForm, self).__init__(*args, **kwargs)

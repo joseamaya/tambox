@@ -171,7 +171,7 @@ class CrearRequerimiento(CreateView):
                 DetalleRequerimiento.objects.bulk_create(detalles)
                 puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, is_leadership=True, is_active=True)
                 jefe = puesto_jefe.trabajador
-                destinatario = jefe.usuario.email
+                destinatario = jefe.user.email
                 if jefe.pk != self.object.solicitante.pk:
                     correo_creacion_requerimiento(destinatario, self.object)
                 return HttpResponseRedirect(reverse('requerimientos:detalle_requerimiento', args=[self.object.code]))

@@ -43,7 +43,7 @@ class CargarCuentasContables(CargarCsvMixin, FormView):
     success_url = reverse_lazy('contabilidad:cuentas_contables')
 
     def procesar_fila(self, fila):
-        CuentaContable.objects.get_or_create(cuenta=fila[0].strip(),
+        CuentaContable.objects.get_or_create(account_number=fila[0].strip(),
                                              defaults={'description': fila[1].strip()})
 
 
@@ -262,7 +262,7 @@ class ListadoCuentasContables(ListView):
     model = CuentaContable
     template_name = 'contabilidad/cuentas_contables.html'
     context_object_name = 'cuentas_contables'
-    queryset = CuentaContable.objects.all().order_by('cuenta')
+    queryset = CuentaContable.objects.all().order_by('account_number')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_cuentas_contables'))
@@ -415,7 +415,7 @@ class ObtenerTipoCambio(SoloAjaxMixin, TemplateView):
 class ReporteExcelCuentasContables(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        cuentas = CuentaContable.objects.all().order_by('cuenta')
+        cuentas = CuentaContable.objects.all().order_by('account_number')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -424,10 +424,10 @@ class ReporteExcelCuentasContables(TemplateView):
         ws['C3'] = 'DESCRIPCIÓN'
         ws['D3'] = 'DEPRECIACION'
         cont = 4
-        for cuenta in cuentas:
-            ws.cell(row=cont, column=2).value = cuenta.cuenta
-            ws.cell(row=cont, column=3).value = cuenta.description
-            ws.cell(row=cont, column=4).value = cuenta.depreciation
+        for account_number in cuentas:
+            ws.cell(row=cont, column=2).value = account_number.account_number
+            ws.cell(row=cont, column=3).value = account_number.description
+            ws.cell(row=cont, column=4).value = account_number.depreciation
             cont = cont + 1
         nombre_archivo = "ListadoCuentasContables.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

@@ -78,9 +78,9 @@ class ReporteMovimiento():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
 
         if movimiento.tipo_movimiento.increases:
             nota = Paragraph(u"NOTA DE INGRESO N°", sp)
@@ -88,7 +88,7 @@ class ReporteMovimiento():
             nota = Paragraph(u"NOTA DE SALIDA N°", sp)
         id_movimiento = Paragraph(movimiento.id_movimiento, sp)
         date = Paragraph("FECHA: " + movimiento.operation_date.strftime('%d/%m/%y'), sp)
-        encabezado = [[imagen, nota, date],
+        encabezado = [[image, nota, date],
                       ['', id_movimiento, '']
                       ]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
@@ -303,15 +303,15 @@ class ReporteKardexPDF():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
         if valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
 
-        encabezado = [[imagen, titulo]]
+        encabezado = [[image, titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         return tabla_encabezado
 
@@ -322,15 +322,15 @@ class ReporteKardexPDF():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
         if grupos:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR PRODUCTOS", sp)
 
-        encabezado = [[imagen, titulo]]
+        encabezado = [[image, titulo]]
         tabla_encabezado = Table(encabezado, colWidths=[2 * cm, 23 * cm])
         style = TableStyle(
             [
@@ -581,7 +581,7 @@ class ReporteKardexPDF():
 
             registro = [grupo.code,
                         grupo.description,
-                        grupo.ctacontable.cuenta,
+                        grupo.ctacontable.account_number,
                         format(cant_saldo_inicial, '.5f'),
                         valor_saldo_inicial,
                         format(in_quantity, '.5f'),
@@ -947,9 +947,9 @@ class ReporteKardexPDF():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
         ruc_empresa = "RUC: " + empresa().tax_id
         if self.grupos:
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
@@ -957,7 +957,7 @@ class ReporteKardexPDF():
             titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
         periodo = "PERIODO: " + self.desde.strftime('%d/%m/%Y') + ' - ' + self.hasta.strftime('%d/%m/%Y')
         pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[imagen, titulo, pagina], [ruc_empresa, periodo, ""]]
+        encabezado = [[image, titulo, pagina], [ruc_empresa, periodo, ""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -979,16 +979,16 @@ class ReporteKardexPDF():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
         ruc_empresa = "RUC: " + empresa().tax_id
         if self.valorizado:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
             titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FÍSICAS", sp)
         pagina = u"Página " + str(doc.page) + " de " + str(self.total_paginas)
-        encabezado = [[imagen, titulo, pagina], [ruc_empresa, "", ""]]
+        encabezado = [[image, titulo, pagina], [ruc_empresa, "", ""]]
         tabla_encabezado = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
@@ -2014,7 +2014,7 @@ class ReporteKardexExcel():
             ws.cell(row=cont, column=2).border = thin_border
             ws.cell(row=cont, column=3).value = grupo.description
             ws.cell(row=cont, column=3).border = thin_border
-            ws.cell(row=cont, column=4).value = grupo.ctacontable.cuenta
+            ws.cell(row=cont, column=4).value = grupo.ctacontable.account_number
             ws.cell(row=cont, column=4).border = thin_border
             try:
                 kardex_inicial = Kardex.objects.filter(producto__grupo_productos=grupo,
@@ -2374,8 +2374,8 @@ def reporte_inventario(desde):
                                                             top=Side(border_style="thin"),
                                                             bottom=Side(border_style="thin"))
                 ws.cell(row=cont, column=1).font = Font(name='Calibri', size=8)
-                ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.cuenta
-                tempo_cuenta = grupo_producto.ctacontable.cuenta
+                ws.cell(row=cont, column=1).value = grupo_producto.ctacontable.account_number
+                tempo_cuenta = grupo_producto.ctacontable.account_number
                 ws.cell(row=cont, column=2).alignment = Alignment(horizontal="center")
                 ws.cell(row=cont, column=2).border = Border(left=Side(border_style="thin"),
                                                             right=Side(border_style="thin"),

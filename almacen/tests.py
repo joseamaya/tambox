@@ -203,9 +203,9 @@ class ReporteInventarioTest(TestCase):
         from contabilidad.models import CuentaContable, TipoExistencia
         from productos.models import GrupoProductos, Producto, UnidadMedida
 
-        cuenta = baker.make(CuentaContable)
+        account_number = baker.make(CuentaContable)
         grupo = baker.make(GrupoProductos, code='GR0001', description='GRUPO UNO',
-                           ctacontable=cuenta, contains_products=True)
+                           ctacontable=account_number, contains_products=True)
         unidad = baker.make(UnidadMedida, code='UND01')
         baker.make(Producto, code='GR00010001', description='PRODUCTO UNO',
                    grupo_productos=grupo, unidad_medida=unidad,

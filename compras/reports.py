@@ -45,14 +45,14 @@ class ReporteOrdenCompra():
                             fontName="Times-Roman")
         try:
             archivo_imagen = os.path.join(settings.MEDIA_ROOT, str(empresa().logo))
-            imagen = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
+            image = Image(archivo_imagen, width=90, height=50, hAlign='LEFT')
         except Exception:
-            imagen = Paragraph(u"LOGO", sp)
+            image = Paragraph(u"LOGO", sp)
 
         nro = Paragraph(u"ORDEN DE COMPRA", sp)
         tax_id = Paragraph("R.U.C." + empresa().tax_id, sp)
-        encabezado = [[imagen, nro, tax_id], ['', u"N°" + orden_compra.code,
-                                           empresa().distrito + " " + orden_compra.date.strftime('%d de %b de %Y')]]
+        encabezado = [[image, nro, tax_id], ['', u"N°" + orden_compra.code,
+                                           empresa().district + " " + orden_compra.date.strftime('%d de %b de %Y')]]
         tabla_encabezado = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
         tabla_encabezado.setStyle(TableStyle(
             [
@@ -403,7 +403,7 @@ def reporte_xls_orden_compra(orden):
     ws['G20'] = 'DEPARTAMENTO'
     ws['I20'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I20'] = str(empresa().departamento)
+    ws['I20'] = str(empresa().department)
     ws.merge_cells('B21:C22')
     ws['B21'].alignment = Alignment(horizontal="center", vertical="center")
     ws['B21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -425,14 +425,14 @@ def reporte_xls_orden_compra(orden):
     ws['G21'] = 'PROVINCIA'
     ws['I21'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I21'] = str(empresa().provincia)
+    ws['I21'] = str(empresa().province)
     ws.merge_cells('G22:H22')
     ws['G22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
     ws['G22'] = 'DISTRITO'
     ws['I22'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
                               top=Side(border_style="thin"), bottom=Side(border_style="thin"))
-    ws['I22'] = str(empresa().distrito)
+    ws['I22'] = str(empresa().district)
     ws.merge_cells('B23:C24')
     ws['B23'].alignment = Alignment(horizontal="center", vertical="center")
     ws['B23'].border = Border(left=Side(border_style="thin"), right=Side(border_style="thin"),
@@ -750,7 +750,7 @@ class PDFMemorandoConformidadServicio(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 730, u"N°" + conformidad.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + conformidad.date.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().district + " " + conformidad.date.strftime('%d de %b de %Y'))
         pdf.drawString(475, 710, conformidad.orden_servicios.code)
         requerimiento = conformidad.orden_servicios.cotizacion.requerimiento
         gerencia_inmediata = requerimiento.oficina.gerencia
@@ -868,7 +868,7 @@ class PDFOrdenServicios(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N°" + orden.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + orden.date.strftime('%d de %b de %Y'))
+        pdf.drawString(430, 780, empresa().district + " " + orden.date.strftime('%d de %b de %Y'))
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion
         if cotizacion is None:
@@ -1082,7 +1082,7 @@ class PDFOrdenCompra(object):
         pdf.setFont("Times-Roman", 13)
         pdf.drawString(250, 780, u"N° " + orden.code)
         pdf.setFont("Times-Roman", 10)
-        pdf.drawString(430, 780, empresa().distrito + " " + orden.date.strftime(
+        pdf.drawString(430, 780, empresa().district + " " + orden.date.strftime(
             '%d de %b de %Y'))  # orden.date.strftime('%d de %B de %Y')
         pdf.setFont("Times-Roman", 10)
         cotizacion = orden.cotizacion

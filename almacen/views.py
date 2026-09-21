@@ -503,7 +503,7 @@ class CrearPedido(CreateView):
                 DetallePedido.objects.bulk_create(detalles)
                 puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), is_leadership=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
-                destinatario = jefe_logistica.usuario.email
+                destinatario = jefe_logistica.user.email
                 correo_creacion_pedido(destinatario, self.object)
                 return HttpResponseRedirect(reverse('almacen:detalle_pedido', args=[self.object.pk]))
         except IntegrityError:

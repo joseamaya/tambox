@@ -10,7 +10,7 @@ try:
     empresa = Empresa.load()
     my_host = empresa.mail_host
     my_port = empresa.mail_port
-    my_username = empresa.usuario
+    my_username = empresa.username
     my_password = empresa.password
     my_use_tls = empresa.uses_tls
     connection = get_connection(host=my_host,

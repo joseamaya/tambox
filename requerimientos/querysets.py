@@ -11,7 +11,7 @@ class AnteriorQuerySet(models.query.QuerySet):
 
 class RequerimientoQuerySet(NavegableQuerySet, AnteriorQuerySet):
     def requerimientos_activos_por_usuario(self, usuario, estado):
-        return self.filter(solicitante__usuario=usuario).exclude(status=estado).order_by('code')
+        return self.filter(solicitante__user=usuario).exclude(status=estado).order_by('code')
 
     def actualizar_requerimiento(self, code):
         return self.filter(code=code).update(status=False)

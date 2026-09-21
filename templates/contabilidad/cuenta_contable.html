@@ -62,12 +62,12 @@
             <div class="row">
                 <div class="col-lg-4">
                     <label>CUENTA:</label>
-                    {% if form.cuenta.errors %}
-                    {% for error in form.cuenta.errors %}
+                    {% if form.account_number.errors %}
+                    {% for error in form.account_number.errors %}
                     {% include "includes/error.html" %}
                     {% endfor %}
                     {% endif %}
-                    <p>{{ form.cuenta }}</p>
+                    <p>{{ form.account_number }}</p>
                     <label>DEPRECIACIÓN: </label>
                     {% if form.depreciation.errors %}
                     {% for error in form.depreciation.errors %}

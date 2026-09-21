@@ -174,7 +174,7 @@ class TableroAdministracionTest(TestCase):
 
         self.assertEqual(respuesta.status_code, 200)
         usuario = NivelAprobacion.objects.get(description='USUARIO')
-        self.assertEqual(usuario.nivel_superior.description, 'LOGISTICA')
+        self.assertEqual(usuario.superior_level.description, 'LOGISTICA')
 
     def test_crea_la_oficina_de_gerencia(self):
         respuesta = self.client.get('/administracion/tablero/')
