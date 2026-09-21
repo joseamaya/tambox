@@ -85,7 +85,7 @@ class BusquedaReceptorNombre(SoloAjaxMixin, TemplateView):
             else:
                 receptores = Trabajador.objects.filter(
                     Q(apellido_paterno__icontains=name) | Q(apellido_materno__icontains=name) | Q(
-                        nombres__icontains=name))[:20]
+                        first_name__icontains=name))[:20]
             lista_receptores = []
             for receptor in receptores:
                 receptor_json = {}
@@ -121,7 +121,7 @@ class CargarProductores(CargarCsvMixin, FormView):
                 Productor.objects.get_or_create(dni=dni,
                                                 defaults={'apellido_paterno': fila[1].upper(),
                                                           'apellido_materno': fila[2].upper(),
-                                                          'nombres': fila[3].upper()})
+                                                          'first_name': fila[3].upper()})
             except Exception:
                 logger.warning("No se pudo importar el productor con DNI %s", dni, exc_info=True)
 
@@ -143,12 +143,12 @@ class CargarTrabajadores(CargarCsvMixin, FormView):
                                                  defaults={'dni': fila[1].strip(),
                                                            'apellido_paterno': fila[2],
                                                            'apellido_materno': fila[3],
-                                                           'nombres': fila[4]})
+                                                           'first_name': fila[4]})
         else:
             Trabajador.objects.get_or_create(dni=fila[1].strip(),
                                              defaults={'apellido_paterno': fila[2],
                                                        'apellido_materno': fila[3],
-                                                       'nombres': fila[4]})
+                                                       'first_name': fila[4]})
 
 
 class CargarPuestos(CargarCsvMixin, FormView):
@@ -504,7 +504,7 @@ class ReporteExcelTrabajadores(TemplateView):
             ws.cell(row=cont, column=3).value = trabajador.dni
             ws.cell(row=cont, column=4).value = trabajador.apellido_paterno
             ws.cell(row=cont, column=5).value = trabajador.apellido_materno
-            ws.cell(row=cont, column=6).value = trabajador.nombres
+            ws.cell(row=cont, column=6).value = trabajador.first_name
             ws.cell(row=cont, column=7).value = trabajador.usuario.email
             ws.cell(row=cont, column=8).value = trabajador.estado
             cont = cont + 1

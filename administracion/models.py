@@ -40,7 +40,7 @@ class Trabajador(TimeStampedModel):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
-    nombres = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
     profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, null=True)
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
@@ -50,9 +50,9 @@ class Trabajador(TimeStampedModel):
 
     def nombre_completo(self):
         if self.profesion is not None:
-            return self.profesion.abreviatura + ' ' + self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+            return self.profesion.abreviatura + ' ' + self.first_name + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
         else:
-            return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+            return self.first_name + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
 
     def anterior(self):
         ant = Trabajador.objects.anterior(self)
@@ -64,11 +64,11 @@ class Trabajador(TimeStampedModel):
 
     def anterior_nombres_apellidos(self):
         ant = Trabajador.objects.anterior(self)
-        return ant.nombres + " " + ant.apellido_paterno + " " + ant.apellido_materno
+        return ant.first_name + " " + ant.apellido_paterno + " " + ant.apellido_materno
 
     def siguiente_nombres_apellidos(self):
         sig = Trabajador.objects.siguiente(self)
-        return sig.nombres + " " + sig.apellido_paterno + " " + sig.apellido_materno
+        return sig.first_name + " " + sig.apellido_paterno + " " + sig.apellido_materno
 
     @property
     def puesto(self):
@@ -79,7 +79,7 @@ class Trabajador(TimeStampedModel):
         return puesto
 
     def __str__(self):
-        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.nombres)
+        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.first_name)
 
     class Meta:
         permissions = (('ver_detalle_trabajador', 'Puede ver detalle de Trabajador'),
@@ -93,7 +93,7 @@ class Productor(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
     apellido_paterno = models.CharField(max_length=50)
     apellido_materno = models.CharField(max_length=50)
-    nombres = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=100)
     estado = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
@@ -108,17 +108,17 @@ class Productor(TimeStampedModel):
 
     def anterior_nombres_apellidos(self):
         ant = Productor.objects.anterior(self)
-        return ant.nombres + " " + ant.apellido_paterno + " " + ant.apellido_materno
+        return ant.first_name + " " + ant.apellido_paterno + " " + ant.apellido_materno
 
     def siguiente_nombres_apellidos(self):
         sig = Productor.objects.siguiente(self)
-        return sig.nombres + " " + sig.apellido_paterno + " " + sig.apellido_materno
+        return sig.first_name + " " + sig.apellido_paterno + " " + sig.apellido_materno
 
     def nombre_completo(self):
-        return self.nombres + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
+        return self.first_name + ' ' + self.apellido_paterno + ' ' + self.apellido_materno
 
     def __str__(self):
-        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.nombres)
+        return force_str(self.apellido_paterno) + ' ' + force_str(self.apellido_materno) + ' ' + force_str(self.first_name)
 
     class Meta:
         permissions = (('ver_detalle_productor', 'Puede ver detalle de Productor'),

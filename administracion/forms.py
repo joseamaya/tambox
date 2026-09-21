@@ -49,7 +49,7 @@ class OficinaForm(forms.ModelForm):
 class TrabajadorForm(forms.ModelForm):
     class Meta:
         model = Trabajador
-        fields = ['dni', 'apellido_paterno', 'apellido_materno', 'nombres', 'profesion', 'usuario', 'firma']
+        fields = ['dni', 'apellido_paterno', 'apellido_materno', 'first_name', 'profesion', 'usuario', 'firma']
 
     def __init__(self, *args, **kwargs):
         super(TrabajadorForm, self).__init__(*args, **kwargs)
@@ -68,7 +68,7 @@ class TrabajadorForm(forms.ModelForm):
 class ProductorForm(forms.ModelForm):
     class Meta:
         model = Productor
-        fields = ['dni', 'apellido_paterno', 'apellido_materno', 'nombres']
+        fields = ['dni', 'apellido_paterno', 'apellido_materno', 'first_name']
 
     def __init__(self, *args, **kwargs):
         super(ProductorForm, self).__init__(*args, **kwargs)

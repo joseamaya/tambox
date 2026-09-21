@@ -87,12 +87,12 @@
                         </div>
                         <div class="col-lg-4">
                             <label>NOMBRES:</label>
-                            {% if form.nombres.errors %}
-                            {% for error in form.nombres.errors %}
+                            {% if form.first_name.errors %}
+                            {% for error in form.first_name.errors %}
                             {% include "includes/error.html" %}
                             {% endfor %}
                             {% endif %}
-                            <p>{{ form.nombres }}</p>
+                            <p>{{ form.first_name }}</p>
                             <label>PROFESIÓN:</label>
                             {% if form.profesion.errors %}
                             {% for error in form.profesion.errors %}
