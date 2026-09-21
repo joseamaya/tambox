@@ -48,7 +48,7 @@
                 {% endif %}
                 <td>{{ orden_compra.date|date:"d/m/y" }}</td>
                 <td>{{ orden_compra.created|date:"d/m/y" }}</td>
-                <td>{{ orden_compra.get_estado_display }}</td>
+                <td>{{ orden_compra.get_status_display }}</td>
             </tr>
             {% endfor %}
             </tbody>

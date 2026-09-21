@@ -66,13 +66,13 @@ class DetalleRequerimientoTest(TestCase):
     def test_estado_atendido(self):
         dr1 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=5, served_quantity=5)
         dr1.establecer_estado_atendido()
-        self.assertEqual(dr1.estado, DetalleRequerimiento.STATUS.ATEN)
+        self.assertEqual(dr1.status, DetalleRequerimiento.STATUS.ATEN)
         dr2 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=5)
         dr2.establecer_estado_atendido()
-        self.assertEqual(dr2.estado, DetalleRequerimiento.STATUS.ATEN_PARC)
+        self.assertEqual(dr2.status, DetalleRequerimiento.STATUS.ATEN_PARC)
         dr3 = baker.make(DetalleRequerimiento, requerimiento=self.r1, quantity=8, served_quantity=10)
         dr3.establecer_estado_atendido()
-        self.assertEqual(dr3.estado, DetalleRequerimiento.STATUS.ATEN)
+        self.assertEqual(dr3.status, DetalleRequerimiento.STATUS.ATEN)
 
 
 class AprobacionRequerimientoTest(TestCase):

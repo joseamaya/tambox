@@ -27,7 +27,7 @@ class Requerimiento(TimeStampedModel):
     informe = models.FileField(upload_to='informes', null=True)
     entrega_directa_solicitante = models.BooleanField(default=False)
     STATUS = CHOICES_ESTADO_REQ
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
     objects = RequerimientoQuerySet.as_manager()
 
@@ -86,8 +86,8 @@ class Requerimiento(TimeStampedModel):
             estado = Requerimiento.STATUS.COTIZ_PARC
         else:
             estado = Requerimiento.STATUS.COTIZ
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     def establecer_estado_comprado(self):
         caso = clasificar(self.total_comprado, self.total)
@@ -97,8 +97,8 @@ class Requerimiento(TimeStampedModel):
             estado = Requerimiento.STATUS.COMP_PARC
         else:
             estado = Requerimiento.STATUS.COMP
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     def establecer_estado_atendido(self):
         total = 0
@@ -114,8 +114,8 @@ class Requerimiento(TimeStampedModel):
             estado = Requerimiento.STATUS.ATEN_PARC
         else:
             estado = Requerimiento.STATUS.ATEN
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     def generar_code(self):
         anio = self.created.year
@@ -169,7 +169,7 @@ class Requerimiento(TimeStampedModel):
         listado_requerimientos = []
         requerimientos = Requerimiento.objects.filter(
             approval__nivel__description="LOGISTICA",
-            approval__estado=True).prefetch_related('details')
+            approval__is_active=True).prefetch_related('details')
         for requerimiento in requerimientos:
             total = requerimiento.total
             total_comprado = requerimiento.total_comprado
@@ -178,7 +178,7 @@ class Requerimiento(TimeStampedModel):
         return listado_requerimientos
 
     def eliminar_requerimiento(self):
-        self.estado = Requerimiento.STATUS.CANC
+        self.status = Requerimiento.STATUS.CANC
         self.save()
 
     def save(self, *args, **kwargs):
@@ -220,7 +220,7 @@ class DetalleRequerimiento(TimeStampedModel):
     purchased_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     served_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     STATUS = CHOICES_ESTADO_REQ
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     class Meta:
@@ -238,8 +238,8 @@ class DetalleRequerimiento(TimeStampedModel):
             estado = DetalleRequerimiento.STATUS.COTIZ_PARC
         else:
             estado = DetalleRequerimiento.STATUS.COTIZ
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     def establecer_estado_comprado(self):
         caso = clasificar(self.purchased_quantity, self.quantity)
@@ -249,8 +249,8 @@ class DetalleRequerimiento(TimeStampedModel):
             estado = DetalleRequerimiento.STATUS.COMP_PARC
         else:
             estado = DetalleRequerimiento.STATUS.COMP
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     def establecer_estado_atendido(self):
         caso = clasificar(self.served_quantity, self.quantity)
@@ -260,14 +260,14 @@ class DetalleRequerimiento(TimeStampedModel):
             estado = DetalleRequerimiento.STATUS.ATEN_PARC
         else:
             estado = DetalleRequerimiento.STATUS.ATEN
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
 
 class AprobacionRequerimiento(TimeStampedModel):
     requerimiento = models.OneToOneField(Requerimiento, on_delete=models.CASCADE, related_name='approval', primary_key=True)
     nivel = models.ForeignKey(NivelAprobacion, on_delete=models.CASCADE, related_name='approvals')
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name='Estado')
     motivo_desaprobacion = models.TextField(default='')
     received_date = models.DateField(null=True)
     history = HistoricalRecords()
@@ -316,12 +316,12 @@ class AprobacionRequerimiento(TimeStampedModel):
         oficina_usuario = puesto_usuario.oficina
         queryset = []
         if oficina_usuario == logistica() and puesto_usuario.es_jefatura:
-            queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__estado=Requerimiento.STATUS.CANC),
+            queryset = AprobacionRequerimiento.objects.filter(~Q(requerimiento__status=Requerimiento.STATUS.CANC),
                                                               nivel__description="USUARIO",
-                                                              estado=True)
+                                                              is_active=True)
         return queryset
 
     def save(self, *args, **kwargs):
-        if self.nivel.description == "LOGISTICA" and self.estado == True:
+        if self.nivel.description == "LOGISTICA" and self.is_active == True:
             self.requerimiento.received_date = date.today()
         super(AprobacionRequerimiento, self).save()

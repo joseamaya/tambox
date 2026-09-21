@@ -46,12 +46,12 @@
                 <td>{{ requerimiento.code }}</td>
                 <td>{{ requerimiento.oficina }}</td>
                 <td>{{ requerimiento.approval.nivel }}</td>
-                {% if requerimiento.approval.estado %}
+                {% if requerimiento.approval.is_active %}
                 <td>SI</td>
                 {% else %}
                 <td>NO</td>
                 {% endif %}
-                <td>{{ requerimiento.get_estado_display }}</td>
+                <td>{{ requerimiento.get_status_display }}</td>
                 <td>{{ requerimiento.created|date:"d/m/y" }}</td>
             </tr>
             {% endfor %}

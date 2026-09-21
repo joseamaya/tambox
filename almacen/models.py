@@ -21,7 +21,7 @@ from simple_history.models import HistoricalRecords
 class Almacen(TimeStampedModel):
     code = models.CharField(unique=True, max_length=5, verbose_name='Código')
     description = models.CharField(max_length=30, verbose_name='Descripción')
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name='Estado')
     history = HistoricalRecords()
 
     class Meta:
@@ -55,7 +55,7 @@ class TipoMovimiento(TimeStampedModel):
     pide_referencia = models.BooleanField(default=False)
     es_compra = models.BooleanField(default=False)
     es_venta = models.BooleanField(default=False)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name='Estado')
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()
@@ -108,7 +108,7 @@ class Pedido(TimeStampedModel):
                      ('ATEN_PARC', _('ATENDIDO PARCIALMENTE')),
                      ('CANC', _('CANCELADO')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()
@@ -132,8 +132,8 @@ class Pedido(TimeStampedModel):
             estado = Pedido.STATUS.ATEN_PARC
         else:
             estado = Pedido.STATUS.ATEN
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         permissions = (('aprobar_pedido', 'Puede aprobar Pedido'),
@@ -175,7 +175,7 @@ class DetallePedido(TimeStampedModel):
                      ('ATEN_PARC', _('ATENDIDO PARCIALMENTE')),
                      ('CANC', _('CANCELADO')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     def cantidad_por_atender(self):
@@ -190,8 +190,8 @@ class DetallePedido(TimeStampedModel):
             estado = DetallePedido.STATUS.ATEN_PARC
         else:
             estado = DetallePedido.STATUS.ATEN
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Pedido'),)
@@ -218,7 +218,7 @@ class Movimiento(TimeStampedModel):
     STATUS = Choices(('ACT', _('ACTIVO')),
                      ('CANC', _('CANCELADA')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.ACT, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.ACT, max_length=20, verbose_name='Estado')
     history = HistoricalRecords()
 
     objects = NavegableQuerySet.as_manager()

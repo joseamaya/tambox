@@ -136,8 +136,8 @@ class PuestoTest(TestCase):
 
     def test_estado_puesto(self):
         p = baker.make(Puesto, end_date=date.today())
-        self.assertTrue(self.p1.estado)
-        self.assertFalse(p.estado)
+        self.assertTrue(self.p1.is_active)
+        self.assertFalse(p.is_active)
 
 
 class EstablecerNivelTest(TestCase):

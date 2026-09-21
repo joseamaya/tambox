@@ -6,12 +6,12 @@
         {% if perms.compras.add_ordenservicio %}
         <a href="{% url 'compras:crear_orden_servicios' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if object.estado == "PEND" %}
+        {% if object.status == "PEND" %}
         {% if perms.compras.change_ordenservicios %}
         <a class="btn btn-primary" href="{% url 'compras:modificar_orden_servicios' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
-        {% if object.estado == "PEND" %}
+        {% if object.status == "PEND" %}
         {% if perms.compras.delete_ordenservicios %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
@@ -78,7 +78,7 @@
                 </div>
                 <div class="col-md-2">
                     <label>Estado:</label>
-                    <p>{{ object.get_estado_display }}</p>
+                    <p>{{ object.get_status_display }}</p>
                 </div>
             </div>
             {% if object.cotizacion %}

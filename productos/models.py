@@ -16,7 +16,7 @@ class UnidadMedida(TimeStampedModel):
     code = models.CharField(max_length=5, unique=True)
     codigo_sunat = models.CharField(max_length=2)
     description = models.CharField(max_length=50)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -43,7 +43,7 @@ class GrupoProductos(TimeStampedModel):
     description = models.CharField(max_length=100)
     ctacontable = models.ForeignKey(CuentaContable, on_delete=models.CASCADE, related_name='product_groups')
     son_productos = models.BooleanField(default=True)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -121,7 +121,7 @@ class Producto(TimeStampedModel):
     stock_minimo = models.DecimalField(max_digits=15, decimal_places=5, default=0)
     imagen = models.ImageField(upload_to='productos', default='productos/sinimagen.png')
     tipo_existencia = models.ForeignKey(TipoExistencia, on_delete=models.CASCADE, related_name='products', null=True)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, verbose_name='Estado')
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -154,7 +154,7 @@ class Producto(TimeStampedModel):
         from almacen.models import Movimiento, Kardex
         desde, hasta = aware(desde), aware(hasta) + datetime.timedelta(days=1)
         listado_kardex = Kardex.objects.filter(almacen=almacen,
-                                               movimiento__estado=Movimiento.STATUS.ACT,
+                                               movimiento__status=Movimiento.STATUS.ACT,
                                                operation_date__gte=desde,
                                                operation_date__lte=hasta,
                                                producto=self).select_related(
@@ -184,7 +184,7 @@ class Producto(TimeStampedModel):
         return Kardex.kardex_por_lote(desde, hasta,
                                       almacen=almacen,
                                       producto__in=productos,
-                                      movimiento__estado=Movimiento.STATUS.ACT)
+                                      movimiento__status=Movimiento.STATUS.ACT)
 
     class Meta:
         permissions = (('ver_bienvenida', 'Puede ver bienvenida a la aplicación'),

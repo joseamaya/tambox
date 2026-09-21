@@ -62,7 +62,7 @@ class Tablero(View):
                                                                        defaults={'description': 'INVENTARIO INICIAL',
                                                                                  'codigo_sunat': '16',
                                                                                  'incrementa': True,
-                                                                                 'estado': True})
+                                                                                 'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_ingreso_compra,
@@ -70,7 +70,7 @@ class Tablero(View):
                                                                                  'codigo_sunat': '02',
                                                                                  'incrementa': True,
                                                                                  'pide_referencia': True,
-                                                                                 'estado': True})
+                                                                                 'is_active': True})
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         tipo_movimiento, creado = TipoMovimiento.objects.get_or_create(code=cod_mov_salida_pedido,
@@ -78,7 +78,7 @@ class Tablero(View):
                                                                                  'codigo_sunat': '10',
                                                                                  'incrementa': False,
                                                                                  'pide_referencia': True,
-                                                                                 'estado': True})
+                                                                                 'is_active': True})
         inventario_inicial = Movimiento.objects.filter(tipo_movimiento__code=cod_mov_invent_ini).count()
         if creado:
             lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
@@ -130,13 +130,13 @@ class AprobarPedido(CreateView):
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
-            puestos = trabajador.positions.all().filter(estado=True)
+            puestos = trabajador.positions.all().filter(is_active=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == logistica():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
-                detalles = DetallePedido.objects.filter(pedido=pedido, estado=DetallePedido.STATUS.PEND)
+                detalles = DetallePedido.objects.filter(pedido=pedido, status=DetallePedido.STATUS.PEND)
                 detalles_data = []
                 for detalle in detalles:
                     d = {'pedido': detalle.id,
@@ -501,7 +501,7 @@ class CrearPedido(CreateView):
                                                       quantity=quantity))
                         cont = cont + 1
                 DetallePedido.objects.bulk_create(detalles)
-                puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), es_jefatura=True, estado=True)
+                puesto_jefe_logistica = Puesto.objects.get(oficina=logistica(), es_jefatura=True, is_active=True)
                 jefe_logistica = puesto_jefe_logistica.trabajador
                 destinatario = jefe_logistica.usuario.email
                 correo_creacion_pedido(destinatario, self.object)
@@ -567,7 +567,7 @@ class EliminarAlmacen(TemplateView):
                 almacen_json['relaciones'] = 'SI'
             else:
                 almacen_json['relaciones'] = 'NO'
-                Almacen.objects.filter(pk=code).update(estado=False)
+                Almacen.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
 
@@ -598,7 +598,7 @@ class EliminarMovimiento(TemplateView):
                     control.stock = control.stock + kardex.cantidad_salida
                 control.save()
                 kardex.delete()
-            Movimiento.objects.filter(pk=id_movimiento).update(estado=Movimiento.STATUS.CANC, referencia=None)
+            Movimiento.objects.filter(pk=id_movimiento).update(status=Movimiento.STATUS.CANC, referencia=None)
             DetalleMovimiento.objects.filter(movimiento=movimiento).delete()
             movimiento_json = {}
             movimiento_json['id_movimiento'] = id_movimiento
@@ -625,7 +625,7 @@ class EliminarPedido(TemplateView):
             else:
                 almacen_json['movimientos'] = 'NO'
                 with transaction.atomic():
-                    Pedido.objects.filter(code=code).update(estado=Pedido.STATUS.CANC)
+                    Pedido.objects.filter(code=code).update(status=Pedido.STATUS.CANC)
                     DetallePedido.objects.filter(pedido=pedido).delete()
             data = simplejson.dumps(almacen_json)
             return HttpResponse(data, 'application/json')
@@ -644,7 +644,7 @@ class ListadoAprobacionPedidos(ListView):
         except ObjectDoesNotExist:
             return HttpResponseRedirect(reverse('administracion:crear_trabajador'))
         try:
-            puestos = trabajador.positions.all().filter(estado=True)
+            puestos = trabajador.positions.all().filter(is_active=True)
             if trabajador.firma == '':
                 return HttpResponseRedirect(reverse('administracion:modificar_trabajador'))
             if puestos[0].es_jefatura and puestos[0].oficina == logistica():
@@ -655,7 +655,7 @@ class ListadoAprobacionPedidos(ListView):
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get_queryset(self):
-        queryset = Pedido.objects.filter(~Q(estado=Pedido.STATUS.APROB))
+        queryset = Pedido.objects.filter(~Q(status=Pedido.STATUS.APROB))
         return queryset
 
 
@@ -670,7 +670,7 @@ class ListadoPedidos(ListView):
     model = Pedido
     template_name = 'almacen/listado_pedidos.html'
     context_object_name = 'pedidos'
-    queryset = Pedido.objects.exclude(estado=Pedido.STATUS.CANC).order_by('code')
+    queryset = Pedido.objects.exclude(status=Pedido.STATUS.CANC).order_by('code')
 
 
 class ListadoTiposMovimiento(ListView):
@@ -685,21 +685,21 @@ class ListadoMovimientos(ListView):
     model = Movimiento
     template_name = 'almacen/movimientos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT)
+    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT)
 
 
 class ListadoIngresos(ListView):
     model = Movimiento
     template_name = 'almacen/listado_ingresos.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True)
+    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=True)
 
 
 class ListadoSalidas(ListView):
     model = Movimiento
     template_name = 'almacen/listado_salidas.html'
     context_object_name = 'movimientos'
-    queryset = Movimiento.objects.filter(estado=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False)
+    queryset = Movimiento.objects.filter(status=Movimiento.STATUS.ACT, tipo_movimiento__incrementa=False)
 
 
 class ListadoMovimientosPorPedido(ListView):
@@ -726,7 +726,7 @@ class ModificarMovimiento(TemplateView):
     def get(self, request, *args, **kwargs):
         pk = kwargs['pk']
         movimiento = Movimiento.objects.get(pk=pk)
-        if movimiento.estado == Movimiento.STATUS.CANC:
+        if movimiento.status == Movimiento.STATUS.CANC:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
         tipo_movimiento = movimiento.tipo_movimiento
         if tipo_movimiento.incrementa:
@@ -747,7 +747,7 @@ class ModificarIngresoAlmacen(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == Movimiento.STATUS.ACT:
+        if self.object.status == Movimiento.STATUS.ACT:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalles = DetalleMovimiento.objects.filter(movimiento=self.object).order_by('nro_detalle')
@@ -993,7 +993,7 @@ class ModificarPedido(UpdateView):
     @method_decorator(requiere('almacen.change_pedido'))
     def dispatch(self, *args, **kwargs):
         pedido = self.get_object()
-        if pedido.estado == Pedido.STATUS.PEND:
+        if pedido.status == Pedido.STATUS.PEND:
             return super(ModificarPedido, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -1022,7 +1022,7 @@ class ModificarPedido(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == Pedido.STATUS.PEND:
+        if self.object.status == Pedido.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalles = DetallePedido.objects.filter(pedido=self.object).order_by('nro_detalle')
@@ -1293,7 +1293,7 @@ class RegistrarSalidaAlmacen(CreateView):
 class ReporteExcelAlmacenes(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        almacenes = Almacen.objects.filter(estado=True).order_by('code')
+        almacenes = Almacen.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE ALMACENES'
@@ -1316,7 +1316,7 @@ class ReporteExcelAlmacenes(TemplateView):
 class ReporteExcelTiposMovimientos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        tipos = TipoMovimiento.objects.filter(estado=True).order_by('code')
+        tipos = TipoMovimiento.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TIPOS DE MOVIMIENTOS'
@@ -1679,7 +1679,7 @@ class ReporteExcelMovimientos(FormView):
             ws.cell(row=cont, column=7).value = movimiento.notes
             ws.cell(row=cont, column=8).value = movimiento.created
             ws.cell(row=cont, column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=9).value = movimiento.estado
+            ws.cell(row=cont, column=9).value = movimiento.status
             cont = cont + 1
         nombre_archivo = "ReporteMovimientosPorFecha.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1827,7 +1827,7 @@ class VerificarStockParaPedido(SoloAjaxMixin, TemplateView):
         almacen = request.GET['almacen']
         pedido = request.GET['pedido']
         detalles = list(DetallePedido.objects.filter(pedido__code=pedido,
-                                                     estado=DetallePedido.STATUS.PEND)
+                                                     status=DetallePedido.STATUS.PEND)
                         .select_related('producto__unidad_medida').order_by('nro_detalle'))
         ultimos = Kardex.ultimos_por_producto([detalle.producto for detalle in detalles],
                                               almacen__code=almacen)

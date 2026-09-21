@@ -73,7 +73,7 @@
                         <label>FECHA MODIFICACIÓN: </label>
                         <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
                         <label>ESTADO: </label>
-                        {% if object.estado %}
+                        {% if object.is_active %}
                         <p>ACTIVO</p>
                         {% else %}
                         <p>INACTIVO</p>

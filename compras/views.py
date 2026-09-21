@@ -603,7 +603,7 @@ class EliminarOrdenCompra(TemplateView):
                 with transaction.atomic():
                     if orden.cotizacion is not None:
                         orden.eliminar_referencia()
-                    OrdenCompra.objects.filter(code=code).update(estado=OrdenCompra.STATUS.CANC, cotizacion=None)
+                    OrdenCompra.objects.filter(code=code).update(status=OrdenCompra.STATUS.CANC, cotizacion=None)
                     DetalleOrdenCompra.objects.filter(orden=orden).delete()
             data = simplejson.dumps(movimiento_json)
             return HttpResponse(data, 'application/json')
@@ -629,7 +629,7 @@ class EliminarOrdenServicios(TemplateView):
                 with transaction.atomic():
                     if orden.cotizacion is not None:
                         orden.eliminar_referencia()
-                    OrdenServicios.objects.filter(code=code).update(estado=OrdenServicios.STATUS.CANC,
+                    OrdenServicios.objects.filter(code=code).update(status=OrdenServicios.STATUS.CANC,
                                                                         cotizacion=None)
                     DetalleOrdenServicios.objects.filter(orden=orden).delete()
             data = simplejson.dumps(orden_json)
@@ -652,7 +652,7 @@ class EliminarConformidadServicio(TemplateView):
             with transaction.atomic():
                 if conformidad.orden_servicios is not None:
                     conformidad.eliminar_referencia()
-                ConformidadServicio.objects.filter(code=code).update(estado=False)
+                ConformidadServicio.objects.filter(code=code).update(is_active=False)
                 DetalleConformidadServicio.objects.filter(conformidad=conformidad).delete()
             data = simplejson.dumps(conformidad_json)
             return HttpResponse(data, 'application/json')
@@ -670,7 +670,7 @@ class EliminarProveedor(TemplateView):
             ruc = request.POST['ruc']
             proveedor_json = {}
             proveedor_json['ruc'] = ruc
-            Proveedor.objects.filter(pk=ruc).update(estado=False)
+            Proveedor.objects.filter(pk=ruc).update(is_active=False)
             data = simplejson.dumps(proveedor_json)
             return HttpResponse(data, 'application/json')
 
@@ -679,7 +679,7 @@ class ListadoProveedores(ListView):
     model = Proveedor
     template_name = 'compras/proveedores.html'
     context_object_name = 'proveedores'
-    queryset = Proveedor.objects.filter(estado=True).order_by('razon_social')
+    queryset = Proveedor.objects.filter(is_active=True).order_by('razon_social')
 
     @method_decorator(requiere('compras.ver_tabla_proveedores'))
     def dispatch(self, *args, **kwargs):
@@ -690,7 +690,7 @@ class ListadoCotizaciones(ListView):
     model = Cotizacion
     template_name = 'compras/cotizaciones.html'
     context_object_name = 'cotizaciones'
-    queryset = Cotizacion.objects.exclude(estado=Cotizacion.STATUS.CANC).order_by('code')
+    queryset = Cotizacion.objects.exclude(status=Cotizacion.STATUS.CANC).order_by('code')
 
     @method_decorator(requiere('compras.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
@@ -701,7 +701,7 @@ class ListadoOrdenesCompra(ListView):
     model = OrdenCompra
     template_name = 'compras/ordenes_compra.html'
     context_object_name = 'ordenes_compra'
-    queryset = OrdenCompra.objects.exclude(estado=OrdenCompra.STATUS.CANC).order_by('code')
+    queryset = OrdenCompra.objects.exclude(status=OrdenCompra.STATUS.CANC).order_by('code')
 
     @method_decorator(
         requiere('compras.ver_tabla_ordenes_compra'))
@@ -757,7 +757,7 @@ class ListadoConformidadesServicio(ListView):
     model = ConformidadServicio
     template_name = 'compras/conformidades_servicio.html'
     context_object_name = 'conformidades'
-    queryset = ConformidadServicio.objects.filter(estado=True).order_by('code')
+    queryset = ConformidadServicio.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(
         requiere('compras.ver_tabla_conformidades_servicio'))
@@ -820,7 +820,7 @@ class ModificarCotizacion(UpdateView):
     @method_decorator(requiere('compras.change_cotizacion'))
     def dispatch(self, *args, **kwargs):
         cotizacion = self.get_object()
-        if cotizacion.estado == Cotizacion.STATUS.PEND:
+        if cotizacion.status == Cotizacion.STATUS.PEND:
             return super(ModificarCotizacion, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -958,14 +958,14 @@ class ModificarOrdenCompra(UpdateView):
     @method_decorator(requiere('compras.change_ordencompra'))
     def dispatch(self, *args, **kwargs):
         orden_compra = self.get_object()
-        if orden_compra.estado == OrdenCompra.STATUS.PEND:
+        if orden_compra.status == OrdenCompra.STATUS.PEND:
             return super(ModificarOrdenCompra, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == OrdenCompra.STATUS.PEND:
+        if self.object.status == OrdenCompra.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalles = (DetalleOrdenCompra.objects.filter(orden=self.object)
@@ -1095,7 +1095,7 @@ class ModificarOrdenServicios(UpdateView):
     @method_decorator(requiere('compras.change_ordenservicios'))
     def dispatch(self, *args, **kwargs):
         orden_servicios = self.get_object()
-        if orden_servicios.estado == OrdenServicios.STATUS.PEND:
+        if orden_servicios.status == OrdenServicios.STATUS.PEND:
             return super(ModificarOrdenServicios, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('seguridad:permiso_denegado'))
@@ -1125,7 +1125,7 @@ class ModificarOrdenServicios(UpdateView):
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
-        if self.object.estado == OrdenCompra.STATUS.PEND:
+        if self.object.status == OrdenCompra.STATUS.PEND:
             form_class = self.get_form_class()
             form = self.get_form(form_class)
             detalles = DetalleOrdenServicios.objects.filter(orden=self.object).order_by('nro_detalle')
@@ -1225,7 +1225,7 @@ class ObtenerDetalleCotizacion(SoloAjaxMixin, TemplateView):
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'PRODUCTOS':
                 detalles = DetalleCotizacion.objects.filter(
-                    Q(estado=DetalleCotizacion.STATUS.PEND) | Q(estado=DetalleCotizacion.STATUS.ELEG_PARC),
+                    Q(status=DetalleCotizacion.STATUS.PEND) | Q(status=DetalleCotizacion.STATUS.ELEG_PARC),
                     cotizacion__code=cotizacion,
                     detalle_requerimiento__producto__es_servicio=False).order_by('nro_detalle')
                 try:
@@ -1317,7 +1317,7 @@ class ObtenerDetalleOrdenCompra(SoloAjaxMixin, TemplateView):
             lista_json = []
             if tipo_cambio > 0:
                 detalles = DetalleOrdenCompra.objects.filter(orden=orden_compra,
-                                                             estado=DetalleOrdenCompra.STATUS.PEND).order_by(
+                                                             status=DetalleOrdenCompra.STATUS.PEND).order_by(
                     'nro_detalle')
                 for detalle in detalles:
                     det = {}
@@ -1360,7 +1360,7 @@ class ObtenerDetalleOrdenServicios(SoloAjaxMixin, TemplateView):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             orden_servicios = request.GET['orden_servicios']
             detalles = DetalleOrdenServicios.objects.filter(orden__code=orden_servicios,
-                                                            estado=DetalleOrdenServicios.STATUS.PEND).order_by(
+                                                            status=DetalleOrdenServicios.STATUS.PEND).order_by(
                 'nro_detalle')
             lista_detalles = []
             for detalle in detalles:
@@ -1571,7 +1571,7 @@ class ReporteExcelOrdenesServiciosFecha(FormView):
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = orden.created
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=8).value = orden.get_estado_display()
+            ws.cell(row=cont, column=8).value = orden.get_status_display()
             cont = cont + 1
         nombre_archivo = "ReporteOrdenesServicio.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1651,7 +1651,7 @@ class ReporteExcelOrdenesCompraFecha(FormView):
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = orden_compra.created
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=8).value = orden_compra.get_estado_display()
+            ws.cell(row=cont, column=8).value = orden_compra.get_status_display()
             cont = cont + 1
         nombre_archivo = "ReporteOrdenesCompra.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -1666,7 +1666,7 @@ class TransferenciaCotizacion(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TransferenciaCotizacion, self).get_context_data(**kwargs)
-        context['cotizaciones'] = Cotizacion.objects.filter(estado=Cotizacion.STATUS.PEND)
+        context['cotizaciones'] = Cotizacion.objects.filter(status=Cotizacion.STATUS.PEND)
         return context
 
 
@@ -1676,7 +1676,7 @@ class TransferenciaOrdenCompra(TemplateView):
     def get_context_data(self, **kwargs):
         context = super(TransferenciaOrdenCompra, self).get_context_data(**kwargs)
         context['ordenes'] = OrdenCompra.objects.filter(
-            Q(estado=OrdenCompra.STATUS.PEND) | Q(estado=OrdenCompra.STATUS.ING_PARC))
+            Q(status=OrdenCompra.STATUS.PEND) | Q(status=OrdenCompra.STATUS.ING_PARC))
         return context
 
 
@@ -1685,5 +1685,5 @@ class TransferenciaOrdenServicios(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(TransferenciaOrdenServicios, self).get_context_data(**kwargs)
-        context['ordenes'] = OrdenServicios.objects.filter(estado=OrdenServicios.STATUS.PEND)
+        context['ordenes'] = OrdenServicios.objects.filter(status=OrdenServicios.STATUS.PEND)
         return context

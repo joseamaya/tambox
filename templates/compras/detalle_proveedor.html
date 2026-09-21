@@ -74,7 +74,7 @@
                         <label>DIRECCIÓN:</label>
                         <p>{{ object.direccion }}</p>
                         <label>ESTADO SUNAT: </label>
-                        <p>{{ object.estado_sunat }}</p>
+                        <p>{{ object.is_active_sunat }}</p>
                         <label>CONDICION: </label>
                         <p>{{ object.condicion }}</p>
                     </div>
@@ -93,7 +93,7 @@
                         <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
                         <label>FECHA MODIFICACIÓN: </label>
                         <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
-                        <label>ESTADO: </label> {% if object.estado %}
+                        <label>ESTADO: </label> {% if object.is_active %}
                         <p>ACTIVO</p>
                         {% else %}
                         <p>INACTIVO</p>

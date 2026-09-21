@@ -268,7 +268,7 @@ class EliminarUnidadMedida(TemplateView):
                 unidad_medida_json['productos'] = 'SI'
             else:
                 unidad_medida_json['productos'] = 'NO'
-                UnidadMedida.objects.filter(pk=id).update(estado=False)
+                UnidadMedida.objects.filter(pk=id).update(is_active=False)
             data = simplejson.dumps(unidad_medida_json)
             return HttpResponse(data, 'application/json')
 
@@ -291,7 +291,7 @@ class EliminarGrupoProductos(TemplateView):
                 grupo_productos_json['productos'] = 'SI'
             else:
                 grupo_productos_json['productos'] = 'NO'
-                GrupoProductos.objects.filter(pk=code).update(estado=False)
+                GrupoProductos.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(grupo_productos_json)
             return HttpResponse(data, 'application/json')
 
@@ -316,7 +316,7 @@ class EliminarProducto(TemplateView):
                 producto_json['relaciones'] = 'SI'
             else:
                 producto_json['relaciones'] = 'NO'
-                Producto.objects.filter(pk=code).update(estado=False)
+                Producto.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(producto_json)
             return HttpResponse(data, 'application/json')
 
@@ -338,7 +338,7 @@ class EliminarServicio(TemplateView):
                 servicio_json['ordenes'] = 'SI'
             else:
                 servicio_json['ordenes'] = 'NO'
-                Producto.objects.filter(code=code).update(estado=False)
+                Producto.objects.filter(code=code).update(is_active=False)
             data = simplejson.dumps(servicio_json)
             return HttpResponse(data, 'application/json')
 
@@ -347,7 +347,7 @@ class ListadoUnidadesMedida(ListView):
     model = UnidadMedida
     template_name = 'productos/unidades_medida.html'
     context_object_name = 'unidades'
-    queryset = UnidadMedida.objects.filter(estado=True).order_by('description')
+    queryset = UnidadMedida.objects.filter(is_active=True).order_by('description')
 
     @method_decorator(
         requiere('productos.ver_tabla_unidades_medida'))
@@ -359,7 +359,7 @@ class ListadoServicios(ListView):
     model = Producto
     template_name = 'productos/servicios.html'
     context_object_name = 'servicios'
-    queryset = Producto.objects.filter(estado=True, es_servicio=True).order_by('description')
+    queryset = Producto.objects.filter(is_active=True, es_servicio=True).order_by('description')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -370,7 +370,7 @@ class ListadoGruposProductos(ListView):
     model = GrupoProductos
     template_name = 'productos/grupos_productos.html'
     context_object_name = 'grupos_productos'
-    queryset = GrupoProductos.objects.filter(estado=True).order_by('code')
+    queryset = GrupoProductos.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(
         requiere('productos.ver_tabla_grupos_productos'))
@@ -382,7 +382,7 @@ class ListadoProductos(ListView):
     model = Producto
     template_name = 'productos/productos.html'
     context_object_name = 'productos'
-    queryset = Producto.objects.filter(es_servicio=False, estado=True).order_by('code')
+    queryset = Producto.objects.filter(es_servicio=False, is_active=True).order_by('code')
 
     @method_decorator(requiere('productos.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
@@ -461,7 +461,7 @@ class ModificarServicio(UpdateView):
 class ReporteExcelProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        productos = Producto.objects.filter(estado=True).order_by('code')
+        productos = Producto.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PRODUCTOS'
@@ -500,7 +500,7 @@ class ReporteExcelProductos(TemplateView):
 class ReporteExcelGruposProductos(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        grupos_productos = GrupoProductos.objects.filter(estado=True).order_by('code')
+        grupos_productos = GrupoProductos.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE GRUPOS DE PRODUCTOS'
@@ -528,7 +528,7 @@ class ReporteExcelGruposProductos(TemplateView):
 class ReporteExcelUnidadesMedida(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        unidades = UnidadMedida.objects.filter(estado=True).order_by('code')
+        unidades = UnidadMedida.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE UNIDADES DE MEDIDA'
@@ -540,7 +540,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
         for unidad in unidades:
             ws.cell(row=cont, column=2).value = unidad.code
             ws.cell(row=cont, column=3).value = unidad.description
-            ws.cell(row=cont, column=4).value = unidad.estado
+            ws.cell(row=cont, column=4).value = unidad.is_active
             cont = cont + 1
         nombre_archivo = "UnidadesMedida.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -553,7 +553,7 @@ class ReporteExcelUnidadesMedida(TemplateView):
 class ReporteExcelServicios(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        servicios = Producto.objects.filter(es_servicio=True, estado=True).order_by('code')
+        servicios = Producto.objects.filter(es_servicio=True, is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE SERVICIOS'
@@ -565,7 +565,7 @@ class ReporteExcelServicios(TemplateView):
         for servicio in servicios:
             ws.cell(row=cont, column=2).value = servicio.code
             ws.cell(row=cont, column=3).value = servicio.description
-            ws.cell(row=cont, column=4).value = servicio.estado
+            ws.cell(row=cont, column=4).value = servicio.is_active
             cont = cont + 1
         nombre_archivo = "ListadoServicios.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

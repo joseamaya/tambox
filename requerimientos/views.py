@@ -169,7 +169,7 @@ class CrearRequerimiento(CreateView):
                                                              uso=uso))
                         cont = cont + 1
                 DetalleRequerimiento.objects.bulk_create(detalles)
-                puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, es_jefatura=True, estado=True)
+                puesto_jefe = self.object.solicitante.puesto.puesto_superior  # Puesto.objects.get(oficina=self.object.oficina, es_jefatura=True, is_active=True)
                 jefe = puesto_jefe.trabajador
                 destinatario = jefe.usuario.email
                 if jefe.pk != self.object.solicitante.pk:
@@ -293,8 +293,8 @@ class ModificarRequerimiento(UpdateView):
         requiere('requerimientos.change_requerimiento'))
     def dispatch(self, *args, **kwargs):
         requerimiento = self.get_object()
-        if (requerimiento.approval.estado == AprobacionRequerimiento.NIVEL.USU or
-                requerimiento.approval.estado == AprobacionRequerimiento.NIVEL.JEF or
+        if (requerimiento.approval.is_active == AprobacionRequerimiento.NIVEL.USU or
+                requerimiento.approval.is_active == AprobacionRequerimiento.NIVEL.JEF or
                 self.request.user.is_superuser):
             return super(ModificarRequerimiento, self).dispatch(*args, **kwargs)
         else:
@@ -389,11 +389,11 @@ class ObtenerDetalleRequerimiento(SoloAjaxMixin, TemplateView):
             tipo_busqueda = request.GET['tipo_busqueda']
             if tipo_busqueda == 'TODOS':
                 detalles = DetalleRequerimiento.objects.filter(
-                    Q(estado=DetalleRequerimiento.STATUS.PEND) | Q(estado=DetalleRequerimiento.STATUS.COTIZ),
+                    Q(status=DetalleRequerimiento.STATUS.PEND) | Q(status=DetalleRequerimiento.STATUS.COTIZ),
                     requerimiento__code=requerimiento).order_by('nro_detalle')
             elif tipo_busqueda == 'PRODUCTOS':
-                detalles = DetalleRequerimiento.objects.filter(Q(estado=DetalleRequerimiento.STATUS.PEND) |
-                                                               Q(estado=DetalleRequerimiento.STATUS.COTIZ),
+                detalles = DetalleRequerimiento.objects.filter(Q(status=DetalleRequerimiento.STATUS.PEND) |
+                                                               Q(status=DetalleRequerimiento.STATUS.COTIZ),
                                                                requerimiento__code=requerimiento,
                                                                producto__isnull=False).order_by('nro_detalle')
             lista_detalles = []
@@ -453,8 +453,8 @@ class ReporteExcelRequerimientos(TemplateView):
         for requerimiento in requerimientos:
             ws.cell(row=cont, column=2).value = requerimiento.code
             ws.cell(row=cont, column=3).value = requerimiento.oficina.name
-            ws.cell(row=cont, column=4).value = requerimiento.get_estado_display()
-            ws.cell(row=cont, column=5).value = requerimiento.approval.get_estado_display()
+            ws.cell(row=cont, column=4).value = requerimiento.get_status_display()
+            ws.cell(row=cont, column=5).value = requerimiento.approval.get_status_display()
             ws.cell(row=cont, column=6).value = requerimiento.created
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1

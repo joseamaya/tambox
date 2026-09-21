@@ -49,7 +49,7 @@
                 <td>Ninguna</td>
                 {% endif %}
                 <td>{{ orden_servicios.date|date:"d/m/y" }}</td>
-                <td>{{ orden_servicios.get_estado_display }}</td>
+                <td>{{ orden_servicios.get_status_display }}</td>
             </tr>
             {% endfor %}
             </tbody>

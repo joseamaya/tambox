@@ -12,7 +12,7 @@ from simple_history.models import HistoricalRecords
 class Profesion(TimeStampedModel):
     abreviatura = models.CharField(max_length=7)
     description = models.CharField(max_length=30)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
@@ -43,7 +43,7 @@ class Trabajador(TimeStampedModel):
     profesion = models.ForeignKey(Profesion, on_delete=models.CASCADE, related_name='workers', null=True)
     firma = models.ImageField(upload_to='firmas')
     foto = models.ImageField(upload_to='trabajadores', default='trabajadores/sinimagen.png')
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
@@ -72,7 +72,7 @@ class Trabajador(TimeStampedModel):
     @property
     def puesto(self):
         try:
-            puesto = self.positions.all().filter(estado=True)[0]
+            puesto = self.positions.all().filter(is_active=True)[0]
         except IndexError:
             puesto = None
         return puesto
@@ -92,7 +92,7 @@ class Productor(TimeStampedModel):
     dni = models.CharField(max_length=8, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=120)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
@@ -131,7 +131,7 @@ class Oficina(TimeStampedModel):
     name = models.CharField(max_length=50)
     es_gerencia = models.BooleanField(default=False)
     dependencia = models.ForeignKey('self', on_delete=models.CASCADE, related_name='superior', null=True)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
@@ -171,7 +171,7 @@ class Puesto(TimeStampedModel):
     end_date = models.DateField(null=True)
     es_jefatura = models.BooleanField(default=False)
     es_asistente = models.BooleanField(default=False)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     history = HistoricalRecords()
     objects = NavegableQuerySet.as_manager()
 
@@ -187,7 +187,7 @@ class Puesto(TimeStampedModel):
     def puesto_superior(self):
         puestos_superiores = Puesto.objects.filter(oficina=self.oficina,
                                                    es_jefatura=True,
-                                                   estado=True)
+                                                   is_active=True)
         if puestos_superiores.count() > 0:
             puesto_superior = puestos_superiores[0]
         else:
@@ -213,7 +213,7 @@ class Puesto(TimeStampedModel):
 
     def save(self, *args, **kwargs):
         if self.end_date is not None:
-            self.estado = False
+            self.is_active = False
         super(Puesto, self).save()
 
 

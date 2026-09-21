@@ -3,15 +3,15 @@
 <h3>Pedidos / {{ object.pk }}</h3>
 <div class="row">
     <div class="col-lg-5">
-        {% if object.estado == "PEND" or object.estado == "ATEN_PARC" %}
+        {% if object.status == "PEND" or object.status == "ATEN_PARC" %}
         {% if perms.almacen.aprobar_pedido %}
         <a class="btn btn-warning" href="{% url 'almacen:aprobar_pedido' object.pk %}">Aprobar</a>
         {% endif %}
         {% endif %}
-        {% if object.estado == "PEND" %}
+        {% if object.status == "PEND" %}
         <a class="btn btn-primary" href="{% url 'almacen:modificar_pedido' object.pk %}">Editar</a>
         {% endif %}
-        {% if object.estado == "PEND" %}
+        {% if object.status == "PEND" %}
         {% if perms.almacen.delete_pedido %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
@@ -25,7 +25,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                {% if object.estado != "PEND" %}
+                {% if object.status != "PEND" %}
                 <li>
                     <a href="{% url 'almacen:listado_movimientos_pedido' object.pk %}">
                         <span class="fa fa-building"></span>
@@ -87,7 +87,7 @@
             </div>
             <div class="col-md-4">
                 <label>Estado:</label>
-                <p>{{ object.get_estado_display }}</p>
+                <p>{{ object.get_status_display }}</p>
             </div>
         </div>
         <div class="row">

@@ -291,7 +291,7 @@ class ListadoPuestos(ListView):
     model = Puesto
     template_name = 'administracion/puestos.html'
     context_object_name = 'puestos'
-    queryset = Puesto.objects.filter(estado=True)
+    queryset = Puesto.objects.filter(is_active=True)
 
 
 class ListadoProfesiones(ListView):
@@ -395,7 +395,7 @@ class ModificarPuesto(UpdateView):
 
 class ReporteExcelOficinas(TemplateView):
     def get(self, request, *args, **kwargs):
-        oficinas = Oficina.objects.filter(estado=True).order_by('code')
+        oficinas = Oficina.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE OFICINAS'
@@ -424,7 +424,7 @@ class ReporteExcelOficinas(TemplateView):
 
 class ReporteExcelProfesiones(TemplateView):
     def get(self, request, *args, **kwargs):
-        profesiones = Profesion.objects.filter(estado=True)
+        profesiones = Profesion.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PROFESIONES'
@@ -436,7 +436,7 @@ class ReporteExcelProfesiones(TemplateView):
         for profesion in profesiones:
             ws.cell(row=cont, column=2).value = profesion.abreviatura
             ws.cell(row=cont, column=3).value = profesion.description
-            ws.cell(row=cont, column=4).value = profesion.estado
+            ws.cell(row=cont, column=4).value = profesion.is_active
             cont = cont + 1
         nombre_archivo = "Profesiones.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -448,7 +448,7 @@ class ReporteExcelProfesiones(TemplateView):
 
 class ReporteExcelPuestos(TemplateView):
     def get(self, request, *args, **kwargs):
-        puestos = Puesto.objects.filter(estado=True)
+        puestos = Puesto.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PUESTOS'
@@ -471,7 +471,7 @@ class ReporteExcelPuestos(TemplateView):
                 ws.cell(row=cont, column=7).value = "SI"
             else:
                 ws.cell(row=cont, column=7).value = "NO"
-            ws.cell(row=cont, column=8).value = puesto.estado
+            ws.cell(row=cont, column=8).value = puesto.is_active
             cont = cont + 1
         nombre_archivo = "Puestos.xlsx"
         response = HttpResponse(content_type="application/ms-excel")
@@ -483,7 +483,7 @@ class ReporteExcelPuestos(TemplateView):
 
 class ReporteExcelTrabajadores(TemplateView):
     def get(self, request, *args, **kwargs):
-        trabajadores = Trabajador.objects.filter(estado=True)
+        trabajadores = Trabajador.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE TRABAJADORES'
@@ -501,7 +501,7 @@ class ReporteExcelTrabajadores(TemplateView):
             ws.cell(row=cont, column=4).value = trabajador.last_name
             ws.cell(row=cont, column=5).value = trabajador.first_name
             ws.cell(row=cont, column=6).value = trabajador.usuario.email
-            ws.cell(row=cont, column=7).value = trabajador.estado
+            ws.cell(row=cont, column=7).value = trabajador.is_active
             cont = cont + 1
         nombre_archivo = "Trabajadores.xlsx"
         response = HttpResponse(content_type="application/ms-excel")

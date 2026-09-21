@@ -1011,7 +1011,7 @@ class ReporteKardexPDF():
                                 pagesize=self.pagesize)
 
         elements = []
-        grupos = GrupoProductos.objects.filter(estado=True,
+        grupos = GrupoProductos.objects.filter(is_active=True,
                                                son_productos=True).order_by('description')
         elements.append(self.tabla_detalle_consolidado_grupo(grupos))
 
@@ -1962,7 +1962,7 @@ class ReporteKardexExcel():
         return wb
 
     def obtener_consolidado_grupos(self, desde, hasta, almacen):
-        grupos = GrupoProductos.objects.filter(estado=True,
+        grupos = GrupoProductos.objects.filter(is_active=True,
                                                son_productos=True)
         self.kardex_lote_grupos = GrupoProductos.kardex_por_lote(grupos, almacen, desde, hasta)
         wb = Workbook()
@@ -2262,7 +2262,7 @@ class ReporteKardexExcel():
 
 def reporte_inventario(desde):
     """Construye el libro de Excel del reporte de inventario."""
-    grupo_productos = GrupoProductos.objects.filter(estado=True).select_related('ctacontable')
+    grupo_productos = GrupoProductos.objects.filter(is_active=True).select_related('ctacontable')
 
     wb = Workbook()
     ws = wb.active

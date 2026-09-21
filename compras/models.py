@@ -27,16 +27,16 @@ class DetalleOrdenManager(models.Manager):
             self.guardar_detalles_sin_referencia(objs)
 
     def actualizar_cotizaciones(self):
-        cotizaciones = Cotizacion.objects.filter(estado=Cotizacion.STATUS.PEND)
+        cotizaciones = Cotizacion.objects.filter(status=Cotizacion.STATUS.PEND)
         for cot in cotizaciones:
             cot.establecer_estado_comprado()
             cot.save()
 
     def actualizar_detalle_cotizaciones(self, detalle_requerimiento):
-        if detalle_requerimiento.estado == DetalleRequerimiento.STATUS.COMP:
+        if detalle_requerimiento.status == DetalleRequerimiento.STATUS.COMP:
             DetalleCotizacion.objects.filter(detalle_requerimiento=detalle_requerimiento,
-                                             estado=DetalleCotizacion.STATUS.PEND).update(
-                estado=DetalleCotizacion.STATUS.DESC)
+                                             status=DetalleCotizacion.STATUS.PEND).update(
+                status=DetalleCotizacion.STATUS.DESC)
 
     def guardar_detalles_con_referencia(self, objs, cotizacion):
         requerimiento = cotizacion.requerimiento
@@ -88,7 +88,7 @@ class Proveedor(TimeStampedModel):
     representantes = models.ManyToManyField(RepresentanteLegal, related_name='suppliers')
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -117,7 +117,7 @@ class Cotizacion(TimeStampedModel):
     date = models.DateField()
     notes = models.TextField(blank=True)
     STATUS = CHOICES_ESTADO_COTIZ
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -130,7 +130,7 @@ class Cotizacion(TimeStampedModel):
         return sig.pk
 
     def eliminar_cotizacion(self):
-        self.estado = Cotizacion.STATUS.CANC
+        self.status = Cotizacion.STATUS.CANC
         self.save()
 
     def eliminar_referencia(self):
@@ -160,8 +160,8 @@ class Cotizacion(TimeStampedModel):
             estado = Cotizacion.STATUS.ELEG_PARC
         else:
             estado = Cotizacion.STATUS.ELEG
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         unique_together = (('proveedor', 'requerimiento'),)
@@ -199,7 +199,7 @@ class DetalleCotizacion(TimeStampedModel):
                      ('ELEG_PARC', _('ELEGIDA PARCIALMENTE')),
                      ('DESC', _('DESCARTADA')),
                      ('CANC', _('CANCELADO')), )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     def establecer_estado_comprado(self):
@@ -210,8 +210,8 @@ class DetalleCotizacion(TimeStampedModel):
             estado = DetalleCotizacion.STATUS.ELEG_PARC
         else:
             estado = DetalleCotizacion.STATUS.ELEG
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
@@ -231,7 +231,7 @@ class OrdenCompra(TimeStampedModel):
                      )
     con_impuesto = models.BooleanField(default=False)
     dolares = models.BooleanField(default=False)
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -273,8 +273,8 @@ class OrdenCompra(TimeStampedModel):
             estado = OrdenCompra.STATUS.ING_PARC
         else:
             estado = OrdenCompra.STATUS.ING
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     @property
     def total(self):
@@ -350,7 +350,7 @@ class DetalleOrdenCompra(TimeStampedModel):
                      ('ING_PARC', _('INGRESADO PARCIALMENTE')),
                      ('CANC', _('CANCELADO')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     @property
@@ -406,8 +406,8 @@ class DetalleOrdenCompra(TimeStampedModel):
             estado = DetalleOrdenCompra.STATUS.ING_PARC
         else:
             estado = DetalleOrdenCompra.STATUS.ING
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         permissions = (('can_view', 'Can view Detalle Orden de Compra'),)
@@ -428,7 +428,7 @@ class OrdenServicios(TimeStampedModel):
                      ('CONF_PARC', _('CONFORME PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 
@@ -491,8 +491,8 @@ class OrdenServicios(TimeStampedModel):
             estado = OrdenServicios.STATUS.CONF_PARC
         else:
             estado = OrdenServicios.STATUS.CONF
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
     class Meta:
         permissions = (('ver_detalle_orden_servicios', 'Puede ver detalle de Orden de Servicios'),
@@ -535,7 +535,7 @@ class DetalleOrdenServicios(TimeStampedModel):
                      ('CONF_PARC', _('CONFORME PARCIALMENTE')),
                      ('CANC', _('CANCELADA')),
                      )
-    estado = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
+    status = models.CharField(choices=STATUS, default=STATUS.PEND, max_length=20)
     history = HistoricalRecords()
 
     @property
@@ -558,8 +558,8 @@ class DetalleOrdenServicios(TimeStampedModel):
             estado = DetalleOrdenServicios.STATUS.CONF_PARC
         else:
             estado = DetalleOrdenServicios.STATUS.CONF
-        self.estado = estado
-        return self.estado
+        self.status = estado
+        return self.status
 
 
 class ConformidadServicio(TimeStampedModel):
@@ -570,7 +570,7 @@ class ConformidadServicio(TimeStampedModel):
     date = models.DateField()
     total = models.DecimalField(max_digits=15, decimal_places=5)
     total_letras = models.CharField(max_length=150)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
     history = HistoricalRecords()
 

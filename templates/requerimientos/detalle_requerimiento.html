@@ -8,14 +8,14 @@
         <a href="{% url 'requerimientos:crear_requerimiento' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
         {% if object.approval.nivel == "USU" or object.approval.nivel == "JEF" %}
-        {% if object.estado %}
+        {% if object.status %}
         {% if perms.requerimientos.change_requerimiento %}
         <a class="btn btn-warning" href="{% url 'requerimientos:modificar_requerimiento' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
         {% endif %}
-        {% if object.approval.estado == "PEND" or object.approval.estado == "APROB_JEF" %}
-        {% if object.estado == "PEND" %}
+        {% if object.approval.is_active == "PEND" or object.approval.is_active == "APROB_JEF" %}
+        {% if object.status == "PEND" %}
         {% if perms.requerimientos.delete_requerimiento %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
@@ -30,7 +30,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                {% if object.estado != "PEND" %}
+                {% if object.status != "PEND" %}
                 <li>
                     <a href="{% url 'requerimientos:listado_cotizaciones_requerimiento' requerimiento.pk %}">
                         <span class="fa fa-book"></span>
@@ -84,11 +84,11 @@
             </div>
             <div class="col-md-3">
                 <label>Estado:</label>
-                <p>{{ object.get_estado_display }}</p>
+                <p>{{ object.get_status_display }}</p>
             </div>
             <div class="col-md-2">
                 <label>Estado Aprob:</label>
-                {% if object.approval.estado %}
+                {% if object.approval.is_active %}
                 <p>APROBADO</p>
                 {% else %}
                 <p>DESAPROBADO</p>

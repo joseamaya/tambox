@@ -11,7 +11,7 @@ from productos.models import Producto
 class AprobacionRequerimientoForm(forms.ModelForm):
     class Meta:
         model = AprobacionRequerimiento
-        fields = ['estado', 'motivo_desaprobacion']
+        fields = ['is_active', 'motivo_desaprobacion']
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
@@ -23,7 +23,7 @@ class AprobacionRequerimientoForm(forms.ModelForm):
         oficina = self.instance.obtener_oficina_aprobacion_superior()
         if oficina is not None:
             try:
-                puesto_jefe = Puesto.objects.get(oficina=oficina, es_jefatura=True, estado=True)
+                puesto_jefe = Puesto.objects.get(oficina=oficina, es_jefatura=True, is_active=True)
                 jefe = puesto_jefe.trabajador
                 destinatario = jefe.usuario.email
                 correo_creacion_requerimiento(destinatario, self.instance.requerimiento)

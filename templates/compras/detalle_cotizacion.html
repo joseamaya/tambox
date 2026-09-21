@@ -6,12 +6,12 @@
         {% if perms.compras.add_cotizacion %} <a
             href="{% url 'compras:crear_cotizacion' %}" class="btn btn-primary">Crear</a>
         {% endif %}
-        {% if cotizacion.estado == "PEND" %}
+        {% if cotizacion.status == "PEND" %}
         {% if perms.compras.change_cotizacion %}
         <a class="btn btn-warning" href="{% url 'compras:modificar_cotizacion' object.pk %}">Editar </a>
         {% endif %}
         {% endif %}
-        {% if object.estado == "PEND" %}
+        {% if object.status == "PEND" %}
         {% if perms.compras.delete_cotizacion %}
         <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
         {% endif %}
@@ -25,7 +25,7 @@
                 <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
-                {% if object.estado != "PEND" %}
+                {% if object.status != "PEND" %}
                 <li>
                     <a href="{% url 'compras:listado_ordenes_servicios_cotizacion' object.pk %}">
                         <span class="fa fa-exchange"></span>
@@ -84,7 +84,7 @@
             </div>
             <div class="col-md-4">
                 <label>Estado:</label>
-                <p>{{ object.get_estado_display }}</p>
+                <p>{{ object.get_status_display }}</p>
             </div>
         </div>
         <div class="row">

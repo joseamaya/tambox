@@ -39,7 +39,7 @@ class CuentaContable(TimeStampedModel):
     description = models.CharField(max_length=150)
     depreciacion = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     divisionaria = models.BooleanField(default=False)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
@@ -65,7 +65,7 @@ class FormaPago(TimeStampedModel):
     code = models.CharField(unique=True, max_length=5)
     description = models.CharField(max_length=50)
     dias_credito = models.IntegerField()
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
@@ -90,7 +90,7 @@ class TipoDocumento(TimeStampedModel):
     codigo_sunat = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=100)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     objects = NavegableQuerySet.as_manager()
 
     class Meta:
@@ -135,7 +135,7 @@ class Impuesto(TimeStampedModel):
     amount = models.DecimalField(max_digits=14, decimal_places=2)
     start_date = models.DateField()
     end_date = models.DateField(null=True)
-    estado = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
     STATUS = Choices(('COM', _('COMPRA')),
                      ('VEN', _('VEN')),
                      )

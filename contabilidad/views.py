@@ -207,7 +207,7 @@ class EliminarFormaPago(TemplateView):
                 forma_pago_json['relaciones'] = 'SI'
             else:
                 forma_pago_json['relaciones'] = 'NO'
-                FormaPago.objects.filter(pk=code).update(estado=False)
+                FormaPago.objects.filter(pk=code).update(is_active=False)
             data = simplejson.dumps(forma_pago_json)
             return HttpResponse(data, 'application/json')
 
@@ -230,7 +230,7 @@ class EliminarTipoDocumento(TemplateView):
                 tipo_documento_json['relaciones'] = 'SI'
             else:
                 tipo_documento_json['relaciones'] = 'NO'
-                TipoDocumento.objects.filter(pk=id).update(estado=False)
+                TipoDocumento.objects.filter(pk=id).update(is_active=False)
             data = simplejson.dumps(tipo_documento_json)
             return HttpResponse(data, 'application/json')
 
@@ -239,7 +239,7 @@ class ListadoTiposDocumentos(ListView):
     model = TipoDocumento
     template_name = 'contabilidad/tipos_documento.html'
     context_object_name = 'tipos'
-    queryset = TipoDocumento.objects.filter(estado=True).order_by('name')
+    queryset = TipoDocumento.objects.filter(is_active=True).order_by('name')
 
     @method_decorator(
         requiere('contabilidad.ver_tabla_tipos_documentos'))

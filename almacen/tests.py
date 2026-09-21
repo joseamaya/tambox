@@ -182,7 +182,7 @@ class MovimientoTest(TestCase):
 
         mov1.eliminar_referencia()
 
-        self.assertEqual(mov1.referencia.estado, OrdenCompra.STATUS.PEND)
+        self.assertEqual(mov1.referencia.status, OrdenCompra.STATUS.PEND)
 
 
 class ReporteInventarioTest(TestCase):
