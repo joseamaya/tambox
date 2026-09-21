@@ -769,7 +769,7 @@ class ServiceConformityList(ListView):
 
 
 class MovementListByPurchaseOrder(ListView):
-    template_name = 'almacen/movimientos.html'
+    template_name = 'almacen/movements.html'
     context_object_name = 'movements'
 
     @method_decorator(requires('almacen.ver_tabla_movimientos'))

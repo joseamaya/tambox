@@ -1,10 +1,10 @@
-{% extends "almacen/base_almacen.html" %}
+{% extends "almacen/base_warehouse.html" %}
 {% block cuerpo %}
-<h3>Salidas</h3>
+<h3>Ingresos</h3>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.almacen.add_movement %}
-        <a href="{% url 'almacen:outbound_create' %}" class="btn btn-primary">Crear</a>
+        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.almacen.cargar_movimientos %}
         <a href="#" class="btn btn-default">Importar</a>

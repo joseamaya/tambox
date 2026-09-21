@@ -1,17 +1,31 @@
-{% extends "almacen/base_almacen.html" %}
+{% extends "almacen/base_warehouse.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Movimientos / {{ movement.movement_id }}</h3>
+<h3>Movimientos / {{ movement.pk }}</h3>
 {% else %}
-<h3>Movimientos / Nueva Salida de Almacen</h3>
+<h3>Movimientos / Nuevo Ingreso Almacen</h3>
 {% endif %}
 <form role="form" method="post">
+    {% csrf_token %}
+    {% if form.errors %}
+    {% for error in form.non_field_errors %}
+    {% include "includes/error.html" %}
+    {% endfor %}
+    {% endif %}
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'almacen:outbound_list' %}'">
+            {% if object %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'almacen:movement_detail_view' movement.pk %}'">
                 Cancelar
             </button>
+            {% else %}
+            <button type="button" class="btn btn-default"
+                    onclick="location.href='{% url 'almacen:inbound_list' %}'">
+                Cancelar
+            </button>
+            {% endif %}
         </div>
         <div class="col-lg-2 text-right">
             <div class="btn-group">
@@ -26,7 +40,7 @@
                 </button>
                 {% endif %}
                 <button class="btn btn-default" type="button"
-                        onclick="location.href='{% url 'almacen:outbound_list' %}';">
+                        onclick="location.href='{% url 'almacen:movement_list' %}';">
                     <span class="glyphicon glyphicon-th-list"></span>
                 </button>
             </div>
@@ -35,12 +49,11 @@
     <hr/>
     <div class="panel panel-primary">
         <div class="panel-body">
-            {% csrf_token %}
             {% if object %}
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Id Movimiento:</label>
+                        <label>ID MOVIMIENTO:</label>
                         <p>{{ object.movement_id }}</p>
                     </div>
                 </div>
@@ -49,7 +62,7 @@
             <div class="form-group">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Tipo de Salida:</label>
+                        <label>Tipo de Ingreso:</label>
                         {% if form.movement_type.errors %}
                         {% for error in form.movement_type.errors %}
                         {% include "includes/error.html" %}
@@ -66,6 +79,8 @@
                         {% endif %}
                         {{ form.warehouse }}
                     </div>
+                </div>
+                <div class="row">
                     <div class="col-md-3">
                         <label>Fecha:</label>
                         {% if form.date.errors %}
@@ -84,41 +99,28 @@
                         {% endif %}
                         {{ form.time }}
                     </div>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="row">
                     <div class="col-md-3">
-                        <label>Oficina a atender:</label>
-                        {% if form.office.errors %}
-                        {% for error in form.office.errors %}
+                        <label>Referencia:</label>
+                        {% if form.reference_document.errors %}
+                        {% for error in form.reference_document.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.office }}
+                        {{ form.reference_document }}
                     </div>
-                    <div class="col-md-2">
-                        <label>DNI Receptor:</label>
-                        {% if form.receiver_dni.errors %}
-                        {% for error in form.receiver_dni.errors %}
-                        {% include "includes/error.html" %}
-                        {% endfor %}
+                    <div class="col-md-3">
+                        <label>Busq. de Referencia:</label>
+                        {% if movement.reference %}
+                        <button id="id_transferencia_referencia" class="btn btn-info btn-block">
+                            <span class="glyphicon glyphicon-search">BUSCAR</span>
+                        </button>
+                        {% else %}
+                        <button id="id_transferencia_referencia" class="btn btn-info btn-block" disabled="false">
+                            <span class="glyphicon glyphicon-search">BUSCAR</span>
+                        </button>
                         {% endif %}
-                        {{ form.receiver_dni }}
                     </div>
-                    <div class="col-md-7">
-                        <label>Receptor:</label>
-                        {% if form.receiver.errors %}
-                        {% for error in form.receiver.errors %}
-                        {% include "includes/error.html" %}
-                        {% endfor %}
-                        {% endif %}
-                        {{ form.receiver }}
-                    </div>
-
                 </div>
-            </div>
-            <div class='form-group'>
                 <div class="row">
                     <div class="col-md-3">
                         <label>DOC. REFER:</label>
@@ -149,13 +151,12 @@
                     </div>
                 </div>
             </div>
-            <hr/>
             <div class="row">
                 <div class="col-lg-10">
                 </div>
                 <div class="col-lg-2">
                     <div class='form-group'>
-                        <button id="crear_detalle" href="#" class="btn btn-info btn-block">
+                        <button id="id_crear_detalle" href="#" class="btn btn-info btn-block" disabled="false">
                             <span class="glyphicon glyphicon-plus">AGREGAR</span>
                         </button>
                     </div>
@@ -176,57 +177,57 @@
                         </tr>
                         </thead>
                         <tbody>
-                        {{ outbound_detail_formset.management_form }}
-                        {% for outbound_detail_form in outbound_detail_formset %}
-                        <tr class="outbound_detail_formset">
+                        {{ inbound_detail_formset.management_form }}
+                        {% for inbound_detail_form in inbound_detail_formset %}
+                        <tr class="inbound_detail_formset">
                             <td>
-                                {% if outbound_detail_form.code.errors %}
-                                {% for error in outbound_detail_form.code.errors %}
+                                {{ inbound_detail_form.purchase_order }}
+                                {% if inbound_detail_form.code.errors %}
+                                {% for error in inbound_detail_form.code.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.order }}
-                                {{ outbound_detail_form.code }}
+                                {{ inbound_detail_form.code }}
                             </td>
                             <td>
-                                {% if outbound_detail_form.name.errors %}
-                                {% for error in outbound_detail_form.name.errors %}
+                                {% if inbound_detail_form.name.errors %}
+                                {% for error in inbound_detail_form.name.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.name }}
+                                {{ inbound_detail_form.name }}
                             </td>
                             <td>
-                                {% if outbound_detail_form.unit.errors %}
-                                {% for error in outbound_detail_form.unit.errors %}
+                                {% if inbound_detail_form.unit.errors %}
+                                {% for error in inbound_detail_form.unit.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.unit }}
+                                {{ inbound_detail_form.unit }}
                             </td>
                             <td>
-                                {% if outbound_detail_form.quantity.errors %}
-                                {% for error in outbound_detail_form.quantity.errors %}
+                                {% if inbound_detail_form.quantity.errors %}
+                                {% for error in inbound_detail_form.quantity.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.quantity }}
+                                {{ inbound_detail_form.quantity }}
                             </td>
                             <td>
-                                {% if outbound_detail_form.price.errors %}
-                                {% for error in outbound_detail_form.price.errors %}
+                                {% if inbound_detail_form.price.errors %}
+                                {% for error in inbound_detail_form.price.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.price }}
+                                {{ inbound_detail_form.price }}
                             </td>
                             <td>
-                                {% if outbound_detail_form.amount.errors %}
-                                {% for error in outbound_detail_form.amount.errors %}
+                                {% if inbound_detail_form.amount.errors %}
+                                {% for error in inbound_detail_form.amount.errors %}
                                 {% include "includes/error.html" %}
                                 {% endfor %}
                                 {% endif %}
-                                {{ outbound_detail_form.amount }}
+                                {{ inbound_detail_form.amount }}
                             </td>
                             <td>
                                 <button class='eliminar btn btn-small btn-danger' type='button'
@@ -235,6 +236,7 @@
                                 </button>
                             </td>
                         </tr>
+
                         {% endfor %}
                         </tbody>
                     </table>
@@ -266,6 +268,11 @@
             <div class="row">
                 <div class="col-lg-12">
                     <label>OBSERVACIONES:</label>
+                    {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
                     {{ form.notes }}
                 </div>
             </div>
@@ -279,7 +286,6 @@
     </div>
 </form>
 {% endblock cuerpo %}
-
 {% block js %}
 <script>
 $(document).ready(function() 
@@ -287,113 +293,124 @@ $(document).ready(function()
 	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
-	var tipo_salida;	
 	$("#id_date").datepicker();
-	$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
-	$("#id_movement_type").on('change',verificar_tipo_salida);
-
-	function verificar_tipo_salida()
-	{
-		$('#id_receiver_dni').prop("readonly", false);
-		$('#id_receiver').prop("readonly", false);
-	}
-
-	$("#id_receiver_dni").keyup(function()
-	{
-		var dni=$("#id_receiver_dni").val();
-		var movement_type = $("#id_movement_type").val();
-		if(dni.length==8)
-		{
-			$.ajax({
-		      url: "{% url 'administracion:receiver_dni_search' %}",
-		      data: {'dni': dni, 'movement_type':movement_type},
-		      success: function(data)
-		      {
-		    	  $("#id_receiver").val(data.full_name);
-		    	  event.preventDefault();
-		      }
-		    });
-		}
-	});
-
-	$("#id_receiver").autocomplete({
-	  	source: function(request, response){
-	    $.ajax({
-	      url: "{% url 'administracion:receiver_name_search' %}",
-	      data: {'name': $("#id_receiver").val(), 'movement_type':$("#id_movement_type").val()},
-	      success: function( data )
-	      {
-	          response( data );
-	      }
-	    });
-	  },
-	  minLength: 2,
-	  select: function( event, ui ) {
-		$("#id_receiver_dni").val(ui.item.dni);
-		$("#id_receiver").val(ui.item.label);
-		return false;
-	  },
-	});
-		
+	{% if object %}
+		$('#id_time').wickedpicker({now: "{{ movement.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
+	{% else %}
+		$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
+	{% endif %}
+	verificar_pide_referencia();
+	$("#id_movement_type").on('change',establecer_pide_referencia);
+	
 	$(document).on("click",".eliminar",function()
 	{
 		var parent = $(this).parent().parent();
 		var id_boton= $(this).prop('id');
 		var id = id_boton.replace("btn-borrar","");
 		var amount = $("#"+id+"amount").val();
-		total = total - parseFloat(amount);
+		total = total-parseFloat(amount);
 		$(parent).remove();
 		$("#id_total").val(total.toFixed(5));
 		contDetalles = contDetalles - 1;
 		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('outbound_detail_formset');
+		updateFormElementIndices('inbound_detail_formset');
 	});
-    
-	$('#crear_detalle').click(function(e)
+	
+	$(document).on("keyup",".quantity",function()
+	{
+		var id_input= $(this).prop('id');
+		var id = id_input.replace("quantity","");
+		var quantity = $("#"+id+"quantity").val();
+		var price = $("#"+id+"price").val();
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(amount);
+		$("#id_total").val(total.toFixed(5));		
+	});
+	
+	$(document).on("keyup",".price",function()
+	{
+		var id_input= $(this).prop('id');
+		var id = id_input.replace("price","");
+		var quantity = $("#"+id+"quantity").val();
+		var price = $("#"+id+"price").val();
+		var valorAnt = $("#"+id+"amount").val();
+		var amount=parseFloat(quantity)*parseFloat(price);
+		$("#"+id+"amount").val(amount.toFixed(5));
+		total = total - parseFloat(valorAnt)+parseFloat(amount);
+		$("#id_total").val(total.toFixed(5));	
+	});
+	
+	function establecer_pide_referencia()
+	{
+		$("#detalles tbody > tr").remove();
+		verificar_pide_referencia();
+		total=0;
+		$("#id_total").val(total);
+		$("#id_reference").val("");
+	}
+	
+	function verificar_pide_referencia()
+	{
+		tipo_ingreso = $('#id_movement_type').val();
+		$.ajax({
+			data : {'type': tipo_ingreso},
+			url : "{% url 'almacen:verify_reference_required' %}",
+			type : 'get',
+			success : function(data)
+			{
+				if(data.requires_reference)
+				{
+					$('#id_transferencia_referencia').prop("disabled", false);
+					$('#id_crear_detalle').prop("disabled", true);
+				}
+				else
+				{
+					$('#id_transferencia_referencia').prop("disabled", true);					
+					$('#id_crear_detalle').prop("disabled", false);
+				}
+			}
+		});
+	}
+	   
+	$('#id_crear_detalle').click(function(e)
 	{
 		e.preventDefault();
-		var alm=$('#id_warehouse').val().trim();
-		if(alm != '') 
-		{			
-			$.ajax({
-				url : "{% url 'almacen:outbound_detail_create' %}",
-				type : 'get',
-				success : function(data)
-				{
-					$.each(data, function(i,item){
-						$("#detalles tbody").append( 
-						"<tr class='outbound_detail_formset'>" +
-							"<td>" + item.code + "</td>" +
-							"<td>" + item.name + "</td>" +
-							"<td>" + item.unit + "</td>" +
-							"<td>" + item.quantity + "</td>" +
-							"<td>" + item.price + "</td>" +
-							"<td>" + item.amount + "</td>" +
-					  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-						"</tr>");
-						contDetalles = parseInt(contDetalles) + 1;											
-					});
-					$("#id_form-TOTAL_FORMS").val(contDetalles);
-					updateFormElementIndices('outbound_detail_formset');
-					bindAutoComplete('productos');		
-					$(".decimal").keydown(validar_decimales);
-				}
-			});	
-		}
-		else
-		{
-			alert("Previamente debe haber seleccionado el almacén");
-		}
+		$.ajax({
+			url : "{% url 'almacen:inbound_detail_create' %}",
+			type : 'get',
+			success : function(data)
+			{
+				$.each(data, function(i,item){
+					$("#detalles tbody").append( 
+					"<tr class='inbound_detail_formset'>" +
+						"<td>" + item.purchase_order + item.code + "</td>" +
+						"<td>" + item.name + "</td>" +
+						"<td>" + item.unit + "</td>" +
+						"<td>" + item.quantity + "</td>" +
+						"<td>" + item.price + "</td>" +
+						"<td>" + item.amount + "</td>" +
+				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+					"</tr>");
+					contDetalles = parseInt(contDetalles) + 1;											
+				});
+				$("#id_form-TOTAL_FORMS").val(contDetalles);
+				updateFormElementIndices('inbound_detail_formset');
+				bindAutoComplete('productos');		
+				$(".decimal").keydown(validar_decimales);
+			}
+		});
  	});
- 	
+	
 	function bindAutoComplete(classname)
 	{
 		$("."+classname).autocomplete({
 			source: function( request, response ) 
 			{
 				$.ajax({
-				  url: "{% url 'almacen:product_warehouse_search' %}",
-				  data: {'warehouse': $("#id_warehouse").val(),'description': request.term },
+				  url: "{% url 'productos:product_description_search' %}",
+				  data: {'description': request.term,'search_type': 'PRODUCTOS' },
 			      success: function( data ) 
 			      {
 			          response( data );
@@ -413,55 +430,95 @@ $(document).ready(function()
 		    },
 		});
 	}
-	
-	$(document).on("keyup",".quantity",function()
+		
+	$('#id_transferencia_referencia').click(function(e)
 	{
-		var quantity = 0;
-		var price = 0;
-		var amount = 0;
-		var valorTemp = 0;
-		var id_product = $(this).prop('id');
-		var id = id_product.replace("quantity", "");
-		$.ajax({
-	      url: "{% url 'almacen:stock_query' %}",
-	      data: {
-	    	  'warehouse': $("#id_warehouse").val(),
-	    	  'code': $("#"+id+"code").val()
-	   	  },
-	      success: function(data) 
-	      {
-	    	  valorTemp = $("#"+id+"amount").val();
-			  quantity = $("#"+id+"quantity").val();
-			  if(quantity=='')
-			  {
-				  quantity=0;
-				  $("#"+id+"quantity").val(quantity);
-			  }			
-			  if(quantity > data.stock)
-	          {
-	        	  alert("La cantidad ingresada es mayor que el stock");
-	        	  $("#"+id+"quantity").val(data.stock);
-	          }
-	    	  price = $("#"+id+"price").val();
-	    	  amount = parseFloat(price) * parseFloat(quantity);
-	    	  $("#"+id+"amount").val(amount.toFixed(5));
-	    	  total = total - valorTemp + amount;
-			  $("#id_total").val(total.toFixed(5));
-	      }
-	    });
-	});	
+	    e.preventDefault();
+	    $('#id_transferencia_referencia').prop("disabled", true );
+		ventana_transferencia = $('#popup').dialog(
+		{
+			title: "Transferencia de Orden de Compra",
+			width: 950,
+			open: function ()
+	        {
+				var url="{% url 'compras:purchase_order_transfer' %}";
+	            $(this).load(url);
+	        },
+			modal: true,
+			resizable: false,
+			position: { my: "center", at: "center", of: "#page-wrapper"},
+	      	buttons: {
+	          "Aceptar": transferirOrden,
+	          "Cancelar": cerrarTransferencia
+	        }
+		}).dialog('open').load(this.href)
+ 	});
 	
-	$("form").submit(function(event) 
+	function transferirOrden()
+	{		
+		var purchase_order = $("#purchase_order").val();
+		var date = $("#id_date").val();
+		var cont = 0;
+		ventana_transferencia.dialog( "close" );
+		$.ajax({
+			data : {'purchase_order': purchase_order, 'date':date},
+			url : "{% url 'compras:purchase_order_detail_fetch' %}",
+			type : 'get',
+			success : function(data)
+			{
+				if(data.length > 0)
+				{
+					$.each(data, function(i,item){
+						cont = i+1;
+						$("#detalles tbody").append(
+						"<tr class='inbound_detail_formset'>" +
+							"<td>" + item.purchase_order + item.code + "</td>" +
+							"<td>" + item.name + "</td>" +
+							"<td>" + item.unit + "</td>" +
+							"<td>" + item.quantity + "</td>" +
+							"<td>" + item.price + "</td>" +
+							"<td>" + item.amount + "</td>" +
+							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
+						"</tr>");
+						var val_temp = $("#id_form-"+i+"-amount").val()
+						contDetalles=i+1;
+						total = total + parseFloat(val_temp);
+					});
+					contDetalles = cont;
+					ultimo_item = cont;
+					$("#id_form-TOTAL_FORMS").val(cont);
+					$("#id_reference_document").val(purchase_order);
+					$("#id_total").val(total.toFixed(5));
+					$('#id_crear_detalle').prop("disabled", true );
+					$(".decimal").keydown(validar_decimales);
+				}
+				else{
+					alert("No existe el tipo de cambio para la fecha seleccionada");
+				}
+			},
+			error: function (jqXHR, exception) {
+				alert(jqXHR.responseText);
+			}
+		});
+	}
+		
+	function cerrarTransferencia()
+	{
+		ventana_transferencia.dialog("close");
+	}
+	
+	$("form").submit(function( event ) 
 	{
 		var cont=0;
-		tipo_salida = $('#id_movement_type').val();
+		tipo_ingreso = $('#id_movement_type').val();
 		$('#id_details_count').val(ultimo_item);
 		var warehouse = $('#id_warehouse').val().trim();
 		var date = $('#id_date').val().trim();
+		var requires_document = $('#id_document_type').is(':enabled');
 		var document_type;
 		var series;
 		var number;
-		if(tipo_salida != '') 
+		if(tipo_ingreso != '') 
 		{			
 			if(warehouse != '') 
 			{			
@@ -473,12 +530,12 @@ $(document).ready(function()
 					}
 					else
 					{
-						alert("No ha ingresado ningún detalle");	
+						alert("No ha ingresado ningún detalle")	
 					}
 				}
 				else
 				{
-					alert("No ha seleccionado date");
+					alert("No ha seleccionado date")
 				}
 			}
 			else
@@ -488,7 +545,7 @@ $(document).ready(function()
 		}
 		else
 		{
-			alert("No ha seleccionado tipo de salida");
+			alert("No ha seleccionado tipo de ingreso")
 		}		
 		event.preventDefault();
 	});

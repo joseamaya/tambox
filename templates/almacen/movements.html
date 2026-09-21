@@ -1,14 +1,9 @@
-{% extends "almacen/base_almacen.html" %}
+{% extends "almacen/base_warehouse.html" %}
 {% block cuerpo %}
-<h3>Ingresos</h3>
+<h3>Movimientos</h3>
 <div class="row">
     <div class="col-lg-10">
-        {% if perms.almacen.add_movement %}
-        <a href="{% url 'almacen:inbound_create' %}" class="btn btn-primary">Crear</a>
-        {% endif %}
-        {% if perms.almacen.cargar_movimientos %}
-        <a href="#" class="btn btn-default">Importar</a>
-        {% endif %}
+
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
@@ -29,8 +24,9 @@
             <tr>
                 <th class="text-center">ID_MOVIMIENTO</th>
                 <th class="text-center">TIPO_MOVIMIENTO</th>
-                <th class="text-center">FEC_OPER.</th>
                 <th class="text-center">ALMACEN</th>
+                <th class="text-center">FEC OPER.</th>
+                <th class="text-center">FEC REG.</th>
             </tr>
             </thead>
             <tbody>
@@ -42,8 +38,9 @@
                 {% endif %}
                 <td>{{ movement.movement_id }}</td>
                 <td>{{ movement.movement_type }}</td>
-                <td>{{ movement.operation_date|date:"d/m/y" }}</td>
                 <td>{{ movement.warehouse }}</td>
+                <td>{{ movement.operation_date|date:"d/m/y H:i:s" }}</td>
+                <td>{{ movement.created|date:"d/m/y H:i:s" }}</td>
             </tr>
             {% endfor %}
             </tbody>

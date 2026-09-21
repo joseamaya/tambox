@@ -1,6 +1,6 @@
-{% extends "almacen/base_almacen.html" %}
+{% extends "almacen/base_warehouse.html" %}
 {% block cuerpo %}
-<h3>Movimientos por Producto</h3>
+<h3>Kardex / Producto</h3>
 <form role="form" method="post">
     {% csrf_token %}
     <div class="row">
@@ -15,12 +15,12 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label>Almacén:</label>
-                        {% if form.warehouse.errors %}
-                        {% for error in form.warehouse.errors %}
+                        {% if form.warehouses.errors %}
+                        {% for error in form.warehouses.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.warehouse }}
+                        {{ form.warehouses }}
                     </div>
                     <div class="col-md-4">
                         <label>Desde:</label>
@@ -46,21 +46,48 @@
                 <div class="row">
                     <div class="col-md-4">
                         <label for="code">Codigo de Producto: </label>
-                        {% if form.product.errors %}
-                        {% for error in form.product.errors %}
+                        {% if form.product_code.errors %}
+                        {% for error in form.product_code.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.product }}
+                        {{ form.product_code }}
                     </div>
                     <div class="col-md-8">
                         <label for="description">Descripcion de Producto: </label>
-                        {% if form.description.errors %}
-                        {% for error in form.description.errors %}
+                        {% if form.product_description.errors %}
+                        {% for error in form.product_description.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.description }}
+                        {{ form.product_description }}
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">FORMATO PARA SUNAT : </label>
+                        {% if form.sunat_format.errors %}
+                        {% for error in form.sunat_format.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.sunat_format }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">ESCOJA EL FORMATO: </label>
+                        {% if form.formats.errors %}
+                        {% for error in form.formats.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.formats }}
                     </div>
                 </div>
             </div>
@@ -74,11 +101,12 @@
 <script>
 $("#id_start_date").datepicker();
 $("#id_end_date").datepicker();
-$("#id_description").autocomplete({
+
+$("#id_product_description").autocomplete({
   	source: function( request, response ) {
     $.ajax({
       url: "{% url 'productos:product_description_search' %}",
-      data: {'description': $("#id_description").val(), 'search_type': 'PRODUCTOS'},
+      data: {'description': $("#id_product_description").val(), 'search_type': 'PRODUCTOS'},
       success: function( data ) 
       {
           response( data );
@@ -88,25 +116,11 @@ $("#id_description").autocomplete({
   minLength: 2,
   select: function( event, ui ) 
   {
-	$("#id_product").val(ui.item.code);	
+	$("#id_product_code").val(ui.item.code);
+	$("#id_product_description").val(ui.item.description);
 	return false;
   },
 });
-
-$("input[name=selection]").change(function () 
-{	 
-	if($(this).val()=='T')
-	{
-		$("input[name=product]").attr("disabled",true);
-		$("input[name=description]").attr("disabled",true);
-	}
-	else
-	{
-		$("input[name=product]").attr("disabled",false);
-		$("input[name=description]").attr("disabled",false);	
-	}
-});
-
 
 </script>
 {% endblock js %}
