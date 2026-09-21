@@ -257,7 +257,7 @@ class RequirementApprovalList(ListView):
 
 class QuotationListByRequirement(ListView):
     model = Quotation
-    template_name = 'compras/cotizaciones.html'
+    template_name = 'compras/quotation_list.html'
     context_object_name = 'quotations'
 
     @method_decorator(requires('compras.ver_tabla_cotizaciones'))
