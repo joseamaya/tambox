@@ -199,11 +199,7 @@ class PaymentMethodDelete(TemplateView):
             payment_method_json = {}
             payment_method_json['code'] = payment_method.code
             payment_method_json['description'] = payment_method.description
-            if len(payment_method.purchase_orders.all()) > 0:
-                payment_method_json['relaciones'] = 'SI'
-            elif len(payment_method.detalleordencompra_set.all()) > 0:
-                payment_method_json['relaciones'] = 'SI'
-            elif len(payment_method.detallemovimiento_set.all()) > 0:
+            if payment_method.purchase_orders.exists() or payment_method.service_orders.exists():
                 payment_method_json['relaciones'] = 'SI'
             else:
                 payment_method_json['relaciones'] = 'NO'

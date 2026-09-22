@@ -146,10 +146,11 @@ class Office(TimeStampedModel):
     @property
     def management(self):
         superior_office = self.dependency
+        if superior_office is None:
+            return None
         if superior_office.is_management:
             return superior_office
-        else:
-            return superior_office.management
+        return superior_office.management
 
     def previous(self):
         previous = Office.objects.previous(self)

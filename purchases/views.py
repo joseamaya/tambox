@@ -1403,16 +1403,6 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-"""class PurchaseOrderPdfReport(View):
-    
-    def get(self, request, *args, **kwargs): 
-        code = kwargs['pk']
-        order = PurchaseOrder.objects.get(code=code)        
-        response = HttpResponse(content_type='application/pdf')                
-        report = PurchaseOrderReport('A4',order)
-        pdf = report.render()        
-        response.write(pdf)
-        return response"""
 
 
 class PurchaseOrderPdfReport(View):

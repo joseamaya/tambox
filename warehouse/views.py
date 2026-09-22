@@ -339,23 +339,6 @@ class WarehouseCreate(FormView):
         return super(WarehouseCreate, self).form_valid(form)
 
 
-'''class OutboundDetailCreate(FormView):
-    template_name = 'warehouse/crear_detalle_salida.html'
-    form_class = MovementDetailForm
-    success_url = reverse_lazy('warehouse:outbound_detail_create')
-    
-    def get(self, request, *args, **kwargs):
-        self.warehouse = kwargs['warehouse']
-        return super(OutboundDetailCreate, self).get(request, *args, **kwargs)
-    
-    def get_initial(self):
-        initial = super(OutboundDetailCreate, self).get_initial()        
-        initial['warehouse'] = self.warehouse       
-        return initial
-
-    def form_valid(self, form):
-        form.save()
-        return super(OutboundDetailCreate, self).form_valid(form)'''
 
 
 class OutboundDetailCreate(AjaxOnlyMixin, TemplateView):

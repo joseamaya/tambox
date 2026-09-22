@@ -12,17 +12,6 @@ from decimal import Decimal
 import tempfile
 
 # Create your tests here.
-"""class NewUnitOfMeasureTestCase(TestCase):
-    fixtures = ['usuarios.json','unidadesmedida.json']
-    
-    def test_index(self):
-        resp = self.client.get("/")
-        self.assertEqual(resp.status_code,200)
-        
-    def test_new_unit_measure_view(self):
-        self.client.login(username='test',password='test')
-        resp = self.client.get('/productos/unit_of_measure_create/')
-        self.assertEqual(200,resp.status_code)"""
 
 
 class UnitOfMeasureTest(TestCase):

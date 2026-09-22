@@ -409,8 +409,8 @@ class OfficeExcelReport(TemplateView):
             try:
                 ws.cell(row=cont, column=2).value = office.code
                 ws.cell(row=cont, column=3).value = office.name
-                ws.cell(row=cont, column=4).value = office.dependency.name
-                ws.cell(row=cont, column=5).value = office.management.name
+                ws.cell(row=cont, column=4).value = office.dependency.name if office.dependency else ''
+                ws.cell(row=cont, column=5).value = office.management.name if office.management else ''
                 cont = cont + 1
             except Exception:
                 logger.warning("No se pudo exportar la oficina %s", office.pk, exc_info=True)
