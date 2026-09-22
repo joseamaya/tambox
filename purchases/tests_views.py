@@ -161,6 +161,32 @@ class PurchasesViewsTest(TestCase):
         self.assertContains(row, 'name="form-2-quotation"')
         self.assertContains(row, 'id_form-2-btn-borrar')
 
+    def test_service_conformity_detail_rows(self):
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product',
+                                                           is_service=True),
+                                        quantity=10, served_quantity=0)
+        quotation = baker.make(Quotation, supplier=baker.make(Supplier),
+                               requirement=requirement)
+        quotation_detail = baker.make('purchases.QuotationDetail',
+                                      quotation=quotation,
+                                      requirement_detail=requirement_detail,
+                                      quantity=10)
+        service_order = baker.make(ServiceOrder, quotation=quotation,
+                                   supplier=baker.make(Supplier))
+        baker.make('purchases.ServiceOrderDetail', order=service_order,
+                   quotation_detail=quotation_detail, quantity=10, price=3)
+
+        rows = self.client.get(reverse('purchases:service_conformity_detail_rows'),
+                               {'service_order': service_order.code})
+
+        self.assertEqual(200, rows.status_code)
+        self.assertNotContains(rows, '<html')
+        self.assertContains(rows, 'name="form-TOTAL_FORMS"')
+        self.assertContains(rows, 'name="form-0-service_order"')
+
     def test_order_forms_wire_supplier_search(self):
         from tambox.config import clear_cache
 

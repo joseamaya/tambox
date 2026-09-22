@@ -1310,6 +1310,36 @@ class ServiceOrderDetailRow(TemplateView):
         return context
 
 
+class ServiceConformityDetailRows(TemplateView):
+    """Filas del formset de conformidad de servicio para una orden de servicio."""
+
+    template_name = 'purchases/includes/service_conformity_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        code = self.request.GET.get('service_order', '')
+        details = ServiceOrderDetail.objects.filter(
+            order__code=code,
+            status=ServiceOrderDetail.STATUS.PEND).order_by('line_number')
+        initial = []
+        for detail in details:
+            try:
+                service = detail.quotation_detail.requirement_detail.product.description
+                use = detail.quotation_detail.requirement_detail.use
+            except (ObjectDoesNotExist, AttributeError):
+                service = detail.product.description
+                use = detail.product.unit_of_measure.description
+            initial.append({'service_order': detail.pk,
+                            'quantity': detail.quantity,
+                            'service': service,
+                            'use': use,
+                            'price': detail.price,
+                            'amount': detail.amount})
+        context['service_conformity_detail_formset'] = \
+            ServiceConformityDetailFormSet(initial=initial)
+        return context
+
+
 class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
     required_params = ('quotation', 'search_type')

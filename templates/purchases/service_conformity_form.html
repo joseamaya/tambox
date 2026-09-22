@@ -107,61 +107,8 @@
                             <th>BORRAR</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {{ service_conformity_detail_formset.management_form }}
-                        {% for service_conformity_detail_form in service_conformity_detail_formset %}
-                        <tr class="service_conformity_detail_formset">
-                            {{ service_conformity_detail_form.quotation }}
-                            <td>
-                                {% if service_conformity_detail_form.quantity.errors %}
-                                {% for error in service_conformity_detail_form.quantity.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_conformity_detail_form.quantity }}
-                            </td>
-                            <td>
-                                {% if service_conformity_detail_form.name.errors %}
-                                {% for error in service_conformity_detail_form.name.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_conformity_detail_form.name }}
-                            </td>
-                            <td>
-                                {% if service_conformity_detail_form.unit.errors %}
-                                {% for error in service_conformity_detail_form.unit.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_conformity_detail_form.unit }}
-                            </td>
-
-                            <td>
-                                {% if service_conformity_detail_form.price.errors %}
-                                {% for error in service_conformity_detail_form.price.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_conformity_detail_form.price }}
-                            </td>
-                            <td>
-                                {% if service_conformity_detail_form.amount.errors %}
-                                {% for error in service_conformity_detail_form.amount.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_conformity_detail_form.amount }}
-                            </td>
-                            <td>
-                                <button class='eliminar btn btn-small btn-danger' type='button'
-                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        {% endfor %}
+                        <tbody id="details-body">
+                        {% include "purchases/includes/service_conformity_detail_formset.html" %}
                         </tbody>
                     </table>
                 </div>
@@ -246,45 +193,32 @@ $(document).ready(function()
 		}).dialog('open').load(this.href)
  	});
 	
+	function sumarFilas()
+	{
+		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+		var subtotal = 0;
+		for (var i = 0; i < filas; i++)
+		{
+			subtotal = subtotal + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
+		}
+		$("#id_subtotal").val(subtotal.toFixed(5));
+		$("#id_total").val(subtotal.toFixed(5));
+		$("#id_total_in_words").val(NumeroALetras(subtotal));
+	}
+
 	function transferirOrdenServicios()
 	{		
 		var service_order = $("#id_service_order").val();
-		var cont = 0;
 		ventana_transferencia.dialog("close");
-		
-		$.ajax({
-			data : {'service_order': service_order},
-			url : "{% url 'purchases:service_order_detail_fetch' %}",
-			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					$("#detalles tbody").append( 
-					"<tr class='service_conformity_detail_formset'>" +
-						item.service_order +
-						"<td>" + item.quantity + "</td>" +
-						"<td>" + item.service + "</td>" +
-						"<td>" + item.use + "</td>" +						
-						"<td>" + item.price + "</td>" +
-						"<td>" + item.amount + "</td>" +
-				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");
-					cont = cont + 1;
-					var val_temp = $("#id_form-"+i+"-amount").val()
-					subtotal=subtotal+parseFloat(val_temp);								
-				});
-				contDetalles = cont;
-				ultimo_item = cont;
-				total = subtotal;
-				$("#id_form-TOTAL_FORMS").val(cont);
-				total = subtotal;
-				$("#id_reference").val(service_order);
-				$("#id_subtotal").val(subtotal.toFixed(5));
-				$("#id_total").val(total.toFixed(5));
-				$("#id_total_in_words").val(NumeroALetras(total));
-				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(notes);
-			}
+		if (!service_order) { return; }
+		$("#id_reference").val(service_order);
+		htmx.ajax('GET', "{% url 'purchases:service_conformity_detail_rows' %}", {
+			target: '#details-body', swap: 'innerHTML', values: {service_order: service_order}
+		}).then(function () {
+			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+			ultimo_item = contDetalles;
+			$(".decimal").keydown(validar_decimales);
+			sumarFilas();
 		});
 	}
 	
