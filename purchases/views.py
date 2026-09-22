@@ -759,7 +759,7 @@ class ServiceOrderListByQuotation(ListView):
 class ServiceConformityList(ListView):
     model = ServiceConformity
     template_name = 'purchases/service_conformity_list.html'
-    context_object_name = 'conformidades'
+    context_object_name = 'conformities'
     queryset = ServiceConformity.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(
@@ -784,7 +784,7 @@ class MovementListByPurchaseOrder(ListView):
 
 class ServiceConformityListByServiceOrder(ListView):
     template_name = 'purchases/service_conformity_list.html'
-    context_object_name = 'conformidades'
+    context_object_name = 'conformities'
 
     @method_decorator(
         requires('purchases.ver_tabla_conformidades_servicio'))

@@ -284,7 +284,7 @@ class WorkerList(ListView):
 class ProducerList(ListView):
     model = Producer
     template_name = 'administration/producer_list.html'
-    context_object_name = 'productores'
+    context_object_name = 'producers'
 
 
 class PositionList(ListView):
@@ -297,13 +297,13 @@ class PositionList(ListView):
 class ProfessionList(ListView):
     model = Profession
     template_name = 'administration/profession_list.html'
-    context_object_name = 'profesiones'
+    context_object_name = 'professions'
 
 
 class ApprovalLevelList(ListView):
     model = ApprovalLevel
     template_name = 'administration/approval_level_list.html'
-    context_object_name = 'niveles'
+    context_object_name = 'levels'
 
 
 class ApprovalLevelUpdate(UpdateView):

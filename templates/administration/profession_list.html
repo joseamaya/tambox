@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for profession in profesiones %}
+            {% for profession in professions %}
             {% if perms.administration.ver_detalle_puesto %}
             <tr onclick="location.href='{% url 'administration:profession_detail' profession.pk %}';">
                 {% else %}

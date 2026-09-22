@@ -34,7 +34,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for order in pedidos %}
+            {% for order in orders %}
             <tr onclick="location.href='{% url 'warehouse:order_detail' order.pk %}';">
                 <td>{{ order.code }}</td>
                 <td>{{ order.office }}</td>

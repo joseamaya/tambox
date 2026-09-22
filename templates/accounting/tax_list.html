@@ -32,7 +32,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for tax in impuestos %}
+            {% for tax in taxes %}
             {% if perms.accounting.ver_detalle_impuesto %}
             <tr onclick="location.href='{% url 'accounting:tax_detail' tax.pk %}';">
                 {% else %}

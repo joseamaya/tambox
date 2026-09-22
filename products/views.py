@@ -359,7 +359,7 @@ class UnitOfMeasureList(ListView):
 class ServiceList(ListView):
     model = Product
     template_name = 'products/service_list.html'
-    context_object_name = 'servicios'
+    context_object_name = 'services'
     queryset = Product.objects.filter(is_active=True, is_service=True).order_by('description')
 
     @method_decorator(requires('products.ver_tabla_productos'))
@@ -370,7 +370,7 @@ class ServiceList(ListView):
 class ProductGroupList(ListView):
     model = ProductGroup
     template_name = 'products/product_group_list.html'
-    context_object_name = 'grupos_productos'
+    context_object_name = 'product_groups'
     queryset = ProductGroup.objects.filter(is_active=True).order_by('code')
 
     @method_decorator(

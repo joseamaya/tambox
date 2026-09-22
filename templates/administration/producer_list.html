@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for producer in productores %}
+            {% for producer in producers %}
             {% if perms.administration.ver_detalle_productor %}
             <tr onclick="return abrir_modal('{% url 'administration:producer_detail' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
                 {% else %}

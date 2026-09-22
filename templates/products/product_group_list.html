@@ -37,7 +37,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for group in grupos_productos %}
+            {% for group in product_groups %}
             {% if perms.products.ver_detalle_grupo_productos %}
             <tr onclick="location.href='{% url 'products:product_group_detail' group.pk %}';">
                 {% else %}

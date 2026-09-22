@@ -32,7 +32,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for conformity in conformidades %}
+            {% for conformity in conformities %}
             {% if perms.purchases.ver_detalle_conformidad_servicio %}
             <tr onclick="location.href='{% url 'purchases:service_conformity_detail_view' conformity.pk %}';">
                 {% else %}

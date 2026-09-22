@@ -36,7 +36,7 @@
             </tr>
             </thead>
             <tbody>
-            {% for service in servicios %}
+            {% for service in services %}
             {% if perms.products.ver_detalle_producto %}
             <tr onclick="location.href='{% url 'products:service_detail' service.pk %}';">
                 {% else %}

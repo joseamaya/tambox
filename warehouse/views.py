@@ -637,7 +637,7 @@ class OrderDelete(TemplateView):
 class OrderApprovalList(ListView):
     model = Order
     template_name = 'warehouse/order_list.html'
-    context_object_name = 'pedidos'
+    context_object_name = 'orders'
 
     @method_decorator(
         requires('warehouse.ver_tabla_aprobacion_pedidos'))
@@ -672,7 +672,7 @@ class WarehouseList(ListView):
 class OrderList(ListView):
     model = Order
     template_name = 'warehouse/order_list.html'
-    context_object_name = 'pedidos'
+    context_object_name = 'orders'
     queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
 
 

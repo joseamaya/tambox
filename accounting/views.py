@@ -273,7 +273,7 @@ class AccountList(ListView):
 class StockTypeList(ListView):
     model = StockType
     template_name = 'accounting/stock_type_list.html'
-    context_object_name = 'tipos_existencias'
+    context_object_name = 'stock_types'
     queryset = StockType.objects.all().order_by('sunat_code')
 
     @method_decorator(
@@ -297,7 +297,7 @@ class PaymentMethodList(ListView):
 class TaxList(ListView):
     model = Tax
     template_name = 'accounting/tax_list.html'
-    context_object_name = 'impuestos'
+    context_object_name = 'taxes'
 
     @method_decorator(
         requires('accounting.ver_tabla_impuestos'))
