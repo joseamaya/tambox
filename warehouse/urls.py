@@ -8,7 +8,7 @@ from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
     WarehouseExcelReport, InboundUpdate, OutboundUpdate, VerifyReferenceRequired,\
     MovementTypeExcelReport, OrderCreate,\
     WarehouseImport, InitialInventoryImport, OrderDetailRow, OrderUpdate, OrderList, OrderApprove,\
-    OrderApprovalList, VerifyStockForOrder,\
+    OrderApprovalList, OrderApproveDetailRows,\
     OrderDetailView, MovementDetailView, ProductStock,\
     InboundList, OutboundList, KardexProductReport, MovementListByOrder,\
     PriceReprocess, OrderDelete, MovementListByProduct, ProductStockRows, Inventory
@@ -70,8 +70,8 @@ urlpatterns = [
         name="initial_inventory_import"),
     re_path(r'^order_approval_list/$', OrderApprovalList.as_view(),
         name="order_approval_list"),
-    re_path(r'^verify_stock_for_order/$', VerifyStockForOrder.as_view(),
-        name="verify_stock_for_order"),
+    re_path(r'^order_approve_detail_rows/$', OrderApproveDetailRows.as_view(),
+        name="order_approve_detail_rows"),
     re_path(r'^product_stock/$', ProductStock.as_view(), name="product_stock"),
     re_path(r'^movement_list_by_order/(?P<order>.+)/$', MovementListByOrder.as_view(),
         name="movement_list_by_order"),

@@ -704,16 +704,16 @@ class WarehouseReportViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
-    def test_verify_stock_for_order(self):
+    def test_order_approve_detail_rows(self):
         order = baker.make(Order, requester=baker.make('administration.Worker'))
         baker.make(OrderDetail, order=order, product=self.product, line_number=1,
                    quantity=2, status=OrderDetail.STATUS.PEND)
 
-        response = self.client.get(reverse('warehouse:verify_stock_for_order'),
-                                   {'warehouse': self.warehouse.code, 'order': order.code},
-                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        response = self.client.get(reverse('warehouse:order_approve_detail_rows'),
+                                   {'warehouse': self.warehouse.code, 'order': order.code})
 
         self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'name="form-TOTAL_FORMS"')
 
     def test_price_reprocess_outbound(self):
         from datetime import datetime

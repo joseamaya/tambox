@@ -1809,19 +1809,28 @@ class VerifyReferenceRequired(AjaxOnlyMixin, TemplateView):
         return JsonResponse(json_object)
 
 
-class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
+class OrderApproveDetailRows(TemplateView):
+    """Filas del formset de salida del pedido para un almacen, como HTML.
 
-    required_params = ('warehouse', 'order')
+    Solo incluye los productos con stock en ese almacen, con la cantidad
+    limitada al stock disponible.
+    """
 
-    def get(self, request, *args, **kwargs):
-        warehouse = request.GET['warehouse']
-        order = request.GET['order']
+    template_name = 'warehouse/includes/outbound_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        warehouse = Warehouse.objects.filter(
+            code=self.request.GET.get('warehouse')).first()
+        order = self.request.GET.get('order', '')
         details = list(OrderDetail.objects.filter(order__code=order,
-                                                     status=OrderDetail.STATUS.PEND)
-                        .select_related('product__unit_of_measure').order_by('line_number'))
-        last_records = Kardex.last_by_product([detail.product for detail in details],
-                                              warehouse__code=warehouse)
-        detail_list = []
+                                                  status=OrderDetail.STATUS.PEND)
+                       .select_related('product__unit_of_measure')
+                       .order_by('line_number'))
+        last_records = (Kardex.last_by_product([detail.product for detail in details],
+                                               warehouse__code=warehouse.code)
+                        if warehouse is not None else {})
+        initial = []
         for detail in details:
             product_control = last_records.get(detail.product_id)
             try:
@@ -1831,33 +1840,18 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
                 stock = 0
                 price = 0
             if stock != 0:
-                det = {}
-                det['order'] = detail.id
-                det['code'] = detail.product.code
-                det['name'] = detail.product.description
-                det['unit'] = detail.product.unit_of_measure.description
                 quantity = detail.quantity - detail.served_quantity
                 if quantity > stock:
                     quantity = stock
-                amount = round(quantity * price, 5)
-                det['quantity'] = quantity
-                det['price'] = round(price, 5)
-                det['amount'] = amount
-                detail_list.append(det)
-        formset = OutboundDetailFormSet(initial=detail_list)
-        json_list = []
-        for form in formset:
-            detail_json = {}
-            detail_json['order'] = str(form['order'])
-            detail_json['code'] = str(form['code'])
-            detail_json['name'] = str(form['name'])
-            detail_json['quantity'] = str(form['quantity'])
-            detail_json['price'] = str(form['price'])
-            detail_json['unit'] = str(form['unit'])
-            detail_json['amount'] = str(form['amount'])
-            json_list.append(detail_json)
-        data = json.dumps(json_list)
-        return HttpResponse(data, 'application/json')
+                initial.append({'order': detail.pk,
+                                'code': detail.product.code,
+                                'name': detail.product.description,
+                                'unit': detail.product.unit_of_measure.description,
+                                'quantity': quantity,
+                                'price': round(price, 5),
+                                'amount': round(quantity * price, 5)})
+        context['outbound_detail_formset'] = OutboundDetailFormSet(initial=initial)
+        return context
 
 
 class Inventory(ReportResponseMixin, FormView):

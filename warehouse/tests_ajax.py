@@ -67,13 +67,13 @@ class WarehouseAjaxTest(TestCase):
 
         self.assertTrue(response.json()['requires_reference'])
 
-    def test_verify_stock_for_order(self):
+    def test_order_approve_detail_rows(self):
         order = baker.make(Order, code='P000000001')
         baker.make(OrderDetail, order=order, product=self.product, quantity=2,
                    served_quantity=0)
 
-        response = self.get('warehouse:verify_stock_for_order',
+        response = self.get('warehouse:order_approve_detail_rows',
                             {'warehouse': self.warehouse.code, 'order': order.code})
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual([], response.json())
+        self.assertContains(response, 'name="form-TOTAL_FORMS"')
