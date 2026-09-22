@@ -58,5 +58,7 @@ jobs:
       - name: Migraciones al dia
         run: python manage.py makemigrations --check --dry-run
 
-      - name: Tests
-        run: python manage.py test
+      - name: Tests y cobertura
+        run: |
+          coverage run manage.py test
+          coverage report --fail-under=65

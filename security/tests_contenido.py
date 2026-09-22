@@ -144,3 +144,85 @@ class PageContentTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'MOVIMIENTO-XYZ')
+
+    def test_lists_suppliers_shows_business_name(self):
+        baker.make('purchases.Supplier', business_name='PROVEEDOR-XYZ')
+
+        response = self.client.get(reverse('purchases:supplier_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PROVEEDOR-XYZ')
+
+    def test_lists_quotations_shows_code(self):
+        baker.make('purchases.Quotation', code='COT-XYZ',
+                   supplier=baker.make('purchases.Supplier'))
+
+        response = self.client.get(reverse('purchases:quotation_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'COT-XYZ')
+
+    def test_lists_service_orders_shows_code(self):
+        baker.make('purchases.ServiceOrder', code='OS-XYZ',
+                   supplier=baker.make('purchases.Supplier'))
+
+        response = self.client.get(reverse('purchases:service_order_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'OS-XYZ')
+
+    def test_lists_workers_shows_last_name(self):
+        baker.make('administration.Worker', last_name='TRABAJADOR-XYZ')
+
+        response = self.client.get(reverse('administration:worker_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'TRABAJADOR-XYZ')
+
+    def test_lists_producers_shows_last_name(self):
+        baker.make('administration.Producer', last_name='PRODUCTOR-XYZ')
+
+        response = self.client.get(reverse('administration:producer_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PRODUCTOR-XYZ')
+
+    def test_lists_professions_shows_description(self):
+        baker.make('administration.Profession', description='PROFESION-XYZ')
+
+        response = self.client.get(reverse('administration:profession_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PROFESION-XYZ')
+
+    def test_lists_approval_levels_shows_description(self):
+        baker.make('administration.ApprovalLevel', description='NIVEL-XYZ')
+
+        response = self.client.get(reverse('administration:approval_level_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'NIVEL-XYZ')
+
+    def test_lists_payment_methods_shows_description(self):
+        baker.make('accounting.PaymentMethod', description='PAGO-XYZ')
+
+        response = self.client.get(reverse('accounting:payment_method_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'PAGO-XYZ')
+
+    def test_lists_document_types_shows_name(self):
+        baker.make('accounting.DocumentType', sunat_code='PEC', name='DOCUMENTO-XYZ')
+
+        response = self.client.get(reverse('accounting:document_type_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'DOCUMENTO-XYZ')
+
+    def test_lists_taxes_shows_description(self):
+        baker.make('accounting.Tax', description='IMPUESTO-XYZ')
+
+        response = self.client.get(reverse('accounting:tax_list'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'IMPUESTO-XYZ')
