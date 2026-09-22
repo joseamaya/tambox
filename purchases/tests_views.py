@@ -288,14 +288,16 @@ class PurchasesViewsTest(TestCase):
         supplier = baker.make(Supplier)
         baker.make(PurchaseOrder, supplier=supplier, date=datetime.date(2024, 1, 15))
         baker.make(ServiceOrder, supplier=supplier, date=datetime.date(2024, 1, 15))
-        data = {'search_type': 'F', 'start_date': '01/01/2024',
-                'end_date': '31/01/2024', 'month': '', 'year': '2024'}
+        data = {'start_date': '01/01/2024', 'end_date': '31/01/2024',
+                'month': '01', 'year': '2024'}
 
-        for name in ('purchases:purchase_order_excel_report_by_date',
-                     'purchases:service_order_excel_report_by_date'):
-            with self.subTest(name=name):
-                response = self.client.post(reverse(name), data)
-                self.assertEqual(200, response.status_code)
+        for search_type in ('F', 'M', 'A'):
+            for name in ('purchases:purchase_order_excel_report_by_date',
+                         'purchases:service_order_excel_report_by_date'):
+                with self.subTest(search_type=search_type, name=name):
+                    response = self.client.post(reverse(name),
+                                                dict(data, search_type=search_type))
+                    self.assertEqual(200, response.status_code)
 
     def test_lists_and_dashboard(self):
         supplier = baker.make(Supplier)
@@ -309,3 +311,149 @@ class PurchasesViewsTest(TestCase):
                      'purchases:supplier_excel_report'):
             with self.subTest(name=name):
                 self.assertEqual(200, self.client.get(reverse(name)).status_code)
+
+
+class PurchasesDeleteAndFetchTest(TestCase):
+    """Los borrados por AJAX y los fetch que alimentan los formsets."""
+
+    def setUp(self):
+        self.client.force_login(User.objects.create_superuser('d', 'd@example.com', 'clave'))
+        self.supplier = baker.make(Supplier)
+
+    def test_quotation_delete(self):
+        quotation = baker.make(Quotation, supplier=self.supplier)
+
+        response = self.client.post(reverse('purchases:quotation_delete'),
+                                    {'code': quotation.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('NO', response.json()['orders'])
+        quotation.refresh_from_db()
+        self.assertEqual(Quotation.STATUS.CANC, quotation.status)
+
+    def test_quotation_delete_with_orders(self):
+        quotation = baker.make(Quotation, supplier=self.supplier)
+        baker.make(PurchaseOrder, quotation=quotation, supplier=self.supplier)
+
+        response = self.client.post(reverse('purchases:quotation_delete'),
+                                    {'code': quotation.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('SI', response.json()['orders'])
+
+    def test_purchase_order_delete(self):
+        order = baker.make(PurchaseOrder, supplier=self.supplier)
+
+        response = self.client.post(reverse('purchases:purchase_order_delete'),
+                                    {'code': order.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('NO', response.json()['movements'])
+        order.refresh_from_db()
+        self.assertEqual(PurchaseOrder.STATUS.CANC, order.status)
+
+    def test_purchase_order_delete_with_movement(self):
+        order = baker.make(PurchaseOrder, supplier=self.supplier)
+        baker.make('warehouse.Movement', reference=order)
+
+        response = self.client.post(reverse('purchases:purchase_order_delete'),
+                                    {'code': order.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('SI', response.json()['movements'])
+
+    def test_service_order_delete(self):
+        order = baker.make(ServiceOrder, supplier=self.supplier)
+
+        response = self.client.post(reverse('purchases:service_order_delete'),
+                                    {'code': order.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('NO', response.json()['conformidades'])
+        order.refresh_from_db()
+        self.assertEqual(ServiceOrder.STATUS.CANC, order.status)
+
+    def test_service_order_delete_with_conformity(self):
+        order = baker.make(ServiceOrder, supplier=self.supplier)
+        baker.make('purchases.ServiceConformity', service_order=order)
+
+        response = self.client.post(reverse('purchases:service_order_delete'),
+                                    {'code': order.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('SI', response.json()['conformidades'])
+
+    def test_service_conformity_delete(self):
+        conformity = baker.make('purchases.ServiceConformity')
+
+        response = self.client.post(reverse('purchases:service_conformity_delete'),
+                                    {'code': conformity.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        conformity.refresh_from_db()
+        self.assertFalse(conformity.is_active)
+
+    def test_transfer_lists(self):
+        for name in ('purchases:quotation_transfer', 'purchases:purchase_order_transfer',
+                     'purchases:service_order_transfer'):
+            with self.subTest(name=name):
+                self.assertEqual(200, self.client.get(reverse(name)).status_code)
+
+    def test_quotation_detail_fetch(self):
+        from purchases.models import QuotationDetail
+
+        requirement = create_requirement()
+        product = baker.make('products.Product', is_service=False)
+        service = baker.make('products.Product', is_service=True)
+        quotation = baker.make(Quotation, supplier=self.supplier, requirement=requirement)
+        for number, item in enumerate((product, service), start=1):
+            requirement_detail = baker.make('requirements.RequirementDetail',
+                                            requirement=requirement, product=item,
+                                            quantity=10, purchased_quantity=0)
+            baker.make(QuotationDetail, quotation=quotation,
+                       requirement_detail=requirement_detail, line_number=number,
+                       quantity=5)
+
+        for search_type in ('PRODUCTOS', 'SERVICIOS'):
+            with self.subTest(search_type=search_type):
+                response = self.client.get(reverse('purchases:quotation_detail_fetch'),
+                                           {'quotation': quotation.code,
+                                            'search_type': search_type},
+                                           HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                self.assertEqual(200, response.status_code)
+
+    def test_purchase_order_detail_fetch(self):
+        from purchases.models import PurchaseOrderDetail
+
+        order = baker.make(PurchaseOrder, supplier=self.supplier,
+                           in_dollars=False, with_tax=False)
+        baker.make(PurchaseOrderDetail, order=order,
+                   product=baker.make('products.Product'), line_number=1,
+                   quantity=5, status=PurchaseOrderDetail.STATUS.PEND)
+
+        response = self.client.get(reverse('purchases:purchase_order_detail_fetch'),
+                                   {'purchase_order': order.code, 'date': '01/01/2024'},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_service_order_detail_fetch(self):
+        from purchases.models import ServiceOrderDetail
+
+        order = baker.make(ServiceOrder, supplier=self.supplier)
+        baker.make(ServiceOrderDetail, order=order,
+                   product=baker.make('products.Product'), line_number=1,
+                   quantity=2, price=10, status=ServiceOrderDetail.STATUS.PEND)
+
+        response = self.client.get(reverse('purchases:service_order_detail_fetch'),
+                                   {'service_order': order.code},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)

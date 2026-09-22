@@ -140,12 +140,15 @@ class Quotation(TimeStampedModel):
         details = QuotationDetail.objects.filter(quotation=quotation)
         for detail in details:
             requirement_detail = detail.requirement_detail
+            if requirement_detail is None:
+                continue
             if requirement_detail.quoted_quantity > 0:
                 requirement_detail.quoted_quantity = requirement_detail.quoted_quantity - detail.quantity
             requirement_detail.set_status_quoted()
             requirement_detail.save()
-        requirement.set_status_quoted()
-        requirement.save()
+        if requirement is not None:
+            requirement.set_status_quoted()
+            requirement.save()
         QuotationDetail.objects.filter(quotation=quotation).delete()
 
     def set_status_purchased(self):
@@ -592,21 +595,23 @@ class ServiceConformity(TimeStampedModel):
     def delete_reference(self):
         order = self.service_order
         quotation = order.quotation
-        requirement = quotation.requirement
+        requirement = quotation.requirement if quotation is not None else None
         details = ServiceConformityDetail.objects.filter(conformity=self)
         for detail in details:
             order_detail = detail.service_order_detail
             order_detail.conformed_quantity = order_detail.conformed_quantity - detail.quantity
             order_detail.set_status_served()
             order_detail.save()
-            requirement_detail = order_detail.quotation_detail.requirement_detail
-            requirement_detail.served_quantity = requirement_detail.served_quantity - detail.quantity
-            requirement_detail.set_status_served()
-            requirement_detail.save()
+            if order_detail.quotation_detail is not None:
+                requirement_detail = order_detail.quotation_detail.requirement_detail
+                requirement_detail.served_quantity = requirement_detail.served_quantity - detail.quantity
+                requirement_detail.set_status_served()
+                requirement_detail.save()
         order.set_status()
         order.save()
-        requirement.set_status_served()
-        requirement.save()
+        if requirement is not None:
+            requirement.set_status_served()
+            requirement.save()
 
     def save(self, *args, **kwargs):
         if self.code == '':
