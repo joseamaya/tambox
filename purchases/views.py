@@ -1268,6 +1268,65 @@ class QuotationDetailRows(TemplateView):
         return context
 
 
+class PurchaseOrderDetailRows(TemplateView):
+    """Filas del formset de orden de compra para una cotizacion, como HTML.
+
+    htmx las inserta en la tabla; vienen del servidor con los inputs reales del
+    formset, en lugar de armarse en el navegador desde el JSON.
+    """
+
+    template_name = 'purchases/includes/purchase_order_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        quotation_code = self.request.GET.get('quotation', '')
+        details = QuotationDetail.objects.filter(
+            Q(status=QuotationDetail.STATUS.PEND) | Q(status=QuotationDetail.STATUS.ELEG_PARC),
+            quotation__code=quotation_code,
+            requirement_detail__product__is_service=False).order_by('line_number')
+        try:
+            tax_amount = purchase_tax().amount
+        except AttributeError:
+            tax_amount = 0
+        initial = []
+        for detail in details:
+            product = detail.requirement_detail.product
+            quantity = detail.quantity - detail.requirement_detail.purchased_quantity
+            amount = product.price * quantity
+            base = amount / (tax_amount + 1)
+            initial.append({'quotation': detail.pk,
+                            'code': product.code,
+                            'name': product.description,
+                            'unit': product.unit_of_measure.code,
+                            'quantity': quantity,
+                            'price': product.price,
+                            'tax': round(amount - base, 5),
+                            'amount': round(amount, 5)})
+        context['purchase_order_detail_formset'] = PurchaseOrderDetailFormSet(initial=initial)
+        return context
+
+
+class PurchaseOrderDetailRow(TemplateView):
+    """Una fila vacia del formset de orden de compra, en el indice pedido.
+
+    El navegador la agrega al final de la tabla y sube `TOTAL_FORMS`.
+    """
+
+    template_name = 'purchases/includes/purchase_order_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = PurchaseOrderDetailFormSet(
+            initial=[{'quotation': '0', 'code': '', 'name': '', 'unit': '',
+                      'quantity': 0, 'price': 0, 'tax': 0, 'amount': 0}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
+
+
 class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
     required_params = ('quotation', 'search_type')

@@ -1,6 +1,7 @@
 from django.urls import re_path
 from purchases.views import Dashboard, SupplierList, SupplierCreate, PurchaseOrderCreate,\
     SupplierNameSearch, PurchaseOrderDetailCreate,\
+    PurchaseOrderDetailRows, PurchaseOrderDetailRow,\
     PurchaseOrderTransfer, PurchaseOrderDetailFetch,\
     PurchaseOrderExcelReportByDate, PurchaseOrderList, SupplierDetail,\
     PurchaseOrderUpdate, PurchaseOrderPdfReport, PurchaseOrderXlsReport, PurchaseOrderDelete, SupplierUpdate,\
@@ -37,6 +38,10 @@ urlpatterns = [
     re_path(r'^service_order_create/$', ServiceOrderCreate.as_view(), name="service_order_create"),
     re_path(r'^service_conformity_create/$', ServiceConformityCreate.as_view(),
         name="service_conformity_create"),
+    re_path(r'^purchase_order_detail_rows/$', PurchaseOrderDetailRows.as_view(),
+        name="purchase_order_detail_rows"),
+    re_path(r'^purchase_order_detail_row/$', PurchaseOrderDetailRow.as_view(),
+        name="purchase_order_detail_row"),
     re_path(r'^purchase_order_detail_create/$', PurchaseOrderDetailCreate.as_view(),
         name="purchase_order_detail_create"),
     re_path(r'^service_order_detail_create/$', ServiceOrderDetailCreate.as_view(),
