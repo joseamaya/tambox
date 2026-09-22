@@ -24,9 +24,9 @@ class AuthorizationTestCase(TestCase):
                     '/contabilidad/payment_method_list/',
                     '/contabilidad/configuration/',
                     '/contabilidad/account_import/']:
-            respuesta = self.client.get(url)
-            self.assertEqual(respuesta.status_code, 302, 'sin login no redirige: ' + url)
-            self.assertIn('/?next=', respuesta['Location'], url)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 302, 'sin login no redirige: ' + url)
+            self.assertIn('/?next=', response['Location'], url)
 
     def test_delete_by_get_not_allowed(self):
         self.client.force_login(self.user)
@@ -45,8 +45,8 @@ class AuthorizationTestCase(TestCase):
                     '/contabilidad/document_type_delete/',
                     '/contabilidad/payment_method_delete/',
                     '/requerimientos/requirement_delete/']:
-            respuesta = self.client.get(url)
-            self.assertEqual(respuesta.status_code, 405, 'GET permitido en: ' + url)
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 405, 'GET permitido en: ' + url)
 
     def test_logout_requires_post(self):
         self.client.force_login(self.user)
@@ -68,10 +68,10 @@ class AuthorizationTestCase(TestCase):
         self.client.force_login(
             User.objects.create_user('consulta', 'consulta@example.com', 'key-consulta-123'))
 
-        respuesta = self.client.get('/contabilidad/tax_list/')
+        response = self.client.get('/contabilidad/tax_list/')
 
-        self.assertEqual(respuesta.status_code, 403)
-        self.assertTemplateUsed(respuesta, 'security/permission_denied.html')
+        self.assertEqual(response.status_code, 403)
+        self.assertTemplateUsed(response, 'security/permission_denied.html')
 
 
 class RenderTestCase(TestCase):
@@ -80,14 +80,14 @@ class RenderTestCase(TestCase):
         self.user = User.objects.create_superuser('humo', 'humo@example.com', 'key-segura-456')
 
     def test_login_renders(self):
-        respuesta = self.client.get('/')
-        self.assertEqual(respuesta.status_code, 200)
-        self.assertContains(respuesta, 'TAMBOX')
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'TAMBOX')
 
     def test_page_authenticated_renders(self):
         self.client.force_login(self.user)
-        respuesta = self.client.get('/home/')
-        self.assertEqual(respuesta.status_code, 200)
+        response = self.client.get('/home/')
+        self.assertEqual(response.status_code, 200)
 
     def test_lists_render(self):
         self.client.force_login(self.user)
@@ -95,10 +95,10 @@ class RenderTestCase(TestCase):
                     '/contabilidad/payment_method_list/',
                     '/administracion/dashboard/',
                     '/almacen/dashboard/']:
-            respuesta = self.client.get(url)
-            self.assertIn(respuesta.status_code, (200, 302), url)
-            if respuesta.status_code == 200:
-                self.assertContains(respuesta, 'TAMBOX', status_code=200)
+            response = self.client.get(url)
+            self.assertIn(response.status_code, (200, 302), url)
+            if response.status_code == 200:
+                self.assertContains(response, 'TAMBOX', status_code=200)
 
 
 class FormOptionsTestCase(TestCase):
@@ -149,7 +149,7 @@ def walk_urls(patrones=None, prefijo='', espacio=''):
             yield name, patron.callback
 
 
-class URLsProtegidasTest(TestCase):
+class ProtectedURLsTest(TestCase):
     """El middleware de login invierte el defecto: una vista nueva nace protegida
     aunque nadie se acuerde de envolverla (que es como se colo el hueco de
     contabilidad, donde el `urlpatterns += [...]` final quedo fuera).
@@ -189,12 +189,12 @@ class DeclaredPermissionsTest(TestCase):
                       for app, codename in Permission.objects.values_list(
                           'content_type__app_label', 'codename')}
 
-        for permiso in declarados:
-            with self.subTest(permiso=permiso):
-                self.assertIn(permiso, existentes)
+        for permission in declarados:
+            with self.subTest(permission=permission):
+                self.assertIn(permission, existentes)
 
 
-class TodasLasPaginasTest(TestCase):
+class AllPagesTest(TestCase):
     """Pide con sesion todas las URLs invertibles y exige que ninguna devuelva
     500.
 
@@ -225,8 +225,8 @@ class TodasLasPaginasTest(TestCase):
             except NoReverseMatch:
                 continue    # necesita argumentos: la cubren los tests de su vista
             try:
-                respuesta = self.client.get(url, raise_request_exception=False)
-                status = respuesta.status_code
+                response = self.client.get(url, raise_request_exception=False)
+                status = response.status_code
             except Exception as error:
                 status = '%s: %s' % (type(error).__name__, error)
             if not isinstance(status, int) or status >= 500:
@@ -248,12 +248,12 @@ class FormErrorsTest(TestCase):
                                                               'key-segura-123'))
 
     def test_error_field_sees(self):
-        respuesta = self.client.post(reverse('accounting:account_create'), {})
+        response = self.client.post(reverse('accounting:account_create'), {})
 
-        self.assertEqual(respuesta.status_code, 200)
-        self.assertTrue(respuesta.context['form'].errors)
-        self.assertContains(respuesta, 'Error:')
-        self.assertContains(respuesta, 'alert-danger')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors)
+        self.assertContains(response, 'Error:')
+        self.assertContains(response, 'alert-danger')
 
 
 class OnScreenMessagesTest(TestCase):
@@ -266,8 +266,8 @@ class OnScreenMessagesTest(TestCase):
         setattr(peticion, '_messages', CookieStorage(peticion))
         messages.error(peticion, 'Error guardando la cotizacion.')
 
-        respuesta = TemplateView.as_view(template_name='base.html')(peticion)
+        response = TemplateView.as_view(template_name='base.html')(peticion)
 
-        self.assertEqual(respuesta.status_code, 200)
-        self.assertContains(respuesta, 'Error guardando la cotizacion.')
-        self.assertContains(respuesta, 'alert-danger')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Error guardando la cotizacion.')
+        self.assertContains(response, 'alert-danger')

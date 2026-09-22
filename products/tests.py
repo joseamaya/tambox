@@ -188,9 +188,9 @@ class ServiceImportTest(TestCase):
         contenido = '000001,SERVICIO UNO\n000001,SERVICIO DOS\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/service_import/', {'file': file})
+        response = self.client.post('/productos/service_import/', {'file': file})
 
-        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(sorted(Product.objects.values_list('description', flat=True)),
                          ['SERVICIO DOS', 'SERVICIO UNO'])
 
@@ -198,10 +198,10 @@ class ServiceImportTest(TestCase):
         contenido = 'G99,SERVICIO UNO\n'
         file = SimpleUploadedFile('servicios.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/service_import/', {'file': file})
+        response = self.client.post('/productos/service_import/', {'file': file})
 
-        self.assertEqual(respuesta.status_code, 302)
-        self.assertEqual(respuesta.url, reverse('products:product_group_create'))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('products:product_group_create'))
         self.assertEqual(Product.objects.count(), 0)
 
 
@@ -216,9 +216,9 @@ class ProductImportTest(TestCase):
         contenido = '000001,PRODUCTO UNO,UNIDAD X,12.50,01\n000001,PRODUCTO DOS,UNIDAD X,3.00,99\n'
         file = SimpleUploadedFile('products.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/productos/product_import/', {'file': file})
+        response = self.client.post('/productos/product_import/', {'file': file})
 
-        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(list(Product.objects.values_list('description', flat=True)), ['PRODUCTO UNO'])
         self.assertEqual(UnitOfMeasure.objects.get(code='UNIDA').description, 'UNIDAD X')
 
@@ -252,17 +252,17 @@ class ProductSearchTest(TestCase):
         self.extend(19)
 
         with CaptureQueriesContext(connection) as veinte_resultados:
-            respuesta = self.search(url, params)
+            response = self.search(url, params)
 
         self.assertEqual(len(un_resultado), len(veinte_resultados))
-        data = respuesta.json()
+        data = response.json()
         self.assertEqual(len(data), 20)
         self.assertEqual(data[0]['unit'], 'UNIDAD')
 
     def test_search_by_code(self):
-        respuesta = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
+        response = self.search('/productos/product_code_search/', {'code': 'COD0000001'})
 
-        self.assertEqual(respuesta.status_code, 200)
-        data = respuesta.json()
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['unit'], 'UNIDAD')

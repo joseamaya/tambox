@@ -270,9 +270,9 @@ class CsvImportTest(TestCase):
         contenido = 'AL01,ALMACEN UNO\nAL02,ALMACEN DOS\n'
         file = SimpleUploadedFile('warehouses.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/warehouse_import/', {'file': file})
+        response = self.client.post('/almacen/warehouse_import/', {'file': file})
 
-        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         self.assertEqual(Warehouse.objects.filter(code__in=['AL01', 'AL02']).count(), 2)
         self.assertEqual(Warehouse.objects.get(code='AL01').description, 'ALMACEN UNO')
 
@@ -285,13 +285,13 @@ class CsvImportTest(TestCase):
         contenido = 'PRODUCTO UNO,10,5.0,\nPRODUCTO DOS,2,3.5,7.0\n'
         file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/initial_inventory_import/',
+        response = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'time': '08:30',
                                       'warehouses': warehouse.pk})
 
-        self.assertEqual(respuesta.status_code, 302)
+        self.assertEqual(response.status_code, 302)
         movement = Movement.objects.get()
         self.assertEqual(movement.movement_type, movement_type)
         details = list(MovementDetail.objects.order_by('line_number'))
@@ -309,15 +309,15 @@ class CsvImportTest(TestCase):
         contenido = 'PRODUCTO UNO,10,5.0,50.0\n'
         file = SimpleUploadedFile('inventario.csv', contenido.encode('utf8'), content_type='text/csv')
 
-        respuesta = self.client.post('/almacen/initial_inventory_import/',
+        response = self.client.post('/almacen/initial_inventory_import/',
                                      {'file': file,
                                       'date': '01/01/2024',
                                       'time': '08:30',
                                       'warehouses': warehouse.pk})
 
-        self.assertEqual(respuesta.status_code, 200)
-        self.assertContains(respuesta, 'Falta el tipo de movimiento')
-        self.assertContains(respuesta, 'Falta el tipo de documento')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Falta el tipo de movimiento')
+        self.assertContains(response, 'Falta el tipo de documento')
         self.assertEqual(Movement.objects.count(), 0)
         self.assertEqual(MovementDetail.objects.count(), 0)
 
@@ -582,10 +582,10 @@ class StockAjaxTest(TestCase):
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
     def test_list_stock_product(self):
-        respuesta = self.get('/almacen/product_stock_list/')
+        response = self.get('/almacen/product_stock_list/')
 
-        self.assertEqual(respuesta.status_code, 200)
-        data = respuesta.json()
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['code'], self.product.code)
         self.assertEqual(data[0]['label'], 'ACERO INOXIDABLE')
@@ -593,10 +593,10 @@ class StockAjaxTest(TestCase):
         self.assertAlmostEqual(data[0]['stock'], 7)
 
     def test_search_products_warehouse(self):
-        respuesta = self.get('/almacen/product_warehouse_search/')
+        response = self.get('/almacen/product_warehouse_search/')
 
-        self.assertEqual(respuesta.status_code, 200)
-        data = respuesta.json()
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['code'], self.product.code)
         self.assertEqual(data[0]['unit'], self.unit.description)

@@ -103,8 +103,8 @@ class Supplier(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Supplier.objects.next(self)
-        return sig.pk
+        following = Supplier.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return force_str(self.business_name)
@@ -126,8 +126,8 @@ class Quotation(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Quotation.objects.next(self)
-        return sig.pk
+        following = Quotation.objects.next(self)
+        return following.pk
 
     def delete_quotation(self):
         self.status = Quotation.STATUS.CANC
@@ -240,8 +240,8 @@ class PurchaseOrder(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = PurchaseOrder.objects.next(self)
-        return sig.pk
+        following = PurchaseOrder.objects.next(self)
+        return following.pk
 
     def delete_reference(self):
         quotation = self.quotation
@@ -458,8 +458,8 @@ class ServiceOrder(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = ServiceOrder.objects.next(self)
-        return sig.pk
+        following = ServiceOrder.objects.next(self)
+        return following.pk
 
     def delete_reference(self):
         quotation = self.quotation
@@ -585,8 +585,8 @@ class ServiceConformity(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = ServiceConformity.objects.next(self)
-        return sig.pk
+        following = ServiceConformity.objects.next(self)
+        return following.pk
 
     def delete_reference(self):
         order = self.service_order

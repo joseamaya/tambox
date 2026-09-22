@@ -278,10 +278,10 @@ class InitialInventoryImport(CsvImportMixin, FormView):
                                                         notes='INVENTARIO INICIAL',
                                                         series='SALDO',
                                                         number='INICIAL')
-            respuesta = super(InitialInventoryImport, self).form_valid(form)
+            response = super(InitialInventoryImport, self).form_valid(form)
             MovementDetail.objects.bulk_create(self.details, None, None)
             self.movement.save()
-        return respuesta
+        return response
 
     def process_row(self, row):
         try:

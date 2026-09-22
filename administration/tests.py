@@ -159,7 +159,7 @@ class SetLevelTest(TestCase):
         self.assertEqual(position.set_level(office), level)
 
 
-class TableroAdministracionTest(TestCase):
+class AdministrationDashboardTest(TestCase):
     """Las semillas se creaban solo con la tabla vacia (`count() == 0`), asi que
     un estado a medias —LOGISTICA presente y USUARIO ausente— no se arreglaba
     nunca y `set_level()` fallaba para todos los requerimientos."""
@@ -170,16 +170,16 @@ class TableroAdministracionTest(TestCase):
     def test_complete_levels_that_missing(self):
         ApprovalLevel.objects.create(description='LOGISTICA')
 
-        respuesta = self.client.get('/administracion/dashboard/')
+        response = self.client.get('/administracion/dashboard/')
 
-        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         user = ApprovalLevel.objects.get(description='USUARIO')
         self.assertEqual(user.superior_level.description, 'LOGISTICA')
 
     def test_creates_office_management(self):
-        respuesta = self.client.get('/administracion/dashboard/')
+        response = self.client.get('/administracion/dashboard/')
 
-        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(Office.objects.filter(code='GGEN', is_management=True).exists())
 
     def test_not_duplicates_that_exists(self):

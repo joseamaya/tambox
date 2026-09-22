@@ -43,8 +43,8 @@ class Requirement(TimeStampedModel):
         return previous
 
     def next(self):
-        sig = Requirement.objects.next(self)
-        return sig
+        following = Requirement.objects.next(self)
+        return following
 
     @property
     def total(self):

@@ -31,8 +31,8 @@ class UnitOfMeasure(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = UnitOfMeasure.objects.next(self)
-        return sig.pk
+        following = UnitOfMeasure.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return self.description
@@ -69,8 +69,8 @@ class ProductGroup(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = ProductGroup.objects.next(self)
-        return sig.pk
+        following = ProductGroup.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return self.description
@@ -199,8 +199,8 @@ class Product(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Product.objects.next(self)
-        return sig.pk
+        following = Product.objects.next(self)
+        return following.pk
 
     def save(self, *args, **kwargs):
         if self.code == '':

@@ -21,8 +21,8 @@ class Profession(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Profession.objects.next(self)
-        return sig.pk
+        following = Profession.objects.next(self)
+        return following.pk
 
     class Meta:
         permissions = (('ver_detalle_profesion', 'Puede ver detalle de Profesion'),
@@ -58,16 +58,16 @@ class Worker(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Worker.objects.next(self)
-        return sig.pk
+        following = Worker.objects.next(self)
+        return following.pk
 
     def previous_full_name(self):
         previous = Worker.objects.previous(self)
         return previous.first_name + " " + previous.last_name
 
     def next_full_name(self):
-        sig = Worker.objects.next(self)
-        return sig.first_name + " " + sig.last_name
+        following = Worker.objects.next(self)
+        return following.first_name + " " + following.last_name
 
     @property
     def position(self):
@@ -101,16 +101,16 @@ class Producer(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Producer.objects.next(self)
-        return sig.pk
+        following = Producer.objects.next(self)
+        return following.pk
 
     def previous_full_name(self):
         previous = Producer.objects.previous(self)
         return previous.first_name + " " + previous.last_name
 
     def next_full_name(self):
-        sig = Producer.objects.next(self)
-        return sig.first_name + " " + sig.last_name
+        following = Producer.objects.next(self)
+        return following.first_name + " " + following.last_name
 
     def full_name(self):
         return self.first_name + ' ' + self.last_name
@@ -156,8 +156,8 @@ class Office(TimeStampedModel):
         return previous
 
     def next(self):
-        sig = Office.objects.next(self)
-        return sig
+        following = Office.objects.next(self)
+        return following
 
     def __str__(self):
         return force_str(self.name)
@@ -180,8 +180,8 @@ class Position(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Position.objects.next(self)
-        return sig.pk
+        following = Position.objects.next(self)
+        return following.pk
 
     @property
     def superior_position(self):
@@ -231,8 +231,8 @@ class ApprovalLevel(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = ApprovalLevel.objects.next(self)
-        return sig.pk
+        following = ApprovalLevel.objects.next(self)
+        return following.pk
 
     class Meta:
         permissions = (('ver_detalle_nivel_aprobacion', 'Puede ver detalle de Nivel de Aprobacion'),

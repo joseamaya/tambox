@@ -27,8 +27,8 @@ class ExchangeRate(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = ExchangeRate.objects.next(self)
-        return sig.pk
+        following = ExchangeRate.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return str(self.date)
@@ -54,8 +54,8 @@ class Account(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Account.objects.next(self)
-        return sig.pk
+        following = Account.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return force_str(self.account_number)
@@ -79,8 +79,8 @@ class PaymentMethod(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = PaymentMethod.objects.next(self)
-        return sig.pk
+        following = PaymentMethod.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return force_str(self.description)
@@ -105,8 +105,8 @@ class DocumentType(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = DocumentType.objects.next(self)
-        return sig.pk
+        following = DocumentType.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return self.name
@@ -153,8 +153,8 @@ class Tax(TimeStampedModel):
         return previous.pk
 
     def next(self):
-        sig = Tax.objects.next(self)
-        return sig.pk
+        following = Tax.objects.next(self)
+        return following.pk
 
     def __str__(self):
         return self.description
