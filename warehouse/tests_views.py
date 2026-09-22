@@ -8,6 +8,17 @@ from model_bakery import baker
 from warehouse.models import Movement, MovementType, Order, OrderDetail, Warehouse
 
 
+def create_requirement():
+    from administration.models import ApprovalLevel, Office, Position, Worker
+    from requirements.models import Requirement
+
+    ApprovalLevel.objects.get_or_create(description='USUARIO')
+    office = baker.make(Office)
+    worker = baker.make(Worker)
+    baker.make(Position, office=office, worker=worker, end_date=None)
+    return baker.make(Requirement, code='', requester=worker, office=office)
+
+
 class WarehouseViewsTest(TestCase):
 
     def setUp(self):
@@ -331,6 +342,129 @@ class WarehouseViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def _purchase_chain(self, product):
+        from purchases.models import (PurchaseOrder, PurchaseOrderDetail,
+                                      Quotation, QuotationDetail, Supplier)
+        from requirements.models import RequirementDetail
+
+        requirement = create_requirement()
+        requirement_detail = baker.make(RequirementDetail, requirement=requirement,
+                                        product=product, quantity=10)
+        quotation = baker.make(Quotation, requirement=requirement,
+                               supplier=baker.make(Supplier))
+        quotation_detail = baker.make(QuotationDetail, quotation=quotation,
+                                      requirement_detail=requirement_detail,
+                                      quantity=10)
+        order = baker.make(PurchaseOrder, quotation=quotation,
+                           supplier=baker.make(Supplier))
+        with_quotation = baker.make(PurchaseOrderDetail, order=order,
+                                    quotation_detail=quotation_detail,
+                                    product=product, quantity=5, price=3)
+        without_quotation = baker.make(PurchaseOrderDetail, order=order,
+                                       quotation_detail=None, product=product,
+                                       quantity=5, price=3)
+        return with_quotation, without_quotation
+
+    def test_inbound_update_get(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        movement = baker.make(Movement, movement_id='', movement_type=movement_type,
+                              warehouse=warehouse, operation_date=timezone.now())
+        product = baker.make('products.Product')
+        with_quotation, without_quotation = self._purchase_chain(product)
+        baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                   purchase_order_detail=with_quotation, line_number=1, quantity=1,
+                   price=3, amount=3)
+        baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                   purchase_order_detail=without_quotation, line_number=2, quantity=1,
+                   price=3, amount=3)
+        baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                   purchase_order_detail=None, line_number=3, quantity=1,
+                   price=3, amount=3)
+
+        response = self.client.get(reverse('warehouse:inbound_update', args=[movement.pk]))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_inbound_update_get_cancelled(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        movement = baker.make(Movement, movement_id='', movement_type=movement_type,
+                              warehouse=baker.make(Warehouse), operation_date=timezone.now(),
+                              status=Movement.STATUS.CANC)
+
+        response = self.client.get(reverse('warehouse:inbound_update', args=[movement.pk]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('warehouse:inbound_list'), response.url)
+
+    def test_outbound_update_get(self):
+        movement_type = baker.make(MovementType, code='S01', increases=False)
+        movement = baker.make(Movement, movement_id='', movement_type=movement_type,
+                              warehouse=baker.make(Warehouse), operation_date=timezone.now())
+        product = baker.make('products.Product')
+        order = baker.make(Order, requester=baker.make('administration.Worker'),
+                           office=baker.make('administration.Office'))
+        order_detail = baker.make(OrderDetail, order=order, product=product,
+                                  line_number=1, quantity=5)
+        baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                   order_detail=order_detail, line_number=1, quantity=1, price=3, amount=3)
+        baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                   order_detail=None, line_number=2, quantity=1, price=3, amount=3)
+
+        response = self.client.get(reverse('warehouse:outbound_update', args=[movement.pk]))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_order_update_get(self):
+        product = baker.make('products.Product')
+        order = baker.make(Order, requester=baker.make('administration.Worker'),
+                           office=baker.make('administration.Office'))
+        baker.make(OrderDetail, order=order, product=product, line_number=1, quantity=5)
+
+        response = self.client.get(reverse('warehouse:order_update', args=[order.pk]))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_order_update_denied_when_approved(self):
+        order = baker.make(Order, requester=baker.make('administration.Worker'),
+                           office=baker.make('administration.Office'),
+                           status=Order.STATUS.APROB)
+
+        response = self.client.get(reverse('warehouse:order_update', args=[order.pk]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('security:permission_denied'), response.url)
+
+    def test_movement_list_by_product_with_reference_and_order(self):
+        from datetime import datetime
+
+        from purchases.models import PurchaseOrder, Supplier
+
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        product = baker.make('products.Product')
+        reference = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
+        order = baker.make(Order, requester=baker.make('administration.Worker'),
+                           office=baker.make('administration.Office'))
+        for number, (date_value, reference_value, order_value) in enumerate(
+                [(datetime(2024, 1, 10, 9, 0), reference, None),
+                 (datetime(2024, 1, 11, 9, 0), None, order)], start=1):
+            movement = baker.make(Movement, movement_id='', movement_type=movement_type,
+                                  warehouse=warehouse,
+                                  operation_date=timezone.make_aware(date_value),
+                                  reference=reference_value, order=order_value)
+            baker.make('warehouse.MovementDetail', movement=movement, product=product,
+                       line_number=number, quantity=1, price=3, amount=3)
+
+        response = self.client.post(reverse('warehouse:movement_list_by_product'),
+                                    {'warehouse': warehouse.pk,
+                                     'start_date': '01/01/2024',
+                                     'end_date': '31/01/2024',
+                                     'product': product.code,
+                                     'description': product.description})
+
+        self.assertEqual(200, response.status_code)
+
 
 class WarehouseReportViewsTest(TestCase):
     """Las vistas que envuelven a los reportes: el armado del file, las
@@ -473,3 +607,52 @@ class WarehouseReportViewsTest(TestCase):
                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
         self.assertEqual(200, response.status_code)
+
+    def test_price_reprocess_outbound(self):
+        from datetime import datetime
+        from decimal import Decimal
+
+        from warehouse.models import Kardex
+
+        movement_type = baker.make(MovementType, code='S01', increases=False)
+        movement = baker.make(Movement, movement_id='', movement_type=movement_type,
+                              warehouse=self.warehouse)
+        baker.make(Kardex, movement=movement, warehouse=self.warehouse,
+                   product=self.product,
+                   operation_date=timezone.make_aware(datetime(2024, 1, 15, 9, 0)),
+                   in_quantity=Decimal('0'), in_price=Decimal('0'),
+                   in_amount=Decimal('0'), out_quantity=Decimal('2'),
+                   out_price=Decimal('3'), out_amount=Decimal('6'),
+                   total_quantity=Decimal('3'), total_price=Decimal('3'),
+                   total_amount=Decimal('9'))
+
+        response = self.client.post(reverse('warehouse:price_reprocess'),
+                                    {'warehouse': self.warehouse.pk,
+                                     'start_date': '01/01/2024',
+                                     'product': self.product.code,
+                                     'description': self.product.description,
+                                     'selection': 'P'})
+
+        self.assertEqual(302, response.status_code)
+
+    def test_product_stock_without_kardex_and_negative(self):
+        from datetime import datetime
+        from decimal import Decimal
+
+        from warehouse.models import Kardex
+
+        empty = baker.make('products.Product', description='SIN KARDEX UNICO')
+        negative = baker.make('products.Product', description='PRECIO NEGATIVO UNICO')
+        baker.make(Kardex, warehouse=self.warehouse, product=negative,
+                   operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
+                   total_quantity=Decimal('1'), total_price=Decimal('-0.0001'),
+                   total_amount=Decimal('-0.0001'))
+
+        for product in (empty, negative):
+            with self.subTest(product=product.description):
+                response = self.client.post(reverse('warehouse:product_stock'),
+                                            {'warehouse': self.warehouse.pk,
+                                             'start_date': '01/01/2024',
+                                             'product': product.code,
+                                             'description': product.description})
+                self.assertEqual(200, response.status_code)
