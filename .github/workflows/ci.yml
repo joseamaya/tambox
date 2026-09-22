@@ -61,4 +61,4 @@ jobs:
       - name: Tests y cobertura
         run: |
           coverage run manage.py test
-          coverage report --fail-under=72
+          coverage report --fail-under=75
