@@ -1238,6 +1238,36 @@ class ServiceOrderUpdate(UpdateView):
                                                              service_order_detail_formset=service_order_detail_formset))
 
 
+class QuotationDetailRows(TemplateView):
+    """Filas del formset de cotizacion para un requerimiento, como HTML.
+
+    htmx las inserta en la tabla del formulario. Al venir del servidor traen los
+    inputs reales del formset (incluido el `requirement` oculto), que es justo lo
+    que la version anterior perdia al construir las filas a mano: el POST llegaba
+    con `TOTAL_FORMS` pero sin ningun dato y el formset no validaba.
+    """
+
+    template_name = 'purchases/includes/quotation_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        code = self.request.GET.get('requirement', '')
+        details = RequirementDetail.objects.filter(
+            Q(status=RequirementDetail.STATUS.PEND) | Q(status=RequirementDetail.STATUS.COTIZ),
+            requirement__code=code, product__isnull=False).order_by('line_number')
+        details_data = []
+        for detail in details:
+            details_data.append({
+                'requirement': detail.pk,
+                'code': detail.product.code,
+                'name': detail.product.description,
+                'unit': detail.product.unit_of_measure.code,
+                'quantity': detail.quantity - detail.served_quantity,
+            })
+        context['quotation_detail_formset'] = QuotationDetailFormSet(initial=details_data)
+        return context
+
+
 class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
 
     required_params = ('quotation', 'search_type')

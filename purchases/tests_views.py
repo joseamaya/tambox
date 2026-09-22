@@ -96,6 +96,55 @@ class PurchasesViewsTest(TestCase):
         requirement_detail.refresh_from_db()
         self.assertEqual(5, requirement_detail.quoted_quantity)
 
+    def test_quotation_detail_rows_render_real_inputs(self):
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=10, served_quantity=0)
+
+        response = self.client.get(reverse('purchases:quotation_detail_rows'),
+                                   {'requirement': requirement.code})
+
+        self.assertEqual(200, response.status_code)
+        self.assertNotContains(response, '<html')
+        self.assertContains(response, 'name="form-TOTAL_FORMS"')
+        self.assertContains(response, 'name="form-0-requirement"')
+        self.assertContains(response, str(requirement_detail.pk))
+
+    def test_quotation_transfer_flow(self):
+        """Lo que hace el navegador: pide las filas del requerimiento por htmx y
+        luego envia el formset. Antes las filas se armaban a mano sin inputs y el
+        POST llegaba vacio."""
+        supplier = baker.make(Supplier, tax_id='12345678901',
+                              business_name='PROVEEDOR UNO',
+                              address='DIRECCION UNO')
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=10, served_quantity=0)
+
+        rows = self.client.get(reverse('purchases:quotation_detail_rows'),
+                               {'requirement': requirement.code})
+        self.assertContains(rows, 'value="%s"' % requirement_detail.pk)
+
+        data = {'tax_id': supplier.tax_id, 'business_name': 'PROVEEDOR UNO',
+                'address': 'DIRECCION UNO', 'reference': requirement.pk,
+                'order': '', 'code': '', 'date': '01/01/2024', 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-requirement': requirement_detail.pk,
+                'form-0-code': requirement_detail.product.code,
+                'form-0-name': requirement_detail.product.description,
+                'form-0-unit': 'UND01', 'form-0-quantity': '5'}
+
+        response = self.client.post(reverse('purchases:quotation_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        quotation = Quotation.objects.get(requirement=requirement)
+        self.assertEqual(1, quotation.details.count())
+
     def test_quotation_update(self):
         supplier = baker.make(Supplier, tax_id='12345678901')
         requirement = create_requirement()

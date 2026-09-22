@@ -54,6 +54,115 @@ function productSearch(config) {
 window.productSearch = productSearch;
 
 /*
+ * Autocompletado de proveedores sobre los endpoints JSON de compras. Elige por
+ * razon social (rellena RUC, direccion y, si es locador, la orden) o por RUC de
+ * 11 digitos. `is_service_provider` decide si la orden es editable.
+ */
+function supplierSearch(config) {
+    return {
+        tax_id: config.tax_id || '',
+        business_name: config.business_name || '',
+        address: config.address || '',
+        order: config.order || '',
+        is_service_provider: config.is_service_provider || false,
+        results: [],
+        open: false,
+
+        async searchByName() {
+            if (this.business_name.length < 2) {
+                this.results = [];
+                this.open = false;
+                return;
+            }
+            const data = await fetchJson(
+                config.nameUrl + '?business_name=' + encodeURIComponent(this.business_name));
+            if (data === null) {
+                return;
+            }
+            this.results = data;
+            this.open = data.length > 0;
+        },
+
+        async searchByTaxId() {
+            if (this.tax_id.length !== 11) {
+                return;
+            }
+            const data = await fetchJson(
+                config.taxIdUrl + '?tax_id=' + encodeURIComponent(this.tax_id));
+            if (data === null) {
+                return;
+            }
+            this.apply(data);
+        },
+
+        select(item) {
+            this.business_name = item.label;
+            this.tax_id = item.tax_id;
+            this.address = item.address;
+            this.is_service_provider = item.is_service_provider;
+            if (item.is_service_provider) {
+                this.order = item.order;
+            }
+            this.results = [];
+            this.open = false;
+        },
+
+        apply(data) {
+            this.business_name = data.business_name;
+            this.address = data.address;
+            this.is_service_provider = data.is_service_provider;
+            if (data.is_service_provider) {
+                this.order = data.order;
+            }
+        },
+
+        close() {
+            this.open = false;
+        },
+    };
+}
+
+window.supplierSearch = supplierSearch;
+
+/*
+ * Quita una fila de un formset de Django y renumera las restantes para que los
+ * `name`/`id` (`form-<i>-campo`) queden contiguos y `TOTAL_FORMS` cuadre.
+ */
+function removeFormsetRow(button) {
+    var row = button.closest('tr');
+    var tbody = row.parentNode;
+    row.remove();
+    var rows = tbody.querySelectorAll('tr.quotation_detail_formset');
+    rows.forEach(function (tr, index) {
+        tr.querySelectorAll('input, select, textarea').forEach(function (element) {
+            if (element.name) {
+                element.name = element.name.replace(/^form-\d+-/, 'form-' + index + '-');
+            }
+            if (element.id) {
+                element.id = element.id.replace(/^id_form-\d+-/, 'id_form-' + index + '-');
+            }
+        });
+        tr.children[0].textContent = index + 1;
+    });
+    var total = tbody.querySelector('input[name="form-TOTAL_FORMS"]');
+    if (total) {
+        total.value = rows.length;
+    }
+}
+
+window.removeFormsetRow = removeFormsetRow;
+
+async function fetchJson(url) {
+    const response = await fetch(url, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+    });
+    if (!response.ok) {
+        return null;
+    }
+    return response.json();
+}
+
+/*
  * Ventana modal para el detalle/alta de administracion. Las plantillas la
  * invocan con `onclick="return abrir_modal(url, titulo)"`; el contenido es un
  * fragmento (sin `{% extends %}`) que se carga con jQuery UI.

@@ -10,7 +10,7 @@ from purchases.views import Dashboard, SupplierList, SupplierCreate, PurchaseOrd
     ServiceConformityCreate, ServiceOrderTransfer, ServiceOrderDetailFetch, ServiceConformityList,\
     ServiceOrderPdfReport, ServiceConformityMemoPdfReport, ServiceConformityUpdate,\
     QuotationCreate, QuotationList, ServiceConformityDetailView,\
-    QuotationUpdate, QuotationTransfer, QuotationDetailFetch,\
+    QuotationUpdate, QuotationTransfer, QuotationDetailFetch, QuotationDetailRows,\
     QuotationSearch, QuotationDetailView, PurchaseOrderDetailView, ServiceOrderDetailView,\
     QuotationRequestPdfReport, PurchaseOrderListByQuotation,\
     SupplierTaxIdSearch, ServiceOrderListByQuotation,\
@@ -65,6 +65,8 @@ urlpatterns = [
         name="service_order_transfer"),
     re_path(r'^quotation_detail_fetch/$', QuotationDetailFetch.as_view(),
         name="quotation_detail_fetch"),
+    re_path(r'^quotation_detail_rows/$', QuotationDetailRows.as_view(),
+        name="quotation_detail_rows"),
     re_path(r'^purchase_order_detail_fetch/$', PurchaseOrderDetailFetch.as_view(),
         name="purchase_order_detail_fetch"),
     re_path(r'^service_order_detail_fetch/$', ServiceOrderDetailFetch.as_view(),
