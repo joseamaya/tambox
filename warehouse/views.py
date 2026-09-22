@@ -1610,10 +1610,10 @@ class MovementExcelReport(FormView):
             ws['E2'] = 'TIPO DE MOVIMIENTO: ' + movement_type.description
             ws.merge_cells('E2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = start_date
+            ws['C3'] = timezone.localtime(start_date).replace(tzinfo=None)
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = end_date
+            ws['E3'] = timezone.localtime(end_date).replace(tzinfo=None)
             ws['F3'].number_format = 'dd/mm/yyyy'
             movements = Movement.objects.filter(operation_date__range=[start_date, end_date],
                                                     movement_type=movement_type, warehouse=warehouse)
@@ -1665,10 +1665,10 @@ class MovementExcelReport(FormView):
                 ws.cell(row=cont, column=3).value = '--'
             ws.cell(row=cont, column=4).value = movement.series
             ws.cell(row=cont, column=5).value = movement.number
-            ws.cell(row=cont, column=6).value = movement.operation_date
+            ws.cell(row=cont, column=6).value = timezone.localtime(movement.operation_date).replace(tzinfo=None)
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = movement.notes
-            ws.cell(row=cont, column=8).value = movement.created
+            ws.cell(row=cont, column=8).value = timezone.localtime(movement.created).replace(tzinfo=None)
             ws.cell(row=cont, column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=9).value = movement.status
             cont = cont + 1
@@ -1723,13 +1723,13 @@ class MovementExcelReportByDate(View):
         cont = 6
         for movement in movements:
             ws.cell(row=cont, column=2).value = movement.movement_id
-            ws.cell(row=cont, column=3).value = movement.document_type
+            ws.cell(row=cont, column=3).value = movement.document_type.description if movement.document_type else '--'
             ws.cell(row=cont, column=4).value = movement.series
             ws.cell(row=cont, column=5).value = movement.number
-            ws.cell(row=cont, column=6).value = movement.operation_date
+            ws.cell(row=cont, column=6).value = timezone.localtime(movement.operation_date).replace(tzinfo=None)
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=7).value = movement.observation
-            ws.cell(row=cont, column=8).value = movement.created
+            ws.cell(row=cont, column=8).value = timezone.localtime(movement.created).replace(tzinfo=None)
             ws.cell(row=cont, column=8).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
         file_name = "ReporteMovimientosPorFecha.xlsx"

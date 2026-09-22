@@ -1554,12 +1554,12 @@ class ServiceOrderExcelReportByDate(FormView):
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = order.quotation.supplier.business_name
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, AttributeError):
                 ws.cell(row=cont, column=4).value = order.supplier.business_name
             ws.cell(row=cont, column=5).value = order.total
             ws.cell(row=cont, column=6).value = order.payment_method.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=7).value = order.created
+            ws.cell(row=cont, column=7).value = timezone.localtime(order.created).replace(tzinfo=None)
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=8).value = order.get_status_display()
             cont = cont + 1
@@ -1634,12 +1634,12 @@ class PurchaseOrderExcelReportByDate(FormView):
             ws.cell(row=cont, column=3).number_format = 'dd/mm/yyyy'
             try:
                 ws.cell(row=cont, column=4).value = purchase_order.quotation.supplier.business_name
-            except ObjectDoesNotExist:
+            except (ObjectDoesNotExist, AttributeError):
                 ws.cell(row=cont, column=4).value = purchase_order.supplier.business_name
             ws.cell(row=cont, column=5).value = purchase_order.total
             ws.cell(row=cont, column=6).value = purchase_order.payment_method.description
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
-            ws.cell(row=cont, column=7).value = purchase_order.created
+            ws.cell(row=cont, column=7).value = timezone.localtime(purchase_order.created).replace(tzinfo=None)
             ws.cell(row=cont, column=7).number_format = 'dd/mm/yyyy hh:mm:ss'
             ws.cell(row=cont, column=8).value = purchase_order.get_status_display()
             cont = cont + 1

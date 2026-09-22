@@ -282,6 +282,21 @@ class PurchasesViewsTest(TestCase):
         conformity.refresh_from_db()
         self.assertEqual('DOC', conformity.supporting_document)
 
+    def test_order_excel_reports_by_date(self):
+        import datetime
+
+        supplier = baker.make(Supplier)
+        baker.make(PurchaseOrder, supplier=supplier, date=datetime.date(2024, 1, 15))
+        baker.make(ServiceOrder, supplier=supplier, date=datetime.date(2024, 1, 15))
+        data = {'search_type': 'F', 'start_date': '01/01/2024',
+                'end_date': '31/01/2024', 'month': '', 'year': '2024'}
+
+        for name in ('purchases:purchase_order_excel_report_by_date',
+                     'purchases:service_order_excel_report_by_date'):
+            with self.subTest(name=name):
+                response = self.client.post(reverse(name), data)
+                self.assertEqual(200, response.status_code)
+
     def test_lists_and_dashboard(self):
         supplier = baker.make(Supplier)
         baker.make(PurchaseOrder, supplier=supplier)

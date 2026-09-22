@@ -206,6 +206,34 @@ class WarehouseViewsTest(TestCase):
         movement.refresh_from_db()
         self.assertEqual(1, movement.details.count())
 
+    def test_movement_excel_report(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        baker.make(Movement, movement_id='', movement_type=movement_type,
+                   warehouse=warehouse, operation_date=timezone.now())
+        base = {'start_date': '01/01/2024', 'end_date': '31/01/2024', 'month': '01',
+                'year': '2024', 'movement_types': movement_type.code,
+                'warehouses': warehouse.code}
+
+        for search_type in ('F', 'M', 'A'):
+            with self.subTest(search_type=search_type):
+                data = dict(base, search_type=search_type)
+                response = self.client.post(reverse('warehouse:movement_report'), data)
+                self.assertEqual(200, response.status_code)
+
+    def test_movement_excel_report_by_date(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        baker.make(Movement, movement_id='', movement_type=movement_type,
+                   warehouse=warehouse, operation_date=timezone.now())
+        url = reverse('warehouse:movement_excel_report_by_date',
+                      args=['01/01/2024', '31/01/2024', warehouse.code,
+                            movement_type.code])
+
+        response = self.client.get(url)
+
+        self.assertEqual(200, response.status_code)
+
     def test_movement_and_order_lists(self):
         movement_type = baker.make(MovementType, code='I01', increases=True)
         baker.make('warehouse.Movement', movement_id='', movement_type=movement_type,
