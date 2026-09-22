@@ -164,6 +164,31 @@ class PdfReportsTest(TestCase):
 
         self.assertTrue(contenido.startswith(b'%PDF'))
 
+    def test_service_conformity_memo(self):
+        from datetime import date
+
+        from administration.models import ApprovalLevel, Office, Position, Worker
+        from purchases.models import ServiceConformity, ServiceOrder
+        from purchases.reports import ServiceConformityMemoPdf
+
+        ApprovalLevel.objects.get_or_create(description='USUARIO')
+        management = baker.make(Office, is_management=True)
+        office = baker.make(Office, dependency=management)
+        requester = baker.make(Worker)
+        baker.make(Position, office=office, worker=requester, end_date=None)
+        baker.make(Position, office=office, worker=baker.make(Worker),
+                   is_leadership=True, start_date=date(2020, 1, 1), end_date=None)
+        baker.make(Position, office=management, worker=baker.make(Worker),
+                   is_leadership=True, start_date=date(2020, 1, 1), end_date=None)
+        requirement = baker.make('requirements.Requirement', requester=requester, office=office)
+        quotation = baker.make(Quotation, requirement=requirement, supplier=baker.make(Supplier))
+        order = baker.make(ServiceOrder, supplier=baker.make(Supplier), quotation=quotation)
+        conformity = baker.make(ServiceConformity, service_order=order, date=date(2020, 6, 1))
+
+        contenido = ServiceConformityMemoPdf().render(conformity)
+
+        self.assertTrue(contenido.startswith(b'%PDF'))
+
 
 class DetailStatusesTest(TestCase):
     """Estos metodos solo leen campos de la instance, asi que no hace falta

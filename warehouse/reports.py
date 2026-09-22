@@ -78,7 +78,10 @@ class MovementReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
 
@@ -303,7 +306,10 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
         if valued:
@@ -322,7 +328,10 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
         if groups:
@@ -947,7 +956,10 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
         company_tax_id = "RUC: " + company().tax_id
@@ -979,7 +991,10 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
         company_tax_id = "RUC: " + company().tax_id

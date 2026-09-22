@@ -213,3 +213,33 @@ class RequirementDetailStatusesTest(TestCase):
                          RequirementDetail.STATUS.ATEN_PARC)
         self.assertEqual(self._detail(10, served=10).set_status_served(),
                          RequirementDetail.STATUS.ATEN)
+
+
+class RequirementReportTest(TestCase):
+    """Genera el PDF del requerimiento. Arma sus tablas recorriendo el grafo de
+    detalles y firmas, y `manage.py check` no ejecuta esos cuerpos."""
+
+    def setUp(self):
+        from datetime import date
+
+        from tambox.config import clear_cache
+
+        logistics = baker.make(Office)
+        baker.make('accounting.Configuration', administration=logistics,
+                   logistics=logistics, budget=logistics)
+        baker.make(Position, office=logistics, worker=baker.make(Worker),
+                   is_leadership=True, start_date=date(2020, 1, 1), end_date=None)
+        clear_cache()
+        self.addCleanup(clear_cache)
+
+    def test_generates_pdf(self):
+        from requirements.reports import RequirementReport
+
+        requirement = create_requirement(code='')
+        baker.make(RequirementDetail, requirement=requirement,
+                   product=baker.make('products.Product'), quantity=3,
+                   use='USO GENERAL')
+
+        contenido = RequirementReport('A4', requirement).render()
+
+        self.assertTrue(contenido.startswith(b'%PDF'))

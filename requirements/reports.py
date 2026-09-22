@@ -34,7 +34,10 @@ class RequirementReport():
         requirement = self.requirement
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            if os.path.exists(image_file):
+                image = Image(image_file, width=90, height=50, hAlign='LEFT')
+            else:
+                image = Paragraph(u"LOGO", sp)
         except Exception:
             image = Paragraph(u"LOGO", sp)
         number = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
@@ -127,8 +130,8 @@ class RequirementReport():
                            alignment=TA_CENTER,
                            fontSize=8,
                            fontName="Times-Roman")
-        if worker_signature != '':
-            signature_file = os.path.join(settings.MEDIA_ROOT, str(worker_signature))
+        signature_file = os.path.join(settings.MEDIA_ROOT, str(worker_signature))
+        if worker_signature != '' and os.path.exists(signature_file):
             signature = Image(signature_file, width=90, height=50, hAlign='CENTER')
         else:
             signature = Paragraph(u"Firma No Encontrada", p)

@@ -599,5 +599,35 @@ class StockAjaxTest(TestCase):
         data = response.json()
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]['code'], self.product.code)
-        self.assertEqual(data[0]['unit'], self.unit.description)
+        self.assertEqual(data[0]['unit'], self.product.unit_of_measure.description)
         self.assertEqual(Decimal(data[0]['price']), Decimal('3'))
+
+
+class MovementReportTest(TestCase):
+    """Genera el PDF del movimiento. Arma sus tablas recorriendo los detalles y
+    los totales, y `manage.py check` no ejecuta esos cuerpos."""
+
+    def setUp(self):
+        from tambox.config import clear_cache
+
+        office = baker.make('administration.Office')
+        baker.make('accounting.Configuration', administration=office,
+                   logistics=office, budget=office)
+        clear_cache()
+        self.addCleanup(clear_cache)
+
+    def test_generates_pdf(self):
+        from warehouse.reports import MovementReport
+
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        movement = baker.make(Movement, movement_id='', operation_date=timezone.now(),
+                              movement_type=movement_type,
+                              warehouse=baker.make(Warehouse),
+                              document_type=baker.make(DocumentType, sunat_code='PEC'),
+                              series='F001', number='1')
+        baker.make(MovementDetail, movement=movement,
+                   product=baker.make('products.Product'))
+
+        contenido = MovementReport('A4', movement).render()
+
+        self.assertTrue(contenido.startswith(b'%PDF'))
