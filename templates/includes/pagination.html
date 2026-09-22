@@ -1,0 +1,29 @@
+{% comment %}
+Controles de paginacion para las listas con htmx.
+
+Espera `page_obj` en el contexto. Los botones apuntan a la misma URL de la lista
+con la cabecera `HX-Request`, incluyen el buscador (`#list-search`) para no
+perder el filtro, y solo reemplazan `#list-results`.
+{% endcomment %}
+{% if page_obj.paginator.num_pages > 1 %}
+<div class="row">
+    <div class="col-md-6">
+        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+            ({{ page_obj.paginator.count }} registros)</span>
+    </div>
+    <div class="col-md-6 text-right">
+        {% if page_obj.has_previous %}
+        <button type="button" class="btn btn-info"
+                hx-get="{{ request.path }}" hx-include="#list-search"
+                hx-vals='{"page": {{ page_obj.previous_page_number }}}'
+                hx-target="#list-results">Anterior</button>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <button type="button" class="btn btn-info"
+                hx-get="{{ request.path }}" hx-include="#list-search"
+                hx-vals='{"page": {{ page_obj.next_page_number }}}'
+                hx-target="#list-results">Siguiente</button>
+        {% endif %}
+    </div>
+</div>
+{% endif %}

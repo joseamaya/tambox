@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.http import HttpResponseBadRequest
 
 from tambox.imports import read_rows
@@ -24,6 +25,36 @@ class AjaxOnlyMixin(object):
         if missing:
             return HttpResponseBadRequest('Faltan los params: %s.' % ', '.join(missing))
         return super(AjaxOnlyMixin, self).dispatch(request, *args, **kwargs)
+
+
+class HtmxListMixin(object):
+    """ListView que htmx puede refrescar sin recargar la pagina.
+
+    Cuando la peticion trae la cabecera `HX-Request` devuelve solo el fragmento
+    de la tabla (`fragment_template_name`); si no, la pagina completa. El filtro
+    de busqueda (`search_param`, por defecto `q`) se aplica sobre
+    `search_fields`, que son nombres de campo del modelo.
+    """
+
+    fragment_template_name = None
+    search_fields = ()
+    search_param = 'q'
+
+    def get_template_names(self):
+        if (self.fragment_template_name
+                and self.request.headers.get('HX-Request')):
+            return [self.fragment_template_name]
+        return super(HtmxListMixin, self).get_template_names()
+
+    def get_queryset(self):
+        queryset = super(HtmxListMixin, self).get_queryset()
+        term = self.request.GET.get(self.search_param, '').strip()
+        if term and self.search_fields:
+            condition = Q()
+            for field in self.search_fields:
+                condition |= Q(**{field + '__icontains': term})
+            queryset = queryset.filter(condition)
+        return queryset
 
 
 class CsvImportMixin(object):

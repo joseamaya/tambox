@@ -35,7 +35,7 @@ from products.models import Product
 from warehouse.mail import order_creation_mail
 from warehouse.reports import MovementReport, KardexPdfReport, KardexExcelReport, inventory_report
 from tambox.config import logistics
-from tambox.views import CsvImportMixin, AjaxOnlyMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from datetime import date
 
 locale.setlocale(locale.LC_ALL, "")
@@ -655,12 +655,14 @@ class OrderList(ListView):
     queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
 
 
-class MovementTypeList(ListView):
+class MovementTypeList(HtmxListMixin, ListView):
     model = MovementType
     template_name = 'warehouse/movement_type_list.html'
+    fragment_template_name = 'warehouse/includes/movement_type_rows.html'
     context_object_name = 'movement_types'
     paginate_by = 10
     queryset = MovementType.objects.all().order_by('code')
+    search_fields = ('code', 'description')
 
 
 class MovementList(ListView):

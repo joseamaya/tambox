@@ -256,6 +256,26 @@ class WarehouseViewsTest(TestCase):
                 response = self.client.get(reverse(name))
                 self.assertIn(response.status_code, (200, 302))
 
+    def test_movement_type_list_htmx(self):
+        for number in range(12):
+            baker.make(MovementType, code='T%02d' % number,
+                       description='TIPO %02d' % number)
+        url = reverse('warehouse:movement_type_list')
+
+        full = self.client.get(url)
+        self.assertEqual(200, full.status_code)
+        self.assertContains(full, '<html')
+
+        fragment = self.client.get(url, HTTP_HX_REQUEST='true')
+        self.assertEqual(200, fragment.status_code)
+        self.assertNotContains(fragment, '<html')
+        self.assertContains(fragment, 'Página 1 de 2')
+        self.assertContains(fragment, 'TIPO 00')
+
+        search = self.client.get(url, {'q': 'TIPO 11'}, HTTP_HX_REQUEST='true')
+        self.assertContains(search, 'TIPO 11')
+        self.assertNotContains(search, 'TIPO 00')
+
     def _approval_graph(self, signature='firmas/firma.png', leadership=True):
         from datetime import date
 
