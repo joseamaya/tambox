@@ -264,7 +264,7 @@ class UnitOfMeasureDelete(TemplateView):
             id = request.POST['id']
             unit_of_measure = UnitOfMeasure.objects.get(pk=id)
             unit_of_measure_json = {}
-            unit_of_measure_json['unit'] = unit_of_measure.unit
+            unit_of_measure_json['unit'] = unit_of_measure.code
             if len(unit_of_measure.products.all()) > 0:
                 unit_of_measure_json['productos'] = 'SI'
             else:
@@ -311,9 +311,10 @@ class ProductDelete(TemplateView):
             product_json = {}
             product_json['code'] = product.code
             product_json['description'] = product.description
-            if len(product.details.all()) > 0:
-                product_json['relaciones'] = 'SI'
-            elif len(product.details.all()) > 0:
+            if (product.order_details.exists() or product.purchase_order_details.exists()
+                    or product.service_order_details.exists()
+                    or product.movement_details.exists()
+                    or product.requirement_details.exists()):
                 product_json['relaciones'] = 'SI'
             else:
                 product_json['relaciones'] = 'NO'

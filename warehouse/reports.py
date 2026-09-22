@@ -78,7 +78,7 @@ class MovementReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            if os.path.exists(image_file):
+            if os.path.isfile(image_file):
                 image = Image(image_file, width=90, height=50, hAlign='LEFT')
             else:
                 image = Paragraph(u"LOGO", sp)
@@ -306,7 +306,7 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            if os.path.exists(image_file):
+            if os.path.isfile(image_file):
                 image = Image(image_file, width=90, height=50, hAlign='LEFT')
             else:
                 image = Paragraph(u"LOGO", sp)
@@ -328,7 +328,7 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            if os.path.exists(image_file):
+            if os.path.isfile(image_file):
                 image = Image(image_file, width=90, height=50, hAlign='LEFT')
             else:
                 image = Paragraph(u"LOGO", sp)
@@ -956,7 +956,7 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            if os.path.exists(image_file):
+            if os.path.isfile(image_file):
                 image = Image(image_file, width=90, height=50, hAlign='LEFT')
             else:
                 image = Paragraph(u"LOGO", sp)
@@ -991,7 +991,7 @@ class KardexPdfReport():
                             fontName="Times-Roman")
         try:
             image_file = os.path.join(settings.MEDIA_ROOT, str(company().logo))
-            if os.path.exists(image_file):
+            if os.path.isfile(image_file):
                 image = Image(image_file, width=90, height=50, hAlign='LEFT')
             else:
                 image = Paragraph(u"LOGO", sp)
