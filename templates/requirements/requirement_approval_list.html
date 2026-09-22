@@ -12,100 +12,30 @@
                 Aprobación de Requerimientos
             </div>
             <div class="panel-body">
-                <div class='form-group'>
-                    <div class="row">
-                        <div class="col-lg-3">
-                        </div>
-                        <div class="col-lg-7">
-
-                        </div>
-                        <div class="col-lg-1">
-                            <a id="crear_detalle" href="#" class="btn btn-info btn-block">
-                                <span class="glyphicon glyphicon-print"></span>
-                            </a>
-                        </div>
-                        <div class="col-lg-1">
-                            <a id="crear_detalle" href="#" class="btn btn-info btn-block">
-                                <span class="glyphicon glyphicon-save"></span>
-                            </a>
-                        </div>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <form id="list-search" class="form-inline"
+                              hx-get="{{ request.path }}" hx-target="#list-results"
+                              hx-trigger="submit, keyup from:input changed delay:300ms">
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control"
+                                       placeholder="Buscar por requerimiento"
+                                       value="{{ request.GET.q|default:'' }}">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="submit">
+                                        <span class="glyphicon glyphicon-search"></span>
+                                    </button>
+                                </span>
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div id="dialog-confirm" title="Eliminar Requerimiento"></div>
-                <div class="row">
-                    <div class="col-lg-12">
-                        <table id="example" class="table table-striped table-bordered" cellspacing="0" width="100%">
-                            <thead>
-                            <tr>
-                                <th class="text-center">REQUERIMIENTO</th>
-                                <th class="text-center">ESTADO</th>
-                                <th class="text-center">APROBAR</th>
-                                <th class="text-center">VER</th>
-                                <th class="text-center">INFORME</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for approval in requirement_approvals %}
-                            <tr>
-                                <td>{{ approval.requirement }}</td>
-                                <td>{{ approval.level }}</td>
-                                <td class="text-center">
-                                    <a class="btn btn-small"
-                                       href="{% url 'requirements:requirement_approve' approval.pk %}">
-                                        <span class="glyphicon glyphicon-ok"></span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a class="btn btn-small"
-                                       href="{% url 'requirements:requirement_detail' approval.requirement.pk %}">
-                                        <span class="glyphicon glyphicon-folder-open"></span>
-                                    </a>
-                                </td>
-                                <td>
-                                    {% if approval.requirement.report %}
-                                    <a class="btn btn-small" href="/media/{{ approval.requirement.report.url }}">
-                                        <span class="glyphicon glyphicon-file"></span>
-                                    </a>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                <br/>
+                <div id="list-results">
+                    {% include "requirements/includes/requirement_approval_rows.html" %}
                 </div>
             </div>
         </div>
     </div>
 </div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#example').DataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 
-    $('#example tbody').on( 'click', 'tr', function() 
-    {
-    	if ($(this).hasClass('selected') ) 
-        {        	
-        	$(this).removeClass('selected');
-            
-        }
-        else 
-        {
-	        table.$('tr.selected').removeClass('selected');
-	        $(this).addClass('selected');
-	        var purchase_order = $(this).find('td.sorting_1').text();
-	        $('#purchase_order').val(purchase_order);           
-        }
-    }); 
-    
-});
-
-</script>
-{% endblock js %}

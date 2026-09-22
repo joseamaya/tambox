@@ -46,8 +46,13 @@ class HtmxListMixin(object):
             return [self.fragment_template_name]
         return super(HtmxListMixin, self).get_template_names()
 
+    def get_base_queryset(self):
+        """Las vistas que arman el queryset a mano lo devuelven aqui, para que el
+        filtro de busqueda del mixin se aplique despues."""
+        return super(HtmxListMixin, self).get_queryset()
+
     def get_queryset(self):
-        queryset = super(HtmxListMixin, self).get_queryset()
+        queryset = self.get_base_queryset()
         term = self.request.GET.get(self.search_param, '').strip()
         if term and self.search_fields:
             condition = Q()

@@ -34,7 +34,7 @@ from tambox.config import configuration, administration_office,\
 locale.setlocale(locale.LC_ALL, "")
 
 
-from tambox.views import AjaxOnlyMixin
+from tambox.views import AjaxOnlyMixin, HtmxListMixin
 class Dashboard(View):
     def get(self, request, *args, **kwargs):
         notification_list = []
@@ -235,10 +235,13 @@ class RequirementDelete(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class RequirementApprovalList(ListView):
+class RequirementApprovalList(HtmxListMixin, ListView):
     model = RequirementApproval
     template_name = 'requirements/requirement_approval_list.html'
+    fragment_template_name = 'requirements/includes/requirement_approval_rows.html'
     context_object_name = 'requirement_approvals'
+    paginate_by = 10
+    search_fields = ('requirement__code',)
 
     @method_decorator(
         requires('requirements.ver_tabla_requerimientos'))
@@ -259,7 +262,7 @@ class RequirementApprovalList(ListView):
             return HttpResponseRedirect(reverse('security:permission_denied'))
         return super(RequirementApprovalList, self).get(request, *args, **kwargs)
 
-    def get_queryset(self):
+    def get_base_queryset(self):
         return RequirementApproval.get_pending_approvals(self.request.user)
 
 
@@ -278,15 +281,17 @@ class QuotationListByRequirement(ListView):
         return queryset
 
 
-class RequirementList(ListView):
+class RequirementList(HtmxListMixin, ListView):
     model = Requirement
     template_name = 'requirements/requirement_list.html'
+    fragment_template_name = 'requirements/includes/requirement_rows.html'
     context_object_name = 'requirements'
+    paginate_by = 10
+    search_fields = ('code', 'office__name')
 
-    def get_queryset(self):
+    def get_base_queryset(self):
         user = self.request.user
-        visible_requirements = Requirement.get_visible_requirements(user)
-        return visible_requirements
+        return Requirement.get_visible_requirements(user)
 
     @method_decorator(
         requires('requirements.ver_tabla_requerimientos'))

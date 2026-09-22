@@ -49,6 +49,21 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertContains(response, self.requirement.code)
 
+    def test_lists_return_htmx_fragment_and_search(self):
+        requirement_fragment = self.client.get(
+            reverse('requirements:requirement_list'), {'q': self.requirement.code},
+            HTTP_HX_REQUEST='true')
+
+        self.assertEqual(200, requirement_fragment.status_code)
+        self.assertNotContains(requirement_fragment, '<html')
+        self.assertContains(requirement_fragment, self.requirement.code)
+
+        approval_fragment = self.client.get(
+            reverse('requirements:requirement_approval_list'), HTTP_HX_REQUEST='true')
+
+        self.assertEqual(200, approval_fragment.status_code)
+        self.assertNotContains(approval_fragment, '<html')
+
     def test_requirement_detail(self):
         response = self.client.get(
             reverse('requirements:requirement_detail', args=[self.requirement.code]))

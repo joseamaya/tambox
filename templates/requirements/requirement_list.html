@@ -24,57 +24,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">CODIGO</th>
-                <th class="text-center">OFICINA SOLICITA</th>
-                <th class="text-center">LEVEL APROB.</th>
-                <th class="text-center">APROB.</th>
-                <th class="text-center">ESTADO.</th>
-                <th class="text-center">FEC_OPER.</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for requirement in requirements %}
-            {% if perms.requirements.ver_detalle_requerimiento %}
-            <tr onclick="location.href='{% url 'requirements:requirement_detail' requirement.code %}';">
-                {% else %}
-            <tr>
-                {% endif %}
-                <td>{{ requirement.code }}</td>
-                <td>{{ requirement.office }}</td>
-                <td>{{ requirement.approval.level }}</td>
-                {% if requirement.approval.is_active %}
-                <td>SI</td>
-                {% else %}
-                <td>NO</td>
-                {% endif %}
-                <td>{{ requirement.get_status_display }}</td>
-                <td>{{ requirement.created|date:"d/m/y" }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por código u oficina"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
+<br/>
+<div id="list-results">
+    {% include "requirements/includes/requirement_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function()
-{
-	var table = $('#table').DataTable({
-		"language" : {
-			url : "/static/localizacion/es_ES.json"
-		}
-	});
-
-	$('#tabla tr').hover(function()
-	{
-		$(this).css("cursor","pointer");
-	});
-});
-
-</script>
-{% endblock js %}
