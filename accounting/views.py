@@ -246,10 +246,12 @@ class DocumentTypeList(HtmxListMixin, ListView):
         return super(DocumentTypeList, self).dispatch(*args, **kwargs)
 
 
-class ExchangeRateList(ListView):
+class ExchangeRateList(HtmxListMixin, ListView):
     model = ExchangeRate
     template_name = 'accounting/exchange_rate_list.html'
+    fragment_template_name = 'accounting/includes/exchange_rate_rows.html'
     context_object_name = 'types'
+    paginate_by = 10
 
     @method_decorator(
         requires('accounting.ver_tabla_tipos_cambio'))
@@ -257,11 +259,14 @@ class ExchangeRateList(ListView):
         return super(ExchangeRateList, self).dispatch(*args, **kwargs)
 
 
-class AccountList(ListView):
+class AccountList(HtmxListMixin, ListView):
     model = Account
     template_name = 'accounting/account_list.html'
+    fragment_template_name = 'accounting/includes/account_rows.html'
     context_object_name = 'chart_of_accounts'
+    paginate_by = 10
     queryset = Account.objects.all().order_by('account_number')
+    search_fields = ('account_number', 'description')
 
     @method_decorator(
         requires('accounting.ver_tabla_cuentas_contables'))

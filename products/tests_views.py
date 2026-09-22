@@ -115,10 +115,12 @@ class ProductsViewsTest(TestCase):
         baker.make(Product, code='', product_group=group, description='BIEN UNICO')
         baker.make(Product, code='', product_group=group, description='SERVICIO UNICO',
                    is_service=True)
+        baker.make(UnitOfMeasure, code='UND01', description='UNIDAD UNICA')
         cases = [
             ('products:product_list', 'BIEN UNICO'),
             ('products:product_group_list', 'GRUPO UNICO'),
             ('products:service_list', 'SERVICIO UNICO'),
+            ('products:unit_of_measure_list', 'UNIDAD UNICA'),
         ]
 
         for name, expected in cases:

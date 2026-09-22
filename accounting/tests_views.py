@@ -136,11 +136,13 @@ class AccountingViewsTest(TestCase):
         baker.make(PaymentMethod, code='EFE', description='EFECTIVO')
         baker.make(DocumentType, sunat_code='01', name='FACTURA')
         baker.make('accounting.StockType', sunat_code='01', description='MERCADERIA')
+        baker.make(Account, account_number='CTA-UNICA', description='CUENTA UNICA')
         cases = [
             ('accounting:tax_list', {'q': 'GENERAL'}, 'IMPUESTO GENERAL'),
             ('accounting:payment_method_list', {'q': 'EFECTIVO'}, 'EFECTIVO'),
             ('accounting:document_type_list', {'q': 'FACTURA'}, 'FACTURA'),
             ('accounting:stock_type_list', {'q': 'MERCADERIA'}, 'MERCADERIA'),
+            ('accounting:account_list', {'q': 'CUENTA UNICA'}, 'CUENTA UNICA'),
         ]
 
         for name, params, expected in cases:
@@ -150,6 +152,13 @@ class AccountingViewsTest(TestCase):
                 self.assertEqual(200, fragment.status_code)
                 self.assertNotContains(fragment, '<html')
                 self.assertContains(fragment, expected)
+
+    def test_exchange_rate_list_htmx(self):
+        fragment = self.client.get(reverse('accounting:exchange_rate_list'),
+                                   HTTP_HX_REQUEST='true')
+
+        self.assertEqual(200, fragment.status_code)
+        self.assertNotContains(fragment, '<html')
 
     def test_excel_reports(self):
         for name in ('accounting:account_excel_report',

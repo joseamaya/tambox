@@ -20,47 +20,7 @@
     </div>
 </div>
 <hr/>
-<div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">FECHA</th>
-                <th class="text-center">TIPOS DE CAMBIO</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for type in types %}
-            {% if perms.accounting.ver_detalle_tipo_cambio %}
-            <tr onclick="location.href='{% url 'accounting:exchange_rate_detail' type.pk %}';">
-                {% else %}
-            <tr>
-                {% endif %}
-                <td>{{ type.date|date:"d/m/y" }}</td>
-                <td>{{ type.amount }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<div id="list-results">
+    {% include "accounting/includes/exchange_rate_rows.html" %}
 </div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var borrarSeleccionado;
-    var table = $('#table').DataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 	
-    $('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	});
-});
-
-</script>
-{% endblock js %}

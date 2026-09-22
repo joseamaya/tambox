@@ -345,11 +345,14 @@ class ServiceDelete(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class UnitOfMeasureList(ListView):
+class UnitOfMeasureList(HtmxListMixin, ListView):
     model = UnitOfMeasure
     template_name = 'products/unit_of_measure_list.html'
+    fragment_template_name = 'products/includes/unit_of_measure_rows.html'
     context_object_name = 'units'
+    paginate_by = 10
     queryset = UnitOfMeasure.objects.filter(is_active=True).order_by('description')
+    search_fields = ('code', 'sunat_code', 'description')
 
     @method_decorator(
         requires('products.ver_tabla_unidades_medida'))
