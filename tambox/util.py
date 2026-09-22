@@ -167,7 +167,7 @@ def __convert_group(n):
     return output
 
 
-def to_word(number, mi_moneda=None):
+def to_word(number, currency_code=None):
     """Converts a positive number less than:
     (999999999999999999999999999999999999999999999999999999999999999999999999)
     to words in Spanish
@@ -183,17 +183,17 @@ def to_word(number, mi_moneda=None):
         >>>> number_words(1481.01, 'EUR')
         'Mil Cuatrocientos Ochenta Y Un Euros con Un C�ntimo'
     """
-    if mi_moneda != None:
+    if currency_code != None:
         try:
-            moneda = next(filter(lambda x: x['currency'] == mi_moneda, CURRENCIES))
+            currency = next(filter(lambda x: x['currency'] == currency_code, CURRENCIES))
             if int(number) == 1:
-                entero = moneda['singular']
+                entero = currency['singular']
             else:
-                entero = moneda['plural']
+                entero = currency['plural']
                 if round(float(number) - int(number), 2) == float(0.01):
-                    fraccion = moneda['decimalsingular']
+                    fraccion = currency['decimalsingular']
                 else:
-                    fraccion = moneda['decimalplural']
+                    fraccion = currency['decimalplural']
 
         except StopIteration:
             return "Tipo de moneda inválida"

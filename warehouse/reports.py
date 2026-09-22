@@ -44,7 +44,7 @@ def initial_kardex_of(report, product, warehouse, start_date):
     return iniciales.get(product.pk)
 
 
-def kardex_for_period(report, objeto, warehouse, start_date, end_date, by_group=False):
+def kardex_for_period(report, item, warehouse, start_date, end_date, by_group=False):
     """Kardex del periodo, con sus totales, del lote que el informe precargo.
 
     Los informes que recorren el catalogo llenan `report.kardex_batch` -o
@@ -55,8 +55,8 @@ def kardex_for_period(report, objeto, warehouse, start_date, end_date, by_group=
     """
     batch = getattr(report, 'kardex_batch_groups' if by_group else 'kardex_batch', None)
     if batch is None:
-        return objeto.get_kardex(warehouse, start_date, end_date)
-    return batch.get(objeto.pk, ([], 0, 0, 0, 0))
+        return item.get_kardex(warehouse, start_date, end_date)
+    return batch.get(item.pk, ([], 0, 0, 0, 0))
 
 
 class MovementReport():
@@ -83,15 +83,15 @@ class MovementReport():
             image = Paragraph(u"LOGO", sp)
 
         if movement.movement_type.increases:
-            nota = Paragraph(u"NOTA DE INGRESO N°", sp)
+            note = Paragraph(u"NOTA DE INGRESO N°", sp)
         else:
-            nota = Paragraph(u"NOTA DE SALIDA N°", sp)
+            note = Paragraph(u"NOTA DE SALIDA N°", sp)
         movement_id = Paragraph(movement.movement_id, sp)
         date = Paragraph("FECHA: " + movement.operation_date.strftime('%d/%m/%y'), sp)
-        encabezado = [[image, nota, date],
+        header = [[image, note, date],
                       ['', movement_id, '']
                       ]
-        header_table = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
+        header_table = Table(header, colWidths=[4 * cm, 9 * cm, 6 * cm])
         header_table.setStyle(TableStyle(
             [
                 ('VALIGN', (0, 0), (2, 0), 'CENTER'),
@@ -103,41 +103,41 @@ class MovementReport():
 
     def data_table(self, styles):
         movement = self.movement
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
         try:
             if movement.reference.quotation is not None:
                 supplier = Paragraph(u"PROVEEDOR: " + movement.reference.quotation.supplier.business_name,
-                                      izquierda)
+                                      left_style)
             else:
-                supplier = Paragraph(u"PROVEEDOR: " + movement.reference.supplier.business_name, izquierda)
+                supplier = Paragraph(u"PROVEEDOR: " + movement.reference.supplier.business_name, left_style)
         except (ObjectDoesNotExist, AttributeError):
-            supplier = Paragraph(u"PROVEEDOR:", izquierda)
-        operacion = Paragraph(u"OPERACIÓN: " + movement.movement_type.description, izquierda)
-        warehouse = Paragraph(u"ALMACÉN: " + movement.warehouse.code + "-" + movement.warehouse.description, izquierda)
+            supplier = Paragraph(u"PROVEEDOR:", left_style)
+        operacion = Paragraph(u"OPERACIÓN: " + movement.movement_type.description, left_style)
+        warehouse = Paragraph(u"ALMACÉN: " + movement.warehouse.code + "-" + movement.warehouse.description, left_style)
         try:
-            purchase_order = Paragraph(u"ORDEN DE COMPRA: " + movement.reference.code, izquierda)
+            purchase_order = Paragraph(u"ORDEN DE COMPRA: " + movement.reference.code, left_style)
         except (ObjectDoesNotExist, AttributeError):
-            purchase_order = Paragraph(u"REFERENCIA: -", izquierda)
+            purchase_order = Paragraph(u"REFERENCIA: -", left_style)
         try:
             document = Paragraph(
                 u"DOCUMENTO: " + movement.document_type.description + " SERIE:" + movement.series + u" NÚMERO:" + movement.number,
-                izquierda)
+                left_style)
         except (ObjectDoesNotExist, TypeError):
             document = ""
         try:
-            order = Paragraph(u"PEDIDO: " + movement.order.code, izquierda)
+            order = Paragraph(u"PEDIDO: " + movement.order.code, left_style)
         except (ObjectDoesNotExist, AttributeError):
             order = ""
-        encabezado = [[operacion, ''],
+        header = [[operacion, ''],
                       [warehouse, ''],
                       [supplier, ''],
                       [purchase_order, ''],
                       [document, ''],
                       [order, '']]
-        data_table = Table(encabezado, colWidths=[11 * cm, 9 * cm])
+        data_table = Table(header, colWidths=[11 * cm, 9 * cm])
         data_table.setStyle(TableStyle(
             [
 
@@ -176,13 +176,13 @@ class MovementReport():
 
     def total_table(self):
         movement = self.movement
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
 
-        total_text = Paragraph("Total: ", izquierda)
-        total = Paragraph(str(round(movement.total, 2)), izquierda)
+        total_text = Paragraph("Total: ", left_style)
+        total = Paragraph(str(round(movement.total, 2)), left_style)
         total = [['', total_text, total]]
         total_table = Table(total, colWidths=[15.5 * cm, 2 * cm, 2.5 * cm])
         total_table.setStyle(TableStyle(
@@ -215,12 +215,12 @@ class MovementReport():
 
     def signatures_table(self):
         movement = self.movement
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_CENTER,
                                    fontSize=8,
                                    fontName="Times-Roman")
-        administration_office_name = Paragraph(administration_office().name, izquierda)
-        logistics_office_name = Paragraph(logistics().name, izquierda)
+        administration_office_name = Paragraph(administration_office().name, left_style)
+        logistics_office_name = Paragraph(logistics().name, left_style)
         if movement.movement_type.increases:
             total = [[administration_office_name, '', logistics_office_name]]
             signatures_table = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
@@ -232,7 +232,7 @@ class MovementReport():
                 ]
             ))
         else:
-            requester = Paragraph('SOLICITANTE', izquierda)
+            requester = Paragraph('SOLICITANTE', left_style)
             total = [[administration_office_name, '', logistics_office_name, '', requester]]
             signatures_table = Table(total, colWidths=[5 * cm, 1 * cm, 5 * cm, 1 * cm, 5 * cm])
             signatures_table.setStyle(TableStyle(
@@ -307,12 +307,12 @@ class KardexPdfReport():
         except Exception:
             image = Paragraph(u"LOGO", sp)
         if valued:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
+            title = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
+            title = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
 
-        encabezado = [[image, titulo]]
-        header_table = Table(encabezado, colWidths=[2 * cm, 23 * cm])
+        header = [[image, title]]
+        header_table = Table(header, colWidths=[2 * cm, 23 * cm])
         return header_table
 
     def consolidated_header_table(self, groups):
@@ -326,12 +326,12 @@ class KardexPdfReport():
         except Exception:
             image = Paragraph(u"LOGO", sp)
         if groups:
-            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
+            title = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
-            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR PRODUCTOS", sp)
+            title = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR PRODUCTOS", sp)
 
-        encabezado = [[image, titulo]]
-        header_table = Table(encabezado, colWidths=[2 * cm, 23 * cm])
+        header = [[image, title]]
+        header_table = Table(header, colWidths=[2 * cm, 23 * cm])
         style = TableStyle(
             [
                 ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
@@ -472,7 +472,7 @@ class KardexPdfReport():
             else:
                 total_amount = format(total_amount, '.3f')
 
-            registro = [product.code,
+            record = [product.code,
                         product.description,
                         product.unit_of_measure.description,
                         product.product_group.account,
@@ -484,7 +484,7 @@ class KardexPdfReport():
                         format(out_amount, '.3f'),
                         format(total_quantity, '.3f'),
                         total_amount]
-            table.append(registro)
+            table.append(record)
 
         totales = ["", "", "", "TOTALES",
                    format(total_opening_quantity, '.3f'), format(total_opening_amount, '.3f'),
@@ -579,7 +579,7 @@ class KardexPdfReport():
             else:
                 total_amount = format(total_amount, '.5f')
 
-            registro = [group.code,
+            record = [group.code,
                         group.description,
                         group.account.account_number,
                         format(opening_quantity, '.5f'),
@@ -590,7 +590,7 @@ class KardexPdfReport():
                         format(out_amount, '.5f'),
                         format(total_quantity, '.5f'),
                         total_amount]
-            table.append(registro)
+            table.append(record)
 
         totales = ["", "", "TOTALES",
                    format(total_opening_quantity, '.5f'), format(total_opening_amount, '.5f'),
@@ -748,7 +748,7 @@ class KardexPdfReport():
         warehouse = self.warehouse
         buffer = self.buffer
         self.valued = False
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=11,
                                    fontName="Times-Roman")
@@ -760,37 +760,37 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), izquierda)
-        elements.append(periodo)
+        period = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), left_style)
+        elements.append(period)
         elements.append(Spacer(1, 0.25 * cm))
-        tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
+        tax_id = Paragraph(u"RUC:" + company().tax_id, left_style)
         elements.append(tax_id)
         elements.append(Spacer(1, 0.25 * cm))
         business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + company().business_name,
-                                 izquierda)
+                                 left_style)
         elements.append(business_name)
         elements.append(Spacer(1, 0.25 * cm))
-        address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), izquierda)
+        address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), left_style)
         elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
-        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
+        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, left_style)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
-        type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        type = Paragraph(u"TIPO: B - EXISTENCIA", left_style)
         """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
         elements.append(type)
         elements.append(Spacer(1, 0.25 * cm))
-        description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
+        description = Paragraph(u"DESCRIPCIÓN: " + product.description, left_style)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unit = Paragraph(
             u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
-            izquierda)
+            left_style)
         elements.append(unit)
         elements.append(Spacer(1, 0.25 * cm))
         unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
-                           izquierda)
+                           left_style)
         elements.append(unit)
         elements.append(Spacer(1, 0.5 * cm))
         elements.append(self.physical_units_detail_table(product, start_date, end_date, warehouse))
@@ -805,7 +805,7 @@ class KardexPdfReport():
         warehouse = self.warehouse
         buffer = self.buffer
         self.valued = True
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
                                    fontName="Times-Roman")
@@ -817,37 +817,37 @@ class KardexPdfReport():
                                 pagesize=self.pagesize)
 
         elements = []
-        periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), izquierda)
-        elements.append(periodo)
+        period = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'), left_style)
+        elements.append(period)
         elements.append(Spacer(1, 0.25 * cm))
-        tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
+        tax_id = Paragraph(u"RUC:" + company().tax_id, left_style)
         elements.append(tax_id)
         elements.append(Spacer(1, 0.25 * cm))
         business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + company().business_name,
-                                 izquierda)
+                                 left_style)
         elements.append(business_name)
         elements.append(Spacer(1, 0.25 * cm))
-        address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), izquierda)
+        address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), left_style)
         elements.append(address)
         elements.append(Spacer(1, 0.25 * cm))
-        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
+        code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, left_style)
         elements.append(code)
         elements.append(Spacer(1, 0.25 * cm))
-        type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+        type = Paragraph(u"TIPO: B - EXISTENCIA", left_style)
         """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                          izquierda)"""
         elements.append(type)
         elements.append(Spacer(1, 0.25 * cm))
-        description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
+        description = Paragraph(u"DESCRIPCIÓN: " + product.description, left_style)
         elements.append(description)
         elements.append(Spacer(1, 0.25 * cm))
         unit = Paragraph(
             u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
-            izquierda)
+            left_style)
         elements.append(unit)
         elements.append(Spacer(1, 0.25 * cm))
         unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
-                           izquierda)
+                           left_style)
         elements.append(unit)
         elements.append(Spacer(1, 0.5 * cm))
         elements.append(self.valued_detail_table(product, start_date, end_date, warehouse))
@@ -862,7 +862,7 @@ class KardexPdfReport():
         warehouse = self.warehouse
         buffer = self.buffer
         self.valued = False
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
                                    fontName="Times-Roman")
@@ -881,38 +881,38 @@ class KardexPdfReport():
         self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
         self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
         for product in products:
-            periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
-                                izquierda)
-            elements.append(periodo)
+            period = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
+                                left_style)
+            elements.append(period)
             elements.append(Spacer(1, 0.25 * cm))
-            tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
+            tax_id = Paragraph(u"RUC:" + company().tax_id, left_style)
             elements.append(tax_id)
             elements.append(Spacer(1, 0.25 * cm))
             business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + company().business_name,
-                                     izquierda)
+                                     left_style)
             elements.append(business_name)
             elements.append(Spacer(1, 0.25 * cm))
-            address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), izquierda)
+            address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), left_style)
             elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
-            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
+            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, left_style)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
-            type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+            type = Paragraph(u"TIPO: B - EXISTENCIA", left_style)
             """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
             elements.append(type)
             elements.append(Spacer(1, 0.25 * cm))
-            description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
+            description = Paragraph(u"DESCRIPCIÓN: " + product.description, left_style)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unit = Paragraph(
                 u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
-                izquierda)
+                left_style)
             elements.append(unit)
             elements.append(Spacer(1, 0.25 * cm))
             unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
-                               izquierda)
+                               left_style)
             elements.append(unit)
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.physical_units_detail_table(product, start_date, end_date, warehouse))
@@ -952,13 +952,13 @@ class KardexPdfReport():
             image = Paragraph(u"LOGO", sp)
         company_tax_id = "RUC: " + company().tax_id
         if self.groups:
-            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
+            title = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN POR GRUPOS Y CUENTAS", sp)
         else:
-            titulo = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
-        periodo = "PERIODO: " + self.start_date.strftime('%d/%m/%Y') + ' - ' + self.end_date.strftime('%d/%m/%Y')
+            title = Paragraph(u"RESUMEN MENSUAL DE ALMACÉN", sp)
+        period = "PERIODO: " + self.start_date.strftime('%d/%m/%Y') + ' - ' + self.end_date.strftime('%d/%m/%Y')
         page = u"Página " + str(doc.page) + " de " + str(self.total_pages)
-        encabezado = [[image, titulo, page], [company_tax_id, periodo, ""]]
-        header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
+        header = [[image, title, page], [company_tax_id, period, ""]]
+        header_table = Table(header, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -984,12 +984,12 @@ class KardexPdfReport():
             image = Paragraph(u"LOGO", sp)
         company_tax_id = "RUC: " + company().tax_id
         if self.valued:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
+            title = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE VALORIZADO", sp)
         else:
-            titulo = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
+            title = Paragraph(u"REGISTRO DEL INVENTARIO PERMANENTE EN ONES FÍSICAS", sp)
         page = u"Página " + str(doc.page) + " de " + str(self.total_pages)
-        encabezado = [[image, titulo, page], [company_tax_id, "", ""]]
-        header_table = Table(encabezado, colWidths=[3 * cm, 20 * cm, 3 * cm])
+        header = [[image, title, page], [company_tax_id, "", ""]]
+        header_table = Table(header, colWidths=[3 * cm, 20 * cm, 3 * cm])
         style = TableStyle(
             [
                 ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
@@ -1026,7 +1026,7 @@ class KardexPdfReport():
         warehouse = self.warehouse
         buffer = self.buffer
         self.valued = True
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=12,
                                    fontName="Times-Roman")
@@ -1045,38 +1045,38 @@ class KardexPdfReport():
         self.kardex_iniciales = Kardex.last_by_product(products, before=start_date, warehouse=warehouse)
         self.kardex_batch = Product.kardex_by_batch(products, warehouse, start_date, end_date)
         for product in products:
-            periodo = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
-                                izquierda)
-            elements.append(periodo)
+            period = Paragraph("PERIODO: " + start_date.strftime('%d/%m/%Y') + ' - ' + end_date.strftime('%d/%m/%Y'),
+                                left_style)
+            elements.append(period)
             elements.append(Spacer(1, 0.25 * cm))
-            tax_id = Paragraph(u"RUC:" + company().tax_id, izquierda)
+            tax_id = Paragraph(u"RUC:" + company().tax_id, left_style)
             elements.append(tax_id)
             elements.append(Spacer(1, 0.25 * cm))
             business_name = Paragraph(u"APELLIDOS Y NOMBRES, DENOMINACIÓN O RAZÓN SOCIAL: " + company().business_name,
-                                     izquierda)
+                                     left_style)
             elements.append(business_name)
             elements.append(Spacer(1, 0.25 * cm))
-            address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), izquierda)
+            address = Paragraph(u"ESTABLECIMIENTO (1): " + company().address(), left_style)
             elements.append(address)
             elements.append(Spacer(1, 0.25 * cm))
-            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, izquierda)
+            code = Paragraph(u"CÓDIGO DE LA EXISTENCIA: " + product.code, left_style)
             elements.append(code)
             elements.append(Spacer(1, 0.25 * cm))
-            type = Paragraph(u"TIPO: B - EXISTENCIA", izquierda)
+            type = Paragraph(u"TIPO: B - EXISTENCIA", left_style)
             """type = Paragraph(u"TIPO (TABLA 5): " + product.stock_type.sunat_code + " - " + product.stock_type.description,
                              izquierda)"""
             elements.append(type)
             elements.append(Spacer(1, 0.25 * cm))
-            description = Paragraph(u"DESCRIPCIÓN: " + product.description, izquierda)
+            description = Paragraph(u"DESCRIPCIÓN: " + product.description, left_style)
             elements.append(description)
             elements.append(Spacer(1, 0.25 * cm))
             unit = Paragraph(
                 u"CÓDIGO DE LA UNIDAD DE MEDIDA (TABLA 6): " + product.unit_of_measure.sunat_code + " - " + product.unit_of_measure.description,
-                izquierda)
+                left_style)
             elements.append(unit)
             elements.append(Spacer(1, 0.25 * cm))
             unit = Paragraph(u"MÉTODO DE VALUACIÓN: PEPS",
-                               izquierda)
+                               left_style)
             elements.append(unit)
             elements.append(Spacer(1, 0.5 * cm))
             elements.append(self.valued_detail_table(product, start_date, end_date, warehouse))

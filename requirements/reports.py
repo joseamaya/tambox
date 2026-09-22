@@ -38,8 +38,8 @@ class RequirementReport():
         except Exception:
             image = Paragraph(u"LOGO", sp)
         number = Paragraph(u"REQUERIMIENTO DE BIENES Y SERVICIOS<br/>N°" + requirement.code, sp)
-        encabezado = [[image, number, '']]
-        header_table = Table(encabezado, colWidths=[4 * cm, 11 * cm, 4 * cm])
+        header = [[image, number, '']]
+        header_table = Table(header, colWidths=[4 * cm, 11 * cm, 4 * cm])
         header_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (1, 0), 'CENTER'),
@@ -50,20 +50,20 @@ class RequirementReport():
 
     def data_table(self, styles):
         requirement = self.requirement
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
-        solicitado = Paragraph(u"SOLICITADO POR: " + requirement.requester.full_name(), izquierda)
-        office = Paragraph(u"OFICINA: " + requirement.office.name, izquierda)
-        reason = Paragraph(u"MOTIVO: " + requirement.reason, izquierda)
-        date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requirement.date.strftime('%d/%m/%Y'), izquierda)
-        month = Paragraph(u"MES EN QUE SE NECESITA: " + requirement.get_month_display(), izquierda)
-        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requirement.year), izquierda)
+        solicitado = Paragraph(u"SOLICITADO POR: " + requirement.requester.full_name(), left_style)
+        office = Paragraph(u"OFICINA: " + requirement.office.name, left_style)
+        reason = Paragraph(u"MOTIVO: " + requirement.reason, left_style)
+        date = Paragraph(u"FECHA DE REQUERIMIENTO: " + requirement.date.strftime('%d/%m/%Y'), left_style)
+        month = Paragraph(u"MES EN QUE SE NECESITA: " + requirement.get_month_display(), left_style)
+        para_stock = Paragraph(u"AÑO EN QUE SE NECESITA: " + str(requirement.year), left_style)
         if requirement.direct_delivery_to_requester:
-            entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", izquierda)
+            entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: SI", left_style)
         else:
-            entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", izquierda)
+            entrega = Paragraph(u"ENTREGA DIRECTAMENTE AL SOLICITANTE: NO", left_style)
         data = [[solicitado, office], [reason], [date, month], [para_stock, entrega]]
         data_table = Table(data, colWidths=[11 * cm, 9 * cm])
         style = TableStyle(

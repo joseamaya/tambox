@@ -24,16 +24,16 @@ import datetime
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        lista_notificaciones = []
+        notification_list = []
         account_count = Account.objects.count()
         document_type, creado = DocumentType.objects.get_or_create(sunat_code='PEC',
                                                                      defaults={'description': 'PECOSA',
                                                                                'name': 'PECOSA'})
         if creado:
-            lista_notificaciones.append("Se ha creado el tipo de documento PECOSA")
+            notification_list.append("Se ha creado el tipo de documento PECOSA")
         if account_count == 0:
-            lista_notificaciones.append("No se ha creado ninguna cuenta contable")
-        context = {'notificaciones': lista_notificaciones}
+            notification_list.append("No se ha creado ninguna cuenta contable")
+        context = {'notifications': notification_list}
         return render(request, 'accounting/accounting_dashboard.html', context)
 
 

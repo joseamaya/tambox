@@ -182,8 +182,8 @@ class Requirement(TimeStampedModel):
         self.save()
 
     def save(self, *args, **kwargs):
-        es_nuevo = self.code == ''
-        if es_nuevo:
+        is_new = self.code == ''
+        if is_new:
             self.code = self.generate_code()
             position = self.requester.position
             if position is None:
@@ -194,7 +194,7 @@ class Requirement(TimeStampedModel):
 
         super(Requirement, self).save()
 
-        if es_nuevo:
+        if is_new:
             self.create_initial_approval(position)
 
     def create_initial_approval(self, position):

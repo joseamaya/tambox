@@ -51,9 +51,9 @@ class PurchaseOrderReport():
 
         number = Paragraph(u"ORDEN DE COMPRA", sp)
         tax_id = Paragraph("R.U.C." + company().tax_id, sp)
-        encabezado = [[image, number, tax_id], ['', u"N°" + purchase_order.code,
+        header = [[image, number, tax_id], ['', u"N°" + purchase_order.code,
                                            company().district + " " + purchase_order.date.strftime('%d de %b de %Y')]]
-        header_table = Table(encabezado, colWidths=[4 * cm, 9 * cm, 6 * cm])
+        header_table = Table(header, colWidths=[4 * cm, 9 * cm, 6 * cm])
         header_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (2, 1), 'CENTER'),
@@ -67,7 +67,7 @@ class PurchaseOrderReport():
 
     def data_table(self, styles):
         order = self.purchase_order
-        izquierda = ParagraphStyle('parrafos',
+        left_style = ParagraphStyle('parrafos',
                                    alignment=TA_LEFT,
                                    fontSize=10,
                                    fontName="Times-Roman")
@@ -76,23 +76,23 @@ class PurchaseOrderReport():
             supplier = order.supplier
         else:
             supplier = order.quotation.supplier
-        supplier_business_name = Paragraph(u"SEÑOR(ES): " + supplier.business_name, izquierda)
-        supplier_tax_id = Paragraph(u"R.U.C.: " + supplier.tax_id, izquierda)
-        address = Paragraph(u"DIRECCIÓN: " + supplier.address, izquierda)
+        supplier_business_name = Paragraph(u"SEÑOR(ES): " + supplier.business_name, left_style)
+        supplier_tax_id = Paragraph(u"R.U.C.: " + supplier.tax_id, left_style)
+        address = Paragraph(u"DIRECCIÓN: " + supplier.address, left_style)
         try:
-            phone = Paragraph(u"TELÉFONO: " + supplier.phone, izquierda)
+            phone = Paragraph(u"TELÉFONO: " + supplier.phone, left_style)
         except TypeError:
-            phone = Paragraph(u"TELÉFONO: -", izquierda)
+            phone = Paragraph(u"TELÉFONO: -", left_style)
         try:
             reference = Paragraph(
                 u"REFERENCIA: " + order.quotation.requirement.code + " - " + order.quotation.requirement.office.name,
-                izquierda)
+                left_style)
         except (ObjectDoesNotExist, AttributeError):
-            reference = Paragraph(u"REFERENCIA: ", izquierda)
-        process = Paragraph(u"PROCESO: " + order.process, izquierda)
-        nota = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo next: ", izquierda)
+            reference = Paragraph(u"REFERENCIA: ", left_style)
+        process = Paragraph(u"PROCESO: " + order.process, left_style)
+        note = Paragraph(u"Sírvase remitirnos según especificaciones que detallamos lo next: ", left_style)
         data = [[supplier_business_name, supplier_tax_id], [address, phone], [reference, ''], [process, ''],
-                 [nota, '']]
+                 [note, '']]
         detail_table = Table(data, colWidths=[11 * cm, 9 * cm])
         detail_table.setStyle(TableStyle(
             [
@@ -214,7 +214,7 @@ class PurchaseOrderReport():
         signature = Paragraph(u"FIRMA: ", p)
         name = Paragraph(u"NOMBRE: ", p)
         dni = Paragraph(u"DNI: ", p)
-        lista = ListFlowable([
+        bullets = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
                           Facturar a nombre de """ + force_str(company().business_name), p),
             Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
@@ -225,7 +225,7 @@ class PurchaseOrderReport():
         )
         other_data = [[budget_sheet, ''],
                        [importante, recibido],
-                       [lista, ''],
+                       [bullets, ''],
                        ['', signature],
                        ['', name],
                        ['', dni],
@@ -625,8 +625,8 @@ class QuotationRequestPdf(object):
         except Exception:
             pdf.drawString(20, 800, 'LOGO')
         pdf.setFont("Times-Roman", 14)
-        encabezado = [[u"SOLICITUD DE COTIZACIÓN"]]
-        header_table = Table(encabezado, colWidths=[8 * cm])
+        header = [[u"SOLICITUD DE COTIZACIÓN"]]
+        header_table = Table(header, colWidths=[8 * cm])
         header_table.setStyle(TableStyle(
             [
                 ('ALIGN', (0, 0), (0, 0), 'CENTER'),
@@ -794,10 +794,10 @@ class ServiceConformityMemoPdf(object):
         estilo_parrafo.alignment = TA_JUSTIFY
         estilo_parrafo.fontSize = 10
         estilo_parrafo.fontName = "Times-Roman"
-        cadena_parrafo = u"""Mediante el presente comunico a Ud. que el servicio requerido con REQ DE BIENES Y SERV. N° %s, 
+        paragraph_text = u"""Mediante el presente comunico a Ud. que el servicio requerido con REQ DE BIENES Y SERV. N° %s, 
         ha sido concluido a satisfacción, según %s, lo que comunicamos para que proceda al pago del servicio correspondiente que 
         se detalla como sigue: """ % (requirement.code, conformity.supporting_document)
-        p1 = Paragraph(cadena_parrafo, estilo_parrafo)
+        p1 = Paragraph(paragraph_text, estilo_parrafo)
         p1.wrapOn(pdf, 500, y - 20)
         p1.drawOn(pdf, 40, y - 20)
 
@@ -1003,7 +1003,7 @@ class ServiceOrderPdf(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        lista = ListFlowable([
+        bullets = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
                           Facturar a nombre de """ + force_str(company().business_name), p),
             Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
@@ -1020,7 +1020,7 @@ class ServiceOrderPdf(object):
         pdf.line(370, y - 190, 560, y - 190)
         pdf.setFont("Times-Roman", 6)
         pdf.drawString(525, y - 127, "FECHA")
-        afectacion = [[(Paragraph("IMPORTANTE:", p), lista), "RECIBIDO POR:"]]
+        afectacion = [[(Paragraph("IMPORTANTE:", p), bullets), "RECIBIDO POR:"]]
         budget_table = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
         budget_table.setStyle(TableStyle(
             [
@@ -1205,7 +1205,7 @@ class PurchaseOrderPdf(object):
         p.alignment = TA_JUSTIFY
         p.fontSize = 8
         p.fontName = "Times-Roman"
-        lista = ListFlowable([
+        bullets = ListFlowable([
             Paragraph("""Consignar el número de la presente Orden de Compra en su Guía de Remisión y Factura. 
                           Facturar a nombre de """ + force_str(company().business_name), p),
             Paragraph("El " + force_str(company().business_name) + """, se reserva el derecho de devolver 
@@ -1222,7 +1222,7 @@ class PurchaseOrderPdf(object):
         pdf.line(370, y - 190, 560, y - 190)
         pdf.setFont("Times-Roman", 6)
         pdf.drawString(525, y - 127, "FECHA")
-        afectacion = [[(Paragraph("IMPORTANTE:", p), lista), "RECIBIDO POR:"]]
+        afectacion = [[(Paragraph("IMPORTANTE:", p), bullets), "RECIBIDO POR:"]]
         budget_table = Table(afectacion, colWidths=[10 * cm, 8.50 * cm])
         budget_table.setStyle(TableStyle(
             [

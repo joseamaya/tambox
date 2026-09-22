@@ -36,8 +36,8 @@ locale.setlocale(locale.LC_ALL, "")
 from tambox.views import AjaxOnlyMixin
 class Dashboard(View):
     def get(self, request, *args, **kwargs):
-        lista_notificaciones = []
-        context = {'notificaciones': lista_notificaciones}
+        notification_list = []
+        context = {'notifications': notification_list}
         return render(request, 'requirements/requirements_dashboard.html', context)
 
 
@@ -81,7 +81,7 @@ class RequirementDetailCreate(AjaxOnlyMixin, FormView):
             det['use'] = ''
             detail_list.append(det)
             formset = RequirementDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['code'] = str(form['code'])
@@ -89,8 +89,8 @@ class RequirementDetailCreate(AjaxOnlyMixin, FormView):
                 detail_json['unit'] = str(form['unit'])
                 detail_json['quantity'] = str(form['quantity'])
                 detail_json['use'] = str(form['use'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -415,7 +415,7 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                 except AttributeError:
                     pass
             formset = QuotationDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['requirement'] = str(form['requirement'])
@@ -423,8 +423,8 @@ class RequirementDetailFetch(AjaxOnlyMixin, TemplateView):
                 detail_json['name'] = str(form['name'])
                 detail_json['unit'] = str(form['unit'])
                 detail_json['quantity'] = str(form['quantity'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 

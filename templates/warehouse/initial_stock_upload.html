@@ -1,10 +1,10 @@
 {% extends "warehouse/base_warehouse.html" %}
 {% block cuerpo %}
 <h3><h3>Movimientos / Cargar Inventario Inicial</h3>
-    {% if notificaciones %}
+    {% if notifications %}
     <div class="alert alert-danger">
-        {% for notificacion in notificaciones %}
-        <p>{{ notificacion }}</p>
+        {% for notification in notifications %}
+        <p>{{ notification }}</p>
         {% endfor %}
     </div>
     {% endif %}

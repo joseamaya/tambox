@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        lista_notificaciones = []
+        notification_list = []
         product_count = Product.objects.filter(is_service=False).count()
         unit_of_measure_count = UnitOfMeasure.objects.count()
         supply_group_count = ProductGroup.objects.count()
@@ -35,16 +35,16 @@ class Dashboard(View):
         unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if creado:
-            lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
+            notification_list.append("Se ha creado la unidad de medida SERVICIO")
         if product_count == 0:
-            lista_notificaciones.append("No se ha creado ningún producto")
+            notification_list.append("No se ha creado ningún producto")
         if unit_of_measure_count == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de unidad de medida")
+            notification_list.append("No se ha creado ningún tipo de unidad de medida")
         if supply_group_count == 0:
-            lista_notificaciones.append("No se ha creado ningún grupo de productos")
+            notification_list.append("No se ha creado ningún grupo de productos")
         if service_count == 0:
-            lista_notificaciones.append("No se ha creado ningún service")
-        context = {'notificaciones': lista_notificaciones}
+            notification_list.append("No se ha creado ningún service")
+        context = {'notifications': notification_list}
         return render(request, 'products/products_dashboard.html', context)
 
 
@@ -502,7 +502,7 @@ class ProductExcelReport(TemplateView):
 class ProductGroupExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        grupos_productos = ProductGroup.objects.filter(is_active=True).order_by('code')
+        product_groups = ProductGroup.objects.filter(is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE GRUPOS DE PRODUCTOS'
@@ -512,7 +512,7 @@ class ProductGroupExcelReport(TemplateView):
         ws['D3'] = 'CTA_CONTABLE'
         ws['E3'] = 'CREADO'
         cont = 4
-        for product_group in grupos_productos:
+        for product_group in product_groups:
             ws.cell(row=cont, column=2).value = product_group.code
             ws.cell(row=cont, column=3).value = product_group.description
             ws.cell(row=cont, column=4).value = product_group.account.account_number
@@ -555,7 +555,7 @@ class UnitOfMeasureExcelReport(TemplateView):
 class ServiceExcelReport(TemplateView):
 
     def get(self, request, *args, **kwargs):
-        servicios = Product.objects.filter(is_service=True, is_active=True).order_by('code')
+        services = Product.objects.filter(is_service=True, is_active=True).order_by('code')
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE SERVICIOS'
@@ -564,7 +564,7 @@ class ServiceExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for service in servicios:
+        for service in services:
             ws.cell(row=cont, column=2).value = service.code
             ws.cell(row=cont, column=3).value = service.description
             ws.cell(row=cont, column=4).value = service.is_active

@@ -53,7 +53,7 @@ class Dashboard(View):
         inventory_initial_movement_code = 'I00'
         purchase_inbound_code = 'I01'
         order_outbound_code = 'S01'
-        lista_notificaciones = []
+        notification_list = []
         warehouse_count = Warehouse.objects.count()
         inbound_movement_type_count = MovementType.objects.filter(increases=True).exclude(
             code=inventory_initial_movement_code).count()
@@ -64,7 +64,7 @@ class Dashboard(View):
                                                                                  'increases': True,
                                                                                  'is_active': True})
         if creado:
-            lista_notificaciones.append("Se ha creado el tipo de movimiento inventario inicial")
+            notification_list.append("Se ha creado el tipo de movimiento inventario inicial")
         movement_type, creado = MovementType.objects.get_or_create(code=purchase_inbound_code,
                                                                        defaults={'description': 'INGRESO POR COMPRA',
                                                                                  'sunat_code': '02',
@@ -72,7 +72,7 @@ class Dashboard(View):
                                                                                  'requires_reference': True,
                                                                                  'is_active': True})
         if creado:
-            lista_notificaciones.append("Se ha creado el tipo de movimiento Ingreso por Compra")
+            notification_list.append("Se ha creado el tipo de movimiento Ingreso por Compra")
         movement_type, creado = MovementType.objects.get_or_create(code=order_outbound_code,
                                                                        defaults={'description': 'SALIDA POR PEDIDO',
                                                                                  'sunat_code': '10',
@@ -81,16 +81,16 @@ class Dashboard(View):
                                                                                  'is_active': True})
         inventario_inicial = Movement.objects.filter(movement_type__code=inventory_initial_movement_code).count()
         if creado:
-            lista_notificaciones.append("Se ha creado el tipo de movimiento Salida por Pedido")
+            notification_list.append("Se ha creado el tipo de movimiento Salida por Pedido")
         if warehouse_count == 0:
-            lista_notificaciones.append("No se ha creado ningún almacén")
+            notification_list.append("No se ha creado ningún almacén")
         if inbound_movement_type_count == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de ingreso")
+            notification_list.append("No se ha creado ningún tipo de movimiento de ingreso")
         if outbound_movement_type_count == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de movimiento de salida")
+            notification_list.append("No se ha creado ningún tipo de movimiento de salida")
         if inventario_inicial == 0:
-            lista_notificaciones.append("No se ha realizado el inventario inicial")
-        context = {'notificaciones': lista_notificaciones}
+            notification_list.append("No se ha realizado el inventario inicial")
+        context = {'notifications': notification_list}
         return render(request, 'warehouse/warehouse_dashboard.html', context)
 
 
@@ -266,7 +266,7 @@ class InitialInventoryImport(CsvImportMixin, FormView):
                              'entra al tablero de Contabilidad para crearlo y vuelve a cargar el file.')
         if missing:
             return self.render_to_response(self.get_context_data(form=form,
-                                                                 notificaciones=missing))
+                                                                 notifications=missing))
         self.operation_date = self.get_datetime(data['date'], data['time'])
         self.cont_detalles = 1
         self.details = []
@@ -372,7 +372,7 @@ class OutboundDetailCreate(AjaxOnlyMixin, TemplateView):
             det['amount'] = '0'
             detail_list.append(det)
             formset = OutboundDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['code'] = str(form['code'])
@@ -381,8 +381,8 @@ class OutboundDetailCreate(AjaxOnlyMixin, TemplateView):
                 detail_json['price'] = str(form['price'])
                 detail_json['unit'] = str(form['unit'])
                 detail_json['amount'] = str(form['amount'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -398,15 +398,15 @@ class OrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['unit'] = ''
             detail_list.append(det)
             formset = OrderDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['code'] = str(form['code'])
                 detail_json['name'] = str(form['name'])
                 detail_json['quantity'] = str(form['quantity'])
                 detail_json['unit'] = str(form['unit'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -425,7 +425,7 @@ class InboundDetailCreate(AjaxOnlyMixin, TemplateView):
             det['amount'] = '0'
             detail_list.append(det)
             formset = InboundDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['purchase_order'] = str(form['purchase_order'])
@@ -435,8 +435,8 @@ class InboundDetailCreate(AjaxOnlyMixin, TemplateView):
                 detail_json['price'] = str(form['price'])
                 detail_json['unit'] = str(form['unit'])
                 detail_json['amount'] = str(form['amount'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -1465,10 +1465,10 @@ class PriceReprocess(FormView):
         details = Kardex.objects.filter(product=product,
                                          warehouse=warehouse,
                                          operation_date__gte=start_date).order_by('operation_date')
-        indice = 0
+        index = 0
         for detail in details:
             try:
-                previous = details[indice - 1]
+                previous = details[index - 1]
                 previous_quantity = previous.total_quantity
                 previous_amount = previous.total_amount
                 previous_price = Decimal(round(previous_amount / previous_quantity, 8))
@@ -1491,7 +1491,7 @@ class PriceReprocess(FormView):
                 except ZeroDivisionError:
                     detail.total_price = 0
             detail.save()
-            indice = indice + 1
+            index = index + 1
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -1863,7 +1863,7 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
                 det['amount'] = amount
                 detail_list.append(det)
         formset = OutboundDetailFormSet(initial=detail_list)
-        lista_json = []
+        json_list = []
         for form in formset:
             detail_json = {}
             detail_json['order'] = str(form['order'])
@@ -1873,8 +1873,8 @@ class VerifyStockForOrder(AjaxOnlyMixin, TemplateView):
             detail_json['price'] = str(form['price'])
             detail_json['unit'] = str(form['unit'])
             detail_json['amount'] = str(form['amount'])
-            lista_json.append(detail_json)
-        data = json.dumps(lista_json)
+            json_list.append(detail_json)
+        data = json.dumps(json_list)
         return HttpResponse(data, 'application/json')
 
 

@@ -46,7 +46,7 @@ locale.setlocale(locale.LC_ALL, "")
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        lista_notificaciones = []
+        notification_list = []
         supplier_count = Supplier.objects.count()
         product_count = Product.objects.filter(is_service=False).count()
         unit_of_measure_count = UnitOfMeasure.objects.count()
@@ -55,18 +55,18 @@ class Dashboard(View):
         unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
                                                                    defaults={'description': 'SERVICIO'})
         if supplier_count == 0:
-            lista_notificaciones.append("No se ha creado ningún proveedor")
+            notification_list.append("No se ha creado ningún proveedor")
         if creado:
-            lista_notificaciones.append("Se ha creado la unidad de medida SERVICIO")
+            notification_list.append("Se ha creado la unidad de medida SERVICIO")
         if product_count == 0:
-            lista_notificaciones.append("No se ha creado ningún producto")
+            notification_list.append("No se ha creado ningún producto")
         if unit_of_measure_count == 0:
-            lista_notificaciones.append("No se ha creado ningún tipo de unidad de medida")
+            notification_list.append("No se ha creado ningún tipo de unidad de medida")
         if supply_group_count == 0:
-            lista_notificaciones.append("No se ha creado ningún grupo de productos")
+            notification_list.append("No se ha creado ningún grupo de productos")
         if service_count == 0:
-            lista_notificaciones.append("No se ha creado ningún service")
-        context = {'notificaciones': lista_notificaciones}
+            notification_list.append("No se ha creado ningún service")
+        context = {'notifications': notification_list}
         return render(request, 'purchases/purchases_dashboard.html', context)
 
 
@@ -172,7 +172,7 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['amount'] = '0'
             detail_list.append(det)
             formset = PurchaseOrderDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['quotation'] = str(form['quotation'])
@@ -183,8 +183,8 @@ class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
                 detail_json['price'] = str(form['price'])
                 detail_json['tax'] = str(form['tax'])
                 detail_json['amount'] = str(form['amount'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -203,7 +203,7 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
             det['amount'] = '0'
             detail_list.append(det)
             formset = ServiceOrderDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['quotation'] = str(form['quotation'])
@@ -213,8 +213,8 @@ class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
                 detail_json['quantity'] = str(form['quantity'])
                 detail_json['price'] = str(form['price'])
                 detail_json['amount'] = str(form['amount'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -1269,7 +1269,7 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                 formset = PurchaseOrderDetailFormSet(initial=detail_list)
             elif search_type == 'SERVICIOS':
                 formset = ServiceOrderDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             if search_type == 'PRODUCTOS':
                 for form in formset:
                     detail_json = {}
@@ -1281,7 +1281,7 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                     detail_json['quantity'] = str(form['quantity'])
                     detail_json['tax'] = str(form['tax'])
                     detail_json['amount'] = str(form['amount'])
-                    lista_json.append(detail_json)
+                    json_list.append(detail_json)
             elif search_type == 'SERVICIOS':
                 for form in formset:
                     detail_json = {}
@@ -1292,8 +1292,8 @@ class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
                     detail_json['unit'] = str(form['unit'])
                     detail_json['quantity'] = str(form['quantity'])
                     detail_json['amount'] = str(form['amount'])
-                    lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                    json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -1319,7 +1319,7 @@ class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                 except ExchangeRate.DoesNotExist:
                     exchange_rate = 0
             detail_list = []
-            lista_json = []
+            json_list = []
             if exchange_rate > 0:
                 details = PurchaseOrderDetail.objects.filter(order=purchase_order,
                                                              status=PurchaseOrderDetail.STATUS.PEND).order_by(
@@ -1352,8 +1352,8 @@ class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                     detail_json['price'] = str(form['price'])
                     detail_json['unit'] = str(form['unit'])
                     detail_json['amount'] = str(form['amount'])
-                    lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                    json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -1389,7 +1389,7 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                     det['amount'] = str(detail.amount)
                 detail_list.append(det)
             formset = ServiceConformityDetailFormSet(initial=detail_list)
-            lista_json = []
+            json_list = []
             for form in formset:
                 detail_json = {}
                 detail_json['service_order'] = str(form['service_order'])
@@ -1398,8 +1398,8 @@ class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
                 detail_json['price'] = str(form['price'])
                 detail_json['quantity'] = str(form['quantity'])
                 detail_json['amount'] = str(form['amount'])
-                lista_json.append(detail_json)
-            data = json.dumps(lista_json)
+                json_list.append(detail_json)
+            data = json.dumps(json_list)
             return HttpResponse(data, 'application/json')
 
 

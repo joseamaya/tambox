@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        lista_notificaciones = []
+        notification_list = []
         worker_count = Worker.objects.all().count()
         position_count = Position.objects.all().count()
         profession_count = Profession.objects.all().count()
@@ -39,19 +39,19 @@ class Dashboard(View):
                                                        defaults={'name': 'GERENCIA GENERAL',
                                                                  'is_management': True})
         if creada:
-            lista_notificaciones.append("Se ha creado la oficina de GERENCIA GENERAL")
+            notification_list.append("Se ha creado la oficina de GERENCIA GENERAL")
         if worker_count == 0:
-            lista_notificaciones.append("No se ha registrado ningún trabajador")
+            notification_list.append("No se ha registrado ningún trabajador")
         if position_count == 0:
-            lista_notificaciones.append("No se ha registrado ningún puesto")
+            notification_list.append("No se ha registrado ningún puesto")
         if profession_count == 0:
-            lista_notificaciones.append("No se ha registrado ninguna profesión")
+            notification_list.append("No se ha registrado ninguna profesión")
         logistics_level, creada = ApprovalLevel.objects.get_or_create(description="LOGISTICA")
         _, creado = ApprovalLevel.objects.get_or_create(description="USUARIO",
                                                          defaults={'superior_level': logistics_level})
         if creada or creado:
-            lista_notificaciones.append("Se han creado los niveles de aprobación básicos")
-        context = {'notificaciones': lista_notificaciones}
+            notification_list.append("Se han creado los niveles de aprobación básicos")
+        context = {'notifications': notification_list}
         return render(request, 'administration/administration_dashboard.html', context)
 
 
@@ -66,10 +66,10 @@ class ReceiverDniSearch(AjaxOnlyMixin, TemplateView):
                 receiver = Producer.objects.get(dni=dni)
             else:
                 receiver = Worker.objects.get(dni=dni)
-            receptor_json = {}
-            receptor_json['dni'] = receiver.dni
-            receptor_json['full_name'] = str(receiver.full_name())
-            data = simplejson.dumps(receptor_json)
+            receiver_json = {}
+            receiver_json['dni'] = receiver.dni
+            receiver_json['full_name'] = str(receiver.full_name())
+            data = simplejson.dumps(receiver_json)
             return HttpResponse(data, 'application/json')
 
 
@@ -81,18 +81,18 @@ class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
             name = request.GET['name']
             movement_type = MovementType.objects.get(pk=request.GET['movement_type'])
             if movement_type.is_sale:
-                receptores = Producer.objects.filter(last_name__icontains=name)[:20]
+                receivers = Producer.objects.filter(last_name__icontains=name)[:20]
             else:
-                receptores = Worker.objects.filter(
+                receivers = Worker.objects.filter(
                     Q(last_name__icontains=name) | Q(
                         first_name__icontains=name))[:20]
-            lista_receptores = []
-            for receiver in receptores:
-                receptor_json = {}
-                receptor_json['label'] = str(receiver.full_name())
-                receptor_json['dni'] = receiver.dni
-                lista_receptores.append(receptor_json)
-            data = json.dumps(lista_receptores)
+            receivers_list = []
+            for receiver in receivers:
+                receiver_json = {}
+                receiver_json['label'] = str(receiver.full_name())
+                receiver_json['dni'] = receiver.dni
+                receivers_list.append(receiver_json)
+            data = json.dumps(receivers_list)
             return HttpResponse(data, 'application/json')
 
 
@@ -424,7 +424,7 @@ class OfficeExcelReport(TemplateView):
 
 class ProfessionExcelReport(TemplateView):
     def get(self, request, *args, **kwargs):
-        profesiones = Profession.objects.filter(is_active=True)
+        professions = Profession.objects.filter(is_active=True)
         wb = Workbook()
         ws = wb.active
         ws['B1'] = 'REPORTE DE PROFESIONES'
@@ -433,7 +433,7 @@ class ProfessionExcelReport(TemplateView):
         ws['C3'] = 'DESCRIPCION'
         ws['D3'] = 'ESTADO'
         cont = 4
-        for profession in profesiones:
+        for profession in professions:
             ws.cell(row=cont, column=2).value = profession.abbreviation
             ws.cell(row=cont, column=3).value = profession.description
             ws.cell(row=cont, column=4).value = profession.is_active
