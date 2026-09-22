@@ -6,7 +6,7 @@ from administration.forms import OfficeForm, WorkerForm, PositionForm, PositionU
     ProfessionForm, ApprovalLevelForm, ProducerForm
 from warehouse.models import MovementType
 from accounting.forms import UploadForm
-from tambox.views import CsvImportMixin, AjaxOnlyMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
 from django.views.generic.list import ListView
@@ -268,42 +268,60 @@ class ApprovalLevelDetail(DetailView):
     template_name = 'administration/approval_level_detail.html'
 
 
-class OfficeList(ListView):
+class OfficeList(HtmxListMixin, ListView):
     model = Office
     template_name = 'administration/office_list.html'
+    fragment_template_name = 'administration/includes/office_rows.html'
     context_object_name = 'offices'
+    paginate_by = 10
     queryset = Office.objects.all().order_by('name')
+    search_fields = ('code', 'name')
 
 
-class WorkerList(ListView):
+class WorkerList(HtmxListMixin, ListView):
     model = Worker
     template_name = 'administration/worker_list.html'
+    fragment_template_name = 'administration/includes/worker_rows.html'
     context_object_name = 'workers'
+    paginate_by = 10
+    search_fields = ('dni', 'last_name', 'first_name')
 
 
-class ProducerList(ListView):
+class ProducerList(HtmxListMixin, ListView):
     model = Producer
     template_name = 'administration/producer_list.html'
+    fragment_template_name = 'administration/includes/producer_rows.html'
     context_object_name = 'producers'
+    paginate_by = 10
+    search_fields = ('dni', 'last_name', 'first_name')
 
 
-class PositionList(ListView):
+class PositionList(HtmxListMixin, ListView):
     model = Position
     template_name = 'administration/position_list.html'
+    fragment_template_name = 'administration/includes/position_rows.html'
     context_object_name = 'positions'
+    paginate_by = 10
     queryset = Position.objects.filter(is_active=True)
+    search_fields = ('name',)
 
 
-class ProfessionList(ListView):
+class ProfessionList(HtmxListMixin, ListView):
     model = Profession
     template_name = 'administration/profession_list.html'
+    fragment_template_name = 'administration/includes/profession_rows.html'
     context_object_name = 'professions'
+    paginate_by = 10
+    search_fields = ('abbreviation', 'description')
 
 
-class ApprovalLevelList(ListView):
+class ApprovalLevelList(HtmxListMixin, ListView):
     model = ApprovalLevel
     template_name = 'administration/approval_level_list.html'
+    fragment_template_name = 'administration/includes/approval_level_rows.html'
     context_object_name = 'levels'
+    paginate_by = 10
+    search_fields = ('description',)
 
 
 class ApprovalLevelUpdate(UpdateView):

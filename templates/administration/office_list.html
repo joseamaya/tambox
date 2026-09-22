@@ -28,88 +28,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">CODIGO</th>
-                <th class="text-center">NOMBRE</th>
-                <th class="text-center">DEPENDENCIA</th>
-                <th class="text-center">ACCION</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for office in offices %}
-            {% if perms.administration.ver_detalle_oficina %}
-            <tr>
-                {% else %}
-            <tr>
-                {% endif %}
-                <td>{{ office.code }}</td>
-                <td>{{ office.name }}</td>
-                {% if office.dependency %}
-                <td>{{ office.dependency }}</td>
-                {% else %}
-                <td>NINGUNA</td>
-                {% endif %}
-                <td class="text-center">
-                    {% if perms.administration.ver_detalle_oficina %}
-                    <a onclick="return abrir_modal('{% url 'administration:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
-                       class="btn">
-                        <span class="glyphicon glyphicon-eye-open"></span>
-                    </a>
-                    {% endif %}
-                    {% if perms.administration.change_office %}
-                    <a onclick="return abrir_modal('{% url 'administration:office_update' office.pk %}','Oficinas / {{ office.name }}')"
-                       class="btn">
-                        <span class="glyphicon glyphicon-edit"></span>
-                    </a>
-                    {% endif %}
-                    {% if perms.administration.delete_office %}
-                    <a onclick="return abrir_modal('{% url 'administration:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
-                       class="btn">
-                        <span class="glyphicon glyphicon-remove"></span>
-                    </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por código o nombre"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
-<div id="popup"></div>
+<br/>
+<div id="list-results">
+    {% include "administration/includes/office_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#table').dataTable( 
-    {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        },        
-    });
-
-});
-
-var modal;
-function abrir_modal(url, titulo)
-{
-	modal = $('#popup').dialog(
-	{
-		title: titulo,
-		modal: true,
-		width: 1000,
-		resizable: false,
-		position: { my: "center", at: "center", of: "#page-wrapper"}
-	}).dialog('open').load(url)
-}
-
-function cerrar_modal()
-{
-	modal.dialog("close");
-}
-
-</script>
-{% endblock js %}

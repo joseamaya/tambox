@@ -26,61 +26,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">DNI</th>
-                <th class="text-center">APELLIDOS</th>
-                <th class="text-center">NOMBRE</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for producer in producers %}
-            {% if perms.administration.ver_detalle_productor %}
-            <tr onclick="return abrir_modal('{% url 'administration:producer_detail' producer.pk %}','Producer / {{ producer.first_name }} {{ producer.last_name }}')">
-                {% else %}
-            <tr onclick=" return alert('wexd0');">
-                {% endif %}
-                <td>{{ producer.dni }}</td>
-                <td>{{ producer.last_name }}</td>
-                <td>{{ producer.first_name }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por DNI, apellidos o nombre"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
-<div id="popup"></div>
+<br/>
+<div id="list-results">
+    {% include "administration/includes/producer_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#table').dataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 
-    $('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	}); 
-    
-});
-function abrir_modal(url, titulo)
-{
-	ventana_transferencia = $('#popup').dialog(
-	{
-		title: titulo,
-		modal: true,
-		width: 1000,
-		resizable: false,
-		position: { my: "center", at: "center", of: "#page-wrapper"}
-	}).dialog('open').load(url)
-
-}
-
-</script>
-{% endblock js %}

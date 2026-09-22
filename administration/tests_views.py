@@ -120,6 +120,31 @@ class AdministrationViewsTest(TestCase):
                                     {'description': 'NIVEL EDITADO'})
         self.assertEqual(302, response.status_code)
 
+    def test_lists_return_htmx_fragment_and_search(self):
+        office = baker.make(Office, code='OF01', name='OFICINA UNICA')
+        worker = baker.make(Worker, dni='12345678', last_name='TRABAJADOR UNICO')
+        baker.make(Producer, dni='87654321', last_name='PRODUCTOR UNICO')
+        baker.make(Position, office=office, worker=worker, name='PUESTO UNICO',
+                   end_date=None)
+        baker.make(Profession, abbreviation='ING', description='PROFESION UNICA')
+        baker.make(ApprovalLevel, description='NIVEL UNICO')
+        cases = [
+            ('administration:office_list', 'OFICINA UNICA'),
+            ('administration:worker_list', 'TRABAJADOR UNICO'),
+            ('administration:producer_list', 'PRODUCTOR UNICO'),
+            ('administration:position_list', 'PUESTO UNICO'),
+            ('administration:profession_list', 'PROFESION UNICA'),
+            ('administration:approval_level_list', 'NIVEL UNICO'),
+        ]
+
+        for name, term in cases:
+            with self.subTest(name=name):
+                fragment = self.client.get(reverse(name), {'q': term},
+                                           HTTP_HX_REQUEST='true')
+                self.assertEqual(200, fragment.status_code)
+                self.assertNotContains(fragment, '<html')
+                self.assertContains(fragment, term)
+
     def test_dashboard_and_reports(self):
         self.assertEqual(200, self.client.get(reverse('administration:dashboard')).status_code)
 
