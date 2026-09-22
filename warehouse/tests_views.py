@@ -256,6 +256,31 @@ class WarehouseViewsTest(TestCase):
                 response = self.client.get(reverse(name))
                 self.assertIn(response.status_code, (200, 302))
 
+    def test_warehouse_lists_htmx(self):
+        warehouse = baker.make(Warehouse, description='ALM UNICO')
+        inbound = baker.make(MovementType, code='I01', increases=True)
+        outbound = baker.make(MovementType, code='S01', increases=False)
+        baker.make(Movement, movement_id='MOV-UNICO', movement_type=inbound,
+                   warehouse=warehouse)
+        baker.make(Movement, movement_id='SAL-UNICO', movement_type=outbound,
+                   warehouse=warehouse)
+        baker.make(Order, code='PED-UNICO',
+                   requester=baker.make('administration.Worker'),
+                   office=baker.make('administration.Office'))
+        cases = [
+            ('warehouse:movement_list', 'MOV-UNICO'),
+            ('warehouse:inbound_list', 'MOV-UNICO'),
+            ('warehouse:outbound_list', 'SAL-UNICO'),
+            ('warehouse:order_list', 'PED-UNICO'),
+        ]
+
+        for name, expected in cases:
+            with self.subTest(name=name):
+                fragment = self.client.get(reverse(name), HTTP_HX_REQUEST='true')
+                self.assertEqual(200, fragment.status_code)
+                self.assertNotContains(fragment, '<html')
+                self.assertContains(fragment, expected)
+
     def test_movement_type_list_htmx(self):
         for number in range(12):
             baker.make(MovementType, code='T%02d' % number,

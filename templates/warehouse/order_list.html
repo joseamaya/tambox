@@ -14,8 +14,8 @@
         <div class="btn-group">
             {% if perms.warehouse.ver_reporte_pedidos_excel %}
             <button class="btn btn-default" type="button"
-            ">
-            <span class="glyphicon glyphicon-list-alt"></span>
+                    onclick="location.href='{% url 'warehouse:movement_report' %}';">
+                <span class="glyphicon glyphicon-list-alt"></span>
             </button>
             {% endif %}
         </div>
@@ -23,45 +23,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">PEDIDO</th>
-                <th class="text-center">OFICINA</th>
-                <th class="text-center">FEC OPERACION</th>
-                <th class="text-center">ESTADO</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for order in orders %}
-            <tr onclick="location.href='{% url 'warehouse:order_detail' order.pk %}';">
-                <td>{{ order.code }}</td>
-                <td>{{ order.office }}</td>
-                <td>{{ order.date|date:"d/m/y" }}</td>
-                <td>{{ order.get_status_display }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por pedido u oficina"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
+<br/>
+<div id="list-results">
+    {% include "warehouse/includes/order_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#table').DataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 
-    $('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	});
-});
-
-</script>
-{% endblock js %}

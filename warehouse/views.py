@@ -651,11 +651,14 @@ class WarehouseList(HtmxListMixin, ListView):
     search_fields = ('code', 'description')
 
 
-class OrderList(ListView):
+class OrderList(HtmxListMixin, ListView):
     model = Order
     template_name = 'warehouse/order_list.html'
+    fragment_template_name = 'warehouse/includes/order_rows.html'
     context_object_name = 'orders'
+    paginate_by = 10
     queryset = Order.objects.exclude(status=Order.STATUS.CANC).order_by('code')
+    search_fields = ('code', 'office__name')
 
 
 class MovementTypeList(HtmxListMixin, ListView):
@@ -668,25 +671,37 @@ class MovementTypeList(HtmxListMixin, ListView):
     search_fields = ('code', 'description')
 
 
-class MovementList(ListView):
+class MovementList(HtmxListMixin, ListView):
     model = Movement
     template_name = 'warehouse/movements.html'
+    fragment_template_name = 'warehouse/includes/movement_rows.html'
     context_object_name = 'movements'
+    paginate_by = 10
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT)
+    search_fields = ('movement_id', 'warehouse__description',
+                     'movement_type__description')
 
 
-class InboundList(ListView):
+class InboundList(HtmxListMixin, ListView):
     model = Movement
     template_name = 'warehouse/entry_list.html'
+    fragment_template_name = 'warehouse/includes/inbound_rows.html'
     context_object_name = 'movements'
+    paginate_by = 10
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=True)
+    search_fields = ('movement_id', 'warehouse__description',
+                     'movement_type__description')
 
 
-class OutboundList(ListView):
+class OutboundList(HtmxListMixin, ListView):
     model = Movement
     template_name = 'warehouse/exit_list.html'
+    fragment_template_name = 'warehouse/includes/outbound_rows.html'
     context_object_name = 'movements'
+    paginate_by = 10
     queryset = Movement.objects.filter(status=Movement.STATUS.ACT, movement_type__increases=False)
+    search_fields = ('movement_id', 'warehouse__description',
+                     'movement_type__description')
 
 
 class MovementListByOrder(ListView):
