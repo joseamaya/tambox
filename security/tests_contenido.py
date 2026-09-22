@@ -226,3 +226,15 @@ class PageContentTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'IMPUESTO-XYZ')
+
+    def test_login_page_resolves_static_assets(self):
+        """Un `{% static %}` con el nombre partido por un salto de linea no solo
+        deja el login sin CSS: en produccion, con `manifest_strict`, lanza
+        `ValueError` y la pagina de entrada da 500."""
+        self.client.logout()
+
+        response = self.client.get(reverse('security:login'))
+
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, '/static/css/bootstrap.min.css')
+        self.assertContains(response, '/static/js/jquery.js')

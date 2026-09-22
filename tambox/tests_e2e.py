@@ -25,9 +25,9 @@ class BusinessFlowTest(TestCase):
     """Un solo grafo de datos para los dos escenarios: bienes y servicios."""
 
     def setUp(self):
-        usuario = ApprovalLevel.objects.get_or_create(description='USUARIO')[0]
+        user_level = ApprovalLevel.objects.get_or_create(description='USUARIO')[0]
         ApprovalLevel.objects.get_or_create(description='JEFATURA',
-                                            superior_level=usuario)
+                                            superior_level=user_level)
         self.user = User.objects.create_superuser('e2e', 'e2e@example.com', 'clave')
         self.client.force_login(self.user)
 

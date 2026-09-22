@@ -66,8 +66,34 @@ Es lo mismo que corre `.github/workflows/ci.yml` en cada push.
 
 Todo se lee de variables de entorno, o del `.env` en desarrollo. Las de
 producción están comentadas en `.env.example`: `DATABASE_URL`, `ALLOWED_HOSTS`,
-`CSRF_TRUSTED_ORIGINS` y `LOG_LEVEL`.
+`CSRF_TRUSTED_ORIGINS`, `LOG_LEVEL`, `SECURE_SSL_REDIRECT` y
+`SECURE_HSTS_SECONDS`.
 
 En producción se arranca con `gunicorn` (ver `Procfile`) y
 `tambox.settings.production`, donde `DEBUG` es `False` y no hay valores por
 defecto para la clave secreta ni para la base.
+
+## Despliegue
+
+El `Procfile` trae dos procesos:
+
+- `release`: `migrate` y `collectstatic --noinput`. Es obligatorio: sin
+  `collectstatic` no existe el manifest y los `{% static %}` de las plantillas
+  fallan (la página de login da error).
+- `web`: `gunicorn tambox.wsgi`.
+
+El sitio se asume detrás de un proxy que termina el TLS: `production` fuerza
+`SECURE_SSL_REDIRECT` y las cookies seguras, y lee `X-Forwarded-Proto`. HSTS se
+activa solo si defines `SECURE_HSTS_SECONDS` (por defecto `0`), porque es difícil
+de revertir.
+
+Los archivos subidos (`MEDIA_ROOT`: logos, imágenes de productos, firmas) **no**
+los sirve `whitenoise`, que solo atiende los estáticos. Hay que servirlos con el
+proxy inverso en `/media/` o con un almacenamiento de objetos.
+
+Antes de desplegar conviene pasar:
+
+```bash
+DJANGO_SETTINGS_MODULE=tambox.settings.production \
+  .venv/bin/python manage.py check --deploy
+```

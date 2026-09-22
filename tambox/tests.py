@@ -177,3 +177,23 @@ class NavigableQuerySetTest(TestCase):
     def test_previous_and_next_in_the_middle(self):
         self.assertEqual(self.first.pk, Warehouse.objects.previous(self.middle).pk)
         self.assertEqual(self.last.pk, Warehouse.objects.next(self.middle).pk)
+
+
+class ProductionSettingsTest(TestCase):
+    """Los flags de seguridad que no trae Django por defecto y que, si se
+    pierden, dejan el sitio sin forzar HTTPS ni cookies seguras."""
+
+    def test_security_flags(self):
+        from tambox.settings import production
+
+        self.assertFalse(production.DEBUG)
+        self.assertEqual(('HTTP_X_FORWARDED_PROTO', 'https'),
+                         production.SECURE_PROXY_SSL_HEADER)
+        self.assertTrue(production.SESSION_COOKIE_SECURE)
+        self.assertTrue(production.CSRF_COOKIE_SECURE)
+
+    def test_manifest_storage_for_static(self):
+        from tambox.settings import production
+
+        self.assertEqual('whitenoise.storage.CompressedManifestStaticFilesStorage',
+                         production.STORAGES['staticfiles']['BACKEND'])

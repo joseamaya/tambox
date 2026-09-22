@@ -30,6 +30,21 @@ else:
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# El sitio va detras de un proxy que termina el TLS (ver SECURE_PROXY_SSL_HEADER),
+# asi que la app siempre ve HTTPS y puede forzar cookies seguras. HSTS se activa
+# aparte, con `SECURE_HSTS_SECONDS`, porque es dificil de revertir.
+SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'true').lower() == 'true'
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', '0'))
+
+SECURE_HSTS_INCLUDE_SUBDOMAINS = SECURE_HSTS_SECONDS > 0
+
+SECURE_HSTS_PRELOAD = SECURE_HSTS_SECONDS > 0
+
 MIDDLEWARE = MIDDLEWARE + (
     'whitenoise.middleware.WhiteNoiseMiddleware',
 )
