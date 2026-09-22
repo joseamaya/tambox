@@ -132,7 +132,7 @@ class OrderApprove(CreateView):
         try:
             positions = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
-                return HttpResponseRedirect(reverse('administration:worker_update'))
+                return HttpResponseRedirect(reverse('administration:worker_update', args=[worker.pk]))
             if positions[0].is_leadership and positions[0].office == logistics():
                 form_class = self.get_form_class()
                 form = self.get_form(form_class)
@@ -184,13 +184,15 @@ class OrderApprove(CreateView):
                                                                order_detail=OrderDetail.objects.get(
                                                                    pk=order_detail),
                                                                quantity=quantity,
-                                                               price=price)
+                                                               price=price,
+                                                               amount=amount)
                         details.append(movement_detail)
                         cont = cont + 1
                 MovementDetail.objects.bulk_create(details, None, order)
                 return HttpResponseRedirect(reverse('warehouse:movement_detail_view', args=[self.object.movement_id]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando la cotizacion.')
+            return self.form_invalid(form, outbound_detail_formset)
 
     def form_invalid(self, form, outbound_detail_formset):
         return self.render_to_response(self.get_context_data(form=form,
@@ -632,7 +634,7 @@ class OrderApprovalList(ListView):
         try:
             positions = worker.positions.all().filter(is_active=True)
             if worker.signature == '':
-                return HttpResponseRedirect(reverse('administration:worker_update'))
+                return HttpResponseRedirect(reverse('administration:worker_update', args=[worker.pk]))
             if positions[0].is_leadership and positions[0].office == logistics():
                 return super(OrderApprovalList, self).dispatch(*args, **kwargs)
             else:

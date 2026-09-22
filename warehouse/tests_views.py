@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 from model_bakery import baker
 
-from warehouse.models import Movement, MovementType, Order, Warehouse
+from warehouse.models import Movement, MovementType, Order, OrderDetail, Warehouse
 
 
 class WarehouseViewsTest(TestCase):
@@ -244,3 +244,89 @@ class WarehouseViewsTest(TestCase):
             with self.subTest(name=name):
                 response = self.client.get(reverse(name))
                 self.assertIn(response.status_code, (200, 302))
+
+    def _approval_graph(self, signature='firmas/firma.png', leadership=True):
+        from datetime import date
+
+        from administration.models import Office, Position, Worker
+        from tambox.config import clear_cache
+
+        movement_type = baker.make(MovementType, code='S01', increases=False)
+        warehouse = baker.make(Warehouse)
+        worker = baker.make(Worker, user=self.user, signature=signature)
+        logistics = baker.make(Office)
+        baker.make(Position, office=logistics, worker=worker, is_leadership=leadership,
+                   is_active=True, start_date=date(2020, 1, 1), end_date=None)
+        baker.make('accounting.Configuration', logistics=logistics)
+        clear_cache()
+        self.addCleanup(clear_cache)
+        order = baker.make(Order, requester=baker.make(Worker), office=baker.make(Office))
+        product = baker.make('products.Product')
+        order_detail = baker.make(OrderDetail, order=order, product=product,
+                                  line_number=1, quantity=5,
+                                  status=OrderDetail.STATUS.PEND)
+        return movement_type, warehouse, order, product, order_detail
+
+    def test_order_approve_get(self):
+        _, _, order, _, _ = self._approval_graph()
+
+        response = self.client.get(reverse('warehouse:order_approve', args=[order.code]))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_order_approve_get_requires_signature(self):
+        _, _, order, _, _ = self._approval_graph(signature='')
+        worker = self.user.worker
+
+        response = self.client.get(reverse('warehouse:order_approve', args=[order.code]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:worker_update', args=[worker.pk]), response.url)
+
+    def test_order_approve_get_requires_worker(self):
+        order = baker.make(Order, requester=baker.make('administration.Worker'))
+
+        response = self.client.get(reverse('warehouse:order_approve', args=[order.code]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:worker_create'), response.url)
+
+    def test_order_approve_get_denied_without_logistics(self):
+        _, _, order, _, _ = self._approval_graph(leadership=False)
+
+        response = self.client.get(reverse('warehouse:order_approve', args=[order.code]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('security:permission_denied'), response.url)
+
+    def test_order_approve_post(self):
+        movement_type, warehouse, order, product, order_detail = self._approval_graph()
+        data = {'order_code': order.code, 'date': '01/01/2024', 'time': '10:00:00',
+                'total': '10.00000', 'warehouse': warehouse.pk, 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-order': order_detail.pk, 'form-0-code': product.pk,
+                'form-0-name': product.description, 'form-0-unit': 'UND01',
+                'form-0-quantity': '1', 'form-0-price': '10', 'form-0-amount': '10'}
+
+        response = self.client.post(reverse('warehouse:order_approve', args=[order.code]), data)
+
+        self.assertEqual(302, response.status_code)
+        movement = Movement.objects.get(movement_type=movement_type)
+        self.assertEqual(1, movement.details.count())
+        order_detail.refresh_from_db()
+        self.assertEqual(OrderDetail.STATUS.ATEN_PARC, order_detail.status)
+
+    def test_order_approve_post_invalid(self):
+        _, _, order, product, order_detail = self._approval_graph()
+        data = {'order_code': order.code, 'date': '01/01/2024', 'time': '10:00:00',
+                'total': '10.00000', 'warehouse': '', 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-order': order_detail.pk, 'form-0-code': product.pk,
+                'form-0-name': product.description, 'form-0-unit': 'UND01',
+                'form-0-quantity': '1', 'form-0-price': '10', 'form-0-amount': '10'}
+
+        response = self.client.post(reverse('warehouse:order_approve', args=[order.code]), data)
+
+        self.assertEqual(200, response.status_code)
