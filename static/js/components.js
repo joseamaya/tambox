@@ -152,6 +152,34 @@ function removeFormsetRow(button) {
 
 window.removeFormsetRow = removeFormsetRow;
 
+/*
+ * Spinner de carga al enviar un formulario de importacion (el que sube archivo).
+ * Antes cada plantilla de subida repetia el bloque de Spin.js.
+ */
+function showUploadSpinner() {
+    if (document.getElementById('divSpin')) {
+        return;
+    }
+    var target = document.createElement('div');
+    target.id = 'divSpin';
+    document.body.appendChild(target);
+    new Spinner({
+        lines: 13, length: 20, width: 10, radius: 30, corners: 1, rotate: 8,
+        direction: 1, color: '#000', speed: 1, trail: 60, shadow: false,
+        hwaccel: false, className: 'mySpin', zIndex: 2e9, top: '50%', left: '50%',
+    }).spin(target);
+}
+
+document.addEventListener('submit', function (event) {
+    var form = event.target;
+    if (form.matches('form[enctype="multipart/form-data"]')
+            && form.querySelector('input[type="file"]')) {
+        showUploadSpinner();
+    }
+});
+
+window.showUploadSpinner = showUploadSpinner;
+
 async function fetchJson(url) {
     const response = await fetch(url, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' },

@@ -66,7 +66,12 @@ function updateFormElementIndices(formClass) {
 function setupLoading() 
 {    
 	var mySpinner = null;
-	var target = document.getElementById("divSpin");    
+	var target = document.getElementById("divSpin");
+	if (target === null) {
+		target = document.createElement("div");
+		target.id = "divSpin";
+		document.body.appendChild(target);
+	}
     var opts = {
         lines: 13, // The number of lines to draw
         length: 20, // The length of each line
