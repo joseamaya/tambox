@@ -1788,17 +1788,6 @@ class ProductPdfReport(View):
         return response
 
 
-class VerifyDocumentRequired(AjaxOnlyMixin, TemplateView):
-
-    required_params = ('type',)
-
-    def get(self, request, *args, **kwargs):
-        type = request.GET['type']
-        movement_type = MovementType.objects.get(pk=type)
-        json_object = {'requires_document': movement_type.requires_document}
-        return JsonResponse(json_object)
-
-
 class VerifyReferenceRequired(AjaxOnlyMixin, TemplateView):
 
     required_params = ('type',)

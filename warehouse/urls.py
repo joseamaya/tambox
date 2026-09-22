@@ -1,7 +1,7 @@
 from django.urls import re_path
 from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
     OutboundDetailCreate,\
-    ProductPdfReport, MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList, VerifyDocumentRequired,\
+    ProductPdfReport, MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList,\
     MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailCreate,\
     StockQuery, ProductWarehouseSearch, MovementPdfReport, KardexReport, WarehouseDetail,\
     MovementDelete, WarehouseUpdate, WarehouseDelete, MovementTypeDetail, MovementUpdate,\
@@ -40,8 +40,6 @@ urlpatterns = [
         name="outbound_update"),
     re_path(r'^order_update/(?P<pk>.+)/$', OrderUpdate.as_view(), name="order_update"),
     re_path(r'^order_approve/(?P<code>.+)/$', OrderApprove.as_view(), name="order_approve"),
-    re_path(r'^verify_document_required/$', VerifyDocumentRequired.as_view(),
-        name="verify_document_required"),
     re_path(r'^verify_reference_required/$', VerifyReferenceRequired.as_view(),
         name="verify_reference_required"),
     re_path(r'^kardex_product_report/$', KardexProductReport.as_view(), name="kardex_product_report"),

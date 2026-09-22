@@ -14,22 +14,24 @@ class PasswordChangeForm(forms.Form):
         self.request = kwargs.pop("request")
         super(PasswordChangeForm, self).__init__(*args, **kwargs)
 
-    def clean_password_actual(self):
-        if self.cleaned_data.get('old_password') and not self.request.user.check_password(
-                self.cleaned_data['old_password']):
+    def clean_old_password(self):
+        old_password = self.cleaned_data.get('old_password')
+        if old_password and not self.request.user.check_password(old_password):
             raise ValidationError('La contraseña ingresada no es la actual.')
-        return self.cleaned_data['old_password']
+        return old_password
 
-    def clean_password_nueva(self):
-        if self.cleaned_data.get('new_password') and not len(self.cleaned_data['new_password']) > 6:
+    def clean_new_password(self):
+        new_password = self.cleaned_data.get('new_password')
+        if new_password and not len(new_password) > 6:
             raise ValidationError('La nueva contraseña no cumple los requisitos de seguridad mínimos.')
-        return self.cleaned_data['new_password']
+        return new_password
 
-    def clean_password_verificacion(self):
-        if self.cleaned_data.get('new_password') and self.cleaned_data.get('password_confirmation') and\
-                self.cleaned_data['new_password'] != self.cleaned_data['password_confirmation']:
+    def clean_password_confirmation(self):
+        new_password = self.cleaned_data.get('new_password')
+        password_confirmation = self.cleaned_data.get('password_confirmation')
+        if new_password and password_confirmation and new_password != password_confirmation:
             raise ValidationError('Las contraseñas no coinciden')
-        return self.cleaned_data['password_confirmation']
+        return password_confirmation
 
     def clean(self):
         user = self.request.user
@@ -37,10 +39,10 @@ class PasswordChangeForm(forms.Form):
         new_password = self.cleaned_data.get('new_password')
         password_confirmation = self.cleaned_data.get('password_confirmation')
         if old_password and new_password and password_confirmation:
-            new_password = self.clean_password_nueva()
             user.set_password(new_password)
             user.save()
             logout(self.request)
+        return self.cleaned_data
 
 
 class LoginForm(AuthenticationForm):

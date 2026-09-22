@@ -402,6 +402,7 @@ class ExchangeRateFetch(AjaxOnlyMixin, TemplateView):
             date = datetime.date(year, month, dia)
             try:
                 exchange_rate = ExchangeRate.objects.get(date=date)
+                exchange_rate = {'date': fetched_date, 'amount': float(exchange_rate.amount)}
             except ExchangeRate.DoesNotExist:
                 exchange_rate = {'date': fetched_date, 'amount': 0}
             data = simplejson.dumps(exchange_rate)
