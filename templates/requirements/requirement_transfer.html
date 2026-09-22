@@ -37,31 +37,16 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	var table = $('#example').dataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
+    $('#example tbody').on('click', 'tr', function () {
+        var row = $(this);
+        var already = row.hasClass('selected');
+        $('#example tbody tr').removeClass('selected');
+        if (already) {
+            $('#requirement').val('');
+        } else {
+            row.addClass('selected');
+            $('#requirement').val(row.find('td:first').text());
         }
-    } );
- 
-    $('#example tbody').on( 'click', 'tr', function() 
-    {
-    	if ($(this).hasClass('selected') ) 
-        {        	
-        	$(this).removeClass('selected');
-            
-        }
-        else 
-        {
-	        table.$('tr.selected').removeClass('selected');
-	        $(this).addClass('selected');
-	        var requirement = $(this).find('td.sorting_1').text();
-	        $('#requirement').val(requirement);	         
-        }
-    }); 
-    
-});
-
+    });
 </script>
 {% endblock js %}

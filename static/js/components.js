@@ -52,3 +52,33 @@ function productSearch(config) {
 }
 
 window.productSearch = productSearch;
+
+/*
+ * Ventana modal para el detalle/alta de administracion. Las plantillas la
+ * invocan con `onclick="return abrir_modal(url, titulo)"`; el contenido es un
+ * fragmento (sin `{% extends %}`) que se carga con jQuery UI.
+ *
+ * La definicion se habia perdido en un refactor y los enlaces de administracion
+ * quedaban sin hacer nada. Se crea `#popup` si la pagina no lo trae.
+ */
+function abrir_modal(url, titulo) {
+    var popup = $('#popup');
+    if (!popup.length) {
+        popup = $('<div id="popup"></div>').appendTo('body');
+    }
+    popup.dialog({
+        title: titulo,
+        modal: true,
+        width: 1000,
+        resizable: false,
+        position: { my: 'center', at: 'center', of: '#page-wrapper' },
+    }).dialog('open').load(url);
+    return false;
+}
+
+function cerrar_modal() {
+    $('#popup').dialog('close');
+}
+
+window.abrir_modal = abrir_modal;
+window.cerrar_modal = cerrar_modal;
