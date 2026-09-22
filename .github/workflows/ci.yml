@@ -49,6 +49,9 @@ jobs:
       - name: Linter
         run: ruff check .
 
+      - name: Auditoria de identificadores
+        run: python scripts/audit_identifiers.py
+
       - name: Comprobaciones de Django
         run: python manage.py check
 

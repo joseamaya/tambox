@@ -34,7 +34,9 @@ ALLOWED_WORDS = {
     'admin', 'message', 'messages', 'namespace', 'constants', 'valid',
 }
 # Nombres completos que la auditoria ignora (ficheros de terceros, etc.).
-ALLOWED_NAMES = {'numeroaletras'}
+# `es_locador` se omite a proposito: es codigo roto (`Supplier` no tiene ese
+# campo) y entra en el bloque de bugs, no en el de vocabulario.
+ALLOWED_NAMES = {'numeroaletras', 'es_locador'}
 
 SPANISH_WORDS = {
     'cantidad', 'precio', 'valor', 'fecha', 'nombre', 'apellido', 'codigo',
@@ -57,6 +59,20 @@ SPANISH_WORDS = {
     'atendida', 'cotizada', 'comprada', 'ingresada', 'valorizada',
     'consolidada', 'apellidos', 'nombres', 'archivo', 'factura', 'boleta',
     'guia', 'anular', 'representante', 'solicitud', 'pintando', 'desempata',
+    # Plurales y palabras que la primera pasada no cubria.
+    'respuesta', 'registro', 'permiso', 'permisos', 'formato', 'formatos',
+    'parametro', 'parametros', 'seleccion', 'consolidado', 'consolidados',
+    'protegidas', 'paginas', 'tablero', 'maestro', 'periodo',
+    'receptor', 'receptores', 'productos', 'productores', 'requerimientos',
+    'movimientos', 'pedidos', 'cuentas', 'grupos', 'unidades', 'existencias',
+    'impuestos', 'cotizaciones', 'conformidades', 'ordenes', 'documentos',
+    'almacenes', 'proveedores', 'trabajadores', 'oficinas', 'profesiones',
+    'puestos', 'tipos', 'servicios', 'administracion', 'seguridad',
+    'contabilidad', 'compras', 'izquierda', 'lista', 'titulo', 'encabezado',
+    'columna', 'nota', 'elemento', 'objeto', 'arreglo', 'diccionario',
+    'cadena', 'indice', 'moneda', 'porcentaje', 'nuevo', 'mayor', 'menor',
+    'igual', 'suma', 'resta', 'promedio', 'unitario', 'valorado',
+    'notificacion', 'notificaciones', 'facturado', 'pagado',
 }
 
 
@@ -111,6 +127,15 @@ def findings():
                 found.setdefault(key, set()).add(path.stem)
                 break
     for path in source_files():
+        if path.suffix == '.py':
+            # El nombre del modulo tambien es un identificador.
+            for segment in split_segments(path.stem):
+                if segment in PACKAGES or segment in ALLOWED_WORDS:
+                    continue
+                if segment in SPANISH_WORDS:
+                    key = str(path.relative_to(ROOT))
+                    found.setdefault(key, set()).add(path.stem)
+                    break
         source = path.read_text(encoding='utf8')
         if path.suffix == '.py':
             identifiers = python_identifiers(source)
