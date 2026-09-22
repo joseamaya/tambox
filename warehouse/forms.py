@@ -76,7 +76,7 @@ class MovementReportForm(forms.Form):
         self.fields['movement_types'].choices = movement_type_choices()
         self.fields['warehouses'].choices = warehouse_choices()
 
-    def clean_hasta(self):
+    def clean_end_date(self):
         self.cleaned_data['end_date'] = self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
         return self.cleaned_data['end_date']
 
@@ -191,7 +191,7 @@ class ProductMovementForm(forms.Form):
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
-    def clean_hasta(self):
+    def clean_end_date(self):
         self.cleaned_data['end_date'] = self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
         return self.cleaned_data['end_date']
 
