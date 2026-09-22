@@ -190,10 +190,10 @@ def to_word(number, currency_code=None):
                 entero = currency['singular']
             else:
                 entero = currency['plural']
-                if round(float(number) - int(number), 2) == float(0.01):
-                    fraccion = currency['decimalsingular']
-                else:
-                    fraccion = currency['decimalplural']
+            if round(float(number) - int(number), 2) == float(0.01):
+                fraccion = currency.get('decimalsingular', '')
+            else:
+                fraccion = currency.get('decimalplural', '')
 
         except StopIteration:
             return "Tipo de moneda inválida"
