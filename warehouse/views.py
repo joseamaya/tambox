@@ -1803,10 +1803,11 @@ class VerifyReferenceRequired(AjaxOnlyMixin, TemplateView):
     required_params = ('type',)
 
     def get(self, request, *args, **kwargs):
-        type = request.GET['type']
-        movement_type = MovementType.objects.get(pk=type)
-        json_object = {'requires_reference': movement_type.requires_reference}
-        return JsonResponse(json_object)
+        raw_type = request.GET['type']
+        movement_type = (MovementType.objects.filter(pk=raw_type).first()
+                         if raw_type.isdigit() else None)
+        requires_reference = movement_type.requires_reference if movement_type else False
+        return JsonResponse({'requires_reference': requires_reference})
 
 
 class OrderApproveDetailRows(TemplateView):

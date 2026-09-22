@@ -67,6 +67,12 @@ class WarehouseAjaxTest(TestCase):
 
         self.assertTrue(response.json()['requires_reference'])
 
+    def test_verify_reference_empty_type(self):
+        response = self.get('warehouse:verify_reference_required', {'type': ''})
+
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(response.json()['requires_reference'])
+
     def test_order_approve_detail_rows(self):
         order = baker.make(Order, code='P000000001')
         baker.make(OrderDetail, order=order, product=self.product, quantity=2,
