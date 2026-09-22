@@ -276,6 +276,18 @@ class WarehouseViewsTest(TestCase):
         self.assertContains(search, 'TIPO 11')
         self.assertNotContains(search, 'TIPO 00')
 
+    def test_warehouse_list_htmx(self):
+        baker.make(Warehouse, code='AL01', description='ALMACEN UNO')
+        url = reverse('warehouse:warehouse_list')
+
+        fragment = self.client.get(url, HTTP_HX_REQUEST='true')
+        self.assertEqual(200, fragment.status_code)
+        self.assertNotContains(fragment, '<html')
+        self.assertContains(fragment, 'ALMACEN UNO')
+
+        search = self.client.get(url, {'q': 'NO EXISTE'}, HTTP_HX_REQUEST='true')
+        self.assertNotContains(search, 'ALMACEN UNO')
+
     def _approval_graph(self, signature='firmas/firma.png', leadership=True):
         from datetime import date
 

@@ -641,11 +641,14 @@ class OrderApprovalList(ListView):
         return queryset
 
 
-class WarehouseList(ListView):
+class WarehouseList(HtmxListMixin, ListView):
     model = Warehouse
     template_name = 'warehouse/warehouse_list.html'
+    fragment_template_name = 'warehouse/includes/warehouse_rows.html'
     context_object_name = 'warehouses'
+    paginate_by = 10
     queryset = Warehouse.objects.all().order_by('description')
+    search_fields = ('code', 'description')
 
 
 class OrderList(ListView):

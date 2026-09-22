@@ -27,91 +27,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">CODIGO</th>
-                <th class="text-center">DESCRIPCION</th>
-                <th class="text-center">DÍAS DE CRÉDITO</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for payment_method in payment_methods %}
-            {% if perms.warehouse.ver_detalle_tipo_movimiento %}
-            <tr onclick="location.href='{% url 'accounting:payment_method_detail' payment_method.pk %}';">
-                {% else %}
-            <tr>
-                {% endif %}
-                <td>{{ payment_method.code }}</td>
-                <td>{{ payment_method.description }}</td>
-                <td>{{ payment_method.credit_days }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por código o descripción"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
+<br/>
+<div id="list-results">
+    {% include "accounting/includes/payment_method_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#table').DataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 
-    $('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	}); 
-    
-    $(document).on("click",".eliminar",function()
-	{
-		borrarSeleccionado = $(this);		
-		ventana = $( "#dialog-confirm" ).dialog({
-		  resizable: false,
-		  height:140,
-		  modal: true,
-		  buttons: 
-		  {
-			"Borrar": borrarFormaPago,
-		    "Cancelar": cerrarBorrarFormaPago
-		  }
-		});		
-	});
-	   
-	function borrarFormaPago()
-	{
-	   	var id_boton= $(borrarSeleccionado).prop('id');
-	   	var code = id_boton.replace("elim_","");
-	   	$.ajax({
-	   		data : {'code': code},
-	   		url : "{% url 'accounting:payment_method_delete' %}",
-	   		type : 'post',
-	   		success : function(data)
-	   		{
-	   			if(data.relaciones=='NO')
-	   			{
-	   				alert("Forma de Pago "+data.description+ " eliminado");
-	   				table.row('.selected').remove().draw(false);
-	   			}
-	   			else if(data.relaciones=='SI')
-	   			{
-	   				alert("Forma de Pago "+data.description+" no puede eliminarse");	
-	   			}    			
-	   		}
-	   	});
-		ventana.dialog("close");
-	}
-	   
-	function cerrarBorrarFormaPago()
-	{
-		ventana.dialog("close");
-	}
-});
-
-</script>
-{% endblock js %}

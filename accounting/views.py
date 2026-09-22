@@ -15,7 +15,7 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from accounting.forms import UploadForm
-from tambox.views import CsvImportMixin, AjaxOnlyMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from security.permissions import requires
 from django.utils.decorators import method_decorator
 import datetime
@@ -231,11 +231,14 @@ class DocumentTypeDelete(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class DocumentTypeList(ListView):
+class DocumentTypeList(HtmxListMixin, ListView):
     model = DocumentType
     template_name = 'accounting/document_type_list.html'
+    fragment_template_name = 'accounting/includes/document_type_rows.html'
     context_object_name = 'types'
+    paginate_by = 10
     queryset = DocumentType.objects.filter(is_active=True).order_by('name')
+    search_fields = ('sunat_code', 'name')
 
     @method_decorator(
         requires('accounting.ver_tabla_tipos_documentos'))
@@ -266,11 +269,14 @@ class AccountList(ListView):
         return super(AccountList, self).dispatch(*args, **kwargs)
 
 
-class StockTypeList(ListView):
+class StockTypeList(HtmxListMixin, ListView):
     model = StockType
     template_name = 'accounting/stock_type_list.html'
+    fragment_template_name = 'accounting/includes/stock_type_rows.html'
     context_object_name = 'stock_types'
+    paginate_by = 10
     queryset = StockType.objects.all().order_by('sunat_code')
+    search_fields = ('sunat_code', 'description')
 
     @method_decorator(
         requires('accounting.ver_tabla_tipos_existencias'))
@@ -278,22 +284,27 @@ class StockTypeList(ListView):
         return super(StockTypeList, self).dispatch(*args, **kwargs)
 
 
-class PaymentMethodList(ListView):
+class PaymentMethodList(HtmxListMixin, ListView):
     model = PaymentMethod
     template_name = 'accounting/payment_method_list.html'
+    fragment_template_name = 'accounting/includes/payment_method_rows.html'
     context_object_name = 'payment_methods'
     paginate_by = 10
     queryset = PaymentMethod.objects.order_by('code')
+    search_fields = ('code', 'description')
 
     @method_decorator(requires('accounting.ver_tabla_formas_pago'))
     def dispatch(self, *args, **kwargs):
         return super(PaymentMethodList, self).dispatch(*args, **kwargs)
 
 
-class TaxList(ListView):
+class TaxList(HtmxListMixin, ListView):
     model = Tax
     template_name = 'accounting/tax_list.html'
+    fragment_template_name = 'accounting/includes/tax_rows.html'
     context_object_name = 'taxes'
+    paginate_by = 10
+    search_fields = ('abbreviation', 'description')
 
     @method_decorator(
         requires('accounting.ver_tabla_impuestos'))

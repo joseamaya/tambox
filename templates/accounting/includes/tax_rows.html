@@ -1,0 +1,31 @@
+{% comment %}
+Tabla de impuestos. La usa `TaxList` en la pagina completa y en el fragmento que
+htmx inserta en `#list-results`.
+{% endcomment %}
+<table class="table table-striped table-bordered" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th class="text-center">ABREVIATURA</th>
+        <th class="text-center">DESCRIPCION</th>
+        <th class="text-center">MONTO</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for tax in taxes %}
+    {% if perms.accounting.ver_detalle_impuesto %}
+    <tr onclick="location.href='{% url 'accounting:tax_detail' tax.pk %}';">
+        {% else %}
+    <tr>
+        {% endif %}
+        <td>{{ tax.abbreviation }}</td>
+        <td>{{ tax.description }}</td>
+        <td>{{ tax.amount }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3" class="text-center">No se encontraron impuestos.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "includes/pagination.html" %}
