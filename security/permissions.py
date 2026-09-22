@@ -20,15 +20,15 @@ quedan asi separados:
 
 from django.contrib.auth.decorators import permission_required
 
-_registro = set()
+_registry = set()
 
 
-def requires(permiso):
+def requires(permission):
     """`permission_required` que responde 403 y anota el permiso para auditar."""
-    _registro.add(permiso)
-    return permission_required(permiso, raise_exception=True)
+    _registry.add(permission)
+    return permission_required(permission, raise_exception=True)
 
 
 def declared_permissions():
     """Los permisos que piden las vistas, en orden. Se llena al importarlas."""
-    return sorted(_registro)
+    return sorted(_registry)

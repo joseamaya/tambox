@@ -31,7 +31,7 @@ from administration.models import Position
 import locale
 from accounting.models import DocumentType
 from accounting.forms import UploadForm
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 from django.db.models import Q
 from django.db import transaction, IntegrityError

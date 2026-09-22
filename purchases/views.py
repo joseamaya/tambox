@@ -21,7 +21,7 @@ from openpyxl import Workbook
 from django.views.generic.detail import DetailView
 # from reportlab.lib.pagesizes import cm
 import locale
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist

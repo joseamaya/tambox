@@ -11,7 +11,7 @@ from django.http import HttpResponse
 import simplejson
 from openpyxl import Workbook
 from django.views.generic.detail import DetailView
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 from accounting.forms import UploadForm
 from django.shortcuts import render

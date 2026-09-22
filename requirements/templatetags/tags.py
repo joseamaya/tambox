@@ -17,9 +17,9 @@ def previous_url(url, instance, user):
 
 @register.simple_tag
 def next_url(url, instance, user):
-    sig = instance.next()
-    if sig.check_access(user, administration_office(), logistics(), budget()):
-        url = reverse(url, args=[sig])
+    following = instance.next()
+    if following.check_access(user, administration_office(), logistics(), budget()):
+        url = reverse(url, args=[following])
         return url
     else:
-        return next_url(url, sig, user)
+        return next_url(url, following, user)

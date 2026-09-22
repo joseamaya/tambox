@@ -16,7 +16,7 @@ from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from accounting.forms import UploadForm
 from tambox.views import CsvImportMixin, AjaxOnlyMixin
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 import datetime
 

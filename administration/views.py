@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 from openpyxl import Workbook
 from django.http import HttpResponse
 import datetime
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 import simplejson
 import json

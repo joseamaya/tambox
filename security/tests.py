@@ -6,7 +6,7 @@ from django.urls import NoReverseMatch, get_resolver, reverse
 from django.views.generic import TemplateView
 
 from warehouse.forms import MovementReportForm
-from security.permisos import declared_permissions
+from security.permissions import declared_permissions
 
 
 class AuthorizationTestCase(TestCase):
@@ -176,7 +176,7 @@ class URLsProtegidasTest(TestCase):
 
 class DeclaredPermissionsTest(TestCase):
     """Los permisos se piden por cadena, asi que uno mal escrito no rompe nada:
-    deniega a todo el mundo en silencio. El registro de `seguridad.permisos`
+    deniega a todo el mundo en silencio. El registro de `security.permissions`
     hace que se puedan comprobar."""
 
     def test_permissions_declared_exist(self):

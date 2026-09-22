@@ -11,7 +11,7 @@ import simplejson
 from django.views.generic.detail import DetailView
 from administration.models import Office, ApprovalLevel
 import locale
-from security.permisos import requires
+from security.permissions import requires
 from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
