@@ -118,6 +118,11 @@ Para la interactividad nueva:
 referencia. El plan completo, por fases:
 
 1. htmx + Alpine (base) y un piloto. ✅
-2. Listas y detalles (DataTables → tablas del servidor).
+2. Listas y detalles (DataTables → tablas del servidor). ✅
 3. Formularios pesados (compras y almacén).
 4. Retirar jQuery, jQuery UI, appendGrid y Bootstrap 3.
+
+Las listas usan `HtmxListMixin` (`tambox/views.py`): con la cabecera `HX-Request`
+devuelven solo el fragmento de la tabla, y buscan por `search_fields`. La
+paginacion es un include compartido (`templates/includes/pagination.html`) y el
+buscador de cada lista reemplaza `#list-results`.
