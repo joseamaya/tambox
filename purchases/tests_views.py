@@ -144,6 +144,37 @@ class PurchasesViewsTest(TestCase):
         order = ServiceOrder.objects.get(supplier=supplier)
         self.assertEqual(1, order.details.count())
 
+    def test_service_conformity_create(self):
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=10, served_quantity=0)
+        quotation = baker.make(Quotation, requirement=requirement,
+                               supplier=baker.make(Supplier))
+        quotation_detail = baker.make('purchases.QuotationDetail', quotation=quotation,
+                                      requirement_detail=requirement_detail, quantity=10)
+        service_order = baker.make(ServiceOrder, quotation=quotation,
+                                   supplier=baker.make(Supplier))
+        service_order_detail = baker.make('purchases.ServiceOrderDetail',
+                                          order=service_order,
+                                          quotation_detail=quotation_detail,
+                                          quantity=10, conformed_quantity=0)
+        data = {'reference': service_order.pk, 'subtotal': '0', 'total': '0',
+                'total_in_words': 'CERO', 'code': '', 'supporting_document': '',
+                'date': '01/01/2024',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-service_order': service_order_detail.pk, 'form-0-quantity': '4',
+                'form-0-service': 'SERVICIO', 'form-0-use': 'USO',
+                'form-0-price': '3', 'form-0-amount': '12'}
+
+        response = self.client.post(reverse('purchases:service_conformity_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        service_order_detail.refresh_from_db()
+        self.assertEqual(4, service_order_detail.conformed_quantity)
+
     def test_lists_and_dashboard(self):
         supplier = baker.make(Supplier)
         baker.make(PurchaseOrder, supplier=supplier)
