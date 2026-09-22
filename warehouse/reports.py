@@ -128,7 +128,7 @@ class MovementReport():
             document = Paragraph(
                 u"DOCUMENTO: " + movement.document_type.description + " SERIE:" + movement.series + u" NÚMERO:" + movement.number,
                 left_style)
-        except (ObjectDoesNotExist, TypeError):
+        except (ObjectDoesNotExist, TypeError, AttributeError):
             document = ""
         try:
             order = Paragraph(u"PEDIDO: " + movement.order.code, left_style)
@@ -222,8 +222,10 @@ class MovementReport():
                                    alignment=TA_CENTER,
                                    fontSize=8,
                                    fontName="Times-Roman")
-        administration_office_name = Paragraph(administration_office().name, left_style)
-        logistics_office_name = Paragraph(logistics().name, left_style)
+        administration = administration_office()
+        logistics_office = logistics()
+        administration_office_name = Paragraph(administration.name if administration else '', left_style)
+        logistics_office_name = Paragraph(logistics_office.name if logistics_office else '', left_style)
         if movement.movement_type.increases:
             total = [[administration_office_name, '', logistics_office_name]]
             signatures_table = Table(total, colWidths=[7 * cm, 4 * cm, 7 * cm])
@@ -1293,7 +1295,7 @@ class KardexExcelReport():
             self, product, warehouse, start_date, end_date)
         if len(listado_kardex) > 0:
             for kardex in listado_kardex:
-                ws.cell(row=cont, column=2).value = kardex.operation_date
+                ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
                 ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                 ws.cell(row=cont, column=3).value = kardex.movement.movement_id
                 ws.cell(row=cont, column=4).value = kardex.movement.movement_type.code
@@ -2215,7 +2217,7 @@ class KardexExcelReport():
                 self, product, warehouse, start_date, end_date)
             if len(listado_kardex) > 0:
                 for kardex in listado_kardex:
-                    ws.cell(row=cont, column=2).value = kardex.operation_date
+                    ws.cell(row=cont, column=2).value = kardex.operation_date.strftime('%d/%m/%Y')
                     ws.cell(row=cont, column=2).number_format = 'dd/mm/yyyy'
                     ws.cell(row=cont, column=3).value = kardex.movement.movement_id
                     ws.cell(row=cont, column=4).value = kardex.movement.movement_type.code

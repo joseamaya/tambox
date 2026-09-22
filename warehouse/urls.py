@@ -1,7 +1,7 @@
 from django.urls import re_path
 from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
     OutboundDetailCreate,\
-    ProductPdfReport, MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList,\
+    MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList,\
     MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailCreate,\
     StockQuery, ProductWarehouseSearch, MovementPdfReport, KardexReport, WarehouseDetail,\
     MovementDelete, WarehouseUpdate, WarehouseDelete, MovementTypeDetail, MovementUpdate,\
@@ -43,7 +43,6 @@ urlpatterns = [
     re_path(r'^verify_reference_required/$', VerifyReferenceRequired.as_view(),
         name="verify_reference_required"),
     re_path(r'^kardex_product_report/$', KardexProductReport.as_view(), name="kardex_product_report"),
-    re_path(r'^product_report/$', ProductPdfReport.as_view(), name="product_report"),
     re_path(r'^movement_report/$', MovementExcelReport.as_view(), name="movement_report"),
     re_path(r'^stock_query/$', StockQuery.as_view(), name="stock_query"),
     re_path(r'^product_warehouse_search/$', ProductWarehouseSearch.as_view(),

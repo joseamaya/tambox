@@ -330,3 +330,146 @@ class WarehouseViewsTest(TestCase):
         response = self.client.post(reverse('warehouse:order_approve', args=[order.code]), data)
 
         self.assertEqual(200, response.status_code)
+
+
+class WarehouseReportViewsTest(TestCase):
+    """Las vistas que envuelven a los reportes: el armado del file, las
+    combinaciones de formato y las ramas de error."""
+
+    def setUp(self):
+        from datetime import datetime
+        from decimal import Decimal
+
+        from accounting.models import Account, DocumentType, StockType
+        from products.models import Product, ProductGroup, UnitOfMeasure
+        from warehouse.models import Kardex
+
+        self.user = User.objects.create_superuser('r', 'r@example.com', 'clave')
+        self.client.force_login(self.user)
+        self.warehouse = baker.make(Warehouse)
+        self.group = baker.make(ProductGroup, code='000001',
+                                account=baker.make(Account))
+        self.product = baker.make(Product, code='', product_group=self.group,
+                                  unit_of_measure=baker.make(UnitOfMeasure),
+                                  stock_type=baker.make(StockType))
+        self.movement_type = baker.make(MovementType, code='I01', increases=True,
+                                        sunat_code='01')
+        baker.make(Kardex, warehouse=self.warehouse, product=self.product,
+                   movement=baker.make(Movement, movement_type=self.movement_type,
+                                       warehouse=self.warehouse,
+                                       document_type=baker.make(DocumentType, sunat_code='PEC')),
+                   operation_date=timezone.make_aware(datetime(2024, 1, 10, 9, 0)),
+                   in_quantity=Decimal('5'), in_price=Decimal('3'),
+                   in_amount=Decimal('15'), out_quantity=Decimal('0'),
+                   out_price=Decimal('0'), out_amount=Decimal('0'),
+                   total_quantity=Decimal('5'), total_price=Decimal('3'),
+                   total_amount=Decimal('15'))
+
+    def test_kardex_product_report(self):
+        url = reverse('warehouse:kardex_product_report')
+        base = {'warehouses': self.warehouse.pk, 'start_date': '01/01/2024',
+                'end_date': '31/01/2024', 'product_code': self.product.code,
+                'product_description': self.product.description}
+        cases = [({'formats': 'XLS', 'sunat_format': ''}, 200),
+                 ({'formats': 'XLS', 'sunat_format': 'S'}, 200),
+                 ({'formats': 'XLS', 'sunat_format': 'V'}, 200),
+                 ({'formats': 'PDF', 'sunat_format': 'S'}, 200),
+                 ({'formats': 'PDF', 'sunat_format': 'V'}, 200),
+                 ({'formats': 'PDF', 'sunat_format': ''}, 404)]
+
+        for extra, status in cases:
+            with self.subTest(**extra):
+                response = self.client.post(url, dict(base, **extra))
+                self.assertEqual(status, response.status_code)
+
+    def test_kardex_report(self):
+        url = reverse('warehouse:kardex_report')
+        base = {'warehouses': self.warehouse.pk, 'start_date': '01/01/2024',
+                'end_date': '31/01/2024', 'product_code': '',
+                'product_description': ''}
+        cases = [({'formats': 'XLS', 'consolidated': 'P', 'sunat_format': ''}, 200),
+                 ({'formats': 'XLS', 'consolidated': 'G', 'sunat_format': ''}, 200),
+                 ({'formats': 'XLS', 'consolidated': '', 'sunat_format': 'S'}, 200),
+                 ({'formats': 'XLS', 'consolidated': '', 'sunat_format': 'V'}, 200),
+                 ({'formats': 'XLS', 'consolidated': '', 'sunat_format': ''}, 200),
+                 ({'formats': 'PDF', 'consolidated': 'P', 'sunat_format': ''}, 200),
+                 ({'formats': 'PDF', 'consolidated': 'G', 'sunat_format': ''}, 200),
+                 ({'formats': 'PDF', 'consolidated': '', 'sunat_format': 'S'}, 200),
+                 ({'formats': 'PDF', 'consolidated': '', 'sunat_format': 'V'}, 200),
+                 ({'formats': 'PDF', 'consolidated': '', 'sunat_format': ''}, 404)]
+
+        for extra, status in cases:
+            with self.subTest(**extra):
+                response = self.client.post(url, dict(base, **extra))
+                self.assertEqual(status, response.status_code)
+
+    def test_inventory_report(self):
+        response = self.client.post(reverse('warehouse:inventory'),
+                                    {'warehouse': self.warehouse.pk,
+                                     'start_date': '01/01/2024'})
+
+        self.assertEqual(200, response.status_code)
+
+    def test_movement_pdf_report(self):
+        movement = baker.make(Movement, movement_type=self.movement_type,
+                              warehouse=self.warehouse)
+
+        response = self.client.get(reverse('warehouse:movement_pdf', args=[movement.pk]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(response.content.startswith(b'%PDF'))
+
+    def test_movement_list_by_product(self):
+        response = self.client.post(reverse('warehouse:movement_list_by_product'),
+                                    {'warehouse': self.warehouse.pk,
+                                     'start_date': '01/01/2024',
+                                     'end_date': '31/01/2024',
+                                     'product': self.product.code,
+                                     'description': self.product.description})
+
+        self.assertEqual(200, response.status_code)
+
+    def test_price_reprocess(self):
+        base = {'warehouse': self.warehouse.pk, 'start_date': '01/01/2024',
+                'product': self.product.code, 'description': self.product.description}
+
+        for selection in ('T', 'P'):
+            with self.subTest(selection=selection):
+                response = self.client.post(reverse('warehouse:price_reprocess'),
+                                            dict(base, selection=selection))
+                self.assertEqual(302, response.status_code)
+
+    def test_product_stock(self):
+        response = self.client.post(reverse('warehouse:product_stock'),
+                                    {'warehouse': self.warehouse.pk,
+                                     'start_date': '01/01/2024',
+                                     'product': self.product.code,
+                                     'description': self.product.description})
+
+        self.assertEqual(200, response.status_code)
+
+    def test_product_stock_list(self):
+        response = self.client.get(reverse('warehouse:product_stock_list'),
+                                   {'description': self.product.description,
+                                    'warehouse': self.warehouse.pk},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_verify_reference_required(self):
+        response = self.client.get(reverse('warehouse:verify_reference_required'),
+                                   {'type': self.movement_type.pk},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_verify_stock_for_order(self):
+        order = baker.make(Order, requester=baker.make('administration.Worker'))
+        baker.make(OrderDetail, order=order, product=self.product, line_number=1,
+                   quantity=2, status=OrderDetail.STATUS.PEND)
+
+        response = self.client.get(reverse('warehouse:verify_stock_for_order'),
+                                   {'warehouse': self.warehouse.code, 'order': order.code},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)

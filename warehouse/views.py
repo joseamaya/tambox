@@ -14,12 +14,6 @@ from warehouse.forms import WarehouseForm, MovementTypeForm, MovementReportForm,
     OrderApprovalForm, PriceReprocessForm,\
     ProductMovementForm, StockQueryForm, InventoryQueryForm
 from decimal import Decimal, InvalidOperation
-from io import BytesIO
-from reportlab.platypus import SimpleDocTemplate, Paragraph, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib import colors
-from reportlab.lib.pagesizes import letter
-from reportlab.platypus import Table
 from django.http import JsonResponse
 from purchases.models import PurchaseOrderDetail
 from openpyxl import Workbook
@@ -1457,7 +1451,7 @@ class PriceReprocess(FormView):
                 previous_quantity = previous.total_quantity
                 previous_amount = previous.total_amount
                 previous_price = Decimal(round(previous_amount / previous_quantity, 8))
-            except (IndexError, ZeroDivisionError, TypeError):
+            except (IndexError, ZeroDivisionError, TypeError, ValueError):
                 previous_quantity = 0
                 previous_price = 0
                 previous_amount = 0
@@ -1751,42 +1745,6 @@ class MovementPdfReport(View):
         report = MovementReport('A4', movement)
         pdf = report.render()
         response.write(pdf)
-        return response
-
-
-class ProductPdfReport(View):
-
-    def get(self, request, *args, **kwargs):
-        response = HttpResponse(content_type='application/pdf')
-        # la linea 26 es por si deseas descargar el pdf a tu computadora
-        # response['Content-Disposition'] = 'attachment; filename=%s' % pdf_name
-        buff = BytesIO()
-        doc = SimpleDocTemplate(buff,
-                                pagesize=letter,
-                                rightMargin=40,
-                                leftMargin=40,
-                                topMargin=60,
-                                bottomMargin=18,
-                                )
-        clientes = []
-        styles = getSampleStyleSheet()
-        header = Paragraph("Listado de Clientes", styles['Heading1'])
-        clientes.append(header)
-        headings = ('Nombre', 'Email', 'Edad', 'Direccion')
-        allclientes = [(p.code, p.description, p.market_price, p.supply_group) for p in Product.objects.all()]
-
-        t = Table([headings] + allclientes)
-        t.setStyle(TableStyle(
-            [
-                ('GRID', (0, 0), (3, -1), 1, colors.dodgerblue),
-                ('LINEBELOW', (0, 0), (-1, 0), 2, colors.darkblue),
-                ('BACKGROUND', (0, 0), (-1, 0), colors.dodgerblue)
-            ]
-        ))
-        clientes.append(t)
-        doc.build(clientes)
-        response.write(buff.getvalue())
-        buff.close()
         return response
 
 
