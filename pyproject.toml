@@ -9,3 +9,26 @@ select = ["F"]
 # Los settings heredan de `base.py` con `import *`, el patron habitual del split
 # de settings de Django.
 "tambox/settings/*.py" = ["F403", "F405"]
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+    "*/migrations/*",
+    "tambox/settings/*",
+    "tambox/wsgi.py",
+    "manage.py",
+    "scripts/*",
+    "*/tests.py",
+    "*/tests_contenido.py",
+    "tambox/tests.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ == .__main__.:",
+    "raise NotImplementedError",
+]
