@@ -87,6 +87,18 @@ class RequirementsViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def test_requirement_create(self):
+        baker.make('products.Product', code='P000000001')
+        data = {'code': '', 'reason': 'MOTIVO', 'date': '01/01/2024', 'month': '1',
+                'year': '2024', 'notes': '', 'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '0', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000'}
+
+        response = self.client.post(reverse('requirements:requirement_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(Requirement.objects.filter(reason='MOTIVO').exists())
+
     def test_requirement_delete(self):
         response = self.client.post(reverse('requirements:requirement_delete'),
                                     {'code': self.requirement.code},
@@ -95,3 +107,4 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.requirement.refresh_from_db()
         self.assertEqual(Requirement.STATUS.CANC, self.requirement.status)
+
