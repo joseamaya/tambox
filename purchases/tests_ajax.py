@@ -4,7 +4,7 @@ from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
 
-from purchases.models import PurchaseOrder, Quotation, ServiceOrder, Supplier
+from purchases.models import Quotation, Supplier
 
 
 class PurchasesAjaxTest(TestCase):
@@ -24,30 +24,3 @@ class PurchasesAjaxTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual('12345678901', response.json()['tax_id'])
-
-    def test_quotation_detail_fetch(self):
-        quotation = baker.make(Quotation, supplier=baker.make(Supplier))
-
-        response = self.get('purchases:quotation_detail_fetch',
-                            {'quotation': quotation.code, 'search_type': 'PRODUCTOS'})
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual([], response.json())
-
-    def test_purchase_order_detail_fetch(self):
-        order = baker.make(PurchaseOrder, supplier=baker.make(Supplier), in_dollars=False)
-
-        response = self.get('purchases:purchase_order_detail_fetch',
-                            {'purchase_order': order.code, 'date': '15/01/2024'})
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual([], response.json())
-
-    def test_service_order_detail_fetch(self):
-        order = baker.make(ServiceOrder, supplier=baker.make(Supplier))
-
-        response = self.get('purchases:service_order_detail_fetch',
-                            {'service_order': order.code})
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual([], response.json())

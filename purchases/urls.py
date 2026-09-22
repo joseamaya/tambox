@@ -2,18 +2,18 @@ from django.urls import re_path
 from purchases.views import Dashboard, SupplierList, SupplierCreate, PurchaseOrderCreate,\
     SupplierNameSearch,\
     PurchaseOrderDetailRows, PurchaseOrderDetailRow,\
-    PurchaseOrderTransfer, PurchaseOrderDetailFetch,\
+    PurchaseOrderTransfer,\
     PurchaseOrderExcelReportByDate, PurchaseOrderList, SupplierDetail,\
     PurchaseOrderUpdate, PurchaseOrderPdfReport, PurchaseOrderXlsReport, PurchaseOrderDelete, SupplierUpdate,\
     SupplierDelete, SupplierExcelReport, ServiceOrderCreate,\
     ServiceOrderDetailRows, ServiceOrderDetailRow,\
     ServiceOrderList,\
     ServiceOrderUpdate, SupplierImport,\
-    ServiceConformityCreate, ServiceOrderTransfer, ServiceOrderDetailFetch, ServiceConformityList,\
+    ServiceConformityCreate, ServiceOrderTransfer, ServiceConformityList,\
     ServiceConformityDetailRows,\
     ServiceOrderPdfReport, ServiceConformityMemoPdfReport, ServiceConformityUpdate,\
     QuotationCreate, QuotationList, ServiceConformityDetailView,\
-    QuotationUpdate, QuotationTransfer, QuotationDetailFetch, QuotationDetailRows,\
+    QuotationUpdate, QuotationTransfer, QuotationDetailRows,\
     QuotationSearch, QuotationDetailView, PurchaseOrderDetailView, ServiceOrderDetailView,\
     QuotationRequestPdfReport, PurchaseOrderListByQuotation,\
     SupplierTaxIdSearch, ServiceOrderListByQuotation,\
@@ -72,14 +72,8 @@ urlpatterns = [
         name="purchase_order_transfer"),
     re_path(r'^service_order_transfer/$', ServiceOrderTransfer.as_view(),
         name="service_order_transfer"),
-    re_path(r'^quotation_detail_fetch/$', QuotationDetailFetch.as_view(),
-        name="quotation_detail_fetch"),
     re_path(r'^quotation_detail_rows/$', QuotationDetailRows.as_view(),
         name="quotation_detail_rows"),
-    re_path(r'^purchase_order_detail_fetch/$', PurchaseOrderDetailFetch.as_view(),
-        name="purchase_order_detail_fetch"),
-    re_path(r'^service_order_detail_fetch/$', ServiceOrderDetailFetch.as_view(),
-        name="service_order_detail_fetch"),
     re_path(r'^supplier_detail/(?P<pk>\d+)/$', SupplierDetail.as_view(), name="supplier_detail"),
     re_path(r'^quotation_detail/(?P<pk>.+)/$', QuotationDetailView.as_view(),
         name="quotation_detail"),

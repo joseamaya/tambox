@@ -176,68 +176,8 @@
                             <th>Acción</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {{ inbound_detail_formset.management_form }}
-                        {% for inbound_detail_form in inbound_detail_formset %}
-                        <tr class="inbound_detail_formset">
-                            <td>
-                                {{ inbound_detail_form.purchase_order }}
-                                {% if inbound_detail_form.code.errors %}
-                                {% for error in inbound_detail_form.code.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.code }}
-                            </td>
-                            <td>
-                                {% if inbound_detail_form.name.errors %}
-                                {% for error in inbound_detail_form.name.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.name }}
-                            </td>
-                            <td>
-                                {% if inbound_detail_form.unit.errors %}
-                                {% for error in inbound_detail_form.unit.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.unit }}
-                            </td>
-                            <td>
-                                {% if inbound_detail_form.quantity.errors %}
-                                {% for error in inbound_detail_form.quantity.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.quantity }}
-                            </td>
-                            <td>
-                                {% if inbound_detail_form.price.errors %}
-                                {% for error in inbound_detail_form.price.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.price }}
-                            </td>
-                            <td>
-                                {% if inbound_detail_form.amount.errors %}
-                                {% for error in inbound_detail_form.amount.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ inbound_detail_form.amount }}
-                            </td>
-                            <td>
-                                <button class='eliminar btn btn-small btn-danger' type='button'
-                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        {% endfor %}
+                        <tbody id="details-body">
+                        {% include "warehouse/includes/inbound_detail_formset.html" %}
                         </tbody>
                     </table>
                 </div>
@@ -377,35 +317,20 @@ $(document).ready(function()
 	$('#id_crear_detalle').click(function(e)
 	{
 		e.preventDefault();
-		$.ajax({
-			url : "{% url 'warehouse:inbound_detail_create' %}",
-			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					$("#detalles tbody").append( 
-					"<tr class='inbound_detail_formset'>" +
-						"<td>" + item.purchase_order + item.code + "</td>" +
-						"<td>" + item.name + "</td>" +
-						"<td>" + item.unit + "</td>" +
-						"<td>" + item.quantity + "</td>" +
-						"<td>" + item.price + "</td>" +
-						"<td>" + item.amount + "</td>" +
-				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");
-					contDetalles = parseInt(contDetalles) + 1;											
-				});
-				$("#id_form-TOTAL_FORMS").val(contDetalles);
-				updateFormElementIndices('inbound_detail_formset');
-				bindAutoComplete('productos');		
-				$(".decimal").keydown(validar_decimales);
-			}
+		var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+		htmx.ajax('GET', "{% url 'warehouse:inbound_detail_row' %}", {
+			target: '#details-body', swap: 'beforeend', values: {index: index}
+		}).then(function () {
+			contDetalles = index + 1;
+			$('#id_form-TOTAL_FORMS').val(contDetalles);
+			bindAutoComplete('productos');
+			$(".decimal").keydown(validar_decimales);
 		});
  	});
 	
 	function bindAutoComplete(classname)
 	{
-		$("."+classname).autocomplete({
+		$("."+classname).not(".ui-autocomplete-input").autocomplete({
 			source: function( request, response ) 
 			{
 				$.ajax({
@@ -458,48 +383,35 @@ $(document).ready(function()
 	{		
 		var purchase_order = $("#purchase_order").val();
 		var date = $("#id_date").val();
-		var cont = 0;
 		ventana_transferencia.dialog( "close" );
-		$.ajax({
-			data : {'purchase_order': purchase_order, 'date':date},
-			url : "{% url 'purchases:purchase_order_detail_fetch' %}",
-			type : 'get',
-			success : function(data)
-			{
-				if(data.length > 0)
-				{
-					$.each(data, function(i,item){
-						cont = i+1;
-						$("#detalles tbody").append(
-						"<tr class='inbound_detail_formset'>" +
-							"<td>" + item.purchase_order + item.code + "</td>" +
-							"<td>" + item.name + "</td>" +
-							"<td>" + item.unit + "</td>" +
-							"<td>" + item.quantity + "</td>" +
-							"<td>" + item.price + "</td>" +
-							"<td>" + item.amount + "</td>" +
-							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-						"</tr>");
-						var val_temp = $("#id_form-"+i+"-amount").val()
-						contDetalles=i+1;
-						total = total + parseFloat(val_temp);
-					});
-					contDetalles = cont;
-					ultimo_item = cont;
-					$("#id_form-TOTAL_FORMS").val(cont);
-					$("#id_reference_document").val(purchase_order);
-					$("#id_total").val(total.toFixed(5));
-					$('#id_crear_detalle').prop("disabled", true );
-					$(".decimal").keydown(validar_decimales);
-				}
-				else{
-					alert("No existe el tipo de cambio para la fecha seleccionada");
-				}
-			},
-			error: function (jqXHR, exception) {
-				alert(jqXHR.responseText);
+		if (!purchase_order) { return; }
+		$("#id_reference_document").val(purchase_order);
+		htmx.ajax('GET', "{% url 'warehouse:inbound_detail_rows' %}", {
+			target: '#details-body', swap: 'innerHTML',
+			values: {purchase_order: purchase_order, date: date}
+		}).then(function () {
+			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+			ultimo_item = contDetalles;
+			if (contDetalles === 0) {
+				alert("No existe el tipo de cambio para la fecha seleccionada");
+			} else {
+				$('#id_crear_detalle').prop("disabled", true);
 			}
+			bindAutoComplete('productos');
+			$(".decimal").keydown(validar_decimales);
+			sumarFilas();
 		});
+	}
+
+	function sumarFilas()
+	{
+		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+		var total = 0;
+		for (var i = 0; i < filas; i++)
+		{
+			total = total + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
+		}
+		$("#id_total").val(total.toFixed(5));
 	}
 		
 	function cerrarTransferencia()

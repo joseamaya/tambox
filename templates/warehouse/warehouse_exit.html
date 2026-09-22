@@ -175,67 +175,8 @@
                             <th>Acción</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {{ outbound_detail_formset.management_form }}
-                        {% for outbound_detail_form in outbound_detail_formset %}
-                        <tr class="outbound_detail_formset">
-                            <td>
-                                {% if outbound_detail_form.code.errors %}
-                                {% for error in outbound_detail_form.code.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.order }}
-                                {{ outbound_detail_form.code }}
-                            </td>
-                            <td>
-                                {% if outbound_detail_form.name.errors %}
-                                {% for error in outbound_detail_form.name.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.name }}
-                            </td>
-                            <td>
-                                {% if outbound_detail_form.unit.errors %}
-                                {% for error in outbound_detail_form.unit.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.unit }}
-                            </td>
-                            <td>
-                                {% if outbound_detail_form.quantity.errors %}
-                                {% for error in outbound_detail_form.quantity.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.quantity }}
-                            </td>
-                            <td>
-                                {% if outbound_detail_form.price.errors %}
-                                {% for error in outbound_detail_form.price.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.price }}
-                            </td>
-                            <td>
-                                {% if outbound_detail_form.amount.errors %}
-                                {% for error in outbound_detail_form.amount.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ outbound_detail_form.amount }}
-                            </td>
-                            <td>
-                                <button class='eliminar btn btn-small btn-danger' type='button'
-                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        <tbody id="details-body">
+                        {% include "warehouse/includes/outbound_detail_formset.html" %}
                         </tbody>
                     </table>
                 </div>
@@ -355,30 +296,15 @@ $(document).ready(function()
 		var alm=$('#id_warehouse').val().trim();
 		if(alm != '') 
 		{			
-			$.ajax({
-				url : "{% url 'warehouse:outbound_detail_create' %}",
-				type : 'get',
-				success : function(data)
-				{
-					$.each(data, function(i,item){
-						$("#detalles tbody").append( 
-						"<tr class='outbound_detail_formset'>" +
-							"<td>" + item.code + "</td>" +
-							"<td>" + item.name + "</td>" +
-							"<td>" + item.unit + "</td>" +
-							"<td>" + item.quantity + "</td>" +
-							"<td>" + item.price + "</td>" +
-							"<td>" + item.amount + "</td>" +
-					  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-						"</tr>");
-						contDetalles = parseInt(contDetalles) + 1;											
-					});
-					$("#id_form-TOTAL_FORMS").val(contDetalles);
-					updateFormElementIndices('outbound_detail_formset');
-					bindAutoComplete('productos');		
-					$(".decimal").keydown(validar_decimales);
-				}
-			});	
+			var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+			htmx.ajax('GET', "{% url 'warehouse:outbound_detail_row' %}", {
+				target: '#details-body', swap: 'beforeend', values: {index: index}
+			}).then(function () {
+				contDetalles = index + 1;
+				$('#id_form-TOTAL_FORMS').val(contDetalles);
+				bindAutoComplete('productos');
+				$(".decimal").keydown(validar_decimales);
+			});
 		}
 		else
 		{
@@ -388,7 +314,7 @@ $(document).ready(function()
  	
 	function bindAutoComplete(classname)
 	{
-		$("."+classname).autocomplete({
+		$("."+classname).not(".ui-autocomplete-input").autocomplete({
 			source: function( request, response ) 
 			{
 				$.ajax({

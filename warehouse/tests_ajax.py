@@ -51,11 +51,13 @@ class WarehouseAjaxTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(7, response.json()['stock'])
 
-    def test_detail_create_endpoints(self):
-        for name in ('warehouse:outbound_detail_create', 'warehouse:order_detail_create',
-                     'warehouse:inbound_detail_create'):
+    def test_detail_row_endpoints(self):
+        for name in ('warehouse:outbound_detail_row', 'warehouse:order_detail_row',
+                     'warehouse:inbound_detail_row'):
             with self.subTest(name=name):
-                self.assertEqual(200, self.get(name).status_code)
+                response = self.client.get(reverse(name), {'index': '2'})
+                self.assertEqual(200, response.status_code)
+                self.assertContains(response, 'name="form-2-code"')
 
     def test_verify_reference(self):
         movement_type = baker.make(MovementType, code='I02', increases=True,

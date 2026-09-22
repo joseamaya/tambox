@@ -1,13 +1,13 @@
 from django.urls import re_path
 from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
-    OutboundDetailCreate,\
+    OutboundDetailRow,\
     MovementTypeCreate, WarehouseList, Dashboard, MovementTypeList,\
-    MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailCreate,\
+    MovementExcelReport, MovementExcelReportByDate, MovementList, InboundDetailRow, InboundDetailRows,\
     StockQuery, ProductWarehouseSearch, MovementPdfReport, KardexReport, WarehouseDetail,\
     MovementDelete, WarehouseUpdate, WarehouseDelete, MovementTypeDetail, MovementUpdate,\
     WarehouseExcelReport, InboundUpdate, OutboundUpdate, VerifyReferenceRequired,\
     MovementTypeExcelReport, OrderCreate,\
-    WarehouseImport, InitialInventoryImport, OrderDetailCreate, OrderUpdate, OrderList, OrderApprove,\
+    WarehouseImport, InitialInventoryImport, OrderDetailRow, OrderUpdate, OrderList, OrderApprove,\
     OrderApprovalList, VerifyStockForOrder,\
     OrderDetailView, MovementDetailView, ProductStock,\
     InboundList, OutboundList, KardexProductReport, MovementListByOrder,\
@@ -20,10 +20,11 @@ urlpatterns = [
     re_path(r'^inbound_create/$', InboundCreate.as_view(), name="inbound_create"),
     re_path(r'^outbound_create/$', OutboundCreate.as_view(), name="outbound_create"),
     re_path(r'^order_create/$', OrderCreate.as_view(), name="order_create"),
-    re_path(r'^order_detail_create/$', OrderDetailCreate.as_view(), name="order_detail_create"),
+    re_path(r'^order_detail_row/$', OrderDetailRow.as_view(), name="order_detail_row"),
     re_path(r'^movement_type_create/$', MovementTypeCreate.as_view(), name="movement_type_create"),
-    re_path(r'^outbound_detail_create/$', OutboundDetailCreate.as_view(), name="outbound_detail_create"),
-    re_path(r'^inbound_detail_create/$', InboundDetailCreate.as_view(), name="inbound_detail_create"),
+    re_path(r'^outbound_detail_row/$', OutboundDetailRow.as_view(), name="outbound_detail_row"),
+    re_path(r'^inbound_detail_row/$', InboundDetailRow.as_view(), name="inbound_detail_row"),
+    re_path(r'^inbound_detail_rows/$', InboundDetailRows.as_view(), name="inbound_detail_rows"),
     re_path(r'^warehouse_create/$', WarehouseCreate.as_view(), name="warehouse_create"),
     re_path(r'^warehouse_list/$', WarehouseList.as_view(), name="warehouse_list"),
     re_path(r'^movement_list/$', MovementList.as_view(), name="movement_list"),

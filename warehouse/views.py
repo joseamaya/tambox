@@ -15,7 +15,7 @@ from warehouse.forms import WarehouseForm, MovementTypeForm, MovementReportForm,
     ProductMovementForm, StockQueryForm, InventoryQueryForm
 from decimal import Decimal, InvalidOperation
 from django.http import JsonResponse
-from purchases.models import PurchaseOrderDetail
+from purchases.models import PurchaseOrder, PurchaseOrderDetail
 from openpyxl import Workbook
 import simplejson
 import json
@@ -23,7 +23,7 @@ from django.views.generic.detail import DetailView
 from django.views.generic.edit import UpdateView, CreateView
 from administration.models import Position
 import locale
-from accounting.models import DocumentType
+from accounting.models import DocumentType, ExchangeRate
 from accounting.forms import UploadForm
 from security.permissions import requires
 from django.utils.decorators import method_decorator
@@ -337,86 +337,96 @@ class WarehouseCreate(FormView):
 
 
 
-class OutboundDetailCreate(AjaxOnlyMixin, TemplateView):
+class OutboundDetailRow(TemplateView):
+    """Una fila vacia del formset de salida, en el indice pedido."""
 
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['code'] = ''
-            det['name'] = ''
-            det['quantity'] = '0'
-            det['price'] = '0'
-            det['unit'] = ''
-            det['amount'] = '0'
-            detail_list.append(det)
-            formset = OutboundDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['code'] = str(form['code'])
-                detail_json['name'] = str(form['name'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['price'] = str(form['price'])
-                detail_json['unit'] = str(form['unit'])
-                detail_json['amount'] = str(form['amount'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
+    template_name = 'warehouse/includes/outbound_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = OutboundDetailFormSet(
+            initial=[{'code': '', 'name': '', 'quantity': '0', 'price': '0',
+                      'unit': '', 'amount': '0'}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
 
 
-class OrderDetailCreate(AjaxOnlyMixin, TemplateView):
+class OrderDetailRow(TemplateView):
+    """Una fila vacia del formset de pedido, en el indice pedido."""
 
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['code'] = ''
-            det['name'] = ''
-            det['quantity'] = '0'
-            det['unit'] = ''
-            detail_list.append(det)
-            formset = OrderDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['code'] = str(form['code'])
-                detail_json['name'] = str(form['name'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['unit'] = str(form['unit'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
+    template_name = 'warehouse/includes/order_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = OrderDetailFormSet(
+            initial=[{'code': '', 'name': '', 'quantity': '0', 'unit': ''}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
 
 
-class InboundDetailCreate(AjaxOnlyMixin, TemplateView):
+class InboundDetailRow(TemplateView):
+    """Una fila vacia del formset de ingreso, en el indice pedido."""
 
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['purchase_order'] = '0'
-            det['code'] = ''
-            det['name'] = ''
-            det['quantity'] = '0'
-            det['price'] = '0'
-            det['unit'] = ''
-            det['amount'] = '0'
-            detail_list.append(det)
-            formset = InboundDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['purchase_order'] = str(form['purchase_order'])
-                detail_json['code'] = str(form['code'])
-                detail_json['name'] = str(form['name'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['price'] = str(form['price'])
-                detail_json['unit'] = str(form['unit'])
-                detail_json['amount'] = str(form['amount'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
+    template_name = 'warehouse/includes/inbound_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = InboundDetailFormSet(
+            initial=[{'purchase_order': '0', 'code': '', 'name': '',
+                      'quantity': '0', 'price': '0', 'unit': '', 'amount': '0'}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
+
+
+class InboundDetailRows(TemplateView):
+    """Filas del formset de ingreso para una orden de compra, como HTML."""
+
+    template_name = 'warehouse/includes/inbound_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        purchase_order = PurchaseOrder.objects.filter(
+            code=self.request.GET.get('purchase_order')).first()
+        raw_date = self.request.GET.get('date', '')
+        exchange_rate = 0
+        if purchase_order is not None and len(raw_date) == 10:
+            exchange_rate = 1
+            if purchase_order.in_dollars:
+                day = datetime.date(int(raw_date[6:]), int(raw_date[3:5]),
+                                    int(raw_date[0:2]))
+                exchange_rate = (ExchangeRate.objects.filter(date=day)
+                                 .values_list('amount', flat=True).first() or 0)
+        initial = []
+        if exchange_rate > 0:
+            details = PurchaseOrderDetail.objects.filter(
+                order=purchase_order,
+                status=PurchaseOrderDetail.STATUS.PEND).order_by('line_number')
+            for detail in details:
+                try:
+                    product = detail.quotation_detail.requirement_detail.product
+                except (ObjectDoesNotExist, AttributeError):
+                    product = detail.product
+                initial.append({'purchase_order': detail.pk,
+                                'code': product.code,
+                                'name': product.description,
+                                'quantity': detail.quantity - detail.received_quantity,
+                                'price': round(Decimal(detail.price_without_tax) * exchange_rate, 5),
+                                'unit': product.unit_of_measure.code,
+                                'amount': round(Decimal(detail.amount_without_tax) * exchange_rate, 5)})
+        context['inbound_detail_formset'] = InboundDetailFormSet(initial=initial)
+        return context
 
 
 class OrderCreate(CreateView):

@@ -443,6 +443,22 @@ class WarehouseViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def test_inbound_detail_rows_fragment(self):
+        order = baker.make('purchases.PurchaseOrder',
+                           supplier=baker.make('purchases.Supplier'),
+                           in_dollars=False, with_tax=False)
+        baker.make('purchases.PurchaseOrderDetail', order=order,
+                   product=baker.make('products.Product'), line_number=1,
+                   quantity=5, price=3)
+
+        rows = self.client.get(reverse('warehouse:inbound_detail_rows'),
+                               {'purchase_order': order.code, 'date': '01/01/2024'})
+
+        self.assertEqual(200, rows.status_code)
+        self.assertNotContains(rows, '<html')
+        self.assertContains(rows, 'name="form-TOTAL_FORMS"')
+        self.assertContains(rows, 'name="form-0-purchase_order"')
+
     def test_inbound_update_get_cancelled(self):
         movement_type = baker.make(MovementType, code='I01', increases=True)
         movement = baker.make(Movement, movement_id='', movement_type=movement_type,

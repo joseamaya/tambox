@@ -28,17 +28,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from accounting.forms import UploadForm
 from django.db.models import Q
 from django.contrib import messages
-from warehouse.forms import InboundDetailFormSet
 from django.shortcuts import render, get_object_or_404
 
-from accounting.models import ExchangeRate
 from products.models import Product, UnitOfMeasure, ProductGroup
 from datetime import date
 from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf,\
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.config import configuration, purchase_tax
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
-from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
 
@@ -1338,190 +1335,6 @@ class ServiceConformityDetailRows(TemplateView):
         context['service_conformity_detail_formset'] = \
             ServiceConformityDetailFormSet(initial=initial)
         return context
-
-
-class QuotationDetailFetch(AjaxOnlyMixin, TemplateView):
-
-    required_params = ('quotation', 'search_type')
-
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            quotation = request.GET['quotation']
-            search_type = request.GET['search_type']
-            if search_type == 'PRODUCTOS':
-                details = QuotationDetail.objects.filter(
-                    Q(status=QuotationDetail.STATUS.PEND) | Q(status=QuotationDetail.STATUS.ELEG_PARC),
-                    quotation__code=quotation,
-                    requirement_detail__product__is_service=False).order_by('line_number')
-                try:
-                    tax_amount = purchase_tax().amount
-                except AttributeError:
-                    tax_amount = 0
-            elif search_type == 'SERVICIOS':
-                tax_amount = 1
-                details = QuotationDetail.objects.filter(quotation__code=quotation,
-                                                            requirement_detail__product__is_service=True).order_by(
-                    'line_number')
-
-            detail_list = []
-            for detail in details:
-                det = {}
-                det['quotation'] = detail.id
-                try:
-                    det['code'] = detail.requirement_detail.product.code
-                    det['name'] = detail.requirement_detail.product.description
-                    det['price'] = str(detail.requirement_detail.product.price)
-                    quantity = detail.quantity - detail.requirement_detail.purchased_quantity
-                    det['quantity'] = str(quantity)
-                    amount = detail.requirement_detail.product.price * quantity
-                    if search_type == 'PRODUCTOS':
-                        det['unit'] = detail.requirement_detail.product.unit_of_measure.code
-                        base = amount / (tax_amount + 1)
-                        det['tax'] = str(round(amount - base, 5))
-                        det['amount'] = str(round(amount, 5))
-                    elif search_type == 'SERVICIOS':
-                        det['unit'] = detail.requirement_detail.product.unit_of_measure.code
-                        det['amount'] = str(round(amount))
-                    detail_list.append(det)
-                except (ObjectDoesNotExist, AttributeError):
-                    pass
-            if search_type == 'PRODUCTOS':
-                formset = PurchaseOrderDetailFormSet(initial=detail_list)
-            elif search_type == 'SERVICIOS':
-                formset = ServiceOrderDetailFormSet(initial=detail_list)
-            json_list = []
-            if search_type == 'PRODUCTOS':
-                for form in formset:
-                    detail_json = {}
-                    detail_json['quotation'] = str(form['quotation'])
-                    detail_json['code'] = str(form['code'])
-                    detail_json['name'] = str(form['name'])
-                    detail_json['price'] = str(form['price'])
-                    detail_json['unit'] = str(form['unit'])
-                    detail_json['quantity'] = str(form['quantity'])
-                    detail_json['tax'] = str(form['tax'])
-                    detail_json['amount'] = str(form['amount'])
-                    json_list.append(detail_json)
-            elif search_type == 'SERVICIOS':
-                for form in formset:
-                    detail_json = {}
-                    detail_json['quotation'] = str(form['quotation'])
-                    detail_json['code'] = str(form['code'])
-                    detail_json['name'] = str(form['name'])
-                    detail_json['price'] = str(form['price'])
-                    detail_json['unit'] = str(form['unit'])
-                    detail_json['quantity'] = str(form['quantity'])
-                    detail_json['amount'] = str(form['amount'])
-                    json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
-
-
-class PurchaseOrderDetailFetch(AjaxOnlyMixin, TemplateView):
-
-    required_params = ('purchase_order', 'date')
-
-    def get_date(self, r_date):
-        year = int(r_date[6:])
-        month = int(r_date[3:5])
-        dia = int(r_date[0:2])
-        date = datetime.date(year, month, dia)
-        return date
-
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            purchase_order = PurchaseOrder.objects.get(code=request.GET['purchase_order'])
-            date = self.get_date(request.GET['date'])
-            exchange_rate = 1
-            if purchase_order.in_dollars:
-                try:
-                    exchange_rate = ExchangeRate.objects.get(date=date).amount
-                except ExchangeRate.DoesNotExist:
-                    exchange_rate = 0
-            detail_list = []
-            json_list = []
-            if exchange_rate > 0:
-                details = PurchaseOrderDetail.objects.filter(order=purchase_order,
-                                                             status=PurchaseOrderDetail.STATUS.PEND).order_by(
-                    'line_number')
-                for detail in details:
-                    det = {}
-                    det['purchase_order'] = detail.id
-                    try:
-                        det['code'] = detail.quotation_detail.requirement_detail.product.code
-                        det['name'] = detail.quotation_detail.requirement_detail.product.description
-                        det['quantity'] = str(detail.quantity - detail.received_quantity)
-                        det['price'] = str(round(Decimal(detail.price_without_tax) * exchange_rate, 5))
-                        det['unit'] = detail.quotation_detail.requirement_detail.product.unit_of_measure.code
-                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * exchange_rate, 5))
-                    except (ObjectDoesNotExist, AttributeError):
-                        det['code'] = detail.product.code
-                        det['name'] = detail.product.description
-                        det['quantity'] = str(detail.quantity - detail.received_quantity)
-                        det['price'] = str(round(Decimal(detail.price_without_tax) * exchange_rate, 5))
-                        det['unit'] = detail.product.unit_of_measure.code
-                        det['amount'] = str(round(Decimal(detail.amount_without_tax) * exchange_rate, 5))
-                    detail_list.append(det)
-                formset = InboundDetailFormSet(initial=detail_list)
-                for form in formset:
-                    detail_json = {}
-                    detail_json['purchase_order'] = str(form['purchase_order'])
-                    detail_json['code'] = str(form['code'])
-                    detail_json['name'] = str(form['name'])
-                    detail_json['quantity'] = str(form['quantity'])
-                    detail_json['price'] = str(form['price'])
-                    detail_json['unit'] = str(form['unit'])
-                    detail_json['amount'] = str(form['amount'])
-                    json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
-
-
-class ServiceOrderDetailFetch(AjaxOnlyMixin, TemplateView):
-
-    required_params = ('service_order',)
-
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            service_order = request.GET['service_order']
-            details = ServiceOrderDetail.objects.filter(order__code=service_order,
-                                                            status=ServiceOrderDetail.STATUS.PEND).order_by(
-                'line_number')
-            detail_list = []
-            for detail in details:
-                try:
-                    det = {}
-                    det['service_order'] = detail.id
-                    det['code'] = detail.quotation_detail.requirement_detail.product.code
-                    det['service'] = detail.quotation_detail.requirement_detail.product.description
-                    det['use'] = detail.quotation_detail.requirement_detail.use
-                    det['price'] = str(detail.price)
-                    det['quantity'] = str(detail.quantity)
-                    det['amount'] = str(detail.amount)
-                except (ObjectDoesNotExist, AttributeError):
-                    det = {}
-                    det['service_order'] = detail.id
-                    det['code'] = detail.product.code
-                    det['service'] = detail.product.description
-                    det['use'] = detail.product.unit_of_measure.description
-                    det['price'] = str(detail.price)
-                    det['quantity'] = str(detail.quantity)
-                    det['amount'] = str(detail.amount)
-                detail_list.append(det)
-            formset = ServiceConformityDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['service_order'] = str(form['service_order'])
-                detail_json['service'] = str(form['service'])
-                detail_json['use'] = str(form['use'])
-                detail_json['price'] = str(form['price'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['amount'] = str(form['amount'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
-
 
 
 
