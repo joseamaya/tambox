@@ -88,46 +88,21 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-	$(document).ready(
-			function() {
-				$('#id_eliminar').click(function(e) {
-					e.preventDefault();
-					ventana = $("#dialog-confirm").dialog({
-						resizable : false,
-						height : 140,
-						modal : true,
-						buttons : {
-							"Borrar" : borrarGrupoProducto,
-							"Cancelar" : cerrarBorrarGrupoProducto
-						}
-					});
-				});
-
-				function borrarGrupoProducto() {
-					$.ajax({
-						data : {
-							'code' : "{{ object.code }}"
-						},
-						url : "{% url 'products:product_group_delete' %}",
-						type : 'post',
-						success : function(data) {
-							if (data.productos == 'NO') {
-								alert("Grupo de Productos " + data.description
-										+ " eliminada");
-								table.row('.selected').remove().draw(false);
-							} else if (data.productos == 'SI') {
-								alert("Grupo de Productos " + data.description
-										+ " no puede eliminarse");
-							}
-						}
-					});
-					ventana.dialog("close");
-				}
-
-				function cerrarBorrarGrupoProducto() {
-					ventana.dialog("close");
-				}
-			});
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'products:product_group_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.productos == 'NO') {
+            alert("Grupo de Productos " + data.description
+            + " eliminada");
+            
+            } else if (data.productos == 'SI') {
+            alert("Grupo de Productos " + data.description
+            + " no puede eliminarse");
+            }
+            
+        });
+    });
+});
 </script>
 {% endblock js %}

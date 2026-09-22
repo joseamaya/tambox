@@ -71,45 +71,20 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-	$(document).ready(
-			function() {
-				$('#id_eliminar').click(function(e) {
-					e.preventDefault();
-					ventana = $("#dialog-confirm").dialog({
-						resizable : false,
-						height : 140,
-						modal : true,
-						buttons : {
-							"Borrar" : borraralmacen,
-							"Cancelar" : cerrarBorraralmacen
-						}
-					});
-				});
-
-				function borraralmacen() {
-					$.ajax({
-						data : {
-							'code' : "{{ object.code }}"
-						},
-						url : "{% url 'warehouse:warehouse_delete' %}",
-						type : 'post',
-						success : function(data) {
-							if (data.relaciones == 'NO') {
-								alert("warehouse " + data.description
-										+ " eliminado");
-							} else if (data.relaciones == 'SI') {
-								alert("warehouse " + data.description
-										+ " no puede eliminarse");
-							}
-						}
-					});
-					ventana.dialog("close");
-				}
-
-				function cerrarBorraralmacen() {
-					ventana.dialog("close");
-				}
-			});
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'warehouse:warehouse_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.relaciones == 'NO') {
+            alert("Almacén " + data.description
+            + " eliminado");
+            } else if (data.relaciones == 'SI') {
+            alert("Almacén " + data.description
+            + " no puede eliminarse");
+            }
+            
+        });
+    });
+});
 </script>
 {% endblock js %}

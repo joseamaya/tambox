@@ -131,43 +131,15 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$('#id_eliminar').click(function(e) 
-	{
-		e.preventDefault();
-		ventana = $("#dialog-confirm").dialog({
-			resizable : false,
-			height : 140,
-			modal : true,
-			buttons : {
-				"Borrar" : borrarPedido,
-				"Cancelar" : cerrarBorrarPedido
-			}
-		});
-	});
-
-	function borrarPedido() 
-	{
-		var mySpinner = setupLoading();
-		$.ajax({
-			data : {'code' : "{{ object.pk }}" },
-			url : "{% url 'warehouse:order_delete' %}",
-			type : 'post',
-			success : function(data) 
-			{
-				removeLoading(mySpinner);
-				alert("Pedido " + data.code + " eliminado");	
-				$(location).attr('href', "{% url 'warehouse:order_list' %}");
-			}
-		});
-		ventana.dialog("close");
-	}
-
-	function cerrarBorrarPedido() {
-		ventana.dialog("close");
-	}
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'warehouse:order_delete' %}", {'code': "{{ object.pk }}"}, function (data) {
+            alert("Pedido " + data.code + " eliminado");
+            $(location).attr('href', "{% url 'warehouse:order_list' %}");
+            
+        });
+    });
 });
-
 </script>
 {% endblock js %}

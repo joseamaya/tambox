@@ -219,48 +219,16 @@
     </form>
     {% endblock cuerpo %}
     {% block js %}
-    <script>
-$(document).ready(function()
-{
-	$('#id_eliminar').click(function(e)
-	{
-		e.preventDefault();
-		ventana = $("#dialog-confirm").dialog({
-			resizable : false,
-			height : 140,
-			modal : true,
-			buttons : {
-				"Borrar" : borrarMovimiento,
-				"Cancelar" : cerrarBorrarMovimiento
-			}
-		});
-	});
-
-	function borrarMovimiento()
-	{
-		var mySpinner = setupLoading();
-		$.ajax({
-			data : {'movement_id' : "{{ object.pk }}" },
-			url : "{% url 'warehouse:movement_delete' %}",
-			type : 'post',
-			success : function(data)
-			{
-				removeLoading(mySpinner);
-				alert("Movimiento " + data.movement_id + " eliminado");
-				$(location).attr('href', "{% url 'warehouse:movement_list' %}");
-			},
-			error: function (request, status, error)
-			{
-            	alert(request.responseText);
-        	}
-		});
-		ventana.dialog("close");
-	}
-
-	function cerrarBorrarMovimiento() {
-		ventana.dialog("close");
-	}
+<script>
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'warehouse:movement_delete' %}", {'movement_id': "{{ object.pk }}"}, function (data) {
+            alert("Movimiento " + data.movement_id + " eliminado");
+            $(location).attr('href', "{% url 'warehouse:movement_list' %}");
+            
+        });
+    });
 });
-
-    </script>
+</script>
     {% endblock js %}

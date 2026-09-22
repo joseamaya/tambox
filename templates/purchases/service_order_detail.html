@@ -240,47 +240,22 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$('#id_eliminar').click(function(e) {
-		e.preventDefault();
-		ventana = $("#dialog-confirm").dialog({
-			resizable : false,
-			height : 140,
-			modal : true,
-			buttons : {
-				"Borrar" : borrarOrdenServicios,
-				"Cancelar" : cerrarOrdenServicios
-			}
-		});
-	});
-	
-	function borrarOrdenServicios() 
-	{
-		$.ajax({
-			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'purchases:service_order_delete' %}",
-			type : 'post',
-			success : function(data) {
-				if (data.conformidades == 'NO')
-				{
-					alert("Orden de Servicios " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'purchases:service_order_detail' object.next %}");
-				} 
-				else if (data.conformidades == 'SI') 
-				{
-					alert("Orden de Servicios " + data.description + " no puede eliminarse");
-				}
-			}
-		});
-		ventana.dialog("close");
-	}
-
-	function cerrarOrdenServicios() {
-		ventana.dialog("close");
-	}
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'purchases:service_order_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.conformidades == 'NO')
+            {
+            alert("Orden de Servicios " + data.code + " eliminada");
+            $(location).attr('href', "{% url 'purchases:service_order_detail' object.next %}");
+            }
+            else if (data.conformidades == 'SI')
+            {
+            alert("Orden de Servicios " + data.code + " no puede eliminarse");
+            }
+            
+        });
+    });
 });
-
 </script>
 {% endblock js %}

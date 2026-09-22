@@ -109,45 +109,15 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-	$(document).ready(
-			function() {
-				$('#id_eliminar').click(function(e) {
-					e.preventDefault();
-					ventana = $("#dialog-confirm").dialog({
-						resizable : false,
-						height : 140,
-						modal : true,
-						buttons : {
-							"Borrar" : borrarProducto,
-							"Cancelar" : cerrarBorrarProducto
-						}
-					});
-				});
-
-				function borrarProducto() {
-					$.ajax({
-						data : {
-							'code' : "{{ object.code }}"
-						},
-						url : "{% url 'purchases:supplier_delete' %}",
-						type : 'post',
-						success : function(data) {
-							if (data.relaciones == 'NO') {
-								alert("Producto " + data.description
-										+ " eliminado");
-							} else if (data.relaciones == 'SI') {
-								alert("Producto " + data.description
-										+ " no puede eliminarse");
-							}
-						}
-					});
-					ventana.dialog("close");
-				}
-
-				function cerrarBorrarProducto() {
-					ventana.dialog("close");
-				}
-			});
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'purchases:supplier_delete' %}", {'tax_id': "{{ object.tax_id }}"}, function (data) {
+            if (data.tax_id) {
+                alert("Proveedor " + data.tax_id + " eliminado");
+            }
+        });
+    });
+});
 </script>
 {% endblock js %}

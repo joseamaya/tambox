@@ -180,6 +180,37 @@ document.addEventListener('submit', function (event) {
 
 window.showUploadSpinner = showUploadSpinner;
 
+/*
+ * Confirmacion de borrado: abre el dialogo de `#dialog-confirm` y, al aceptar,
+ * hace el POST y delega el resultado en `onSuccess`. Las plantillas de detalle
+ * repetian el dialogo de jQuery UI y el $.ajax en cada una.
+ */
+function confirmDelete(url, data, onSuccess) {
+    var ventana = $('#dialog-confirm').dialog({
+        resizable: false,
+        height: 140,
+        modal: true,
+        buttons: {
+            "Borrar": function () {
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    data: data,
+                    success: function (response) {
+                        onSuccess(response);
+                    },
+                });
+                ventana.dialog("close");
+            },
+            "Cancelar": function () {
+                ventana.dialog("close");
+            },
+        },
+    });
+}
+
+window.confirmDelete = confirmDelete;
+
 async function fetchJson(url) {
     const response = await fetch(url, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' },

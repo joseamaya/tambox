@@ -154,47 +154,22 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$('#id_eliminar').click(function(e) {
-		e.preventDefault();
-		ventana = $("#dialog-confirm").dialog({
-			resizable : false,
-			height : 140,
-			modal : true,
-			buttons : {
-				"Borrar" : borrarCotizacion,
-				"Cancelar" : cerrarCotizacion
-			}
-		});
-	});
-	
-	function borrarCotizacion() 
-	{
-		$.ajax({
-			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'purchases:quotation_delete' %}",
-			type : 'post',
-			success : function(data) {
-				if (data.orders == 'NO') 
-				{
-					alert("Cotización " + data.code + " eliminada");
-					$(location).attr('href', "{% url 'purchases:quotation_detail' quotation.next %}");
-				} 
-				else if (data.orders == 'SI') 
-				{
-					alert("Cotización " + data.code + " no puede eliminarse");
-				}
-			}
-		});
-		ventana.dialog("close");
-	}
-
-	function cerrarCotizacion() {
-		ventana.dialog("close");
-	}
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'purchases:quotation_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.orders == 'NO')
+            {
+            alert("Cotización " + data.code + " eliminada");
+            $(location).attr('href', "{% url 'purchases:quotation_detail' quotation.next %}");
+            }
+            else if (data.orders == 'SI')
+            {
+            alert("Cotización " + data.code + " no puede eliminarse");
+            }
+            
+        });
+    });
 });
-
 </script>
 {% endblock js %}

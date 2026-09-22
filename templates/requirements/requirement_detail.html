@@ -196,47 +196,22 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$('#id_eliminar').click(function(e) {
-		e.preventDefault();
-		ventana = $("#dialog-confirm").dialog({
-			resizable : false,
-			height : 140,
-			modal : true,
-			buttons : {
-				"Borrar" : borrarRequerimiento,
-				"Cancelar" : cerrarRequerimiento
-			}
-		});
-	});
-	
-	function borrarRequerimiento() 
-	{
-		$.ajax({
-			data : { 'code' : "{{ object.code }}" },
-			url : "{% url 'requirements:requirement_delete' %}",
-			type : 'post',
-			success : function(data) {
-				if (data.quotations == 'NO') 
-				{
-					alert("Requerimiento " + data.code + " eliminado");
-					$(location).attr('href', "{% url 'requirements:requirement_detail' object.next %}");
-				} 
-				else if (data.quotations == 'SI') 
-				{
-					alert("Requerimiento " + data.code + " no puede eliminarse");
-				}
-			}
-		});
-		ventana.dialog("close");
-	}
-
-	function cerrarRequerimiento() {
-		ventana.dialog("close");
-	}
-
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'requirements:requirement_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.quotations == 'NO')
+            {
+            alert("Requerimiento " + data.code + " eliminado");
+            $(location).attr('href', "{% url 'requirements:requirement_detail' object.next %}");
+            }
+            else if (data.quotations == 'SI')
+            {
+            alert("Requerimiento " + data.code + " no puede eliminarse");
+            }
+            
+        });
+    });
 });
-
 </script>
 {% endblock js %}
