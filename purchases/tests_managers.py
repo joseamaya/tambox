@@ -10,7 +10,8 @@ from django.test import TestCase
 from model_bakery import baker
 
 from administration.models import ApprovalLevel, Office, Position, Worker
-from purchases.models import (Quotation, QuotationDetail, ServiceConformity,
+from purchases.models import (PurchaseOrder, PurchaseOrderDetail, Quotation,
+                              QuotationDetail, ServiceConformity,
                               ServiceConformityDetail, ServiceOrder,
                               ServiceOrderDetail, Supplier)
 from requirements.models import Requirement, RequirementDetail
@@ -51,6 +52,65 @@ class QuotationDetailManagerTest(TestCase):
 
         requirement_detail.refresh_from_db()
         self.assertEqual(Decimal('4'), requirement_detail.quoted_quantity)
+
+
+class OrderDetailManagerTest(TestCase):
+    """`OrderDetailManager` (el de `PurchaseOrderDetail`) descuenta la cantidad
+    comprada en la cotizacion y el requerimiento."""
+
+    def chain(self):
+        requirement = create_requirement()
+        requirement_detail = baker.make(RequirementDetail, requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=Decimal('10'),
+                                        purchased_quantity=Decimal('0'))
+        quotation = baker.make(Quotation, requirement=requirement,
+                               supplier=baker.make(Supplier))
+        quotation_detail = baker.make(QuotationDetail, quotation=quotation,
+                                      requirement_detail=requirement_detail,
+                                      quantity=Decimal('10'),
+                                      purchased_quantity=Decimal('0'))
+        order = baker.make(PurchaseOrder, quotation=quotation,
+                           supplier=baker.make(Supplier))
+        return requirement_detail, quotation, quotation_detail, order
+
+    def test_without_reference_just_saves(self):
+        order = baker.make(PurchaseOrder, supplier=baker.make(Supplier))
+        detail = PurchaseOrderDetail(line_number=1, order=order,
+                                     quotation_detail=None,
+                                     product=baker.make('products.Product'),
+                                     quantity=Decimal('2'), price=Decimal('3'))
+
+        PurchaseOrderDetail.objects.bulk_create([detail], None)
+
+        self.assertTrue(PurchaseOrderDetail.objects.filter(pk=detail.pk).exists())
+
+    def test_with_quotation_updates_the_purchased_quantity(self):
+        requirement_detail, quotation, quotation_detail, order = self.chain()
+        baker.make(Quotation, supplier=baker.make(Supplier))
+        detail = PurchaseOrderDetail(line_number=1, order=order,
+                                     quotation_detail=quotation_detail,
+                                     quantity=Decimal('4'), price=Decimal('3'))
+
+        PurchaseOrderDetail.objects.bulk_create([detail], quotation)
+
+        quotation_detail.refresh_from_db()
+        requirement_detail.refresh_from_db()
+        self.assertEqual(Decimal('4'), quotation_detail.purchased_quantity)
+        self.assertEqual(Decimal('4'), requirement_detail.purchased_quantity)
+
+    def test_update_quotation_details_discards_pending(self):
+        requirement_detail, quotation, quotation_detail, order = self.chain()
+        requirement_detail.status = RequirementDetail.STATUS.COMP
+        requirement_detail.save()
+        pending = baker.make(QuotationDetail, quotation=quotation,
+                             requirement_detail=requirement_detail,
+                             line_number=2, quantity=Decimal('1'))
+
+        PurchaseOrderDetail.objects.update_quotation_details(requirement_detail)
+
+        pending.refresh_from_db()
+        self.assertEqual(QuotationDetail.STATUS.DESC, pending.status)
 
 
 class ServiceConformityDetailManagerTest(TestCase):

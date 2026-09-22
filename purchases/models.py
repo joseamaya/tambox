@@ -249,20 +249,26 @@ class PurchaseOrder(TimeStampedModel):
 
     def delete_reference(self):
         quotation = self.quotation
-        requirement = quotation.requirement
+        requirement = quotation.requirement if quotation is not None else None
         details = PurchaseOrderDetail.objects.filter(order=self)
         for detail in details:
             quotation_detail = detail.quotation_detail
+            if quotation_detail is None:
+                continue
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
             quotation_detail.set_status_purchased()
             quotation_detail.save()
             requirement_detail = quotation_detail.requirement_detail
-            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
-            requirement_detail.set_status_purchased()
-            requirement_detail.save()
-        quotation.set_status_purchased()
-        requirement.set_status_purchased()
-        quotation.save()
+            if requirement_detail is not None:
+                requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
+                requirement_detail.set_status_purchased()
+                requirement_detail.save()
+        if quotation is not None:
+            quotation.set_status_purchased()
+            quotation.save()
+        if requirement is not None:
+            requirement.set_status_purchased()
+            requirement.save()
 
     def set_status(self):
         total = 0
@@ -467,20 +473,26 @@ class ServiceOrder(TimeStampedModel):
 
     def delete_reference(self):
         quotation = self.quotation
-        requirement = self.quotation
+        requirement = quotation.requirement if quotation is not None else None
         details = ServiceOrderDetail.objects.filter(order=self)
         for detail in details:
             quotation_detail = detail.quotation_detail
+            if quotation_detail is None:
+                continue
             quotation_detail.purchased_quantity = quotation_detail.purchased_quantity - detail.quantity
             quotation_detail.set_status_purchased()
             quotation_detail.save()
             requirement_detail = quotation_detail.requirement_detail
-            requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
-            requirement_detail.set_status_purchased()
-            requirement_detail.save()
-        quotation.set_status_purchased()
-        requirement.set_status_purchased()
-        quotation.save()
+            if requirement_detail is not None:
+                requirement_detail.purchased_quantity = requirement_detail.purchased_quantity - detail.quantity
+                requirement_detail.set_status_purchased()
+                requirement_detail.save()
+        if quotation is not None:
+            quotation.set_status_purchased()
+            quotation.save()
+        if requirement is not None:
+            requirement.set_status_purchased()
+            requirement.save()
 
     def set_status(self):
         total = 0
