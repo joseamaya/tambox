@@ -9,9 +9,9 @@ from purchases.models import PurchaseOrder
 from django.utils import timezone
 from django.forms import formsets
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from warehouse.settings import MONTHS, PARAMETROS, FORMATOS_SUNAT,\
+from warehouse.settings import MONTHS, SEARCH_PARAMETERS, SUNAT_FORMATS,\
     movement_type_choices, warehouse_choices,\
-    CHOICES_CONSOLIDADO, SELECCION, FORMATOS
+    CONSOLIDATED_CHOICES, SELECTION, FORMATS
 
 
 class MovementTypeForm(forms.ModelForm):
@@ -59,7 +59,7 @@ class MovementDetailForm(forms.Form):
 
 class MovementReportForm(forms.Form):
     search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
-                                      choices=PARAMETROS)
+                                      choices=SEARCH_PARAMETERS)
     start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
@@ -169,7 +169,7 @@ class MovementForm(forms.ModelForm):
 class KardexProductForm(forms.Form):
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    consolidated = forms.ChoiceField(choices=CHOICES_CONSOLIDADO, widget=forms.RadioSelect, required=False)
+    consolidated = forms.ChoiceField(choices=CONSOLIDATED_CHOICES, widget=forms.RadioSelect, required=False)
     start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
@@ -177,8 +177,8 @@ class KardexProductForm(forms.Form):
     product_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     product_description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),
                                     required=False)
-    sunat_format = forms.ChoiceField(choices=FORMATOS_SUNAT, widget=forms.RadioSelect, required=False)
-    formats = forms.ChoiceField(choices=FORMATOS, widget=forms.RadioSelect)
+    sunat_format = forms.ChoiceField(choices=SUNAT_FORMATS, widget=forms.RadioSelect, required=False)
+    formats = forms.ChoiceField(choices=FORMATS, widget=forms.RadioSelect)
 
 
 class ProductMovementForm(forms.Form):
@@ -203,7 +203,7 @@ class PriceReprocessForm(forms.Form):
                                 widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    selection = forms.ChoiceField(choices=SELECCION, widget=forms.RadioSelect)
+    selection = forms.ChoiceField(choices=SELECTION, widget=forms.RadioSelect)
 
 
 class StockQueryForm(forms.Form):

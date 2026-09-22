@@ -7,7 +7,7 @@ Los valores que salen de la base de datos viven en tambox.config.
 from model_utils.choices import Choices
 from django.utils.translation import gettext as _
 
-PARAMETROS_BUSQUEDA = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
+SEARCH_PARAMETERS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
 MONTHS = (
     (1, 'ENERO'),

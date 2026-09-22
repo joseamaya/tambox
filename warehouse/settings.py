@@ -9,7 +9,7 @@ y no al importar el modulo.
 
 from warehouse.models import MovementType, Warehouse
 
-PARAMETROS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
+SEARCH_PARAMETERS = (('F', 'POR FECHA',), ('M', 'POR MES',), ('A', 'POR AÑO',))
 
 MONTHS = (
     ('01', 'ENERO'),
@@ -26,10 +26,10 @@ MONTHS = (
     ('12', 'DICIEMBRE'),
 )
 
-FORMATOS_SUNAT = (('S', 'ONES FISICAS',), ('V', 'VALORIZADO',))
-FORMATOS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
-SELECCION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
-CHOICES_CONSOLIDADO = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
+SUNAT_FORMATS = (('S', 'ONES FISICAS',), ('V', 'VALORIZADO',))
+FORMATS = (('XLS', 'EXCEL',), ('PDF', 'PDF',))
+SELECTION = (('T', 'TODOS LOS PRODUCTOS',), ('P', 'UN SOLO PRODUCTO',))
+CONSOLIDATED_CHOICES = (('P', 'PRODUCTOS',), ('G', 'GRUPOS',))
 
 
 def movement_type_choices():

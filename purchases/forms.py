@@ -4,7 +4,7 @@ from purchases.models import Supplier, Quotation, PurchaseOrder, ServiceOrder, S
 from django.forms import formsets
 from requirements.models import Requirement
 from warehouse.settings import MONTHS
-from purchases.settings import PARAMETROS_BUSQUEDA
+from purchases.settings import SEARCH_PARAMETERS
 from django.core.exceptions import ValidationError
 
 
@@ -62,7 +62,7 @@ class ServiceOrderDetailForm(forms.Form):
 
 class OrderDateReportForm(forms.Form):
     search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
-                                      choices=PARAMETROS_BUSQUEDA)
+                                      choices=SEARCH_PARAMETERS)
     start_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
                                    label='Fecha de Inicio:', required=False)
     end_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
