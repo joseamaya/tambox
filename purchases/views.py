@@ -157,38 +157,6 @@ class SupplierCreate(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class PurchaseOrderDetailCreate(AjaxOnlyMixin, TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['quotation'] = '0'
-            det['code'] = ''
-            det['name'] = ''
-            det['unit'] = ''
-            det['quantity'] = '0'
-            det['price'] = '0'
-            det['tax'] = '0'
-            det['amount'] = '0'
-            detail_list.append(det)
-            formset = PurchaseOrderDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['quotation'] = str(form['quotation'])
-                detail_json['code'] = str(form['code'])
-                detail_json['name'] = str(form['name'])
-                detail_json['unit'] = str(form['unit'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['price'] = str(form['price'])
-                detail_json['tax'] = str(form['tax'])
-                detail_json['amount'] = str(form['amount'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
-
-
 class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
 
     def get(self, request, *args, **kwargs):
