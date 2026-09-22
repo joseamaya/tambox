@@ -19,9 +19,7 @@ omit = [
     "tambox/wsgi.py",
     "manage.py",
     "scripts/*",
-    "*/tests.py",
-    "*/tests_contenido.py",
-    "tambox/tests.py",
+    "*/tests*.py",
 ]
 
 [tool.coverage.report]
