@@ -88,8 +88,8 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(200, response.status_code)
 
     def test_requirement_approve(self):
-        usuario = ApprovalLevel.objects.get(description='USUARIO')
-        ApprovalLevel.objects.create(description='JEFATURA', superior_level=usuario)
+        user_level = ApprovalLevel.objects.get(description='USUARIO')
+        ApprovalLevel.objects.create(description='JEFATURA', superior_level=user_level)
         approval = self.requirement.approval
 
         response = self.client.post(
