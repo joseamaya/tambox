@@ -157,36 +157,6 @@ class SupplierCreate(CreateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class ServiceOrderDetailCreate(AjaxOnlyMixin, TemplateView):
-
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['quotation'] = '0'
-            det['code'] = ''
-            det['name'] = ''
-            det['unit'] = ''
-            det['quantity'] = '0'
-            det['price'] = '0'
-            det['amount'] = '0'
-            detail_list.append(det)
-            formset = ServiceOrderDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['quotation'] = str(form['quotation'])
-                detail_json['code'] = str(form['code'])
-                detail_json['name'] = str(form['name'])
-                detail_json['unit'] = str(form['unit'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['price'] = str(form['price'])
-                detail_json['amount'] = str(form['amount'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
-
-
 class QuotationCreate(CreateView):
     form_class = QuotationForm
     template_name = "purchases/quotation_form.html"
@@ -1288,6 +1258,51 @@ class PurchaseOrderDetailRow(TemplateView):
         formset = PurchaseOrderDetailFormSet(
             initial=[{'quotation': '0', 'code': '', 'name': '', 'unit': '',
                       'quantity': 0, 'price': 0, 'tax': 0, 'amount': 0}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
+
+
+class ServiceOrderDetailRows(TemplateView):
+    """Filas del formset de orden de servicio para una cotizacion (servicios)."""
+
+    template_name = 'purchases/includes/service_order_detail_formset.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        quotation_code = self.request.GET.get('quotation', '')
+        details = QuotationDetail.objects.filter(
+            quotation__code=quotation_code,
+            requirement_detail__product__is_service=True).order_by('line_number')
+        initial = []
+        for detail in details:
+            product = detail.requirement_detail.product
+            quantity = detail.quantity - detail.requirement_detail.purchased_quantity
+            amount = product.price * quantity
+            initial.append({'quotation': detail.pk,
+                            'code': product.code,
+                            'name': product.description,
+                            'unit': product.unit_of_measure.code,
+                            'quantity': quantity,
+                            'price': product.price,
+                            'amount': round(amount)})
+        context['service_order_detail_formset'] = ServiceOrderDetailFormSet(initial=initial)
+        return context
+
+
+class ServiceOrderDetailRow(TemplateView):
+    """Una fila vacia del formset de orden de servicio, en el indice pedido."""
+
+    template_name = 'purchases/includes/service_order_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = ServiceOrderDetailFormSet(
+            initial=[{'quotation': '0', 'code': '', 'name': '', 'unit': '',
+                      'quantity': 0, 'price': 0, 'amount': 0}])
         form = formset.forms[0]
         form.prefix = 'form-%s' % index
         context['form'] = form

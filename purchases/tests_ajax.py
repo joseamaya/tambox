@@ -25,12 +25,6 @@ class PurchasesAjaxTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual('12345678901', response.json()['tax_id'])
 
-    def test_service_order_detail_create(self):
-        response = self.get('purchases:service_order_detail_create')
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.json()))
-
     def test_quotation_detail_fetch(self):
         quotation = baker.make(Quotation, supplier=baker.make(Supplier))
 

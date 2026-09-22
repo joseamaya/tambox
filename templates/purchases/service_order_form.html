@@ -198,61 +198,8 @@
                             <th>BORRAR</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {{ service_order_detail_formset.management_form }}
-                        {% for service_order_detail_form in service_order_detail_formset %}
-                        <tr class="service_order_detail_formset">
-                            <td>
-                                {{ service_order_detail_form.quotation }}
-                                {{ service_order_detail_form.code }}
-                                {% if service_order_detail_form.name.errors %}
-                                {% for error in service_order_detail_form.name.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_order_detail_form.name }}
-                            </td>
-                            <td>
-                                {% if service_order_detail_form.unit.errors %}
-                                {% for error in service_order_detail_form.unit.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_order_detail_form.unit }}
-                            </td>
-                            <td>
-                                {% if service_order_detail_form.quantity.errors %}
-                                {% for error in service_order_detail_form.quantity.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_order_detail_form.quantity }}
-                            </td>
-                            <td>
-                                {% if service_order_detail_form.price.errors %}
-                                {% for error in service_order_detail_form.price.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_order_detail_form.price }}
-                            </td>
-                            <td>
-                                {% if service_order_detail_form.amount.errors %}
-                                {% for error in service_order_detail_form.amount.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ service_order_detail_form.amount }}
-                            </td>
-                            <td>
-                                <button class='eliminar btn btn-small btn-danger' type='button'
-                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </td>
-                        </tr>
-
-                        {% endfor %}
+                        <tbody id="details-body">
+                        {% include "purchases/includes/service_order_detail_formset.html" %}
                         </tbody>
                     </table>
                 </div>
@@ -419,36 +366,21 @@ $(document).ready(function()
 	
 	$('#id_crear_detalle').click(function(e)
 	{
-		$('#id_transferencia_cotizacion').prop("disabled", true);
 		e.preventDefault();
-		$.ajax({
-			url : "{% url 'purchases:service_order_detail_create' %}",
-			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					$("#detalles tbody").append( 
-						"<tr class='service_order_detail_formset'>" +
-						"<td>" + item.quotation + item.code + item.name + "</td>" +
-						"<td>" + item.unit + "</td>" +
-						"<td>" + item.quantity + "</td>" +
-						"<td>" + item.price + "</td>" +
-						"<td>" + item.amount + "</td>" +
-				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");
-					contDetalles = parseInt(contDetalles) + 1;											
-				});
-				$("#id_form-TOTAL_FORMS").val(contDetalles);
-				updateFormElementIndices('service_order_detail_formset');
-				bindAutoComplete('productos');		
-				$(".decimal").keydown(validar_decimales);
-			}
+		$('#id_transferencia_cotizacion').prop("disabled", true);
+		var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+		htmx.ajax('GET', "{% url 'purchases:service_order_detail_row' %}", {
+			target: '#details-body', swap: 'beforeend', values: {index: index}
+		}).then(function () {
+			$('#id_form-TOTAL_FORMS').val(index + 1);
+			bindAutoComplete('productos');
+			$(".decimal").keydown(validar_decimales);
 		});
  	});
 	
 	function bindAutoComplete(classname)
 	{
-		$("."+classname).autocomplete({
+		$("."+classname).not(".ui-autocomplete-input").autocomplete({
 			source: function( request, response ) 
 			{
 				$.ajax({
@@ -496,17 +428,26 @@ $(document).ready(function()
 		}).dialog('open').load(this.href)
  	});
 	
+	function sumarFilas()
+	{
+		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+		var subtotal = 0;
+		for (var i = 0; i < filas; i++)
+		{
+			subtotal = subtotal + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
+		}
+		$("#id_subtotal").val(subtotal.toFixed(5));
+		$("#id_igv").val(0);
+		$("#id_total").val(subtotal.toFixed(5));
+		$("#id_total_in_words").val(NumeroALetras(subtotal));
+	}
+
 	function transferirCotizacion()
 	{		
-		var quotation = $("#quotation").val();		
-		var cont = 0;
-		var tax = 0;
-		subtotal=0;
-		impuesto_total = 0;
-		total=0;
+		var quotation = $("#quotation").val();
 		ventana_transferencia.dialog("close");
-		$('#detalles td').parent().remove();
-		$('#id_crear_detalle').prop("disabled", true);
+		if (!quotation) { return; }
+		$("#id_reference").val(quotation);
 		$.ajax({
 	      url: "{% url 'purchases:quotation_search' %}",
 	      data: {'code': quotation},
@@ -515,42 +456,15 @@ $(document).ready(function()
 	    	  $("#id_tax_id").val(data.tax_id).trigger('input');
 	    	  $("#id_business_name").val(data.business_name).trigger('input');
 	    	  $("#id_address").val(data.address).trigger('input');
-	    	  event.preventDefault();
 	      }
 	    });
-		
-		$.ajax({
-			data : {'quotation': quotation, 'search_type': 'SERVICIOS'},
-			url : "{% url 'purchases:quotation_detail_fetch' %}",
-			type : 'get',
-			success : function(data)
-			{
-				$.each(data, function(i,item){
-					$("#detalles tbody").append( 
-					"<tr class='service_order_detail_formset'>" +						
-						"<td>" + item.quotation + item.code + item.name + "</td>" +
-						"<td>" + item.unit + "</td>" +
-						"<td>" + item.quantity + "</td>" +
-						"<td>" + item.price + "</td>" +
-						"<td>" + item.amount + "</td>" +
-				  		"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-					"</tr>");
-					cont = cont + 1;
-					var val_temp = $("#id_form-"+i+"-amount").val()
-					subtotal=subtotal+parseFloat(val_temp);								
-				});
-				contDetalles = cont;
-				ultimo_item = cont;
-				total = subtotal;
-				$("#id_form-TOTAL_FORMS").val(cont);
-				$("#id_reference").val(quotation);				
-				$("#id_subtotal").val(subtotal.toFixed(5));
-				$("#id_igv").val(0);
-				$("#id_total").val(total.toFixed(5));
-				$("#id_total_in_words").val(NumeroALetras(total));
-				$(".decimal").keydown(validar_decimales);
-				$("#id_observaciones").val(notes);
-			}
+		htmx.ajax('GET', "{% url 'purchases:service_order_detail_rows' %}", {
+			target: '#details-body', swap: 'innerHTML', values: {quotation: quotation}
+		}).then(function () {
+			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+			bindAutoComplete('productos');
+			$(".decimal").keydown(validar_decimales);
+			sumarFilas();
 		});
 	}
 	
