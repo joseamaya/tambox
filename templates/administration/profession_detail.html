@@ -8,11 +8,6 @@
             Editar
         </a>
         {% endif %}
-        {% if perms.administration.delete_profession %}
-        <button class="btn btn-danger" type="button" id="id_eliminar">
-            Eliminar
-        </button>
-        {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
@@ -32,7 +27,6 @@
     </div>
 </div>
 <hr/>
-<div id="dialog-confirm" title="Eliminar profession"></div>
 <div class="panel panel-default">
     <div class="panel-body">
         <div class="row">
@@ -78,12 +72,3 @@
     </div>
 </div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{
-    
-});
-
-</script>
-{% endblock js %}

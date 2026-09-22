@@ -8,11 +8,6 @@
             Editar
         </a>
         {% endif %}
-        {% if perms.accounting.delete_account %}
-        <button class="btn btn-danger" type="button" id="id_eliminar">
-            Eliminar
-        </button>
-        {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
@@ -31,7 +26,6 @@
         </div>
     </div>
 </div>
-<div id="dialog-confirm" title="Eliminar Cuenta Contable"></div>
 <hr/>
 <div class="panel panel-default">
     <div class="panel-body">
@@ -85,12 +79,3 @@
     </div>
 </div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{
-	
-});
-
-</script>
-{% endblock js %}

@@ -3,12 +3,7 @@
         {% if perms.administration.change_worker %} <a
             class="btn btn-primary"
             href="{% url 'administration:worker_update' object.pk %}">
-        Editar </a> {% endif %} {% if perms.administration.delete_worker %}
-        <button class="btn btn-danger" type="button" id="id_eliminar">
-            Eliminar
-        </button>
-        {% endif %}
-    </div>
+        Editar </a> {% endif %}    </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
             <button class="btn btn-default" type="button"

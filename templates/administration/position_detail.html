@@ -6,11 +6,6 @@
         <a class="btn btn-primary" href="{% url 'administration:position_update' object.pk %}">
             Editar </a>
         {% endif %}
-        {% if perms.administration.delete_position %}
-        <button class="btn btn-danger" type="button" id="id_eliminar">
-            Eliminar
-        </button>
-        {% endif %}
     </div>
     <div class="col-lg-2 text-right">
         <div class="btn-group">
