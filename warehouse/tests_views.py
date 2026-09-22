@@ -4,13 +4,14 @@ from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
 
-from warehouse.models import MovementType, Warehouse
+from warehouse.models import Movement, MovementType, Order, Warehouse
 
 
 class WarehouseViewsTest(TestCase):
 
     def setUp(self):
-        self.client.force_login(User.objects.create_superuser('a', 'a@example.com', 'clave'))
+        self.user = User.objects.create_superuser('a', 'a@example.com', 'clave')
+        self.client.force_login(self.user)
 
     def test_movement_type_crud(self):
         response = self.client.post(reverse('warehouse:movement_type_create'),
@@ -48,6 +49,80 @@ class WarehouseViewsTest(TestCase):
                      'warehouse:movement_type_excel_report'):
             with self.subTest(name=name):
                 self.assertEqual(200, self.client.get(reverse(name)).status_code)
+
+    def test_order_create(self):
+        from datetime import date
+
+        from tambox.config import clear_cache
+
+        worker = baker.make('administration.Worker', user=self.user,
+                            signature='firmas/firma.png')
+        office = baker.make('administration.Office')
+        baker.make('administration.Position', office=office, worker=worker,
+                   is_leadership=True, end_date=None)
+        logistics = baker.make('administration.Office')
+        boss = baker.make('administration.Worker',
+                          user=baker.make('auth.User', email='jefe@example.com'))
+        baker.make('administration.Position', office=logistics, worker=boss,
+                   is_leadership=True, is_active=True, start_date=date(2020, 1, 1),
+                   end_date=None)
+        baker.make('accounting.Configuration', logistics=logistics)
+        clear_cache()
+        self.addCleanup(clear_cache)
+        product = baker.make('products.Product')
+        data = {'code': '', 'date': '01/01/2024', 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-code': product.pk, 'form-0-name': 'PRODUCTO',
+                'form-0-unit': 'UND01', 'form-0-quantity': '5'}
+
+        response = self.client.post(reverse('warehouse:order_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        order = Order.objects.get(requester=worker)
+        self.assertEqual(1, order.details.count())
+
+    def test_inbound_create(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        product = baker.make('products.Product')
+        data = {'movement_id': '', 'movement_type': movement_type.pk,
+                'document_type': '', 'series': '', 'number': '',
+                'warehouse': warehouse.pk, 'office': '', 'notes': '',
+                'date': '01/01/2024', 'time': '08:30:00', 'reference_document': '',
+                'receiver_dni': '', 'receiver': '', 'details_count': '0', 'total': '0',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-purchase_order': '999999', 'form-0-code': product.pk,
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5', 'form-0-price': '3', 'form-0-amount': '15'}
+
+        response = self.client.post(reverse('warehouse:inbound_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        movement = Movement.objects.get(movement_type=movement_type)
+        self.assertEqual(1, movement.details.count())
+
+    def test_outbound_create(self):
+        movement_type = baker.make(MovementType, code='S01', increases=False)
+        warehouse = baker.make(Warehouse)
+        product = baker.make('products.Product')
+        data = {'movement_id': '', 'movement_type': movement_type.pk,
+                'document_type': '', 'series': '', 'number': '',
+                'warehouse': warehouse.pk, 'office': '', 'notes': '',
+                'date': '01/01/2024', 'time': '08:30:00', 'reference_document': '',
+                'receiver_dni': '', 'receiver': '', 'details_count': '0', 'total': '0',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-order': '', 'form-0-code': product.pk,
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5', 'form-0-price': '3', 'form-0-amount': '15'}
+
+        response = self.client.post(reverse('warehouse:outbound_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        movement = Movement.objects.get(movement_type=movement_type)
+        self.assertEqual(1, movement.details.count())
 
     def test_movement_and_order_lists(self):
         movement_type = baker.make(MovementType, code='I01', increases=True)
