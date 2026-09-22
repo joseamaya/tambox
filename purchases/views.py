@@ -437,16 +437,14 @@ class ServiceOrderCreate(CreateView):
                                                                             line_number=cont,
                                                                             order=self.object,
                                                                             quantity=quantity,
-                                                                            price=price,
-                                                                            amount=amount)
+                                                                            price=price)
                         except QuotationDetail.DoesNotExist:
                             product = Product.objects.get(pk=code)
                             service_order_detail = ServiceOrderDetail(product=product,
                                                                             line_number=cont,
                                                                             order=self.object,
                                                                             quantity=quantity,
-                                                                            price=price,
-                                                                            amount=amount)
+                                                                            price=price)
 
                         details.append(service_order_detail)
                         cont = cont + 1
@@ -1199,16 +1197,14 @@ class ServiceOrderUpdate(UpdateView):
                                                                         line_number=cont,
                                                                         order=self.object,
                                                                         quantity=quantity,
-                                                                        price=price,
-                                                                        amount=amount)
+                                                                        price=price)
                     except ObjectDoesNotExist:
                         product = Product.objects.get(pk=code)
                         service_order_detail = ServiceOrderDetail(product=product,
                                                                         line_number=cont,
                                                                         order=self.object,
                                                                         quantity=quantity,
-                                                                        price=price,
-                                                                        amount=amount)
+                                                                        price=price)
                     details.append(service_order_detail)
                     cont = cont + 1
             ServiceOrderDetail.objects.bulk_create(details, reference)

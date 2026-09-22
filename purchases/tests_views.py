@@ -1,10 +1,20 @@
-"""CRUD de proveedores y reportes de compras."""
+"""CRUD de proveedores, reportes y los flujos de creacion con formset."""
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
 from model_bakery import baker
 
+from administration.models import ApprovalLevel, Office, Position, Worker
 from purchases.models import PurchaseOrder, Quotation, ServiceOrder, Supplier
+from requirements.models import Requirement
+
+
+def create_requirement(**kwargs):
+    ApprovalLevel.objects.get_or_create(description='USUARIO')
+    office = baker.make(Office)
+    worker = baker.make(Worker)
+    baker.make(Position, office=office, worker=worker, end_date=None)
+    return baker.make(Requirement, code='', requester=worker, office=office, **kwargs)
 
 
 class PurchasesViewsTest(TestCase):
@@ -61,6 +71,78 @@ class PurchasesViewsTest(TestCase):
 
         self.assertTrue(quotation_pdf.content.startswith(b'%PDF'))
         self.assertTrue(service_pdf.content.startswith(b'%PDF'))
+
+    def test_quotation_create(self):
+        supplier = baker.make(Supplier, tax_id='12345678901')
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=10, quoted_quantity=0)
+        data = {'tax_id': '12345678901', 'business_name': 'PROVEEDOR UNO',
+                'address': 'DIRECCION UNO', 'reference': requirement.pk,
+                'order': '', 'code': '', 'date': '01/01/2024', 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-requirement': requirement_detail.pk, 'form-0-code': 'P000000001',
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5'}
+
+        response = self.client.post(reverse('purchases:quotation_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        quotation = Quotation.objects.get(requirement=requirement, supplier=supplier)
+        self.assertEqual(1, quotation.details.count())
+        requirement_detail.refresh_from_db()
+        self.assertEqual(5, requirement_detail.quoted_quantity)
+
+    def test_purchase_order_create(self):
+        from tambox.config import clear_cache
+
+        supplier = baker.make(Supplier, tax_id='12345678901')
+        payment_method = baker.make('accounting.PaymentMethod')
+        product = baker.make('products.Product')
+        baker.make('accounting.Configuration', purchase_tax=baker.make('accounting.Tax'))
+        clear_cache()
+        self.addCleanup(clear_cache)
+        data = {'tax_id': '12345678901', 'business_name': 'PROVEEDOR UNO',
+                'address': 'DIRECCION UNO', 'reference': 'NO-EXISTE',
+                'current_tax': '18', 'subtotal': '0', 'tax': '0', 'total': '0',
+                'total_in_words': 'CERO', 'code': '', 'date': '01/01/2024',
+                'notes': '', 'payment_method': payment_method.pk,
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-quotation': '999999', 'form-0-code': product.pk,
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5', 'form-0-price': '3', 'form-0-tax': '1',
+                'form-0-amount': '15'}
+
+        response = self.client.post(reverse('purchases:purchase_order_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        order = PurchaseOrder.objects.get(supplier=supplier)
+        self.assertEqual(1, order.details.count())
+
+    def test_service_order_create(self):
+        supplier = baker.make(Supplier, tax_id='12345678901')
+        payment_method = baker.make('accounting.PaymentMethod')
+        product = baker.make('products.Product')
+        data = {'tax_id': '12345678901', 'business_name': 'PROVEEDOR UNO',
+                'address': 'DIRECCION UNO', 'reference': '999999',
+                'subtotal': '0', 'tax': '0', 'total': '0', 'total_in_words': 'CERO',
+                'code': '', 'process': '', 'notes': '', 'report_name': '',
+                'date': '01/01/2024', 'payment_method': payment_method.pk,
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-quotation': '999999', 'form-0-code': product.pk,
+                'form-0-name': 'SERVICIO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5', 'form-0-price': '3', 'form-0-amount': '15'}
+
+        response = self.client.post(reverse('purchases:service_order_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        order = ServiceOrder.objects.get(supplier=supplier)
+        self.assertEqual(1, order.details.count())
 
     def test_lists_and_dashboard(self):
         supplier = baker.make(Supplier)
