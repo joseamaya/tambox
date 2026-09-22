@@ -83,10 +83,18 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	
+$(document).ready(function () {
+    $('#id_eliminar').click(function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'accounting:document_type_delete' %}", {'id': "{{ object.pk }}"}, function (data) {
+            if (data.relaciones == 'NO') {
+                alert("Tipo de Documento " + data.name + " eliminado");
+                $(location).attr('href', "{% url 'accounting:document_type_list' %}");
+            } else if (data.relaciones == 'SI') {
+                alert("Tipo de Documento " + data.name + " no puede eliminarse");
+            }
+        });
+    });
 });
-
 </script>
 {% endblock js %}
