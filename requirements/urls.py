@@ -1,7 +1,7 @@
 from django.urls import re_path
 from requirements.views import RequirementApprove, RequirementList,\
     QuotationListByRequirement, RequirementApprovalList,\
-    Dashboard, RequirementCreate, RequirementDetailCreate,\
+    Dashboard, RequirementCreate, RequirementDetailRow,\
     RequirementUpdate, RequirementTransfer,\
     RequirementDetailFetch, RequirementDetailView,\
     RequirementPdfReport, RequirementDelete, RequirementExcelReport
@@ -18,8 +18,8 @@ urlpatterns = [
     re_path(r'^requirement_approval_list/$', RequirementApprovalList.as_view(),
         name="requirement_approval_list"),
     re_path(r'^requirement_create/$', RequirementCreate.as_view(), name="requirement_create"),
-    re_path(r'^requirement_detail_create/$', RequirementDetailCreate.as_view(),
-        name="requirement_detail_create"),
+    re_path(r'^requirement_detail_row/$', RequirementDetailRow.as_view(),
+        name="requirement_detail_row"),
     re_path(r'^requirement_update/(?P<pk>.+)/$', RequirementUpdate.as_view(),
         name="requirement_update"),
     re_path(r'^requirement_transfer/$', RequirementTransfer.as_view(),

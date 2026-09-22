@@ -157,11 +157,12 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual('SI', response.json()['quotations'])
 
-    def test_requirement_detail_create(self):
-        response = self.client.get(reverse('requirements:requirement_detail_create'),
-                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    def test_requirement_detail_row(self):
+        response = self.client.get(reverse('requirements:requirement_detail_row'),
+                                   {'index': '1'})
 
         self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'name="form-1-product"')
 
     def test_requirement_detail_fetch(self):
         from requirements.models import RequirementDetail

@@ -2,7 +2,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import View, TemplateView
 from django.views.generic.list import ListView
-from django.views.generic.edit import FormView, UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView
 from django.urls import reverse_lazy, reverse
 from django.http.response import HttpResponseRedirect
 import json
@@ -70,29 +70,22 @@ class RequirementApprove(UpdateView):
         return self.render_to_response(self.get_context_data(form=form))
 
 
-class RequirementDetailCreate(AjaxOnlyMixin, FormView):
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            detail_list = []
-            det = {}
-            det['code'] = ''
-            det['product'] = ''
-            det['unit'] = ''
-            det['quantity'] = '0'
-            det['use'] = ''
-            detail_list.append(det)
-            formset = RequirementDetailFormSet(initial=detail_list)
-            json_list = []
-            for form in formset:
-                detail_json = {}
-                detail_json['code'] = str(form['code'])
-                detail_json['product'] = str(form['product'])
-                detail_json['unit'] = str(form['unit'])
-                detail_json['quantity'] = str(form['quantity'])
-                detail_json['use'] = str(form['use'])
-                json_list.append(detail_json)
-            data = json.dumps(json_list)
-            return HttpResponse(data, 'application/json')
+class RequirementDetailRow(TemplateView):
+    """Una fila vacia del formset de requerimiento, en el indice pedido."""
+
+    template_name = 'requirements/includes/requirement_detail_row.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        index = self.request.GET.get('index', '0')
+        formset = RequirementDetailFormSet(
+            initial=[{'code': '', 'product': '', 'unit': '', 'quantity': '0',
+                      'use': ''}])
+        form = formset.forms[0]
+        form.prefix = 'form-%s' % index
+        context['form'] = form
+        context['index'] = index
+        return context
 
 
 class RequirementCreate(CreateView):

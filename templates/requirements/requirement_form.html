@@ -149,58 +149,8 @@
                             <th>Borrar</th>
                         </tr>
                         </thead>
-                        <tbody>
-                        {{ requirement_detail_formset.management_form }}
-                        {% for requirement_detail_form in requirement_detail_formset %}
-                        <tr class="requirement_detail_formset">
-                            <td>
-                                {% if requirement_detail_form.code.errors %}
-                                {% for error in requirement_detail_form.code.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ requirement_detail_form.code }}
-                            </td>
-                            <td>
-                                {% if requirement_detail_form.product.errors %}
-                                {% for error in requirement_detail_form.product.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ requirement_detail_form.product }}
-                            </td>
-                            <td>
-                                {% if requirement_detail_form.unit.errors %}
-                                {% for error in requirement_detail_form.unit.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ requirement_detail_form.unit }}
-                            </td>
-                            <td>
-                                {% if requirement_detail_form.quantity.errors %}
-                                {% for error in requirement_detail_form.quantity.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ requirement_detail_form.quantity }}
-                            </td>
-                            <td>
-                                {% if requirement_detail_form.use.errors %}
-                                {% for error in requirement_detail_form.use.errors %}
-                                {% include "includes/error.html" %}
-                                {% endfor %}
-                                {% endif %}
-                                {{ requirement_detail_form.use }}
-                            </td>
-                            <td>
-                                <button class='eliminar btn btn-small btn-danger' type='button'
-                                        id='id_form-{{ forloop.counter0 }}-btn-borrar' name='btn_borrar'>
-                                    <span class='glyphicon glyphicon-remove'></span>
-                                </button>
-                            </td>
-                        </tr>
-                        {% endfor %}
+                        <tbody id="details-body">
+                        {% include "requirements/includes/requirement_detail_formset.html" %}
                         </tbody>
                     </table>
                 </div>
@@ -226,36 +176,22 @@ $(document).ready(function()
 	$('#id_crear_detalle').click(function(e)
 		{
 			e.preventDefault();
-			$.ajax({
-				url : "{% url 'requirements:requirement_detail_create' %}",
-				type : 'get',
-				success : function(data)
-				{
-					$.each(data, function(i,item){
-						$("#detalles tbody").append( 
-						"<tr class='requirement_detail_formset'>" +
-							"<td>" + item.code + "</td>" +
-							"<td>" + item.product + "</td>" +
-							"<td>" + item.unit + "</td>" +
-							"<td>" + item.quantity + "</td>" +
-							"<td>" + item.use + "</td>" +
-							"<td><button class='eliminar btn btn-small btn-danger' type='button' id='id_form-"+i+"-btn-borrar' name='btn_borrar'><span class='glyphicon glyphicon-remove'></span></button></td>" +
-						"</tr>");
-						contDetalles = parseInt(contDetalles) + 1;											
-					});
-					$("#id_form-TOTAL_FORMS").val(contDetalles);
-					updateFormElementIndices('requirement_detail_formset');
-					bindAutoComplete('productos');	
-					$(".decimal").keydown(validar_decimales);
-				}
+			var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
+			htmx.ajax('GET', "{% url 'requirements:requirement_detail_row' %}", {
+				target: '#details-body', swap: 'beforeend', values: {index: index}
+			}).then(function () {
+				contDetalles = index + 1;
+				$('#id_form-TOTAL_FORMS').val(contDetalles);
+				bindAutoComplete('productos');
+				$(".decimal").keydown(validar_decimales);
 			});
 	 	});
-		
+	
 	bindAutoComplete('productos');
 	
 	function bindAutoComplete(classname)
 	{
-		$("."+classname).autocomplete({
+		$("."+classname).not(".ui-autocomplete-input").autocomplete({
 			source: function( request, response ) 
 			{
 			    $.ajax({

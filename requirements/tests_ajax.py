@@ -25,11 +25,11 @@ class RequirementsAjaxTest(TestCase):
         return self.client.get(reverse(name), params or {},
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def test_detail_create(self):
-        response = self.get('requirements:requirement_detail_create')
+    def test_detail_row(self):
+        response = self.get('requirements:requirement_detail_row', {'index': '4'})
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1, len(response.json()))
+        self.assertContains(response, 'name="form-4-product"')
 
     def test_detail_fetch_all(self):
         requirement = create_requirement(code='REQ0001')
