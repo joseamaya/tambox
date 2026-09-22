@@ -312,6 +312,31 @@ class PurchasesViewsTest(TestCase):
             with self.subTest(name=name):
                 self.assertEqual(200, self.client.get(reverse(name)).status_code)
 
+    def test_lists_return_htmx_fragment_and_search(self):
+        supplier = baker.make(Supplier, business_name='PROVEEDOR UNICO')
+        quotation = baker.make(Quotation, supplier=supplier)
+        purchase_order = baker.make(PurchaseOrder, quotation=quotation,
+                                    supplier=supplier)
+        service_order = baker.make(ServiceOrder, quotation=quotation,
+                                   supplier=supplier)
+        conformity = baker.make('purchases.ServiceConformity',
+                                service_order=service_order)
+        cases = [
+            ('purchases:supplier_list', supplier.business_name),
+            ('purchases:quotation_list', quotation.code),
+            ('purchases:purchase_order_list', purchase_order.code),
+            ('purchases:service_order_list', service_order.code),
+            ('purchases:service_conformity_list', conformity.code),
+        ]
+
+        for name, term in cases:
+            with self.subTest(name=name):
+                fragment = self.client.get(reverse(name), {'q': term},
+                                           HTTP_HX_REQUEST='true')
+                self.assertEqual(200, fragment.status_code)
+                self.assertNotContains(fragment, '<html')
+                self.assertContains(fragment, term)
+
 
 class PurchasesDeleteAndFetchTest(TestCase):
     """Los borrados por AJAX y los fetch que alimentan los formsets."""

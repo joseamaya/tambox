@@ -37,7 +37,7 @@ from datetime import date
 from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf,\
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.config import configuration, purchase_tax
-from tambox.views import CsvImportMixin, AjaxOnlyMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from decimal import Decimal
 
 locale.setlocale(locale.LC_ALL, "")
@@ -677,33 +677,42 @@ class SupplierDelete(TemplateView):
             return HttpResponse(data, 'application/json')
 
 
-class SupplierList(ListView):
+class SupplierList(HtmxListMixin, ListView):
     model = Supplier
     template_name = 'purchases/supplier_list.html'
+    fragment_template_name = 'purchases/includes/supplier_rows.html'
     context_object_name = 'suppliers'
+    paginate_by = 10
     queryset = Supplier.objects.filter(is_active=True).order_by('business_name')
+    search_fields = ('tax_id', 'business_name')
 
     @method_decorator(requires('purchases.ver_tabla_proveedores'))
     def dispatch(self, *args, **kwargs):
         return super(SupplierList, self).dispatch(*args, **kwargs)
 
 
-class QuotationList(ListView):
+class QuotationList(HtmxListMixin, ListView):
     model = Quotation
     template_name = 'purchases/quotation_list.html'
+    fragment_template_name = 'purchases/includes/quotation_rows.html'
     context_object_name = 'quotations'
+    paginate_by = 10
     queryset = Quotation.objects.exclude(status=Quotation.STATUS.CANC).order_by('code')
+    search_fields = ('code', 'supplier__business_name', 'requirement__code')
 
     @method_decorator(requires('purchases.ver_tabla_cotizaciones'))
     def dispatch(self, *args, **kwargs):
         return super(QuotationList, self).dispatch(*args, **kwargs)
 
 
-class PurchaseOrderList(ListView):
+class PurchaseOrderList(HtmxListMixin, ListView):
     model = PurchaseOrder
     template_name = 'purchases/purchase_order_list.html'
+    fragment_template_name = 'purchases/includes/purchase_order_rows.html'
     context_object_name = 'purchase_orders'
+    paginate_by = 10
     queryset = PurchaseOrder.objects.exclude(status=PurchaseOrder.STATUS.CANC).order_by('code')
+    search_fields = ('code', 'quotation__code')
 
     @method_decorator(
         requires('purchases.ver_tabla_ordenes_compra'))
@@ -711,11 +720,14 @@ class PurchaseOrderList(ListView):
         return super(PurchaseOrderList, self).dispatch(*args, **kwargs)
 
 
-class ServiceOrderList(ListView):
+class ServiceOrderList(HtmxListMixin, ListView):
     model = ServiceOrder
     template_name = 'purchases/service_order_list.html'
+    fragment_template_name = 'purchases/includes/service_order_rows.html'
     context_object_name = 'service_orders'
+    paginate_by = 10
     queryset = ServiceOrder.objects.filter().order_by('code')
+    search_fields = ('code', 'quotation__code', 'supplier__business_name')
 
     @method_decorator(
         requires('purchases.ver_tabla_ordenes_servicios'))
@@ -723,10 +735,13 @@ class ServiceOrderList(ListView):
         return super(ServiceOrderList, self).dispatch(*args, **kwargs)
 
 
-class PurchaseOrderListByQuotation(ListView):
+class PurchaseOrderListByQuotation(HtmxListMixin, ListView):
     model = PurchaseOrder
     template_name = 'purchases/purchase_order_list.html'
+    fragment_template_name = 'purchases/includes/purchase_order_rows.html'
     context_object_name = 'purchase_orders'
+    paginate_by = 10
+    search_fields = ('code',)
 
     @method_decorator(
         requires('purchases.ver_tabla_ordenes_compra'))
@@ -739,10 +754,13 @@ class PurchaseOrderListByQuotation(ListView):
         return queryset
 
 
-class ServiceOrderListByQuotation(ListView):
+class ServiceOrderListByQuotation(HtmxListMixin, ListView):
     model = PurchaseOrder
     template_name = 'purchases/service_order_list.html'
+    fragment_template_name = 'purchases/includes/service_order_rows.html'
     context_object_name = 'service_orders'
+    paginate_by = 10
+    search_fields = ('code',)
 
     @method_decorator(
         requires('purchases.ver_tabla_ordenes_servicios'))
@@ -755,11 +773,14 @@ class ServiceOrderListByQuotation(ListView):
         return queryset
 
 
-class ServiceConformityList(ListView):
+class ServiceConformityList(HtmxListMixin, ListView):
     model = ServiceConformity
     template_name = 'purchases/service_conformity_list.html'
+    fragment_template_name = 'purchases/includes/service_conformity_rows.html'
     context_object_name = 'conformities'
+    paginate_by = 10
     queryset = ServiceConformity.objects.filter(is_active=True).order_by('code')
+    search_fields = ('code', 'service_order__code')
 
     @method_decorator(
         requires('purchases.ver_tabla_conformidades_servicio'))
