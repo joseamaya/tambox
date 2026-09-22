@@ -120,8 +120,9 @@ referencia. El plan completo, por fases:
 1. htmx + Alpine (base) y un piloto. ✅
 2. Listas y detalles (DataTables → tablas del servidor). ✅
 3. Formularios pesados (compras y almacén). En curso: `quotation_form` es el
-   piloto (autocompletado de proveedor con Alpine, transferencia de
-   requerimiento con htmx y filas reales del formset).
+   piloto (autocompletado de proveedor con Alpine y transferencia de
+   requerimiento con htmx). Las filas del formset las renderiza el servidor en un
+   fragmento, en lugar de armarlas el navegador con `innerHTML` a partir del JSON.
 4. Retirar jQuery, jQuery UI, appendGrid y Bootstrap 3.
 
 Las listas usan `HtmxListMixin` (`tambox/views.py`): con la cabecera `HX-Request`
