@@ -19,7 +19,7 @@ from products.models import Product, UnitOfMeasure, ProductGroup
 from products.forms import ProductGroupForm, ProductForm, ServiceForm,\
     UnitOfMeasureForm
 from accounting.models import Account, StockType
-from tambox.views import CsvImportMixin, AjaxOnlyMixin
+from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 
 logger = logging.getLogger(__name__)
 
@@ -357,22 +357,28 @@ class UnitOfMeasureList(ListView):
         return super(UnitOfMeasureList, self).dispatch(*args, **kwargs)
 
 
-class ServiceList(ListView):
+class ServiceList(HtmxListMixin, ListView):
     model = Product
     template_name = 'products/service_list.html'
+    fragment_template_name = 'products/includes/service_rows.html'
     context_object_name = 'services'
+    paginate_by = 10
     queryset = Product.objects.filter(is_active=True, is_service=True).order_by('description')
+    search_fields = ('code', 'description')
 
     @method_decorator(requires('products.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):
         return super(ServiceList, self).dispatch(*args, **kwargs)
 
 
-class ProductGroupList(ListView):
+class ProductGroupList(HtmxListMixin, ListView):
     model = ProductGroup
     template_name = 'products/product_group_list.html'
+    fragment_template_name = 'products/includes/product_group_rows.html'
     context_object_name = 'product_groups'
+    paginate_by = 10
     queryset = ProductGroup.objects.filter(is_active=True).order_by('code')
+    search_fields = ('code', 'description')
 
     @method_decorator(
         requires('products.ver_tabla_grupos_productos'))
@@ -380,11 +386,14 @@ class ProductGroupList(ListView):
         return super(ProductGroupList, self).dispatch(*args, **kwargs)
 
 
-class ProductList(ListView):
+class ProductList(HtmxListMixin, ListView):
     model = Product
     template_name = 'products/product_list.html'
+    fragment_template_name = 'products/includes/product_rows.html'
     context_object_name = 'products'
+    paginate_by = 10
     queryset = Product.objects.filter(is_service=False, is_active=True).order_by('code')
+    search_fields = ('code', 'description')
 
     @method_decorator(requires('products.ver_tabla_productos'))
     def dispatch(self, *args, **kwargs):

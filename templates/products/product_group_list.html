@@ -27,47 +27,25 @@
 </div>
 <hr/>
 <div class="row">
-    <div class="col-lg-12">
-        <table id="table" class="display" cellspacing="0" width="100%">
-            <thead>
-            <tr>
-                <th class="text-center">CODIGO</th>
-                <th class="text-center">DESCRIPCION</th>
-                <th class="text-center">CTA CONTABLE.</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for group in product_groups %}
-            {% if perms.products.ver_detalle_grupo_productos %}
-            <tr onclick="location.href='{% url 'products:product_group_detail' group.pk %}';">
-                {% else %}
-            <tr>
-                {% endif %}
-                <td>{{ group.code }}</td>
-                <td>{{ group.description }}</td>
-                <td>{{ group.account }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="col-lg-4">
+        <form id="list-search" class="form-inline"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por código o descripción"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-btn">
+                    <button class="btn btn-default" type="submit">
+                        <span class="glyphicon glyphicon-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
     </div>
 </div>
+<br/>
+<div id="list-results">
+    {% include "products/includes/product_group_rows.html" %}
+</div>
 {% endblock cuerpo %}
-{% block js %}
-<script>
-$(document).ready(function() 
-{	
-    var table = $('#table').DataTable( {
-        "language": {
-        	url: "/static/localizacion/es_ES.json"
-        }
-    } );
- 
-    $('#tabla tr').hover(function() 
-	{
-		$(this).css("cursor","pointer");
-	}); 
-});
-
-</script>
-{% endblock js %}

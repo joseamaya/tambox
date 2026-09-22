@@ -109,6 +109,26 @@ class ProductsViewsTest(TestCase):
         service.refresh_from_db()
         self.assertFalse(service.is_active)
 
+    def test_lists_return_htmx_fragment_and_search(self):
+        group = baker.make(ProductGroup, code='000001', description='GRUPO UNICO',
+                           account=self.account)
+        baker.make(Product, code='', product_group=group, description='BIEN UNICO')
+        baker.make(Product, code='', product_group=group, description='SERVICIO UNICO',
+                   is_service=True)
+        cases = [
+            ('products:product_list', 'BIEN UNICO'),
+            ('products:product_group_list', 'GRUPO UNICO'),
+            ('products:service_list', 'SERVICIO UNICO'),
+        ]
+
+        for name, expected in cases:
+            with self.subTest(name=name):
+                fragment = self.client.get(reverse(name), {'q': expected},
+                                           HTTP_HX_REQUEST='true')
+                self.assertEqual(200, fragment.status_code)
+                self.assertNotContains(fragment, '<html')
+                self.assertContains(fragment, expected)
+
     def test_dashboard_and_reports(self):
         self.assertEqual(200, self.client.get(reverse('products:dashboard')).status_code)
 
