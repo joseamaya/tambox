@@ -234,7 +234,7 @@ $(document).ready(function()
 		$("#id_tax_id").val(ui.item.tax_id);
 		$("#id_business_name").val(ui.item.label);
 		$("#id_address").val(ui.item.address);
-		if(ui.item.es_locador)
+		if(ui.item.is_service_provider)
 		{		    		  
 			$("#id_order").attr("readonly", false);
 			$("#id_order").val(ui.item.order);
@@ -259,7 +259,7 @@ $(document).ready(function()
 		      {
 		    	  $("#id_business_name").val(data.business_name);
 		    	  $("#id_address").val(data.address);
-		    	  if(data.es_locador)
+		    	  if(data.is_service_provider)
 		    	  {		    		  
 		    		  $("#id_order").attr("readonly", false);
 		    		  $("#id_order").val(data.order);

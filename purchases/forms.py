@@ -12,10 +12,11 @@ class SupplierForm(forms.ModelForm):
     class Meta:
         model = Supplier
         fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
-                  'registration_date']
+                  'registration_date', 'is_service_provider']
 
     def __init__(self, *args, **kwargs):
         super(SupplierForm, self).__init__(*args, **kwargs)
+        self.fields['is_service_provider'].label = 'Es locador de servicios'
         self.fields['ciiu'].required = False
         self.fields['phone'].required = False
         self.fields['email'].required = False

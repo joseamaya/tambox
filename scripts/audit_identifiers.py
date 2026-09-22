@@ -34,9 +34,7 @@ ALLOWED_WORDS = {
     'admin', 'message', 'messages', 'namespace', 'constants', 'valid',
 }
 # Nombres completos que la auditoria ignora (ficheros de terceros, etc.).
-# `es_locador` se omite a proposito: es codigo roto (`Supplier` no tiene ese
-# campo) y entra en el bloque de bugs, no en el de vocabulario.
-ALLOWED_NAMES = {'numeroaletras', 'es_locador'}
+ALLOWED_NAMES = {'numeroaletras'}
 
 SPANISH_WORDS = {
     'cantidad', 'precio', 'valor', 'fecha', 'nombre', 'apellido', 'codigo',

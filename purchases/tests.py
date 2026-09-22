@@ -1,4 +1,7 @@
+import json
+from django.contrib.auth.models import User
 from django.test import TestCase
+from django.urls import reverse
 from model_bakery import baker
 from purchases.models import Supplier, LegalRepresentative, Quotation,\
     QuotationDetail, PurchaseOrderDetail, ServiceOrderDetail, PurchaseOrder
@@ -6,6 +9,28 @@ from datetime import date
 
 
 # Create your tests here.
+class SupplierSearchTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_superuser('navegante', 'navegante@example.com',
+                                                  'key-segura-123')
+        self.client.force_login(self.user)
+
+    def test_tax_id_search_reports_service_provider(self):
+        supplier = baker.make(Supplier, business_name='LOCADOR SAC', is_service_provider=True)
+        url = reverse('purchases:supplier_tax_id_search')
+        response = self.client.get(url, {'tax_id': supplier.tax_id},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)['is_service_provider'])
+
+    def test_name_search_reports_service_provider(self):
+        baker.make(Supplier, business_name='LOCADOR XYZ', is_service_provider=True)
+        url = reverse('purchases:supplier_name_search')
+        response = self.client.get(url, {'business_name': 'LOCADOR'},
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(json.loads(response.content)[0]['is_service_provider'])
 class SupplierTest(TestCase):
 
     def setUp(self):

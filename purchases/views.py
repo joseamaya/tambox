@@ -100,6 +100,7 @@ class SupplierNameSearch(AjaxOnlyMixin, TemplateView):
                 supplier_json['label'] = supplier.business_name
                 supplier_json['tax_id'] = supplier.tax_id
                 supplier_json['address'] = supplier.address
+                supplier_json['is_service_provider'] = supplier.is_service_provider
                 supplier_json['order'] = str(ServiceOrder.objects.last_record())
                 supplier_list.append(supplier_json)
             data = json.dumps(supplier_list)
@@ -118,7 +119,7 @@ class SupplierTaxIdSearch(AjaxOnlyMixin, TemplateView):
             supplier_json['business_name'] = supplier.business_name
             supplier_json['address'] = supplier.address
             supplier_json['status'] = supplier.sunat_status
-            supplier_json['es_locador'] = supplier.es_locador
+            supplier_json['is_service_provider'] = supplier.is_service_provider
             supplier_json['order'] = str(ServiceOrder.objects.last_record())
             data = simplejson.dumps(supplier_json)
             return HttpResponse(data, 'application/json')

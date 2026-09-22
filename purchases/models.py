@@ -89,6 +89,7 @@ class Supplier(TimeStampedModel):
     ciiu = models.CharField(max_length=250)
     registration_date = models.DateField()
     is_active = models.BooleanField(default=True)
+    is_service_provider = models.BooleanField(default=False)
     objects = NavigableQuerySet.as_manager()
     history = HistoricalRecords()
 
