@@ -1,0 +1,48 @@
+{% comment %}
+Filas paginadas de la consulta de stock. Lo devuelve `ProductStockRows` y htmx lo
+inserta en `#stock-results`, sin recargar la pagina.
+{% endcomment %}
+<table class="table table-striped table-bordered" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th class="text-center">CODIGO</th>
+        <th class="text-center">DESCRIPCIÓN</th>
+        <th class="text-center">UNIDAD</th>
+        <th class="text-center">STOCK</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+    <tr>
+        <td>{{ row.code }}</td>
+        <td>{{ row.description }}</td>
+        <td>{{ row.unit }}</td>
+        <td>{{ row.stock }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4" class="text-center">No se encontraron productos.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<div class="row">
+    <div class="col-md-4">
+        <span>Total: {{ total }} productos</span>
+    </div>
+    <div class="col-md-4">
+        {% if page > 1 %}
+        <button type="button" class="btn btn-info"
+                hx-get="{% url 'warehouse:product_stock_rows' %}"
+                hx-include="#stock-query" hx-vals='{"page": {{ previous_page }}}'
+                hx-target="#stock-results">Anterior</button>
+        {% endif %}
+        <span>Página {{ page }} de {{ total_pages }}</span>
+        {% if page < total_pages %}
+        <button type="button" class="btn btn-info"
+                hx-get="{% url 'warehouse:product_stock_rows' %}"
+                hx-include="#stock-query" hx-vals='{"page": {{ next_page }}}'
+                hx-target="#stock-results">Siguiente</button>
+        {% endif %}
+    </div>
+</div>

@@ -32,6 +32,9 @@
     <script src="{% static 'js/spin.js' %}"></script>
     <script src="{% static 'js/utilidades.js' %}"></script>
     <script src="{% static 'js/jquery.formset.js' %}"></script>
+    <script src="{% static 'js/htmx.min.js' %}"></script>
+    <script src="{% static 'js/components.js' %}"></script>
+    <script defer src="{% static 'js/alpine.min.js' %}"></script>
     <script type="text/javascript">
         $.ajaxSetup({
             beforeSend: function (xhr, settings) {
@@ -39,6 +42,12 @@
                     xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
                 }
             }
+        });
+    </script>
+    <script type="text/javascript">
+        // htmx no lee el CSRF del formulario: se le inyecta en cada peticion.
+        document.addEventListener('htmx:configRequest', function (event) {
+            event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
         });
     </script>
     <script type="text/javascript">
@@ -63,6 +72,11 @@
 
     </script>
     <style>
+        /* Alpine: oculta lo que aun no inicializo (menus, autocompletados). */
+        [x-cloak] {
+            display: none !important;
+        }
+
         .btn-salir {
             display: block;
             width: 100%;

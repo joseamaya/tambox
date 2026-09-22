@@ -1559,28 +1559,48 @@ class ProductStock(FormView):
         return response
 
 
-class ProductStockList(AjaxOnlyMixin, TemplateView):
+class ProductStockRows(TemplateView):
+    """Fragmento HTML que htmx inserta en la consulta de stock.
 
-    required_params = ('description', 'warehouse')
+    Devuelve la tabla ya paginada en el servidor: antes el navegador se traia
+    todos los productos y paginaba en memoria.
+    """
 
-    def get(self, request, *args, **kwargs):
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            description = request.GET['description']
-            warehouse = request.GET['warehouse']
-            product_list = []
-            products = list(Product.objects.filter(description__icontains=description)
-                             .select_related('unit_of_measure').order_by('description'))
-            last_records = Kardex.last_by_product(products, warehouse__pk=warehouse)
-            for product in products:
-                kardex = last_records.get(product.pk)
-                kardex_json = {}
-                kardex_json['code'] = product.code
-                kardex_json['label'] = product.description
-                kardex_json['unit'] = product.unit_of_measure.code
-                kardex_json['stock'] = kardex.total_quantity if kardex else 0
-                product_list.append(kardex_json)
-            data = simplejson.dumps(product_list)
-            return HttpResponse(data, 'application/json')
+    template_name = 'warehouse/includes/product_stock_rows.html'
+    per_page = 15
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        warehouse = Warehouse.objects.filter(
+            code=self.request.GET.get('warehouse')).first()
+        description = self.request.GET.get('description', '')
+        products = list(Product.objects.filter(description__icontains=description)
+                        .select_related('unit_of_measure').order_by('description'))
+        last_records = (Kardex.last_by_product(products, warehouse=warehouse)
+                        if warehouse is not None else {})
+        rows = []
+        for product in products:
+            kardex = last_records.get(product.pk)
+            rows.append({'code': product.code,
+                         'description': product.description,
+                         'unit': product.unit_of_measure.code,
+                         'stock': kardex.total_quantity if kardex else 0})
+        total = len(rows)
+        total_pages = max(1, -(-total // self.per_page))
+        try:
+            page = int(self.request.GET.get('page', 1))
+        except (TypeError, ValueError):
+            page = 1
+        page = min(max(page, 1), total_pages)
+        context.update({
+            'rows': rows[(page - 1) * self.per_page:page * self.per_page],
+            'page': page,
+            'total_pages': total_pages,
+            'total': total,
+            'previous_page': page - 1,
+            'next_page': page + 1,
+        })
+        return context
 
 
 class MovementExcelReport(FormView):

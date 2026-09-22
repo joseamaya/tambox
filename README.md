@@ -97,3 +97,27 @@ Antes de desplegar conviene pasar:
 DJANGO_SETTINGS_MODULE=tambox.settings.production \
   .venv/bin/python manage.py check --deploy
 ```
+
+## Frontend
+
+El proyecto está migrando de jQuery + Bootstrap 3 a **htmx + Alpine.js**
+(manteniendo, por ahora, Bootstrap 3 para no romper el resto). Las dos librerías
+nuevas conviven con las viejas, así que la migración es página a página.
+
+Para la interactividad nueva:
+
+- **htmx** cuando el servidor ya sabe renderizar el HTML: la vista devuelve un
+  fragmento y htmx lo inserta. Ejemplo: `warehouse/views.py:ProductStockRows` y
+  `templates/warehouse/includes/product_stock_rows.html`, usados por
+  `product_stock.html`.
+- **Alpine.js** para estado local (menús, autocompletados, cálculos). Los
+  componentes compartidos viven en `static/js/components.js`, no en `<script>`
+  inline por página.
+
+`templates/warehouse/product_stock.html` es la página piloto y sirve de
+referencia. El plan completo, por fases:
+
+1. htmx + Alpine (base) y un piloto. ✅
+2. Listas y detalles (DataTables → tablas del servidor).
+3. Formularios pesados (compras y almacén).
+4. Retirar jQuery, jQuery UI, appendGrid y Bootstrap 3.

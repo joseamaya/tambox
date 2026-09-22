@@ -582,13 +582,47 @@ class WarehouseReportViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
-    def test_product_stock_list(self):
-        response = self.client.get(reverse('warehouse:product_stock_list'),
-                                   {'description': self.product.description,
-                                    'warehouse': self.warehouse.pk},
-                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+    def test_product_stock_page_wires_htmx_and_alpine(self):
+        response = self.client.get(reverse('warehouse:product_stock'))
 
         self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'hx-get="/almacen/product_stock_rows/"')
+        self.assertContains(response, 'x-data="productSearch(')
+
+    def test_product_stock_rows_paginates(self):
+        for number in range(16):
+            baker.make('products.Product', description='FILA %02d' % number)
+        url = reverse('warehouse:product_stock_rows')
+
+        first = self.client.get(url, {'description': 'FILA',
+                                      'warehouse': self.warehouse.pk})
+        self.assertEqual(200, first.status_code)
+        self.assertContains(first, 'Página 1 de 2')
+        self.assertContains(first, 'Total: 16 productos')
+        self.assertContains(first, 'FILA 00')
+
+        second = self.client.get(url, {'description': 'FILA',
+                                       'warehouse': self.warehouse.pk, 'page': '2'})
+        self.assertContains(second, 'Página 2 de 2')
+
+    def test_product_stock_rows_clamps_page(self):
+        url = reverse('warehouse:product_stock_rows')
+
+        for page in ('99', 'no-es-un-numero'):
+            with self.subTest(page=page):
+                response = self.client.get(url, {'description': self.product.description,
+                                                 'warehouse': self.warehouse.pk,
+                                                 'page': page})
+                self.assertEqual(200, response.status_code)
+                self.assertContains(response, 'Página 1 de 1')
+
+    def test_product_stock_rows_without_warehouse(self):
+        response = self.client.get(reverse('warehouse:product_stock_rows'),
+                                   {'description': self.product.description,
+                                    'warehouse': ''})
+
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, 'Total: 1 productos')
 
     def test_verify_reference_required(self):
         response = self.client.get(reverse('warehouse:verify_reference_required'),

@@ -581,17 +581,6 @@ class StockAjaxTest(TestCase):
         return self.client.get(url, {'description': 'ACERO', 'warehouse': self.warehouse.pk},
                                HTTP_X_REQUESTED_WITH='XMLHttpRequest')
 
-    def test_list_stock_product(self):
-        response = self.get('/almacen/product_stock_list/')
-
-        self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertEqual(len(data), 1)
-        self.assertEqual(data[0]['code'], self.product.code)
-        self.assertEqual(data[0]['label'], 'ACERO INOXIDABLE')
-        self.assertEqual(data[0]['unit'], self.unit.code)
-        self.assertAlmostEqual(data[0]['stock'], 7)
-
     def test_search_products_warehouse(self):
         response = self.get('/almacen/product_warehouse_search/')
 

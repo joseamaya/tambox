@@ -11,7 +11,7 @@ from warehouse.views import WarehouseCreate, InboundCreate, OutboundCreate,\
     OrderApprovalList, VerifyStockForOrder,\
     OrderDetailView, MovementDetailView, ProductStock,\
     InboundList, OutboundList, KardexProductReport, MovementListByOrder,\
-    PriceReprocess, OrderDelete, MovementListByProduct, ProductStockList, Inventory
+    PriceReprocess, OrderDelete, MovementListByProduct, ProductStockRows, Inventory
 
 app_name = 'warehouse'
 
@@ -78,7 +78,7 @@ urlpatterns = [
     re_path(r'^movement_list_by_product/$', MovementListByProduct.as_view(),
         name="movement_list_by_product"),
     re_path(r'^order_delete/$', OrderDelete.as_view(), name="order_delete"),
-    re_path(r'^product_stock_list/$', ProductStockList.as_view(), name="product_stock_list"),
+    re_path(r'^product_stock_rows/$', ProductStockRows.as_view(), name="product_stock_rows"),
     re_path(r'^inventory/$', Inventory.as_view(), name="inventory"),
 
 ]

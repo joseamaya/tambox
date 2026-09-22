@@ -51,13 +51,6 @@ class WarehouseAjaxTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(7, response.json()['stock'])
 
-    def test_product_stock_list(self):
-        response = self.get('warehouse:product_stock_list',
-                            {'description': 'ACERO', 'warehouse': self.warehouse.pk})
-
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(0, response.json()[0]['stock'])
-
     def test_detail_create_endpoints(self):
         for name in ('warehouse:outbound_detail_create', 'warehouse:order_detail_create',
                      'warehouse:inbound_detail_create'):
