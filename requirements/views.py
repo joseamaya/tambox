@@ -12,6 +12,7 @@ from django.views.generic.detail import DetailView
 from administration.models import Office, ApprovalLevel
 import locale
 from security.permissions import requires
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.db import transaction, IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
@@ -456,9 +457,9 @@ class RequirementExcelReport(TemplateView):
         for requirement in requirements:
             ws.cell(row=cont, column=2).value = requirement.code
             ws.cell(row=cont, column=3).value = requirement.office.name
-            ws.cell(row=cont, column=4).value = requirement.get_status_display()
-            ws.cell(row=cont, column=5).value = requirement.approval.get_status_display()
-            ws.cell(row=cont, column=6).value = requirement.created
+            ws.cell(row=cont, column=4).value = requirement.approval.level.description
+            ws.cell(row=cont, column=5).value = requirement.get_status_display()
+            ws.cell(row=cont, column=6).value = timezone.localtime(requirement.created).replace(tzinfo=None)
             ws.cell(row=cont, column=6).number_format = 'dd/mm/yyyy hh:mm:ss'
             cont = cont + 1
         file_name = "RequirementList.xlsx"
