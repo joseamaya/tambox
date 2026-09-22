@@ -947,7 +947,7 @@ class ServiceConformityUpdate(UpdateView):
     def form_valid(self, form):
         try:
             with transaction.atomic():
-                self.delete_reference()
+                self.object.delete_reference()
                 form.save()
                 return HttpResponseRedirect(reverse('purchases:quotation_detail', args=[self.object.code]))
         except IntegrityError:
