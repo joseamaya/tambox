@@ -297,9 +297,7 @@ class RequirementUpdate(UpdateView):
         requires('requirements.change_requirement'))
     def dispatch(self, *args, **kwargs):
         requirement = self.get_object()
-        if (requirement.approval.is_active == RequirementApproval.LEVEL.USU or
-                requirement.approval.is_active == RequirementApproval.LEVEL.JEF or
-                self.request.user.is_superuser):
+        if requirement.approval.is_active or self.request.user.is_superuser:
             return super(RequirementUpdate, self).dispatch(*args, **kwargs)
         else:
             return HttpResponseRedirect(reverse('security:permission_denied'))
@@ -325,17 +323,17 @@ class RequirementUpdate(UpdateView):
         details = RequirementDetail.objects.filter(requirement=self.object).order_by('line_number')
         details_data = []
         for detail in details:
-            try:
+            if detail.product is None:
+                d = {'code': '',
+                     'product': '',
+                     'quantity': detail.quantity,
+                     'unit': '',
+                     'use': detail.use}
+            else:
                 d = {'code': detail.product.code,
                      'product': detail.product.description,
                      'quantity': detail.quantity,
                      'unit': detail.product.unit_of_measure.code,
-                     'use': detail.use}
-            except AttributeError:
-                d = {'code': '',
-                     'product': detail.otro,
-                     'quantity': detail.quantity,
-                     'unit': '',
                      'use': detail.use}
             details_data.append(d)
         requirement_detail_formset = RequirementDetailFormSet(initial=details_data)
@@ -368,11 +366,6 @@ class RequirementUpdate(UpdateView):
                         details.append(
                             RequirementDetail(requirement=self.object, line_number=cont, product=product,
                                                  quantity=quantity, use=use))
-                        cont = cont + 1
-                    elif quantity:
-                        product = requirement_detail_form.cleaned_data.get('product')
-                        details.append(RequirementDetail(requirement=self.object, line_number=cont, otro=product,
-                                                             quantity=quantity, use=use))
                         cont = cont + 1
                 RequirementDetail.objects.bulk_create(details)
                 return HttpResponseRedirect(reverse('requirements:requirement_detail', args=[self.object.code]))

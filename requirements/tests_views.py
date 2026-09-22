@@ -119,3 +119,217 @@ class RequirementsViewsTest(TestCase):
         self.requirement.refresh_from_db()
         self.assertEqual(Requirement.STATUS.CANC, self.requirement.status)
 
+    def test_requirement_delete_with_quotations(self):
+        baker.make(Quotation, requirement=self.requirement,
+                   supplier=baker.make(Supplier))
+
+        response = self.client.post(reverse('requirements:requirement_delete'),
+                                    {'code': self.requirement.code},
+                                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('SI', response.json()['quotations'])
+
+    def test_requirement_detail_create(self):
+        response = self.client.get(reverse('requirements:requirement_detail_create'),
+                                   HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        self.assertEqual(200, response.status_code)
+
+    def test_requirement_detail_fetch(self):
+        from requirements.models import RequirementDetail
+
+        baker.make(RequirementDetail, requirement=self.requirement,
+                   product=baker.make('products.Product'), line_number=1,
+                   quantity=5, use='USO')
+        baker.make(RequirementDetail, requirement=self.requirement, product=None,
+                   line_number=2, quantity=2, use='')
+
+        for search_type in ('TODOS', 'PRODUCTOS'):
+            with self.subTest(search_type=search_type):
+                response = self.client.get(
+                    reverse('requirements:requirement_detail_fetch'),
+                    {'requirement': self.requirement.code, 'search_type': search_type},
+                    HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+                self.assertEqual(200, response.status_code)
+
+    def test_requirement_create_get(self):
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(200, response.status_code)
+
+    def test_requirement_create_without_office(self):
+        Office.objects.all().delete()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:office_create'), response.url)
+
+    def test_requirement_create_without_worker(self):
+        self.client.force_login(
+            User.objects.create_superuser('b', 'b@example.com', 'clave'))
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:worker_create'), response.url)
+
+    def test_requirement_create_without_signature(self):
+        self.worker.signature = ''
+        self.worker.save()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:worker_update', args=[self.worker.pk]),
+                         response.url)
+
+    def test_requirement_create_without_position(self):
+        Position.objects.filter(worker=self.worker).delete()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:position_create'), response.url)
+
+    def test_requirement_create_without_boss_position(self):
+        position = Position.objects.get(worker=self.worker)
+        position.is_leadership = False
+        position.save()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:position_create'), response.url)
+
+    def test_requirement_create_without_approval_level(self):
+        ApprovalLevel.objects.all().delete()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('administration:approval_level_create'), response.url)
+
+    def test_requirement_create_without_configuration(self):
+        from accounting.models import Configuration
+
+        Configuration.objects.all().delete()
+        clear_cache()
+
+        response = self.client.get(reverse('requirements:requirement_create'))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('accounting:configuration'), response.url)
+
+    def test_requirement_update(self):
+        from requirements.models import RequirementDetail
+
+        product = baker.make('products.Product')
+        baker.make(RequirementDetail, requirement=self.requirement, product=product,
+                   line_number=1, quantity=5, use='USO')
+        baker.make(RequirementDetail, requirement=self.requirement, product=None,
+                   line_number=2, quantity=2, use='')
+
+        response = self.client.get(reverse('requirements:requirement_update',
+                                           args=[self.requirement.pk]))
+        self.assertEqual(200, response.status_code)
+
+        data = {'code': self.requirement.code, 'reason': 'MOTIVO EDITADO',
+                'date': '01/01/2024', 'month': '1', 'year': '2024', 'notes': '',
+                'report': '', 'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-code': product.code, 'form-0-product': product.description,
+                'form-0-unit': 'UND01', 'form-0-quantity': '3', 'form-0-use': 'USO'}
+        response = self.client.post(reverse('requirements:requirement_update',
+                                            args=[self.requirement.pk]), data)
+
+        self.assertEqual(302, response.status_code)
+        self.requirement.refresh_from_db()
+        self.assertEqual('MOTIVO EDITADO', self.requirement.reason)
+        self.assertEqual(1, self.requirement.details.count())
+
+    def test_requirement_create_with_details(self):
+        product = baker.make('products.Product')
+        Position.objects.filter(worker=self.worker).update(name='ZULU')
+        boss = baker.make(Worker, user=baker.make('auth.User', email='jefe@example.com'))
+        baker.make(Position, office=self.office, worker=boss, name='ALFA',
+                   is_leadership=True, start_date=date(2020, 1, 1), end_date=None)
+        data = {'code': '', 'reason': 'MOTIVO DETALLE', 'date': '01/01/2024',
+                'month': '1', 'year': '2024', 'notes': '',
+                'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-code': product.code, 'form-0-product': product.description,
+                'form-0-unit': 'UND01', 'form-0-quantity': '3', 'form-0-use': 'USO'}
+
+        response = self.client.post(reverse('requirements:requirement_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        requirement = Requirement.objects.get(reason='MOTIVO DETALLE')
+        self.assertEqual(1, requirement.details.count())
+
+    def test_requirement_create_invalid(self):
+        response = self.client.post(reverse('requirements:requirement_create'),
+                                    {'code': '', 'reason': '', 'date': 'fecha-mala',
+                                     'month': '1', 'year': '2024', 'notes': '',
+                                     'direct_delivery_to_requester': 'on',
+                                     'form-TOTAL_FORMS': '0', 'form-INITIAL_FORMS': '0',
+                                     'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000'})
+
+        self.assertEqual(200, response.status_code)
+
+    def test_requirement_update_invalid(self):
+        response = self.client.post(reverse('requirements:requirement_update',
+                                            args=[self.requirement.pk]),
+                                    {'code': self.requirement.code, 'reason': '',
+                                     'date': 'fecha-mala', 'month': '1', 'year': '2024',
+                                     'notes': '', 'report': '',
+                                     'direct_delivery_to_requester': 'on',
+                                     'form-TOTAL_FORMS': '0', 'form-INITIAL_FORMS': '0',
+                                     'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000'})
+
+        self.assertEqual(200, response.status_code)
+
+    def test_requirement_update_denied_when_approved(self):
+        from django.contrib.auth.models import Permission
+
+        self.requirement.approval.is_active = False
+        self.requirement.approval.save()
+        user = User.objects.create_user('u', 'u@example.com', 'clave')
+        user.user_permissions.add(
+            Permission.objects.get(codename='change_requirement'))
+        self.client.force_login(user)
+
+        response = self.client.get(reverse('requirements:requirement_update',
+                                           args=[self.requirement.pk]))
+
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(reverse('security:permission_denied'), response.url)
+
+    def test_requirement_approval_list_guards(self):
+        self.client.force_login(
+            User.objects.create_superuser('c', 'c@example.com', 'clave'))
+
+        response = self.client.get(reverse('requirements:requirement_approval_list'))
+        self.assertEqual(reverse('administration:worker_create'), response.url)
+
+        self.client.force_login(self.user)
+        self.worker.signature = ''
+        self.worker.save()
+        response = self.client.get(reverse('requirements:requirement_approval_list'))
+        self.assertEqual(reverse('administration:worker_update', args=[self.worker.pk]),
+                         response.url)
+
+        self.worker.signature = 'firmas/firma.png'
+        self.worker.save()
+        Position.objects.filter(worker=self.worker).delete()
+        response = self.client.get(reverse('requirements:requirement_approval_list'))
+        self.assertEqual(reverse('administration:position_create'), response.url)
+
+        baker.make(Position, office=self.office, worker=self.worker,
+                   is_leadership=False, end_date=None)
+        response = self.client.get(reverse('requirements:requirement_approval_list'))
+        self.assertEqual(reverse('security:permission_denied'), response.url)
+
