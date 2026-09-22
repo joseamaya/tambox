@@ -674,7 +674,7 @@ class SupplierDelete(TemplateView):
             tax_id = request.POST['tax_id']
             supplier_json = {}
             supplier_json['tax_id'] = tax_id
-            Supplier.objects.filter(pk=tax_id).update(is_active=False)
+            Supplier.objects.filter(tax_id=tax_id).update(is_active=False)
             data = simplejson.dumps(supplier_json)
             return HttpResponse(data, 'application/json')
 
@@ -1481,10 +1481,8 @@ class SupplierExcelReport(TemplateView):
             ws.cell(row=cont, column=6).value = supplier.email
             ws.cell(row=cont, column=7).value = supplier.sunat_status
             ws.cell(row=cont, column=8).value = supplier.sunat_condition
-            try:
-                ws.cell(row=cont, column=9).value = supplier.representative.name
-            except ObjectDoesNotExist:
-                ws.cell(row=cont, column=9).value = '-'
+            representative = supplier.representatives.first()
+            ws.cell(row=cont, column=9).value = representative.name if representative else '-'
             ws.cell(row=cont, column=10).value = supplier.ciiu
             ws.cell(row=cont, column=11).value = supplier.registration_date
             ws.cell(row=cont, column=11).number_format = 'dd/mm/yyyy'
