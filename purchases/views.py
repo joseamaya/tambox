@@ -896,7 +896,7 @@ class QuotationUpdate(UpdateView):
                                                                quantity=quantity)
                         details.append(quotation_detail)
                         cont = cont + 1
-                QuotationDetail.objects.bulk_create(details, self.object.requirement)
+                QuotationDetail.objects.bulk_create(details, self.object.requirement, None)
                 return HttpResponseRedirect(reverse('purchases:quotation_detail', args=[self.object.code]))
         except IntegrityError:
             messages.error(self.request, 'Error guardando el requerimiento.')

@@ -108,6 +108,8 @@ class QuotationForm(forms.ModelForm):
         reference = cleaned_data.get('reference')
         quotation = Quotation.objects.filter(supplier__tax_id=tax_id,
                                                requirement=reference)
+        if self.instance.pk is not None:
+            quotation = quotation.exclude(pk=self.instance.pk)
         if len(quotation) > 0:
             raise ValidationError('Ya se ingreso una cotización con este RUC para este requerimiento')
         else:

@@ -96,6 +96,30 @@ class PurchasesViewsTest(TestCase):
         requirement_detail.refresh_from_db()
         self.assertEqual(5, requirement_detail.quoted_quantity)
 
+    def test_quotation_update(self):
+        supplier = baker.make(Supplier, tax_id='12345678901')
+        requirement = create_requirement()
+        requirement_detail = baker.make('requirements.RequirementDetail',
+                                        requirement=requirement,
+                                        product=baker.make('products.Product'),
+                                        quantity=10, quoted_quantity=0)
+        quotation = baker.make(Quotation, supplier=supplier, requirement=requirement)
+        data = {'tax_id': '12345678901', 'business_name': 'PROVEEDOR UNO',
+                'address': 'DIRECCION UNO', 'reference': requirement.pk,
+                'order': '', 'code': quotation.code, 'date': '01/01/2024', 'notes': '',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-requirement': requirement_detail.pk, 'form-0-code': 'P000000001',
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5'}
+
+        response = self.client.post(
+            reverse('purchases:quotation_update', args=[quotation.pk]), data)
+
+        self.assertEqual(302, response.status_code)
+        quotation.refresh_from_db()
+        self.assertEqual(1, quotation.details.count())
+
     def test_purchase_order_create(self):
         from tambox.config import clear_cache
 
