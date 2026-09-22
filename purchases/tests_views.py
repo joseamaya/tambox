@@ -112,6 +112,20 @@ class PurchasesViewsTest(TestCase):
         self.assertContains(response, 'name="form-0-requirement"')
         self.assertContains(response, str(requirement_detail.pk))
 
+    def test_order_forms_wire_supplier_search(self):
+        from tambox.config import clear_cache
+
+        baker.make('accounting.PaymentMethod')
+        baker.make('accounting.Configuration', purchase_tax=baker.make('accounting.Tax'))
+        clear_cache()
+        self.addCleanup(clear_cache)
+
+        for name in ('purchases:purchase_order_create', 'purchases:service_order_create'):
+            with self.subTest(name=name):
+                response = self.client.get(reverse(name))
+                self.assertEqual(200, response.status_code)
+                self.assertContains(response, 'x-data="supplierSearch(')
+
     def test_quotation_transfer_flow(self):
         """Lo que hace el navegador: pide las filas del requerimiento por htmx y
         luego envia el formset. Antes las filas se armaban a mano sin inputs y el

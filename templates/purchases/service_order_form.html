@@ -57,7 +57,13 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="form-group">
+            <div class="form-group"
+                 x-data="supplierSearch({nameUrl: '{% url 'purchases:supplier_name_search' %}',
+                                         taxIdUrl: '{% url 'purchases:supplier_tax_id_search' %}',
+                                         tax_id: '{{ form.tax_id.value|default:''|escapejs }}',
+                                         business_name: '{{ form.business_name.value|default:''|escapejs }}',
+                                         address: '{{ form.address.value|default:''|escapejs }}'})"
+                 @click.outside="close">
                 <div class="row">
                     <div class="col-md-2">
                         <label>RUC:</label>
@@ -66,16 +72,26 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.tax_id }}
+                        <input type="text" name="tax_id" id="id_tax_id" class="form-control"
+                               x-model="tax_id" @input.debounce.300ms="searchByTaxId">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-4" style="position: relative;">
                         <label>Razón Social:</label>
                         {% if form.business_name.errors %}
                         {% for error in form.business_name.errors %}
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.business_name }}
+                        <input type="text" name="business_name" id="id_business_name"
+                               class="form-control" autocomplete="off"
+                               x-model="business_name" @input.debounce.300ms="searchByName">
+                        <ul class="list-group" x-show="open" x-cloak
+                            style="position: absolute; z-index: 1000; max-height: 250px; overflow-y: auto;">
+                            <template x-for="item in results" :key="item.tax_id">
+                                <li class="list-group-item" style="cursor: pointer"
+                                    @click="select(item)" x-text="item.label"></li>
+                            </template>
+                        </ul>
                     </div>
                     <div class="col-md-6">
                         <label>Dirección:</label>
@@ -84,7 +100,8 @@
                         {% include "includes/error.html" %}
                         {% endfor %}
                         {% endif %}
-                        {{ form.address }}
+                        <input type="text" name="address" id="id_address" class="form-control"
+                               x-model="address">
                     </div>
                 </div>
             </div>
@@ -343,47 +360,7 @@ $(document).ready(function()
 	var total=subtotal;
 	$("#id_date").datepicker();
 	$(".decimal").keydown(validar_decimales);
-	
-	$("#id_tax_id").keyup(function() 
-	{
-		var tax_id=$("#id_tax_id").val();
-		
-		if(tax_id.length==11)
-		{	
-			$.ajax({
-		      url: "{% url 'purchases:supplier_tax_id_search' %}",
-		      data: {'tax_id': tax_id},
-		      success: function(data) 
-		      {
-		    	  $("#id_business_name").val(data.business_name);
-		    	  $("#id_address").val(data.address);
-		    	  removeLoading();
-		    	  event.preventDefault();
-		      }
-		    });
-		}
-	});
-	
-	$("#id_business_name").autocomplete({
-	  	source: function(request, response){
-	    $.ajax({
-	      url: "{% url 'purchases:supplier_name_search' %}",
-	      data: {'business_name': $("#id_business_name").val()},
-	      success: function( data ) 
-	      {
-	          response( data );
-	      }
-	    });
-	  },
-	  minLength: 2,
-	  select: function( event, ui ) {
-		$("#id_tax_id").val(ui.item.tax_id);
-		$("#id_business_name").val(ui.item.label);
-		$("#id_address").val(ui.item.address);
-		return false;
-	  },
-	});
-	
+
 	$(document).on("click",".eliminar",function()
 	{
 		var parent = $(this).parent().parent();
@@ -535,9 +512,9 @@ $(document).ready(function()
 	      data: {'code': quotation},
 	      success: function(data) 
 	      {
-	    	  $("#id_tax_id").val(data.tax_id);
-	    	  $("#id_business_name").val(data.business_name);
-	    	  $("#id_address").val(data.address);
+	    	  $("#id_tax_id").val(data.tax_id).trigger('input');
+	    	  $("#id_business_name").val(data.business_name).trigger('input');
+	    	  $("#id_address").val(data.address).trigger('input');
 	    	  event.preventDefault();
 	      }
 	    });
