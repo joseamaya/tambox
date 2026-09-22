@@ -214,6 +214,7 @@ class RequirementDetail(TimeStampedModel):
     line_number = models.IntegerField()
     requirement = models.ForeignKey(Requirement, on_delete=models.CASCADE, related_name='details')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='requirement_details', null=True)
+    otro = models.CharField(max_length=150, null=True, blank=True)
     use = models.TextField(null=True)
     quantity = models.DecimalField(max_digits=15, decimal_places=5)
     quoted_quantity = models.DecimalField(max_digits=15, decimal_places=5, default=0)

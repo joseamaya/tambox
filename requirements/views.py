@@ -162,13 +162,20 @@ class RequirementCreate(CreateView):
                     code = requirement_detail_form.cleaned_data.get('code')
                     quantity = requirement_detail_form.cleaned_data.get('quantity')
                     use = requirement_detail_form.cleaned_data.get('use')
-                    if code and quantity:
-                        product = Product.objects.get(code=code)
-                        details.append(RequirementDetail(requirement=self.object,
-                                                             line_number=cont,
-                                                             product=product,
-                                                             quantity=quantity,
-                                                             use=use))
+                    if quantity:
+                        if code:
+                            detail = RequirementDetail(requirement=self.object,
+                                                           line_number=cont,
+                                                           product=Product.objects.get(code=code),
+                                                           quantity=quantity,
+                                                           use=use)
+                        else:
+                            detail = RequirementDetail(requirement=self.object,
+                                                           line_number=cont,
+                                                           otro=requirement_detail_form.cleaned_data.get('product'),
+                                                           quantity=quantity,
+                                                           use=use)
+                        details.append(detail)
                         cont = cont + 1
                 RequirementDetail.objects.bulk_create(details)
                 boss_position = self.object.requester.position.superior_position  # Position.objects.get(office=self.object.office, is_leadership=True, is_active=True)
@@ -325,7 +332,7 @@ class RequirementUpdate(UpdateView):
         for detail in details:
             if detail.product is None:
                 d = {'code': '',
-                     'product': '',
+                     'product': detail.otro or '',
                      'quantity': detail.quantity,
                      'unit': '',
                      'use': detail.use}
@@ -361,11 +368,20 @@ class RequirementUpdate(UpdateView):
                     code = requirement_detail_form.cleaned_data.get('code')
                     quantity = requirement_detail_form.cleaned_data.get('quantity')
                     use = requirement_detail_form.cleaned_data.get('use')
-                    if code and quantity:
-                        product = Product.objects.get(code=code)
-                        details.append(
-                            RequirementDetail(requirement=self.object, line_number=cont, product=product,
-                                                 quantity=quantity, use=use))
+                    if quantity:
+                        if code:
+                            detail = RequirementDetail(requirement=self.object,
+                                                           line_number=cont,
+                                                           product=Product.objects.get(code=code),
+                                                           quantity=quantity,
+                                                           use=use)
+                        else:
+                            detail = RequirementDetail(requirement=self.object,
+                                                           line_number=cont,
+                                                           otro=requirement_detail_form.cleaned_data.get('product'),
+                                                           quantity=quantity,
+                                                           use=use)
+                        details.append(detail)
                         cont = cont + 1
                 RequirementDetail.objects.bulk_create(details)
                 return HttpResponseRedirect(reverse('requirements:requirement_detail', args=[self.object.code]))

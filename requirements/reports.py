@@ -87,11 +87,17 @@ class RequirementReport():
         sp.fontName = "Times-Roman"
         detail_list = []
         for detail in details:
+            if detail.product is None:
+                unit = ''
+                description = detail.otro or ''
+            else:
+                unit = detail.product.unit_of_measure.description
+                description = detail.product.description
             product_tuple = [Paragraph(str(detail.line_number), sp),
                               Paragraph(str(detail.quantity), sp),
-                              Paragraph(detail.product.unit_of_measure.description, sp),
-                              Paragraph(detail.product.description, sp),
-                              Paragraph(detail.use, sp)]
+                              Paragraph(unit, sp),
+                              Paragraph(description, sp),
+                              Paragraph(detail.use or '', sp)]
             detail_list.append(product_tuple)
         detail_table = Table([encabezados] + detail_list, colWidths=[0.8 * cm, 2 * cm, 2.5 * cm, 7 * cm, 7.7 * cm])
         style = TableStyle(

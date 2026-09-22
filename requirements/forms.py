@@ -75,9 +75,13 @@ class RequirementDetailForm(forms.Form):
 
     def clean_code(self):
         code = self.cleaned_data.get('code')
+        if code == '':
+            # Sin codigo, la linea describe un bien fuera del catalogo y se
+            # guarda en `otro`.
+            return code
         try:
             Product.objects.get(code=code)
-            return self.cleaned_data['code']
+            return code
         except Product.DoesNotExist:
             raise ValidationError("El código no es válido.")
 

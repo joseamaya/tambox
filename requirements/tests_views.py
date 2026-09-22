@@ -82,6 +82,18 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.content.startswith(b'%PDF'))
 
+    def test_requirement_pdf_with_other(self):
+        from requirements.models import RequirementDetail
+
+        baker.make(RequirementDetail, requirement=self.requirement, product=None,
+                   otro='BIEN NO CATALOGADO', line_number=1, quantity=3, use='USO')
+
+        response = self.client.get(
+            reverse('requirements:requirement_pdf', args=[self.requirement.code]))
+
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(response.content.startswith(b'%PDF'))
+
     def test_requirement_excel_report(self):
         response = self.client.get(reverse('requirements:requirement_excel_report'))
 
@@ -269,6 +281,38 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(302, response.status_code)
         requirement = Requirement.objects.get(reason='MOTIVO DETALLE')
         self.assertEqual(1, requirement.details.count())
+
+    def test_requirement_create_with_other(self):
+        data = {'code': '', 'reason': 'OTRO E2E', 'date': '01/01/2024', 'month': '1',
+                'year': '2024', 'notes': '', 'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-code': '', 'form-0-product': 'BIEN NO CATALOGADO',
+                'form-0-unit': '', 'form-0-quantity': '3', 'form-0-use': 'USO'}
+
+        response = self.client.post(reverse('requirements:requirement_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        detail = Requirement.objects.get(reason='OTRO E2E').details.get()
+        self.assertIsNone(detail.product)
+        self.assertEqual('BIEN NO CATALOGADO', detail.otro)
+
+    def test_requirement_update_with_other(self):
+        data = {'code': self.requirement.code, 'reason': 'MOTIVO', 'date': '01/01/2024',
+                'month': '1', 'year': '2024', 'notes': '', 'report': '',
+                'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-code': '', 'form-0-product': 'BIEN NO CATALOGADO',
+                'form-0-unit': '', 'form-0-quantity': '3', 'form-0-use': 'USO'}
+
+        response = self.client.post(
+            reverse('requirements:requirement_update', args=[self.requirement.pk]), data)
+
+        self.assertEqual(302, response.status_code)
+        detail = self.requirement.details.get()
+        self.assertIsNone(detail.product)
+        self.assertEqual('BIEN NO CATALOGADO', detail.otro)
 
     def test_requirement_create_invalid(self):
         response = self.client.post(reverse('requirements:requirement_create'),
