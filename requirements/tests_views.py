@@ -87,6 +87,17 @@ class RequirementsViewsTest(TestCase):
 
         self.assertEqual(200, response.status_code)
 
+    def test_requirement_approve(self):
+        usuario = ApprovalLevel.objects.get(description='USUARIO')
+        ApprovalLevel.objects.create(description='JEFATURA', superior_level=usuario)
+        approval = self.requirement.approval
+
+        response = self.client.post(
+            reverse('requirements:requirement_approve', args=[approval.pk]),
+            {'is_active': 'on', 'rejection_reason': ''})
+
+        self.assertEqual(302, response.status_code)
+
     def test_requirement_create(self):
         baker.make('products.Product', code='P000000001')
         data = {'code': '', 'reason': 'MOTIVO', 'date': '01/01/2024', 'month': '1',
