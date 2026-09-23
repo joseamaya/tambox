@@ -1,20 +1,35 @@
 {% extends "security/base_security.html" %}
 {% block cuerpo %}
-<div class="row">
-    <div class="col-lg-12">
-        <h1 class="pb-2 mb-3 border-bottom">TAMBOX</h1>
-    </div>
-</div>
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body">
-                <div class='mb-3'>
-                    <div class="row">
-                        <h3 class="text-center">Bienvenido al sistema {{ user.first_name }} {{ user.last_name }}</h3>
-                    </div>
-                </div>
-            </div>
+<div class="card">
+    <div class="card-body p-4 p-sm-5">
+        <h1 class="h4 mb-1">Bienvenido, {{ user.get_full_name|default:user.username }}</h1>
+        <p class="text-muted mb-4">Selecciona un módulo para empezar.</p>
+        <div class="d-flex flex-wrap gap-2">
+            {% if perms.administration.ver_bienvenida %}
+            <a class="btn btn-outline-primary" href="{% url 'administration:dashboard' %}">
+                <i class="bi bi-people"></i> Administración
+            </a>
+            {% endif %}
+            {% if perms.warehouse.ver_bienvenida %}
+            <a class="btn btn-outline-primary" href="{% url 'warehouse:dashboard' %}">
+                <i class="bi bi-building"></i> Almacén
+            </a>
+            {% endif %}
+            {% if perms.purchases.ver_bienvenida %}
+            <a class="btn btn-outline-primary" href="{% url 'purchases:dashboard' %}">
+                <i class="bi bi-cart"></i> Compras
+            </a>
+            {% endif %}
+            {% if perms.accounting.ver_bienvenida %}
+            <a class="btn btn-outline-primary" href="{% url 'accounting:dashboard' %}">
+                <i class="bi bi-calculator"></i> Contabilidad
+            </a>
+            {% endif %}
+            {% if perms.requirements.ver_bienvenida %}
+            <a class="btn btn-outline-primary" href="{% url 'requirements:dashboard' %}">
+                <i class="bi bi-newspaper"></i> Requerimientos
+            </a>
+            {% endif %}
         </div>
     </div>
 </div>

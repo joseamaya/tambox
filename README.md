@@ -122,3 +122,13 @@ DataTables, sb-admin-2 ni font-awesome.
 Bootstrap 5 y Bootstrap Icons estan vendorizados en `static/css` y
 `static/js/bootstrap5.bundle.min.js`; se descargan de los releases oficiales
 (v5.3.3 y v1.11.3) y se sirven localmente.
+
+Sobre Bootstrap, `static/css/app.css` define los design tokens de la marca
+(paleta corporativa, superficies, radios) y el shell: navbar, barra lateral
+(offcanvas en movil, fija en escritorio), encabezados de pagina, tablas y el
+login. Los estilos propios no van inline en `base.html` sino ahi.
+
+El modal reutilizable (`openModal`/`closeModal` en `components.js`) se apoya en
+el modal nativo de Bootstrap; conserva la API anterior para las plantillas. Las
+filas de tabla navegables llevan `data-href` y `tabindex`, y el JS las activa
+con clic o con Enter/Espacio.

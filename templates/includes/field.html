@@ -1,0 +1,16 @@
+{% comment %}
+Campo de formulario con la estructura de Bootstrap 5: label asociado, widget,
+texto de ayuda y errores. Se usa con `{% include "includes/field.html" with field=form.nombre %}`.
+{% endcomment %}
+<div class="mb-3">
+    <label class="form-label" for="{{ field.id_for_label }}">
+        {{ field.label }}{% if field.field.required %} <span class="required-mark" title="Obligatorio">*</span>{% endif %}
+    </label>
+    {{ field }}
+    {% if field.help_text %}
+    <div class="form-text">{{ field.help_text }}</div>
+    {% endif %}
+    {% for error in field.errors %}
+    <div class="invalid-feedback d-block">{{ error|escape }}</div>
+    {% endfor %}
+</div>
