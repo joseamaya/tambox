@@ -58,3 +58,12 @@ class ReceiverSearchTest(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertIn('TORRES', response.json()[0]['label'])
+
+    def test_name_search_without_movement_type(self):
+        baker.make(Worker, dni='87654321', first_name='ANA', last_name='TORRES')
+
+        response = self.search('administration:receiver_name_search',
+                               {'name': 'ANA', 'movement_type': ''})
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn('TORRES', response.json()[0]['label'])

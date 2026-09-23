@@ -74,23 +74,11 @@
 <script>
 $("#id_start_date").datepicker();
 $("#id_end_date").datepicker();
-$("#id_description").autocomplete({
-  	source: function( request, response ) {
-    $.ajax({
-      url: "{% url 'products:product_description_search' %}",
-      data: {'description': $("#id_description").val(), 'search_type': 'PRODUCTOS'},
-      success: function( data ) 
-      {
-          response( data );
-      }
-    });
-  },
-  minLength: 2,
-  select: function( event, ui ) 
-  {
-	$("#id_product").val(ui.item.code);	
-	return false;
-  },
+productAutocomplete(document.getElementById('id_description'), {
+    url: "{% url 'products:product_description_search' %}",
+    searchType: 'PRODUCTOS',
+    sourceField: 'description',
+    fields: {product: 'code'},
 });
 
 $("input[name=selection]").change(function () 

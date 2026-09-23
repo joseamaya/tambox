@@ -257,23 +257,16 @@ $(document).ready(function()
 		}
 	});
 
-	$("#id_receiver").autocomplete({
-	  	source: function(request, response){
-	    $.ajax({
-	      url: "{% url 'administration:receiver_name_search' %}",
-	      data: {'name': $("#id_receiver").val(), 'movement_type':$("#id_movement_type").val()},
-	      success: function( data )
-	      {
-	          response( data );
-	      }
-	    });
-	  },
-	  minLength: 2,
-	  select: function( event, ui ) {
-		$("#id_receiver_dni").val(ui.item.dni);
-		$("#id_receiver").val(ui.item.label);
-		return false;
-	  },
+	productAutocomplete(document.getElementById('id_receiver'), {
+		url: "{% url 'administration:receiver_name_search' %}",
+		sourceField: 'receiver',
+		fields: {receiver_dni: 'dni', receiver: 'label'},
+		query: function (input) {
+			return {
+				name: input.value,
+				movement_type: document.getElementById('id_movement_type').value,
+			};
+		},
 	});
 		
 	$(document).on("click",".eliminar",function()
@@ -302,7 +295,7 @@ $(document).ready(function()
 			}).then(function () {
 				contDetalles = index + 1;
 				$('#id_form-TOTAL_FORMS').val(contDetalles);
-				bindAutoComplete('productos');
+				initProductAutocomplete(document, {url: "{% url 'warehouse:product_warehouse_search' %}", warehouseInput: '#id_warehouse'});
 				$(".decimal").keydown(validar_decimales);
 			});
 		}
@@ -312,33 +305,6 @@ $(document).ready(function()
 		}
  	});
  	
-	function bindAutoComplete(classname)
-	{
-		$("."+classname).not(".ui-autocomplete-input").autocomplete({
-			source: function( request, response ) 
-			{
-				$.ajax({
-				  url: "{% url 'warehouse:product_warehouse_search' %}",
-				  data: {'warehouse': $("#id_warehouse").val(),'description': request.term },
-			      success: function( data ) 
-			      {
-			          response( data );
-			      }
-			    });
-			},
-		    minLength: 2,
-		    select: function( event, ui ) 
-		    {
-		    	var id_product = $(this).prop('id');
-				var id = id_product.replace("name", "");
-				$("#"+id+"code").val(ui.item.code);
-				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unit").val(ui.item.unit);
-				$("#"+id+"price").val(ui.item.price);
-				return false;
-		    },
-		});
-	}
 	
 	$(document).on("keyup",".quantity",function()
 	{

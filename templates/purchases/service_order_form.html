@@ -373,38 +373,11 @@ $(document).ready(function()
 			target: '#details-body', swap: 'beforeend', values: {index: index}
 		}).then(function () {
 			$('#id_form-TOTAL_FORMS').val(index + 1);
-			bindAutoComplete('productos');
+			initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
 			$(".decimal").keydown(validar_decimales);
 		});
  	});
 	
-	function bindAutoComplete(classname)
-	{
-		$("."+classname).not(".ui-autocomplete-input").autocomplete({
-			source: function( request, response ) 
-			{
-				$.ajax({
-				  url: "{% url 'products:product_description_search' %}",
-				  data: {'description': request.term,'search_type': 'SERVICIOS' },
-			      success: function( data ) 
-			      {
-			          response( data );
-			      }
-			    });
-			},
-		    minLength: 2,
-		    select: function( event, ui ) 
-		    {
-		    	var id_product = $(this).prop('id');
-				var id = id_product.replace("name", "");
-				$("#"+id+"code").val(ui.item.code);
-				$("#"+id+"name").val(ui.item.description);
-				$("#"+id+"unit").val(ui.item.unit);
-				$("#"+id+"price").val(ui.item.price);
-				return false;
-		    },
-		});
-	}
 	
 	$('#id_transferencia_cotizacion').click(function(e)
 	{
@@ -462,7 +435,7 @@ $(document).ready(function()
 			target: '#details-body', swap: 'innerHTML', values: {quotation: quotation}
 		}).then(function () {
 			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			bindAutoComplete('productos');
+			initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
 			$(".decimal").keydown(validar_decimales);
 			sumarFilas();
 		});

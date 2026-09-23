@@ -37,6 +37,7 @@
         });
     </script>
     <script type="text/javascript">
+        window.CSRF_TOKEN = '{{ csrf_token }}';
         // htmx no lee el CSRF del formulario: se le inyecta en cada peticion.
         document.addEventListener('htmx:configRequest', function (event) {
             event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
@@ -84,6 +85,98 @@
         .btn-salir:hover {
             background-color: #f5f5f5;
             color: #262626;
+        }
+
+        /* Modal y autocompletado propios: sustituyen a jQuery UI. */
+        .app-modal-overlay {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1050;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 16px;
+            overflow-y: auto;
+            background: rgba(0, 0, 0, .5);
+        }
+
+        .app-modal-overlay[hidden] {
+            display: none;
+        }
+
+        .app-modal {
+            width: 100%;
+            max-width: 1000px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
+        }
+
+        .app-modal--sm {
+            max-width: 400px;
+        }
+
+        .app-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .app-modal-title {
+            font-weight: 600;
+        }
+
+        .app-modal-close {
+            padding: 0;
+            font-size: 24px;
+            line-height: 1;
+            background: none;
+            border: 0;
+            cursor: pointer;
+        }
+
+        .app-modal-body {
+            padding: 15px;
+        }
+
+        .app-modal-footer {
+            padding: 10px 15px;
+            text-align: right;
+            border-top: 1px solid #e5e5e5;
+        }
+
+        .app-modal-footer[hidden] {
+            display: none;
+        }
+
+        .product-autocomplete {
+            position: absolute;
+            z-index: 1060;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ccc;
+        }
+
+        .product-autocomplete[hidden] {
+            display: none;
+        }
+
+        .product-autocomplete-item {
+            display: block;
+            padding: 5px 10px;
+            color: #333;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .product-autocomplete-item:hover {
+            background-color: #f5f5f5;
         }
     </style>
 </head>

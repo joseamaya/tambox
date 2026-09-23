@@ -79,8 +79,10 @@ class ReceiverNameSearch(AjaxOnlyMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             name = request.GET['name']
-            movement_type = MovementType.objects.get(pk=request.GET['movement_type'])
-            if movement_type.is_sale:
+            raw_type = request.GET['movement_type']
+            movement_type = (MovementType.objects.filter(pk=raw_type).first()
+                             if raw_type.isdigit() else None)
+            if movement_type is not None and movement_type.is_sale:
                 receivers = Producer.objects.filter(last_name__icontains=name)[:20]
             else:
                 receivers = Worker.objects.filter(

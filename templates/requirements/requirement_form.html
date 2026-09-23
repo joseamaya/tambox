@@ -182,39 +182,13 @@ $(document).ready(function()
 			}).then(function () {
 				contDetalles = index + 1;
 				$('#id_form-TOTAL_FORMS').val(contDetalles);
-				bindAutoComplete('productos');
+				initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
 				$(".decimal").keydown(validar_decimales);
 			});
 	 	});
 	
-	bindAutoComplete('productos');
+	initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
 	
-	function bindAutoComplete(classname)
-	{
-		$("."+classname).not(".ui-autocomplete-input").autocomplete({
-			source: function( request, response ) 
-			{
-			    $.ajax({
-			      url: "{% url 'products:product_description_search' %}",
-			      data: {'description': request.term,'search_type': 'TODOS'},
-			      success: function( data ) 
-			      {
-			          response( data );
-			      }
-			    });
-			},
-		  minLength: 2,
-		  select: function( event, ui ) 
-		  {
-			var id_product = $(this).prop('id');
-			var id = id_product.replace("product", "");
-			$("#"+id+"code").val(ui.item.code);
-			$("#"+id+"product").val(ui.item.description);
-			$("#"+id+"unit").val(ui.item.unit);
-			return false;
-		  },
-		});
-	}
 	
 	$(document).on("click",".eliminar",function()
 	{
