@@ -1,4 +1,6 @@
 from django import forms
+
+from tambox.widgets import NativeDateFieldsMixin
 from accounting.models import DocumentType, Account, Upload,\
     Tax, Configuration, PaymentMethod, ExchangeRate
 
@@ -28,14 +30,13 @@ class UploadForm(forms.ModelForm):
         fields = ['file']
 
 
-class ExchangeRateForm(forms.ModelForm):
+class ExchangeRateForm(NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = ExchangeRate
         fields = ['amount', 'date']
 
     def __init__(self, *args, **kwargs):
         super(ExchangeRateForm, self).__init__(*args, **kwargs)
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -55,7 +56,7 @@ class DocumentTypeForm(forms.ModelForm):
             })
 
 
-class TaxForm(forms.ModelForm):
+class TaxForm(NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = Tax
         fields = ['abbreviation', 'description', 'amount', 'start_date', 'end_date']

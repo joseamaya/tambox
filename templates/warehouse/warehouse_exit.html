@@ -229,8 +229,6 @@ $(document).ready(function()
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
 	var tipo_salida;	
-	$("#id_date").datepicker();
-	$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Salida', showSeconds: true});
 	$("#id_movement_type").on('change',verificar_tipo_salida);
 
 	function verificar_tipo_salida()

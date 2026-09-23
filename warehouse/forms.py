@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
+from tambox.dates import parse_date, parse_time
+from tambox.widgets import DateInput
+
 from administration.models import Producer, Worker
 from warehouse.models import Warehouse, MovementType, Movement, Order
 from accounting.models import Upload
@@ -60,10 +63,10 @@ class MovementDetailForm(forms.Form):
 class MovementReportForm(forms.Form):
     search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=SEARCH_PARAMETERS)
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+    end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
     month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
@@ -82,8 +85,10 @@ class MovementReportForm(forms.Form):
 
 
 class MovementForm(forms.ModelForm):
-    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    time = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
+    time = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'time', 'step': 1}))
     reference_document = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     receiver_dni = forms.CharField(max_length=8, widget=forms.TextInput(
@@ -131,15 +136,8 @@ class MovementForm(forms.ModelForm):
         return self.cleaned_data['receiver_dni']
 
     def get_datetime(self, r_date, r_hora):
-        r_hora = r_hora.replace(" ", "")
-        year = int(r_date[6:])
-        month = int(r_date[3:5])
-        dia = int(r_date[0:2])
-        horas = int(r_hora[0:2])
-        minutos = int(r_hora[3:5])
-        segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(year, month, dia, horas, minutos, segundos))
-        return date
+        return timezone.make_aware(
+            datetime.datetime.combine(parse_date(r_date), parse_time(r_hora)))
 
     def save(self, *args, **kwargs):
         if self.movement_type == 'I':
@@ -170,10 +168,10 @@ class KardexProductForm(forms.Form):
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
     consolidated = forms.ChoiceField(choices=CONSOLIDATED_CHOICES, widget=forms.RadioSelect, required=False)
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+    end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
     product_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     product_description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),
                                     required=False)
@@ -184,10 +182,10 @@ class KardexProductForm(forms.Form):
 class ProductMovementForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    end_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+    end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
 
@@ -199,8 +197,8 @@ class ProductMovementForm(forms.Form):
 class PriceReprocessForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     selection = forms.ChoiceField(choices=SELECTION, widget=forms.RadioSelect)
@@ -209,8 +207,8 @@ class PriceReprocessForm(forms.Form):
 class StockQueryForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
     product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
     description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
 
@@ -218,7 +216,8 @@ class StockQueryForm(forms.Form):
 class InitialInventoryImportForm(forms.ModelForm):
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
     time = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
 
     class Meta:
@@ -240,7 +239,6 @@ class OrderForm(forms.ModelForm):
         super(OrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['notes'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -263,8 +261,10 @@ class OrderForm(forms.ModelForm):
 
 class OrderApprovalForm(forms.ModelForm):
     order_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    time = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
+    time = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'time', 'step': 1}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(attrs={'size': 10,
                                                                                               'readonly': "readonly",
                                                                                               'class': 'form-control'}))
@@ -273,22 +273,14 @@ class OrderApprovalForm(forms.ModelForm):
         self.request = kwargs.pop("request")
         super(OrderApprovalForm, self).__init__(*args, **kwargs)
         self.fields['notes'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
             })
 
     def get_datetime(self, r_date, r_hora):
-        r_hora = r_hora.replace(" ", "")
-        year = int(r_date[6:])
-        month = int(r_date[3:5])
-        dia = int(r_date[0:2])
-        horas = int(r_hora[0:2])
-        minutos = int(r_hora[3:5])
-        segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(year, month, dia, horas, minutos, segundos))
-        return date
+        return timezone.make_aware(
+            datetime.datetime.combine(parse_date(r_date), parse_time(r_hora)))
 
     def save(self, *args, **kwargs):
         self.instance.order = Order.objects.get(code=self.cleaned_data['order_code'])
@@ -306,7 +298,8 @@ class OrderHeaderForm(forms.Form):
     order_code = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                        widget=forms.Select(attrs={'class': 'form-control'}))
-    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    date = forms.CharField(max_length=100, widget=forms.TextInput(
+        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
     total = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
@@ -404,8 +397,8 @@ class BaseOrderDetailFormSet(formsets.BaseFormSet):
 class InventoryQueryForm(forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
                                      widget=forms.Select(attrs={'class': 'form-control'}))
-    start_date = forms.DateTimeField(input_formats=['%d/%m/%Y'],
-                                widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+    start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
+                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
 
 
 InboundDetailFormSet = formsets.formset_factory(InboundDetailForm, BaseInboundDetailFormSet, 0)

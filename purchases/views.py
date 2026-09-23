@@ -35,6 +35,7 @@ from datetime import date
 from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf,\
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.config import configuration, purchase_tax
+from tambox.dates import parse_date
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 
 locale.setlocale(locale.LC_ALL, "")
@@ -166,7 +167,7 @@ class QuotationCreate(CreateView):
 
     def get_initial(self):
         initial = super(QuotationCreate, self).get_initial()
-        initial['date'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%Y-%m-%d')
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -235,7 +236,7 @@ class PurchaseOrderCreate(CreateView):
             tax_amount = purchase_tax().amount
         except AttributeError:
             return HttpResponseRedirect(reverse('accounting:configuration'))
-        initial['date'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%Y-%m-%d')
         initial['code'] = PurchaseOrder.objects.last_record()
         initial['current_tax'] = tax_amount
         initial['total'] = 0
@@ -767,7 +768,7 @@ class SupplierUpdate(UpdateView):
 
     def get_initial(self):
         initial = super(SupplierUpdate, self).get_initial()
-        initial['registration_date'] = self.object.registration_date.strftime('%d/%m/%Y')
+        initial['registration_date'] = self.object.registration_date.strftime('%Y-%m-%d')
         return initial
 
 
@@ -792,7 +793,7 @@ class QuotationUpdate(UpdateView):
         initial['tax_id'] = quotation.supplier.tax_id
         initial['business_name'] = quotation.supplier.business_name
         initial['address'] = quotation.supplier.address
-        initial['date'] = quotation.date.strftime('%d/%m/%Y')
+        initial['date'] = quotation.date.strftime('%Y-%m-%d')
         initial['reference'] = quotation.requirement
         initial['notes'] = quotation.notes
         return initial
@@ -878,7 +879,7 @@ class ServiceConformityUpdate(UpdateView):
         initial['cod_conformidad_servicio'] = conformity.code
         initial['service_order'] = conformity.service_order
         initial['supporting_document'] = conformity.supporting_document
-        initial['date'] = conformity.date.strftime('%d/%m/%Y')
+        initial['date'] = conformity.date.strftime('%Y-%m-%d')
         return initial
 
     def get_context_data(self, **kwargs):
@@ -971,7 +972,7 @@ class PurchaseOrderUpdate(UpdateView):
         initial['tax_id'] = supplier.tax_id
         initial['business_name'] = supplier.business_name
         initial['address'] = supplier.address
-        initial['date'] = order.date.strftime('%d/%m/%Y')
+        initial['date'] = order.date.strftime('%Y-%m-%d')
         initial['payment_methods'] = order.payment_method
         initial['reference'] = order.quotation
         try:
@@ -1072,7 +1073,7 @@ class ServiceOrderUpdate(UpdateView):
         initial['tax_id'] = supplier.tax_id
         initial['business_name'] = supplier.business_name
         initial['address'] = supplier.address
-        initial['date'] = order.date.strftime('%d/%m/%Y')
+        initial['date'] = order.date.strftime('%Y-%m-%d')
         initial['payment_methods'] = order.payment_method
         initial['reference'] = order.quotation
         initial['process'] = order.process
@@ -1437,23 +1438,19 @@ class ServiceOrderExcelReportByDate(FormView):
         wb = Workbook()
         ws = wb.active
         if search_type == 'F':
-            p_start_date = data['start_date']
-            previous_end_date = data['end_date']
-            year = int(p_start_date[6:])
-            month = int(p_start_date[3:5])
-            dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
-            year = int(previous_end_date[6:])
-            month = int(previous_end_date[3:5])
-            dia = int(previous_end_date[0:2])
-            end_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
+            start = parse_date(data['start_date'])
+            end = parse_date(data['end_date'])
+            start_date = timezone.make_aware(
+                datetime.datetime.combine(start, datetime.time(23, 59, 59)))
+            end_date = timezone.make_aware(
+                datetime.datetime.combine(end, datetime.time(23, 59, 59)))
             ws['B2'] = 'REPORTE DE ORDENES DE SERVICIOS POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = p_start_date
+            ws['C3'] = start.strftime('%d/%m/%Y')
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = previous_end_date
+            ws['E3'] = end.strftime('%d/%m/%Y')
             ws['F3'].number_format = 'dd/mm/yyyy'
             service_orders = ServiceOrder.objects.filter(date__range=[start_date, end_date])
         elif search_type == 'M':
@@ -1517,23 +1514,19 @@ class PurchaseOrderExcelReportByDate(FormView):
         wb = Workbook()
         ws = wb.active
         if search_type == 'F':
-            p_start_date = data['start_date']
-            previous_end_date = data['end_date']
-            year = int(p_start_date[6:])
-            month = int(p_start_date[3:5])
-            dia = int(p_start_date[0:2])
-            start_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
-            year = int(previous_end_date[6:])
-            month = int(previous_end_date[3:5])
-            dia = int(previous_end_date[0:2])
-            end_date = timezone.make_aware(datetime.datetime(year, month, dia, 23, 59, 59))
+            start = parse_date(data['start_date'])
+            end = parse_date(data['end_date'])
+            start_date = timezone.make_aware(
+                datetime.datetime.combine(start, datetime.time(23, 59, 59)))
+            end_date = timezone.make_aware(
+                datetime.datetime.combine(end, datetime.time(23, 59, 59)))
             ws['B2'] = 'REPORTE DE ORDENES DE COMPRA POR FECHA'
             ws.merge_cells('B2:H2')
             ws['B3'] = 'DESDE'
-            ws['C3'] = p_start_date
+            ws['C3'] = start.strftime('%d/%m/%Y')
             ws['C3'].number_format = 'dd/mm/yyyy'
             ws['D3'] = 'HASTA'
-            ws['E3'] = previous_end_date
+            ws['E3'] = end.strftime('%d/%m/%Y')
             ws['F3'].number_format = 'dd/mm/yyyy'
             purchase_orders = PurchaseOrder.objects.filter(date__range=[start_date, end_date])
         elif search_type == 'M':

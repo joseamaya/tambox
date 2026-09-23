@@ -35,6 +35,7 @@ from products.models import Product
 from warehouse.mail import order_creation_mail
 from warehouse.reports import MovementReport, KardexPdfReport, KardexExcelReport, inventory_report
 from tambox.config import logistics
+from tambox.dates import parse_date, parse_time
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from datetime import date
 
@@ -106,6 +107,8 @@ class OrderApprove(CreateView):
     def get_initial(self):
         initial = super(OrderApprove, self).get_initial()
         initial['order_code'] = self.code
+        initial['date'] = date.today().strftime('%Y-%m-%d')
+        initial['time'] = timezone.localtime().strftime('%H:%M:%S')
         return initial
 
     def get_context_data(self, **kwargs):
@@ -239,15 +242,8 @@ class InitialInventoryImport(CsvImportMixin, FormView):
     form_class = InitialInventoryImportForm
 
     def get_datetime(self, r_date, r_hora):
-        r_hora = r_hora.replace(" ", "")
-        year = int(r_date[6:])
-        month = int(r_date[3:5])
-        dia = int(r_date[0:2])
-        horas = int(r_hora[0:2])
-        minutos = int(r_hora[3:5])
-        # segundos = int(r_hora[6:8])
-        date = timezone.make_aware(datetime.datetime(year, month, dia, horas, minutos))
-        return date
+        return timezone.make_aware(
+            datetime.datetime.combine(parse_date(r_date), parse_time(r_hora)))
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -401,13 +397,16 @@ class InboundDetailRows(TemplateView):
             code=self.request.GET.get('purchase_order')).first()
         raw_date = self.request.GET.get('date', '')
         exchange_rate = 0
-        if purchase_order is not None and len(raw_date) == 10:
-            exchange_rate = 1
-            if purchase_order.in_dollars:
-                day = datetime.date(int(raw_date[6:]), int(raw_date[3:5]),
-                                    int(raw_date[0:2]))
-                exchange_rate = (ExchangeRate.objects.filter(date=day)
-                                 .values_list('amount', flat=True).first() or 0)
+        if purchase_order is not None:
+            try:
+                day = parse_date(raw_date)
+            except ValueError:
+                day = None
+            if day is not None:
+                exchange_rate = 1
+                if purchase_order.in_dollars:
+                    exchange_rate = (ExchangeRate.objects.filter(date=day)
+                                     .values_list('amount', flat=True).first() or 0)
         initial = []
         if exchange_rate > 0:
             details = PurchaseOrderDetail.objects.filter(
@@ -802,8 +801,8 @@ class InboundUpdate(UpdateView):
         initial = super(InboundUpdate, self).get_initial()
         movement = self.object
         initial['movement_id'] = movement.movement_id
-        initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
-        initial['time'] = movement.operation_date.strftime('%H : %M : %S')
+        initial['date'] = movement.operation_date.strftime('%Y-%m-%d')
+        initial['time'] = movement.operation_date.strftime('%H:%M:%S')
         initial['warehouse'] = movement.warehouse
         initial['movement_type'] = movement.movement_type
         initial['reference_document'] = movement.reference
@@ -920,8 +919,8 @@ class OutboundUpdate(UpdateView):
         movement = self.object
         self.details = MovementDetail.objects.filter(movement=movement)
         initial['movement_id'] = movement.movement_id
-        initial['date'] = movement.operation_date.strftime('%d/%m/%Y')
-        initial['time'] = movement.operation_date.strftime('%H : %M : %S')
+        initial['date'] = movement.operation_date.strftime('%Y-%m-%d')
+        initial['time'] = movement.operation_date.strftime('%H:%M:%S')
         initial['warehouses'] = movement.warehouse
         initial['outbound_types'] = movement.movement_type
         initial['office'] = movement.office
@@ -1021,7 +1020,7 @@ class OrderUpdate(UpdateView):
     def get_initial(self):
         initial = super(OrderUpdate, self).get_initial()
         order = self.object
-        initial['date'] = order.date.strftime('%d/%m/%Y')
+        initial['date'] = order.date.strftime('%Y-%m-%d')
         initial['notes'] = order.notes
         return initial
 
@@ -1156,7 +1155,8 @@ class InboundCreate(CreateView):
 
     def get_initial(self):
         initial = super(InboundCreate, self).get_initial()
-        initial['date'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%Y-%m-%d')
+        initial['time'] = timezone.localtime().strftime('%H:%M:%S')
         initial['total'] = 0
         return initial
 
@@ -1248,7 +1248,8 @@ class OutboundCreate(CreateView):
     def get_initial(self):
         initial = super(OutboundCreate, self).get_initial()
         initial['total'] = 0
-        initial['date'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%Y-%m-%d')
+        initial['time'] = timezone.localtime().strftime('%H:%M:%S')
         return initial
 
     def get(self, request, *args, **kwargs):
@@ -1524,7 +1525,7 @@ class ProductStock(FormView):
 
     def get_initial(self):
         initial = super(ProductStock, self).get_initial()
-        initial['start_date'] = date.today().strftime('%d/%m/%Y')
+        initial['start_date'] = date.today().strftime('%Y-%m-%d')
         return initial
 
     def form_valid(self, form):
@@ -1861,7 +1862,7 @@ class Inventory(ReportResponseMixin, FormView):
 
     def get_initial(self):
         initial = super(Inventory, self).get_initial()
-        initial['start_date'] = date.today().strftime('%d/%m/%Y')
+        initial['start_date'] = date.today().strftime('%Y-%m-%d')
         return initial
 
     def form_valid(self, form):

@@ -115,6 +115,28 @@ class WarehouseViewsTest(TestCase):
         movement = Movement.objects.get(movement_type=movement_type)
         self.assertEqual(1, movement.details.count())
 
+    def test_inbound_create_with_iso_date(self):
+        movement_type = baker.make(MovementType, code='I01', increases=True)
+        warehouse = baker.make(Warehouse)
+        product = baker.make('products.Product')
+        data = {'movement_id': '', 'movement_type': movement_type.pk,
+                'document_type': '', 'series': '', 'number': '',
+                'warehouse': warehouse.pk, 'office': '', 'notes': '',
+                'date': '2024-01-01', 'time': '08:30:00', 'reference_document': '',
+                'receiver_dni': '', 'receiver': '', 'details_count': '0', 'total': '0',
+                'form-TOTAL_FORMS': '1', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000',
+                'form-0-purchase_order': '999999', 'form-0-code': product.pk,
+                'form-0-name': 'PRODUCTO', 'form-0-unit': 'UND01',
+                'form-0-quantity': '5', 'form-0-price': '3', 'form-0-amount': '15'}
+
+        response = self.client.post(reverse('warehouse:inbound_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        movement = Movement.objects.get(movement_type=movement_type)
+        local = timezone.localtime(movement.operation_date)
+        self.assertEqual((2024, 1, 1, 8, 30), tuple(local.timetuple()[:5]))
+
     def test_outbound_create(self):
         movement_type = baker.make(MovementType, code='S01', increases=False)
         warehouse = baker.make(Warehouse)
@@ -231,6 +253,11 @@ class WarehouseViewsTest(TestCase):
                 data = dict(base, search_type=search_type)
                 response = self.client.post(reverse('warehouse:movement_report'), data)
                 self.assertEqual(200, response.status_code)
+
+        iso = dict(base, search_type='F', start_date='2024-01-01',
+                   end_date='2024-01-31')
+        response = self.client.post(reverse('warehouse:movement_report'), iso)
+        self.assertEqual(200, response.status_code)
 
     def test_movement_excel_report_by_date(self):
         movement_type = baker.make(MovementType, code='I01', increases=True)

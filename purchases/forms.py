@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from tambox.widgets import NativeDateFieldsMixin
 from purchases.models import Supplier, Quotation, PurchaseOrder, ServiceOrder, ServiceConformity
 from django.forms import formsets
 from requirements.models import Requirement
@@ -8,7 +10,7 @@ from purchases.settings import SEARCH_PARAMETERS
 from django.core.exceptions import ValidationError
 
 
-class SupplierForm(forms.ModelForm):
+class SupplierForm(NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
@@ -22,7 +24,6 @@ class SupplierForm(forms.ModelForm):
         self.fields['email'].required = False
         self.fields['sunat_status'].required = False
         self.fields['sunat_condition'].required = False
-        self.fields['registration_date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             if field == 'tax_id':
                 self.fields[field].widget.attrs.update({
@@ -64,16 +65,18 @@ class ServiceOrderDetailForm(forms.Form):
 class OrderDateReportForm(forms.Form):
     search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
                                       choices=SEARCH_PARAMETERS)
-    start_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
+    start_date = forms.CharField(max_length=10, widget=forms.TextInput(
+        attrs={'size': 10, 'class': 'form-control', 'type': 'date'}),
                                    label='Fecha de Inicio:', required=False)
-    end_date = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size': 10, 'class': 'form-control'}),
+    end_date = forms.CharField(max_length=10, widget=forms.TextInput(
+        attrs={'size': 10, 'class': 'form-control', 'type': 'date'}),
                                 label='Fecha de Fin:', required=False)
     month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
     year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
                             required=False)
 
 
-class QuotationForm(forms.ModelForm):
+class QuotationForm(NativeDateFieldsMixin, forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -86,7 +89,6 @@ class QuotationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(QuotationForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'
@@ -125,7 +127,7 @@ class QuotationForm(forms.ModelForm):
         fields = ['code', 'date', 'notes']
 
 
-class PurchaseOrderForm(forms.ModelForm):
+class PurchaseOrderForm(NativeDateFieldsMixin, forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -145,7 +147,6 @@ class PurchaseOrderForm(forms.ModelForm):
         super(PurchaseOrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['reference'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
         for field in iter(self.fields):
             if field != 'with_tax' and field != 'in_dollars':
@@ -176,7 +177,7 @@ class PurchaseOrderForm(forms.ModelForm):
         fields = ['code', 'payment_method', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
-class ServiceOrderForm(forms.ModelForm):
+class ServiceOrderForm(NativeDateFieldsMixin, forms.ModelForm):
     tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
     business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -195,7 +196,6 @@ class ServiceOrderForm(forms.ModelForm):
         super(ServiceOrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['process'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         self.fields['notes'].required = False
         self.fields['report_name'].required = False
         self.fields['report'].required = False
@@ -228,7 +228,7 @@ class ServiceOrderForm(forms.ModelForm):
         fields = ['code', 'payment_method', 'process', 'notes', 'date', 'report_name', 'report']
 
 
-class ServiceConformityForm(forms.ModelForm):
+class ServiceConformityForm(NativeDateFieldsMixin, forms.ModelForm):
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
         attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
     subtotal = forms.CharField(max_length=100, widget=forms.TextInput(
@@ -241,7 +241,6 @@ class ServiceConformityForm(forms.ModelForm):
         self.fields['code'].required = False
         self.fields['supporting_document'].required = False
         self.fields['file'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             self.fields[field].widget.attrs.update({
                 'class': 'form-control'

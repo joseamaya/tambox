@@ -1,8 +1,7 @@
 function mostrarhora()
 {
 	var f=new Date();
-	cad=agregarCero(f.getHours())+" : "+agregarCero(f.getMinutes())+" : "+agregarCero(f.getSeconds());
-	return cad;
+	return agregarCero(f.getHours())+":"+agregarCero(f.getMinutes())+":"+agregarCero(f.getSeconds());
 }
 
 function agregarCero(n)

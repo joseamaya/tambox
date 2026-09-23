@@ -102,7 +102,7 @@ class RequirementCreate(CreateView):
     def get_initial(self):
         initial = super(RequirementCreate, self).get_initial()
         initial['year'] = date.today().year
-        initial['date'] = date.today().strftime('%d/%m/%Y')
+        initial['date'] = date.today().strftime('%Y-%m-%d')
         initial['month'] = date.today().month
         return initial
 
@@ -314,7 +314,7 @@ class RequirementUpdate(UpdateView):
 
     def get_initial(self):
         initial = super(RequirementUpdate, self).get_initial()
-        initial['date'] = self.object.date.strftime('%d/%m/%Y')
+        initial['date'] = self.object.date.strftime('%Y-%m-%d')
         return initial
 
     def get_context_data(self, **kwargs):

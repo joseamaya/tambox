@@ -17,3 +17,24 @@ def aware(value):
             return value
         return timezone.make_aware(value)
     return timezone.make_aware(datetime.datetime.combine(value, datetime.time.min))
+
+
+def parse_date(value):
+    """Un `date` desde ISO (input nativo) o dd/mm/yyyy (a mano)."""
+    for fmt in ('%Y-%m-%d', '%d/%m/%Y', '%d/%m/%y'):
+        try:
+            return datetime.datetime.strptime(value, fmt).date()
+        except (TypeError, ValueError):
+            continue
+    raise ValueError('Fecha invalida: %r' % (value,))
+
+
+def parse_time(value):
+    """Una `time` desde HH:MM:SS/HH:MM o HH : MM : SS (wickedpicker viejo)."""
+    value = value.replace(' ', '')
+    for fmt in ('%H:%M:%S', '%H:%M'):
+        try:
+            return datetime.datetime.strptime(value, fmt).time()
+        except (TypeError, ValueError):
+            continue
+    raise ValueError('Hora invalida: %r' % (value,))

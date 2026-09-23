@@ -233,12 +233,6 @@ $(document).ready(function()
 	var total=parseFloat($('#id_total').val());
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
-	$("#id_date").datepicker();
-	{% if object %}
-		$('#id_time').wickedpicker({now: "{{ movement.operation_date|date:"H:i:s" }}", twentyFour: true, title:'Hora de Ingreso', showSeconds: true});
-	{% else %}
-		$('#id_time').wickedpicker({now: mostrarhora(), twentyFour: true, title:'Hora de Ingreso', showSeconds: true});		
-	{% endif %}
 	verificar_pide_referencia();
 	$("#id_movement_type").on('change',establecer_pide_referencia);
 	

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from tambox.widgets import NativeDateFieldsMixin
 from administration.models import Office, Worker, Position, Profession,\
     ApprovalLevel, Producer
 
@@ -83,7 +85,7 @@ class ProducerForm(forms.ModelForm):
                 })
 
 
-class PositionForm(forms.ModelForm):
+class PositionForm(NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = Position
         fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
@@ -95,8 +97,6 @@ class PositionForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['start_date'].input_formats = ['%d/%m/%Y']
-        self.fields['end_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].required = False
         self.fields['is_leadership'].required = False
         self.fields['is_assistant'].required = False
@@ -104,7 +104,7 @@ class PositionForm(forms.ModelForm):
             pk__in=Position.objects.filter(end_date__isnull=True).values('worker'))
 
 
-class PositionUpdateForm(forms.ModelForm):
+class PositionUpdateForm(NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = Position
         fields = ['name', 'office', 'worker', 'start_date', 'end_date', 'is_leadership', 'is_assistant']
@@ -116,8 +116,6 @@ class PositionUpdateForm(forms.ModelForm):
                 self.fields[field].widget.attrs.update({
                     'class': 'form-control'
                 })
-        self.fields['start_date'].input_formats = ['%d/%m/%Y']
-        self.fields['end_date'].input_formats = ['%d/%m/%Y']
         self.fields['end_date'].required = False
         self.fields['is_leadership'].required = False
         self.fields['is_assistant'].required = False

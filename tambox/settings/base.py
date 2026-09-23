@@ -71,6 +71,8 @@ WSGI_APPLICATION = 'tambox.wsgi.application'
 
 LANGUAGE_CODE = 'es-PE'
 
+FORMAT_MODULE_PATH = ['tambox.formats']
+
 TIME_ZONE = 'America/Lima'
 
 USE_I18N = True

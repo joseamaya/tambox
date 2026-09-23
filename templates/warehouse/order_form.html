@@ -109,7 +109,6 @@ $(document).ready(function()
 {
 	var contDetalles = $("#id_form-TOTAL_FORMS").val();
 	var ultimo_item = contDetalles;
-	$("#id_date").datepicker();
 	initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'PRODUCTOS'});
 	
 	$(document).on("click",".eliminar",function()

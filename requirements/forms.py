@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
+
+from tambox.widgets import NativeDateFieldsMixin
 from django.forms import formsets
 from django.core.exceptions import ValidationError
 from requirements.models import RequirementApproval, Requirement
@@ -91,7 +93,7 @@ class RequirementDetailForm(forms.Form):
         return self.cleaned_data['quantity']
 
 
-class RequirementForm(forms.ModelForm):
+class RequirementForm(NativeDateFieldsMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(RequirementForm, self).__init__(*args, **kwargs)
@@ -99,7 +101,6 @@ class RequirementForm(forms.ModelForm):
         self.fields['report'].required = False
         self.fields['code'].required = False
         self.fields['notes'].required = False
-        self.fields['date'].input_formats = ['%d/%m/%Y']
         for field in iter(self.fields):
             if field != 'direct_delivery_to_requester':
                 self.fields[field].widget.attrs.update({

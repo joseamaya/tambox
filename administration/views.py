@@ -404,9 +404,9 @@ class PositionUpdate(UpdateView):
 
     def get_initial(self):
         initial = super(PositionUpdate, self).get_initial()
-        initial['start_date'] = self.object.start_date.strftime('%d/%m/%Y')
+        initial['start_date'] = self.object.start_date.strftime('%Y-%m-%d')
         if self.object.end_date is not None:
-            initial['end_date'] = self.object.end_date.strftime('%d/%m/%Y')
+            initial['end_date'] = self.object.end_date.strftime('%Y-%m-%d')
         return initial
 
     def get_success_url(self):

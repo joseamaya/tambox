@@ -72,8 +72,6 @@
 
 {% block js %}
 <script>
-$("#id_start_date").datepicker();
-$("#id_end_date").datepicker();
 productAutocomplete(document.getElementById('id_description'), {
     url: "{% url 'products:product_description_search' %}",
     searchType: 'PRODUCTOS',

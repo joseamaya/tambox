@@ -15,10 +15,10 @@ from django.http import HttpResponse
 from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from accounting.forms import UploadForm
+from tambox.dates import parse_date
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from security.permissions import requires
 from django.utils.decorators import method_decorator
-import datetime
 
 
 class Dashboard(View):
@@ -396,9 +396,9 @@ class TaxUpdate(UpdateView):
 
     def get_initial(self):
         initial = super(TaxUpdate, self).get_initial()
-        initial['start_date'] = self.object.start_date.strftime('%d/%m/%Y')
+        initial['start_date'] = self.object.start_date.strftime('%Y-%m-%d')
         if self.object.end_date is not None:
-            initial['end_date'] = self.object.end_date.strftime('%d/%m/%Y')
+            initial['end_date'] = self.object.end_date.strftime('%Y-%m-%d')
         return initial
 
     def get_success_url(self):
@@ -412,10 +412,7 @@ class ExchangeRateFetch(AjaxOnlyMixin, TemplateView):
     def get(self, request, *args, **kwargs):
         if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             fetched_date = request.GET['date']
-            year = int(fetched_date[6:])
-            month = int(fetched_date[3:5])
-            dia = int(fetched_date[0:2])
-            date = datetime.date(year, month, dia)
+            date = parse_date(fetched_date)
             try:
                 exchange_rate = ExchangeRate.objects.get(date=date)
                 exchange_rate = {'date': fetched_date, 'amount': float(exchange_rate.amount)}

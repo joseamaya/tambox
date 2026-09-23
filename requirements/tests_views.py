@@ -137,6 +137,19 @@ class RequirementsViewsTest(TestCase):
         self.assertEqual(302, response.status_code)
         self.assertTrue(Requirement.objects.filter(reason='MOTIVO').exists())
 
+    def test_requirement_create_with_iso_date(self):
+        baker.make('products.Product', code='P000000001')
+        data = {'code': '', 'reason': 'MOTIVO ISO', 'date': '2024-01-01', 'month': '1',
+                'year': '2024', 'notes': '', 'direct_delivery_to_requester': 'on',
+                'form-TOTAL_FORMS': '0', 'form-INITIAL_FORMS': '0',
+                'form-MIN_NUM_FORMS': '0', 'form-MAX_NUM_FORMS': '1000'}
+
+        response = self.client.post(reverse('requirements:requirement_create'), data)
+
+        self.assertEqual(302, response.status_code)
+        requirement = Requirement.objects.get(reason='MOTIVO ISO')
+        self.assertEqual(date(2024, 1, 1), requirement.date)
+
     def test_requirement_delete(self):
         response = self.client.post(reverse('requirements:requirement_delete'),
                                     {'code': self.requirement.code},
