@@ -1,0 +1,96 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Reproceso Precio</h3>
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Reprocesar">
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Desde:</label>
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.start_date }}
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">SELECCIONE : </label>
+                        {% if form.selection.errors %}
+                        {% for error in form.selection.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.selection }}
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="code">Codigo de Producto: </label>
+                        {% if form.product.errors %}
+                        {% for error in form.product.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.product }}
+                    </div>
+                    <div class="col-md-8">
+                        <label for="description">Descripcion de Producto: </label>
+                        {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.description }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock cuerpo %}
+
+{% block js %}
+<script>
+productAutocomplete(document.getElementById('id_description'), {
+    url: "{% url 'products:product_description_search' %}",
+    searchType: 'PRODUCTOS',
+    sourceField: 'description',
+    fields: {product: 'code'},
+});
+
+
+document.querySelectorAll("input[name=selection]").forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        var disabled = this.value === 'T';
+        document.querySelectorAll("input[name=product], input[name=description]").forEach(function (input) {
+            input.disabled = disabled;
+        });
+    });
+});
+</script>
+{% endblock js %}

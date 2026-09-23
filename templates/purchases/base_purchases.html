@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block menu_items %}
+            <li>
+                <a href="#"><i class="bi bi-wrench fs-5"></i> Configuración<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
+                    {% if perms.products.ver_tabla_grupos_productos %}
+                    <li><a href="{% url 'products:product_group_list' %}">Grupos de Productos</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_tabla_proveedores %}
+                    <li><a href="{% url 'purchases:supplier_list' %}">Proveedores</a></li>
+                    {% endif %}
+                    {% if perms.products.ver_tabla_productos %}
+                    <li><a href="{% url 'products:product_list' %}">Productos</a></li>
+                    {% endif %}
+                    {% if perms.products.ver_tabla_productos %}
+                    <li><a href="{% url 'products:service_list' %}">Servicios</a></li>
+                    {% endif %}
+                    {% if perms.products.ver_tabla_unidades_medida %}
+                    <li><a href="{% url 'products:unit_of_measure_list' %}">Unidades de Medida</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="bi bi-arrow-down-up"></i> Operaciones<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
+                    {% if perms.purchases.add_quotation %}
+                    <li><a href="{% url 'purchases:quotation_create' %}">Solicitud de Cotización</a></li>
+                    {% endif %}
+                    {% if perms.purchases.add_purchaseorder %}
+                    <li><a href="{% url 'purchases:purchase_order_create' %}">Orden de Compra</a></li>
+                    {% endif %}
+                    {% if perms.purchases.add_serviceorder %}
+                    <li><a href="{% url 'purchases:service_order_create' %}">Orden de Servicio</a></li>
+                    {% endif %}
+                    {% if perms.purchases.add_serviceconformity %}
+                    <li><a href="{% url 'purchases:service_conformity_create' %}">Conformidad Servicios</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li>
+                <a href="#"><i class="bi bi-bar-chart"></i> Reportes<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
+                    {% if perms.purchases.ver_tabla_cotizaciones %}
+                    <li><a href="{% url 'purchases:quotation_list' %}">Cotizaciones</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_tabla_ordenes_compra %}
+                    <li><a href="{% url 'purchases:purchase_order_list' %}">Ordenes de Compra</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_tabla_ordenes_compra %}
+                    <li><a href="{% url 'purchases:service_order_list' %}">Ordenes de Servicios</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_tabla_conformidades_servicio %}
+                    <li><a href="{% url 'purchases:service_conformity_list' %}">Conformidades de Servicio</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_reporte_ordenes_compra_excel %}
+                    <li><a href="{% url 'purchases:purchase_order_excel_report_by_date' %}">Ordenes de Compra por Fecha</a></li>
+                    {% endif %}
+                    {% if perms.purchases.ver_reporte_ordenes_servicios_excel %}
+                    <li><a href="{% url 'purchases:service_order_excel_report_by_date' %}">Ordenes de Servicios por Fecha</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </li>
+{% endblock menu_items %}

@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de ingreso con su management form. La usan el render inicial y
+`InboundDetailRows` (transferencia htmx).
+{% endcomment %}
+{{ inbound_detail_formset.management_form }}
+{% for form in inbound_detail_formset %}
+{% include "warehouse/includes/inbound_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

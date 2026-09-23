@@ -1,0 +1,89 @@
+{% extends "warehouse/base_warehouse.html" %} {% block cuerpo %}
+<h3>Almacenes / {{ object.description }}</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.warehouse.change_warehouse %} <a class="btn btn-primary"
+                                                 href="{% url 'warehouse:warehouse_update' object.pk %}"> Editar </a>
+        {% endif %} {% if perms.warehouse.delete_warehouse %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">
+            Eliminar
+        </button>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-end">
+        <div class="btn-group">
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'warehouse:warehouse_detail' object.previous %}';">
+                <span class="bi bi-chevron-double-left"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'warehouse:warehouse_detail' object.next %}';">
+                <span class="bi bi-chevron-double-right"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'warehouse:warehouse_list' %}';">
+                <span class="bi bi-list-ul"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<hr/>
+<div id="dialog-confirm" title="Eliminar warehouse"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>{{ object.description }}</h3>
+            </div>
+        </div>
+        <hr/>
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contabilidad">Contabilidad</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade show active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>CODIGO:</label>
+                        <p>{{ object.code }}</p>
+                    </div>
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label> {% if object.is_active %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div id="contabilidad" class="tab-pane fade">
+                <br>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock cuerpo %} {% block js %}
+<script>
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'warehouse:warehouse_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.relaciones == 'NO') {
+            alert("Almacén " + data.description
+            + " eliminado");
+            } else if (data.relaciones == 'SI') {
+            alert("Almacén " + data.description
+            + " no puede eliminarse");
+            }
+            
+        });
+    });
+</script>
+{% endblock js %}

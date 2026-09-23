@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de salida con su management form. La usa el render inicial de
+`warehouse_exit.html`; las filas nuevas las agrega `OutboundDetailRow`.
+{% endcomment %}
+{{ outbound_detail_formset.management_form }}
+{% for form in outbound_detail_formset %}
+{% include "warehouse/includes/outbound_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

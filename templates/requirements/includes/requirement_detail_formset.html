@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de requerimiento con su management form. La usan el render
+inicial y `RequirementDetailRow` (alta de fila htmx).
+{% endcomment %}
+{{ requirement_detail_formset.management_form }}
+{% for form in requirement_detail_formset %}
+{% include "requirements/includes/requirement_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

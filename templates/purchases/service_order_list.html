@@ -1,0 +1,46 @@
+{% extends "purchases/base_purchases.html" %}
+{% block cuerpo %}
+<h3>Órdenes de Servicios</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.purchases.add_serviceorder %}
+        <a href="{% url 'purchases:service_order_create' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if perms.purchases.cargar_ordenes_compra %}
+        <a href="#" class="btn btn-secondary">Importar</a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-end">
+        <div class="btn-group">
+            {% if perms.purchases.ver_reporte_ordenes_servicios_excel %}
+            <button class="btn btn-secondary" type="button">
+                <span class="bi bi-list-columns"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="row">
+    <div class="col-lg-4">
+        <form id="list-search" class="d-flex flex-wrap align-items-center gap-2"
+              hx-get="{{ request.path }}" hx-target="#list-results"
+              hx-trigger="submit, keyup from:input changed delay:300ms">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Buscar por código, proveedor o cotización"
+                       value="{{ request.GET.q|default:'' }}">
+                <span class="input-group-text p-0 border-0">
+                    <button class="btn btn-secondary" type="submit">
+                        <span class="bi bi-search"></span>
+                    </button>
+                </span>
+            </div>
+        </form>
+    </div>
+</div>
+<br/>
+<div id="list-results">
+    {% include "purchases/includes/service_order_rows.html" %}
+</div>
+{% endblock cuerpo %}

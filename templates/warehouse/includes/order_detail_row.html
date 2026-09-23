@@ -1,0 +1,44 @@
+{% comment %}
+Una fila del formset de pedido. La usan el render inicial y `OrderDetailRow`
+(alta de fila htmx).
+{% endcomment %}
+<tr class="order_detail_formset">
+    <td>
+        {% if form.code.errors %}
+        {% for error in form.code.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.code }}
+    </td>
+    <td>
+        {% if form.name.errors %}
+        {% for error in form.name.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.name }}
+    </td>
+    <td>
+        {% if form.unit.errors %}
+        {% for error in form.unit.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.unit }}
+    </td>
+    <td>
+        {% if form.quantity.errors %}
+        {% for error in form.quantity.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.quantity }}
+    </td>
+    <td>
+        <button class="eliminar btn btn-small btn-danger" type="button"
+                id="id_form-{{ index }}-btn-borrar" name="btn_borrar">
+            <span class="bi bi-x-lg"></span>
+        </button>
+    </td>
+</tr>

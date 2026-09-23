@@ -1,0 +1,27 @@
+{% extends "administration/base_administration.html" %}
+{% block cuerpo %}
+<h3>Productores / Importar un archivo</h3>
+<form role="form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-12">
+            <input type="submit" class="btn btn-primary" name="submit" value="Importar">
+            <button type="button" class="btn btn-secondary"
+                    onclick="location.href='{% url 'administration:producer_list' %}'">
+                Cancelar
+            </button>
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Selecciona un archivo:</label>
+                {{ form.file }}
+                <p class="form-text">El archivo debe estar en formato CSV, separado por comas, sin encabezados</p>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}

@@ -1,0 +1,31 @@
+{% comment %}
+Tabla de grupos de productos. La usa `ProductGroupList` en la pagina completa y
+en el fragmento que htmx inserta en `#list-results`.
+{% endcomment %}
+<table class="table table-striped table-bordered" cellspacing="0" width="100%">
+    <thead>
+    <tr>
+        <th class="text-center">CODIGO</th>
+        <th class="text-center">DESCRIPCION</th>
+        <th class="text-center">CTA CONTABLE.</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for group in product_groups %}
+    {% if perms.products.ver_detalle_grupo_productos %}
+    <tr onclick="location.href='{% url 'products:product_group_detail' group.pk %}';">
+        {% else %}
+    <tr>
+        {% endif %}
+        <td>{{ group.code }}</td>
+        <td>{{ group.description }}</td>
+        <td>{{ group.account }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="3" class="text-center">No se encontraron grupos de productos.</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% include "includes/pagination.html" %}

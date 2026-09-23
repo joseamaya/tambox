@@ -1,0 +1,53 @@
+{% comment %}
+Una fila del formset de conformidad de servicio. La usan el render inicial y
+`ServiceConformityDetailRows` (transferencia htmx).
+{% endcomment %}
+<tr class="service_conformity_detail_formset">
+    <td>
+        {{ form.service_order }}
+        {% if form.quantity.errors %}
+        {% for error in form.quantity.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.quantity }}
+    </td>
+    <td>
+        {% if form.service.errors %}
+        {% for error in form.service.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.service }}
+    </td>
+    <td>
+        {% if form.use.errors %}
+        {% for error in form.use.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.use }}
+    </td>
+    <td>
+        {% if form.price.errors %}
+        {% for error in form.price.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.price }}
+    </td>
+    <td>
+        {% if form.amount.errors %}
+        {% for error in form.amount.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.amount }}
+    </td>
+    <td>
+        <button class="eliminar btn btn-small btn-danger" type="button"
+                id="id_form-{{ index }}-btn-borrar" name="btn_borrar">
+            <span class="bi bi-x-lg"></span>
+        </button>
+    </td>
+</tr>

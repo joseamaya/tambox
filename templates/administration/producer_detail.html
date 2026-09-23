@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.administration.change_producer %} <a
+            class="btn btn-primary"
+            href="{% url 'administration:producer_update' object.pk %}">
+        Editar </a> {% endif %}    </div>
+    <div class="col-lg-2 text-end">
+        <div class="btn-group">
+            <button class="btn btn-secondary" type="button"
+                    onclick="return abrir_modal('{% url 'administration:producer_detail' object.previous %}','Producer / {{ object.previous_full_name }}');">
+                <span class="bi bi-chevron-double-left"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="return abrir_modal('{% url 'administration:producer_detail' object.next %}','Producer / {{ object.next_full_name }}');">
+                <span class="bi bi-chevron-double-right"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'administration:producer_list' %}';">
+                <span class="bi bi-list-ul"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-2">
+                <a href="{{ object.photo.url }}" class="img-thumbnail"> <img src="{{ object.photo.url }}" alt="Foto Producer"
+                                                                        style="width: 120px; height: 90px">
+                </a>
+            </div>
+            <div class="col-lg-5">
+                <h3>{{ object.full_name }}</h3>
+            </div>
+            <div class="col-lg-5">
+                <div class="btn-group"></div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información
+                General</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade show active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>DNI:</label>
+                        <p>{{ object.dni }}</p>
+                        <label>APELLIDOS:</label>
+                        <p>{{ object.last_name }}</p>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>NOMBRES:</label>
+                        <p>{{ object.first_name }}</p>
+                    </div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label> {% if object.is_active %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

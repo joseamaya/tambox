@@ -1,0 +1,64 @@
+name: CI
+
+on:
+  push:
+    branches: [develop, master]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: tambox
+          POSTGRES_USER: tambox
+          POSTGRES_PASSWORD: tambox
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DJANGO_SETTINGS_MODULE: tambox.settings.development
+      SECRET_KEY: ci-secret-key
+      DB_NAME: tambox
+      DB_USER: tambox
+      DB_PASSWORD: tambox
+      DB_HOST: localhost
+      DB_PORT: '5432'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version-file: '.python-version'
+          cache: pip
+
+      - name: Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Linter
+        run: ruff check .
+
+      - name: Auditoria de identificadores
+        run: python scripts/audit_identifiers.py
+
+      - name: Comprobaciones de Django
+        run: python manage.py check
+
+      - name: Migraciones al dia
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Tests y cobertura
+        run: |
+          coverage run manage.py test
+          coverage report --fail-under=90

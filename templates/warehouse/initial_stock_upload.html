@@ -1,0 +1,66 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3><h3>Movimientos / Cargar Inventario Inicial</h3>
+    {% if notifications %}
+    <div class="alert alert-danger">
+        {% for notification in notifications %}
+        <p>{{ notification }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <form role="form" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-lg-10">
+                <input type="submit" class="btn btn-primary" name="submit"
+                       value="Guardar">
+                <button type="button" class="btn btn-secondary"
+                        onclick="location.href='{% url 'warehouse:movement_list' %}'">
+                    Cancelar
+                </button>
+            </div>
+            <div class="col-lg-2 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-secondary" type="button"
+                            onclick="location.href='{% url 'warehouse:movement_list' %}';">
+                        <span class="bi bi-list-ul"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr/>
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Almacén:</label>
+                            {{ form.warehouses }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Fecha:</label>
+                            {{ form.date }}
+                        </div>
+                        <div class="col-md-4">
+                            <label>Hora:</label>
+                            {{ form.time }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Selecciona un archivo:</label>
+                            {{ form.file }}
+                            <p class="form-text">El archivo debe estar en formato CSV, separado por comas, sin
+                                encabezados, consignando los detalles</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    {% endblock cuerpo %}
+    {% block js %}
+    <script>
+document.getElementById('id_time').value = mostrarhora();
+</script>
+    {% endblock js %}

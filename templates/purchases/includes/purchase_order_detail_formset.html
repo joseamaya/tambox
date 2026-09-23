@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de orden de compra con su management form. La usan el render
+inicial del formulario y `PurchaseOrderDetailRows` (transferencia htmx).
+{% endcomment %}
+{{ purchase_order_detail_formset.management_form }}
+{% for form in purchase_order_detail_formset %}
+{% include "purchases/includes/purchase_order_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

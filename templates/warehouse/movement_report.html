@@ -1,0 +1,34 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Movimientos / Reporte por Fechas</h3>
+<form action="{% url 'warehouse:movement_report' %}" method="post" role="form">
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Generar">
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock cuerpo %}
+{% block js %}
+<script>
+document.querySelectorAll("input[name=search_type]").forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        var value = this.value;
+        document.getElementById('id_start_date').disabled = value !== 'F';
+        document.getElementById('id_end_date').disabled = value !== 'F';
+        document.getElementById('id_month').disabled = value !== 'M';
+        document.getElementById('id_year').disabled = value === 'F';
+    });
+});
+</script>
+{% endblock js %}

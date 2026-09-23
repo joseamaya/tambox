@@ -1,25 +1,30 @@
+import logging
+
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
-from contabilidad.models import Empresa
+from accounting.models import Company
+
+logger = logging.getLogger(__name__)
 
 try:
-    empresa = Empresa.load()
-    my_host = empresa.host_correo
-    my_port = empresa.puerto_correo
-    my_username = empresa.usuario
-    my_password = empresa.password
-    my_use_tls = empresa.usa_tls
+    company = Company.load()
+    my_host = company.mail_host
+    my_port = company.mail_port
+    my_username = company.username
+    my_password = company.password
+    my_use_tls = company.uses_tls
     connection = get_connection(host=my_host,
                                 port=my_port,
                                 username=my_username,
                                 password=my_password,
                                 use_tls=my_use_tls)
-except:
-    empresa = None
+except Exception as exc:
+    logger.warning("No se pudo configurar el servidor de correo: %s", exc)
+    company = None
     connection = None
 
 
-def enviar_correo(destinatario, asunto, cuerpo):
+def send_mail(destinatario, asunto, cuerpo):
     email = EmailMessage()
     email.subject = asunto
     email.body = cuerpo
@@ -27,5 +32,5 @@ def enviar_correo(destinatario, asunto, cuerpo):
     email.connection = connection
     try:
         email.send()
-    except:
-        pass
+    except Exception:
+        logger.exception("No se pudo enviar el correo a %s", destinatario)

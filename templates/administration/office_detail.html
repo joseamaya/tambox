@@ -1,0 +1,64 @@
+<div id="dialog-confirm" title="Eliminar Oficina"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>{{ object.name }}</h3>
+            </div>
+            <div class="col-lg-5 text-end">
+                <div class="btn-group">
+                    <button class="btn btn-secondary" type="button"
+                            onclick="return abrir_modal('{% url 'administration:office_detail' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
+                        <span class="bi bi-chevron-double-left"></span>
+                    </button>
+                    <button class="btn btn-secondary" type="button"
+                            onclick="return abrir_modal('{% url 'administration:office_detail' object.next.pk %}','Oficina / {{ object.next.name }}');">
+                        <span class="bi bi-chevron-double-right"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a>
+            </li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade show active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>CÓDIGO:</label>
+                        <p>{{ object.code }}</p>
+                        <label>DEPENDENCIA:</label>
+                        {% if object.dependency %}
+                        <p>{{ object.dependency }}</p>
+                        {% else %}
+                        <p>NINGUNA</p>
+                        {% endif %}
+                        <label>GERENCIA:</label>
+                        {% if object.is_management %}
+                        <p>SI</p>
+                        {% else %}
+                        <p>NO</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-lg-4"></div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                        <label>ESTADO: </label>
+                        {% if object.is_active %}
+                        <p>ACTIVO</p>
+                        {% else %}
+                        <p>INACTIVO</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

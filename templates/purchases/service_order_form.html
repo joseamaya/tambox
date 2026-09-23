@@ -1,0 +1,449 @@
+{% extends "purchases/base_purchases.html" %}
+{% block cuerpo %}
+{% if object %}
+<h3>Órdenes de Servicios / {{ order.pk }}</h3>
+{% else %}
+<h3>Órdenes de Servicios / Nuevo</h3>
+{% endif %}
+<form role="form" method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-secondary"
+                    onclick="location.href='{% url 'purchases:service_order_detail' order.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-secondary"
+                    onclick="location.href='{% url 'purchases:service_order_list' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-end">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'purchases:service_order_update' order.previous %}';">
+                    <span class="bi bi-chevron-double-left"></span>
+                </button>
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'purchases:service_order_update' order.next %}';">
+                    <span class="bi bi-chevron-double-right"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'purchases:service_order_list' %}';">
+                    <span class="bi bi-list-ul"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        {% if form.non_field_errors %}
+        {% include "includes/general_errors.html" %}
+        {% endif %}
+        <div class="card-body">
+            {% csrf_token %}
+            <div class="mb-3">
+                {% if object %}
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>CODIGO:</label>
+                        <p>{{ object.code }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <div class="mb-3"
+                 x-data="supplierSearch({nameUrl: '{% url 'purchases:supplier_name_search' %}',
+                                         taxIdUrl: '{% url 'purchases:supplier_tax_id_search' %}',
+                                         tax_id: '{{ form.tax_id.value|default:''|escapejs }}',
+                                         business_name: '{{ form.business_name.value|default:''|escapejs }}',
+                                         address: '{{ form.address.value|default:''|escapejs }}'})"
+                 @click.outside="close">
+                <div class="row">
+                    <div class="col-md-2">
+                        <label>RUC:</label>
+                        {% if form.tax_id.errors %}
+                        {% for error in form.tax_id.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        <input type="text" name="tax_id" id="id_tax_id" class="form-control"
+                               x-model="tax_id" @input.debounce.300ms="searchByTaxId">
+                    </div>
+                    <div class="col-md-4" style="position: relative;">
+                        <label>Razón Social:</label>
+                        {% if form.business_name.errors %}
+                        {% for error in form.business_name.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        <input type="text" name="business_name" id="id_business_name"
+                               class="form-control" autocomplete="off"
+                               x-model="business_name" @input.debounce.300ms="searchByName">
+                        <ul class="list-group" x-show="open" x-cloak
+                            style="position: absolute; z-index: 1000; max-height: 250px; overflow-y: auto;">
+                            <template x-for="item in results" :key="item.tax_id">
+                                <li class="list-group-item" style="cursor: pointer"
+                                    @click="select(item)" x-text="item.label"></li>
+                            </template>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Dirección:</label>
+                        {% if form.address.errors %}
+                        {% for error in form.address.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        <input type="text" name="address" id="id_address" class="form-control"
+                               x-model="address">
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>FORMA DE PAGO:</label>
+                        {% if form.payment_method.errors %}
+                        {% for error in form.payment_method.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.payment_method }}
+                    </div>
+                    <div class="col-md-3">
+                        <label>FECHA:</label>
+                        {% if form.date.errors %}
+                        {% for error in form.date.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.date }}
+                    </div>
+                    <div class="col-md-3">
+                        <label>Referencia:</label>
+                        {% if form.reference.errors %}
+                        {% for error in form.reference.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.reference }}
+                    </div>
+                    <div class="col-md-3">
+                        <label>BUSQ. DE COTIZACIÓN:</label>
+                        <button id="id_transferencia_cotizacion" class="btn btn-info w-100">
+                            <span class="bi bi-search">BUSCAR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Proceso:</label>
+                        {% if form.process.errors %}
+                        {% for error in form.process.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.process }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>INFORME:</label>
+                        {% if form.report_name.errors %}
+                        {% for error in form.report_name.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.report_name }}
+                    </div>
+                    <div class="col-md-5">
+                        <label>ARCHIVO INFORME:</label>
+                        {% if form.report.errors %}
+                        {% for error in form.report.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.report }}
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-lg-10">
+                </div>
+                <div class="col-lg-2">
+                    <div class='mb-3'>
+                        <button id="id_crear_detalle" href="#" class="btn btn-info w-100">
+                            <span class="bi bi-plus-lg">AGREGAR</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="details" class="table table-striped table-bordered table-hover">
+                        <thead>
+                        <tr>
+                            <th>SERVICIO</th>
+                            <th>UNIDAD</th>
+                            <th>CANTIDAD</th>
+                            <th>PRECIO</th>
+                            <th>VALOR</th>
+                            <th>BORRAR</th>
+                        </tr>
+                        </thead>
+                        <tbody id="details-body">
+                        {% include "purchases/includes/service_order_detail_formset.html" %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table id="total_table" class="table table-striped table-hover">
+                        <tbody>
+                        <tr>
+                            <td WIDTH="50">
+                                SON
+                            </td>
+                            <td WIDTH="550">
+                                {% if form.total_in_words.errors %}
+                                {% for error in form.total_in_words.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.total_in_words }}
+                            </td>
+                            <td WIDTH="50">
+                                SUBTOTAL
+                            </td>
+                            <td>
+                                {% if form.subtotal.errors %}
+                                {% for error in form.subtotal.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.subtotal }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td WIDTH="50">
+                            </td>
+                            <td WIDTH="550">
+
+                            </td>
+                            <td WIDTH="50">
+                                IMPUESTO
+                            </td>
+                            <td>
+                                {% if form.tax.errors %}
+                                {% for error in form.tax.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.tax }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td WIDTH="50">
+                            </td>
+                            <td WIDTH="550">
+
+                            </td>
+                            <td WIDTH="50">
+                                TOTAL
+                            </td>
+                            <td>
+                                {% if form.total.errors %}
+                                {% for error in form.total.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.total }}
+                            </td>
+                            <td WIDTH="60">
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <label>OBSERVACIONES:</label>
+                    {% if form.notes.errors %}
+                    {% for error in form.notes.errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
+                    {{ form.notes }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+{% endblock cuerpo %}
+
+{% block js %}
+<script>
+var contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value);
+var ultimo_item = contDetalles;
+var subtotal = parseFloat(document.getElementById('id_subtotal').value);
+document.querySelectorAll('.decimal').forEach(function (input) {
+    input.addEventListener('keydown', validar_decimales);
+});
+
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('.eliminar');
+    if (!button) { return; }
+    var row = button.closest('tr');
+    var amount = parseFloat(row.querySelector('[id$="-amount"]').value) || 0;
+    subtotal = subtotal - amount;
+    row.remove();
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+    contDetalles = contDetalles - 1;
+    document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+    updateFormElementIndices('service_order_detail_formset');
+});
+
+function actualizarValor(id) {
+    var quantity = parseFloat(document.getElementById(id + 'quantity').value) || 0;
+    var price = parseFloat(document.getElementById(id + 'price').value) || 0;
+    var valorAnt = parseFloat(document.getElementById(id + 'amount').value) || 0;
+    var amount = quantity * price;
+    document.getElementById(id + 'amount').value = amount.toFixed(5);
+    subtotal = subtotal - valorAnt + amount;
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+}
+
+document.addEventListener('keyup', function (event) {
+    var input = event.target;
+    if (input.classList.contains('cantidad') || input.classList.contains('precio')) {
+        actualizarValor(input.id.replace(/quantity|price/, ''));
+    }
+});
+
+document.getElementById('id_crear_detalle').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('id_transferencia_cotizacion').disabled = true;
+    var index = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    htmx.ajax('GET', "{% url 'purchases:service_order_detail_row' %}", {
+        target: '#details-body', swap: 'beforeend', values: {index: index}
+    }).then(function () {
+        document.getElementById('id_form-TOTAL_FORMS').value = index + 1;
+        initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+    });
+});
+
+document.getElementById('id_transferencia_cotizacion').addEventListener('click', function (e) {
+    e.preventDefault();
+    openModalUrl("{% url 'purchases:quotation_transfer' %}", {
+        title: "Transferencia de Cotización",
+        buttons: [
+            {label: "Aceptar", className: "btn-primary", onClick: transferirCotizacion},
+            {label: "Cancelar", onClick: cerrarTransferencia},
+        ],
+    });
+});
+
+function sumarFilas() {
+    var filas = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    var subtotal = 0;
+    for (var i = 0; i < filas; i++) {
+        subtotal = subtotal + (parseFloat(document.getElementById('id_form-' + i + '-amount').value) || 0);
+    }
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+}
+
+function transferirCotizacion() {
+    var quotation = document.getElementById('quotation').value;
+    closeModal();
+    if (!quotation) { return; }
+    document.getElementById('id_reference').value = quotation;
+    fetchJson("{% url 'purchases:quotation_search' %}?code=" + encodeURIComponent(quotation))
+        .then(function (data) {
+            if (data === null) { return; }
+            ['tax_id', 'business_name', 'address'].forEach(function (field) {
+                var element = document.getElementById('id_' + field);
+                element.value = data[field];
+                element.dispatchEvent(new Event('input', {bubbles: true}));
+            });
+        });
+    htmx.ajax('GET', "{% url 'purchases:service_order_detail_rows' %}", {
+        target: '#details-body', swap: 'innerHTML', values: {quotation: quotation}
+    }).then(function () {
+        contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+        initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+        sumarFilas();
+    });
+}
+
+function cerrarTransferencia() {
+    closeModal();
+}
+
+document.addEventListener('focusout', function (event) {
+    var input = event.target;
+    if (input.classList.contains('precio') && input.value == 0) {
+        alert("El precio no puede ser cero");
+    } else if (input.classList.contains('cantidad') && input.value == 0) {
+        alert("La cantidad no puede ser cero");
+    }
+});
+
+function validar_ceros() {
+    var control_ceros = false;
+    document.querySelectorAll('.cantidad, .precio').forEach(function (input) {
+        if (input.value == 0) { control_ceros = true; }
+    });
+    return control_ceros;
+}
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    document.getElementById('id_details_count').value = ultimo_item;
+    var payment_method = document.getElementById('id_payment_method').value;
+    var tax_id = document.getElementById('id_tax_id').value;
+    var date = document.getElementById('id_date').value.trim();
+    if (tax_id == '') {
+        alert("No ha ingresado el RUC del proveedor");
+    } else if (date == '') {
+        alert("No ha seleccionado date");
+    } else if (!payment_method) {
+        alert("No ha ingresado una forma de pago");
+    } else if (contDetalles <= 0) {
+        alert("No ha ingresado ningún detail");
+    } else if (validar_ceros()) {
+        alert("Revise el detalle el valor no puede ser cero");
+    } else {
+        return;
+    }
+    event.preventDefault();
+});
+</script>
+{% endblock js %}

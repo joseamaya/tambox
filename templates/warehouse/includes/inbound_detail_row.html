@@ -1,0 +1,61 @@
+{% comment %}
+Una fila del formset de ingreso. La usan el render inicial, la transferencia
+(`InboundDetailRows`) y el alta de fila (`InboundDetailRow`).
+{% endcomment %}
+<tr class="inbound_detail_formset">
+    <td>
+        {{ form.purchase_order }}
+        {% if form.code.errors %}
+        {% for error in form.code.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.code }}
+    </td>
+    <td>
+        {% if form.name.errors %}
+        {% for error in form.name.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.name }}
+    </td>
+    <td>
+        {% if form.unit.errors %}
+        {% for error in form.unit.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.unit }}
+    </td>
+    <td>
+        {% if form.quantity.errors %}
+        {% for error in form.quantity.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.quantity }}
+    </td>
+    <td>
+        {% if form.price.errors %}
+        {% for error in form.price.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.price }}
+    </td>
+    <td>
+        {% if form.amount.errors %}
+        {% for error in form.amount.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.amount }}
+    </td>
+    <td>
+        <button class="eliminar btn btn-small btn-danger" type="button"
+                id="id_form-{{ index }}-btn-borrar" name="btn_borrar">
+            <span class="bi bi-x-lg"></span>
+        </button>
+    </td>
+</tr>

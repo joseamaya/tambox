@@ -1,0 +1,76 @@
+{% extends "requirements/base_requirements.html" %}
+{% block cuerpo %}
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="pb-2 mb-3 border-bottom">Aprobar Requerimiento</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <form role="form" action="{% url 'requirements:requirement_approve' aprobacionrequerimiento.pk %}"
+                      method="post">
+                    {% csrf_token %}
+                    {% if form.errors %}
+                    {% for error in form.non_field_errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>APRUEBO:</label>
+                                {% if form.is_active.errors %}
+                                {% for error in form.is_active.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.is_active }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label>MOTIVO DESAPROBACION:</label>
+                                {% if form.rejection_reason.errors %}
+                                {% for error in form.rejection_reason.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.rejection_reason }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class='mb-3'>
+                        <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+                        <button type="reset" class="btn btn-primary"
+                                onclick="location.href='{% url 'requirements:requirement_approval_list' %}'">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="popup"></div>
+{% endblock cuerpo %}
+{% block js %}
+<script>
+document.getElementById('id_is_active').addEventListener('change', verificar_estado);
+
+function verificar_estado() {
+    var status = document.getElementById('id_is_active').value;
+    var reason = document.getElementById('id_rejection_reason');
+    if (status.indexOf('DESAP') != -1) {
+        reason.readOnly = false;
+    } else {
+        reason.value = '';
+        reason.readOnly = true;
+    }
+}
+</script>
+{% endblock js %}

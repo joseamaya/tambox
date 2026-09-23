@@ -1,0 +1,26 @@
+{% extends "accounting/base_accounting.html" %}
+{% block cuerpo %}
+<h3>Tipos de Cambio</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.accounting.add_exchangerate %}
+        <a href="{% url 'accounting:exchange_rate_create' %}" class="btn btn-primary">
+            Crear
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-end">
+        <div class="btn-group">
+            {% if perms.accounting.ver_reporte_tipos_cambio_excel %}
+            <button class="btn btn-secondary" type="button">
+                <span class="bi bi-list-columns"></span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<hr/>
+<div id="list-results">
+    {% include "accounting/includes/exchange_rate_rows.html" %}
+</div>
+{% endblock cuerpo %}

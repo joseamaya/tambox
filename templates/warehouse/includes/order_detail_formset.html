@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de pedido con su management form. La usa el render inicial de
+`order_form.html`; las filas nuevas las agrega `OrderDetailRow`.
+{% endcomment %}
+{{ order_detail_formset.management_form }}
+{% for form in order_detail_formset %}
+{% include "warehouse/includes/order_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

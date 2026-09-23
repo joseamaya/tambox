@@ -1,0 +1,8 @@
+{% comment %}
+Filas del formset de conformidad de servicio con su management form. La usan el
+render inicial y `ServiceConformityDetailRows` (transferencia htmx).
+{% endcomment %}
+{{ service_conformity_detail_formset.management_form }}
+{% for form in service_conformity_detail_formset %}
+{% include "purchases/includes/service_conformity_detail_row.html" with form=form index=forloop.counter0 %}
+{% endfor %}

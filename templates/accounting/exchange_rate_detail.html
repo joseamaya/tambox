@@ -1,0 +1,71 @@
+{% extends "accounting/base_accounting.html" %}
+{% block cuerpo %}
+<h3>Tipos de Cambio / {{ object.date }}</h3>
+<div class="row">
+    <div class="col-lg-10">
+        {% if perms.accounting.change_exchangerate %}
+        <a class="btn btn-primary" href="{% url 'accounting:exchange_rate_update' object.pk %}">
+            Editar
+        </a>
+        {% endif %}
+    </div>
+    <div class="col-lg-2 text-end">
+        <div class="btn-group">
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'accounting:exchange_rate_detail' object.previous %}';">
+                <span class="bi bi-chevron-double-left"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'accounting:exchange_rate_detail' object.next %}';">
+                <span class="bi bi-chevron-double-right"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'accounting:exchange_rate_list' %}';">
+                <span class="bi bi-list-ul"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<hr/>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-7">
+                <h3>{{ object.description }}</h3>
+            </div>
+            <div class="col-lg-5">
+                <div class="btn-group">
+
+                </div>
+            </div>
+        </div>
+        <br>
+        <ul class="nav nav-tabs">
+            <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a></li>
+        </ul>
+        <div class="tab-content">
+            <div id="general" class="tab-pane fade show active">
+                <br>
+                <div class="row">
+                    <div class="col-lg-4">
+                        <label>FECHA:</label>
+                        <p>{{ object.date|date:"d/m/Y" }}</p>
+                        <label>MONTO: </label>
+                        <p>{{ object.amount }}</p>
+                    </div>
+                    <div class="col-lg-4">
+
+                    </div>
+                    <div class="col-lg-4">
+                        <label>FECHA REGISTRO: </label>
+                        <p>{{ object.created|date:"d/m/Y h:i:s" }}</p>
+                        <label>FECHA MODIFICACIÓN: </label>
+                        <p>{{ object.modified|date:"d/m/Y h:i:s" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock cuerpo %}

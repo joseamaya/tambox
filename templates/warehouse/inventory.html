@@ -1,0 +1,42 @@
+{% extends "warehouse/base_warehouse.html" %}
+{% block cuerpo %}
+<h3>Consulta Inventario</h3>
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Exportar">
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Almacén:</label>
+                        {% if form.warehouse.errors %}
+                        {% for error in form.warehouse.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.warehouse }}
+                    </div>
+                    <div class="col-md-4">
+                        <label>Al:</label>
+                        {% if form.start_date.errors %}
+                        {% for error in form.start_date.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        {{ form.start_date }}
+                    </div>
+                </div>
+            </div>
+            <hr/>
+        </div>
+    </div>
+</form>
+
+{% endblock cuerpo %}
+

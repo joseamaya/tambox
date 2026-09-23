@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block menu_items %}
+            <li>
+                <a href="#"><i class="bi bi-wrench fs-5"></i> Configuración<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
+                    {% if perms.administration.ver_tabla_niveles_aprobacion %}
+                    <li><a href="{% url 'administration:approval_level_list' %}">Niveles de Aprobacion</a></li>
+                    {% endif %}
+                    {% if perms.administration.ver_tabla_oficinas %}
+                    <li><a href="{% url 'administration:office_list' %}">Oficinas</a></li>
+                    {% endif %}
+                    {% if perms.administration.ver_tabla_profesiones %}
+                    <li><a href="{% url 'administration:profession_list' %}">Profesiones</a></li>
+                    {% endif %}
+                    {% if perms.administration.ver_tabla_productores %}
+                    <li><a href="{% url 'administration:producer_list' %}">Productores</a></li>
+                    {% endif %}
+                    {% if perms.administration.ver_tabla_puestos %}
+                    <li><a href="{% url 'administration:position_list' %}">Puestos</a></li>
+                    {% endif %}
+                    {% if perms.administration.ver_tabla_trabajadores %}
+                    <li><a href="{% url 'administration:worker_list' %}">Trabajadores</a></li>
+                    {% endif %}
+
+                </ul>
+            </li>
+{% endblock menu_items %}

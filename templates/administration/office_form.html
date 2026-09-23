@@ -1,0 +1,83 @@
+{% if object %}
+<form role="form" action="{% url 'administration:office_update' object.pk %}" method="post">
+    {% else %}
+    <form role="form" action="{% url 'administration:office_create' %}" method="post">
+        {% endif %}
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-7">
+                        <label>Descripción:</label>
+                        {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                        {% include "includes/error.html" %}
+                        {% endfor %}
+                        {% endif %}
+                        <h3>{{ form.name }}</h3>
+                    </div>
+                    <div class="col-lg-5 text-end">
+                        <div class="btn-group">
+                            {% if object %}
+                            <button class="btn btn-secondary" type="button"
+                                    onclick="return abrir_modal('{% url 'administration:office_update' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
+                                <span class="bi bi-chevron-double-left"></span>
+                            </button>
+                            <button class="btn btn-secondary" type="button"
+                                    onclick="return abrir_modal('{% url 'administration:office_update' object.next.pk %}','Oficina / {{ object.next.name }}');">
+                                <span class="bi bi-chevron-double-right"></span>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-2">
+                        <p>ES GERENCIA: {{ form.is_management }}</p>
+                    </div>
+                </div>
+                <br>
+                <ul class="nav nav-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div id="general" class="tab-pane fade show active">
+                        <br>
+                        <div class="row">
+                            <div class="col-lg-4">
+                                <label>CÓDIGO:</label>
+                                {% if form.code.errors %}
+                                {% for error in form.code.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                <p>{{ form.code }}</p>
+                                <label>DEPENDENCIA:</label>
+                                {% if form.code.errors %}
+                                {% for error in form.code.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                <p>{{ form.dependency }}</p>
+
+                            </div>
+                            <div class="col-lg-4"></div>
+                            <div class="col-lg-4"></div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-lg-12 text-end">
+                <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+                <button type="button" class="btn btn-secondary" onclick="return cerrar_modal()">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    </form>

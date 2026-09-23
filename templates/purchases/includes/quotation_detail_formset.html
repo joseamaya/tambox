@@ -1,0 +1,51 @@
+{% comment %}
+Filas del formset de cotizacion (con su management form). Lo usa
+`quotation_form.html` en el render inicial y `QuotationDetailRows` cuando htmx
+trae las filas de un requerimiento.
+{% endcomment %}
+{{ quotation_detail_formset.management_form }}
+{% for form in quotation_detail_formset %}
+<tr class="quotation_detail_formset">
+    <td>{{ forloop.counter }}</td>
+    <td>
+        {{ form.requirement }}
+        {% if form.code.errors %}
+        {% for error in form.code.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.code }}
+    </td>
+    <td>
+        {% if form.name.errors %}
+        {% for error in form.name.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.name }}
+    </td>
+    <td>
+        {% if form.unit.errors %}
+        {% for error in form.unit.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.unit }}
+    </td>
+    <td>
+        {% if form.quantity.errors %}
+        {% for error in form.quantity.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.quantity }}
+    </td>
+    <td>
+        <button class="eliminar btn btn-small btn-danger" type="button"
+                id="id_form-{{ forloop.counter0 }}-btn-borrar" name="btn_borrar"
+                onclick="removeFormsetRow(this)">
+            <span class="bi bi-x-lg"></span>
+        </button>
+    </td>
+</tr>
+{% endfor %}

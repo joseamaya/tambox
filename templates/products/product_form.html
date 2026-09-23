@@ -1,0 +1,160 @@
+{% extends "purchases/base_purchases.html" %}
+{% block cuerpo %}
+{% if object %}
+<h3>Productos / {{ object.description }}</h3>
+{% else %}
+<h3>Productos / Nuevo</h3>
+{% endif %}
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
+            {% if object %}
+            <button type="button" class="btn btn-secondary"
+                    onclick="location.href='{% url 'products:product_detail' object.pk %}'">
+                Cancelar
+            </button>
+            {% else %}
+            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'products:product_list' %}'">
+                Cancelar
+            </button>
+            {% endif %}
+        </div>
+        <div class="col-lg-2 text-end">
+            <div class="btn-group">
+                {% if object %}
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'products:product_detail' product.previous %}';">
+                    <span class="bi bi-chevron-double-left"></span>
+                </button>
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'products:product_detail' product.next %}';">
+                    <span class="bi bi-chevron-double-right"></span>
+                </button>
+                {% endif %}
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'products:product_list' %}';">
+                    <span class="bi bi-list-ul"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div id="dialog-confirm" title="Eliminar Producto"></div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-2">
+                    <a href="/media/{{ object.image.url }}" class="img-thumbnail"> <img
+                            src="/media/{{ object.image.url }}" alt="Imagen Producto"
+                            style="width: 120px; height: 90px">
+                    </a>
+                </div>
+                <div class="col-lg-5">
+                    <label>Descripción:</label>
+                    {% if form.description.errors %}
+                    {% for error in form.description.errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
+                    <p>{{ form.description }}</p>
+                </div>
+                <div class="col-lg-5">
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-building fa-2x"></span> {{ object.stock }} <br>
+                            Stock
+                        </button>
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-truck fa-2x"></span> {{ object.stock }} <br>
+                            Previsto
+                        </button>
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-cart fa-2x"></span>
+                            {{ object.stock }} <br> productos
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contabilidad">Contabilidad</a></li>
+            </ul>
+            <div class="tab-content">
+                <div id="general" class="tab-pane fade show active">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>CODIGO:</label>
+                            {% if form.code.errors %}
+                            {% for error in form.code.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ object.code }}</p>
+                            <label>GRUPO PRODUCTOS:</label>
+                            {% if form.product_group.errors %}
+                            {% for error in form.product_group.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.product_group }}</p>
+                            <label>DESCRIPCION ABREVIADA: </label>
+                            {% if form.desc_abreviada.errors %}
+                            {% for error in form.desc_abreviada.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.desc_abreviada }}</p>
+                            <label>UNIDAD DE MEDIDA: </label>
+                            {% if form.unit_of_measure.errors %}
+                            {% for error in form.unit_of_measure.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.unit_of_measure }}</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>MARCA: </label>
+                            {% if form.brand.errors %}
+                            {% for error in form.brand.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.brand }}</p>
+                            <label>MODELO: </label>
+                            {% if form.model.errors %}
+                            {% for error in form.model.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.model }}</p>
+                            <label>PRECIO: </label>
+                            {% if form.price.errors %}
+                            {% for error in form.price.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.price }}</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>TIPO EXISTENCIA: </label>
+                            {% if form.stock_type.errors %}
+                            {% for error in form.stock_type.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.stock_type }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="contabilidad" class="tab-pane fade">
+                    <br>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}

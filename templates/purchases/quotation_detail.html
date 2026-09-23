@@ -1,0 +1,173 @@
+{% extends "purchases/base_purchases.html" %}
+{% block cuerpo %}
+<h3>Solicitudes de Cotización / {{ object.pk }}</h3>
+<div class="row">
+    <div class="col-lg-5">
+        {% if perms.purchases.add_quotation %} <a
+            href="{% url 'purchases:quotation_create' %}" class="btn btn-primary">Crear</a>
+        {% endif %}
+        {% if quotation.status == "PEND" %}
+        {% if perms.purchases.change_quotation %}
+        <a class="btn btn-warning" href="{% url 'purchases:quotation_update' object.pk %}">Editar </a>
+        {% endif %}
+        {% endif %}
+        {% if object.status == "PEND" %}
+        {% if perms.purchases.delete_quotation %}
+        <button class="btn btn-danger" type="button" id="id_eliminar">Eliminar</button>
+        {% endif %}
+        {% endif %}
+    </div>
+    <div class="col-lg-3">
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-bs-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="true">
+                Acciones
+            </button>
+            <ul class="dropdown-menu">
+                {% if object.status != "PEND" %}
+                <li>
+                    <a class="dropdown-item" href="{% url 'purchases:service_order_list_by_quotation' object.pk %}">
+                        <span class="bi bi-arrow-left-right"></span>
+                        Servicios
+                    </a>
+                </li>
+                {% endif %}
+                <li>
+                    <a class="dropdown-item" href="{% url 'purchases:purchase_order_list_by_quotation' object.pk %}">
+                        <span class="bi bi-book"></span>
+                        Compras
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'purchases:quotation_pdf' object.pk %}">
+                        <span class="bi bi-printer"></span>
+                        Imprimir
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-lg-4 text-end">
+        <div class="btn-group">
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.previous %}';">
+                <span class="bi bi-chevron-double-left"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.next %}';">
+                <span class="bi bi-chevron-double-right"></span>
+            </button>
+            <button class="btn btn-secondary" type="button"
+                    onclick="location.href='{% url 'purchases:quotation_list' %}';">
+                <span class="bi bi-list-ul"></span>
+            </button>
+        </div>
+    </div>
+</div>
+<hr/>
+<div id="dialog-confirm" title="Eliminar Cotización"></div>
+<div class="card">
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-2">
+                <label>CODIGO:</label>
+                <p>{{ object.code }}</p>
+            </div>
+            <div class="col-md-2">
+                <label>Fecha Creación:</label>
+                <p>{{ object.created|date:"d/m/Y H:i:s" }}</p>
+            </div>
+            <div class="col-md-2">
+                <label>Fecha Mod:</label>
+                <p>{{ object.modified|date:"d/m/Y H:i:s" }}</p>
+            </div>
+            <div class="col-md-4">
+                <label>Estado:</label>
+                <p>{{ object.get_status_display }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label>RUC:</label>
+                <p>{{ object.supplier.tax_id }}</p>
+            </div>
+            <div class="col-md-4">
+                <label>Razón Social:</label>
+                <p>{{ object.supplier.business_name }}</p>
+            </div>
+            <div class="col-md-6">
+                <label>Dirección:</label>
+                <p>{{ object.supplier.address }}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-2">
+                <label>FECHA:</label>
+                <p>{{ object.date|date:"d/m/Y" }}</p>
+            </div>
+            <div class="col-md-3">
+                <label>Referencia:</label>
+                <p><a href="{% url 'requirements:requirement_detail' object.requirement.pk %}">{{
+                    object.requirement }}</a></p>
+            </div>
+        </div>
+        <hr/>
+        <div class="row">
+            <div class="col-lg-12">
+                <table id="details" class="table table-striped table-bordered">
+                    <thead>
+                    <tr>
+                        <th>Codigo</th>
+                        <th>Nombre</th>
+                        <th>Unidad</th>
+                        <th>Cantidad</th>
+                        <th>Cantidad Comprada</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for detail in object.details.all %}
+                    <tr>
+                        <td>{{ detail.requirement_detail.product.code }}</td>
+                        <td>{{ detail.requirement_detail.product.description }}</td>
+                        <td>{{ detail.requirement_detail.product.unit_of_measure.description }}</td>
+                        <td>{{ detail.quantity }}</td>
+                        <td>{{ detail.purchased_quantity }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <label>OBSERVACIONES:</label>
+                <p>
+                    {{ object.notes }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock cuerpo %}
+
+{% block js %}
+<script>
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
+        e.preventDefault();
+        confirmDelete("{% url 'purchases:quotation_delete' %}", {'code': "{{ object.code }}"}, function (data) {
+            if (data.orders == 'NO')
+            {
+            alert("Cotización " + data.code + " eliminada");
+            window.location.href = "{% url 'purchases:quotation_detail' quotation.next %}";
+            }
+            else if (data.orders == 'SI')
+            {
+            alert("Cotización " + data.code + " no puede eliminarse");
+            }
+            
+        });
+    });
+</script>
+{% endblock js %}

@@ -25,7 +25,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 
-UNIDADES = (
+ONES = (
     '',
     'UN ',
     'DOS ',
@@ -49,7 +49,7 @@ UNIDADES = (
     'VEINTE '
 )
 
-DECENAS = (
+TENS = (
     'VENTI',
     'TREINTA ',
     'CUARENTA ',
@@ -61,7 +61,7 @@ DECENAS = (
     'CIEN '
 )
 
-CENTENAS = (
+HUNDREDS = (
     'CIENTO ',
     'DOSCIENTOS ',
     'TRESCIENTOS ',
@@ -102,7 +102,7 @@ UNITS = (
     ('MIL DUODECILLONES', 'MIL DUODECILLONES'),
 )
 
-MONEDAS = (
+CURRENCIES = (
     {'country': u'Colombia', 'currency': 'COP', 'singular': u'PESO COLOMBIANO', 'plural': u'PESOS COLOMBIANOS',
      'symbol': u'$'},
     {'country': u'Estados Unidos', 'currency': 'USD', 'singular': u'DÓLAR', 'plural': u'DÓLARES', 'symbol': u'US$'},
@@ -153,21 +153,21 @@ def __convert_group(n):
     if (n == '100'):
         output = "CIEN "
     elif (n[0] != '0'):
-        output = CENTENAS[int(n[0]) - 1]
+        output = HUNDREDS[int(n[0]) - 1]
 
     k = int(n[1:])
     if (k <= 20):
-        output += UNIDADES[k]
+        output += ONES[k]
     else:
         if ((k > 30) & (n[2] != '0')):
-            output += '%sY %s' % (DECENAS[int(n[1]) - 2], UNIDADES[int(n[2])])
+            output += '%sY %s' % (TENS[int(n[1]) - 2], ONES[int(n[2])])
         else:
-            output += '%s%s' % (DECENAS[int(n[1]) - 2], UNIDADES[int(n[2])])
+            output += '%s%s' % (TENS[int(n[1]) - 2], ONES[int(n[2])])
 
     return output
 
 
-def to_word(number, mi_moneda=None):
+def to_word(number, currency_code=None):
     """Converts a positive number less than:
     (999999999999999999999999999999999999999999999999999999999999999999999999)
     to words in Spanish
@@ -183,19 +183,19 @@ def to_word(number, mi_moneda=None):
         >>>> number_words(1481.01, 'EUR')
         'Mil Cuatrocientos Ochenta Y Un Euros con Un C�ntimo'
     """
-    if mi_moneda != None:
+    if currency_code != None:
         try:
-            moneda = filter(lambda x: x['currency'] == mi_moneda, MONEDAS).next()
+            currency = next(filter(lambda x: x['currency'] == currency_code, CURRENCIES))
             if int(number) == 1:
-                entero = moneda['singular']
+                entero = currency['singular']
             else:
-                entero = moneda['plural']
-                if round(float(number) - int(number), 2) == float(0.01):
-                    fraccion = moneda['decimalsingular']
-                else:
-                    fraccion = moneda['decimalplural']
+                entero = currency['plural']
+            if round(float(number) - int(number), 2) == float(0.01):
+                fraccion = currency.get('decimalsingular', '')
+            else:
+                fraccion = currency.get('decimalplural', '')
 
-        except:
+        except StopIteration:
             return "Tipo de moneda inválida"
     else:
         entero = ""

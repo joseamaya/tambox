@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    </meta>
+    <title>TAMBOX</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
+    <link href="{% static 'css/bootstrap5.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
+</head>
+<body class="bg-body-tertiary">
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="login-card card">
+                <div class="card-header">
+                    <h3 class="card-title">LOGIN</h3>
+                </div>
+                <div class="card-body">
+                    {% if form.non_field_errors %}
+                    {% include "includes/general_errors.html" %}
+                    {% endif %}
+                    <form role="form" method="post" id='form_login' action="{% url 'security:login' %}">
+                        {% csrf_token %}
+                        <fieldset>
+                            <div class="mb-3">
+                                <label>Usuario:</label>
+                                {% if form.username.errors %}
+                                {% for error in form.username.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.username }}
+                            </div>
+                            <div class="mb-3">
+                                <label>Contraseña:</label>
+                                {% if form.password.errors %}
+                                {% for error in form.password.errors %}
+                                {% include "includes/error.html" %}
+                                {% endfor %}
+                                {% endif %}
+                                {{ form.password }}
+                            </div>
+                            <button class="btn btn-lg btn-success w-100" type="submit" name="login">
+                                Login
+                            </button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

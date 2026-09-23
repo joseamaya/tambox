@@ -1,0 +1,52 @@
+{% comment %}
+Una fila del formset de requerimiento. La usan el render inicial y
+`RequirementDetailRow` (alta de fila htmx).
+{% endcomment %}
+<tr class="requirement_detail_formset">
+    <td>
+        {% if form.code.errors %}
+        {% for error in form.code.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.code }}
+    </td>
+    <td>
+        {% if form.product.errors %}
+        {% for error in form.product.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.product }}
+    </td>
+    <td>
+        {% if form.unit.errors %}
+        {% for error in form.unit.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.unit }}
+    </td>
+    <td>
+        {% if form.quantity.errors %}
+        {% for error in form.quantity.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.quantity }}
+    </td>
+    <td>
+        {% if form.use.errors %}
+        {% for error in form.use.errors %}
+        {% include "includes/error.html" %}
+        {% endfor %}
+        {% endif %}
+        {{ form.use }}
+    </td>
+    <td>
+        <button class="eliminar btn btn-small btn-danger" type="button"
+                id="id_form-{{ index }}-btn-borrar" name="btn_borrar">
+            <span class="bi bi-x-lg"></span>
+        </button>
+    </td>
+</tr>

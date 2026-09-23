@@ -1,0 +1,97 @@
+{% extends "warehouse/base_warehouse.html" %} {% block cuerpo %}
+<h3>Tipos de Movimiento / Nuevo</h3>
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-lg-10">
+            <input type="submit" class="btn btn-primary" name="submit"
+                   value="Guardar">
+            <button type="button" class="btn btn-secondary"
+                    onclick="location.href='{% url 'warehouse:movement_type_list' %}'">
+                Cancelar
+            </button>
+        </div>
+        <div class="col-lg-2 text-end">
+            <div class="btn-group">
+                <button class="btn btn-secondary" type="button"
+                        onclick="location.href='{% url 'warehouse:movement_type_list' %}';">
+                    <span class="bi bi-list-ul"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <hr/>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-7">
+                    <label>Descripción:</label>
+                    {% if form.description.errors %}
+                    {% for error in form.description.errors %}
+                    {% include "includes/error.html" %}
+                    {% endfor %}
+                    {% endif %}
+                    <h3>{{ form.description }}</h3>
+                </div>
+                <div class="col-lg-5">
+                    <div class="btn-group"></div>
+                </div>
+            </div>
+            <br>
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a>
+                </li>
+            </ul>
+            <div class="tab-content">
+                <div id="general" class="tab-pane fade show active">
+                    <br>
+                    <div class="row">
+                        <div class="col-lg-4">
+                            <label>CODIGO:</label>
+                            <p>{{ object.code }}</p>
+                            <label>INCREMENTA:</label>
+                            {% if form.increases.errors %}
+                            {% for error in form.increases.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.increases }}</p>
+                            <label>PIDE REFERENCIA:</label>
+                            {% if form.requires_reference.errors %}
+                            {% for error in form.requires_reference.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.requires_reference }}</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <label>CÓDIGO SUNAT:</label>
+                            {% if form.sunat_code.errors %}
+                            {% for error in form.sunat_code.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.sunat_code }}</p>
+                            <label>ES COMPRA:</label>
+                            {% if form.is_purchase.errors %}
+                            {% for error in form.is_purchase.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.is_purchase }}</p>
+                            <label>ES VENTA:</label>
+                            {% if form.is_sale.errors %}
+                            {% for error in form.is_sale.errors %}
+                            {% include "includes/error.html" %}
+                            {% endfor %}
+                            {% endif %}
+                            <p>{{ form.is_sale }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}

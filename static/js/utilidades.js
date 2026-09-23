@@ -1,8 +1,7 @@
 function mostrarhora()
 {
 	var f=new Date();
-	cad=agregarCero(f.getHours())+" : "+agregarCero(f.getMinutes())+" : "+agregarCero(f.getSeconds());
-	return cad;
+	return agregarCero(f.getHours())+":"+agregarCero(f.getMinutes())+":"+agregarCero(f.getSeconds());
 }
 
 function agregarCero(n)
@@ -53,50 +52,16 @@ function validar_numeros(event)
 }
 
 function updateFormElementIndices(formClass) {
-  var forms = $('.' + formClass);	  
-  forms.each(function(i, el) {
-	  $(el).find("td input, button, textarea").each(function(ind,elem) {
-		  var curIndex = $(elem).attr('id').match(/\d+/);
-		  $(elem).attr('id', $(elem).attr('id').replace(curIndex, i));
-		  $(elem).attr('name', $(elem).attr('name').replace(curIndex, i));
-      });
+  document.querySelectorAll('.' + formClass).forEach(function (row, index) {
+    row.querySelectorAll("td input, button, textarea").forEach(function (element) {
+      var match = element.id && element.id.match(/\d+/);
+      if (match) {
+        element.id = element.id.replace(match[0], index);
+      }
+      if (element.name) {
+        element.name = element.name.replace(/\d+/, index);
+      }
+    });
   });
 }
 
-function setupLoading() 
-{    
-	var mySpinner = null;
-	var target = document.getElementById("divSpin");    
-    var opts = {
-        lines: 13, // The number of lines to draw
-        length: 20, // The length of each line
-        width: 10, // The line thickness
-        radius: 30, // The radius of the inner circle
-        corners: 1, // Corner roundness (0..1)
-        rotate: 8, // The rotation offset
-        direction: 1, // 1: clockwise, -1: counterclockwise
-        color: '#000', // #rgb or #rrggbb or array of colors
-        speed: 1, // Rounds per second
-        trail: 60, // Afterglow percentage
-        shadow: false, // Whether to render a shadow
-        hwaccel: false, // Whether to use hardware acceleration
-        className: 'mySpin', // The CSS class to assign to the spinner
-        zIndex: 2e9, // The z-index (defaults to 2000000000)
-        top: '50%', // Top position relative to parent
-        left: '50%' // Left position relative to parent
-    };
-
-    mySpinner = new Spinner(opts).spin(target);
-    return mySpinner;
-}
-
-function removeLoading(mySpinner)
-{
-    mySpinner.stop();
-    mySpinner = null;
-}
-
-function showLoading(mySpinner) 
-{
-    mySpinner.spin();
-}

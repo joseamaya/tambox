@@ -1,26 +1,19 @@
 from .base import *
 
 DEBUG = True
-ALLOWED_HOSTS = []
 
-# Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+ALLOWED_HOSTS = ['*']
+
+SECRET_KEY = SECRET_KEY or 'dev-insecure-secret-key'
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'tambox',
-        'USER': 'tambox',
-        'PASSWORD': 's0p0rt3ccpp',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME', 'tambox'),
+        'USER': os.environ.get('DB_USER', 'tambox'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
         'CHARSET': 'UTF8',
     },
 }
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
-LOGIN_URL = '/'
-MEDIA_URL = '/media/'
