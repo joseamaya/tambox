@@ -1,6 +1,6 @@
 {% extends "warehouse/base_warehouse.html" %}
 {% block cuerpo %}
-<h3><h3>Movimientos / Cargar Inventario Inicial</h3>
+<h1 class="page-title mb-3">Movimientos / Cargar Inventario Inicial</h1>
     {% if notifications %}
     <div class="alert alert-danger">
         {% for notification in notifications %}
@@ -14,14 +14,14 @@
             <div class="col-lg-10">
                 <input type="submit" class="btn btn-primary" name="submit"
                        value="Guardar">
-                <button type="button" class="btn btn-secondary"
+                <button type="button" class="btn btn-outline-secondary"
                         onclick="location.href='{% url 'warehouse:movement_list' %}'">
                     Cancelar
                 </button>
             </div>
             <div class="col-lg-2 text-end">
                 <div class="btn-group">
-                    <button class="btn btn-secondary" type="button"
+                    <button class="btn btn-outline-secondary" type="button"
                             onclick="location.href='{% url 'warehouse:movement_list' %}';">
                         <span class="bi bi-list-ul"></span>
                     </button>

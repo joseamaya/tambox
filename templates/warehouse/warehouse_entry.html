@@ -1,9 +1,9 @@
 {% extends "warehouse/base_warehouse.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Movimientos / {{ movement.pk }}</h3>
+<h1 class="page-title mb-3">Movimientos / {{ movement.pk }}</h1>
 {% else %}
-<h3>Movimientos / Nuevo Ingreso Almacen</h3>
+<h1 class="page-title mb-3">Movimientos / Nuevo Ingreso Almacen</h1>
 {% endif %}
 <form role="form" method="post">
     {% csrf_token %}
@@ -16,12 +16,12 @@
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'warehouse:movement_detail_view' movement.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'warehouse:inbound_list' %}'">
                 Cancelar
             </button>
@@ -30,16 +30,16 @@
         <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_update' movement.previous %}';">
                     <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_update' movement.next %}';">
                     <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>

@@ -1,6 +1,6 @@
 {% extends "administration/base_administration.html" %}
 {% block cuerpo %}
-<h3>Niveles de Aprobacion</h3>
+<h1 class="page-title mb-3">Niveles de Aprobacion</h1>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administration.add_approvallevel %}
@@ -26,7 +26,7 @@
                        placeholder="Buscar por descripción"
                        value="{{ request.GET.q|default:'' }}">
                 <span class="input-group-text p-0 border-0">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-outline-secondary" type="submit">
                         <span class="bi bi-search"></span>
                     </button>
                 </span>

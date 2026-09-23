@@ -1,9 +1,9 @@
 {% extends "purchases/base_purchases.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Grupos de Productos / {{ object.description }}</h3>
+<h1 class="page-title mb-3">Grupos de Productos / {{ object.description }}</h1>
 {% else %}
-<h3>Grupos de Productos / Nuevo</h3>
+<h1 class="page-title mb-3">Grupos de Productos / Nuevo</h1>
 {% endif %}
 <form role="form" method="post">
     {% csrf_token %}
@@ -11,12 +11,12 @@
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'products:product_group_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'products:product_group_list' %}'">
                 Cancelar
             </button>
@@ -25,16 +25,16 @@
         <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'products:product_group_update' object.previous %}';">
                     <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'products:product_group_update' object.next %}';">
                     <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'products:product_group_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>
@@ -57,15 +57,15 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group">
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button">
                             <span class="bi bi-building fa-2x"></span> {{ object.stock }} <br>
                             Stock
                         </button>
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button">
                             <span class="bi bi-truck fa-2x"></span> {{ object.stock }} <br>
                             Previsto
                         </button>
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button">
                             <span class="bi bi-cart fa-2x"></span>
                             {{ object.stock }}
                             <br> productos

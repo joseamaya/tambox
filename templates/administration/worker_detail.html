@@ -6,15 +6,15 @@
         Editar </a> {% endif %}    </div>
     <div class="col-lg-2 text-end">
         <div class="btn-group">
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="return abrir_modal('{% url 'administration:worker_detail' object.previous %}','Worker / {{ object.previous_full_name }}');">
                 <span class="bi bi-chevron-double-left"></span>
             </button>
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="return abrir_modal('{% url 'administration:worker_detail' object.next %}','Worker / {{ object.next_full_name }}');">
                 <span class="bi bi-chevron-double-right"></span>
             </button>
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'administration:worker_list' %}';">
                 <span class="bi bi-list-ul"></span>
             </button>

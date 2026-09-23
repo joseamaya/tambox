@@ -1,19 +1,19 @@
 {% extends "warehouse/base_warehouse.html" %} {% block cuerpo %}
-<h3>Tipos de Movimiento / Nuevo</h3>
+<h1 class="page-title mb-3">Tipos de Movimiento / Nuevo</h1>
 <form role="form" method="post">
     {% csrf_token %}
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit"
                    value="Guardar">
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'warehouse:movement_type_list' %}'">
                 Cancelar
             </button>
         </div>
         <div class="col-lg-2 text-end">
             <div class="btn-group">
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_type_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>

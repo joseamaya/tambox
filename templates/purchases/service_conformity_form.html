@@ -1,21 +1,21 @@
 {% extends "purchases/base_purchases.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Conformidades de Servicio / {{ order.pk }}</h3>
+<h1 class="page-title mb-3">Conformidades de Servicio / {{ order.pk }}</h1>
 {% else %}
-<h3>Conformidades de Servicio / Nuevo</h3>
+<h1 class="page-title mb-3">Conformidades de Servicio / Nuevo</h1>
 {% endif %}
 <form role="form" method="post" enctype="multipart/form-data">
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'purchases:service_conformity_detail_view' conformity.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'purchases:service_conformity_list' %}'">
                 Cancelar
             </button>
@@ -24,16 +24,16 @@
         <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:service_conformity_update' conformity.previous %}';">
                     <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:service_conformity_update' conformity.next %}';">
                     <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:service_conformity_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>

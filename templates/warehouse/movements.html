@@ -8,7 +8,7 @@
     <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.warehouse.ver_reporte_movimientos_excel %}
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'warehouse:movement_report' %}';">
                 <span class="bi bi-list-columns"></span>
             </button>
@@ -27,7 +27,7 @@
                        placeholder="Buscar por movimiento, tipo o almacén"
                        value="{{ request.GET.q|default:'' }}">
                 <span class="input-group-text p-0 border-0">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-outline-secondary" type="submit">
                         <span class="bi bi-search"></span>
                     </button>
                 </span>

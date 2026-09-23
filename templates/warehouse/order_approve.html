@@ -1,26 +1,26 @@
 {% extends "warehouse/base_warehouse.html" %}
 {% block cuerpo %}
-<h3>Aprobar Pedido / {{ order.code }}</h3>
+<h1 class="page-title mb-3">Aprobar Pedido / {{ order.code }}</h1>
 <form role="form" method="post">
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'warehouse:order_detail' order.pk %}'">
                 Cancelar
             </button>
         </div>
         <div class="col-lg-2 text-end">
             <div class="btn-group">
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:order_update' order.previous %}';">
                     <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:order_update' order.next %}';">
                     <span class="bi bi-chevron-double-right"></span>
                 </button>
-                <button class="btn btn-secondary" type="button" onclick="location.href='{% url 'warehouse:order_list' %}';">
+                <button class="btn btn-outline-secondary" type="button" onclick="location.href='{% url 'warehouse:order_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>
             </div>
