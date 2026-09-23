@@ -156,10 +156,8 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$(".quantity").keydown(validar_numeros);
+document.querySelectorAll('.quantity').forEach(function (input) {
+    input.addEventListener('keydown', validar_numeros);
 });
-
 </script>
 {% endblock js %}

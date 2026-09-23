@@ -297,228 +297,153 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	var mySpinner = null;
-	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
-	var ultimo_item = contDetalles;
-	var subtotal=parseFloat($('#id_subtotal').val());
-	var total=subtotal;
-	$(".decimal").keydown(validar_decimales);
-
-	$(document).on("click",".eliminar",function()
-	{
-		var parent = $(this).parent().parent();
-		var id_boton= $(this).prop('id');
-		var id = id_boton.replace("btn-borrar","");
-		var amount = $("#"+id+"amount").val();
-		var imp = 0;
-		subtotal=subtotal-parseFloat(amount);
-		impuesto_total = 0
-		total = subtotal + impuesto_total;
-		$(parent).remove();
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_igv").val(impuesto_total.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_in_words").val(NumeroALetras(total));
-		contDetalles = contDetalles - 1;
-		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('service_order_detail_formset');
-	});
-	
-	$(document).on("keyup",".quantity",function()
-	{
-		var id_input= $(this).prop('id');
-		var id = id_input.replace("quantity","");
-		var quantity = convertir_vacio_cero($("#"+id+"quantity").val());
-		var price = convertir_vacio_cero($("#"+id+"price").val());		
-		var valorAnt = $("#"+id+"amount").val();
-		var amount=parseFloat(quantity)*parseFloat(price);
-		$("#"+id+"amount").val(amount.toFixed(5));		
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(amount);
-		impuesto_total = 0;
-		total = subtotal + impuesto_total;
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_igv").val(impuesto_total.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_in_words").val(NumeroALetras(total));
-	});
-	
-	$(document).on("keyup",".price",function()
-	{
-		var id_input= $(this).prop('id');
-		var id = id_input.replace("price","");
-		var quantity = convertir_vacio_cero($("#"+id+"quantity").val());
-		var price = convertir_vacio_cero($("#"+id+"price").val());
-		var valorAnt = $("#"+id+"amount").val();
-		var amount=parseFloat(quantity)*parseFloat(price);
-		$("#"+id+"amount").val(amount.toFixed(5));		
-		subtotal=subtotal-parseFloat(valorAnt)+parseFloat(amount);
-		impuesto_total = 0;
-		total = subtotal + impuesto_total;
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_igv").val(impuesto_total.toFixed(5));
-		$("#id_total").val(total.toFixed(5));
-		$("#id_total_in_words").val(NumeroALetras(total));
-	});
-	
-	$('#id_crear_detalle').click(function(e)
-	{
-		e.preventDefault();
-		$('#id_transferencia_cotizacion').prop("disabled", true);
-		var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-		htmx.ajax('GET', "{% url 'purchases:service_order_detail_row' %}", {
-			target: '#details-body', swap: 'beforeend', values: {index: index}
-		}).then(function () {
-			$('#id_form-TOTAL_FORMS').val(index + 1);
-			initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
-			$(".decimal").keydown(validar_decimales);
-		});
- 	});
-	
-	
-	$('#id_transferencia_cotizacion').click(function(e)
-	{
-	    e.preventDefault();
-	    openModalUrl("{% url 'purchases:quotation_transfer' %}", {
-			title: "Transferencia de Cotización",
-			buttons: [
-				{label: "Aceptar", className: "btn-primary", onClick: transferirCotizacion},
-				{label: "Cancelar", onClick: cerrarTransferencia},
-			],
-		});
- 	});
-	
-	function sumarFilas()
-	{
-		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-		var subtotal = 0;
-		for (var i = 0; i < filas; i++)
-		{
-			subtotal = subtotal + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
-		}
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_igv").val(0);
-		$("#id_total").val(subtotal.toFixed(5));
-		$("#id_total_in_words").val(NumeroALetras(subtotal));
-	}
-
-	function transferirCotizacion()
-	{		
-		var quotation = $("#quotation").val();
-		closeModal();
-		if (!quotation) { return; }
-		$("#id_reference").val(quotation);
-		$.ajax({
-	      url: "{% url 'purchases:quotation_search' %}",
-	      data: {'code': quotation},
-	      success: function(data) 
-	      {
-	    	  $("#id_tax_id").val(data.tax_id).trigger('input');
-	    	  $("#id_business_name").val(data.business_name).trigger('input');
-	    	  $("#id_address").val(data.address).trigger('input');
-	      }
-	    });
-		htmx.ajax('GET', "{% url 'purchases:service_order_detail_rows' %}", {
-			target: '#details-body', swap: 'innerHTML', values: {quotation: quotation}
-		}).then(function () {
-			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
-			$(".decimal").keydown(validar_decimales);
-			sumarFilas();
-		});
-	}
-	
-	function cerrarTransferencia()
-	{
-		closeModal();
-	}
-	
-	$(document).on("focusout",".price",function()
-	{
-		var price= $(this).val();
-		if(price==0)
-		{
-			alert("El precio no puede ser cero");			
-		}		
-	});
-	
-	$(document).on("focusout",".quantity",function()
-	{
-		var quantity= $(this).val();
-		if(quantity==0)
-		{
-			alert("La cantidad no puede ser cero");			
-		}		
-	});
-	
-	function validar_ceros()
-	{	
-		var control_ceros = false;
-		$(".quantity").each(function()
-		{
-			if($(this).val()==0)
-			{
-				control_ceros = true;
-			}
-		});
-		
-		$(".price").each(function()
-		{
-			if($(this).val()==0)
-			{
-				control_ceros = true;
-			}
-		});
-		return control_ceros;
-	}
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		$('#id_details_count').val(ultimo_item);
-		var payment_method = $('#id_payment_method').val();
-		var tax_id = $('#id_tax_id').val();
-		var date = $('#id_date').val().trim();
-		if(tax_id != '')
-		{					
-			if(date != '')
-			{					
-				if(payment_method)
-				{
-					if (contDetalles > 0)
-					{
-						if(validar_ceros()==false)
-						{
-							return;								
-						}
-						else
-						{
-							alert("Revise el detalle el valor no puede ser cero");
-						}
-					}
-					else
-					{
-						alert("No ha ingresado ningÃºn detail");	
-					}
-				}
-				else
-				{
-					alert("No ha ingresado una forma de pago");
-				}				
-			}
-			else
-			{
-				alert("No ha seleccionado date");
-			}
-		}
-		else
-		{
-			alert("No ha ingresado el RUC del proveedor");
-		}
-		event.preventDefault();
-	});
+var contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value);
+var ultimo_item = contDetalles;
+var subtotal = parseFloat(document.getElementById('id_subtotal').value);
+document.querySelectorAll('.decimal').forEach(function (input) {
+    input.addEventListener('keydown', validar_decimales);
 });
 
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('.eliminar');
+    if (!button) { return; }
+    var row = button.closest('tr');
+    var amount = parseFloat(row.querySelector('[id$="-amount"]').value) || 0;
+    subtotal = subtotal - amount;
+    row.remove();
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+    contDetalles = contDetalles - 1;
+    document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+    updateFormElementIndices('service_order_detail_formset');
+});
+
+function actualizarValor(id) {
+    var quantity = parseFloat(document.getElementById(id + 'quantity').value) || 0;
+    var price = parseFloat(document.getElementById(id + 'price').value) || 0;
+    var valorAnt = parseFloat(document.getElementById(id + 'amount').value) || 0;
+    var amount = quantity * price;
+    document.getElementById(id + 'amount').value = amount.toFixed(5);
+    subtotal = subtotal - valorAnt + amount;
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+}
+
+document.addEventListener('keyup', function (event) {
+    var input = event.target;
+    if (input.classList.contains('cantidad') || input.classList.contains('precio')) {
+        actualizarValor(input.id.replace(/quantity|price/, ''));
+    }
+});
+
+document.getElementById('id_crear_detalle').addEventListener('click', function (e) {
+    e.preventDefault();
+    document.getElementById('id_transferencia_cotizacion').disabled = true;
+    var index = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    htmx.ajax('GET', "{% url 'purchases:service_order_detail_row' %}", {
+        target: '#details-body', swap: 'beforeend', values: {index: index}
+    }).then(function () {
+        document.getElementById('id_form-TOTAL_FORMS').value = index + 1;
+        initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+    });
+});
+
+document.getElementById('id_transferencia_cotizacion').addEventListener('click', function (e) {
+    e.preventDefault();
+    openModalUrl("{% url 'purchases:quotation_transfer' %}", {
+        title: "Transferencia de Cotización",
+        buttons: [
+            {label: "Aceptar", className: "btn-primary", onClick: transferirCotizacion},
+            {label: "Cancelar", onClick: cerrarTransferencia},
+        ],
+    });
+});
+
+function sumarFilas() {
+    var filas = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    var subtotal = 0;
+    for (var i = 0; i < filas; i++) {
+        subtotal = subtotal + (parseFloat(document.getElementById('id_form-' + i + '-amount').value) || 0);
+    }
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_igv', (0).toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+}
+
+function transferirCotizacion() {
+    var quotation = document.getElementById('quotation').value;
+    closeModal();
+    if (!quotation) { return; }
+    document.getElementById('id_reference').value = quotation;
+    fetchJson("{% url 'purchases:quotation_search' %}?code=" + encodeURIComponent(quotation))
+        .then(function (data) {
+            if (data === null) { return; }
+            ['tax_id', 'business_name', 'address'].forEach(function (field) {
+                var element = document.getElementById('id_' + field);
+                element.value = data[field];
+                element.dispatchEvent(new Event('input', {bubbles: true}));
+            });
+        });
+    htmx.ajax('GET', "{% url 'purchases:service_order_detail_rows' %}", {
+        target: '#details-body', swap: 'innerHTML', values: {quotation: quotation}
+    }).then(function () {
+        contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+        initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'SERVICIOS'});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+        sumarFilas();
+    });
+}
+
+function cerrarTransferencia() {
+    closeModal();
+}
+
+document.addEventListener('focusout', function (event) {
+    var input = event.target;
+    if (input.classList.contains('precio') && input.value == 0) {
+        alert("El precio no puede ser cero");
+    } else if (input.classList.contains('cantidad') && input.value == 0) {
+        alert("La cantidad no puede ser cero");
+    }
+});
+
+function validar_ceros() {
+    var control_ceros = false;
+    document.querySelectorAll('.cantidad, .precio').forEach(function (input) {
+        if (input.value == 0) { control_ceros = true; }
+    });
+    return control_ceros;
+}
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    document.getElementById('id_details_count').value = ultimo_item;
+    var payment_method = document.getElementById('id_payment_method').value;
+    var tax_id = document.getElementById('id_tax_id').value;
+    var date = document.getElementById('id_date').value.trim();
+    if (tax_id == '') {
+        alert("No ha ingresado el RUC del proveedor");
+    } else if (date == '') {
+        alert("No ha seleccionado date");
+    } else if (!payment_method) {
+        alert("No ha ingresado una forma de pago");
+    } else if (contDetalles <= 0) {
+        alert("No ha ingresado ningún detail");
+    } else if (validar_ceros()) {
+        alert("Revise el detalle el valor no puede ser cero");
+    } else {
+        return;
+    }
+    event.preventDefault();
+});
 </script>
 {% endblock js %}

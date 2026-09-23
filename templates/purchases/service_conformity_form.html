@@ -159,101 +159,73 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	var mySpinner = null;
-	var contDetalles=parseInt($('#id_form-TOTAL_FORMS').val());
-	var total=parseFloat($('#id_total').val());
-	var subtotal=parseFloat($('#id_subtotal').val());
-	var ultimo_item = contDetalles;
-	$(".entero").keydown(validar_numeros);
-	
-	$('#transferencia_orden_servicios').click(function(e)
-	{
-	    e.preventDefault();
-	    $('#transferencia_orden_servicios').prop("disabled", true );
-		openModalUrl("{% url 'purchases:service_order_transfer' %}", {
-			title: "Transferencia de Orden de Servicios",
-			buttons: [
-				{label: "Aceptar", className: "btn-primary", onClick: transferirOrdenServicios},
-				{label: "Cancelar", onClick: cerrarTransferenciaOrdenServicios},
-			],
-		});
- 	});
-	
-	function sumarFilas()
-	{
-		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-		var subtotal = 0;
-		for (var i = 0; i < filas; i++)
-		{
-			subtotal = subtotal + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
-		}
-		$("#id_subtotal").val(subtotal.toFixed(5));
-		$("#id_total").val(subtotal.toFixed(5));
-		$("#id_total_in_words").val(NumeroALetras(subtotal));
-	}
-
-	function transferirOrdenServicios()
-	{		
-		var service_order = $("#id_service_order").val();
-		closeModal();
-		if (!service_order) { return; }
-		$("#id_reference").val(service_order);
-		htmx.ajax('GET', "{% url 'purchases:service_conformity_detail_rows' %}", {
-			target: '#details-body', swap: 'innerHTML', values: {service_order: service_order}
-		}).then(function () {
-			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			ultimo_item = contDetalles;
-			$(".decimal").keydown(validar_decimales);
-			sumarFilas();
-		});
-	}
-	
-	function cerrarTransferenciaOrdenServicios()
-	{
-		closeModal();
-	}
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		$('#id_details_count').val(ultimo_item);
-		var date = $('#id_date').val().trim();
-		var service_order = $('#id_reference').val().trim();
-		var supporting_document = $('#id_supporting_document').val().trim();
-		if(date != '')
-		{					
-			if(service_order != '')
-			{
-				if(supporting_document != '')
-				{
-					if (contDetalles > 0)
-					{
-						return			
-					}
-					else
-					{
-						alert("No ha ingresado ningún detalle");	
-					}
-				}
-				else
-				{
-					alert("No ha ingresado el documento de sustento");	
-				}
-			}
-			else
-			{
-				alert("No ha ingresado tiempo de entrega");
-			}
-		}
-		else
-		{
-			alert("No ha seleccionado date");
-		}
-		event.preventDefault();
-	});
+var contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value);
+var ultimo_item = contDetalles;
+document.querySelectorAll('.entero').forEach(function (input) {
+    input.addEventListener('keydown', validar_numeros);
 });
 
+document.getElementById('transferencia_orden_servicios').addEventListener('click', function (e) {
+    e.preventDefault();
+    this.disabled = true;
+    openModalUrl("{% url 'purchases:service_order_transfer' %}", {
+        title: "Transferencia de Orden de Servicios",
+        buttons: [
+            {label: "Aceptar", className: "btn-primary", onClick: transferirOrdenServicios},
+            {label: "Cancelar", onClick: cerrarTransferenciaOrdenServicios},
+        ],
+    });
+});
+
+function sumarFilas() {
+    var filas = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    var subtotal = 0;
+    for (var i = 0; i < filas; i++) {
+        subtotal = subtotal + (parseFloat(document.getElementById('id_form-' + i + '-amount').value) || 0);
+    }
+    setValue('id_subtotal', subtotal.toFixed(5));
+    setValue('id_total', subtotal.toFixed(5));
+    setValue('id_total_in_words', NumeroALetras(subtotal));
+}
+
+function transferirOrdenServicios() {
+    var service_order = document.getElementById('id_service_order').value;
+    closeModal();
+    if (!service_order) { return; }
+    document.getElementById('id_reference').value = service_order;
+    htmx.ajax('GET', "{% url 'purchases:service_conformity_detail_rows' %}", {
+        target: '#details-body', swap: 'innerHTML', values: {service_order: service_order}
+    }).then(function () {
+        contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+        ultimo_item = contDetalles;
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+        sumarFilas();
+    });
+}
+
+function cerrarTransferenciaOrdenServicios() {
+    closeModal();
+}
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    document.getElementById('id_details_count').value = ultimo_item;
+    var date = document.getElementById('id_date').value.trim();
+    var service_order = document.getElementById('id_reference').value.trim();
+    var supporting_document = document.getElementById('id_supporting_document').value.trim();
+    if (date == '') {
+        alert("No ha seleccionado date");
+    } else if (service_order == '') {
+        alert("No ha ingresado tiempo de entrega");
+    } else if (supporting_document == '') {
+        alert("No ha ingresado el documento de sustento");
+    } else if (contDetalles <= 0) {
+        alert("No ha ingresado ningún detalle");
+    } else {
+        return;
+    }
+    event.preventDefault();
+});
 </script>
 {% endblock js %}

@@ -71,8 +71,8 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'warehouse:warehouse_delete' %}", {'code': "{{ object.code }}"}, function (data) {
             if (data.relaciones == 'NO') {
@@ -85,6 +85,5 @@ $(document).ready(function () {
             
         });
     });
-});
 </script>
 {% endblock js %}

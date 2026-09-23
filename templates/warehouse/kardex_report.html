@@ -87,19 +87,20 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$("input[name='sunat_format']").change(function() {
-    if(this.checked)
-    {
-        $("input[name='consolidated']").attr("disabled", true);
-    }
+function disableGroup(selector) {
+    document.querySelectorAll(selector).forEach(function (input) {
+        input.disabled = true;
+    });
+}
+document.querySelectorAll("input[name='sunat_format']").forEach(function (input) {
+    input.addEventListener('change', function () {
+        if (this.checked) { disableGroup("input[name='consolidated']"); }
+    });
 });
-$("input[name='consolidated']").change(function() {
-    if(this.checked)
-    {
-        $("input[name='sunat_format']").attr("disabled", true);
-    }
+document.querySelectorAll("input[name='consolidated']").forEach(function (input) {
+    input.addEventListener('change', function () {
+        if (this.checked) { disableGroup("input[name='sunat_format']"); }
+    });
 });
-
-
 </script>
 {% endblock js %}

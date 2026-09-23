@@ -79,8 +79,8 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'products:unit_of_measure_delete' %}", {'id': "{{ object.pk }}"}, function (data) {
             if (data.productos == 'NO') {
@@ -92,6 +92,5 @@ $(document).ready(function () {
             
         });
     });
-});
 </script>
 {% endblock js %}

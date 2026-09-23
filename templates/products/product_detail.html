@@ -107,14 +107,14 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'products:product_delete' %}", {'code': "{{ object.code }}"}, function (data) {
             if (data.relaciones == 'NO')
             {
             alert("Producto " + data.description + " eliminado");
-            $(location).attr('href', "{% url 'products:product_detail' object.next %}");
+            window.location.href = "{% url 'products:product_detail' object.next %}";
             }
             else if (data.relaciones == 'SI')
             {
@@ -123,6 +123,5 @@ $(document).ready(function () {
             
         });
     });
-});
 </script>
 {% endblock js %}

@@ -134,112 +134,79 @@
 
 {% block js %}
 <script>
-$(document).ready(function()
-{
-	var total=0;
-	var contDetalles = $("#id_form-TOTAL_FORMS").val();
-	var ultimo_item = contDetalles;
-	var tipo_salida;	
-	$("#id_warehouse").on('change',verificar_stock_para_pedido);
-	
-	function sumarFilas()
-	{
-		var filas = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-		var total = 0;
-		for (var i = 0; i < filas; i++)
-		{
-			total = total + (parseFloat($("#id_form-"+i+"-amount").val()) || 0);
-		}
-		$("#id_total").val(total.toFixed(5));
-	}
+var contDetalles = document.getElementById('id_form-TOTAL_FORMS').value;
+var ultimo_item = contDetalles;
 
-	function verificar_stock_para_pedido()
-	{	
-		var warehouse = $('#id_warehouse').val();
-		if (!warehouse) { return; }
-		htmx.ajax('GET', "{% url 'warehouse:order_approve_detail_rows' %}", {
-			target: '#details-body', swap: 'innerHTML',
-			values: {warehouse: warehouse, order: "{{ order.code }}"}
-		}).then(function () {
-			contDetalles = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			ultimo_item = contDetalles;
-			if (contDetalles === 0) {
-				alert("No se puede atender el pedido, no hay stock en el almacén seleccionado");
-			}
-			$(".decimal").keydown(validar_decimales);
-			sumarFilas();
-		});
-	}
-	
-	$(document).on("click",".eliminar",function()
-	{
-		var parent = $(this).parent().parent();	
-		var id_boton= $(this).prop('id');
-		var id = id_boton.replace("btnBorrar","");
-		var amount = $("#amount"+id).val();
-		$(parent).remove();
-		total=parseFloat(total-amount);
-		$("#id_total").val(total.toFixed(5));
-		contDetalles = contDetalles - 1;
-	});
-	
-	$(document).on("keyup",".quantity",function()
-	{
-		var id_cantidad= $(this).prop('id');
-		var quantity = $(this).val();
-		var id = id_cantidad.replace("quantity","");
-		var code = $("#code"+id).val();
-		var warehouse = $('#id_warehouses').val();
-		$.ajax({
-	      url: "{% url 'warehouse:stock_query' %}",
-	      data: {
-	    	  'warehouse': warehouse,
-	    	  'code': code
-	   	  },
-	      success: function(data) 
-	      {
-			  if(quantity>data.stock)
-	          {
-				  alert("La cantidad ingresada es mayor que el stock");
-				  $("#quantity"+id).val(data.stock);
-				  $("#amount"+id).val($("#quantity"+id).val()*$("#price"+id).val());				  
-	          }
-	      }
-	    });
-		
-	});
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		$('#details_count').val(ultimo_item);
-		var warehouse = $('#id_warehouses').val().trim();
-		var date = $('#id_date').val().trim();
-		if(warehouse != '') 
-		{			
-			if(date != '')
-			{					
-				if (contDetalles > 0)
-				{
-					return;
-				}
-				else
-				{
-					alert("No ha ingresado ningún detalle");	
-				}
-			}
-			else
-			{
-				alert("No ha seleccionado date");
-			}
-		}
-		else
-		{
-			alert("No ha seleccionado almacén");
-		}
-		event.preventDefault();
-	});
+document.getElementById('id_warehouse').addEventListener('change', verificar_stock_para_pedido);
+
+function sumarFilas() {
+    var filas = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    var total = 0;
+    for (var i = 0; i < filas; i++) {
+        total = total + (parseFloat(document.getElementById('id_form-' + i + '-amount').value) || 0);
+    }
+    setValue('id_total', total.toFixed(5));
+}
+
+function verificar_stock_para_pedido() {
+    var warehouse = document.getElementById('id_warehouse').value;
+    if (!warehouse) { return; }
+    htmx.ajax('GET', "{% url 'warehouse:order_approve_detail_rows' %}", {
+        target: '#details-body', swap: 'innerHTML',
+        values: {warehouse: warehouse, order: "{{ order.code }}"}
+    }).then(function () {
+        contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+        ultimo_item = contDetalles;
+        if (contDetalles === 0) {
+            alert("No se puede atender el pedido, no hay stock en el almacén seleccionado");
+        }
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+        sumarFilas();
+    });
+}
+
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('.eliminar');
+    if (!button) { return; }
+    button.closest('tr').remove();
+    contDetalles = contDetalles - 1;
+    sumarFilas();
 });
 
+document.addEventListener('keyup', function (event) {
+    var input = event.target.closest('.cantidad');
+    if (!input) { return; }
+    var id = input.id.replace('quantity', '');
+    var warehouse = document.getElementById('id_warehouses').value;
+    var code = document.getElementById('code' + id).value;
+    fetchJson("{% url 'warehouse:stock_query' %}?warehouse=" + encodeURIComponent(warehouse)
+        + "&code=" + encodeURIComponent(code)).then(function (data) {
+        if (data === null) { return; }
+        if (input.value > data.stock) {
+            alert("La cantidad ingresada es mayor que el stock");
+            document.getElementById('quantity' + id).value = data.stock;
+            document.getElementById('amount' + id).value =
+                document.getElementById('quantity' + id).value * document.getElementById('price' + id).value;
+        }
+    });
+});
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    document.getElementById('details_count').value = ultimo_item;
+    var warehouse = document.getElementById('id_warehouses').value.trim();
+    var date = document.getElementById('id_date').value.trim();
+    if (warehouse == '') {
+        alert("No ha seleccionado almacén");
+    } else if (date == '') {
+        alert("No ha seleccionado date");
+    } else if (contDetalles <= 0) {
+        alert("No ha ingresado ningún detalle");
+    } else {
+        return;
+    }
+    event.preventDefault();
+});
 </script>
 {% endblock js %}

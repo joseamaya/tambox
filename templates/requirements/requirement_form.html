@@ -168,69 +168,47 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	var contDetalles = parseInt($('#id_form-TOTAL_FORMS').val());	
-	
-	$('#id_crear_detalle').click(function(e)
-		{
-			e.preventDefault();
-			var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			htmx.ajax('GET', "{% url 'requirements:requirement_detail_row' %}", {
-				target: '#details-body', swap: 'beforeend', values: {index: index}
-			}).then(function () {
-				contDetalles = index + 1;
-				$('#id_form-TOTAL_FORMS').val(contDetalles);
-				initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
-				$(".decimal").keydown(validar_decimales);
-			});
-	 	});
-	
-	initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
-	
-	
-	$(document).on("click",".eliminar",function()
-	{
-		var parent = $(this).parent().parent();
-		var id_boton= $(this).prop('id');
-		var id = id_boton.replace("btn-borrar","");
-		$(parent).remove();
-		contDetalles = contDetalles - 1;
-		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('requirement_detail_formset');
-	});
+var contDetalles = parseInt(document.getElementById('id_form-TOTAL_FORMS').value);
 
-	$(document).on("focusout", ".quantity", function() {
-		var quantity = $(this).val();
-		if (quantity == 0) {
-			alert("La cantidad no puede ser cero");
-		}
-	});
-
-	function validar_ceros() {
-		var control_ceros = false;
-		$(".quantity").each(function() {
-			if ($(this).val() == 0) {
-				control_ceros = true;
-			}
-		});
-
-		return control_ceros;
-	}	
-	
-	$("form").submit(function(event) 
-	{
-		if (contDetalles > 0)
-		{
-			return;	
-		}
-		else
-		{
-			alert("No ha ingresado ningún detalle");	
-		}
-		event.preventDefault();
-	});	
+document.getElementById('id_crear_detalle').addEventListener('click', function (e) {
+    e.preventDefault();
+    var index = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    htmx.ajax('GET', "{% url 'requirements:requirement_detail_row' %}", {
+        target: '#details-body', swap: 'beforeend', values: {index: index}
+    }).then(function () {
+        contDetalles = index + 1;
+        document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+        initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+    });
 });
 
+initProductAutocomplete(document, {url: "{% url 'products:product_description_search' %}", searchType: 'TODOS', sourceField: 'product', fields: {code: 'code', product: 'description', unit: 'unit'}});
+
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('.eliminar');
+    if (!button) { return; }
+    button.closest('tr').remove();
+    contDetalles = contDetalles - 1;
+    document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+    updateFormElementIndices('requirement_detail_formset');
+});
+
+document.addEventListener('focusout', function (event) {
+    var input = event.target.closest('.cantidad');
+    if (input && input.value == 0) {
+        alert("La cantidad no puede ser cero");
+    }
+});
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    if (contDetalles > 0) {
+        return;
+    }
+    alert("No ha ingresado ningún detalle");
+    event.preventDefault();
+});
 </script>
 {% endblock js %}

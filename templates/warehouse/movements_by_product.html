@@ -79,20 +79,14 @@ productAutocomplete(document.getElementById('id_description'), {
     fields: {product: 'code'},
 });
 
-$("input[name=selection]").change(function () 
-{	 
-	if($(this).val()=='T')
-	{
-		$("input[name=product]").attr("disabled",true);
-		$("input[name=description]").attr("disabled",true);
-	}
-	else
-	{
-		$("input[name=product]").attr("disabled",false);
-		$("input[name=description]").attr("disabled",false);	
-	}
+
+document.querySelectorAll("input[name=selection]").forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        var disabled = this.value === 'T';
+        document.querySelectorAll("input[name=product], input[name=description]").forEach(function (input) {
+            input.disabled = disabled;
+        });
+    });
 });
-
-
 </script>
 {% endblock js %}

@@ -181,7 +181,7 @@
 {% block js %}
 <script>
 
-    $('#id_transferencia_requerimiento').click(function (e) {
+    document.getElementById('id_transferencia_requerimiento').addEventListener('click', function (e) {
         e.preventDefault();
         openModalUrl("{% url 'requirements:requirement_transfer' %}", {
 			title: "Transferencia de Requerimiento",
@@ -189,16 +189,16 @@
 				{label: "Aceptar", className: "btn-primary", onClick: transferirRequerimiento},
 				{label: "Cancelar", onClick: cerrarTransferencia},
 			],
-		});;
+		});
     });
 
     function transferirRequerimiento() {
-        var requirement = $("#requirement").val();
+        var requirement = document.getElementById('requirement').value;
         closeModal();
         if (!requirement) {
             return;
         }
-        $("#id_reference").val(requirement);
+        document.getElementById('id_reference').value = requirement;
         htmx.ajax('GET', "{% url 'purchases:quotation_detail_rows' %}", {
             target: '#detalles-body',
             swap: 'innerHTML',

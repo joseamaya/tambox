@@ -24,31 +24,14 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$("input[name=search_type]").change(function () 
-{	 
-	if($(this).val()=='F')
-	{
-		$("#id_start_date").attr("disabled",false);
-		$("#id_end_date").attr("disabled",false);
-		$("#id_month").attr("disabled",true);
-		$("#id_year").attr("disabled",true);
-	}
-	else if($(this).val()=='M')
-	{
-		$("#id_start_date").attr("disabled",true);
-		$("#id_end_date").attr("disabled",true);
-		$("#id_month").attr("disabled",false);
-		$("#id_year").attr("disabled",false);	
-	}
-	else if($(this).val()=='A')
-	{
-		$("#id_start_date").attr("disabled",true);
-		$("#id_end_date").attr("disabled",true);
-		$("#id_month").attr("disabled",true);
-		$("#id_year").attr("disabled",false);	
-	}
-});	 
-
-
+document.querySelectorAll("input[name=search_type]").forEach(function (radio) {
+    radio.addEventListener('change', function () {
+        var value = this.value;
+        document.getElementById('id_start_date').disabled = value !== 'F';
+        document.getElementById('id_end_date').disabled = value !== 'F';
+        document.getElementById('id_month').disabled = value !== 'M';
+        document.getElementById('id_year').disabled = value === 'F';
+    });
+});
 </script>
 {% endblock js %}

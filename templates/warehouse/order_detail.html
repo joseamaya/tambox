@@ -130,15 +130,14 @@
 
 {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'warehouse:order_delete' %}", {'code': "{{ object.pk }}"}, function (data) {
             alert("Pedido " + data.code + " eliminado");
-            $(location).attr('href', "{% url 'warehouse:order_list' %}");
+            window.location.href = "{% url 'warehouse:order_list' %}";
             
         });
     });
-});
 </script>
 {% endblock js %}

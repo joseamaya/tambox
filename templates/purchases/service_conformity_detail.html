@@ -125,15 +125,14 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'purchases:service_conformity_delete' %}", {'code': "{{ object.code }}"}, function (data) {
             alert("Conformidad " + data.code + " eliminada");
-            $(location).attr('href', "{% url 'purchases:service_conformity_detail_view' object.next %}");
+            window.location.href = "{% url 'purchases:service_conformity_detail_view' object.next %}";
             
         });
     });
-});
 </script>
 {% endblock js %}

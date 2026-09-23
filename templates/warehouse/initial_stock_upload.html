@@ -61,10 +61,6 @@
     {% endblock cuerpo %}
     {% block js %}
     <script>
-$(document).ready(function() 
-{
-	$('#id_time').val(mostrarhora());
-});
-
-    </script>
+document.getElementById('id_time').value = mostrarhora();
+</script>
     {% endblock js %}

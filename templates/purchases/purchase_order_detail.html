@@ -269,14 +269,14 @@
 
 {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'purchases:purchase_order_delete' %}", {'code': "{{ object.code }}"}, function (data) {
             if (data.movements == 'NO')
             {
             alert("Orden de Compra " + data.code + " eliminada");
-            $(location).attr('href', "{% url 'purchases:purchase_order_detail' object.next %}");
+            window.location.href = "{% url 'purchases:purchase_order_detail' object.next %}";
             }
             else if (data.movements == 'SI')
             {
@@ -285,6 +285,5 @@ $(document).ready(function () {
             
         });
     });
-});
 </script>
 {% endblock js %}

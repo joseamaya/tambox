@@ -60,23 +60,17 @@
 {% endblock cuerpo %}
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	$("#id_is_active").on('change',verificar_estado);
-	function verificar_estado()
-	{
-		var status = $('#id_is_active').val();
-		if(status.indexOf('DESAP') != -1)
-		{
-			$("#id_rejection_reason").attr("readonly", false);
-		}
-		else
-		{
-			$("#id_rejection_reason").val('');
-			$("#id_rejection_reason").attr("readonly", true);
-		}	
-	}
-});
+document.getElementById('id_is_active').addEventListener('change', verificar_estado);
 
+function verificar_estado() {
+    var status = document.getElementById('id_is_active').value;
+    var reason = document.getElementById('id_rejection_reason');
+    if (status.indexOf('DESAP') != -1) {
+        reason.readOnly = false;
+    } else {
+        reason.value = '';
+        reason.readOnly = true;
+    }
+}
 </script>
 {% endblock js %}

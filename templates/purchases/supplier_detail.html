@@ -109,8 +109,8 @@
 </div>
 {% endblock cuerpo %} {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'purchases:supplier_delete' %}", {'tax_id': "{{ object.tax_id }}"}, function (data) {
             if (data.tax_id) {
@@ -118,6 +118,5 @@ $(document).ready(function () {
             }
         });
     });
-});
 </script>
 {% endblock js %}

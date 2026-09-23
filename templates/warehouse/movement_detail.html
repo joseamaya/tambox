@@ -219,15 +219,14 @@
     {% endblock cuerpo %}
     {% block js %}
 <script>
-$(document).ready(function () {
-    $('#id_eliminar').click(function (e) {
+
+    document.getElementById('id_eliminar').addEventListener('click', function (e) {
         e.preventDefault();
         confirmDelete("{% url 'warehouse:movement_delete' %}", {'movement_id': "{{ object.pk }}"}, function (data) {
             alert("Movimiento " + data.movement_id + " eliminado");
-            $(location).attr('href', "{% url 'warehouse:movement_list' %}");
+            window.location.href = "{% url 'warehouse:movement_list' %}";
             
         });
     });
-});
 </script>
     {% endblock js %}

@@ -223,166 +223,117 @@
 
 {% block js %}
 <script>
-$(document).ready(function() 
-{
-	var total=parseFloat($('#id_total').val());
-	var contDetalles = $("#id_form-TOTAL_FORMS").val();
-	var ultimo_item = contDetalles;
-	var tipo_salida;	
-	$("#id_movement_type").on('change',verificar_tipo_salida);
+var contDetalles = document.getElementById('id_form-TOTAL_FORMS').value;
+var ultimo_item = contDetalles;
+document.getElementById('id_movement_type').addEventListener('change', verificar_tipo_salida);
 
-	function verificar_tipo_salida()
-	{
-		$('#id_receiver_dni').prop("readonly", false);
-		$('#id_receiver').prop("readonly", false);
-	}
+function verificar_tipo_salida() {
+    document.getElementById('id_receiver_dni').readOnly = false;
+    document.getElementById('id_receiver').readOnly = false;
+}
 
-	$("#id_receiver_dni").keyup(function()
-	{
-		var dni=$("#id_receiver_dni").val();
-		var movement_type = $("#id_movement_type").val();
-		if(dni.length==8)
-		{
-			$.ajax({
-		      url: "{% url 'administration:receiver_dni_search' %}",
-		      data: {'dni': dni, 'movement_type':movement_type},
-		      success: function(data)
-		      {
-		    	  $("#id_receiver").val(data.full_name);
-		    	  event.preventDefault();
-		      }
-		    });
-		}
-	});
-
-	productAutocomplete(document.getElementById('id_receiver'), {
-		url: "{% url 'administration:receiver_name_search' %}",
-		sourceField: 'receiver',
-		fields: {receiver_dni: 'dni', receiver: 'label'},
-		query: function (input) {
-			return {
-				name: input.value,
-				movement_type: document.getElementById('id_movement_type').value,
-			};
-		},
-	});
-		
-	$(document).on("click",".eliminar",function()
-	{
-		var parent = $(this).parent().parent();
-		var id_boton= $(this).prop('id');
-		var id = id_boton.replace("btn-borrar","");
-		var amount = $("#"+id+"amount").val();
-		total = total - parseFloat(amount);
-		$(parent).remove();
-		$("#id_total").val(total.toFixed(5));
-		contDetalles = contDetalles - 1;
-		$("#id_form-TOTAL_FORMS").val(contDetalles);
-		updateFormElementIndices('outbound_detail_formset');
-	});
-    
-	$('#crear_detalle').click(function(e)
-	{
-		e.preventDefault();
-		var alm=$('#id_warehouse').val().trim();
-		if(alm != '') 
-		{			
-			var index = parseInt($('#id_form-TOTAL_FORMS').val()) || 0;
-			htmx.ajax('GET', "{% url 'warehouse:outbound_detail_row' %}", {
-				target: '#details-body', swap: 'beforeend', values: {index: index}
-			}).then(function () {
-				contDetalles = index + 1;
-				$('#id_form-TOTAL_FORMS').val(contDetalles);
-				initProductAutocomplete(document, {url: "{% url 'warehouse:product_warehouse_search' %}", warehouseInput: '#id_warehouse'});
-				$(".decimal").keydown(validar_decimales);
-			});
-		}
-		else
-		{
-			alert("Previamente debe haber seleccionado el almacén");
-		}
- 	});
- 	
-	
-	$(document).on("keyup",".quantity",function()
-	{
-		var quantity = 0;
-		var price = 0;
-		var amount = 0;
-		var valorTemp = 0;
-		var id_product = $(this).prop('id');
-		var id = id_product.replace("quantity", "");
-		$.ajax({
-	      url: "{% url 'warehouse:stock_query' %}",
-	      data: {
-	    	  'warehouse': $("#id_warehouse").val(),
-	    	  'code': $("#"+id+"code").val()
-	   	  },
-	      success: function(data) 
-	      {
-	    	  valorTemp = $("#"+id+"amount").val();
-			  quantity = $("#"+id+"quantity").val();
-			  if(quantity=='')
-			  {
-				  quantity=0;
-				  $("#"+id+"quantity").val(quantity);
-			  }			
-			  if(quantity > data.stock)
-	          {
-	        	  alert("La cantidad ingresada es mayor que el stock");
-	        	  $("#"+id+"quantity").val(data.stock);
-	          }
-	    	  price = $("#"+id+"price").val();
-	    	  amount = parseFloat(price) * parseFloat(quantity);
-	    	  $("#"+id+"amount").val(amount.toFixed(5));
-	    	  total = total - valorTemp + amount;
-			  $("#id_total").val(total.toFixed(5));
-	      }
-	    });
-	});	
-	
-	$("form").submit(function(event) 
-	{
-		var cont=0;
-		tipo_salida = $('#id_movement_type').val();
-		$('#id_details_count').val(ultimo_item);
-		var warehouse = $('#id_warehouse').val().trim();
-		var date = $('#id_date').val().trim();
-		var document_type;
-		var series;
-		var number;
-		if(tipo_salida != '') 
-		{			
-			if(warehouse != '') 
-			{			
-				if(date != '')
-				{					
-					if (contDetalles > 0)
-					{
-						return;
-					}
-					else
-					{
-						alert("No ha ingresado ningún detalle");	
-					}
-				}
-				else
-				{
-					alert("No ha seleccionado date");
-				}
-			}
-			else
-			{
-				alert("No ha seleccionado almacén");
-			}
-		}
-		else
-		{
-			alert("No ha seleccionado tipo de salida");
-		}		
-		event.preventDefault();
-	});
+document.getElementById('id_receiver_dni').addEventListener('keyup', function (event) {
+    var dni = this.value;
+    var movement_type = document.getElementById('id_movement_type').value;
+    if (dni.length == 8) {
+        fetchJson("{% url 'administration:receiver_dni_search' %}?dni=" + encodeURIComponent(dni)
+            + "&movement_type=" + encodeURIComponent(movement_type)).then(function (data) {
+            if (data === null) { return; }
+            document.getElementById('id_receiver').value = data.full_name;
+        });
+        event.preventDefault();
+    }
 });
 
+productAutocomplete(document.getElementById('id_receiver'), {
+    url: "{% url 'administration:receiver_name_search' %}",
+    sourceField: 'receiver',
+    fields: {receiver_dni: 'dni', receiver: 'label'},
+    query: function (input) {
+        return {
+            name: input.value,
+            movement_type: document.getElementById('id_movement_type').value,
+        };
+    },
+});
+
+document.addEventListener('click', function (event) {
+    var button = event.target.closest('.eliminar');
+    if (!button) { return; }
+    button.closest('tr').remove();
+    contDetalles = contDetalles - 1;
+    document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+    updateFormElementIndices('outbound_detail_formset');
+    sumarFilas();
+});
+
+document.getElementById('crear_detalle').addEventListener('click', function (e) {
+    e.preventDefault();
+    var alm = document.getElementById('id_warehouse').value.trim();
+    if (alm == '') {
+        alert("Previamente debe haber seleccionado el almacén");
+        return;
+    }
+    var index = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    htmx.ajax('GET', "{% url 'warehouse:outbound_detail_row' %}", {
+        target: '#details-body', swap: 'beforeend', values: {index: index}
+    }).then(function () {
+        contDetalles = index + 1;
+        document.getElementById('id_form-TOTAL_FORMS').value = contDetalles;
+        initProductAutocomplete(document, {url: "{% url 'warehouse:product_warehouse_search' %}", warehouseInput: '#id_warehouse'});
+        document.querySelectorAll('.decimal').forEach(function (input) {
+            input.addEventListener('keydown', validar_decimales);
+        });
+    });
+});
+
+document.addEventListener('keyup', function (event) {
+    var input = event.target.closest('.cantidad');
+    if (!input) { return; }
+    var id = input.id.replace('quantity', '');
+    var warehouse = document.getElementById('id_warehouse').value;
+    var code = document.getElementById(id + 'code').value;
+    fetchJson("{% url 'warehouse:stock_query' %}?warehouse=" + encodeURIComponent(warehouse)
+        + "&code=" + encodeURIComponent(code)).then(function (data) {
+        if (data === null) { return; }
+        var field = document.getElementById(id + 'quantity');
+        if (field.value === '') { field.value = 0; }
+        if (field.value > data.stock) {
+            alert("La cantidad ingresada es mayor que el stock");
+            field.value = data.stock;
+        }
+        var price = document.getElementById(id + 'price').value;
+        document.getElementById(id + 'amount').value = (parseFloat(price) * parseFloat(field.value)).toFixed(5);
+        sumarFilas();
+    });
+});
+
+function sumarFilas() {
+    var filas = parseInt(document.getElementById('id_form-TOTAL_FORMS').value) || 0;
+    var total = 0;
+    for (var i = 0; i < filas; i++) {
+        total = total + (parseFloat(document.getElementById('id_form-' + i + '-amount').value) || 0);
+    }
+    setValue('id_total', total.toFixed(5));
+}
+
+document.querySelector('form').addEventListener('submit', function (event) {
+    var tipo_salida = document.getElementById('id_movement_type').value;
+    document.getElementById('id_details_count').value = ultimo_item;
+    var warehouse = document.getElementById('id_warehouse').value.trim();
+    var date = document.getElementById('id_date').value.trim();
+    if (tipo_salida == '') {
+        alert("No ha seleccionado tipo de salida");
+    } else if (warehouse == '') {
+        alert("No ha seleccionado almacén");
+    } else if (date == '') {
+        alert("No ha seleccionado date");
+    } else if (contDetalles <= 0) {
+        alert("No ha ingresado ningún detalle");
+    } else {
+        return;
+    }
+    event.preventDefault();
+});
 </script>
 {% endblock js %}

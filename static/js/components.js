@@ -269,6 +269,20 @@ function runScripts(container) {
 window.runScripts = runScripts;
 
 /*
+ * Escribe el valor de un campo si existe. Algunos formularios no traen todos
+ * los totales (p.ej. la orden de servicios no tiene IGV); en jQuery un
+ * `$('#id').val()` sobre algo ausente no hace nada, aqui hay que comprobarlo.
+ */
+function setValue(id, value) {
+    var element = document.getElementById(id);
+    if (element) {
+        element.value = value;
+    }
+}
+
+window.setValue = setValue;
+
+/*
  * Barra lateral: cada opcion con submenu se pliega/despliega al pulsarla.
  * Sustituye a metisMenu.
  */
