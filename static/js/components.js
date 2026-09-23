@@ -269,6 +269,34 @@ function runScripts(container) {
 window.runScripts = runScripts;
 
 /*
+ * Barra lateral: cada opcion con submenu se pliega/despliega al pulsarla.
+ * Sustituye a metisMenu.
+ */
+function initSidebar() {
+    var menu = document.getElementById('side-menu');
+    if (!menu) {
+        return;
+    }
+    menu.querySelectorAll(':scope > li').forEach(function (item) {
+        var submenu = item.querySelector('ul');
+        if (!submenu) {
+            return;
+        }
+        submenu.classList.add('sidebar-submenu');
+        var link = item.querySelector(':scope > a');
+        if (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                item.classList.toggle('open');
+            });
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', initSidebar);
+window.initSidebar = initSidebar;
+
+/*
  * Tabla de transferencia: al hacer clic en una fila deja su codigo en un campo
  * oculto (y lo limpia al volver a pulsarla). La usan los fragmentos que se
  * cargan en el modal.

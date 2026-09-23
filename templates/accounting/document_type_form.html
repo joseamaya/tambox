@@ -11,39 +11,39 @@
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'accounting:document_type_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'accounting:document_type_list' %}'">
                 Cancelar
             </button>
             {% endif %}
         </div>
-        <div class="col-lg-2 text-right">
+        <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'accounting:document_type_update' object.previous %}';">
-                    <span class="glyphicon glyphicon-step-backward"></span>
+                    <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'accounting:document_type_update' object.next %}';">
-                    <span class="glyphicon glyphicon-step-forward"></span>
+                    <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'accounting:account_list' %}';">
-                    <span class="glyphicon glyphicon-th-list"></span>
+                    <span class="bi bi-list-ul"></span>
                 </button>
             </div>
         </div>
     </div>
     <hr/>
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="card">
+        <div class="card-body">
             <div class="row">
                 <div class="col-lg-7">
                     <label>Descripción:</label>
@@ -60,10 +60,10 @@
             </div>
             <br>
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a></li>
             </ul>
             <div class="tab-content">
-                <div id="general" class="tab-pane fade in active">
+                <div id="general" class="tab-pane fade show active">
                     <br>
                     <div class="row">
                         <div class="col-lg-4">

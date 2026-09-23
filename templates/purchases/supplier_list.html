@@ -9,17 +9,17 @@
         </a>
         {% endif %}
         {% if perms.purchases.cargar_proveedores %}
-        <a href="{% url 'purchases:supplier_import' %}" class="btn btn-default">
+        <a href="{% url 'purchases:supplier_import' %}" class="btn btn-secondary">
             Importar
         </a>
         {% endif %}
     </div>
-    <div class="col-lg-2 text-right">
+    <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.purchases.ver_reporte_proveedores_excel %}
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:supplier_excel_report' %}';">
-                <span class="glyphicon glyphicon-list-alt"></span>
+                <span class="bi bi-list-columns"></span>
             </button>
             {% endif %}
         </div>
@@ -28,16 +28,16 @@
 <hr/>
 <div class="row">
     <div class="col-lg-4">
-        <form id="list-search" class="form-inline"
+        <form id="list-search" class="d-flex flex-wrap align-items-center gap-2"
               hx-get="{{ request.path }}" hx-target="#list-results"
               hx-trigger="submit, keyup from:input changed delay:300ms">
             <div class="input-group">
                 <input type="text" name="q" class="form-control"
                        placeholder="Buscar por RUC o razón social"
                        value="{{ request.GET.q|default:'' }}">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit">
-                        <span class="glyphicon glyphicon-search"></span>
+                <span class="input-group-text p-0 border-0">
+                    <button class="btn btn-secondary" type="submit">
+                        <span class="bi bi-search"></span>
                     </button>
                 </span>
             </div>

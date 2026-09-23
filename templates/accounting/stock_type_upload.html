@@ -6,20 +6,20 @@
     <div class="row">
         <div class="col-lg-12">
             <input type="submit" class="btn btn-primary" name="submit" value="Importar">
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'accounting:stock_type_list' %}'">
                 Cancelar
             </button>
         </div>
     </div>
     <hr/>
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="card">
+        <div class="card-body">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="mb-3">
                 <label>Selecciona un archivo:</label>
                 {{ form.file }}
-                <p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin encabezados</p>
+                <p class="form-text">El archivo debe estar en formato CSV, separado por comas, sin encabezados</p>
             </div>
         </div>
     </div>

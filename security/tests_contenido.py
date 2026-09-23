@@ -236,5 +236,5 @@ class PageContentTest(TestCase):
         response = self.client.get(reverse('security:login'))
 
         self.assertEqual(200, response.status_code)
-        self.assertContains(response, '/static/css/bootstrap.min.css')
-        self.assertContains(response, '/static/js/jquery.js')
+        self.assertContains(response, '/static/css/bootstrap5.min.css')
+        self.assertContains(response, '/static/css/bootstrap-icons.min.css')

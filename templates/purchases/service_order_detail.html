@@ -19,50 +19,49 @@
     </div>
     <div class="col-lg-3">
         <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-bs-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="true">
                 Acciones
-                <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 <li>
-                    <a href="{% url 'purchases:service_conformity_list_by_service_order' object.pk %}">
-                        <span class="fa fa-building"></span>
+                    <a class="dropdown-item" href="{% url 'purchases:service_conformity_list_by_service_order' object.pk %}">
+                        <span class="bi bi-building"></span>
                         Conformidades
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'purchases:service_order_pdf' object.pk %}">
-                        <span class="fa fa-print"></span>
+                    <a class="dropdown-item" href="{% url 'purchases:service_order_pdf' object.pk %}">
+                        <span class="bi bi-printer"></span>
                         Imprimir
                     </a>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="col-lg-4 text-right">
+    <div class="col-lg-4 text-end">
         <div class="btn-group">
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:service_order_detail' object.previous %}';">
-                <span class="glyphicon glyphicon-step-backward"></span>
+                <span class="bi bi-chevron-double-left"></span>
             </button>
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:service_order_detail' object.next %}';">
-                <span class="glyphicon glyphicon-step-forward"></span>
+                <span class="bi bi-chevron-double-right"></span>
             </button>
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:service_order_list' %}';">
-                <span class="glyphicon glyphicon-th-list"></span>
+                <span class="bi bi-list-ul"></span>
             </button>
         </div>
     </div>
 </div>
 <hr/>
 <div id="dialog-confirm" title="Eliminar Orden de Servicios"></div>
-<div class="panel panel-primary">
-    <div class="panel-body">
+<div class="card border-primary">
+    <div class="card-body">
         {% csrf_token %}
-        <div class="form-group">
+        <div class="mb-3">
             <div class="row">
                 <div class="col-md-2">
                     <label>CODIGO:</label>
@@ -113,7 +112,7 @@
             </div>
             {% endif %}
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="row">
                 <div class="col-md-3">
                     <label>FORMA DE PAGO:</label>
@@ -134,7 +133,7 @@
                 </div>
             </div>
         </div>
-        <div class="form-group">
+        <div class="mb-3">
             <div class="row">
                 <div class="col-md-3">
                     <label>Proceso:</label>

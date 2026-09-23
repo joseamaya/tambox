@@ -11,42 +11,42 @@
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'products:product_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'products:product_list' %}'">
+            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'products:product_list' %}'">
                 Cancelar
             </button>
             {% endif %}
         </div>
-        <div class="col-lg-2 text-right">
+        <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'products:product_detail' product.previous %}';">
-                    <span class="glyphicon glyphicon-step-backward"></span>
+                    <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'products:product_detail' product.next %}';">
-                    <span class="glyphicon glyphicon-step-forward"></span>
+                    <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'products:product_list' %}';">
-                    <span class="glyphicon glyphicon-th-list"></span>
+                    <span class="bi bi-list-ul"></span>
                 </button>
             </div>
         </div>
     </div>
     <hr/>
     <div id="dialog-confirm" title="Eliminar Producto"></div>
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="card">
+        <div class="card-body">
             <div class="row">
                 <div class="col-lg-2">
-                    <a href="/media/{{ object.image.url }}" class="thumbnail"> <img
+                    <a href="/media/{{ object.image.url }}" class="img-thumbnail"> <img
                             src="/media/{{ object.image.url }}" alt="Imagen Producto"
                             style="width: 120px; height: 90px">
                     </a>
@@ -62,16 +62,16 @@
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-group">
-                        <button class="btn btn-default" type="button">
-                            <span class="fa fa-building fa-2x"></span> {{ object.stock }} <br>
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-building fa-2x"></span> {{ object.stock }} <br>
                             Stock
                         </button>
-                        <button class="btn btn-default" type="button">
-                            <span class="fa fa-truck fa-2x"></span> {{ object.stock }} <br>
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-truck fa-2x"></span> {{ object.stock }} <br>
                             Previsto
                         </button>
-                        <button class="btn btn-default" type="button">
-                            <span class="fa fa-shopping-cart fa-2x"></span>
+                        <button class="btn btn-secondary" type="button">
+                            <span class="bi bi-cart fa-2x"></span>
                             {{ object.stock }} <br> productos
                         </button>
                     </div>
@@ -79,11 +79,11 @@
             </div>
             <br>
             <ul class="nav nav-tabs">
-                <li class="active"><a data-toggle="tab" href="#general">Información General</a></li>
-                <li><a data-toggle="tab" href="#contabilidad">Contabilidad</a></li>
+                <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a></li>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#contabilidad">Contabilidad</a></li>
             </ul>
             <div class="tab-content">
-                <div id="general" class="tab-pane fade in active">
+                <div id="general" class="tab-pane fade show active">
                     <br>
                     <div class="row">
                         <div class="col-lg-4">

@@ -19,56 +19,55 @@
     </div>
     <div class="col-lg-3">
         <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown"
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-bs-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="true">
                 Acciones
-                <span class="caret"></span>
             </button>
             <ul class="dropdown-menu">
                 {% if object.status != "PEND" %}
                 <li>
-                    <a href="{% url 'purchases:service_order_list_by_quotation' object.pk %}">
-                        <span class="fa fa-exchange"></span>
+                    <a class="dropdown-item" href="{% url 'purchases:service_order_list_by_quotation' object.pk %}">
+                        <span class="bi bi-arrow-left-right"></span>
                         Servicios
                     </a>
                 </li>
                 {% endif %}
                 <li>
-                    <a href="{% url 'purchases:purchase_order_list_by_quotation' object.pk %}">
-                        <span class="fa fa-book"></span>
+                    <a class="dropdown-item" href="{% url 'purchases:purchase_order_list_by_quotation' object.pk %}">
+                        <span class="bi bi-book"></span>
                         Compras
                     </a>
                 </li>
                 <li>
-                    <a href="{% url 'purchases:quotation_pdf' object.pk %}">
-                        <span class="fa fa-print"></span>
+                    <a class="dropdown-item" href="{% url 'purchases:quotation_pdf' object.pk %}">
+                        <span class="bi bi-printer"></span>
                         Imprimir
                     </a>
                 </li>
             </ul>
         </div>
     </div>
-    <div class="col-lg-4 text-right">
+    <div class="col-lg-4 text-end">
         <div class="btn-group">
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:quotation_detail' quotation.previous %}';">
-                <span class="glyphicon glyphicon-step-backward"></span>
+                <span class="bi bi-chevron-double-left"></span>
             </button>
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:quotation_detail' quotation.next %}';">
-                <span class="glyphicon glyphicon-step-forward"></span>
+                <span class="bi bi-chevron-double-right"></span>
             </button>
-            <button class="btn btn-default" type="button"
+            <button class="btn btn-secondary" type="button"
                     onclick="location.href='{% url 'purchases:quotation_list' %}';">
-                <span class="glyphicon glyphicon-th-list"></span>
+                <span class="bi bi-list-ul"></span>
             </button>
         </div>
     </div>
 </div>
 <hr/>
 <div id="dialog-confirm" title="Eliminar Cotización"></div>
-<div class="panel panel-default">
-    <div class="panel-body">
+<div class="card">
+    <div class="card-body">
         <div class="row">
             <div class="col-md-2">
                 <label>CODIGO:</label>

@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block menu_items %}
             <li>
-                <a href="#"><i class="fa fa-wrench fa-lg"></i> Configuración<span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
+                <a href="#"><i class="bi bi-wrench fs-5"></i> Configuración<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
                     {% if perms.warehouse.ver_tabla_almacenes %}
                     <li><a href="{% url 'warehouse:warehouse_list' %}">Almacenes</a></li>
                     {% endif %}
@@ -12,8 +12,8 @@
                 </ul>
             </li>
             <li>
-                <a href="#"><i class="glyphicon glyphicon-sort"></i> Operaciones<span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
+                <a href="#"><i class="bi bi-arrow-down-up"></i> Operaciones<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
                     {% if perms.warehouse.add_movement %}
                     <li><a href="{% url 'warehouse:initial_inventory_import' %}">Cargar Inventario Inicial</a></li>
                     {% endif %}
@@ -33,8 +33,8 @@
                 </ul>
             </li>
             <li>
-                <a href="#"><i class="glyphicon glyphicon-stats"></i> Reportes<span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
+                <a href="#"><i class="bi bi-bar-chart"></i> Reportes<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
                     {% if perms.warehouse.ver_reporte_kardex_excel %}
                     <li><a href="{% url 'warehouse:kardex_report' %}">Kardex</a></li>
                     {% endif %}

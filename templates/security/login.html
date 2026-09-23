@@ -6,27 +6,25 @@
     </meta>
     <title>TAMBOX</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"></meta>
-    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" >
-    <link href="{% static 'css/sb-admin-2.css' %}" rel="stylesheet" type="text/css" />
-    <script src="{% static 'js/jquery.js' %}"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <link href="{% static 'css/bootstrap5.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
 </head>
-<body>
+<body class="bg-body-tertiary">
 <div class="container">
-    <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-            <div class="login-panel panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">LOGIN</h3>
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-4">
+            <div class="login-card card">
+                <div class="card-header">
+                    <h3 class="card-title">LOGIN</h3>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     {% if form.non_field_errors %}
                     {% include "includes/general_errors.html" %}
                     {% endif %}
                     <form role="form" method="post" id='form_login' action="{% url 'security:login' %}">
                         {% csrf_token %}
                         <fieldset>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Usuario:</label>
                                 {% if form.username.errors %}
                                 {% for error in form.username.errors %}
@@ -35,7 +33,7 @@
                                 {% endif %}
                                 {{ form.username }}
                             </div>
-                            <div class="form-group">
+                            <div class="mb-3">
                                 <label>Contraseña:</label>
                                 {% if form.password.errors %}
                                 {% for error in form.password.errors %}
@@ -44,8 +42,9 @@
                                 {% endif %}
                                 {{ form.password }}
                             </div>
-                            <button class="btn btn-lg btn-success btn-block" type="submit" name="login"/>
-                            Login</button>
+                            <button class="btn btn-lg btn-success w-100" type="submit" name="login">
+                                Login
+                            </button>
                         </fieldset>
                     </form>
                 </div>

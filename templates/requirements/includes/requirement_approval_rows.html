@@ -20,19 +20,19 @@ completa y en el fragmento que htmx inserta en `#list-results`.
         <td class="text-center">
             <a class="btn btn-small"
                href="{% url 'requirements:requirement_approve' approval.pk %}">
-                <span class="glyphicon glyphicon-ok"></span>
+                <span class="bi bi-check-lg"></span>
             </a>
         </td>
         <td>
             <a class="btn btn-small"
                href="{% url 'requirements:requirement_detail' approval.requirement.pk %}">
-                <span class="glyphicon glyphicon-folder-open"></span>
+                <span class="bi bi-folder2-open"></span>
             </a>
         </td>
         <td>
             {% if approval.requirement.report %}
             <a class="btn btn-small" href="/media/{{ approval.requirement.report.url }}">
-                <span class="glyphicon glyphicon-file"></span>
+                <span class="bi bi-file-earmark"></span>
             </a>
             {% endif %}
         </td>

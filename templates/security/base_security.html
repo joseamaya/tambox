@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block menu_items %}
             <li>
-                <a href="#"><i class="fa fa-user fa-lg"></i>Cuenta<span class="fa arrow"></span></a>
-                <ul class="nav nav-second-level">
+                <a href="#"><i class="bi bi-person fs-5"></i>Cuenta<i class="bi bi-chevron-down sidebar-arrow ms-auto"></i></a>
+                <ul class="nav-second-level">
                     <li><a href="{% url 'security:password_change' %}">Cambiar Contraseña</a></li>
                 </ul>
             </li>

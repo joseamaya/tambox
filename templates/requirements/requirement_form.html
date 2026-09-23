@@ -10,41 +10,41 @@
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'requirements:requirement_detail' requirement.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-default"
+            <button type="button" class="btn btn-secondary"
                     onclick="location.href='{% url 'requirements:requirement_list' %}'">
                 Cancelar
             </button>
             {% endif %}
         </div>
-        <div class="col-lg-2 text-right">
+        <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'requirements:requirement_update' object.previous %}';">
-                    <span class="glyphicon glyphicon-step-backward"></span>
+                    <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'requirements:requirement_update' object.next %}';">
-                    <span class="glyphicon glyphicon-step-forward"></span>
+                    <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'requirements:requirement_list' %}';">
-                    <span class="glyphicon glyphicon-th-list"></span>
+                    <span class="bi bi-list-ul"></span>
                 </button>
             </div>
         </div>
     </div>
     <hr/>
-    <div class="panel panel-default">
-        <div class="panel-body">
+    <div class="card">
+        <div class="card-body">
             {% csrf_token %}
-            <div class="form-group">
+            <div class="mb-3">
                 {% if object %}
                 <div class="row">
                     <div class="col-md-3">
@@ -54,7 +54,7 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-12">
                         <label>Motivo:</label>
@@ -67,7 +67,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-2">
                         <label>Fecha:</label>
@@ -107,10 +107,10 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-5">
-                        <div class="checkbox">
+                        <div class="form-check">
                             {% if form.direct_delivery_to_requester.errors %}
                             {% for error in form.direct_delivery_to_requester.errors %}
                             {% include "includes/error.html" %}
@@ -128,9 +128,9 @@
                 <div class="col-lg-10">
                 </div>
                 <div class="col-lg-2">
-                    <div class='form-group'>
-                        <button id="id_crear_detalle" href="#" class="btn btn-info btn-block">
-                            <span class="glyphicon glyphicon-plus">AGREGAR</span>
+                    <div class='mb-3'>
+                        <button id="id_crear_detalle" href="#" class="btn btn-info w-100">
+                            <span class="bi bi-plus-lg">AGREGAR</span>
                         </button>
                     </div>
                 </div>

@@ -21,19 +21,19 @@ que htmx inserta en `#list-results`.
             {% if perms.administration.ver_detalle_oficina %}
             <a onclick="return abrir_modal('{% url 'administration:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
                class="btn">
-                <span class="glyphicon glyphicon-eye-open"></span>
+                <span class="bi bi-eye"></span>
             </a>
             {% endif %}
             {% if perms.administration.change_office %}
             <a onclick="return abrir_modal('{% url 'administration:office_update' office.pk %}','Oficinas / {{ office.name }}')"
                class="btn">
-                <span class="glyphicon glyphicon-edit"></span>
+                <span class="bi bi-pencil"></span>
             </a>
             {% endif %}
             {% if perms.administration.delete_office %}
             <a onclick="return abrir_modal('{% url 'administration:office_detail' office.pk %}','Oficinas / {{ office.name }}')"
                class="btn">
-                <span class="glyphicon glyphicon-remove"></span>
+                <span class="bi bi-x-lg"></span>
             </a>
             {% endif %}
         </td>

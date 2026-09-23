@@ -7,14 +7,14 @@
         <a href="{% url 'accounting:tax_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.accounting.cargar_impuestos %}
-        <a href="#" class="btn btn-default">Importar</a>
+        <a href="#" class="btn btn-secondary">Importar</a>
         {% endif %}
     </div>
-    <div class="col-lg-2 text-right">
+    <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.accounting.ver_reporte_impuestos_excel %}
-            <button class="btn btn-default" type="button" onclick="location.href='#';">
-                <span class="glyphicon glyphicon-list-alt"></span>
+            <button class="btn btn-secondary" type="button" onclick="location.href='#';">
+                <span class="bi bi-list-columns"></span>
             </button>
             {% endif %}
         </div>
@@ -23,16 +23,16 @@
 <hr/>
 <div class="row">
     <div class="col-lg-4">
-        <form id="list-search" class="form-inline"
+        <form id="list-search" class="d-flex flex-wrap align-items-center gap-2"
               hx-get="{{ request.path }}" hx-target="#list-results"
               hx-trigger="submit, keyup from:input changed delay:300ms">
             <div class="input-group">
                 <input type="text" name="q" class="form-control"
                        placeholder="Buscar por abreviatura o descripción"
                        value="{{ request.GET.q|default:'' }}">
-                <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit">
-                        <span class="glyphicon glyphicon-search"></span>
+                <span class="input-group-text p-0 border-0">
+                    <button class="btn btn-secondary" type="submit">
+                        <span class="bi bi-search"></span>
                     </button>
                 </span>
             </div>

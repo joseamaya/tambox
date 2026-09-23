@@ -9,35 +9,35 @@
     <div class="row">
         <div class="col-lg-10">
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-            <button type="button" class="btn btn-default" onclick="location.href='{% url 'warehouse:outbound_list' %}'">
+            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'warehouse:outbound_list' %}'">
                 Cancelar
             </button>
         </div>
-        <div class="col-lg-2 text-right">
+        <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_update' movement.previous %}';">
-                    <span class="glyphicon glyphicon-step-backward"></span>
+                    <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:movement_update' movement.next %}';">
-                    <span class="glyphicon glyphicon-step-forward"></span>
+                    <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-default" type="button"
+                <button class="btn btn-secondary" type="button"
                         onclick="location.href='{% url 'warehouse:outbound_list' %}';">
-                    <span class="glyphicon glyphicon-th-list"></span>
+                    <span class="bi bi-list-ul"></span>
                 </button>
             </div>
         </div>
     </div>
     <hr/>
-    <div class="panel panel-primary">
-        <div class="panel-body">
+    <div class="card border-primary">
+        <div class="card-body">
             {% csrf_token %}
             {% if object %}
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-3">
                         <label>Id Movimiento:</label>
@@ -46,7 +46,7 @@
                 </div>
             </div>
             {% endif %}
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-3">
                         <label>Tipo de Salida:</label>
@@ -86,7 +86,7 @@
                     </div>
                 </div>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <div class="row">
                     <div class="col-md-3">
                         <label>Oficina a atender:</label>
@@ -118,7 +118,7 @@
 
                 </div>
             </div>
-            <div class='form-group'>
+            <div class='mb-3'>
                 <div class="row">
                     <div class="col-md-3">
                         <label>DOC. REFER:</label>
@@ -154,9 +154,9 @@
                 <div class="col-lg-10">
                 </div>
                 <div class="col-lg-2">
-                    <div class='form-group'>
-                        <button id="crear_detalle" href="#" class="btn btn-info btn-block">
-                            <span class="glyphicon glyphicon-plus">AGREGAR</span>
+                    <div class='mb-3'>
+                        <button id="crear_detalle" href="#" class="btn btn-info w-100">
+                            <span class="bi bi-plus-lg">AGREGAR</span>
                         </button>
                     </div>
                 </div>

@@ -14,24 +14,24 @@
             <div class="col-lg-10">
                 <input type="submit" class="btn btn-primary" name="submit"
                        value="Guardar">
-                <button type="button" class="btn btn-default"
+                <button type="button" class="btn btn-secondary"
                         onclick="location.href='{% url 'warehouse:movement_list' %}'">
                     Cancelar
                 </button>
             </div>
-            <div class="col-lg-2 text-right">
+            <div class="col-lg-2 text-end">
                 <div class="btn-group">
-                    <button class="btn btn-default" type="button"
+                    <button class="btn btn-secondary" type="button"
                             onclick="location.href='{% url 'warehouse:movement_list' %}';">
-                        <span class="glyphicon glyphicon-th-list"></span>
+                        <span class="bi bi-list-ul"></span>
                     </button>
                 </div>
             </div>
         </div>
         <hr/>
-        <div class="panel panel-default">
-            <div class="panel-body">
-                <div class="form-group">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
                     <div class="row">
                         <div class="col-md-4">
                             <label>Almacén:</label>
@@ -50,7 +50,7 @@
                         <div class="col-md-12">
                             <label>Selecciona un archivo:</label>
                             {{ form.file }}
-                            <p class="help-block">El archivo debe estar en formato CSV, separado por comas, sin
+                            <p class="form-text">El archivo debe estar en formato CSV, separado por comas, sin
                                 encabezados, consignando los detalles</p>
                         </div>
                     </div>

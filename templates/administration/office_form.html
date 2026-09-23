@@ -4,8 +4,8 @@
     <form role="form" action="{% url 'administration:office_create' %}" method="post">
         {% endif %}
         {% csrf_token %}
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="card">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-lg-7">
                         <label>Descripción:</label>
@@ -16,16 +16,16 @@
                         {% endif %}
                         <h3>{{ form.name }}</h3>
                     </div>
-                    <div class="col-lg-5 text-right">
+                    <div class="col-lg-5 text-end">
                         <div class="btn-group">
                             {% if object %}
-                            <button class="btn btn-default" type="button"
+                            <button class="btn btn-secondary" type="button"
                                     onclick="return abrir_modal('{% url 'administration:office_update' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
-                                <span class="glyphicon glyphicon-step-backward"></span>
+                                <span class="bi bi-chevron-double-left"></span>
                             </button>
-                            <button class="btn btn-default" type="button"
+                            <button class="btn btn-secondary" type="button"
                                     onclick="return abrir_modal('{% url 'administration:office_update' object.next.pk %}','Oficina / {{ object.next.name }}');">
-                                <span class="glyphicon glyphicon-step-forward"></span>
+                                <span class="bi bi-chevron-double-right"></span>
                             </button>
                             {% endif %}
                         </div>
@@ -38,12 +38,12 @@
                 </div>
                 <br>
                 <ul class="nav nav-tabs">
-                    <li class="active">
-                        <a data-toggle="tab" href="#general">Información General</a>
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#general">Información General</a>
                     </li>
                 </ul>
                 <div class="tab-content">
-                    <div id="general" class="tab-pane fade in active">
+                    <div id="general" class="tab-pane fade show active">
                         <br>
                         <div class="row">
                             <div class="col-lg-4">
@@ -73,9 +73,9 @@
 
         </div>
         <div class="row">
-            <div class="col-lg-12 text-right">
+            <div class="col-lg-12 text-end">
                 <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
-                <button type="button" class="btn btn-default" onclick="return cerrar_modal()">
+                <button type="button" class="btn btn-secondary" onclick="return cerrar_modal()">
                     Cancelar
                 </button>
             </div>
