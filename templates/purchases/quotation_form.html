@@ -174,7 +174,6 @@
             </div>
         </div>
     </div>
-    <div id="popup"></div>
 </form>
 
 {% endblock cuerpo %}
@@ -184,25 +183,18 @@
 
     $('#id_transferencia_requerimiento').click(function (e) {
         e.preventDefault();
-        ventana_transferencia = $('#popup').dialog({
-            title: "Transferencia de Requerimiento",
-            width: 950,
-            open: function () {
-                $(this).load("{% url 'requirements:requirement_transfer' %}");
-            },
-            modal: true,
-            resizable: false,
-            position: { my: "center", at: "center", of: "#page-wrapper" },
-            buttons: {
-                "Aceptar": transferirRequerimiento,
-                "Cancelar": cerrarTransferencia
-            }
-        }).dialog('open');
+        openModalUrl("{% url 'requirements:requirement_transfer' %}", {
+			title: "Transferencia de Requerimiento",
+			buttons: [
+				{label: "Aceptar", className: "btn-primary", onClick: transferirRequerimiento},
+				{label: "Cancelar", onClick: cerrarTransferencia},
+			],
+		});;
     });
 
     function transferirRequerimiento() {
         var requirement = $("#requirement").val();
-        ventana_transferencia.dialog("close");
+        closeModal();
         if (!requirement) {
             return;
         }
@@ -215,7 +207,7 @@
     }
 
     function cerrarTransferencia() {
-        ventana_transferencia.dialog("close");
+        closeModal();
     }
 </script>
 {% endblock js %}

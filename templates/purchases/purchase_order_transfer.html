@@ -40,17 +40,5 @@
 </div>
 
 {% block js %}
-<script>
-    $('#example tbody').on('click', 'tr', function () {
-        var row = $(this);
-        var already = row.hasClass('selected');
-        $('#example tbody tr').removeClass('selected');
-        if (already) {
-            $('#purchase_order').val('');
-        } else {
-            row.addClass('selected');
-            $('#purchase_order').val(row.find('td:first').text());
-        }
-    });
-</script>
+<script>initTransferTable('purchase_order');</script>
 {% endblock js %}

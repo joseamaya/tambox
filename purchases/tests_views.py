@@ -564,7 +564,10 @@ class PurchasesDeleteAndFetchTest(TestCase):
         self.assertFalse(conformity.is_active)
 
     def test_transfer_lists(self):
-        for name in ('purchases:quotation_transfer', 'purchases:purchase_order_transfer',
-                     'purchases:service_order_transfer'):
+        for name, hidden in (('purchases:quotation_transfer', 'quotation'),
+                             ('purchases:purchase_order_transfer', 'purchase_order'),
+                             ('purchases:service_order_transfer', 'id_service_order')):
             with self.subTest(name=name):
-                self.assertEqual(200, self.client.get(reverse(name)).status_code)
+                response = self.client.get(reverse(name))
+                self.assertEqual(200, response.status_code)
+                self.assertContains(response, "initTransferTable('%s')" % hidden)

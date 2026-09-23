@@ -290,7 +290,6 @@
             </div>
         </div>
     </div>
-    <div id="popup"></div>
 </form>
 
 {% endblock cuerpo %}
@@ -457,23 +456,13 @@ $(document).ready(function()
 		$('#id_crear_detalle').prop("disabled", true);
 		$('#id_tax_id').prop("readonly", "readonly");
 	    e.preventDefault();
-	    ventana_transferencia = $('#popup').dialog(
-		{
+	    openModalUrl("{% url 'purchases:quotation_transfer' %}", {
 			title: "Transferencia de Cotización",
-			width: 950,
-			open: function ()
-	        {
-				var url="{% url 'purchases:quotation_transfer' %}";
-	            $(this).load(url);
-	        },
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": transferirCotizacion,
-	          "Cancelar": cerrarTransferencia
-	        }
-		}).dialog('open').load(this.href)
+			buttons: [
+				{label: "Aceptar", className: "btn-primary", onClick: transferirCotizacion},
+				{label: "Cancelar", onClick: cerrarTransferencia},
+			],
+		});
  	});
 	
 	function sumarFilas()
@@ -496,7 +485,7 @@ $(document).ready(function()
 	function transferirCotizacion()
 	{		
 		var quotation = $("#quotation").val();
-		ventana_transferencia.dialog("close");
+		closeModal();
 		if (!quotation) { return; }
 		$("#id_reference").val(quotation);
 		$.ajax({
@@ -521,7 +510,7 @@ $(document).ready(function()
 	
 	function cerrarTransferencia()
 	{
-		ventana_transferencia.dialog("close");
+		closeModal();
 	}
 	
 	$(document).on("focusout",".price",function()

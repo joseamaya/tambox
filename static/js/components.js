@@ -252,6 +252,71 @@ window.openModal = openModal;
 window.closeModal = closeModal;
 
 /*
+ * Ejecuta los `<script>` de un fragmento inyectado con innerHTML (que no los
+ * corre por si solo). Los vuelve a crear para que el navegador los evalue.
+ */
+function runScripts(container) {
+    container.querySelectorAll('script').forEach(function (old) {
+        var script = document.createElement('script');
+        for (var i = 0; i < old.attributes.length; i++) {
+            script.setAttribute(old.attributes[i].name, old.attributes[i].value);
+        }
+        script.textContent = old.textContent;
+        old.replaceWith(script);
+    });
+}
+
+window.runScripts = runScripts;
+
+/*
+ * Tabla de transferencia: al hacer clic en una fila deja su codigo en un campo
+ * oculto (y lo limpia al volver a pulsarla). La usan los fragmentos que se
+ * cargan en el modal.
+ */
+function initTransferTable(hiddenId) {
+    var table = document.getElementById('example');
+    if (!table) {
+        return;
+    }
+    var hidden = document.getElementById(hiddenId);
+    table.querySelectorAll('tbody tr').forEach(function (row) {
+        row.addEventListener('click', function () {
+            var already = row.classList.contains('selected');
+            table.querySelectorAll('tbody tr').forEach(function (tr) {
+                tr.classList.remove('selected');
+            });
+            if (already) {
+                hidden.value = '';
+            } else {
+                row.classList.add('selected');
+                hidden.value = row.cells[0].textContent.trim();
+            }
+        });
+    });
+}
+
+window.initTransferTable = initTransferTable;
+
+/*
+ * Abre el modal y carga un fragmento por fetch. Devuelve el cuerpo para poder
+ * seguir manipulandolo.
+ */
+function openModalUrl(url, options) {
+    var body = openModal(options);
+    body.innerHTML = '<p class="text-center">Cargando&hellip;</p>';
+    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        .then(function (response) { return response.text(); })
+        .then(function (html) {
+            body.innerHTML = html;
+            runScripts(body);
+        })
+        .catch(function () { body.innerHTML = '<p>No se pudo cargar.</p>'; });
+    return body;
+}
+
+window.openModalUrl = openModalUrl;
+
+/*
  * Confirmacion de borrado: abre el modal con el titulo de `#dialog-confirm` y,
  * al aceptar, hace el POST y delega el resultado en `onSuccess`.
  */
@@ -431,11 +496,7 @@ window.initProductAutocomplete = initProductAutocomplete;
  * fragmento (sin `{% extends %}`) que se carga con fetch.
  */
 function abrir_modal(url, titulo) {
-    var body = openModal({ title: titulo, html: '<p class="text-center">Cargando&hellip;</p>' });
-    fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-        .then(function (response) { return response.text(); })
-        .then(function (html) { body.innerHTML = html; })
-        .catch(function () { body.innerHTML = '<p>No se pudo cargar.</p>'; });
+    openModalUrl(url, { title: titulo });
     return false;
 }
 

@@ -38,17 +38,5 @@
 </div>
 
 {% block js %}
-<script>
-    $('#example tbody').on('click', 'tr', function () {
-        var row = $(this);
-        var already = row.hasClass('selected');
-        $('#example tbody tr').removeClass('selected');
-        if (already) {
-            $('#quotation').val('');
-        } else {
-            row.addClass('selected');
-            $('#quotation').val(row.find('td:first').text());
-        }
-    });
-</script>
+<script>initTransferTable('quotation');</script>
 {% endblock js %}

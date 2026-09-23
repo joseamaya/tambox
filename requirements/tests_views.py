@@ -89,6 +89,7 @@ class RequirementsViewsTest(TestCase):
         response = self.client.get(reverse('requirements:requirement_transfer'))
 
         self.assertEqual(200, response.status_code)
+        self.assertContains(response, "initTransferTable('requirement')")
 
     def test_requirement_pdf(self):
         response = self.client.get(

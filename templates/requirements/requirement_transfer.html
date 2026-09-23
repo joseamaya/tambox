@@ -36,17 +36,5 @@
 </div>
 
 {% block js %}
-<script>
-    $('#example tbody').on('click', 'tr', function () {
-        var row = $(this);
-        var already = row.hasClass('selected');
-        $('#example tbody tr').removeClass('selected');
-        if (already) {
-            $('#requirement').val('');
-        } else {
-            row.addClass('selected');
-            $('#requirement').val(row.find('td:first').text());
-        }
-    });
-</script>
+<script>initTransferTable('requirement');</script>
 {% endblock js %}

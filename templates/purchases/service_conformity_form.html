@@ -154,7 +154,6 @@
             </div>
         </div>
     </div>
-    <div id="popup"></div>
 </form>
 
 {% endblock cuerpo %}
@@ -173,23 +172,13 @@ $(document).ready(function()
 	{
 	    e.preventDefault();
 	    $('#transferencia_orden_servicios').prop("disabled", true );
-		ventana_transferencia = $('#popup').dialog(
-		{
+		openModalUrl("{% url 'purchases:service_order_transfer' %}", {
 			title: "Transferencia de Orden de Servicios",
-			width: 950,
-			open: function ()
-	        {
-				var url="{% url 'purchases:service_order_transfer' %}";
-	            $(this).load(url);
-	        },
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": transferirOrdenServicios,
-	          "Cancelar": cerrarTransferenciaOrdenServicios
-	        }
-		}).dialog('open').load(this.href)
+			buttons: [
+				{label: "Aceptar", className: "btn-primary", onClick: transferirOrdenServicios},
+				{label: "Cancelar", onClick: cerrarTransferenciaOrdenServicios},
+			],
+		});
  	});
 	
 	function sumarFilas()
@@ -208,7 +197,7 @@ $(document).ready(function()
 	function transferirOrdenServicios()
 	{		
 		var service_order = $("#id_service_order").val();
-		ventana_transferencia.dialog("close");
+		closeModal();
 		if (!service_order) { return; }
 		$("#id_reference").val(service_order);
 		htmx.ajax('GET', "{% url 'purchases:service_conformity_detail_rows' %}", {
@@ -223,7 +212,7 @@ $(document).ready(function()
 	
 	function cerrarTransferenciaOrdenServicios()
 	{
-		ventana_transferencia.dialog("close");
+		closeModal();
 	}
 	
 	$("form").submit(function(event) 

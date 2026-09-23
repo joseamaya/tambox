@@ -216,8 +216,7 @@
                     {{ form.notes }}
                 </div>
             </div>
-            <div id="popup"></div>
-            <div class="row">
+                    <div class="row">
                 <div class="col-lg-4">
                     {{ form.details_count }}
                 </div>
@@ -327,30 +326,20 @@ $(document).ready(function()
 	{
 	    e.preventDefault();
 	    $('#id_transferencia_referencia').prop("disabled", true );
-		ventana_transferencia = $('#popup').dialog(
-		{
+		openModalUrl("{% url 'purchases:purchase_order_transfer' %}", {
 			title: "Transferencia de Orden de Compra",
-			width: 950,
-			open: function ()
-	        {
-				var url="{% url 'purchases:purchase_order_transfer' %}";
-	            $(this).load(url);
-	        },
-			modal: true,
-			resizable: false,
-			position: { my: "center", at: "center", of: "#page-wrapper"},
-	      	buttons: {
-	          "Aceptar": transferirOrden,
-	          "Cancelar": cerrarTransferencia
-	        }
-		}).dialog('open').load(this.href)
+			buttons: [
+				{label: "Aceptar", className: "btn-primary", onClick: transferirOrden},
+				{label: "Cancelar", onClick: cerrarTransferencia},
+			],
+		});
  	});
 	
 	function transferirOrden()
 	{		
 		var purchase_order = $("#purchase_order").val();
 		var date = $("#id_date").val();
-		ventana_transferencia.dialog( "close" );
+		closeModal();
 		if (!purchase_order) { return; }
 		$("#id_reference_document").val(purchase_order);
 		htmx.ajax('GET', "{% url 'warehouse:inbound_detail_rows' %}", {
@@ -383,7 +372,7 @@ $(document).ready(function()
 		
 	function cerrarTransferencia()
 	{
-		ventana_transferencia.dialog("close");
+		closeModal();
 	}
 	
 	$("form").submit(function( event ) 
