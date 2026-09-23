@@ -100,32 +100,25 @@ DJANGO_SETTINGS_MODULE=tambox.settings.production \
 
 ## Frontend
 
-El proyecto está migrando de jQuery + Bootstrap 3 a **htmx + Alpine.js**
-(manteniendo, por ahora, Bootstrap 3 para no romper el resto). Las dos librerías
-nuevas conviven con las viejas, así que la migración es página a página.
-
-Para la interactividad nueva:
+El stack es **htmx + Alpine.js + Bootstrap 5** (con Bootstrap Icons) y JavaScript
+nativo. No quedan jQuery, jQuery UI, Bootstrap 3, appendGrid, wickedpicker,
+DataTables, sb-admin-2 ni font-awesome.
 
 - **htmx** cuando el servidor ya sabe renderizar el HTML: la vista devuelve un
-  fragmento y htmx lo inserta. Ejemplo: `warehouse/views.py:ProductStockRows` y
-  `templates/warehouse/includes/product_stock_rows.html`, usados por
-  `product_stock.html`.
-- **Alpine.js** para estado local (menús, autocompletados, cálculos). Los
-  componentes compartidos viven en `static/js/components.js`, no en `<script>`
-  inline por página.
+  fragmento y htmx lo inserta. Las listas usan `HtmxListMixin`
+  (`tambox/views.py`): con la cabecera `HX-Request` devuelven solo el fragmento de
+  la tabla y buscan por `search_fields`; la paginacion es un include compartido
+  (`templates/includes/pagination.html`) y el buscador reemplaza `#list-results`.
+  Las filas de los formset tambien se renderizan en el servidor
+  (`*Rows`/`*Row` en `warehouse/views.py` y `purchases/views.py`).
+- **Alpine.js** para estado local (autocompletados, menus). Los componentes
+  compartidos viven en `static/js/components.js`, no en `<script>` inline por
+  pagina: `productSearch`, `supplierSearch`, `initProductAutocomplete`,
+  `openModal`/`openModalUrl`, `confirmDelete`, `initSidebar`,
+  `initTransferTable`, `fetchJson`, `setValue` y `runScripts`.
+- **JavaScript nativo** para el resto (calculos de totales, alta/borrado de
+  filas, fechas y horas con los inputs nativos del navegador).
 
-`templates/warehouse/product_stock.html` es la página piloto y sirve de
-referencia. El plan completo, por fases:
-
-1. htmx + Alpine (base) y un piloto. ✅
-2. Listas y detalles (DataTables → tablas del servidor). ✅
-3. Formularios pesados (compras y almacén). En curso: `quotation_form` es el
-   piloto (autocompletado de proveedor con Alpine y transferencia de
-   requerimiento con htmx). Las filas del formset las renderiza el servidor en un
-   fragmento, en lugar de armarlas el navegador con `innerHTML` a partir del JSON.
-4. Retirar jQuery, jQuery UI, appendGrid y Bootstrap 3.
-
-Las listas usan `HtmxListMixin` (`tambox/views.py`): con la cabecera `HX-Request`
-devuelven solo el fragmento de la tabla, y buscan por `search_fields`. La
-paginacion es un include compartido (`templates/includes/pagination.html`) y el
-buscador de cada lista reemplaza `#list-results`.
+Bootstrap 5 y Bootstrap Icons estan vendorizados en `static/css` y
+`static/js/bootstrap5.bundle.min.js`; se descargan de los releases oficiales
+(v5.3.3 y v1.11.3) y se sirven localmente.
