@@ -6,6 +6,7 @@ from administration.forms import OfficeForm, WorkerForm, PositionForm, PositionU
     ProfessionForm, ApprovalLevelForm, ProducerForm
 from warehouse.models import MovementType
 from accounting.forms import UploadForm
+from tambox.setup import summary
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView
@@ -31,27 +32,8 @@ logger = logging.getLogger(__name__)
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        notification_list = []
-        worker_count = Worker.objects.all().count()
-        position_count = Position.objects.all().count()
-        profession_count = Profession.objects.all().count()
-        office, creada = Office.objects.get_or_create(code='GGEN',
-                                                       defaults={'name': 'GERENCIA GENERAL',
-                                                                 'is_management': True})
-        if creada:
-            notification_list.append("Se ha creado la oficina de GERENCIA GENERAL")
-        if worker_count == 0:
-            notification_list.append("No se ha registrado ningún trabajador")
-        if position_count == 0:
-            notification_list.append("No se ha registrado ningún puesto")
-        if profession_count == 0:
-            notification_list.append("No se ha registrado ninguna profesión")
-        logistics_level, creada = ApprovalLevel.objects.get_or_create(description="LOGISTICA")
-        _, creado = ApprovalLevel.objects.get_or_create(description="USUARIO",
-                                                         defaults={'superior_level': logistics_level})
-        if creada or creado:
-            notification_list.append("Se han creado los niveles de aprobación básicos")
-        context = {'notifications': notification_list}
+        configured, pending = summary()
+        context = {'notifications': pending, 'setup_incomplete': not configured}
         return render(request, 'administration/administration_dashboard.html', context)
 
 

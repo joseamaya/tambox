@@ -48,9 +48,25 @@ niveles de aprobación LOGISTICA y USUARIO, el tipo de documento PEC, los tipos
 de movimiento I00 / I01 / S01 y la unidad de medida SERV. Sin el nivel USUARIO,
 por ejemplo, no se puede registrar un requerimiento.
 
-No hay que cargarlos a mano: **entra una vez a los tableros de Administración,
-Contabilidad y Almacén** y se crean solos. Son idempotentes, así que si falta
-solo uno se completa ese y no se duplica el resto.
+Al entrar por primera vez, la aplicación abre un **wizard de configuración
+inicial** (`/configuracion/`) y no deja navegar a ningún otro módulo hasta
+completarlo. Los datos base (oficina GERENCIA GENERAL, niveles LOGISTICA /
+USUARIO, tipo de documento PEC, movimientos I00 / I01 / S01 y unidad SERV) se
+crean solos al entrar (idempotente). Después el wizard guía, paso a paso, por
+cuenta contable y grupo de productos, tipo de existencia, impuesto, configuración
+contable, empresa, trabajador y puesto, almacén, producto o servicio y, de forma
+opcional, proveedor. Cuando todos los pasos obligatorios están completos,
+`/home/` vuelve a la bienvenida normal.
+
+- La lógica de "qué falta" vive en `tambox/setup.py` (`seed_base_data`,
+  `checklist`, `is_configured`).
+- Los pasos y sus formularios, en `security/wizard.py`; la vista, en
+  `security/views.py`.
+- El bloqueo lo hace `security.middleware.SetupWizardMiddleware`, que redirige
+  al wizard salvo en login/logout, el propio wizard, el admin de Django, el
+  cambio de contraseña y los estáticos. Se desactiva con
+  `SETUP_WIZARD_ENFORCED = False` (los tests lo hacen al correr la suite).
+- Los tableros ya no crean datos: solo muestran lo que falta.
 
 ## Pruebas y verificación
 

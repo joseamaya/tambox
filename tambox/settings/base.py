@@ -42,6 +42,7 @@ MIDDLEWARE = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.LoginRequiredMiddleware',
+    'security.middleware.SetupWizardMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -92,6 +93,10 @@ MEDIA_URL = '/media/'
 LOGIN_URL = '/'
 
 LOGIN_REDIRECT_URL = '/home/'
+
+# Mientras la configuracion inicial este incompleta, el middleware
+# `security.middleware.SetupWizardMiddleware` no deja navegar fuera del wizard.
+SETUP_WIZARD_ENFORCED = True
 
 # Bootstrap 3 no tiene `alert-error`; los mensajes de error se pintan como
 # `alert-danger` en el bloque de `base.html`.

@@ -1,0 +1,12 @@
+{% extends "security/base_security.html" %}
+{% block cuerpo %}
+<h1 class="page-title mb-3">Configuración inicial</h1>
+<div class="alert alert-warning d-flex align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+    <span>El sistema aún no está configurado. Pide a un administrador que complete la configuración inicial.</span>
+</div>
+<form action="{% url 'security:logout' %}" method="post">
+    {% csrf_token %}
+    <button class="btn btn-outline-secondary" type="submit">Salir</button>
+</form>
+{% endblock cuerpo %}

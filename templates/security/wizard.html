@@ -1,0 +1,93 @@
+{% extends "security/base_security.html" %}
+{% block cuerpo %}
+<h1 class="page-title mb-3">Configuración inicial</h1>
+
+<div class="mb-4">
+    <div class="d-flex justify-content-between small text-muted mb-1">
+        <span>Progreso de configuración</span>
+        <span>{{ done_count }} de {{ total_count }} pasos</span>
+    </div>
+    <div class="progress" role="progressbar" aria-label="Progreso de configuración"
+         aria-valuenow="{{ percent }}" aria-valuemin="0" aria-valuemax="100" style="height: 8px;">
+        <div class="progress-bar bg-primary" style="width: {{ percent }}%"></div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4 col-xl-3">
+        <div class="card">
+            <div class="card-header"><i class="bi bi-list-check"></i> Pasos</div>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item d-flex align-items-center gap-2">
+                    <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>
+                    <span class="text-muted">Datos base del sistema</span>
+                </div>
+                {% for item in stepper %}
+                <div class="list-group-item d-flex align-items-center gap-2{% if item.current %} bg-body-secondary{% endif %}">
+                    {% if item.done %}
+                    <i class="bi bi-check-circle-fill text-success" aria-hidden="true"></i>
+                    <a class="text-decoration-none flex-grow-1"
+                       href="{% url 'security:wizard_step' item.key %}">{{ item.title }}</a>
+                    {% elif item.optional %}
+                    <i class="bi bi-circle text-muted" aria-hidden="true"></i>
+                    <a class="text-decoration-none text-muted flex-grow-1"
+                       href="{% url 'security:wizard_step' item.key %}">{{ item.title }}</a>
+                    {% elif item.current %}
+                    <i class="bi bi-record-circle text-primary" aria-hidden="true"></i>
+                    <span class="fw-semibold flex-grow-1">{{ item.title }}</span>
+                    {% else %}
+                    <i class="bi bi-circle text-muted" aria-hidden="true"></i>
+                    <span class="text-muted flex-grow-1">{{ item.title }}</span>
+                    {% endif %}
+                    {% if item.optional %}
+                    <span class="badge text-bg-light">Opcional</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8 col-xl-9">
+        <div class="card">
+            <div class="card-header">
+                {{ step.section }} &middot; {{ step.title }}
+            </div>
+            <div class="card-body">
+                {% if already_done %}
+                <div class="alert alert-success d-flex align-items-center gap-2 mb-3" role="alert">
+                    <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+                    <span>Este paso ya está configurado.</span>
+                </div>
+                <a class="btn btn-primary" href="{% url 'security:setup' %}">Continuar</a>
+                {% else %}
+                {% if step.intro %}<p class="text-muted">{{ step.intro }}</p>{% endif %}
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {% for entry in forms %}
+                    {% if entry.form.non_field_errors %}
+                    <div class="alert alert-danger">{{ entry.form.non_field_errors }}</div>
+                    {% endif %}
+                    <div class="row">
+                        {% for field in entry.form %}
+                        <div class="col-md-6">
+                            {% include "includes/field.html" with field=field %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if not forloop.last %}<hr class="my-3">{% endif %}
+                    {% endfor %}
+                    <div class="d-flex gap-2 mt-2">
+                        {% if prev_step %}
+                        <a class="btn btn-outline-secondary"
+                           href="{% url 'security:wizard_step' prev_step.key %}">Anterior</a>
+                        {% endif %}
+                        <button type="submit" class="btn btn-primary">Guardar y continuar</button>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock cuerpo %}

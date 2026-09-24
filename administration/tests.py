@@ -160,35 +160,20 @@ class SetLevelTest(TestCase):
 
 
 class AdministrationDashboardTest(TestCase):
-    """Las semillas se creaban solo con la tabla vacia (`count() == 0`), asi que
-    un estado a medias —LOGISTICA presente y USUARIO ausente— no se arreglaba
-    nunca y `set_level()` fallaba para todos los requerimientos."""
+    """El tablero ya no crea datos: la semilla vive en la pantalla de
+    configuracion inicial (`security:setup`)."""
 
     def setUp(self):
         self.client.force_login(User.objects.create_superuser('boss', 'boss@example.com', 'key-segura'))
 
-    def test_complete_levels_that_missing(self):
-        ApprovalLevel.objects.create(description='LOGISTICA')
-
+    def test_dashboard_does_not_create_seed(self):
         response = self.client.get('/administracion/dashboard/')
 
         self.assertEqual(response.status_code, 200)
-        user = ApprovalLevel.objects.get(description='USUARIO')
-        self.assertEqual(user.superior_level.description, 'LOGISTICA')
+        self.assertFalse(Office.objects.filter(code='GGEN').exists())
+        self.assertFalse(ApprovalLevel.objects.exists())
 
-    def test_creates_office_management(self):
+    def test_dashboard_links_to_setup_when_incomplete(self):
         response = self.client.get('/administracion/dashboard/')
 
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(Office.objects.filter(code='GGEN', is_management=True).exists())
-
-    def test_not_duplicates_that_exists(self):
-        Office.objects.create(code='GGEN', name='GERENCIA GENERAL', is_management=True)
-        ApprovalLevel.objects.create(description='LOGISTICA')
-
-        self.client.get('/administracion/dashboard/')
-        self.client.get('/administracion/dashboard/')
-
-        self.assertEqual(Office.objects.filter(code='GGEN').count(), 1)
-        self.assertEqual(ApprovalLevel.objects.filter(description='LOGISTICA').count(), 1)
-        self.assertEqual(ApprovalLevel.objects.filter(description='USUARIO').count(), 1)
+        self.assertContains(response, '/configuracion/')

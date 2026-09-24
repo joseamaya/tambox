@@ -30,11 +30,12 @@ from django.db.models import Q
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404
 
-from products.models import Product, UnitOfMeasure, ProductGroup
+from products.models import Product
 from datetime import date
 from purchases.reports import purchase_order_xls_report, PurchaseOrderPdf,\
     ServiceOrderPdf, ServiceConformityMemoPdf, QuotationRequestPdf
 from tambox.config import configuration, purchase_tax
+from tambox.setup import summary
 from tambox.dates import parse_date
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 
@@ -44,27 +45,8 @@ locale.setlocale(locale.LC_ALL, "")
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        notification_list = []
-        supplier_count = Supplier.objects.count()
-        product_count = Product.objects.filter(is_service=False).count()
-        unit_of_measure_count = UnitOfMeasure.objects.count()
-        supply_group_count = ProductGroup.objects.count()
-        service_count = Product.objects.filter(is_service=True).count()
-        unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
-                                                                   defaults={'description': 'SERVICIO'})
-        if supplier_count == 0:
-            notification_list.append("No se ha creado ningún proveedor")
-        if creado:
-            notification_list.append("Se ha creado la unidad de medida SERVICIO")
-        if product_count == 0:
-            notification_list.append("No se ha creado ningún producto")
-        if unit_of_measure_count == 0:
-            notification_list.append("No se ha creado ningún tipo de unidad de medida")
-        if supply_group_count == 0:
-            notification_list.append("No se ha creado ningún grupo de productos")
-        if service_count == 0:
-            notification_list.append("No se ha creado ningún service")
-        context = {'notifications': notification_list}
+        configured, pending = summary()
+        context = {'notifications': pending, 'setup_incomplete': not configured}
         return render(request, 'purchases/purchases_dashboard.html', context)
 
 

@@ -8,7 +8,7 @@ from accounting.views import Dashboard, AccountList,\
     PaymentMethodList, PaymentMethodCreate, PaymentMethodUpdate, PaymentMethodDetail,\
     PaymentMethodExcelReport, PaymentMethodDelete, DocumentTypeExcelReport,\
     DocumentTypeImport, ExchangeRateList, ExchangeRateCreate, ExchangeRateDetail, ExchangeRateUpdate,\
-    ExchangeRateFetch, StockTypeList, StockTypeImport
+    ExchangeRateFetch, StockTypeList, StockTypeImport, CompanyUpdate
 
 app_name = 'accounting'
 
@@ -27,6 +27,7 @@ urlpatterns = [
     re_path(r'^account_list/$', AccountList.as_view(), name="account_list"),
     re_path(r'^stock_type_list/$', StockTypeList.as_view(), name="stock_type_list"),
     re_path(r'^configuration/$', ConfigurationCreate.as_view(), name="configuration"),
+    re_path(r'^company_update/$', CompanyUpdate.as_view(), name="company_update"),
     re_path(r'^document_type_list/$', DocumentTypeList.as_view(), name="document_type_list"),
     re_path(r'^exchange_rate_list/$', ExchangeRateList.as_view(), name="exchange_rate_list"),
     re_path(r'^tax_list/$', TaxList.as_view(), name="tax_list"),

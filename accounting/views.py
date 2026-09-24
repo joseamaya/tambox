@@ -5,7 +5,7 @@ from accounting.models import Account, DocumentType, Tax,\
     Configuration, PaymentMethod, Company, StockType, ExchangeRate
 from django.views.generic.base import View, TemplateView
 from accounting.forms import DocumentTypeForm, AccountForm,\
-    TaxForm, ConfigurationForm, PaymentMethodForm, ExchangeRateForm
+    TaxForm, ConfigurationForm, PaymentMethodForm, ExchangeRateForm, CompanyForm
 from django.http.response import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import FormView, UpdateView, CreateView,\
@@ -16,6 +16,7 @@ from django.views.generic.detail import DetailView
 from openpyxl import Workbook
 from accounting.forms import UploadForm
 from tambox.dates import parse_date
+from tambox.setup import summary
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from security.permissions import requires
 from django.utils.decorators import method_decorator
@@ -24,16 +25,8 @@ from django.utils.decorators import method_decorator
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        notification_list = []
-        account_count = Account.objects.count()
-        document_type, creado = DocumentType.objects.get_or_create(sunat_code='PEC',
-                                                                     defaults={'description': 'PECOSA',
-                                                                               'name': 'PECOSA'})
-        if creado:
-            notification_list.append("Se ha creado el tipo de documento PECOSA")
-        if account_count == 0:
-            notification_list.append("No se ha creado ninguna cuenta contable")
-        context = {'notifications': notification_list}
+        configured, pending = summary()
+        context = {'notifications': pending, 'setup_incomplete': not configured}
         return render(request, 'accounting/accounting_dashboard.html', context)
 
 
@@ -178,6 +171,22 @@ class TaxDetail(DetailView):
 class CompanyDetail(DetailView):
     model = Company
     template_name = 'accounting/company_detail.html'
+
+
+class CompanyUpdate(UpdateView):
+    model = Company
+    template_name = 'accounting/company_form.html'
+    form_class = CompanyForm
+
+    @method_decorator(requires('accounting.change_company'))
+    def dispatch(self, *args, **kwargs):
+        return super(CompanyUpdate, self).dispatch(*args, **kwargs)
+
+    def get_object(self, queryset=None):
+        return Company.load()
+
+    def get_success_url(self):
+        return reverse('accounting:company_update')
 
 
 class PaymentMethodDetail(DetailView):
