@@ -14,22 +14,7 @@
             </button>
         </div>
         <div class="col-lg-2 text-end">
-            <div class="btn-group">
-                {% if object %}
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'warehouse:movement_update' movement.previous %}';">
-                    <span class="bi bi-chevron-double-left"></span>
-                </button>
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'warehouse:movement_update' movement.next %}';">
-                    <span class="bi bi-chevron-double-right"></span>
-                </button>
-                {% endif %}
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'warehouse:outbound_list' %}';">
-                    <span class="bi bi-list-ul"></span>
-                </button>
-            </div>
+            {% include "includes/record_nav.html" with detail_name='warehouse:movement_update' list_name='warehouse:outbound_list' prev=movement.previous next=movement.next %}
         </div>
     </div>
     <hr/>

@@ -32,20 +32,7 @@
         </div>
     </div>
     <div class="col-lg-4 text-end">
-        <div class="btn-group">
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'warehouse:movement_detail_view' movement.previous %}';">
-                <span class="bi bi-chevron-double-left"></span>
-            </button>
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'warehouse:movement_detail_view' movement.next %}';">
-                <span class="bi bi-chevron-double-right"></span>
-            </button>
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'warehouse:movement_list' %}';">
-                <span class="bi bi-list-ul"></span>
-            </button>
-        </div>
+        {% include "includes/record_nav.html" with detail_name='warehouse:movement_detail_view' list_name='warehouse:movement_list' prev=movement.previous next=movement.next %}
     </div>
 </div>
 <hr/>

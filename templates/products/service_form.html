@@ -22,22 +22,7 @@
             {% endif %}
         </div>
         <div class="col-lg-2 text-end">
-            <div class="btn-group">
-                {% if object %}
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'products:service_detail' object.previous %}';">
-                    <span class="bi bi-chevron-double-left"></span>
-                </button>
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'products:service_detail' object.next %}';">
-                    <span class="bi bi-chevron-double-right"></span>
-                </button>
-                {% endif %}
-                <button class="btn btn-outline-secondary" type="button"
-                        onclick="location.href='{% url 'products:service_list' %}';">
-                    <span class="bi bi-list-ul"></span>
-                </button>
-            </div>
+            {% include "includes/record_nav.html" with detail_name='products:service_detail' list_name='products:service_list' prev=object.previous next=object.next %}
         </div>
     </div>
     <hr/>

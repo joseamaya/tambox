@@ -48,20 +48,7 @@
         </div>
     </div>
     <div class="col-lg-4 text-end">
-        <div class="btn-group">
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.previous %}';">
-                <span class="bi bi-chevron-double-left"></span>
-            </button>
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'purchases:quotation_detail' quotation.next %}';">
-                <span class="bi bi-chevron-double-right"></span>
-            </button>
-            <button class="btn btn-outline-secondary" type="button"
-                    onclick="location.href='{% url 'purchases:quotation_list' %}';">
-                <span class="bi bi-list-ul"></span>
-            </button>
-        </div>
+        {% include "includes/record_nav.html" with detail_name='purchases:quotation_detail' list_name='purchases:quotation_list' prev=quotation.previous next=quotation.next %}
     </div>
 </div>
 <hr/>

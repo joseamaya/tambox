@@ -1,0 +1,48 @@
+{% comment %}
+Botones de navegacion entre registros consecutivos.
+
+Parametros:
+- detail_name: ruta del registro (detail o update)
+- prev / next: argumento de esa ruta (pk o codigo), ya resuelto por la plantilla
+- list_name: ruta del listado; si no se pasa, no se pinta el boton
+- modal / modal_title: abrir el registro en el modal en vez de navegar
+
+Un `prev`/`next` vacio (p. ej. en un alta sin objeto) simplemente no pinta su
+boton, que es como se comportaban los `{% if object %}` que esto sustituye.
+{% endcomment %}
+<div class="btn-group record-nav">
+    {% if prev %}
+    {% if modal %}
+    <button class="btn btn-outline-secondary" type="button"
+            onclick="return abrir_modal('{% url detail_name prev %}', '{{ modal_title }}');"
+            aria-label="Registro anterior">
+        <span class="bi bi-chevron-double-left"></span>
+    </button>
+    {% else %}
+    <a class="btn btn-outline-secondary" href="{% url detail_name prev %}"
+       aria-label="Registro anterior">
+        <span class="bi bi-chevron-double-left"></span>
+    </a>
+    {% endif %}
+    {% endif %}
+    {% if next %}
+    {% if modal %}
+    <button class="btn btn-outline-secondary" type="button"
+            onclick="return abrir_modal('{% url detail_name next %}', '{{ modal_title }}');"
+            aria-label="Registro siguiente">
+        <span class="bi bi-chevron-double-right"></span>
+    </button>
+    {% else %}
+    <a class="btn btn-outline-secondary" href="{% url detail_name next %}"
+       aria-label="Registro siguiente">
+        <span class="bi bi-chevron-double-right"></span>
+    </a>
+    {% endif %}
+    {% endif %}
+    {% if list_name %}
+    <a class="btn btn-outline-secondary" href="{% url list_name %}"
+       aria-label="Volver al listado">
+        <span class="bi bi-list-ul"></span>
+    </a>
+    {% endif %}
+</div>

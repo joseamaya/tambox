@@ -389,6 +389,29 @@ body {
 }
 
 /* ------------------------------------------------------------------ */
+/* Fichas de detalle                                                   */
+/* ------------------------------------------------------------------ */
+
+.detail-field {
+    margin-bottom: .85rem;
+}
+
+.detail-label {
+    display: block;
+    color: #6b7280;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+}
+
+.detail-value {
+    display: block;
+    color: #1f2937;
+    word-break: break-word;
+}
+
+/* ------------------------------------------------------------------ */
 /* Autocompletado (sustituye al de jQuery UI)                          */
 /* ------------------------------------------------------------------ */
 
@@ -495,6 +518,7 @@ body {
     .skip-link,
     .page-actions,
     .record-actions,
+    .record-nav,
     .no-print,
     #dialog-confirm,
     #htmx-progress {

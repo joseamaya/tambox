@@ -1,0 +1,16 @@
+{% comment %}
+Fila de estado vacio para una tabla.
+
+Parametros: colspan (por defecto 1), message, icon (nombre de Bootstrap Icons
+sin el prefijo `bi-`) y, opcionalmente, action_name/action_label para ofrecer una
+accion.
+{% endcomment %}
+<tr>
+    <td colspan="{{ colspan|default:1 }}" class="empty-state text-center">
+        <i class="bi bi-{{ icon|default:'inbox' }} fs-3 d-block mb-2 text-muted" aria-hidden="true"></i>
+        <p class="mb-0">{{ message|default:"No hay registros." }}</p>
+        {% if action_name %}
+        <a class="btn btn-sm btn-outline-primary mt-3" href="{% url action_name %}">{{ action_label }}</a>
+        {% endif %}
+    </td>
+</tr>
