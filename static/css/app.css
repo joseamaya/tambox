@@ -443,8 +443,78 @@ body {
 }
 
 .login-brand {
-    color: #fff;
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: .12em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Utilidades                                                          */
+/* ------------------------------------------------------------------ */
+
+.tabular-nums {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------------------ */
+/* Barra de progreso de htmx                                           */
+/* ------------------------------------------------------------------ */
+
+#htmx-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1080;
+    height: 3px;
+    background: var(--tb-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 0;
+    transition: transform .2s ease, opacity .25s ease;
+    pointer-events: none;
+}
+
+#htmx-progress.active {
+    transform: scaleX(.85);
+    opacity: 1;
+}
+
+#htmx-progress.done {
+    transform: scaleX(1);
+    opacity: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Impresión                                                           */
+/* ------------------------------------------------------------------ */
+
+@media print {
+    .app-navbar,
+    .app-sidebar,
+    .skip-link,
+    .page-actions,
+    .record-actions,
+    .no-print,
+    #dialog-confirm,
+    #htmx-progress {
+        display: none !important;
+    }
+
+    body {
+        background: #fff;
+    }
+
+    .app-main {
+        padding: 0;
+    }
+
+    .card {
+        border: 0;
+        box-shadow: none;
+    }
+
+    .table thead th {
+        position: static;
+    }
 }

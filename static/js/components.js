@@ -585,3 +585,42 @@ function cerrar_modal() {
 
 window.abrir_modal = abrir_modal;
 window.cerrar_modal = cerrar_modal;
+
+/*
+ * Barra de progreso superior para las peticiones de htmx. Lleva la cuenta de
+ * peticiones simultaneas para no apagarla mientras queden otras en vuelo.
+ */
+(function () {
+    var pending = 0;
+
+    function bar() {
+        return document.getElementById('htmx-progress');
+    }
+
+    document.addEventListener('htmx:beforeRequest', function () {
+        pending += 1;
+        var element = bar();
+        if (element) {
+            element.classList.remove('done');
+            element.classList.add('active');
+        }
+    });
+
+    function finish() {
+        pending = Math.max(0, pending - 1);
+        if (pending > 0) {
+            return;
+        }
+        var element = bar();
+        if (!element) {
+            return;
+        }
+        element.classList.add('done');
+        window.setTimeout(function () {
+            element.classList.remove('active', 'done');
+        }, 250);
+    }
+
+    document.addEventListener('htmx:afterRequest', finish);
+    document.addEventListener('htmx:responseError', finish);
+})();

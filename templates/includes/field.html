@@ -1,6 +1,10 @@
 {% comment %}
 Campo de formulario con la estructura de Bootstrap 5: label asociado, widget,
 texto de ayuda y errores. Se usa con `{% include "includes/field.html" with field=form.nombre %}`.
+
+`BootstrapFormMixin` ya pone `is-invalid`, `aria-invalid` y `aria-describedby` en
+el widget, asi que aqui solo hay que dar los mismos ids al texto de ayuda y al
+bloque de errores.
 {% endcomment %}
 <div class="mb-3">
     <label class="form-label" for="{{ field.id_for_label }}">
@@ -8,9 +12,11 @@ texto de ayuda y errores. Se usa con `{% include "includes/field.html" with fiel
     </label>
     {{ field }}
     {% if field.help_text %}
-    <div class="form-text">{{ field.help_text }}</div>
+    <div class="form-text" id="{{ field.auto_id }}-help">{{ field.help_text }}</div>
     {% endif %}
-    {% for error in field.errors %}
-    <div class="invalid-feedback d-block">{{ error|escape }}</div>
-    {% endfor %}
+    {% if field.errors %}
+    <div class="invalid-feedback d-block" id="{{ field.auto_id }}-error">
+        {% for error in field.errors %}{{ error|escape }}{% if not forloop.last %}<br>{% endif %}{% endfor %}
+    </div>
+    {% endif %}
 </div>
