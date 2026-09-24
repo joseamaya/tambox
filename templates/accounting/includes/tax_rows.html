@@ -23,9 +23,7 @@ htmx inserta en `#list-results`.
         <td>{{ tax.amount }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="3" class="empty-state text-center">No se encontraron impuestos.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=3 message="No se encontraron impuestos." %}
     {% endfor %}
     </tbody>
 </table>

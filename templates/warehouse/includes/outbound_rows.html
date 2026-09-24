@@ -25,9 +25,7 @@ que htmx inserta en `#list-results`.
         <td>{{ movement.warehouse }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="4" class="empty-state text-center">No se encontraron salidas.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=4 message="No se encontraron salidas." %}
     {% endfor %}
     </tbody>
 </table>

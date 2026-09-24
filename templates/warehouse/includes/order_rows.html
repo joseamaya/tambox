@@ -21,9 +21,7 @@ htmx inserta en `#list-results`.
         <td>{{ order.get_status_display }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="4" class="empty-state text-center">No se encontraron pedidos.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=4 message="No se encontraron pedidos." %}
     {% endfor %}
     </tbody>
 </table>

@@ -21,9 +21,7 @@ inserta en `#stock-results`, sin recargar la pagina.
         <td>{{ row.stock }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="4" class="empty-state text-center">No se encontraron productos.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=4 message="No se encontraron productos." %}
     {% endfor %}
     </tbody>
 </table>

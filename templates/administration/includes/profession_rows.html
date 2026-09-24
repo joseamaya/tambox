@@ -21,9 +21,7 @@ fragmento que htmx inserta en `#list-results`.
         <td>{{ profession.description }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="2" class="empty-state text-center">No se encontraron profesiones.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=2 message="No se encontraron profesiones." %}
     {% endfor %}
     </tbody>
 </table>

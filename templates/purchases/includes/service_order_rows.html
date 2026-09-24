@@ -33,9 +33,7 @@ inserta en `#list-results`.
         <td>{{ service_order.get_status_display }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="5" class="empty-state text-center">No se encontraron órdenes de servicio.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=5 message="No se encontraron órdenes de servicio." %}
     {% endfor %}
     </tbody>
 </table>

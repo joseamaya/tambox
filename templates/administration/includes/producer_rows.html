@@ -23,9 +23,7 @@ fragmento que htmx inserta en `#list-results`.
         <td>{{ producer.first_name }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="3" class="empty-state text-center">No se encontraron productores.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=3 message="No se encontraron productores." %}
     {% endfor %}
     </tbody>
 </table>

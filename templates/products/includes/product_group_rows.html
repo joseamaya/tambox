@@ -23,9 +23,7 @@ en el fragmento que htmx inserta en `#list-results`.
         <td>{{ group.account }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="3" class="empty-state text-center">No se encontraron grupos de productos.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=3 message="No se encontraron grupos de productos." %}
     {% endfor %}
     </tbody>
 </table>

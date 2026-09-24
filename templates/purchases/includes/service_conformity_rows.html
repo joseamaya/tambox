@@ -25,9 +25,7 @@ completa y en el fragmento que htmx inserta en `#list-results`.
         <td>{{ conformity.date|date:"d/m/y" }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="4" class="empty-state text-center">No se encontraron conformidades.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=4 message="No se encontraron conformidades." %}
     {% endfor %}
     </tbody>
 </table>

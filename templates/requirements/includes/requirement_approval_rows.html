@@ -39,9 +39,7 @@ completa y en el fragmento que htmx inserta en `#list-results`.
         </td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="5" class="empty-state text-center">No hay requerimientos pendientes de aprobar.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=5 message="No hay requerimientos pendientes de aprobar." %}
     {% endfor %}
     </tbody>
 </table>

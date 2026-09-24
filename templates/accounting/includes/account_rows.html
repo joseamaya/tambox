@@ -21,9 +21,7 @@ fragmento que htmx inserta en `#list-results`.
         <td>{{ account.description }}</td>
     </tr>
     {% empty %}
-    <tr>
-        <td colspan="2" class="empty-state text-center">No se encontraron cuentas contables.</td>
-    </tr>
+    {% include "includes/empty_state.html" with colspan=2 message="No se encontraron cuentas contables." %}
     {% endfor %}
     </tbody>
 </table>
