@@ -392,12 +392,12 @@ body {
 /* Fichas de detalle                                                   */
 /* ------------------------------------------------------------------ */
 
-.detail-field {
-    margin-bottom: .85rem;
-}
-
-.detail-label {
+/* La etiqueta de un dato pasa a ser un rotulo pequeno en mayusculas y el valor
+   el texto principal. `label + p` cubre tambien los valores condicionales, que
+   en el HTML renderizado quedan pegados a su etiqueta. */
+.detail-list label {
     display: block;
+    margin-bottom: .1rem;
     color: #6b7280;
     font-size: .72rem;
     font-weight: 600;
@@ -405,8 +405,8 @@ body {
     text-transform: uppercase;
 }
 
-.detail-value {
-    display: block;
+.detail-list label + p {
+    margin-bottom: .85rem;
     color: #1f2937;
     word-break: break-word;
 }
