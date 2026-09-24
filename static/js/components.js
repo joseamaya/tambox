@@ -181,70 +181,67 @@ document.addEventListener('submit', function (event) {
 window.showUploadSpinner = showUploadSpinner;
 
 /*
- * Modal propio (sin jQuery UI). Un unico overlay reutilizable con cabecera,
- * cuerpo y pie. `openModal` devuelve el cuerpo para poder inyectar HTML.
+ * Modal reutilizable sobre el modal nativo de Bootstrap 5 (ya viene en el
+ * bundle). Un unico elemento con cabecera, cuerpo y pie; `openModal` devuelve
+ * el cuerpo para poder inyectar HTML. Se conserva la API anterior
+ * (`openModal`/`closeModal`) para no tocar las plantillas.
  */
 function ensureModal() {
-    var overlay = document.getElementById('app-modal');
-    if (overlay) {
-        return overlay;
+    var element = document.getElementById('app-modal');
+    if (element) {
+        return element;
     }
-    overlay = document.createElement('div');
-    overlay.id = 'app-modal';
-    overlay.className = 'app-modal-overlay';
-    overlay.hidden = true;
-    overlay.innerHTML =
-        '<div class="app-modal" role="dialog" aria-modal="true">' +
-        '  <div class="app-modal-header">' +
-        '    <span class="app-modal-title"></span>' +
-        '    <button type="button" class="app-modal-close" aria-label="Cerrar">&times;</button>' +
+    element = document.createElement('div');
+    element.id = 'app-modal';
+    element.className = 'modal fade';
+    element.tabIndex = -1;
+    element.setAttribute('aria-hidden', 'true');
+    element.innerHTML =
+        '<div class="modal-dialog modal-dialog-scrollable">' +
+        '  <div class="modal-content">' +
+        '    <div class="modal-header">' +
+        '      <h5 class="modal-title"></h5>' +
+        '      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>' +
+        '    </div>' +
+        '    <div class="modal-body"></div>' +
+        '    <div class="modal-footer" hidden></div>' +
         '  </div>' +
-        '  <div class="app-modal-body"></div>' +
-        '  <div class="app-modal-footer" hidden></div>' +
         '</div>';
-    document.body.appendChild(overlay);
-    overlay.querySelector('.app-modal-close').addEventListener('click', closeModal);
-    overlay.addEventListener('mousedown', function (event) {
-        if (event.target === overlay) {
-            closeModal();
-        }
+    document.body.appendChild(element);
+    element.addEventListener('hidden.bs.modal', function () {
+        element.querySelector('.modal-body').innerHTML = '';
+        element.querySelector('.modal-footer').innerHTML = '';
     });
-    document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape' && !overlay.hidden) {
-            closeModal();
-        }
-    });
-    return overlay;
+    return element;
 }
 
 function openModal(options) {
-    var overlay = ensureModal();
-    overlay.querySelector('.app-modal').className =
-        'app-modal' + (options.small ? ' app-modal--sm' : '');
-    overlay.querySelector('.app-modal-title').textContent = options.title || '';
-    var body = overlay.querySelector('.app-modal-body');
+    var element = ensureModal();
+    element.querySelector('.modal-dialog').className =
+        'modal-dialog modal-dialog-scrollable ' + (options.small ? 'modal-sm' : 'modal-lg');
+    element.querySelector('.modal-title').textContent = options.title || '';
+    var body = element.querySelector('.modal-body');
     body.innerHTML = options.html || '';
-    var footer = overlay.querySelector('.app-modal-footer');
+    var footer = element.querySelector('.modal-footer');
     footer.innerHTML = '';
     var buttons = options.buttons || [];
     buttons.forEach(function (button) {
-        var element = document.createElement('button');
-        element.type = 'button';
-        element.className = 'btn ' + (button.className || 'btn-default');
-        element.textContent = button.label;
-        element.addEventListener('click', button.onClick);
-        footer.appendChild(element);
+        var control = document.createElement('button');
+        control.type = 'button';
+        control.className = 'btn ' + (button.className || 'btn-outline-secondary');
+        control.textContent = button.label;
+        control.addEventListener('click', button.onClick);
+        footer.appendChild(control);
     });
     footer.hidden = buttons.length === 0;
-    overlay.hidden = false;
+    bootstrap.Modal.getOrCreateInstance(element).show();
     return body;
 }
 
 function closeModal() {
-    var overlay = document.getElementById('app-modal');
-    if (overlay) {
-        overlay.hidden = true;
-        overlay.querySelector('.app-modal-body').innerHTML = '';
+    var element = document.getElementById('app-modal');
+    if (element) {
+        bootstrap.Modal.getOrCreateInstance(element).hide();
     }
 }
 
@@ -283,25 +280,45 @@ function setValue(id, value) {
 window.setValue = setValue;
 
 /*
- * Barra lateral: cada opcion con submenu se pliega/despliega al pulsarla.
- * Sustituye a metisMenu.
+ * Barra lateral: cada opcion con submenu se pliega/despliega al pulsarla y se
+ * abre sola cuando la pagina actual es una de sus opciones. Sustituye a
+ * metisMenu.
  */
+function normalizePath(url) {
+    return (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+}
+
 function initSidebar() {
     var menu = document.getElementById('side-menu');
     if (!menu) {
         return;
     }
+    var current = normalizePath(window.location.pathname);
     menu.querySelectorAll(':scope > li').forEach(function (item) {
         var submenu = item.querySelector('ul');
         if (!submenu) {
             return;
         }
         submenu.classList.add('sidebar-submenu');
+        var hasActive = false;
+        submenu.querySelectorAll('a').forEach(function (option) {
+            if (normalizePath(option.getAttribute('href')) === current) {
+                option.classList.add('active');
+                option.setAttribute('aria-current', 'page');
+                hasActive = true;
+            }
+        });
+        if (hasActive) {
+            item.classList.add('open', 'active');
+        }
         var link = item.querySelector(':scope > a');
         if (link) {
+            link.setAttribute('role', 'button');
+            link.setAttribute('aria-expanded', hasActive ? 'true' : 'false');
             link.addEventListener('click', function (event) {
                 event.preventDefault();
                 item.classList.toggle('open');
+                link.setAttribute('aria-expanded', item.classList.contains('open') ? 'true' : 'false');
             });
         }
     });
@@ -338,6 +355,26 @@ function initTransferTable(hiddenId) {
 }
 
 window.initTransferTable = initTransferTable;
+
+/*
+ * Filas de tabla navegables. En vez de `onclick` en el `<tr>` (que no se puede
+ * enfocar ni activar con el teclado), las filas llevan `data-href` y
+ * `tabindex="0"`; aqui se navega con clic o con Enter/Espacio.
+ */
+function handleRowNavigation(event) {
+    var row = event.target.closest('tr[data-href]');
+    if (!row || event.target.closest('a, button, input, select, textarea, label')) {
+        return;
+    }
+    if (event.type === 'keydown' && event.key !== 'Enter' && event.key !== ' ') {
+        return;
+    }
+    event.preventDefault();
+    window.location.href = row.dataset.href;
+}
+
+document.addEventListener('click', handleRowNavigation);
+document.addEventListener('keydown', handleRowNavigation);
 
 /*
  * Abre el modal y carga un fragmento por fetch. Devuelve el cuerpo para poder

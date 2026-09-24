@@ -1,0 +1,9 @@
+{% if setup_incomplete %}
+<div class="alert alert-warning d-flex flex-wrap align-items-center gap-2" role="alert">
+    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+    <span>La configuración inicial está incompleta: faltan datos para operar.</span>
+    <a class="btn btn-sm btn-warning ms-auto" href="{% url 'security:setup' %}">
+        Completar configuración
+    </a>
+</div>
+{% endif %}

@@ -1,19 +1,19 @@
 {% extends "accounting/base_accounting.html" %}
 {% block cuerpo %}
-<h3>Impuestos</h3>
+<h1 class="page-title mb-3">Impuestos</h1>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.accounting.add_tax %}
         <a href="{% url 'accounting:tax_create' %}" class="btn btn-primary">Crear</a>
         {% endif %}
         {% if perms.accounting.cargar_impuestos %}
-        <a href="#" class="btn btn-secondary">Importar</a>
+        <a href="#" class="btn btn-outline-secondary">Importar</a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.accounting.ver_reporte_impuestos_excel %}
-            <button class="btn btn-secondary" type="button" onclick="location.href='#';">
+            <button class="btn btn-outline-secondary" type="button" onclick="location.href='#';">
                 <span class="bi bi-list-columns"></span>
             </button>
             {% endif %}
@@ -31,7 +31,7 @@
                        placeholder="Buscar por abreviatura o descripción"
                        value="{{ request.GET.q|default:'' }}">
                 <span class="input-group-text p-0 border-0">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-outline-secondary" type="submit">
                         <span class="bi bi-search"></span>
                     </button>
                 </span>

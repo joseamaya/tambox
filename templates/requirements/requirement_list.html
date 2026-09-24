@@ -1,20 +1,20 @@
 {% extends "requirements/base_requirements.html" %}
 {% block cuerpo %}
-<h3>Requerimientos</h3>
+<h1 class="page-title mb-3">Requerimientos</h1>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.requirements.add_requirement %}
         <a href="{% url 'requirements:requirement_create' %}" class="btn btn-primary"> Crear</a>
         {% endif %}
         {% if perms.requirements.cargar_requerimientos %}
-        <a href="#" class="btn btn-secondary">
+        <a href="#" class="btn btn-outline-secondary">
             Importar </a>
         {% endif %}
     </div>
     <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.requirements.ver_reporte_requerimientos_excel %}
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'requirements:requirement_excel_report' %}';">
                 <span class="bi bi-list-columns"></span>
             </button>
@@ -33,7 +33,7 @@
                        placeholder="Buscar por código u oficina"
                        value="{{ request.GET.q|default:'' }}">
                 <span class="input-group-text p-0 border-0">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-outline-secondary" type="submit">
                         <span class="bi bi-search"></span>
                     </button>
                 </span>

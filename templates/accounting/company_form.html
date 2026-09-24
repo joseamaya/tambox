@@ -1,0 +1,24 @@
+{% extends "accounting/base_accounting.html" %}
+{% block cuerpo %}
+<h1 class="page-title mb-3">Empresa</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3 d-flex flex-wrap gap-2">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a class="btn btn-outline-secondary" href="{% url 'security:setup' %}">
+            Volver a configuración
+        </a>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+                {% for field in form %}
+                <div class="col-md-6">
+                    {% include "includes/field.html" with field=field %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock cuerpo %}

@@ -92,6 +92,9 @@ def python_identifiers(source):
 
 
 def template_identifiers(source):
+    # Los bloques de comentario son prosa: se quitan antes de buscar, igual que
+    # `python_identifiers` quita los comentarios y docstrings.
+    source = re.sub(r'\{%\s*comment\s*%\}[\s\S]*?\{%\s*endcomment\s*%\}', '', source)
     identifiers = []
     for block in re.findall(r'\{\{[\s\S]*?\}\}|\{%[\s\S]*?%\}', source):
         # Los codenames de permisos son la voz del sistema: no se revisan.

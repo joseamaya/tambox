@@ -6,24 +6,35 @@ con la cabecera `HX-Request`, incluyen el buscador (`#list-search`) para no
 perder el filtro, y solo reemplazan `#list-results`.
 {% endcomment %}
 {% if page_obj.paginator.num_pages > 1 %}
-<div class="row">
-    <div class="col-md-6">
-        <span>Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
-            ({{ page_obj.paginator.count }} registros)</span>
-    </div>
-    <div class="col-md-6 text-end">
-        {% if page_obj.has_previous %}
-        <button type="button" class="btn btn-info"
-                hx-get="{{ request.path }}" hx-include="#list-search"
-                hx-vals='{"page": {{ page_obj.previous_page_number }}}'
-                hx-target="#list-results">Anterior</button>
-        {% endif %}
-        {% if page_obj.has_next %}
-        <button type="button" class="btn btn-info"
-                hx-get="{{ request.path }}" hx-include="#list-search"
-                hx-vals='{"page": {{ page_obj.next_page_number }}}'
-                hx-target="#list-results">Siguiente</button>
-        {% endif %}
-    </div>
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3">
+    <span class="text-muted small">
+        Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        ({{ page_obj.paginator.count }} registros)
+    </span>
+    <ul class="pagination pagination-sm mb-0">
+        <li class="page-item{% if not page_obj.has_previous %} disabled{% endif %}">
+            <button type="button" class="page-link" aria-label="Página anterior"
+                    {% if page_obj.has_previous %}
+                    hx-get="{{ request.path }}" hx-include="#list-search"
+                    hx-vals='{"page": {{ page_obj.previous_page_number }}}'
+                    hx-target="#list-results"
+                    {% endif %}>
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </li>
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ page_obj.number }}</span>
+        </li>
+        <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}">
+            <button type="button" class="page-link" aria-label="Página siguiente"
+                    {% if page_obj.has_next %}
+                    hx-get="{{ request.path }}" hx-include="#list-search"
+                    hx-vals='{"page": {{ page_obj.next_page_number }}}'
+                    hx-target="#list-results"
+                    {% endif %}>
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </li>
+    </ul>
 </div>
 {% endif %}

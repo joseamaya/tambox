@@ -1,6 +1,6 @@
 {% extends "purchases/base_purchases.html" %}
 {% block cuerpo %}
-<h3>Servicios / {{ object.description }}</h3>
+<h1 class="page-title mb-3">Servicios / {{ object.description }}</h1>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.products.change_product %}
@@ -14,15 +14,15 @@
     </div>
     <div class="col-lg-2 text-end">
         <div class="btn-group">
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'products:service_detail' object.previous %}';">
                 <span class="bi bi-chevron-double-left"></span>
             </button>
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'products:service_detail' object.next %}';">
                 <span class="bi bi-chevron-double-right"></span>
             </button>
-            <button class="btn btn-secondary" type="button"
+            <button class="btn btn-outline-secondary" type="button"
                     onclick="location.href='{% url 'products:service_list' %}';">
                 <span class="bi bi-list-ul"></span>
             </button>
@@ -39,7 +39,7 @@
             </div>
             <div class="col-lg-5">
                 <div class="btn-group">
-                    <button class="btn btn-secondary" type="button">
+                    <button class="btn btn-outline-secondary" type="button">
                         <span class="bi bi-cart fa-2x"></span> {{ object.stock }}
                         <br> productos
                     </button>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
+from tambox.forms import BootstrapFormMixin
 from tambox.widgets import NativeDateFieldsMixin
 from django.forms import formsets
 from django.core.exceptions import ValidationError
@@ -10,7 +11,7 @@ from requirements.mail import requirement_creation_mail
 from products.models import Product
 
 
-class RequirementApprovalForm(forms.ModelForm):
+class RequirementApprovalForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = RequirementApproval
         fields = ['is_active', 'rejection_reason']
@@ -57,22 +58,22 @@ class BaseRequirementDetailFormSet(formsets.BaseFormSet):
                 )
 
 
-class RequirementDetailProductForm(forms.Form):
+class RequirementDetailProductForm(BootstrapFormMixin, forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35}))
     unit = forms.CharField(max_length=6,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    use = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal'}))
+    use = forms.CharField(max_length=100, widget=forms.TextInput())
 
 
-class RequirementDetailForm(forms.Form):
-    code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9, 'class': 'form-control'}))
-    quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control cantidad decimal'}))
-    product = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
+class RequirementDetailForm(BootstrapFormMixin, forms.Form):
+    code = forms.CharField(required=False, widget=forms.TextInput(attrs={'size': 9}))
+    quantity = forms.DecimalField(widget=forms.TextInput(attrs={'size': 4, 'class': 'cantidad decimal'}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
     unit = forms.CharField(required=False,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     use = forms.CharField(required=False, widget=forms.Textarea(attrs={'cols': 30, 'rows': 2}))
 
     def clean_code(self):
@@ -93,7 +94,7 @@ class RequirementDetailForm(forms.Form):
         return self.cleaned_data['quantity']
 
 
-class RequirementForm(NativeDateFieldsMixin, forms.ModelForm):
+class RequirementForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(RequirementForm, self).__init__(*args, **kwargs)
@@ -101,15 +102,7 @@ class RequirementForm(NativeDateFieldsMixin, forms.ModelForm):
         self.fields['report'].required = False
         self.fields['code'].required = False
         self.fields['notes'].required = False
-        for field in iter(self.fields):
-            if field != 'direct_delivery_to_requester':
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control'
-                })
-            if field == 'year':
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control number'
-                })
+        self.fields['year'].widget.attrs.update({'class': 'number'})
 
     def save(self, *args, **kwargs):
         self.instance.requester = self.request.user.worker

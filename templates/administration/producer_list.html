@@ -1,6 +1,6 @@
 {% extends "administration/base_administration.html" %}
 {% block cuerpo %}
-<h3>Productores</h3>
+<h1 class="page-title mb-3">Productores</h1>
 <div class="row">
     <div class="col-lg-10">
         {% if perms.administration.add_producer %}
@@ -9,7 +9,7 @@
         </a>
         {% endif %}
         {% if perms.administration.cargar_productores %}
-        <a href="{% url 'administration:producer_import' %}" class="btn btn-secondary">
+        <a href="{% url 'administration:producer_import' %}" class="btn btn-outline-secondary">
             Importar
         </a>
         {% endif %}
@@ -17,7 +17,7 @@
     <div class="col-lg-2 text-end">
         <div class="btn-group">
             {% if perms.administration.ver_reporte_productores_excel %}
-            <button class="btn btn-secondary" type="button">
+            <button class="btn btn-outline-secondary" type="button">
                 <span class="bi bi-list-columns"></span>
             </button>
             {% endif %}
@@ -35,7 +35,7 @@
                        placeholder="Buscar por DNI, apellidos o nombre"
                        value="{{ request.GET.q|default:'' }}">
                 <span class="input-group-text p-0 border-0">
-                    <button class="btn btn-secondary" type="submit">
+                    <button class="btn btn-outline-secondary" type="submit">
                         <span class="bi bi-search"></span>
                     </button>
                 </span>

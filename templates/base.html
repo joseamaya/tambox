@@ -4,11 +4,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="TAMBOX - sistema de logística: requerimientos, compras, almacén, contabilidad, productos y administración.">
     <title>TAMBOX</title>
+    <link rel="icon" href="{% static 'images/favicon.ico' %}">
     <link href="{% static 'css/bootstrap5.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/bootstrap-icons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/app.css' %}" rel="stylesheet">
     <script src="{% static 'js/bootstrap5.bundle.min.js' %}"></script>
     <script src="{% static 'js/NumeroALetras.js' %}"></script>
     <script src="{% static 'js/spin.js' %}"></script>
@@ -28,245 +29,41 @@
         [x-cloak] {
             display: none !important;
         }
-
-        /* Barra lateral propia: sustituye a sb-admin-2 + metisMenu. */
-        #side-menu > li > a {
-            display: flex;
-            align-items: center;
-            gap: .5rem;
-            padding: .5rem .75rem;
-            color: #212529;
-            text-decoration: none;
-        }
-
-        #side-menu > li > a:hover {
-            background-color: #e9ecef;
-        }
-
-        #side-menu .sidebar-submenu {
-            display: none;
-            padding-left: 1.5rem;
-            list-style: none;
-        }
-
-        #side-menu > li.open > .sidebar-submenu {
-            display: block;
-        }
-
-        #side-menu .sidebar-arrow {
-            transition: transform .15s ease-in-out;
-        }
-
-        #side-menu > li.open > a .sidebar-arrow {
-            transform: rotate(180deg);
-        }
-
-        #side-menu .sidebar-submenu a {
-            display: block;
-            padding: .25rem .75rem;
-            color: #495057;
-            text-decoration: none;
-        }
-
-        #side-menu .sidebar-submenu a:hover {
-            background-color: #e9ecef;
-        }
-
-        /* Modal y autocompletado propios: sustituyen a jQuery UI. */
-        .app-modal-overlay {
-            position: fixed;
-            top: 0;
-            right: 0;
-            bottom: 0;
-            left: 0;
-            z-index: 1050;
-            display: flex;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 40px 16px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, .5);
-        }
-
-        .app-modal-overlay[hidden] {
-            display: none;
-        }
-
-        .app-modal {
-            width: 100%;
-            max-width: 1000px;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, .3);
-        }
-
-        .app-modal--sm {
-            max-width: 400px;
-        }
-
-        .app-modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 15px;
-            border-bottom: 1px solid #dee2e6;
-        }
-
-        .app-modal-title {
-            font-weight: 600;
-        }
-
-        .app-modal-close {
-            padding: 0;
-            font-size: 24px;
-            line-height: 1;
-            background: none;
-            border: 0;
-            cursor: pointer;
-        }
-
-        .app-modal-body {
-            padding: 15px;
-        }
-
-        .app-modal-footer {
-            padding: 10px 15px;
-            text-align: right;
-            border-top: 1px solid #dee2e6;
-        }
-
-        .app-modal-footer[hidden] {
-            display: none;
-        }
-
-        .product-autocomplete {
-            position: absolute;
-            z-index: 1060;
-            max-height: 250px;
-            overflow-y: auto;
-            background: #fff;
-            border: 1px solid #ccc;
-        }
-
-        .product-autocomplete[hidden] {
-            display: none;
-        }
-
-        .product-autocomplete-item {
-            display: block;
-            padding: 5px 10px;
-            color: #333;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .product-autocomplete-item:hover {
-            background-color: #f5f5f5;
-        }
-
-        /* Tablas de transferencia dentro del modal. */
-        .app-modal-body .table tbody tr {
-            cursor: pointer;
-        }
-
-        .app-modal-body .table tbody tr.selected {
-            background-color: #cfe2ff;
-        }
     </style>
 </head>
-<body class="bg-body-tertiary">
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'security:home' %}">
-            <i class="bi bi-house"></i>
-        </a>
-        {% if perms.administration.ver_bienvenida %}
-        <a class="navbar-brand" href="{% url 'administration:dashboard' %}">
-            <i class="bi bi-bar-chart-line"></i> Administración
-        </a>
-        {% endif %}
-        {% if perms.warehouse.ver_bienvenida %}
-        <a class="navbar-brand" href="{% url 'warehouse:dashboard' %}">
-            <i class="bi bi-building"></i> Almacén
-        </a>
-        {% endif %}
-        {% if perms.purchases.ver_bienvenida %}
-        <a class="navbar-brand" href="{% url 'purchases:dashboard' %}">
-            <i class="bi bi-cart"></i> Compras
-        </a>
-        {% endif %}
-        {% if perms.accounting.ver_bienvenida %}
-        <a class="navbar-brand" href="{% url 'accounting:dashboard' %}">
-            <i class="bi bi-calculator"></i> Contabilidad
-        </a>
-        {% endif %}
-        {% if perms.requirements.ver_bienvenida %}
-        <a class="navbar-brand" href="{% url 'requirements:dashboard' %}">
-            <i class="bi bi-newspaper"></i> Requerimientos
-        </a>
-        {% endif %}
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                data-bs-target="#top-nav" aria-controls="top-nav"
-                aria-expanded="false" aria-label="Desplegar navegación">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="top-nav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="bi bi-bell"></i></a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Cuenta</a></li>
-                        {% if user.is_staff %}
-                        <li>
-                            <a class="dropdown-item" href="{% url 'admin:index' %}">
-                                <i class="bi bi-list"></i> Administración
-                            </a>
-                        </li>
-                        {% endif %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form action="{% url 'security:logout' %}" method="post">
-                                {% csrf_token %}
-                                <button type="submit" class="dropdown-item">
-                                    <i class="bi bi-box-arrow-right"></i> Salir
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
-            </ul>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+{% include "includes/navbar.html" %}
+<div class="app-shell">
+    <nav class="app-sidebar offcanvas-lg offcanvas-start" tabindex="-1" id="app-sidebar"
+         aria-label="Menú principal">
+        <div class="offcanvas-header d-lg-none">
+            <span class="offcanvas-title fw-bold">TAMBOX</span>
+            <button type="button" class="btn-close btn-close-white"
+                    data-bs-dismiss="offcanvas" data-bs-target="#app-sidebar"
+                    aria-label="Cerrar menú"></button>
         </div>
-    </div>
-</nav>
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-12 col-lg-2 bg-body-secondary p-0">
-            {% block menu %}
-            <ul class="nav flex-column pt-2" id="side-menu">
+        <div class="offcanvas-body">
+            <ul class="nav flex-column" id="side-menu">
                 {% block menu_items %}
                 {% endblock menu_items %}
             </ul>
-            {% endblock menu %}
-        </nav>
-        <main class="col-12 col-lg-10 py-3">
-            {% if messages %}
+        </div>
+    </nav>
+    <main class="app-main" id="contenido">
+        {% if messages %}
+        <div aria-live="polite">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible" role="alert">
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
                 {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
             {% endfor %}
-            {% endif %}
-            {% block cuerpo %}
-            {% endblock cuerpo %}
-        </main>
-    </div>
+        </div>
+        {% endif %}
+        {% block cuerpo %}
+        {% endblock cuerpo %}
+    </main>
 </div>
 </body>
 {% block js %}

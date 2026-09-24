@@ -84,10 +84,11 @@ class RenderTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'TAMBOX')
 
-    def test_page_authenticated_renders(self):
+    def test_page_authenticated_redirects_to_setup(self):
         self.client.force_login(self.user)
         response = self.client.get('/home/')
-        self.assertEqual(response.status_code, 200)
+        # `/configuracion/` vuelve a redirigir al primer paso pendiente.
+        self.assertRedirects(response, '/configuracion/', fetch_redirect_response=False)
 
     def test_lists_render(self):
         self.client.force_login(self.user)
@@ -271,3 +272,74 @@ class OnScreenMessagesTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Error guardando la cotizacion.')
         self.assertContains(response, 'alert-danger')
+
+
+class SetupTest(TestCase):
+    """Entrada del wizard: crea la semilla de forma idempotente, redirige al
+    primer paso pendiente y da paso a la bienvenida al completarse."""
+
+    def setUp(self):
+        self.client.force_login(
+            User.objects.create_superuser('config', 'config@example.com', 'key-segura-123'))
+
+    def test_home_redirects_to_setup_when_incomplete(self):
+        response = self.client.get('/home/')
+
+        self.assertRedirects(response, '/configuracion/', fetch_redirect_response=False)
+
+    def test_setup_creates_base_data(self):
+        from administration.models import Office, ApprovalLevel
+        from accounting.models import DocumentType
+        from warehouse.models import MovementType
+        from products.models import UnitOfMeasure
+
+        response = self.client.get('/configuracion/')
+
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response['Location'].startswith('/configuracion/'))
+        self.assertTrue(Office.objects.filter(code='GGEN', is_management=True).exists())
+        self.assertTrue(ApprovalLevel.objects.filter(description='LOGISTICA').exists())
+        self.assertTrue(ApprovalLevel.objects.filter(description='USUARIO').exists())
+        self.assertTrue(DocumentType.objects.filter(sunat_code='PEC').exists())
+        self.assertEqual(MovementType.objects.filter(code__in=['I00', 'I01', 'S01']).count(), 3)
+        self.assertTrue(UnitOfMeasure.objects.filter(code='SERV').exists())
+
+    def test_setup_repairs_missing_level(self):
+        from administration.models import ApprovalLevel
+
+        ApprovalLevel.objects.create(description='LOGISTICA')
+
+        self.client.get('/configuracion/')
+
+        user_level = ApprovalLevel.objects.get(description='USUARIO')
+        self.assertEqual(user_level.superior_level.description, 'LOGISTICA')
+
+    def test_setup_is_idempotent(self):
+        from administration.models import Office, ApprovalLevel
+
+        self.client.get('/configuracion/')
+        self.client.get('/configuracion/')
+
+        self.assertEqual(Office.objects.filter(code='GGEN').count(), 1)
+        self.assertEqual(ApprovalLevel.objects.filter(description='LOGISTICA').count(), 1)
+        self.assertEqual(ApprovalLevel.objects.filter(description='USUARIO').count(), 1)
+
+    def test_home_shows_welcome_when_configured(self):
+        from model_bakery import baker
+
+        from tambox.setup import clear_setup_cache, seed_base_data
+
+        seed_base_data()
+        baker.make('accounting.StockType')
+        baker.make('accounting.Configuration')
+        baker.make('accounting.Company', business_name='TAMBOX', tax_id='12345678901')
+        baker.make('administration.Worker')
+        baker.make('administration.Position')
+        baker.make('warehouse.Warehouse')
+        baker.make('products.Product')
+        clear_setup_cache()
+
+        response = self.client.get('/home/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Bienvenido')

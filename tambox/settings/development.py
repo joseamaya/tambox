@@ -1,6 +1,14 @@
+import sys
+
 from .base import *
 
 DEBUG = True
+
+# Los tests crean datos a medida y no completan el wizard, asi que el bloqueo se
+# desactiva al correr la suite. El middleware se prueba aparte, activandolo con
+# `override_settings(SETUP_WIZARD_ENFORCED=True)`.
+if 'test' in sys.argv:
+    SETUP_WIZARD_ENFORCED = False
 
 ALLOWED_HOSTS = ['*']
 

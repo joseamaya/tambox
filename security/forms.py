@@ -4,15 +4,20 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout
 
+from tambox.forms import BootstrapFormMixin
 
-class PasswordChangeForm(forms.Form):
-    old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
-    password_confirmation = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+class PasswordChangeForm(BootstrapFormMixin, forms.Form):
+    old_password = forms.CharField(widget=forms.PasswordInput())
+    new_password = forms.CharField(widget=forms.PasswordInput())
+    password_confirmation = forms.CharField(widget=forms.PasswordInput())
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(PasswordChangeForm, self).__init__(*args, **kwargs)
+        self.fields['old_password'].widget.attrs['autocomplete'] = 'current-password'
+        self.fields['new_password'].widget.attrs['autocomplete'] = 'new-password'
+        self.fields['password_confirmation'].widget.attrs['autocomplete'] = 'new-password'
 
     def clean_old_password(self):
         old_password = self.cleaned_data.get('old_password')
@@ -45,10 +50,15 @@ class PasswordChangeForm(forms.Form):
         return self.cleaned_data
 
 
-class LoginForm(AuthenticationForm):
+class LoginForm(BootstrapFormMixin, AuthenticationForm):
     def __init__(self, *args, **kwargs):
         super(LoginForm, self).__init__(*args, **kwargs)
-        self.fields['username'].widget.attrs['class'] = 'form-control'
-        self.fields['username'].widget.attrs['placeholder'] = 'Usuario'
-        self.fields['password'].widget.attrs['class'] = 'form-control'
-        self.fields['password'].widget.attrs['placeholder'] = 'Contraseña'
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'Usuario',
+            'autocomplete': 'username',
+            'autofocus': True,
+        })
+        self.fields['password'].widget.attrs.update({
+            'placeholder': 'Contraseña',
+            'autocomplete': 'current-password',
+        })

@@ -1,0 +1,450 @@
+/*
+ * TAMBOX - Hoja de estilos propia.
+ *
+ * Se carga despues de Bootstrap y solo define los tokens de marca, el shell
+ * (navbar + barra lateral + contenido) y los pocos componentes que Bootstrap no
+ * cubre (autocompletado). La meta es no tocar los colores por componente sino
+ * reasignar los tokens donde Bootstrap los lee.
+ */
+
+:root {
+    /* Marca: azul acero sobrio sobre superficies neutras. */
+    --tb-primary: #274b6d;
+    --tb-primary-hover: #1f3c58;
+    --tb-primary-rgb: 39, 75, 109;
+    --tb-accent: #2f6f9f;
+    --tb-sidebar-bg: #1e2a38;
+    --tb-sidebar-fg: #c3cedb;
+    --tb-sidebar-fg-muted: #8b9aad;
+    --tb-sidebar-hover: #27374a;
+    --tb-sidebar-active: #2f6f9f;
+    --tb-surface: #f4f6f9;
+    --tb-border: #e2e6ec;
+
+    /* Shell. */
+    --tb-navbar-height: 56px;
+    --tb-sidebar-width: 264px;
+
+    /* Sobrescribe los tokens que Bootstrap 5.3 si lee. */
+    --bs-primary: var(--tb-primary);
+    --bs-primary-rgb: var(--tb-primary-rgb);
+    --bs-link-color: var(--tb-primary);
+    --bs-link-hover-color: var(--tb-primary-hover);
+    --bs-link-color-rgb: var(--tb-primary-rgb);
+    --bs-body-bg: var(--tb-surface);
+    --bs-border-color: var(--tb-border);
+}
+
+/* Botones y acentos que Bootstrap compila con el azul por defecto. */
+.btn-primary {
+    --bs-btn-bg: var(--tb-primary);
+    --bs-btn-border-color: var(--tb-primary);
+    --bs-btn-hover-bg: var(--tb-primary-hover);
+    --bs-btn-hover-border-color: var(--tb-primary-hover);
+    --bs-btn-active-bg: var(--tb-primary-hover);
+    --bs-btn-active-border-color: var(--tb-primary-hover);
+    --bs-btn-disabled-bg: var(--tb-primary);
+    --bs-btn-disabled-border-color: var(--tb-primary);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--tb-primary);
+    --bs-btn-border-color: var(--tb-primary);
+    --bs-btn-hover-bg: var(--tb-primary);
+    --bs-btn-hover-border-color: var(--tb-primary);
+    --bs-btn-active-bg: var(--tb-primary-hover);
+    --bs-btn-active-border-color: var(--tb-primary-hover);
+}
+
+.btn-info {
+    --bs-btn-bg: #eef1f5;
+    --bs-btn-border-color: #d7dde5;
+    --bs-btn-color: #33404f;
+    --bs-btn-hover-bg: #e2e7ee;
+    --bs-btn-hover-border-color: #c9d2dc;
+    --bs-btn-hover-color: #1f2937;
+    --bs-btn-active-bg: #d7dde5;
+    --bs-btn-active-border-color: #c0cad6;
+    --bs-btn-active-color: #1f2937;
+}
+
+.text-primary {
+    color: var(--tb-primary) !important;
+}
+
+.bg-primary {
+    background-color: var(--tb-primary) !important;
+}
+
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--tb-accent);
+    box-shadow: 0 0 0 .2rem rgba(var(--tb-primary-rgb), .15);
+}
+
+.form-check-input:checked {
+    background-color: var(--tb-primary);
+    border-color: var(--tb-primary);
+}
+
+.page-link {
+    color: var(--tb-primary);
+}
+
+.page-item.active .page-link {
+    background-color: var(--tb-primary);
+    border-color: var(--tb-primary);
+}
+
+/* ------------------------------------------------------------------ */
+/* Shell                                                               */
+/* ------------------------------------------------------------------ */
+
+body {
+    min-height: 100vh;
+}
+
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: .5rem;
+    z-index: 2000;
+    padding: .5rem 1rem;
+    color: #fff;
+    background: var(--tb-primary);
+    border-radius: 0 0 .5rem .5rem;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+.app-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    min-height: var(--tb-navbar-height);
+    background: #fff;
+    border-bottom: 1px solid var(--tb-border);
+}
+
+.app-navbar .navbar-brand {
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--tb-primary);
+}
+
+.app-navbar .nav-link {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    color: #495867;
+    border-radius: .5rem;
+    padding: .4rem .75rem;
+}
+
+.app-navbar .nav-link:hover {
+    color: var(--tb-primary);
+    background: #eef1f5;
+}
+
+.app-navbar .nav-link.active {
+    color: var(--tb-primary);
+    font-weight: 600;
+    background: #e7edf4;
+}
+
+.app-shell {
+    display: flex;
+    align-items: stretch;
+    min-height: calc(100vh - var(--tb-navbar-height));
+}
+
+.app-sidebar {
+    flex: 0 0 var(--tb-sidebar-width);
+    width: var(--tb-sidebar-width);
+    /* Bootstrap pone `background-color: transparent !important` a
+       `.offcanvas-lg` en escritorio; hay que ganarle con la misma prioridad. */
+    background: var(--tb-sidebar-bg) !important;
+    color: var(--tb-sidebar-fg);
+}
+
+.app-sidebar .offcanvas-body {
+    display: block;
+    padding: 0;
+}
+
+.app-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1.25rem 1.5rem 2.5rem;
+}
+
+@media (min-width: 992px) {
+    .app-sidebar {
+        position: sticky;
+        top: var(--tb-navbar-height);
+        height: calc(100vh - var(--tb-navbar-height));
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .app-main {
+        padding: 1rem;
+    }
+}
+
+/* ------------------------------------------------------------------ */
+/* Barra lateral                                                       */
+/* ------------------------------------------------------------------ */
+
+#side-menu {
+    width: 100%;
+    padding: .5rem 0;
+    list-style: none;
+}
+
+#side-menu > li > a {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .6rem 1rem;
+    color: var(--tb-sidebar-fg);
+    font-weight: 500;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+}
+
+#side-menu > li > a:hover {
+    background: var(--tb-sidebar-hover);
+    color: #fff;
+}
+
+#side-menu > li.open > a,
+#side-menu > li.active > a {
+    color: #fff;
+    background: var(--tb-sidebar-hover);
+    border-left-color: var(--tb-sidebar-active);
+}
+
+#side-menu .sidebar-arrow {
+    margin-left: auto;
+    font-size: .8rem;
+    transition: transform .15s ease-in-out;
+}
+
+#side-menu > li.open > a .sidebar-arrow {
+    transform: rotate(180deg);
+}
+
+#side-menu .sidebar-submenu {
+    display: none;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+#side-menu > li.open > .sidebar-submenu {
+    display: block;
+}
+
+#side-menu .sidebar-submenu a {
+    display: block;
+    padding: .45rem 1rem .45rem 2.75rem;
+    color: var(--tb-sidebar-fg-muted);
+    font-size: .9rem;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+#side-menu .sidebar-submenu a:hover {
+    color: #fff;
+    background: var(--tb-sidebar-hover);
+}
+
+#side-menu .sidebar-submenu a.active {
+    color: #fff;
+    font-weight: 600;
+    border-left-color: var(--tb-sidebar-active);
+}
+
+.offcanvas-header {
+    background: var(--tb-sidebar-bg);
+    color: #fff;
+}
+
+/* ------------------------------------------------------------------ */
+/* Encabezado de pagina y tarjetas                                     */
+/* ------------------------------------------------------------------ */
+
+.page-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: 1.25rem;
+}
+
+.page-header .page-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.page-header .breadcrumb {
+    margin: .25rem 0 0;
+    font-size: .85rem;
+}
+
+.page-header .page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .5rem;
+}
+
+.card {
+    border: 1px solid var(--tb-border);
+    border-radius: .65rem;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, .04);
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--tb-border);
+    font-weight: 600;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tablas                                                              */
+/* ------------------------------------------------------------------ */
+
+.table {
+    --bs-table-border-color: var(--tb-border);
+}
+
+.table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #eef1f5;
+    color: #495867;
+    font-size: .78rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.table-hover > tbody > tr.row-link {
+    cursor: pointer;
+}
+
+.table-hover > tbody > tr.row-link:focus-visible {
+    outline: 2px solid var(--tb-accent);
+    outline-offset: -2px;
+}
+
+.table .empty-state {
+    padding: 2rem 1rem;
+    color: #6b7280;
+}
+
+.table > tbody > tr.selected {
+    --bs-table-bg: #dbe7f3;
+}
+
+.table > tbody > tr.selected > * {
+    --bs-table-bg-state: #dbe7f3;
+}
+
+#list-search .input-group {
+    max-width: 420px;
+}
+
+#list-results .card {
+    overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ */
+/* Formularios                                                         */
+/* ------------------------------------------------------------------ */
+
+.form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: .25rem;
+}
+
+.form-text {
+    color: #6b7280;
+}
+
+.required-mark {
+    color: #b02a37;
+}
+
+/* ------------------------------------------------------------------ */
+/* Autocompletado (sustituye al de jQuery UI)                          */
+/* ------------------------------------------------------------------ */
+
+.product-autocomplete {
+    position: absolute;
+    z-index: 1080;
+    max-height: 260px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid var(--tb-border);
+    border-radius: .5rem;
+    box-shadow: 0 8px 24px rgba(16, 24, 40, .12);
+}
+
+.product-autocomplete[hidden] {
+    display: none;
+}
+
+.product-autocomplete-item {
+    display: block;
+    padding: .45rem .75rem;
+    color: #33404f;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.product-autocomplete-item:hover,
+.product-autocomplete-item.active {
+    background: #eef1f5;
+    color: var(--tb-primary);
+}
+
+/* ------------------------------------------------------------------ */
+/* Login                                                               */
+/* ------------------------------------------------------------------ */
+
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1.5rem;
+    background: linear-gradient(160deg, var(--tb-sidebar-bg), var(--tb-primary));
+}
+
+.login-card {
+    width: 100%;
+    max-width: 400px;
+    border: 0;
+    border-radius: .75rem;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, .35);
+}
+
+.login-brand {
+    color: #fff;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+}

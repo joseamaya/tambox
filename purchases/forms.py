@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 
+from tambox.forms import BootstrapFormMixin
 from tambox.widgets import NativeDateFieldsMixin
 from purchases.models import Supplier, Quotation, PurchaseOrder, ServiceOrder, ServiceConformity
 from django.forms import formsets
@@ -10,7 +11,7 @@ from purchases.settings import SEARCH_PARAMETERS
 from django.core.exceptions import ValidationError
 
 
-class SupplierForm(NativeDateFieldsMixin, forms.ModelForm):
+class SupplierForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
     class Meta:
         model = Supplier
         fields = ['tax_id', 'business_name', 'address', 'phone', 'email', 'sunat_status', 'sunat_condition', 'ciiu',
@@ -24,11 +25,7 @@ class SupplierForm(NativeDateFieldsMixin, forms.ModelForm):
         self.fields['email'].required = False
         self.fields['sunat_status'].required = False
         self.fields['sunat_condition'].required = False
-        for field in iter(self.fields):
-            if field == 'tax_id':
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control quantity'
-                })
+        self.fields['tax_id'].widget.attrs.update({'class': 'quantity'})
 
     def clean_tax_id(self):
         tax_id = self.cleaned_data.get('tax_id')
@@ -37,62 +34,58 @@ class SupplierForm(NativeDateFieldsMixin, forms.ModelForm):
         return self.cleaned_data['tax_id']
 
 
-class PurchaseOrderDetailForm(forms.Form):
-    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+class PurchaseOrderDetailForm(BootstrapFormMixin, forms.Form):
+    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35}))
     unit = forms.CharField(max_length=6,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8,
-                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
-class ServiceOrderDetailForm(forms.Form):
+class ServiceOrderDetailForm(BootstrapFormMixin, forms.Form):
     code = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal form-control'}))
-    service = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal'}))
+    service = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35}))
     description = forms.CharField(widget=forms.Textarea(attrs={'cols': 112, 'rows': 2}))
     price = forms.DecimalField(max_digits=15, decimal_places=5,
-                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal form-control'}))
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'decimal'}))
     amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
-class OrderDateReportForm(forms.Form):
-    search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
+class OrderDateReportForm(BootstrapFormMixin, forms.Form):
+    search_type = forms.ChoiceField(widget=forms.RadioSelect, label='Seleccione:',
                                       choices=SEARCH_PARAMETERS)
     start_date = forms.CharField(max_length=10, widget=forms.TextInput(
-        attrs={'size': 10, 'class': 'form-control', 'type': 'date'}),
+        attrs={'size': 10, 'type': 'date'}),
                                    label='Fecha de Inicio:', required=False)
     end_date = forms.CharField(max_length=10, widget=forms.TextInput(
-        attrs={'size': 10, 'class': 'form-control', 'type': 'date'}),
+        attrs={'size': 10, 'type': 'date'}),
                                 label='Fecha de Fin:', required=False)
-    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
+    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(), required=False)
+    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4}), label='Año',
                             required=False)
 
 
-class QuotationForm(NativeDateFieldsMixin, forms.ModelForm):
-    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+class QuotationForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     order = forms.CharField(max_length=12, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}), required=False)
+        attrs={'size': 100, 'readonly': "readonly"}), required=False)
 
     def __init__(self, *args, **kwargs):
         super(QuotationForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
     def clean_order(self):
         order_code = self.cleaned_data.get('order')
@@ -127,36 +120,30 @@ class QuotationForm(NativeDateFieldsMixin, forms.ModelForm):
         fields = ['code', 'date', 'notes']
 
 
-class PurchaseOrderForm(NativeDateFieldsMixin, forms.ModelForm):
-    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+class PurchaseOrderForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     current_tax = forms.CharField(widget=forms.HiddenInput())
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
     tax = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
+    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200}))
 
     def __init__(self, *args, **kwargs):
         super(PurchaseOrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['reference'].required = False
         self.fields['notes'].required = False
-        for field in iter(self.fields):
-            if field != 'with_tax' and field != 'in_dollars':
-                self.fields[field].widget.attrs.update({
-                    'class': 'form-control'
-                })
-            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_in_words':
-                self.fields[field].widget.attrs.update({
-                    'readonly': "readonly"
-                })
+        for field in ('igv', 'total', 'subtotal', 'total_in_words'):
+            if field in self.fields:
+                self.fields[field].widget.attrs.update({'readonly': "readonly"})
 
     def clean_code(self):
         code = self.cleaned_data.get('code')
@@ -177,20 +164,20 @@ class PurchaseOrderForm(NativeDateFieldsMixin, forms.ModelForm):
         fields = ['code', 'payment_method', 'date', 'notes', 'with_tax', 'in_dollars']
 
 
-class ServiceOrderForm(NativeDateFieldsMixin, forms.ModelForm):
-    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
-    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+class ServiceOrderForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
+    tax_id = forms.CharField(max_length=11, widget=forms.TextInput(attrs={'size': 100, 'class': 'entero'}))
+    business_name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100}))
     address = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     subtotal = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
     tax = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
-    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200, 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
+    total_in_words = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'size': 200}))
 
     def __init__(self, *args, **kwargs):
         super(ServiceOrderForm, self).__init__(*args, **kwargs)
@@ -200,14 +187,9 @@ class ServiceOrderForm(NativeDateFieldsMixin, forms.ModelForm):
         self.fields['report_name'].required = False
         self.fields['report'].required = False
         self.fields['reference'].required = False
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
-            if field == 'igv' or field == 'total' or field == 'subtotal' or field == 'total_in_words':
-                self.fields[field].widget.attrs.update({
-                    'readonly': "readonly"
-                })
+        for field in ('igv', 'total', 'subtotal', 'total_in_words'):
+            if field in self.fields:
+                self.fields[field].widget.attrs.update({'readonly': "readonly"})
 
     def clean_code(self):
         code = self.cleaned_data.get('code')
@@ -228,11 +210,11 @@ class ServiceOrderForm(NativeDateFieldsMixin, forms.ModelForm):
         fields = ['code', 'payment_method', 'process', 'notes', 'date', 'report_name', 'report']
 
 
-class ServiceConformityForm(NativeDateFieldsMixin, forms.ModelForm):
+class ServiceConformityForm(BootstrapFormMixin, NativeDateFieldsMixin, forms.ModelForm):
     reference = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     subtotal = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
 
     def __init__(self, *args, **kwargs):
         super(ServiceConformityForm, self).__init__(*args, **kwargs)
@@ -241,10 +223,6 @@ class ServiceConformityForm(NativeDateFieldsMixin, forms.ModelForm):
         self.fields['code'].required = False
         self.fields['supporting_document'].required = False
         self.fields['file'].required = False
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
     def save(self, *args, **kwargs):
         self.instance.service_order = ServiceOrder.objects.get(pk=self.cleaned_data['reference'])
@@ -255,59 +233,59 @@ class ServiceConformityForm(NativeDateFieldsMixin, forms.ModelForm):
         fields = ['code', 'supporting_document', 'file', 'date', 'total', 'total_in_words']
 
 
-class QuotationDetailForm(forms.Form):
+class QuotationDetailForm(BootstrapFormMixin, forms.Form):
     requirement = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(max_length=14, widget=forms.TextInput(
-        attrs={'size': 14, 'readonly': "readonly", 'class': 'entero form-control'}))
+        attrs={'size': 14, 'readonly': "readonly", 'class': 'entero'}))
     name = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 120, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 120, 'readonly': "readonly"}))
     unit = forms.CharField(max_length=6,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
+        attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal'}))
 
 
-class PurchaseOrderDetailLineForm(forms.Form):
+class PurchaseOrderDetailLineForm(BootstrapFormMixin, forms.Form):
     quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
-        widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero form-control'}))
-    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+        widget=forms.TextInput(attrs={'size': 12, 'readonly': "readonly", 'class': 'entero'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8,
-                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal'}))
     tax = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 7, 'readonly': "readonly", 'class': 'impuesto decimal form-control'}))
+        attrs={'size': 7, 'readonly': "readonly", 'class': 'impuesto decimal'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
-class ServiceOrderDetailLineForm(forms.Form):
+class ServiceOrderDetailLineForm(BootstrapFormMixin, forms.Form):
     quotation = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(widget=forms.HiddenInput())
-    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal'}))
     price = forms.DecimalField(max_digits=15, decimal_places=5,
-                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal'}))
     amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
-class ServiceConformityDetailLineForm(forms.Form):
+class ServiceConformityDetailLineForm(BootstrapFormMixin, forms.Form):
     service_order = forms.CharField(widget=forms.HiddenInput())
     quantity = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal form-control'}))
+        attrs={'size': 6, 'readonly': "readonly", 'class': 'cantidad decimal'}))
     service = forms.CharField(
-        widget=forms.TextInput(attrs={'size': 35, 'readonly': "readonly", 'class': 'form-control'}))
-    use = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}),
+        widget=forms.TextInput(attrs={'size': 35, 'readonly': "readonly"}))
+    use = forms.CharField(widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}),
                           required=False)
     price = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal form-control'}))
+        attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal'}))
     amount = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
 class BaseQuotationDetailFormSet(formsets.BaseFormSet):

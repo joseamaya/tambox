@@ -1,12 +1,12 @@
 {% extends "purchases/base_purchases.html" %}
 {% block cuerpo %}
-<h3>Proveedores / Importar un archivo</h3>
+<h1 class="page-title mb-3">Proveedores / Importar un archivo</h1>
 <form role="form" method="post" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="row">
         <div class="col-lg-12">
             <input type="submit" class="btn btn-primary" name="submit" value="Importar">
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'purchases:supplier_list' %}'">
+            <button type="button" class="btn btn-outline-secondary" onclick="location.href='{% url 'purchases:supplier_list' %}'">
                 Cancelar
             </button>
         </div>

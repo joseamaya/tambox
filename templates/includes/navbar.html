@@ -1,0 +1,101 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg app-navbar">
+    <div class="container-fluid">
+        <button class="btn btn-link text-dark d-lg-none me-1 p-1" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#app-sidebar"
+                aria-controls="app-sidebar" aria-label="Desplegar menú">
+            <i class="bi bi-list fs-3"></i>
+        </button>
+        <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'security:home' %}">
+            <i class="bi bi-box-seam"></i> TAMBOX
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
+                data-bs-target="#top-nav" aria-controls="top-nav"
+                aria-expanded="false" aria-label="Desplegar navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="top-nav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                {% with ns=request.resolver_match.namespace %}
+                {% if perms.administration.ver_bienvenida %}
+                <li class="nav-item">
+                    <a class="nav-link{% if ns == 'administration' %} active{% endif %}"
+                       href="{% url 'administration:dashboard' %}"
+                       {% if ns == 'administration' %}aria-current="page"{% endif %}>
+                        <i class="bi bi-people"></i> Administración
+                    </a>
+                </li>
+                {% endif %}
+                {% if perms.warehouse.ver_bienvenida %}
+                <li class="nav-item">
+                    <a class="nav-link{% if ns == 'warehouse' %} active{% endif %}"
+                       href="{% url 'warehouse:dashboard' %}"
+                       {% if ns == 'warehouse' %}aria-current="page"{% endif %}>
+                        <i class="bi bi-building"></i> Almacén
+                    </a>
+                </li>
+                {% endif %}
+                {% if perms.purchases.ver_bienvenida %}
+                <li class="nav-item">
+                    <a class="nav-link{% if ns == 'purchases' or ns == 'products' %} active{% endif %}"
+                       href="{% url 'purchases:dashboard' %}"
+                       {% if ns == 'purchases' or ns == 'products' %}aria-current="page"{% endif %}>
+                        <i class="bi bi-cart"></i> Compras
+                    </a>
+                </li>
+                {% endif %}
+                {% if perms.accounting.ver_bienvenida %}
+                <li class="nav-item">
+                    <a class="nav-link{% if ns == 'accounting' %} active{% endif %}"
+                       href="{% url 'accounting:dashboard' %}"
+                       {% if ns == 'accounting' %}aria-current="page"{% endif %}>
+                        <i class="bi bi-calculator"></i> Contabilidad
+                    </a>
+                </li>
+                {% endif %}
+                {% if perms.requirements.ver_bienvenida %}
+                <li class="nav-item">
+                    <a class="nav-link{% if ns == 'requirements' %} active{% endif %}"
+                       href="{% url 'requirements:dashboard' %}"
+                       {% if ns == 'requirements' %}aria-current="page"{% endif %}>
+                        <i class="bi bi-newspaper"></i> Requerimientos
+                    </a>
+                </li>
+                {% endif %}
+                {% endwith %}
+            </ul>
+            <ul class="navbar-nav align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" aria-label="Notificaciones">
+                        <i class="bi bi-bell"></i>
+                    </a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i>
+                        <span class="d-none d-lg-inline">{{ user.get_full_name|default:user.username }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">{{ user.get_full_name|default:user.username }}</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'security:password_change' %}">
+                            <i class="bi bi-key"></i> Cambiar contraseña</a></li>
+                        {% if user.is_staff %}
+                        <li><a class="dropdown-item" href="{% url 'admin:index' %}">
+                            <i class="bi bi-gear"></i> Django admin</a></li>
+                        {% endif %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form action="{% url 'security:logout' %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="bi bi-box-arrow-right"></i> Salir
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

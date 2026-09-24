@@ -7,11 +7,11 @@
             </div>
             <div class="col-lg-5 text-end">
                 <div class="btn-group">
-                    <button class="btn btn-secondary" type="button"
+                    <button class="btn btn-outline-secondary" type="button"
                             onclick="return abrir_modal('{% url 'administration:office_detail' object.previous.pk %}','Oficina / {{ object.previous.name }}');">
                         <span class="bi bi-chevron-double-left"></span>
                     </button>
-                    <button class="btn btn-secondary" type="button"
+                    <button class="btn btn-outline-secondary" type="button"
                             onclick="return abrir_modal('{% url 'administration:office_detail' object.next.pk %}','Oficina / {{ object.next.name }}');">
                         <span class="bi bi-chevron-double-right"></span>
                     </button>

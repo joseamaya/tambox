@@ -2,6 +2,7 @@
 from django import forms
 
 from tambox.dates import parse_date, parse_time
+from tambox.forms import BootstrapFormMixin
 from tambox.widgets import DateInput
 
 from administration.models import Producer, Worker
@@ -17,7 +18,7 @@ from warehouse.settings import MONTHS, SEARCH_PARAMETERS, SUNAT_FORMATS,\
     CONSOLIDATED_CHOICES, SELECTION, FORMATS
 
 
-class MovementTypeForm(forms.ModelForm):
+class MovementTypeForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = MovementType
         fields = ['description', 'sunat_code', 'increases', 'requires_reference', 'is_purchase', 'is_sale']
@@ -25,54 +26,45 @@ class MovementTypeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.is_active = True
         super(MovementTypeForm, self).__init__(*args, **kwargs)
-        self.fields['description'].widget.attrs.update({'class': 'form-control'})
-        self.fields['sunat_code'].widget.attrs.update({'class': 'form-control'})
 
     def save(self, *args, **kwargs):
         self.instance.is_active = self.is_active
         return super(MovementTypeForm, self).save(*args, **kwargs)
 
 
-class WarehouseForm(forms.ModelForm):
+class WarehouseForm(BootstrapFormMixin, forms.ModelForm):
     class Meta:
         model = Warehouse
         fields = ['code', 'description']
 
-    def __init__(self, *args, **kwargs):
-        super(WarehouseForm, self).__init__(*args, **kwargs)
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
-
-class MovementDetailForm(forms.Form):
+class MovementDetailForm(BootstrapFormMixin, forms.Form):
     warehouse = forms.CharField(widget=forms.HiddenInput())
-    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero form-control'}))
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control'}))
+    code = forms.CharField(max_length=14, widget=forms.TextInput(attrs={'size': 17, 'class': 'entero'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35}))
     unit = forms.CharField(max_length=6,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'form-control decimal'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'decimal'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 7, 'readonly': "readonly", 'class': 'form-control decimal'}))
+        attrs={'size': 7, 'readonly': "readonly", 'class': 'decimal'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control decimal'}))
+        attrs={'size': 10, 'readonly': "readonly", 'class': 'decimal'}))
 
 
-class MovementReportForm(forms.Form):
-    search_type = forms.ChoiceField(widget=forms.RadioSelect(attrs={'class': 'radiobutton'}), label='Seleccione:',
+class MovementReportForm(BootstrapFormMixin, forms.Form):
+    search_type = forms.ChoiceField(widget=forms.RadioSelect, label='Seleccione:',
                                       choices=SEARCH_PARAMETERS)
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+                                widget=DateInput(attrs={'size': 100}))
     end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
-    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(attrs={'class': 'form-control'}), required=False)
-    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4, 'class': 'form-control'}), label='Año',
+                                widget=DateInput(attrs={'size': 100}))
+    month = forms.ChoiceField(choices=MONTHS, widget=forms.Select(), required=False)
+    year = forms.CharField(max_length=4, widget=forms.TextInput(attrs={'size': 4}), label='Año',
                             required=False)
     movement_types = forms.ChoiceField(choices=[],
-                                         widget=forms.Select(attrs={'class': 'form-control'}))
-    warehouses = forms.ChoiceField(choices=[], widget=forms.Select(attrs={'class': 'form-control'}))
+                                         widget=forms.Select())
+    warehouses = forms.ChoiceField(choices=[], widget=forms.Select())
 
     def __init__(self, *args, **kwargs):
         super(MovementReportForm, self).__init__(*args, **kwargs)
@@ -84,20 +76,20 @@ class MovementReportForm(forms.Form):
         return self.cleaned_data['end_date']
 
 
-class MovementForm(forms.ModelForm):
+class MovementForm(BootstrapFormMixin, forms.ModelForm):
     date = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
+        attrs={'size': 100, 'type': 'date'}))
     time = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'time', 'step': 1}))
+        attrs={'size': 100, 'type': 'time', 'step': 1}))
     reference_document = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     receiver_dni = forms.CharField(max_length=8, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     receiver = forms.CharField(max_length=150, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
     details_count = forms.CharField(widget=forms.HiddenInput(), initial=0)
     total = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
     def __init__(self, *args, **kwargs):
         self.movement_type = kwargs.pop("movement_type")
@@ -115,10 +107,6 @@ class MovementForm(forms.ModelForm):
             self.fields['movement_type'].queryset = MovementType.objects.filter(increases=True)
         elif self.movement_type == 'S':
             self.fields['movement_type'].queryset = MovementType.objects.filter(increases=False)
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
     def clean_receiver_dni(self):
         receiver_dni = self.cleaned_data.get('receiver_dni')
@@ -164,89 +152,75 @@ class MovementForm(forms.ModelForm):
                   'notes']
 
 
-class KardexProductForm(forms.Form):
+class KardexProductForm(BootstrapFormMixin, forms.Form):
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                       widget=forms.Select(attrs={'class': 'form-control'}))
+                                       widget=forms.Select())
     consolidated = forms.ChoiceField(choices=CONSOLIDATED_CHOICES, widget=forms.RadioSelect, required=False)
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+                                widget=DateInput(attrs={'size': 100}))
     end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
-    product_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    product_description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}),
+                                widget=DateInput(attrs={'size': 100}))
+    product_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=False)
+    product_description = forms.CharField(widget=forms.TextInput(attrs={'size': 100}),
                                     required=False)
     sunat_format = forms.ChoiceField(choices=SUNAT_FORMATS, widget=forms.RadioSelect, required=False)
     formats = forms.ChoiceField(choices=FORMATS, widget=forms.RadioSelect)
 
 
-class ProductMovementForm(forms.Form):
+class ProductMovementForm(BootstrapFormMixin, forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                     widget=forms.Select(attrs={'class': 'form-control'}))
+                                     widget=forms.Select())
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+                                widget=DateInput(attrs={'size': 100}))
     end_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
-    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
-    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+                                widget=DateInput(attrs={'size': 100}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100}))
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100}))
 
     def clean_end_date(self):
         self.cleaned_data['end_date'] = self.cleaned_data.get('end_date') + datetime.timedelta(days=1)
         return self.cleaned_data['end_date']
 
 
-class PriceReprocessForm(forms.Form):
+class PriceReprocessForm(BootstrapFormMixin, forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                     widget=forms.Select(attrs={'class': 'form-control'}))
+                                     widget=forms.Select())
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
-    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+                                widget=DateInput(attrs={'size': 100}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=False)
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=False)
     selection = forms.ChoiceField(choices=SELECTION, widget=forms.RadioSelect)
 
 
-class StockQueryForm(forms.Form):
+class StockQueryForm(BootstrapFormMixin, forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                     widget=forms.Select(attrs={'class': 'form-control'}))
+                                     widget=forms.Select())
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
-    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
-    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}), required=False)
+                                widget=DateInput(attrs={'size': 100}))
+    product = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=False)
+    description = forms.CharField(widget=forms.TextInput(attrs={'size': 100}), required=False)
 
 
-class InitialInventoryImportForm(forms.ModelForm):
+class InitialInventoryImportForm(BootstrapFormMixin, forms.ModelForm):
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                       widget=forms.Select(attrs={'class': 'form-control'}))
-    date = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
-    time = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'type': 'time'}))
+                                       widget=forms.Select())
+    date = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'type': 'date'}))
+    time = forms.CharField(widget=forms.TextInput(attrs={'type': 'time'}))
 
     class Meta:
         model = Upload
         fields = ['file']
 
-    def __init__(self, *args, **kwargs):
-        super(InitialInventoryImportForm, self).__init__(*args, **kwargs)
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
-
-class OrderForm(forms.ModelForm):
+class OrderForm(BootstrapFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(OrderForm, self).__init__(*args, **kwargs)
         self.fields['code'].required = False
         self.fields['notes'].required = False
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
-            if field == 'total':
-                self.fields[field].widget.attrs.update({
-                    'readonly': "readonly"
-                })
+        if 'total' in self.fields:
+            self.fields['total'].widget.attrs.update({'readonly': "readonly"})
 
     def save(self, *args, **kwargs):
         self.instance.requester = self.request.user.worker
@@ -259,24 +233,19 @@ class OrderForm(forms.ModelForm):
         fields = ['code', 'date', 'notes']
 
 
-class OrderApprovalForm(forms.ModelForm):
-    order_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero form-control'}))
+class OrderApprovalForm(BootstrapFormMixin, forms.ModelForm):
+    order_code = forms.CharField(widget=forms.TextInput(attrs={'size': 100, 'class': 'entero'}))
     date = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
+        attrs={'size': 100, 'type': 'date'}))
     time = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'time', 'step': 1}))
+        attrs={'size': 100, 'type': 'time', 'step': 1}))
     total = forms.DecimalField(max_digits=15, decimal_places=5, widget=forms.TextInput(attrs={'size': 10,
-                                                                                              'readonly': "readonly",
-                                                                                              'class': 'form-control'}))
+                                                                                              'readonly': "readonly"}))
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request")
         super(OrderApprovalForm, self).__init__(*args, **kwargs)
         self.fields['notes'].required = False
-        for field in iter(self.fields):
-            self.fields[field].widget.attrs.update({
-                'class': 'form-control'
-            })
 
     def get_datetime(self, r_date, r_hora):
         return timezone.make_aware(
@@ -294,39 +263,39 @@ class OrderApprovalForm(forms.ModelForm):
         fields = ['warehouse', 'notes']
 
 
-class OrderHeaderForm(forms.Form):
-    order_code = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100, 'class': 'form-control'}))
+class OrderHeaderForm(BootstrapFormMixin, forms.Form):
+    order_code = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 100}))
     warehouses = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                       widget=forms.Select(attrs={'class': 'form-control'}))
+                                       widget=forms.Select())
     date = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'class': 'form-control', 'type': 'date'}))
+        attrs={'size': 100, 'type': 'date'}))
     notes = forms.CharField(widget=forms.Textarea(attrs={'cols': 141, 'rows': 5}))
     total = forms.CharField(max_length=100, widget=forms.TextInput(
-        attrs={'size': 100, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 100, 'readonly': "readonly"}))
 
 
-class OrderDetailForm(forms.Form):
+class OrderDetailForm(BootstrapFormMixin, forms.Form):
     code = forms.CharField(max_length=14, widget=forms.TextInput(
-        attrs={'size': 17, 'readonly': "readonly", 'class': 'entero form-control'}))
-    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'form-control productos'}))
+        attrs={'size': 17, 'readonly': "readonly", 'class': 'entero'}))
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
     unit = forms.CharField(max_length=20,
-                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly", 'class': 'form-control'}))
+                             widget=forms.TextInput(attrs={'size': 6, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=15, decimal_places=5,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal'}))
 
 
-class InboundDetailForm(forms.Form):
+class InboundDetailForm(BootstrapFormMixin, forms.Form):
     purchase_order = forms.CharField(widget=forms.HiddenInput())
     code = forms.CharField(
-        widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
-    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
+        widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8,
-                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal form-control'}))
+                                widget=forms.TextInput(attrs={'size': 7, 'class': 'precio decimal'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
 
 class BaseInboundDetailFormSet(formsets.BaseFormSet):
@@ -342,18 +311,18 @@ class BaseInboundDetailFormSet(formsets.BaseFormSet):
                 )
 
 
-class OutboundDetailForm(forms.Form):
+class OutboundDetailForm(BootstrapFormMixin, forms.Form):
     order = forms.CharField(widget=forms.HiddenInput(), required=False)
     code = forms.CharField(
-        widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero form-control'}))
-    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos form-control'}))
-    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly", 'class': 'form-control'}))
+        widget=forms.TextInput(attrs={'size': 8, 'readonly': "readonly", 'class': 'entero'}))
+    name = forms.CharField(widget=forms.TextInput(attrs={'size': 35, 'class': 'productos'}))
+    unit = forms.CharField(widget=forms.TextInput(attrs={'size': 5, 'readonly': "readonly"}))
     quantity = forms.DecimalField(max_digits=25, decimal_places=8,
-                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal form-control'}))
+                                  widget=forms.TextInput(attrs={'size': 6, 'class': 'cantidad decimal'}))
     price = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal form-control'}))
+        attrs={'size': 7, 'readonly': "readonly", 'class': 'precio decimal'}))
     amount = forms.DecimalField(max_digits=25, decimal_places=8, widget=forms.TextInput(
-        attrs={'size': 10, 'readonly': "readonly", 'class': 'form-control'}))
+        attrs={'size': 10, 'readonly': "readonly"}))
 
     def clean_quantity(self):
         if self.cleaned_data.get('quantity') == 0:
@@ -394,11 +363,11 @@ class BaseOrderDetailFormSet(formsets.BaseFormSet):
                 )
 
 
-class InventoryQueryForm(forms.Form):
+class InventoryQueryForm(BootstrapFormMixin, forms.Form):
     warehouse = forms.ModelChoiceField(queryset=Warehouse.objects.all(),
-                                     widget=forms.Select(attrs={'class': 'form-control'}))
+                                     widget=forms.Select())
     start_date = forms.DateTimeField(input_formats=['%Y-%m-%d', '%d/%m/%Y'],
-                                widget=DateInput(attrs={'size': 100, 'class': 'form-control'}))
+                                widget=DateInput(attrs={'size': 100}))
 
 
 InboundDetailFormSet = formsets.formset_factory(InboundDetailForm, BaseInboundDetailFormSet, 0)

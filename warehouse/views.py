@@ -35,6 +35,7 @@ from products.models import Product
 from warehouse.mail import order_creation_mail
 from warehouse.reports import MovementReport, KardexPdfReport, KardexExcelReport, inventory_report
 from tambox.config import logistics
+from tambox.setup import summary
 from tambox.dates import parse_date, parse_time
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 from datetime import date
@@ -45,47 +46,8 @@ locale.setlocale(locale.LC_ALL, "")
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        inventory_initial_movement_code = 'I00'
-        purchase_inbound_code = 'I01'
-        order_outbound_code = 'S01'
-        notification_list = []
-        warehouse_count = Warehouse.objects.count()
-        inbound_movement_type_count = MovementType.objects.filter(increases=True).exclude(
-            code=inventory_initial_movement_code).count()
-        outbound_movement_type_count = MovementType.objects.filter(increases=False).count()
-        movement_type, creado = MovementType.objects.get_or_create(code=inventory_initial_movement_code,
-                                                                       defaults={'description': 'INVENTARIO INICIAL',
-                                                                                 'sunat_code': '16',
-                                                                                 'increases': True,
-                                                                                 'is_active': True})
-        if creado:
-            notification_list.append("Se ha creado el tipo de movimiento inventario inicial")
-        movement_type, creado = MovementType.objects.get_or_create(code=purchase_inbound_code,
-                                                                       defaults={'description': 'INGRESO POR COMPRA',
-                                                                                 'sunat_code': '02',
-                                                                                 'increases': True,
-                                                                                 'requires_reference': True,
-                                                                                 'is_active': True})
-        if creado:
-            notification_list.append("Se ha creado el tipo de movimiento Ingreso por Compra")
-        movement_type, creado = MovementType.objects.get_or_create(code=order_outbound_code,
-                                                                       defaults={'description': 'SALIDA POR PEDIDO',
-                                                                                 'sunat_code': '10',
-                                                                                 'increases': False,
-                                                                                 'requires_reference': True,
-                                                                                 'is_active': True})
-        inventario_inicial = Movement.objects.filter(movement_type__code=inventory_initial_movement_code).count()
-        if creado:
-            notification_list.append("Se ha creado el tipo de movimiento Salida por Pedido")
-        if warehouse_count == 0:
-            notification_list.append("No se ha creado ningún almacén")
-        if inbound_movement_type_count == 0:
-            notification_list.append("No se ha creado ningún tipo de movimiento de ingreso")
-        if outbound_movement_type_count == 0:
-            notification_list.append("No se ha creado ningún tipo de movimiento de salida")
-        if inventario_inicial == 0:
-            notification_list.append("No se ha realizado el inventario inicial")
-        context = {'notifications': notification_list}
+        configured, pending = summary()
+        context = {'notifications': pending, 'setup_incomplete': not configured}
         return render(request, 'warehouse/warehouse_dashboard.html', context)
 
 

@@ -19,6 +19,7 @@ from products.models import Product, UnitOfMeasure, ProductGroup
 from products.forms import ProductGroupForm, ProductForm, ServiceForm,\
     UnitOfMeasureForm
 from accounting.models import Account, StockType
+from tambox.setup import summary
 from tambox.views import CsvImportMixin, AjaxOnlyMixin, HtmxListMixin
 
 logger = logging.getLogger(__name__)
@@ -27,24 +28,8 @@ logger = logging.getLogger(__name__)
 class Dashboard(View):
 
     def get(self, request, *args, **kwargs):
-        notification_list = []
-        product_count = Product.objects.filter(is_service=False).count()
-        unit_of_measure_count = UnitOfMeasure.objects.count()
-        supply_group_count = ProductGroup.objects.count()
-        service_count = Product.objects.filter(is_service=True).count()
-        unit_of_measure, creado = UnitOfMeasure.objects.get_or_create(code='SERV',
-                                                                   defaults={'description': 'SERVICIO'})
-        if creado:
-            notification_list.append("Se ha creado la unidad de medida SERVICIO")
-        if product_count == 0:
-            notification_list.append("No se ha creado ningún producto")
-        if unit_of_measure_count == 0:
-            notification_list.append("No se ha creado ningún tipo de unidad de medida")
-        if supply_group_count == 0:
-            notification_list.append("No se ha creado ningún grupo de productos")
-        if service_count == 0:
-            notification_list.append("No se ha creado ningún service")
-        context = {'notifications': notification_list}
+        configured, pending = summary()
+        context = {'notifications': pending, 'setup_incomplete': not configured}
         return render(request, 'products/products_dashboard.html', context)
 
 

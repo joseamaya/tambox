@@ -21,7 +21,10 @@ class LoginTest(TestCase):
         response = self.client.post(reverse('security:login'),
                                     {'username': 'navegante', 'password': 'clave-segura'})
 
-        self.assertRedirects(response, reverse('security:home'))
+        # `/home/` redirige al wizard si el sistema no esta configurado, por eso
+        # solo se comprueba el primer salto.
+        self.assertRedirects(response, reverse('security:home'),
+                             fetch_redirect_response=False)
 
     def test_invalid_login_shows_the_error(self):
         response = self.client.post(reverse('security:login'),
@@ -35,14 +38,15 @@ class LoginTest(TestCase):
 
         response = self.client.get(reverse('security:login'))
 
-        self.assertRedirects(response, reverse('security:home'))
+        self.assertRedirects(response, reverse('security:home'),
+                             fetch_redirect_response=False)
 
-    def test_home_renders(self):
+    def test_home_redirects_to_setup(self):
         self.client.force_login(self.user)
 
         response = self.client.get(reverse('security:home'))
 
-        self.assertEqual(200, response.status_code)
+        self.assertRedirects(response, reverse('security:setup'))
 
 
 class PasswordChangeTest(TestCase):

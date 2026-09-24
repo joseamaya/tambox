@@ -1,9 +1,9 @@
 {% extends "purchases/base_purchases.html" %}
 {% block cuerpo %}
 {% if object %}
-<h3>Proveedores / {{ object.business_name }}</h3>
+<h1 class="page-title mb-3">Proveedores / {{ object.business_name }}</h1>
 {% else %}
-<h3>Proveedores / Nuevo</h3>
+<h1 class="page-title mb-3">Proveedores / Nuevo</h1>
 {% endif %}
 <form role="form" method="post">
     {% csrf_token %}
@@ -12,12 +12,12 @@
             <button type="button" class="btn btn-info" id="id_sunat">Datos SUNAT</button>
             <input type="submit" class="btn btn-primary" name="submit" value="Guardar">
             {% if object %}
-            <button type="button" class="btn btn-secondary"
+            <button type="button" class="btn btn-outline-secondary"
                     onclick="location.href='{% url 'purchases:supplier_detail' object.pk %}'">
                 Cancelar
             </button>
             {% else %}
-            <button type="button" class="btn btn-secondary" onclick="location.href='{% url 'purchases:supplier_list' %}'">
+            <button type="button" class="btn btn-outline-secondary" onclick="location.href='{% url 'purchases:supplier_list' %}'">
                 Cancelar
             </button>
             {% endif %}
@@ -25,16 +25,16 @@
         <div class="col-lg-2 text-end">
             <div class="btn-group">
                 {% if object %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:supplier_update' supplier.previous %}';">
                     <span class="bi bi-chevron-double-left"></span>
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:supplier_update' supplier.next %}';">
                     <span class="bi bi-chevron-double-right"></span>
                 </button>
                 {% endif %}
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-outline-secondary" type="button"
                         onclick="location.href='{% url 'purchases:supplier_list' %}';">
                     <span class="bi bi-list-ul"></span>
                 </button>
@@ -62,11 +62,11 @@
                 </div>
                 <div class="col-lg-3">
                     <div class="btn-group">
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button">
                             <span class="bi bi-cart fa-2x"></span> 0 <br>
                             Compras
                         </button>
-                        <button class="btn btn-secondary" type="button">
+                        <button class="btn btn-outline-secondary" type="button">
                             <span class="bi bi-truck fa-2x"></span> 0 <br> Facturas
                         </button>
                     </div>
