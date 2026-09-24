@@ -99,6 +99,10 @@ def template_identifiers(source):
     for block in re.findall(r'\{\{[\s\S]*?\}\}|\{%[\s\S]*?%\}', source):
         # Los codenames de permisos son la voz del sistema: no se revisan.
         block = re.sub(r'perms\.[A-Za-z_]+\.[A-Za-z_]+', '', block)
+        # Las cadenas son prosa (mensajes, nombres de URL): se quitan, como ya
+        # hace `python_identifiers` con los literales de Python.
+        block = re.sub(r"'[^'\n]*'", "''", block)
+        block = re.sub(r'"[^"\n]*"', '""', block)
         identifiers.extend(re.findall(r'[A-Za-z_][A-Za-z0-9_]*', block))
     return identifiers
 
