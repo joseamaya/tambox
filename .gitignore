@@ -3,6 +3,14 @@
 .vscode
 .commandcode/
 
+# opencode / herramientas de agentes
+.opencode/
+opencode.json
+opencode.jsonc
+AGENTS.md
+.agents/
+skills-lock.json
+
 # Python
 __pycache__/
 *.py[cod]
